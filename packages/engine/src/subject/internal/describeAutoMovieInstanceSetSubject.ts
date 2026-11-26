@@ -5,13 +5,13 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieInstanceAddress } from "./autoMovieInstanceAddress";
+import { autoMovieInstanceAddress } from "../../autoMovieInstanceAddress";
+import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
+import { Quaternion } from "../../math/Quaternion";
+import { Transform } from "../../math/Transform";
+import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
-import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "./constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
-import { Quaternion } from "./math/Quaternion";
-import { Transform } from "./math/Transform";
-import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 
 /** World up, the axis an instance set's heading turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

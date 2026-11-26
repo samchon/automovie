@@ -1,9 +1,9 @@
 import {
+  AutoMovieEngineSubjects,
   Quaternion,
   Transform,
   environmentSupportReport,
   mergeAutoMovieSpaces,
-  mergeAutoMovieSubjectContributions,
   validatePropPlacements,
   validateSpace,
 } from "@automovie/engine";
@@ -202,7 +202,7 @@ export function createEnvironment(
   }
 
   const merged: IAutoMovieSubjectContribution =
-    mergeAutoMovieSubjectContributions(contributions);
+    AutoMovieEngineSubjects.mergeContributions(contributions);
   const set: readonly IAutoMovieStageSetPiece[] = merged.set ?? [];
   const props: readonly IAutoMoviePropSpec[] = merged.props ?? [];
   const builtEnvironments: readonly IAutoMovieBuiltEnvironment[] =

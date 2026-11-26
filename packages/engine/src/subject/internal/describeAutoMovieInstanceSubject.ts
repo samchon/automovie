@@ -8,11 +8,11 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { Quaternion } from "../../math/Quaternion";
+import { instanceSlot } from "../../populationRuntime/instanceSlot";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 import { autoMovieSubjectPlacedBounds } from "./autoMovieSubjectPlacedBounds";
-import { Quaternion } from "./math/Quaternion";
-import { instanceSlot } from "./populationRuntime/instanceSlot";
 
 /** World up, the axis an instance set's heading turns about. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

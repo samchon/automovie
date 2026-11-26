@@ -12,19 +12,19 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtEnvironmentPartBoxes } from "./architecture/builtEnvironmentPartBoxes";
-import { builtPointBounds } from "./architecture/builtPointBounds";
-import { autoMovieInstanceAddressSlot } from "./autoMovieInstanceAddressSlot";
-import { autoMovieModelPartPoints } from "./autoMovieModelPartPoints";
-import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
-import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
-import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
-import { autoMovieSubjectPlacedBounds } from "./autoMovieSubjectPlacedBounds";
-import { describeAutoMovieBuildingSubject } from "./describeAutoMovieBuildingSubject";
-import { describeAutoMovieInstanceSetSubject } from "./describeAutoMovieInstanceSetSubject";
-import { describeAutoMovieInstanceSubject } from "./describeAutoMovieInstanceSubject";
-import { describeAutoMovieSpaceSubject } from "./describeAutoMovieSpaceSubject";
-import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
+import { builtEnvironmentPartBoxes } from "../architecture/builtEnvironmentPartBoxes";
+import { builtPointBounds } from "../architecture/builtPointBounds";
+import { autoMovieInstanceAddressSlot } from "../autoMovieInstanceAddressSlot";
+import { autoMovieModelPartPoints } from "../autoMovieModelPartPoints";
+import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
+import { autoMovieSubjectAddress } from "./internal/autoMovieSubjectAddress";
+import { autoMovieSubjectMaterials } from "./internal/autoMovieSubjectMaterials";
+import { autoMovieSubjectMemberSummary } from "./internal/autoMovieSubjectMemberSummary";
+import { autoMovieSubjectPlacedBounds } from "./internal/autoMovieSubjectPlacedBounds";
+import { describeAutoMovieBuildingSubject } from "./internal/describeAutoMovieBuildingSubject";
+import { describeAutoMovieInstanceSetSubject } from "./internal/describeAutoMovieInstanceSetSubject";
+import { describeAutoMovieInstanceSubject } from "./internal/describeAutoMovieInstanceSubject";
+import { describeAutoMovieSpaceSubject } from "./internal/describeAutoMovieSpaceSubject";
 
 type ISceneNode =
   IAutoMovieSubjectArtifact["compiled"]["scene"]["nodes"][number];
@@ -38,20 +38,22 @@ interface IBuiltElementEntry {
  * Describes the subjects of one compiled shot artifact, sharing every index and
  * measurement across one description pass.
  *
- * {@link describeAutoMovieSubject} and {@link describeAutoMovieSubjects} both
- * describe through one of these, so a subject reads the same whether it is
- * addressed alone or listed in the inventory. The describer indexes the
- * artifact when constructed and memoizes model-frame part points per model and
- * staged part boxes per built environment, so a pass over many elements of one
- * model tessellates it once and stages each environment once for its building
- * units. It treats the artifact as an immutable snapshot; a caller that edits
- * the artifact builds a new describer.
+ * {@link AutoMovieEngineSubjects.describe} and
+ * {@link AutoMovieEngineSubjects.describeAll} both describe through one of
+ * these, so a subject reads the same whether it is addressed alone or listed in
+ * the inventory. The describer indexes the artifact when constructed and
+ * memoizes model-frame part points per model and staged part boxes per built
+ * environment, so a pass over many elements of one model tessellates it once
+ * and stages each environment once for its building units. It treats the
+ * artifact as an immutable snapshot; a caller that edits the artifact builds a
+ * new describer.
  *
- * Every member summary is the page of {@link autoMovieSubjectMemberSummary}
- * starting at the constructor's `memberOffset`. Prototype and prototype-part
- * bounds are in model coordinates and every other kind's in world metres.
+ * Every member summary is the page of
+ * {@link AutoMovieEngineSubjects.memberSummary} starting at the constructor's
+ * `memberOffset`. Prototype and prototype-part bounds are in model coordinates
+ * and every other kind's in world metres.
  */
-export class AutoMovieSubjectDescriber {
+export class AutoMovieEngineSubjectDescriber {
   private readonly models: Map<string, IAutoMovieModel> = new Map();
   private readonly builtElements: Map<string, IBuiltElementEntry> = new Map();
   private readonly populationSpaces: Map<string, string> = new Map();

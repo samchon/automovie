@@ -4,8 +4,8 @@ import type {
   IAutoMovieSubjectContribution,
 } from "@automovie/interface";
 
-import { AutoMovieSubject } from "./AutoMovieSubject";
-import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContributions";
+import { AutoMovieEngineSubject } from "./AutoMovieEngineSubject";
+import { AutoMovieEngineSubjects } from "./AutoMovieEngineSubjects";
 
 /**
  * A subject that is a collection of subjects.
@@ -24,10 +24,10 @@ import { mergeAutoMovieSubjectContributions } from "./mergeAutoMovieSubjectContr
  * Membership is not checked for cycles: a group that lists itself, directly or
  * through a member, recurses in `render` until the call stack overflows.
  */
-export abstract class AutoMovieSubjectGroup<
+export abstract class AutoMovieEngineSubjectGroup<
   TDesign,
   TMember extends IAutoMovieSubject<unknown>,
-> extends AutoMovieSubject<TDesign> {
+> extends AutoMovieEngineSubject<TDesign> {
   /**
    * The subjects this group holds, in a stable order.
    *
@@ -47,7 +47,7 @@ export abstract class AutoMovieSubjectGroup<
   public render(
     context: IAutoMovieShotBuildContext,
   ): IAutoMovieSubjectContribution {
-    return mergeAutoMovieSubjectContributions(
+    return AutoMovieEngineSubjects.mergeContributions(
       this.members().map(
         (member: TMember): IAutoMovieSubjectContribution =>
           member.render(context),

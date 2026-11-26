@@ -8,8 +8,8 @@ import {
   IAutoMovieSubjectReviewUnit,
 } from "@automovie/interface";
 
+import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
 import { describeAutoMovieSubject } from "./describeAutoMovieSubject";
-import { compareAutoMovieRenderIds } from "./render/compareAutoMovieRenderIds";
 
 /**
  * Resolve a compiled subject review wrapper with inspection-owned viewpoint and

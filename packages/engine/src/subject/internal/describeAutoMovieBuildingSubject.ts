@@ -5,11 +5,11 @@ import {
   IAutoMovieSubjectDescription,
 } from "@automovie/interface";
 
-import { builtInstanceSetPlacementBounds } from "./architecture/builtInstanceSetPlacementBounds";
-import { builtSpaceSubtree } from "./architecture/builtSpaceSubtree";
+import { builtInstanceSetPlacementBounds } from "../../architecture/builtInstanceSetPlacementBounds";
+import { builtSpaceSubtree } from "../../architecture/builtSpaceSubtree";
+import { unionSubjectBoxes } from "../../film/unionSubjectBoxes";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
-import { unionSubjectBoxes } from "./film/unionSubjectBoxes";
 
 /**
  * Describe one building unit of a built environment as a subject.

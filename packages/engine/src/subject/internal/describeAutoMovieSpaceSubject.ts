@@ -4,9 +4,9 @@ import {
   IAutoMovieSubjectDescription,
 } from "@automovie/interface";
 
-import { builtConvexCellVertices } from "./architecture/builtConvexCellVertices";
-import { builtEnvironmentSpaceContentBounds } from "./architecture/builtEnvironmentSpaceContentBounds";
-import { builtPointBounds } from "./architecture/builtPointBounds";
+import { builtConvexCellVertices } from "../../architecture/builtConvexCellVertices";
+import { builtEnvironmentSpaceContentBounds } from "../../architecture/builtEnvironmentSpaceContentBounds";
+import { builtPointBounds } from "../../architecture/builtPointBounds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
 

@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { transformAutoMovieDrawingPoint } from "./drawing/transformAutoMovieDrawingPoint";
-import { Matrix4 } from "./math/Matrix4";
+import { transformAutoMovieDrawingPoint } from "../../drawing/transformAutoMovieDrawingPoint";
+import { Matrix4 } from "../../math/Matrix4";
 
 /**
  * The world box of model-frame points placed by one node transform, or null

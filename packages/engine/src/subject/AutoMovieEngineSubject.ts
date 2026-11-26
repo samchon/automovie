@@ -26,10 +26,10 @@ import type {
  * The base class declares these obligations and enforces none of them at
  * runtime: construction checks, determinism of `design` and the contents of
  * `render` are each subclass's to keep. Authored sources and
- * `AutoMovieSubjectGroup` are its subclasses; nothing else in the engine
+ * `AutoMovieEngineSubjectGroup` are its subclasses; nothing else in the engine
  * extends it.
  */
-export abstract class AutoMovieSubject<TDesign> {
+export abstract class AutoMovieEngineSubject<TDesign> {
   /** Stable identity this subject is cited by. */
   public abstract readonly id: string;
 

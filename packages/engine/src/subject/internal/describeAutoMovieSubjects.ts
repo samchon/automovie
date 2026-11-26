@@ -3,7 +3,7 @@ import {
   IAutoMovieSubjectDescription,
 } from "@automovie/interface";
 
-import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
+import { AutoMovieEngineSubjectDescriber } from "../AutoMovieEngineSubjectDescriber";
 
 /**
  * Enumerate directly stored compiled subjects without expanding placed parts or
@@ -22,5 +22,5 @@ import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
 export function describeAutoMovieSubjects(
   artifact: IAutoMovieSubjectArtifact,
 ): IAutoMovieSubjectDescription[] {
-  return new AutoMovieSubjectDescriber(artifact).inventory();
+  return new AutoMovieEngineSubjectDescriber(artifact).inventory();
 }

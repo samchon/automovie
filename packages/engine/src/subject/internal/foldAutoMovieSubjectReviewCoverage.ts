@@ -7,8 +7,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "./text/compareCodeUnits";
-import { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATTERN";
+import { compareCodeUnits } from "../../text/compareCodeUnits";
+import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
  * Fold planned subject viewpoints against current observation receipts.

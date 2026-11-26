@@ -4,7 +4,7 @@ import {
   IAutoMovieSubjectDescription,
 } from "@automovie/interface";
 
-import { AutoMovieSubjectDescriber } from "./AutoMovieSubjectDescriber";
+import { AutoMovieEngineSubjectDescriber } from "../AutoMovieEngineSubjectDescriber";
 
 /**
  * Describe one stable subject address from a compiled shot artifact.
@@ -40,7 +40,7 @@ export function describeAutoMovieSubject(
     throw new Error(
       `Subject member offset must be a whole number of members from the first, but was ${memberOffset}.`,
     );
-  return new AutoMovieSubjectDescriber(artifact, memberOffset).describe(
+  return new AutoMovieEngineSubjectDescriber(artifact, memberOffset).describe(
     subjectId,
   );
 }
