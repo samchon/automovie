@@ -101,3 +101,63 @@ Taken from `AutoMovieConstructionSharedLoop.create`, `AutoMovieSolidSharedCurve`
 | --- | --- | --- |
 | Wang C. C. L., Parameterization and parametric design of mannequins, Computer-Aided Design 37 (2005) | read in part: pages 3 to 9 | In level sections the armpit is a branch: the contour at the underarm height is one loop with the arms as lobes, and the underarm point is the middle of its front and back turning points, at `H_belly + 0.55 (H_backneck - H_belly)`. The feature curves lie on planes set by anthropometric rules. The junction's cross tangent (the paper's equation 4) and the n-sided patches are on pages this note's author did not read. |
 | Blender `MOD_skin.cc`; Dust3D; Anny; MPFB2 | not read by this note's author; the supervisor's reading is in the campaign's record | None claimed here |
+
+## Neutral receiving-curve controls, 2026-11-26
+
+The retained cut can be traced in both isolated neutral shoulders with an
+expanded diagnostic seed domain. The resulting clays still show an anterior
+ledge and a posterior slit. The accepted archive remains the comparison for
+the full-figure silhouette. Its isolated shoulder also shows the ledge in the
+matched close view.
+
+| Receiving line | Correspondence | Bilateral result |
+| --- | --- | --- |
+| Original curved arm rail | Length | The left realizes with no diagnostics and retains the ledge and slit. The right cutter refuses where successive blend normals turn 96 degrees apart. |
+| First stored regular arm section after the proximal reversal | Angle | In both arms the parent loop has zero winding around the receiving center in its projected chart. |
+| First stored regular arm section after the proximal reversal | Length | The cutter crosses the replacement surface on both sides. Successive blend normals turn about 104 degrees apart and the adjoining face loses a directed incidence. |
+
+With `--topology`, the archived visual runner reads the same indexed mesh.
+Each isolated neutral shoulder is one component with 728 boundary edges and
+no non-manifold edges or degenerate triangles. The isolated archive gives
+688 boundary edges and the same remaining counts. The isolation leaves
+external cut edges, so these counts cannot establish assembled closure or
+locate the visible slit. The optional query took 3.8–4.5 s. All eight frames
+in the neutral left control have identical image hashes with and without it.
+
+The last control places the receiving rail at a native section already beyond
+the measured proximal reversal. It exposes an incompatibility between the
+whole-loop correspondence and the two boundary tangent fields. Its failure
+is reproducible under reflection. Keep the outer receiving curve where its
+native orientation is positive. Use the shared parent position and cross
+tangent to derive the medial transition, with anterior and posterior fold
+landmarks identifying the corresponding arcs.
+
+The medial-only receiver removed the measured rail inversions by keeping the
+outer samples. It still widened the anterior ledge and exposed a sharp lower
+edge. In the retained neutral close, the front ledge is on the shoulder
+transition about 25–55 mm from the cutter contact. The posterior pocket
+belongs to the cutter's surface. The lower blade belongs to the original
+arm wall at about 45.6 mm along the arm, where the signed native orientation
+reverses. The shared boundary and its cross tangent govern the front ledge,
+the kept arm line governs the blade, and the cut must preserve both
+resulting walls. Read the resulting contours with the same regional cameras.
+
+A slow rejected realization was profiled while in progress. Cutter marching
+accounts for 95% of sampled time and source station recovery for 85%,
+inclusive. Evaluate the owning lines and their orientation before asking
+the cutter to trace a proposed replacement.
+
+Gabrielides et al. partition each downstream contour into inner and outer
+arcs and carry the tangent ribbons with the reparameterization (§4.2).
+Hahmann and Bonneau derive compatible cross-boundary tangent fields from one
+curve network. Wang's mannequin construction derives the cross tangent from
+the boundary tangent and the surface normal (equation 4). Open CASCADE's
+compatible-wire implementation computes origins and orientation before
+lofting closed profiles. The existing
+angle and length clocks are useful controls for the shoulder, where the
+folds identify more specific correspondences.
+
+- [Gabrielides et al., G1-smooth branching surface construction from cross sections](https://users.math.uoc.gr/~mkaravel/files/papers/bransurf.pdf)
+- [Hahmann and Bonneau, Triangular G1 interpolation by 4-splitting domain triangles](https://www.cs.cmu.edu/~eugene/refs/f-cubit/Hahmann-bonneau-00.pdf)
+- [Open CASCADE, compatible wires implementation](https://github.com/Open-Cascade-SAS/OCCT/blob/master/src/ModelingAlgorithms/TKBool/BRepFill/BRepFill_CompatibleWires.cxx)
+- [Wang, Parameterization and parametric design of mannequins](https://mewangcl.github.io/pubs/CADParaHuman.pdf#page=13)

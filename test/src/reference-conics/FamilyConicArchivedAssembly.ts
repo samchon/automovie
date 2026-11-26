@@ -18,6 +18,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
+import { FamilyConicMeshTopology } from "./FamilyConicMeshTopology";
 import { NodeCanvasCamera as Camera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster as Raster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
@@ -26,6 +27,8 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  * Replay a locally supplied archived construction for visual debugging. The
  * archive already owns its boundaries, original view curves and placement.
  * Restore only the callable axes that JSON cannot carry.
+ *
+ * Pass --topology to put the ordinary mesh census in the visual receipt.
  */
 async function capture(
   constructionFile: string,
@@ -36,6 +39,7 @@ async function capture(
   frameHands: boolean,
   shoulder: "left" | "right" | undefined,
   operatorsOnly: boolean,
+  measureTopology: boolean,
 ): Promise<void> {
   const [constructionBytes, placementBytes, cameraBytes] = await Promise.all(
     [constructionFile, placementFile, cameraFile].map((file) => readFile(file)),
@@ -120,6 +124,9 @@ async function capture(
       diagnostics: result.diagnostics,
     }),
   );
+  const meshTopology = measureTopology
+    ? FamilyConicMeshTopology(result.mesh)
+    : undefined;
   const { positions, indices } = result.mesh;
   if (indices.length === 0)
     throw new Error("The archived assembly has no skin to render");
@@ -204,6 +211,7 @@ async function capture(
           ? {}
           : { operators: [scoped.port.name, scoped.root.name], radial }),
         triangles: indices.length / 3,
+        meshTopology,
         diagnostics: result.diagnostics,
         frames,
       },
@@ -417,6 +425,7 @@ void capture(
   scopes.includes("--frame-hands"),
   shoulder,
   scopes.includes("--operators"),
+  scopes.includes("--topology"),
 ).catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;
