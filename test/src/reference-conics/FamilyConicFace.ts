@@ -602,11 +602,13 @@ namespace FamilyConicFace {
     const rows: number = Math.floor(Math.min(to!, reader.domain[1]) - from!) + 1;
     const cols: number = 720;
     const positions: number[] = [];
-    for (let j: number = 0; j < rows; ++j)
+    for (let j: number = 0; j < rows; ++j) {
+      const at = reader.pointAt(from! + j);
       for (let i: number = 0; i < cols; ++i) {
-        const p: readonly number[] = reader.point(from! + j, (2 * Math.PI * i) / cols);
+        const p: readonly number[] = at((2 * Math.PI * i) / cols);
         positions.push(p[0]!, p[1]!, p[2]!);
       }
+    }
     const indices: number[] = [];
     for (let j: number = 0; j + 1 < rows; ++j)
       for (let i: number = 0; i < cols; ++i) {

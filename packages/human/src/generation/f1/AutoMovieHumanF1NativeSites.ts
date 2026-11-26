@@ -353,8 +353,9 @@ export namespace AutoMovieHumanF1NativeSites {
     let apex: AutoMovieVector3Tuple | null = null;
     for (let i: number = 0; i <= 64; ++i) {
       const s: number = breastReader.domain[0] + ((breastReader.domain[1] - breastReader.domain[0]) * i) / 64;
+      const at = breastReader.pointAt(s);
       for (let k: number = 0; k < 128; ++k) {
-        const p: readonly number[] = breastReader.point(s, (2 * Math.PI * k) / 128);
+        const p: readonly number[] = at((2 * Math.PI * k) / 128);
         if (apex === null || p[0]! > apex[0]) apex = [p[0]!, p[1]!, p[2]!];
       }
     }

@@ -89,17 +89,17 @@ export function AutoMovieHumanF1NativeTape(
       reliefs: undefined,
     });
     sourcePreparations++;
-    const trunk = (s: number, t: number): IAutoMovieVector3 => {
-      pointCalls++;
-      const p = skin.point(s, t);
-      if (!p.every(Number.isFinite)) throw new Error("nonfinite native tape point");
-      return { x: p[0]!, y: p[1]!, z: p[2]! };
-    };
     const breast = prepare(parts.breast);
-    const ring = (s: number): IAutoMovieVector3[] =>
-      Array.from({ length: phases }, (_, k) =>
-        trunk(s, (2 * Math.PI * k) / phases),
-      );
+    const ring = (s: number): IAutoMovieVector3[] => {
+      const at = skin.pointAt(s);
+      return Array.from({ length: phases }, (_, k) => {
+        pointCalls++;
+        const [x, y, z] = at((2 * Math.PI * k) / phases);
+        if (![x, y, z].every(Number.isFinite))
+          throw new Error("nonfinite native tape point");
+        return { x, y, z };
+      });
+    };
     const perimeter = (points: IAutoMovieVector3[]): number => {
       const hull = convexHull2D(points);
       if (hull.length < 3) throw new Error("bare tape hull is not a loop");

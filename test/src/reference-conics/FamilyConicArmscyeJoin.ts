@@ -73,8 +73,8 @@ namespace FamilyConicArmscyeJoin {
   const normal = (jet: IAutoMovieSolidSurface.IJet): V => unit(cross(jet.u, jet.v));
 
   /** The phase in `[low, high]` where the trunk's skin at `station` stands at `z = c`, by bisection; null when the ends do not bracket it. */
-  function phaseAt(trunk: IAutoMovieLoftViewFullSource.IReader, station: number, c: number, low: number, high: number): number | null {
-    const f = (t: number): number => trunk.point(station, t)[2]! - c;
+  function phaseAt(at: (t: number) => V, c: number, low: number, high: number): number | null {
+    const f = (t: number): number => at(t)[2] - c;
     let [a, b]: [number, number] = [low, high];
     let [fa, fb]: [number, number] = [f(a), f(b)];
     if (!(fa * fb <= 0)) return null;
@@ -237,9 +237,10 @@ namespace FamilyConicArmscyeJoin {
       out.push(`arm section plane normal [${tangent.map((x: number): string => x.toFixed(4)).join(", ")}] (the sagittal plane's is [0, 0, 1])`);
 
       // The arm's radius by polar angle in its own chart, from 720 phases of its section.
+      const readArm = arm!.pointAt(station);
       const ring: { angle: number; radius: number; phase: number }[] = Array.from({ length: 720 }, (_: unknown, k: number): { angle: number; radius: number; phase: number } => {
         const phase: number = (2 * Math.PI * k) / 720;
-        const q: V = sub(arm!.point(station, phase), frame.origin);
+        const q: V = sub(readArm(phase), frame.origin);
         return { angle: Math.atan2(dot(q, frame.v), dot(q, frame.u)), radius: Math.hypot(dot(q, frame.u), dot(q, frame.v)), phase };
       });
       const armAt = (angle: number): { radius: number; phase: number } => {
@@ -257,19 +258,20 @@ namespace FamilyConicArmscyeJoin {
       let reached: number = 0;
       let [least, most]: [number, number] = [Infinity, -Infinity];
       for (let s: number = STATIONS.from; s <= STATIONS.to; s += STATIONS.step) {
+        const readTrunk = trunk!.pointAt(s);
         let widest: number = Math.PI / 2;
         let width: number = -Infinity;
         for (let k: number = 1; k < 64; ++k) {
           const t: number = (Math.PI * k) / 64;
-          const z: number = trunk!.point(s, t)[2]!;
+          const z: number = readTrunk(t)[2];
           if (z > width) [width, widest] = [z, t];
         }
         if (width < c) continue;
         ++reached;
         for (const [side, low, high] of [["front", 0.01, widest], ["back", widest, Math.PI - 0.01]] as const) {
-          const t: number | null = phaseAt(trunk!, s, c, low, high);
+          const t: number | null = phaseAt(readTrunk, c, low, high);
           if (t === null) continue;
-          const p: readonly number[] = trunk!.point(s, t);
+          const p: readonly number[] = readTrunk(t);
           const q: V = sub(p, frame.origin);
           const angle: number = Math.atan2(dot(q, frame.v), dot(q, frame.u));
           const radius: number = Math.hypot(dot(q, frame.u), dot(q, frame.v));

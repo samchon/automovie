@@ -14,15 +14,15 @@ No chain, numerical derivative, cap replacement, implicit solve or failed-source
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Scalar preparation is linear in the source controls; eight Point0 stations retain native section preparation, while each physical2 query delegates its original scalar/axis costs to ViewWorldJet.
+Scalar preparation is linear in the source controls. A Point0 station prepares one frame and native section. Every phase on that station invokes the prepared section and composes its original reliefs. A physical2 query delegates its scalar and axis work to ViewWorldJet.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Exact station keys reuse value preparation only while the borrowed source/axis/features remain immutable; physical2 is never acquired by a Point0 request.
+The caller of `pointAt` reuses that exact station's value preparation for its phase loop. Singleton `point` uses the same path. Point0 requires no physical2 work.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The returned reader owns one scalar preparation and at most eight native Point0 station plans; dropping it releases all borrowed references, with no module cache or process.
+The reader owns one scalar preparation. Each requested phase closure owns its station plan and is released by its caller. No result cache or process is acquired.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

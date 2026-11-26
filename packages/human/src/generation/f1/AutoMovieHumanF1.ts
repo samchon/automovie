@@ -2639,11 +2639,12 @@ export namespace AutoMovieHumanF1 {
         );
       const endSource: IAutoMovieLoftViewFullSource.IReader =
         AutoMovieLoftViewFullSource.create(endPart);
+      const endPoint = endSource.pointAt(fan.station);
       const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
         const [a, b]: [number, number] = fan.seams[j]!;
         const [pa, pb]: number[][] = [
-          endSource.point(fan.station, a),
-          endSource.point(fan.station, b),
+          endPoint(a),
+          endPoint(b),
         ];
         const chord: number =
           Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;

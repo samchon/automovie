@@ -82,7 +82,8 @@ namespace FamilyConicNativeIdentity {
         for (let i: number = 0; i < STATIONS; ++i) {
           // The two ends are left out: a pole has no chart and an open end is the neighbour's.
           const s: number = reader.domain[0] + ((reader.domain[1] - reader.domain[0]) * (i + 1)) / (STATIONS + 1);
-          for (let k: number = 0; k < PHASES; ++k) out.push(...reader.point(s, (2 * Math.PI * k) / PHASES));
+          const at = reader.pointAt(s);
+          for (let k: number = 0; k < PHASES; ++k) out.push(...at((2 * Math.PI * k) / PHASES));
         }
         points = out;
       } catch (error: unknown) {
