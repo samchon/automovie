@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,12 +39,14 @@ export function test_engine_film_production_sound_replay(): void {
     ],
   };
   const original: IAutoMovieProductionSoundPlan = structuredClone(plan);
-  const first: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan,
-  }).pcm;
-  const second: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan,
-  }).pcm;
+  const first: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+    }).pcm;
+  const second: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+    }).pcm;
   TestValidator.predicate(
     "byte-identical replay",
     Buffer.from(first.buffer).equals(Buffer.from(second.buffer)),
@@ -112,9 +114,10 @@ export function test_engine_film_production_sound_replay(): void {
         },
       ),
   );
-  const shifted: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: { ...plan, cues: [{ ...plan.cues[0], sourceOffsetFrame: 20 }] },
-  }).pcm;
+  const shifted: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: { ...plan, cues: [{ ...plan.cues[0], sourceOffsetFrame: 20 }] },
+    }).pcm;
   TestValidator.predicate(
     "source clock changes the waveform",
     !Buffer.from(first.buffer).equals(Buffer.from(shifted.buffer)),

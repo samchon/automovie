@@ -1,8 +1,7 @@
 import {
-  deriveProductionSoundPlan,
+  AutoMovieEngineSound,
   materializeCompiledFormation,
   materializeCompiledInstanceSet,
-  renderProductionSound,
 } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
@@ -291,11 +290,12 @@ const amplitudeAt: (pcm: Float32Array, frame: number) => number = (
  *    it roughly ten metres from that weighted centre on either axis.
  */
 export function test_engine_film_production_sound_density(): void {
-  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: timeline(),
-    contracts: new Map([["density-shot", contract()]]),
-    compiled: new Map([["density-shot", compiled()]]),
-  });
+  const plan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: timeline(),
+      contracts: new Map([["density-shot", contract()]]),
+      compiled: new Map([["density-shot", compiled()]]),
+    });
   const small: IAutoMovieProductionSoundEvent = eventOf(plan, "small");
   const large: IAutoMovieProductionSoundEvent = eventOf(plan, "large");
   const mixed: IAutoMovieProductionSoundEvent = eventOf(plan, "mixed");
@@ -333,9 +333,10 @@ export function test_engine_film_production_sound_density(): void {
   );
 
   // 3. the controlled pair: same footprint, same distance, 64x the members.
-  const rendered: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan,
-  });
+  const rendered: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+    });
   /**
    * Read stereo amplitude at the independently chosen offset after the planned
    * event frame.

@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieProductionSoundPlan,
   IAutoMovieRenderedProductionSound,
@@ -65,7 +65,7 @@ export function test_engine_film_production_sound_pcm_ingress(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieRenderedProductionSound =>
-              renderProductionSound({
+              AutoMovieEngineSound.renderProductionSound({
                 plan: plan({}),
                 assets: new Map([["public/bed.wav", new Float32Array(0)]]),
               }),
@@ -81,7 +81,7 @@ export function test_engine_film_production_sound_pcm_ingress(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieRenderedProductionSound =>
-              renderProductionSound({
+              AutoMovieEngineSound.renderProductionSound({
                 plan: plan({ gain: 4 }),
                 assets: new Map([["public/bed.wav", Float32Array.of(3.4e38)]]),
               }),

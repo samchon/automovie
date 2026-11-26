@@ -1,4 +1,4 @@
-import { sampleAutoMovieDialogueMouth } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouth,
   IAutoMovieDialogueMouthTrack,
@@ -71,7 +71,11 @@ export function test_engine_dialogue_mouth_sample(): void {
     actor: string,
     frame: number,
   ): IAutoMovieDialogueMouth =>
-    sampleAutoMovieDialogueMouth({ track, actor, seconds: frame / 24 });
+    AutoMovieEngineSound.sampleDialogueMouth({
+      track,
+      actor,
+      seconds: frame / 24,
+    });
   const heaviest: (weights: IAutoMovieHumanVisemeWeights) => string = (
     weights: IAutoMovieHumanVisemeWeights,
   ): string =>

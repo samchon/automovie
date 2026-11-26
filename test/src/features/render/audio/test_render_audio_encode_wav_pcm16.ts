@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieProductionSoundCue,
@@ -64,7 +64,7 @@ export function test_render_audio_encode_wav_pcm16(): void {
     dialogue: [],
   });
   const mix = (cues: IAutoMovieProductionSoundCue[]): Float32Array =>
-    renderProductionSound({
+    AutoMovieEngineSound.renderProductionSound({
       plan: plan(cues),
       assets: new Map([["tone", source]]),
     }).pcm;
@@ -98,7 +98,11 @@ export function test_render_audio_encode_wav_pcm16(): void {
   // WAV round trip.
   const left: Float32Array = new Float32Array([0, 0.5, -1, 1]);
   const right: Float32Array = new Float32Array([0, -0.5, -1, 0.25]);
-  const bytes: Uint8Array = AutoMovieRenderAudio.encodeWavPcm16(left, right, 48000);
+  const bytes: Uint8Array = AutoMovieRenderAudio.encodeWavPcm16(
+    left,
+    right,
+    48000,
+  );
   const view: DataView = new DataView(bytes.buffer);
   const decoded = AutoMovieIngestAudio.decodeAsset({
     path: "mix",

@@ -1,4 +1,4 @@
-import { productionSpeechEndFrame } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieAdmitProductionTtsReceipt,
@@ -17,10 +17,10 @@ const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
  * Every line's WAVE file and receipt are read through `read`, so render opens
  * no file itself. Ingest admits each receipt against its line and bytes and
  * decodes the line at 48 kHz. A line's speech span ends at
- * `productionSpeechEndFrame` of its 48 kHz sample count from its start frame,
- * on the clock the mix places it with. The mix, the dialogue mouths and the
- * lip-sync measure all take their lines from here, so they agree on every
- * sample and span.
+ * `AutoMovieEngineSound.speechEndFrame` of its 48 kHz sample count from its
+ * start frame, on the clock the mix places it with. The mix, the dialogue
+ * mouths and the lip-sync measure all take their lines from here, so they agree
+ * on every sample and span.
  *
  * It refuses, before reading any file, a line id that repeats; it refuses a
  * file `read` cannot supply, naming the path, so a wrong path never plays a
@@ -74,7 +74,7 @@ export async function admitAutoMovieFilmDialogue(
         receipt: await read(line.receipt),
         sampleRate: SAMPLE_RATE,
       });
-    const endFrame: number = productionSpeechEndFrame(
+    const endFrame: number = AutoMovieEngineSound.speechEndFrame(
       clock,
       line.startFrame,
       admitted.audio.samples.length,

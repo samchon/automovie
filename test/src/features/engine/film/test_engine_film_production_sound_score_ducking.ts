@@ -1,7 +1,4 @@
-import {
-  deriveProductionSoundPlan,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDeriveProductionSoundPlan,
   IAutoMovieFilmTimeline,
@@ -70,11 +67,13 @@ export function test_engine_film_production_sound_score_ducking(): void {
     attackFrames: 1,
     releaseFrames: 2,
   };
-  const dry: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan(inputs);
-  const ducked: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    ...inputs,
-    scoreDucking: policy,
-  });
+  const dry: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan(inputs);
+  const ducked: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      ...inputs,
+      scoreDucking: policy,
+    });
   const assets: ReadonlyMap<string, Float32Array> = new Map([
     ["music.wav", new Float32Array(24_000).fill(0.25)],
     ["room.wav", new Float32Array(24_000).fill(0.125)],
@@ -107,12 +106,12 @@ export function test_engine_film_production_sound_score_ducking(): void {
     plan: IAutoMovieProductionSoundPlan,
     lines: ReadonlyMap<string, Float32Array> = dialogue,
   ): Float32Array => {
-    const full: Float32Array = renderProductionSound({
+    const full: Float32Array = AutoMovieEngineSound.renderProductionSound({
       plan,
       assets,
       dialogue: lines,
     }).pcm;
-    const speech: Float32Array = renderProductionSound({
+    const speech: Float32Array = AutoMovieEngineSound.renderProductionSound({
       plan,
       assets: silentBeds,
       dialogue: lines,
@@ -145,15 +144,16 @@ export function test_engine_film_production_sound_score_ducking(): void {
       ),
   );
 
-  const ntsc: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    ...inputs,
-    timeline: {
-      ...inputs.timeline,
-      fps: 30_000 / 1_001,
-      frameRate: { numerator: 30_000, denominator: 1_001 },
-    },
-    scoreDucking: policy,
-  });
+  const ntsc: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      ...inputs,
+      timeline: {
+        ...inputs.timeline,
+        fps: 30_000 / 1_001,
+        frameRate: { numerator: 30_000, denominator: 1_001 },
+      },
+      scoreDucking: policy,
+    });
   const singleLine: ReadonlyMap<string, Float32Array> = new Map([["a", tone]]);
   // At 48 kHz the exact frame period is 1,601.6 samples. Rounding the
   // absolute anchors gives 1,602 to 3,203 and 6,406 to 9,610.
@@ -213,7 +213,10 @@ export function test_engine_film_production_sound_score_ducking(): void {
         ): boolean =>
           throwsError(
             (): IAutoMovieProductionSoundPlan =>
-              deriveProductionSoundPlan({ ...inputs, scoreDucking }),
+              AutoMovieEngineSound.deriveProductionSoundPlan({
+                ...inputs,
+                scoreDucking,
+              }),
             ["score ducking"],
           ) &&
           throwsError(

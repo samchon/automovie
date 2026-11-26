@@ -1,7 +1,4 @@
-import {
-  joinAutoMovieDialogueVisemes,
-  sampleAutoMovieDialogueExpression,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueExpressionLayers,
   IAutoMovieDialogueVisemeCompilation,
@@ -73,7 +70,7 @@ const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
  */
 export function test_engine_dialogue_viseme_join(): void {
   const compiled: IAutoMovieDialogueVisemeCompilation =
-    joinAutoMovieDialogueVisemes({
+    AutoMovieEngineSound.joinDialogueVisemes({
       line: line(),
       bindings: [{ speaker: "narrator", actor: "actor" }],
       visemes,
@@ -108,21 +105,21 @@ export function test_engine_dialogue_viseme_join(): void {
     blendshapes: null,
   };
   const active: IAutoMovieDialogueExpressionLayers =
-    sampleAutoMovieDialogueExpression({
+    AutoMovieEngineSound.sampleDialogueExpression({
       timeline: compiled.timeline,
       frame: 13,
       fps: 24,
       authored,
     });
   const gapAfterSeek: IAutoMovieDialogueExpressionLayers =
-    sampleAutoMovieDialogueExpression({
+    AutoMovieEngineSound.sampleDialogueExpression({
       timeline: compiled.timeline,
       frame: 16,
       fps: 24,
       authored,
     });
   const activeAgain: IAutoMovieDialogueExpressionLayers =
-    sampleAutoMovieDialogueExpression({
+    AutoMovieEngineSound.sampleDialogueExpression({
       timeline: compiled.timeline,
       frame: 13,
       fps: 24,
@@ -149,19 +146,19 @@ export function test_engine_dialogue_viseme_join(): void {
   TestValidator.equals(
     "missing and ambiguous speaker facts remain closed not-run outcomes",
     {
-      missingSpeaker: joinAutoMovieDialogueVisemes({
+      missingSpeaker: AutoMovieEngineSound.joinDialogueVisemes({
         line: line(null),
         bindings: [],
         visemes,
         ...rates,
       }).join,
-      missingActor: joinAutoMovieDialogueVisemes({
+      missingActor: AutoMovieEngineSound.joinDialogueVisemes({
         line: line(),
         bindings: [],
         visemes,
         ...rates,
       }).join,
-      ambiguous: joinAutoMovieDialogueVisemes({
+      ambiguous: AutoMovieEngineSound.joinDialogueVisemes({
         line: line(),
         bindings: [
           { speaker: "narrator", actor: "one" },
@@ -183,7 +180,7 @@ export function test_engine_dialogue_viseme_join(): void {
     {
       absentTiming: throwsError(
         (): IAutoMovieDialogueVisemeCompilation =>
-          joinAutoMovieDialogueVisemes({
+          AutoMovieEngineSound.joinDialogueVisemes({
             line: line(),
             bindings: [{ speaker: "narrator", actor: "actor" }],
             visemes: [],
@@ -193,7 +190,7 @@ export function test_engine_dialogue_viseme_join(): void {
       ),
       overlap: throwsError(
         (): IAutoMovieDialogueVisemeCompilation =>
-          joinAutoMovieDialogueVisemes({
+          AutoMovieEngineSound.joinDialogueVisemes({
             line: line(),
             bindings: [{ speaker: "narrator", actor: "actor" }],
             visemes: [
@@ -227,7 +224,7 @@ export function test_engine_dialogue_viseme_join(): void {
     visemes?: IAutoMovieProductionViseme[];
     actor?: string;
   }): IAutoMovieDialogueVisemeCompilation =>
-    joinAutoMovieDialogueVisemes({
+    AutoMovieEngineSound.joinDialogueVisemes({
       line: props.line ?? line(),
       bindings: [
         {

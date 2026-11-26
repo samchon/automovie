@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -56,28 +56,32 @@ export function test_engine_film_production_sound_asset(): void {
 
   const gain: number = 0.5;
 
-  const played: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: plan({ gain }),
-    assets: new Map([["public/bed.wav", source]]),
-  }).pcm;
+  const played: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: plan({ gain }),
+      assets: new Map([["public/bed.wav", source]]),
+    }).pcm;
 
-  const standIn: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: plan({ gain }),
-  }).pcm;
+  const standIn: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: plan({ gain }),
+    }).pcm;
 
-  const shorterCue: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: plan({ gain, sourceDurationFrames: DURATION_FRAMES * 2 }),
-    assets: new Map([["public/bed.wav", longSource]]),
-  }).pcm;
+  const shorterCue: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: plan({ gain, sourceDurationFrames: DURATION_FRAMES * 2 }),
+      assets: new Map([["public/bed.wav", longSource]]),
+    }).pcm;
 
-  const offsetCue: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: plan({
-      gain,
-      sourceDurationFrames: DURATION_FRAMES * 2,
-      sourceOffsetFrame: DURATION_FRAMES,
-    }),
-    assets: new Map([["public/bed.wav", longSource]]),
-  }).pcm;
+  const offsetCue: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: plan({
+        gain,
+        sourceDurationFrames: DURATION_FRAMES * 2,
+        sourceOffsetFrame: DURATION_FRAMES,
+      }),
+      assets: new Map([["public/bed.wav", longSource]]),
+    }).pcm;
 
   // Read where the ramp is steep and unambiguous rather than at its ends, so a
   // renderer reading one sample early or late writes a different number here.
@@ -99,7 +103,7 @@ export function test_engine_film_production_sound_asset(): void {
         longSource[length + OFFSET]! * gain,
         1e-6,
       ) &&
-      renderProductionSound({
+      AutoMovieEngineSound.renderProductionSound({
         plan: plan({ startFrame: TOTAL_FRAMES - DURATION_FRAMES }),
         assets: new Map([["public/bed.wav", source]]),
       }).analysis.samplePeak > 0,

@@ -1,8 +1,4 @@
-import {
-  deriveProductionSoundPlan,
-  productionPhonemesToVisemes,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieProductionSoundPlan,
@@ -33,9 +29,10 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  *    spatial subjects.
  */
 export function test_engine_film_production_sound_viseme(): void {
-  const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-    chunks: [{ phonemes: "a ɪ u ɛ o h", startSample: 0, endSample: 600 }],
-  });
+  const visemes: IAutoMovieProductionViseme[] =
+    AutoMovieEngineSound.phonemesToVisemes({
+      chunks: [{ phonemes: "a ɪ u ɛ o h", startSample: 0, endSample: 600 }],
+    });
   TestValidator.equals(
     "a chunk's phonemes map to MPEG-4 vowels and silence in equal shares",
     visemes.map(
@@ -56,17 +53,18 @@ export function test_engine_film_production_sound_viseme(): void {
   );
   TestValidator.equals(
     "a chunk of only whitespace adds no phoneme",
-    productionPhonemesToVisemes({
+    AutoMovieEngineSound.phonemesToVisemes({
       chunks: [{ phonemes: " ", startSample: 0, endSample: 20 }],
     }),
     [],
   );
-  const chunkTimed: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-    chunks: [
-      { phonemes: "a", startSample: 0, endSample: 100 },
-      { phonemes: "iueo", startSample: 100, endSample: 1_000 },
-    ],
-  });
+  const chunkTimed: IAutoMovieProductionViseme[] =
+    AutoMovieEngineSound.phonemesToVisemes({
+      chunks: [
+        { phonemes: "a", startSample: 0, endSample: 100 },
+        { phonemes: "iueo", startSample: 100, endSample: 1_000 },
+      ],
+    });
   TestValidator.equals(
     "chunk sample clocks preserve timing and no phoneme token is discarded",
     namedFacts([
@@ -95,14 +93,16 @@ export function test_engine_film_production_sound_viseme(): void {
     },
   );
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();
-  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: productionSoundTimeline(),
-    contracts: new Map([["sound-shot", productionSoundContract()]]),
-    compiled: new Map([["sound-shot", source]]),
-  });
-  const silence: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan: { ...plan, events: [], cues: [], dialogue: [] },
-  });
+  const plan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: productionSoundTimeline(),
+      contracts: new Map([["sound-shot", productionSoundContract()]]),
+      compiled: new Map([["sound-shot", source]]),
+    });
+  const silence: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: { ...plan, events: [], cues: [], dialogue: [] },
+    });
   TestValidator.predicate(
     "an empty plan remains exact-runtime measurable silence",
     silence.analysis.integratedLoudness === null &&
@@ -117,7 +117,7 @@ export function test_engine_film_production_sound_viseme(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundPlan =>
-              deriveProductionSoundPlan({
+              AutoMovieEngineSound.deriveProductionSoundPlan({
                 timeline: productionSoundTimeline(),
                 contracts: new Map(),
                 compiled: new Map(),
@@ -130,7 +130,7 @@ export function test_engine_film_production_sound_viseme(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundPlan =>
-              deriveProductionSoundPlan({
+              AutoMovieEngineSound.deriveProductionSoundPlan({
                 timeline: productionSoundTimeline(),
                 contracts: new Map([["sound-shot", productionSoundContract()]]),
                 compiled: new Map([
@@ -151,7 +151,7 @@ export function test_engine_film_production_sound_viseme(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundPlan =>
-              deriveProductionSoundPlan({
+              AutoMovieEngineSound.deriveProductionSoundPlan({
                 timeline: productionSoundTimeline(),
                 contracts: new Map([
                   ["sound-shot", { ...productionSoundContract(), events: [] }],
@@ -166,7 +166,7 @@ export function test_engine_film_production_sound_viseme(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundPlan =>
-              deriveProductionSoundPlan({
+              AutoMovieEngineSound.deriveProductionSoundPlan({
                 timeline: productionSoundTimeline(),
                 contracts: new Map([
                   [

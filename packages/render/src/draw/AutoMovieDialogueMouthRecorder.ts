@@ -1,4 +1,4 @@
-import { sampleAutoMovieDialogueMouth } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDialogueMouths,
@@ -12,11 +12,11 @@ import type {
  * second.
  *
  * `mouths` samples the film's track with engine's
- * `sampleAutoMovieDialogueMouth` and returns a fresh value per read. Each read
- * replaces the actor's recorded value of the same form, so after a placement
- * that places other seconds and then the drawn one again, the record holds the
- * drawn second's values. The draw page clears the record before placing a
- * picture's second and reports it after.
+ * `AutoMovieEngineSound.sampleDialogueMouth` and returns a fresh value per
+ * read. Each read replaces the actor's recorded value of the same form, so
+ * after a placement that places other seconds and then the drawn one again, the
+ * record holds the drawn second's values. The draw page clears the record
+ * before placing a picture's second and reports it after.
  *
  * ```ts
  * const recorder = new AutoMovieDialogueMouthRecorder(track);
@@ -46,7 +46,7 @@ export class AutoMovieDialogueMouthRecorder {
     };
     this.mouths = {
       jaw: (actor: string, seconds: number): number => {
-        const jaw: number = sampleAutoMovieDialogueMouth({
+        const jaw: number = AutoMovieEngineSound.sampleDialogueMouth({
           track,
           actor,
           seconds,
@@ -59,7 +59,11 @@ export class AutoMovieDialogueMouthRecorder {
         seconds: number,
       ): IAutoMovieHumanVisemeWeights => {
         const visemes: IAutoMovieHumanVisemeWeights =
-          sampleAutoMovieDialogueMouth({ track, actor, seconds }).visemes;
+          AutoMovieEngineSound.sampleDialogueMouth({
+            track,
+            actor,
+            seconds,
+          }).visemes;
         entry(actor).visemes = { ...visemes };
         return visemes;
       },

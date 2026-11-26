@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -59,7 +59,7 @@ export function test_engine_film_production_sound_ntsc_phase(): void {
   const threeFrames: Float32Array<ArrayBufferLike> = ramp(TICK_3);
 
   const shortPresentation: Float32Array<ArrayBufferLike> =
-    renderProductionSound({
+    AutoMovieEngineSound.renderProductionSound({
       plan: ntscPlan({
         sourceDurationFrames: 2,
         sourceOffsetFrame: 0,
@@ -68,14 +68,15 @@ export function test_engine_film_production_sound_ntsc_phase(): void {
       assets: new Map([["public/bed.wav", twoFrames]]),
     }).pcm;
 
-  const shortSource: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: ntscPlan({
-      sourceDurationFrames: 3,
-      sourceOffsetFrame: 1,
-      startFrame: 0,
-    }),
-    assets: new Map([["public/bed.wav", threeFrames]]),
-  }).pcm;
+  const shortSource: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: ntscPlan({
+        sourceDurationFrames: 3,
+        sourceOffsetFrame: 1,
+        startFrame: 0,
+      }),
+      assets: new Map([["public/bed.wav", threeFrames]]),
+    }).pcm;
 
   TestValidator.predicate(
     "a rational frame clock places the trim and its film span by one tick rule",

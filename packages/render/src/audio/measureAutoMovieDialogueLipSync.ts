@@ -1,8 +1,4 @@
-import {
-  AUTOMOVIE_LIP_SYNC,
-  measureAutoMovieLipSyncLag,
-  productionDialogueFrameLevels,
-} from "@automovie/engine";
+import { AUTOMOVIE_LIP_SYNC, AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieDialogueLipSync,
   IAutoMovieDialogueMouthTrack,
@@ -25,12 +21,12 @@ import { autoMovieVisemeChannelWeights } from "../scene/autoMovieVisemeChannelWe
  * actor's visemes on a frame of the span, the mouth series is, per window
  * frame, the `jawOpen` channel weight those visemes give a VRM or imported
  * model (`autoMovieVisemeChannelWeights`), 0 on a frame where it read none, and
- * the level series is the line's frame level (`productionDialogueFrameLevels`),
- * 0 outside the span; `measureAutoMovieLipSyncLag` names the lag and the
- * verdict. When it read only the actor's jaw, the figure follows the line's own
- * loudness, as the Human and the polygon man do until #3185 resolves viseme
- * shapes, and the line is `envelope-jaw`. When it read neither, the line is
- * `mouth-not-drawn`.
+ * the level series is the line's frame level
+ * (`AutoMovieEngineSound.dialogueFrameLevels`), 0 outside the span;
+ * `AutoMovieEngineSound.measureLipSyncLag` names the lag and the verdict. When
+ * it read only the actor's jaw, the figure follows the line's own loudness, as
+ * the Human and the polygon man do until #3185 resolves viseme shapes, and the
+ * line is `envelope-jaw`. When it read neither, the line is `mouth-not-drawn`.
  *
  * @param props The adopted lines, the mouth track handed to the subject, the
  *   plan's clock and frame count, and the mouths read on each drawn frame.
@@ -111,7 +107,7 @@ export function measureAutoMovieDialogueLipSync(props: {
         props.plan.totalFrames,
         planned.endFrame + reach,
       );
-      const levels: Float64Array = productionDialogueFrameLevels(
+      const levels: Float64Array = AutoMovieEngineSound.dialogueFrameLevels(
         props.plan,
         entry.line,
         entry.samples,
@@ -134,7 +130,7 @@ export function measureAutoMovieDialogueLipSync(props: {
         line: entry.line.id,
         actor: planned.actor,
         status: "measured",
-        ...measureAutoMovieLipSyncLag({ mouth, level, fps }),
+        ...AutoMovieEngineSound.measureLipSyncLag({ mouth, level, fps }),
       };
     },
   );

@@ -1,8 +1,4 @@
-import {
-  joinAutoMovieDialogueVisemes,
-  productionPhonemesToVisemes,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -48,20 +44,22 @@ export function test_engine_sound_short_dialogue_clock(): void {
     ],
   };
 
-  const visemeOverflow: ReturnType<typeof productionPhonemesToVisemes> =
-    productionPhonemesToVisemes({
-      chunks: [
-        { phonemes: "a", startSample: 0, endSample: 1 },
-        { phonemes: "b", startSample: 100, endSample: 101 },
-      ],
-    });
+  const visemeOverflow: ReturnType<
+    typeof AutoMovieEngineSound.phonemesToVisemes
+  > = AutoMovieEngineSound.phonemesToVisemes({
+    chunks: [
+      { phonemes: "a", startSample: 0, endSample: 1 },
+      { phonemes: "b", startSample: 100, endSample: 101 },
+    ],
+  });
 
   TestValidator.equals(
     "one-sample dialogue and late phonemes remain bounded",
     {
       missingDialogueSilent: nclose(
-        renderProductionSound({ plan: oneSampleDialoguePlan }).analysis
-          .samplePeak,
+        AutoMovieEngineSound.renderProductionSound({
+          plan: oneSampleDialoguePlan,
+        }).analysis.samplePeak,
         0,
         0,
       ),
@@ -69,7 +67,7 @@ export function test_engine_sound_short_dialogue_clock(): void {
       // so levelling finds nothing over the absolute gate and refuses it.
       oneSampleLineRefused: throwsError(
         () =>
-          renderProductionSound({
+          AutoMovieEngineSound.renderProductionSound({
             plan: oneSampleDialoguePlan,
             dialogue: new Map([["one-sample", Float32Array.from([0.25])]]),
           }),
@@ -77,7 +75,7 @@ export function test_engine_sound_short_dialogue_clock(): void {
       ),
       longerLineRefused: throwsError(
         () =>
-          renderProductionSound({
+          AutoMovieEngineSound.renderProductionSound({
             plan: oneSampleDialoguePlan,
             dialogue: new Map([["one-sample", Float32Array.from([0.25, 0.5])]]),
           }),
@@ -85,7 +83,7 @@ export function test_engine_sound_short_dialogue_clock(): void {
       ),
       latePhonemeRefused: throwsError(
         () =>
-          joinAutoMovieDialogueVisemes({
+          AutoMovieEngineSound.joinDialogueVisemes({
             line: {
               ...oneSampleDialoguePlan.dialogue[0]!,
               speaker: "a",

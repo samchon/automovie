@@ -1,7 +1,4 @@
-import {
-  deriveProductionSoundPlan,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieFilmTimeline,
@@ -32,11 +29,12 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  */
 export function test_engine_film_production_sound(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();
-  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: productionSoundTimeline(),
-    contracts: new Map([["sound-shot", productionSoundContract()]]),
-    compiled: new Map([["sound-shot", source]]),
-  });
+  const plan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: productionSoundTimeline(),
+      contracts: new Map([["sound-shot", productionSoundContract()]]),
+      compiled: new Map([["sound-shot", source]]),
+    });
   TestValidator.predicate(
     "trimmed events are omitted while every audible event stays frame-bound",
     plan.events.length === 6 &&
@@ -88,19 +86,21 @@ export function test_engine_film_production_sound(): void {
       ),
     ],
   ]);
-  const first: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan,
-    dialogue,
-  });
+  const first: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+      dialogue,
+    });
   // The largest offset whose eight-frame trim still fits the ten-frame source:
   // an offset that left the declared source would be refused, not rephased.
   const offsetTimeline: IAutoMovieFilmTimeline = productionSoundTimeline();
   offsetTimeline.tracks.audio[0]!.sourceOffsetFrame = 2;
-  const offsetPlan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: offsetTimeline,
-    contracts: new Map([["sound-shot", productionSoundContract()]]),
-    compiled: new Map([["sound-shot", source]]),
-  });
+  const offsetPlan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: offsetTimeline,
+      contracts: new Map([["sound-shot", productionSoundContract()]]),
+      compiled: new Map([["sound-shot", source]]),
+    });
   TestValidator.equals(
     "authored cue source offsets survive planning",
     namedFacts([

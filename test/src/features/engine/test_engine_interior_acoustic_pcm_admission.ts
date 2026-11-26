@@ -1,7 +1,4 @@
-import {
-  applyAutoMovieInteriorAcousticResponse,
-  deriveAutoMovieInteriorAcousticResponse,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionAcousticResponse } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,23 +31,25 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
   }: ReturnType<typeof createInteriorAcousticTestInputs> =
     createInteriorAcousticTestInputs();
 
-  const same: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
-    deriveAutoMovieInteriorAcousticResponse({
-      sourceSpace: "room-a",
-      listenerSpace: "room-a",
-      inputRevision: digest,
-      request: request(),
-      profile,
-    });
+  const same: ReturnType<
+    typeof AutoMovieEngineSound.deriveInteriorAcousticResponse
+  > = AutoMovieEngineSound.deriveInteriorAcousticResponse({
+    sourceSpace: "room-a",
+    listenerSpace: "room-a",
+    inputRevision: digest,
+    request: request(),
+    profile,
+  });
 
-  const across: ReturnType<typeof deriveAutoMovieInteriorAcousticResponse> =
-    deriveAutoMovieInteriorAcousticResponse({
-      sourceSpace: "room-a",
-      listenerSpace: "room-b",
-      inputRevision: digest,
-      request: request(),
-      profile,
-    });
+  const across: ReturnType<
+    typeof AutoMovieEngineSound.deriveInteriorAcousticResponse
+  > = AutoMovieEngineSound.deriveInteriorAcousticResponse({
+    sourceSpace: "room-a",
+    listenerSpace: "room-b",
+    inputRevision: digest,
+    request: request(),
+    profile,
+  });
 
   const dry: Float32Array = Float32Array.from([1, 0]);
 
@@ -81,7 +80,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
     {
       zeroChannels: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 0,
             sampleRate: 100,
@@ -91,7 +90,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       zeroRate: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 0,
@@ -101,7 +100,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       incompleteFrame: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: Float32Array.from([1]),
             channels: 2,
             sampleRate: 100,
@@ -111,7 +110,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       emptyPcm: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: new Float32Array(),
             channels: 1,
             sampleRate: 100,
@@ -121,7 +120,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       nullTransmission: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -131,7 +130,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       negativeTransmission: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -141,7 +140,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       excessTransmission: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -151,7 +150,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       nullReverberation: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -164,7 +163,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       zeroReverberation: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -174,7 +173,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       nullRatio: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,
@@ -184,7 +183,7 @@ export function test_engine_interior_acoustic_pcm_admission(): void {
       ),
       zeroRatio: throwsError(
         (): Float32Array =>
-          applyAutoMovieInteriorAcousticResponse({
+          AutoMovieEngineSound.applyInteriorAcousticResponse({
             samples: dry,
             channels: 1,
             sampleRate: 100,

@@ -1,4 +1,4 @@
-import { measureAutoMovieLipSyncLag } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieMeasureLipSyncLag } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,7 +49,11 @@ export function test_engine_lip_sync_lag(): void {
   const measure: (shift: number) => IAutoMovieMeasureLipSyncLag.IResult = (
     shift: number,
   ): IAutoMovieMeasureLipSyncLag.IResult =>
-    measureAutoMovieLipSyncLag({ mouth, level: shifted(shift), fps: 24 });
+    AutoMovieEngineSound.measureLipSyncLag({
+      mouth,
+      level: shifted(shift),
+      fps: 24,
+    });
 
   const results: IAutoMovieMeasureLipSyncLag.IResult[] = [0, -1, -2, 5].map(
     measure,
@@ -76,7 +80,7 @@ export function test_engine_lip_sync_lag(): void {
 
   TestValidator.equals(
     "a constant mouth is inconclusive",
-    measureAutoMovieLipSyncLag({
+    AutoMovieEngineSound.measureLipSyncLag({
       mouth: new Array(72).fill(3),
       level: shifted(0),
       fps: 24,

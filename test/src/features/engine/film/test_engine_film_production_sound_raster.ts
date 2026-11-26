@@ -1,9 +1,4 @@
-import {
-  deriveProductionSoundPlan,
-  productionSoundSpectrogram,
-  productionSoundWaveform,
-  renderProductionSound,
-} from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieCompiledShotSource,
   IAutoMovieProductionSoundPlan,
@@ -33,32 +28,31 @@ import { productionSoundTimeline } from "../../internal/productionSoundTimeline"
  */
 export function test_engine_film_production_sound_raster(): void {
   const source: IAutoMovieCompiledShotSource = productionSoundCompiled();
-  const plan: IAutoMovieProductionSoundPlan = deriveProductionSoundPlan({
-    timeline: productionSoundTimeline(),
-    contracts: new Map([["sound-shot", productionSoundContract()]]),
-    compiled: new Map([["sound-shot", source]]),
-  });
-  const mixed: IAutoMovieRenderedProductionSound = renderProductionSound({
-    plan,
-    // A 0.3 s 220 Hz line at 0.1 peak inside the caption's 0.4 s window.
-    dialogue: new Map([
-      [
-        "line",
-        Float32Array.from(
-          { length: 14_400 },
-          (_: unknown, index: number): number =>
-            0.1 * Math.sin((2 * Math.PI * 220 * index) / 48_000),
-        ),
-      ],
-    ]),
-  });
-  const waveform: IAutoMovieProductionSoundRaster = productionSoundWaveform(
-    mixed.pcm,
-    32,
-    16,
-  );
+  const plan: IAutoMovieProductionSoundPlan =
+    AutoMovieEngineSound.deriveProductionSoundPlan({
+      timeline: productionSoundTimeline(),
+      contracts: new Map([["sound-shot", productionSoundContract()]]),
+      compiled: new Map([["sound-shot", source]]),
+    });
+  const mixed: IAutoMovieRenderedProductionSound =
+    AutoMovieEngineSound.renderProductionSound({
+      plan,
+      // A 0.3 s 220 Hz line at 0.1 peak inside the caption's 0.4 s window.
+      dialogue: new Map([
+        [
+          "line",
+          Float32Array.from(
+            { length: 14_400 },
+            (_: unknown, index: number): number =>
+              0.1 * Math.sin((2 * Math.PI * 220 * index) / 48_000),
+          ),
+        ],
+      ]),
+    });
+  const waveform: IAutoMovieProductionSoundRaster =
+    AutoMovieEngineSound.soundWaveform(mixed.pcm, 32, 16);
   const spectrogram: IAutoMovieProductionSoundRaster =
-    productionSoundSpectrogram(mixed.pcm, 8, 8);
+    AutoMovieEngineSound.soundSpectrogram(mixed.pcm, 8, 8);
   TestValidator.equals(
     "waveform and spectrogram expose sized opaque RGBA rasters",
     namedFacts([
@@ -96,7 +90,7 @@ export function test_engine_film_production_sound_raster(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundRaster =>
-              productionSoundWaveform(mixed.pcm, 0, 10),
+              AutoMovieEngineSound.soundWaveform(mixed.pcm, 0, 10),
             "positive integers",
           ),
       ],
@@ -105,7 +99,7 @@ export function test_engine_film_production_sound_raster(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundRaster =>
-              productionSoundWaveform(new Float32Array(1), 10, 10),
+              AutoMovieEngineSound.soundWaveform(new Float32Array(1), 10, 10),
             "interleaved stereo",
           ),
       ],
@@ -114,7 +108,11 @@ export function test_engine_film_production_sound_raster(): void {
         (): boolean =>
           productionSoundRefused(
             (): IAutoMovieProductionSoundRaster =>
-              productionSoundSpectrogram(new Float32Array(1), 10, 10),
+              AutoMovieEngineSound.soundSpectrogram(
+                new Float32Array(1),
+                10,
+                10,
+              ),
             "interleaved stereo",
           ),
       ],
@@ -125,11 +123,8 @@ export function test_engine_film_production_sound_raster(): void {
       refusedProductionSoundSpectrogramNew: true,
     },
   );
-  const silentColumn: IAutoMovieProductionSoundRaster = productionSoundWaveform(
-    new Float32Array(),
-    1,
-    8,
-  );
+  const silentColumn: IAutoMovieProductionSoundRaster =
+    AutoMovieEngineSound.soundWaveform(new Float32Array(), 1, 8);
   const painted: Uint8Array<ArrayBufferLike> = silentColumn.rgba.subarray(
     4 * 4,
     4 * 4 + 3,
@@ -145,11 +140,8 @@ export function test_engine_film_production_sound_raster(): void {
     ),
   );
   for (const height of [1, 2, 3]) {
-    const tiny: IAutoMovieProductionSoundRaster = productionSoundWaveform(
-      Float32Array.from([2, 2]),
-      1,
-      height,
-    );
+    const tiny: IAutoMovieProductionSoundRaster =
+      AutoMovieEngineSound.soundWaveform(Float32Array.from([2, 2]), 1, height);
     const centre: number = Math.floor(height / 2) * 4;
     TestValidator.predicate(
       `height ${height} has a drawable centre row`,
@@ -161,11 +153,8 @@ export function test_engine_film_production_sound_raster(): void {
           ),
     );
   }
-  const saturated: IAutoMovieProductionSoundRaster = productionSoundWaveform(
-    Float32Array.from([3e38, 3e38]),
-    1,
-    8,
-  );
+  const saturated: IAutoMovieProductionSoundRaster =
+    AutoMovieEngineSound.soundWaveform(Float32Array.from([3e38, 3e38]), 1, 8);
   for (let row: number = 0; row < 8; ++row)
     TestValidator.predicate(
       `large finite peak clips to viewport row ${row}`,
@@ -178,12 +167,12 @@ export function test_engine_film_production_sound_raster(): void {
     );
   TestValidator.equals(
     "empty waveform is opaque silence",
-    productionSoundWaveform(new Float32Array(), 1, 1).rgba[3],
+    AutoMovieEngineSound.soundWaveform(new Float32Array(), 1, 1).rgba[3],
     255,
   );
   TestValidator.equals(
     "empty spectrum is opaque silence",
-    productionSoundSpectrogram(new Float32Array(), 1, 1).rgba[3],
+    AutoMovieEngineSound.soundSpectrogram(new Float32Array(), 1, 1).rgba[3],
     255,
   );
 }

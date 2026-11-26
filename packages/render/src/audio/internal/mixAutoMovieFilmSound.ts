@@ -1,10 +1,9 @@
 import {
+  AutoMovieEngineSound,
   autoMovieRenderDigest,
   canonicalizeAutoMovieJson,
   digestAutoMovieBytes,
   hashAutoMovieFnv1a64,
-  masterProductionSound,
-  renderProductionSound,
   utf8Bytes,
 } from "@automovie/engine";
 import { AutoMovieIngestAudio } from "@automovie/ingest";
@@ -29,9 +28,9 @@ const SAMPLE_RATE: IAutoMovieProductionSoundPlan["sampleRate"] = 48_000;
  * each line against its receipt, decodes it at 48 kHz and places it over its
  * speech span; ingest decodes each cue's asset at 48 kHz. The sound plan takes
  * the film's clock, the lines over their spans and each cue as listed, carries
- * the room-tone beds, and engine's `renderProductionSound` mixes it, generating
+ * the room-tone beds, and engine's `AutoMovieEngineSound.renderProductionSound` mixes it, generating
  * the beds and levelling each line to the dialogue target of `loudness` (EBU R
- * 128 without one). Engine's `masterProductionSound` brings the mix to the
+ * 128 without one). Engine's `AutoMovieEngineSound.masterProductionSound` brings the mix to the
  * integrated target under the true-peak ceiling and refuses it when it misses
  * the tolerance. The master is encoded as a 48 kHz stereo 16-bit WAVE file, so
  * the same list and bytes give the same soundtrack bytes.
@@ -149,9 +148,9 @@ export async function mixAutoMovieFilmSound(
 
   // The mix levels each line to the dialogue target; the master stage then
   // meets the integrated target under the true-peak ceiling.
-  const rendered: IAutoMovieRenderedProductionSound = masterProductionSound({
+  const rendered: IAutoMovieRenderedProductionSound = AutoMovieEngineSound.masterProductionSound({
     plan,
-    rendered: renderProductionSound({
+    rendered: AutoMovieEngineSound.renderProductionSound({
       plan,
       dialogue: new Map(
         lines.map(

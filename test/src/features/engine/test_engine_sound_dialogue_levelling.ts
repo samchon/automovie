@@ -1,6 +1,6 @@
 import {
+  AutoMovieEngineSound,
   createAutoMovieLoudnessMeter,
-  renderProductionSound,
 } from "@automovie/engine";
 import type {
   IAutoMovieLoudnessMeter,
@@ -69,12 +69,16 @@ export function test_engine_sound_dialogue_levelling(): void {
   });
   const mix: (
     line: Float32Array,
-    loudness?: Parameters<typeof renderProductionSound>[0]["loudness"],
+    loudness?: Parameters<
+      typeof AutoMovieEngineSound.renderProductionSound
+    >[0]["loudness"],
   ) => IAutoMovieRenderedProductionSound = (
     line: Float32Array,
-    loudness?: Parameters<typeof renderProductionSound>[0]["loudness"],
+    loudness?: Parameters<
+      typeof AutoMovieEngineSound.renderProductionSound
+    >[0]["loudness"],
   ): IAutoMovieRenderedProductionSound =>
-    renderProductionSound({
+    AutoMovieEngineSound.renderProductionSound({
       plan: plan(line.length),
       dialogue: new Map([["line", line]]),
       ...(loudness === undefined ? {} : { loudness }),

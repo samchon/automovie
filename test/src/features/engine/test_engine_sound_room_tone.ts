@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type {
   IAutoMovieProductionRoomTone,
   IAutoMovieProductionSoundPlan,
@@ -83,9 +83,13 @@ export function test_engine_sound_room_tone(): void {
     bed("a", 0, 144, -50, -3, 7),
     bed("b", 144, 288, -44, -6, 11),
   ]);
-  const first: Float32Array = renderProductionSound({ plan: joined }).pcm;
-  const second: Float32Array = renderProductionSound({ plan: joined }).pcm;
-  const reseeded: Float32Array = renderProductionSound({
+  const first: Float32Array = AutoMovieEngineSound.renderProductionSound({
+    plan: joined,
+  }).pcm;
+  const second: Float32Array = AutoMovieEngineSound.renderProductionSound({
+    plan: joined,
+  }).pcm;
+  const reseeded: Float32Array = AutoMovieEngineSound.renderProductionSound({
     plan: plan([bed("a", 0, 144, -50, -3, 8), bed("b", 144, 288, -44, -6, 11)]),
   }).pcm;
   TestValidator.predicate(
@@ -107,7 +111,7 @@ export function test_engine_sound_room_tone(): void {
   // 3. Tilt.
   const slope: (tilt: number) => number = (tilt: number): number => {
     const samples: Float64Array = left(
-      renderProductionSound({
+      AutoMovieEngineSound.renderProductionSound({
         plan: plan([bed("tilt", 0, 288, -40, tilt, 3)]),
       }).pcm,
     ).subarray(rate / 2, 11.5 * rate);
@@ -180,7 +184,7 @@ export function test_engine_sound_room_tone(): void {
     "overlapping beds are refused",
     throwsError(
       () =>
-        renderProductionSound({
+        AutoMovieEngineSound.renderProductionSound({
           plan: plan([
             bed("a", 0, 150, -50, -3, 7),
             bed("b", 144, 288, -44, -6, 11),

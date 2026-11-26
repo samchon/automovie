@@ -1,4 +1,4 @@
-import { deriveAutoMovieSoundPropagation } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieSoundPropagationProfile } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,8 +29,8 @@ export function test_engine_sound_propagation_admission(): void {
     "invalid or out-of-film propagation is refused without fallback",
     {
       assumptions: throwsError(
-        (): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
-          deriveAutoMovieSoundPropagation({
+        (): ReturnType<typeof AutoMovieEngineSound.deriveSoundPropagation> =>
+          AutoMovieEngineSound.deriveSoundPropagation({
             distanceMeters: 1,
             emissionFrame: 0,
             segmentEndFrame: 1,
@@ -41,8 +41,8 @@ export function test_engine_sound_propagation_admission(): void {
         "assumptions",
       ),
       outside: throwsError(
-        (): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
-          deriveAutoMovieSoundPropagation({
+        (): ReturnType<typeof AutoMovieEngineSound.deriveSoundPropagation> =>
+          AutoMovieEngineSound.deriveSoundPropagation({
             distanceMeters: 100,
             emissionFrame: 1,
             segmentEndFrame: 2,
@@ -53,8 +53,8 @@ export function test_engine_sound_propagation_admission(): void {
         "outside",
       ),
       coefficient: throwsError(
-        (): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
-          deriveAutoMovieSoundPropagation({
+        (): ReturnType<typeof AutoMovieEngineSound.deriveSoundPropagation> =>
+          AutoMovieEngineSound.deriveSoundPropagation({
             distanceMeters: 1,
             emissionFrame: 0,
             segmentEndFrame: 2,
@@ -77,7 +77,7 @@ export function test_engine_sound_propagation_admission(): void {
   const propagate: (
     values?: Partial<
       Pick<
-        Parameters<typeof deriveAutoMovieSoundPropagation>[0],
+        Parameters<typeof AutoMovieEngineSound.deriveSoundPropagation>[0],
         | "distanceMeters"
         | "emissionFrame"
         | "segmentEndFrame"
@@ -86,7 +86,7 @@ export function test_engine_sound_propagation_admission(): void {
       >
     >,
     selected?: IAutoMovieSoundPropagationProfile,
-  ) => ReturnType<typeof deriveAutoMovieSoundPropagation> = (
+  ) => ReturnType<typeof AutoMovieEngineSound.deriveSoundPropagation> = (
     values: Partial<{
       distanceMeters: number;
       emissionFrame: number;
@@ -95,8 +95,8 @@ export function test_engine_sound_propagation_admission(): void {
       totalFrames: number;
     }> = {},
     selected: IAutoMovieSoundPropagationProfile = profile(),
-  ): ReturnType<typeof deriveAutoMovieSoundPropagation> =>
-    deriveAutoMovieSoundPropagation({
+  ): ReturnType<typeof AutoMovieEngineSound.deriveSoundPropagation> =>
+    AutoMovieEngineSound.deriveSoundPropagation({
       distanceMeters: 1,
       emissionFrame: 0,
       segmentEndFrame: 2,

@@ -1,4 +1,4 @@
-import { renderProductionSound } from "@automovie/engine";
+import { AutoMovieEngineSound } from "@automovie/engine";
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,10 +52,11 @@ export function test_engine_film_production_sound_generation_extent(): void {
 
   const gain: number = 0.5;
 
-  const shortGeneration: Float32Array<ArrayBufferLike> = renderProductionSound({
-    plan: plan({ gain }),
-    assets: new Map([["public/bed.wav", source.subarray(0, length - 1)]]),
-  }).pcm;
+  const shortGeneration: Float32Array<ArrayBufferLike> =
+    AutoMovieEngineSound.renderProductionSound({
+      plan: plan({ gain }),
+      assets: new Map([["public/bed.wav", source.subarray(0, length - 1)]]),
+    }).pcm;
 
   TestValidator.predicate(
     "the last reached sample stays within 1e-6 and the next tick is silent",
