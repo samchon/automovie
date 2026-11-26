@@ -352,11 +352,47 @@ export class AutoMovieArchetype<
       model.#rest,
     );
   }
+
+  /**
+   * Prepare a model-space reader for a single named contact at absolute
+   * travels. Flexible spans and overridden posers use the full model adapter.
+   */
+  public prepareArticulateSite():
+    | ((
+        id: string,
+        state: Readonly<Partial<Record<string, number>>>,
+      ) => IAutoMovieAffordance | undefined)
+    | undefined {
+    const project: ReturnType<typeof AutoMovieArchetype.projection> =
+      AutoMovieArchetype.projection(this);
+    if (project === undefined) return undefined;
+    const contacts: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
+      this.#rest.affordances.map(
+        (contact: IAutoMovieAffordance): [string, IAutoMovieAffordance] => [
+          contact.id,
+          contact,
+        ],
+      ),
+    );
+    return (
+      id: string,
+      state: Readonly<Partial<Record<string, number>>>,
+    ): IAutoMovieAffordance | undefined => {
+      const contact: IAutoMovieAffordance | undefined = contacts.get(id);
+      if (contact === undefined) return undefined;
+      const pose: AutoMovieArchetypeArticulation.IProjection = project(
+        AutoMovieArchetypeArticulation.travels(state),
+      );
+      return { ...contact, frame: pose.frame(id)! };
+    };
+  }
+
   /**
    * This archetype with its rest parts replaced, keeping identity, materials,
    * dimensions and rest mass properties. A rig may supply current contact
-   * frames; omitted frames retain rest contact origins. Declared spans are
-   * rebuilt and explicitly held line axes follow their current geometry.
+   * frames; omitted frames use declared material owners or rest origins.
+   * Declared spans are rebuilt and explicitly held line axes follow their
+   * current geometry.
    *
    * @param parts The parts in the new pose, in the model's space; the same ids
    *   as this archetype's.

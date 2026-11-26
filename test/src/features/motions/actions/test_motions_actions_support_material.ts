@@ -1,10 +1,21 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  physicalShapeFaceContact,
+} from "@automovie/engine";
 import type {
+  IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { prepareSupportInterval } from "@automovie/motions/internal";
+import {
+  HumanMaterialContact,
+  prepareSupportInterval,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
 
 /** Roundoff of composing the tested rigid frames, metres. */
 const ROUNDING: number = 1e-12;
@@ -40,10 +51,107 @@ export async function test_motions_actions_support_material(): Promise<void> {
   );
   TestValidator.predicate(
     "the local interval follows the intermediate material frame",
-    Vector3.distance(read(between, 0.25), { x: 20, y: 4, z: 28.75 }) <= ROUNDING,
+    Vector3.distance(read(between, 0.25), { x: 20, y: 4, z: 28.75 }) <=
+      ROUNDING,
   );
   TestValidator.predicate(
     "reading backwards retains the achieved start",
     Vector3.distance(read(start, 0), a) <= ROUNDING,
+  );
+
+  const origin: IAutoMovieRigidTransform = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: Quaternion.identity(),
+  };
+  const radius: number = 0.125;
+  const ball: IAutoMoviePhysicalShape = {
+    id: "ball",
+    material: "test",
+    kind: "sphere",
+    radius,
+    transform: origin,
+  };
+  const square: readonly IAutoMovieVector3[] = [
+    { x: -0.5, y: 0, z: -0.5 },
+    { x: 0.5, y: 0, z: -0.5 },
+    { x: 0.5, y: 0, z: 0.5 },
+    { x: -0.5, y: 0, z: 0.5 },
+  ];
+  const raised: IAutoMovieRigidTransform = {
+    position: { x: 3, y: 8, z: 5 },
+    rotation: Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 37),
+  };
+  const local: IAutoMovieVector3 = { x: 0.2, y: 0.176, z: -0.35 };
+  const world: IAutoMovieVector3 = HumanMaterialContact.world(
+    { frame: raised, outline: square },
+    local,
+  );
+  const tilted: ReturnType<typeof physicalShapeFaceContact> =
+    physicalShapeFaceContact(
+      { ...origin, position: world },
+      ball,
+      raised,
+      square,
+    );
+  TestValidator.predicate(
+    "rotating the paired frames retains local witness and radius-adjusted clearance",
+    tilted !== undefined &&
+      nclose(tilted.clearance, local.y - radius, ROUNDING) &&
+      vclose(tilted.point, { ...local, y: 0 }, ROUNDING),
+  );
+  TestValidator.predicate(
+    "a hovering or penetrating exterior does not convert a nominal off-edge point into contact",
+    physicalShapeFaceContact(
+      { ...origin, position: { ...local, x: 1 } },
+      ball,
+      origin,
+      square,
+    ) === undefined &&
+      nclose(
+        physicalShapeFaceContact(
+          {
+            ...origin,
+            position: { x: 0, y: 0.1, z: 0 },
+          },
+          ball,
+          origin,
+          square,
+        )!.clearance,
+        -0.025,
+        ROUNDING,
+      ),
+  );
+  const box: IAutoMoviePhysicalShape = {
+    id: "box",
+    material: "test",
+    kind: "box",
+    halfExtents: { x: 0.8, y: 0.1, z: 0.3 },
+    transform: origin,
+  };
+  const flat: ReturnType<typeof physicalShapeFaceContact> =
+    physicalShapeFaceContact(
+      { ...origin, position: { x: 0.45, y: 0.1, z: 0 } },
+      box,
+      origin,
+      square,
+    );
+  TestValidator.predicate(
+    "a broad flat support keeps the clipped outline rather than a point",
+    flat?.patch?.length === 4 &&
+      nclose(flat.clearance, 0, ROUNDING) &&
+      nclose(
+        Math.min(
+          ...flat.patch.map((point: IAutoMovieVector3): number => point.x),
+        ),
+        -0.35,
+        ROUNDING,
+      ) &&
+      nclose(
+        Math.max(
+          ...flat.patch.map((point: IAutoMovieVector3): number => point.x),
+        ),
+        0.5,
+        ROUNDING,
+      ),
   );
 }

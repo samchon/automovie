@@ -20,6 +20,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { supportBalance } from "../actions/supportBalance";
+import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
@@ -49,6 +50,7 @@ import { crawlUnder } from "./crawlUnder";
 import { crawlWayDown } from "./crawlWayDown";
 import { crawlWhole } from "./crawlWhole";
 import { floorEntry } from "./floorEntry";
+import { prepareDryKneeSupport } from "./prepareDryKneeSupport";
 
 /**
  * Crawling on hands and knees along the heading, from standing: the body gets
@@ -433,13 +435,17 @@ export namespace crawl {
       duration,
       kneesDown,
       bear,
+      support: {
+        left: HumanSupportFrame.contact(context, "leftFoot"),
+        right: HumanSupportFrame.contact(context, "rightFoot"),
+      },
     });
 
     const adjust: ReturnType<typeof prepareBearingTrunkBalance> =
       prepareBearingTrunkBalance(body, window, duration, contacts);
     // A crawl ends on the hands and the knees, or crouched over the hands
     // and the feet, and the next act is entered on that base.
-    return {
+    return prepareDryKneeSupport(context, {
       ...composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, standing, contacts),
         clock,
@@ -452,6 +458,6 @@ export namespace crawl {
       }),
       ...HumanPhysics.declared(context.params, window),
       base: { kind: bear ? "crouched" : "kneeling" },
-    };
+    });
   }
 }

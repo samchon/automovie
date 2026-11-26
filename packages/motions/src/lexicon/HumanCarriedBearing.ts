@@ -1,17 +1,20 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
+  AutoMovieHumanoidRegion,
   AutoMovieMotionHumanChannel,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionCoupling,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanArmCarry,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCarried,
   IAutoMovieMotionHumanCarriedCouplingPose,
   IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieQuaternion,
@@ -30,6 +33,7 @@ import { bendLower } from "../everyday/bendLower";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { StrikingBody } from "../striking/StrikingBody";
 import { HumanCarried } from "./HumanCarried";
 import { HumanCarriedBorne } from "./HumanCarriedBorne";
 import { HumanCarriedCoupling } from "./HumanCarriedCoupling";
@@ -37,6 +41,8 @@ import { HumanCarriedCouplingLoad } from "./HumanCarriedCouplingLoad";
 import { HumanCarriedCouplingPose } from "./HumanCarriedCouplingPose";
 import { HumanCarriedGrip } from "./HumanCarriedGrip";
 import { HumanCarriedLean } from "./HumanCarriedLean";
+import { HumanCarriedLift } from "./HumanCarriedLift";
+import { HumanCarriedWristCircle } from "./HumanCarriedWristCircle";
 
 /**
  * The plan of holding a person in a named carry (`HumanCarried.bearing`): the
@@ -119,9 +125,38 @@ export namespace HumanCarriedBearing {
             HumanCarried.CARRIES[keyed],
             role,
           );
+    const cradle: IAutoMovieMotionHumanPerformerReader | undefined =
+      carry === "cradle" && of !== undefined && coupling !== undefined
+        ? context.performer(of)
+        : undefined;
+    const transfer: HumanCarriedLift.IPhase | undefined =
+      cradle === undefined
+        ? undefined
+        : HumanCarriedLift.timing(
+            {
+              lift: context.params.lift ?? HumanCarried.TAKE,
+              ...(context.params.setDown === undefined
+                ? {}
+                : { setDown: context.params.setDown }),
+            },
+            seconds,
+          );
+    const ready: number =
+      transfer?.take ?? Math.min(seconds, HumanCarried.TAKE);
+    const released: number = transfer?.release ?? seconds;
     const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
-      { name: "held", seconds: Math.min(seconds, HumanCarried.TAKE) },
+      { name: "held", seconds: ready },
+      ...(transfer === undefined
+        ? []
+        : [{ name: "released", seconds: released }]),
     ]);
+    const weight = (at: number): number =>
+      (ready === 0
+        ? 1
+        : clock.progress(AutoMovieMotionClock.START, "held", at)) *
+      (released >= seconds
+        ? 1
+        : 1 - minimumJerk.share((at - released) / (seconds - released)));
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     const anchorBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
       coupled === null
@@ -170,41 +205,62 @@ export namespace HumanCarriedBearing {
           local === null
             ? new Set([body.surfaces.regions[hold.region].bone])
             : undefined;
+        const region: AutoMovieHumanoidRegion | undefined =
+          cradle === undefined
+            ? undefined
+            : (HumanCarriedCoupling.HOLDS.cradle[index] ?? undefined);
+        const heldBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+          cradle === undefined || region === undefined
+            ? undefined
+            : new Set([cradle.body.surfaces.regions[region].bone]);
+        const shoulder: AutoMovieHumanoidBone = `${side}UpperArm`;
+        const shoulders: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+          shoulder,
+        ]);
+        const surface =
+          body.surfaces.regions[side === "left" ? "palmLeft" : "palmRight"];
         primitives.push(
-          AutoMovieMotionHumanArm.carried({
-            body,
-            side,
-            from: 0,
-            to: seconds,
-            rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
-            goal: (
-              posture: IAutoMovieMotionHumanPosture,
-            ): IAutoMovieHumanLimbGoal => {
-              if (coupled !== null && local !== null && palm !== null) {
-                // The hold rides the same anchor bone as the borne body, and
-                // the palm, not the wrist, lies on the held region, facing it.
-                // The goal is attached to that bone (`IGoal.on`), so a layer
-                // that tips the body after this plan, as a walked carry's
-                // lean does, carries the hand with the body it holds.
-                const anchor: IAutoMovieResolvedBone =
-                  HumanCarriedCouplingPose.bones(
-                    body,
-                    posture,
-                    coupled.anchor,
-                    resolution,
-                    anchorBones,
-                  ).get(coupled.anchor)!;
-                const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-                  anchor.worldRotation,
-                );
-                const toBone = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-                  Quaternion.rotateVector(
-                    inverse,
-                    Vector3.subtract(point, anchor.worldPosition),
+          carryPalm(
+            {
+              body,
+              side,
+              from: 0,
+              to: seconds,
+              rest: AutoMovieMotionHumanArm.angles(context.entry.pose, side),
+              goal: (
+                posture: IAutoMovieMotionHumanPosture,
+                time: number,
+              ): IAutoMovieHumanLimbGoal => {
+                if (coupled !== null && local !== null && palm !== null) {
+                  // The hold rides the same anchor bone as the borne body, and
+                  // the palm, not the wrist, lies on the held region, facing it.
+                  // The goal is attached to that bone (`IGoal.on`), so a layer
+                  // that tips the body after this plan, as a walked carry's
+                  // lean does, carries the hand with the body it holds.
+                  const anchor: IAutoMovieResolvedBone =
+                    HumanCarriedCouplingPose.bones(
+                      body,
+                      posture,
+                      coupled.anchor,
+                      resolution,
+                      anchorBones,
+                    ).get(coupled.anchor)!;
+                  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+                    anchor.worldRotation,
                   );
-                const world: IAutoMovieHumanLimbGoal = palm(
-                  posture,
-                  {
+                  const toBone = (
+                    point: IAutoMovieVector3,
+                  ): IAutoMovieVector3 =>
+                    Quaternion.rotateVector(
+                      inverse,
+                      Vector3.subtract(point, anchor.worldPosition),
+                    );
+                  const moving: boolean =
+                    cradle !== undefined &&
+                    region !== undefined &&
+                    transfer !== undefined &&
+                    (time < transfer.lift || time > seconds - transfer.setDown);
+                  const carried = {
                     point: Vector3.add(
                       anchor.worldPosition,
                       Quaternion.rotateVector(
@@ -216,52 +272,111 @@ export namespace HumanCarriedBearing {
                       anchor.worldRotation,
                       local.normal,
                     ),
-                  },
-                  tangent === undefined
-                    ? undefined
-                    : Quaternion.rotateVector(anchor.worldRotation, tangent),
-                );
-                return {
-                  ...world,
-                  point: toBone(world.point),
-                  bend: toBone(world.bend),
-                  ...(world.rotation === undefined
-                    ? {}
-                    : {
-                        rotation: Quaternion.multiply(inverse, world.rotation),
-                      }),
-                  on: coupled.anchor,
-                  clearanceOn: local.clearance,
-                };
-              }
-              return {
-                point: Vector3.add(
-                  HumanCarriedCouplingPose.region(
-                    body,
-                    HumanTrunk.resolve(
+                  };
+                  const poses:
+                    | ReturnType<IAutoMovieMotionHumanPerformerReader["bones"]>
+                    | undefined = moving
+                    ? cradle!.bones(context.start + time, heldBones)
+                    : undefined;
+                  const current: IAutoMovieMotionHumanCarriedCouplingPose.IHold =
+                    poses === undefined
+                      ? carried
+                      : StrikingBody.region(cradle!.body, poses, region!);
+                  const forward: IAutoMovieVector3 | undefined =
+                    tangent === undefined
+                      ? undefined
+                      : Quaternion.rotateVector(anchor.worldRotation, tangent);
+                  let world: IAutoMovieHumanLimbGoal = palm(
+                    posture,
+                    current,
+                    forward,
+                  );
+                  if (poses !== undefined) {
+                    const origin: IAutoMovieVector3 = HumanTrunk.resolve(
                       body,
                       posture,
                       undefined,
                       resolution,
-                      holdBones,
+                      shoulders,
+                    ).get(shoulder)!.worldPosition;
+                    const reach = (
+                      place: IAutoMovieMotionHumanCarriedCouplingPose.IHold,
+                      grip: IAutoMovieHumanLimbGoal,
+                    ): IAutoMovieHumanLimbGoal => {
+                      if (Vector3.distance(grip.point, origin) <= arm)
+                        return grip;
+                      const circle: ReturnType<typeof HumanCarriedWristCircle> =
+                        HumanCarriedWristCircle(
+                          place.point,
+                          place.normal,
+                          grip.point,
+                          origin,
+                        );
+                      const direction: IAutoMovieVector3 =
+                        forward ??
+                        Quaternion.rotateVector(
+                          grip.rotation!,
+                          surface.forward!,
+                        );
+                      return palm(
+                        posture,
+                        place,
+                        Quaternion.rotateVector(
+                          Quaternion.fromAxisAngle(
+                            place.normal,
+                            circle.degrees,
+                          ),
+                          direction,
+                        ),
+                      );
+                    };
+                    world = reach(current, world);
+                  }
+                  return {
+                    ...world,
+                    point: toBone(world.point),
+                    bend: toBone(world.bend),
+                    ...(world.rotation === undefined
+                      ? {}
+                      : {
+                          rotation: Quaternion.multiply(
+                            inverse,
+                            world.rotation,
+                          ),
+                        }),
+                    on: coupled.anchor,
+                    ...(moving ? {} : { clearanceOn: local.clearance }),
+                  };
+                }
+                return {
+                  point: Vector3.add(
+                    HumanCarriedCouplingPose.region(
+                      body,
+                      HumanTrunk.resolve(
+                        body,
+                        posture,
+                        undefined,
+                        resolution,
+                        holdBones,
+                      ),
+                      hold.region,
                     ),
-                    hold.region,
+                    HumanFrame.point(
+                      { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+                      {
+                        x: (side === "left" ? 1 : -1) * hold.offset.out * arm,
+                        y: hold.offset.up * arm,
+                        z: hold.offset.forward * arm,
+                      },
+                    ),
                   ),
-                  HumanFrame.point(
-                    { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-                    {
-                      x: (side === "left" ? 1 : -1) * hold.offset.out * arm,
-                      y: hold.offset.up * arm,
-                      z: hold.offset.forward * arm,
-                    },
-                  ),
-                ),
-                bend: AutoMovieMotionHumanBend.hang(body, posture, side),
-              };
+                  bend: AutoMovieMotionHumanBend.hang(body, posture, side),
+                };
+              },
+              weight,
             },
-            weight: (at: number): number =>
-              clock.progress(AutoMovieMotionClock.START, "held", at),
-          }),
+            transfer !== undefined && transfer.lift + transfer.setDown > 0,
+          ),
         );
         if (local !== null && hold.shape !== undefined)
           primitives.push(
@@ -270,8 +385,7 @@ export namespace HumanCarriedBearing {
               shape: hold.shape,
               from: 0,
               to: seconds,
-              weight: (at: number): number =>
-                clock.progress(AutoMovieMotionClock.START, "held", at),
+              weight,
             }),
           );
       },
@@ -339,7 +453,7 @@ export namespace HumanCarriedBearing {
                           : "rightHand",
                       kind: "grip",
                       from: clock.at("held") / seconds,
-                      to: 1,
+                      to: released / seconds,
                       load: 0,
                       support: {
                         kind: "person",
@@ -399,4 +513,47 @@ export namespace HumanCarriedBearing {
       },
     };
   }
+}
+
+/** Keep the held arm's actual surface goal for the display's swivel course. */
+function carryPalm(
+  props: IAutoMovieMotionHumanArmCarry.ICarry,
+  holdSurface: boolean,
+): IAutoMovieMotionHumanPrimitive {
+  const motion: IAutoMovieMotionHumanPrimitive =
+    AutoMovieMotionHumanArm.carried(props);
+  if (!holdSurface) return motion;
+  return {
+    ...motion,
+    write: (
+      posture,
+      seconds,
+      before,
+      resolution,
+      projection,
+      evaluation,
+    ): IAutoMovieMotionHumanPosture => {
+      if (props.weight(seconds) < 1)
+        return motion.write(
+          posture,
+          seconds,
+          before,
+          resolution,
+          projection,
+          evaluation,
+        );
+      return {
+        ...posture,
+        limbs: {
+          ...posture.limbs,
+          [`${props.side}Arm`]: props.goal(
+            posture,
+            seconds,
+            resolution,
+            projection,
+          ),
+        },
+      };
+    },
+  };
 }

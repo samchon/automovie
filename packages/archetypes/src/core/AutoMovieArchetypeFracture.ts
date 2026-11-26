@@ -396,6 +396,7 @@ export namespace AutoMovieArchetypeFracture {
         .filter(
           (a: IAutoMovieAffordance): boolean =>
             !departed.has(a.id) &&
+            (a.materialPart === undefined || kept.has(a.materialPart)) &&
             (a.parts === undefined ||
               a.parts.length === 0 ||
               a.parts.some((p: string): boolean => kept.has(p))),
@@ -438,13 +439,19 @@ export namespace AutoMovieArchetypeFracture {
     );
     for (const a of rest.affordances) {
       const bound: readonly string[] = a.parts ?? [];
-      if (ids.has(a.id) && !bound.every((p: string): boolean => parts.has(p)))
+      const materialHere: boolean =
+        a.materialPart !== undefined && parts.has(a.materialPart);
+      if (
+        ids.has(a.id) &&
+        (!bound.every((p: string): boolean => parts.has(p)) ||
+          (a.materialPart !== undefined && !materialHere))
+      )
         throw new Error(
           `fracture set ${set.id} carries contact ${a.id} bound outside its parts`,
         );
       if (
         !elsewhere.has(a.id) &&
-        bound.length > 0 &&
+        (materialHere || bound.length > 0) &&
         bound.every((p: string): boolean => parts.has(p))
       )
         ids.add(a.id);
@@ -456,6 +463,7 @@ export namespace AutoMovieArchetypeFracture {
         if (
           !ids.has(a.id) &&
           !elsewhere.has(a.id) &&
+          a.materialPart === undefined &&
           (a.parts?.length ?? 0) === 0 &&
           parent !== undefined &&
           ids.has(parent)

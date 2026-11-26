@@ -1,4 +1,4 @@
-import { Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStrikingTarget,
   IAutoMovieMotionTarget,
+  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -176,7 +177,7 @@ export namespace StrikingTarget {
    *
    * @param body The body.
    * @param side The foot.
-   * @param foot Its flat placement.
+   * @param foot Its current placement, including any inherited heel tilt.
    * @param turn The turn about the ball, degrees about +Y.
    * @param raise The heel raise, degrees (the foot's pitch, toes down).
    * @returns The pivoted foot.
@@ -188,15 +189,20 @@ export namespace StrikingTarget {
     turn: number,
     raise: number,
   ): IAutoMovieMotionHumanFoot.IPlacement {
-    const ball: IAutoMovieVector3 = HumanFoot.point(body, side, "ball", foot);
-    return HumanFoot.pivot(
-      body,
-      side,
-      "ball",
-      ball,
-      HumanFoot.heading(foot.rotation) + turn,
-      -raise,
+    if (turn === 0 && raise === 0) return { ...foot };
+    const local: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
+    const ball: IAutoMovieVector3 = Vector3.add(
+      foot.ankle,
+      Quaternion.rotateVector(foot.rotation, local),
     );
+    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+      HumanFoot.rotation(turn, 0),
+      Quaternion.multiply(foot.rotation, HumanFoot.rotation(0, -raise)),
+    );
+    return {
+      ankle: Vector3.subtract(ball, Quaternion.rotateVector(rotation, local)),
+      rotation,
+    };
   }
 
   /**

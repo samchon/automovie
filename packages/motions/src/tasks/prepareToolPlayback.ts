@@ -19,7 +19,6 @@ import { AutoMovieMotionHumanArmAngles } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanArmBase } from "../compose/AutoMovieMotionHumanArmBase";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmObservation } from "../compose/AutoMovieMotionHumanArmObservation";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanSegment } from "../perform/HumanSegment";
@@ -46,7 +45,6 @@ type IPrepareToolPlaybackProps = {
   target: (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,
-    bends?: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
   compose: (
     target: IAutoMovieMotionHumanArmTarget.Frame,
@@ -62,9 +60,9 @@ type IPrepareToolPlaybackProps = {
 };
 
 /**
- * Prepare a placed stirring arm from its actual work poses and a free
- * approach and return, with one continuous course through both joins. A tool
- * outside that scope keeps its authored posture phases.
+ * Prepare a placed stirring arm from its actual work poses and a free approach
+ * and return, with one continuous course through both joins. A tool outside
+ * that scope keeps its authored posture phases.
  */
 export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
   const { plan, body, side, entry, ready, recover, target, compose, finish } =
@@ -80,7 +78,6 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
     Object.is(posture.pitch, frame.pitch) &&
     Object.is(posture.roll, frame.roll);
 
-  let bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> | undefined;
   let fixed: IAutoMovieMotionHumanArmTarget.ITarget | undefined;
   const prepared: IAutoMovieMotionHumanActionPlan = compose(
     (posture, seconds) => {
@@ -92,7 +89,7 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
           rotation: { ...fixed.rotation },
           bend: { ...fixed.bend },
         };
-      return target(posture, seconds, bends);
+      return target(posture, seconds);
     },
   );
   // The admitted writer supplies the arm after the original display offset.
@@ -119,8 +116,7 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
   HumanPreparedPlayback.attach(plan, body, {
     mode: "posture",
     prepare: (): void => {
-      bends = AutoMovieMotionHumanBend.prepare({ body, posture: frame, side });
-      fixed = target(frame, ready, bends);
+      fixed = target(frame, ready);
     },
     ...(props.work === undefined
       ? {}
@@ -160,7 +156,8 @@ function course(
     person.stops.size !== 0 ||
     (segment.transition !== undefined &&
       segment.transition.kind !== "redirect" &&
-      segment.transition.cut + segment.transition.blend > segment.start + ready) ||
+      segment.transition.cut + segment.transition.blend >
+        segment.start + ready) ||
     person.holds.some(
       (hold) =>
         hold.source !== segment &&
@@ -206,7 +203,12 @@ function course(
     const target =
       seconds < ready || seconds > recover
         ? undefined
-        : AutoMovieMotionHumanArmObservation.site(body, pose, { side, disc: 0 }, goal);
+        : AutoMovieMotionHumanArmObservation.site(
+            body,
+            pose,
+            { side, disc: 0 },
+            goal,
+          );
     const site =
       target === undefined
         ? undefined
@@ -225,7 +227,10 @@ function course(
     return point;
   };
   const rest = AutoMovieMotionHumanArmAngles.angles(at(0).pose, side);
-  const back = AutoMovieMotionHumanArmAngles.angles(at(plan.duration).pose, side);
+  const back = AutoMovieMotionHumanArmAngles.angles(
+    at(plan.duration).pose,
+    side,
+  );
   const lay = (clockTimes: readonly number[]): HumanArmTrajectory.IAdmitted => {
     const knots = clockTimes.map(at);
     const problem: HumanArmTrajectory.IProblem = {
@@ -255,16 +260,21 @@ function course(
         reason: worst.what,
         fix: "put the work where the tool can reach and leave it with the arm clear",
       });
-      throw side === "left" ? HumanArmTrajectoryMirror.refusal(refusal) : refusal;
+      throw side === "left"
+        ? HumanArmTrajectoryMirror.refusal(refusal)
+        : refusal;
     }
     return laid;
   };
   const mirrored = side === "left";
   const contact = mirrored ? HumanArmMirror.flip(work.contact) : work.contact;
   const face = mirrored
-    ? (seconds: number): IAutoMovieVector3 => HumanArmMirror.flip(work.face(seconds))
+    ? (seconds: number): IAutoMovieVector3 =>
+        HumanArmMirror.flip(work.face(seconds))
     : work.face;
-  const inspect = (laid: HumanArmTrajectory.IAdmitted): ReturnType<typeof inspectHumanArmFaceCourse> =>
+  const inspect = (
+    laid: HumanArmTrajectory.IAdmitted,
+  ): ReturnType<typeof inspectHumanArmFaceCourse> =>
     inspectHumanArmFaceCourse({
       course: laid,
       rates: laid.read.rates!,
@@ -306,7 +316,9 @@ function course(
   return (seconds, pose, demanded): IAutoMoviePose => {
     if (
       demanded !== undefined &&
-      ![...demanded].some((bone) => owned.has(bone) || props.fingers[bone] !== undefined)
+      ![...demanded].some(
+        (bone) => owned.has(bone) || props.fingers[bone] !== undefined,
+      )
     )
       return pose;
     const arm: IAutoMovieMotionHumanArmClearance.IArm = read(seconds);

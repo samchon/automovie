@@ -23,11 +23,11 @@ import { QuadrupedAnimal } from "./QuadrupedAnimal";
  * validated skeletal model. Mass is authored because that morphometric table
  * reports no weights; it is the whole model's mass, including any authored
  * collar/lead. Segment density is uniform and paw friction/restitution remain
- * unknown. The optional collar is a solid cylindrical drawing proxy whose
- * dimensions the author supplies; its straight lead offers one real rein
- * contact. Without a named cohort its width must fit every selectable neck, so
- * acceptance never depends on the seed. Naming a cohort admits that cohort's
- * own neck length. No saddle exists.
+ * unknown. The optional collar is a finite annular fitting whose dimensions the
+ * author supplies; its straight lead offers one real rein contact. Without a
+ * named cohort its width must fit every selectable neck, so acceptance never
+ * depends on the seed. Naming a cohort admits that cohort's own neck length. No
+ * saddle exists.
  *
  * @param params Required positive mass in kilograms, optional cohort, tempo and
  *   authored collar.
@@ -120,7 +120,7 @@ export namespace createDog {
   /** A lead is a rein contact, never a rider's seat. */
   export type Affordance = "lead";
 
-  /** Authored dimensions, all metres, of the solid collar and straight lead. */
+  /** Authored dimensions, all metres, of the collar and straight lead. */
   export interface ICollar extends AutoMovieArchetypeQuadrupedLead.IParams {}
 
   /** The author supplies total model mass; absent tack means a bare dog. */

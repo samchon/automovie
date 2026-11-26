@@ -10,6 +10,7 @@ import {
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
 } from "../core";
+import { CourseWheelTravel } from "./CourseWheelTravel";
 import type { createWheelchair } from "./createWheelchair";
 import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
 
@@ -19,10 +20,10 @@ import { wheelchairHandrimFrame } from "./wheelchairHandrimFrame";
  * distance.
  *
  * The chair is pushed by an attendant at its handles or wheeled by its sitter.
- * On a course of legs, the two rear wheels roll their signed centre travel plus
- * or minus the track's half-width times the heading change in radians. For a
- * staged sitter's stroke, pass the ride through `wheelchairHandrimFrame` and
- * register `HumanHandrimStroke`.
+ * The two rear wheels roll their signed centre travel plus or minus the track's
+ * half-width times the heading change in radians. For a staged sitter's stroke,
+ * pass the ride through `wheelchairHandrimFrame` and register
+ * `HumanHandrimStroke`.
  *
  * @param chair The wheelchair.
  * @param course The course its root follows, or its plan.
@@ -49,48 +50,38 @@ export function rideWheelchair(
     course.kind === "plan"
       ? course
       : AutoMovieArchetypeCourse.plan("wheelchair", course);
-  const turns: readonly { from: number; span: number; outer: number }[] =
+  const heading: CourseWheelTravel.Reader =
     plan.course.kind === "timed"
-      ? []
-      : plan.course.legs.flatMap(
-          (
-            leg: AutoMovieArchetypeCourse.Leg,
-            index: number,
-          ): { from: number; span: number; outer: number }[] => {
-            if (leg.kind !== "turn") return [];
-            const { from, span }: AutoMovieArchetypeCourse.ILegSpan =
-              plan.legSpans[index]!;
-            return [
-              { from, span, outer: (halfTrack * leg.angle * Math.PI) / 180 },
-            ];
-          },
+      ? CourseWheelTravel.heading({ ...plan, course: plan.course })
+      : CourseWheelTravel.legs(
+          plan.legSpans,
+          plan.course.legs.map(
+            (leg: AutoMovieArchetypeCourse.Leg): number[] => [
+              leg.kind === "turn" ? (leg.angle * Math.PI) / 180 : 0,
+            ],
+          ),
         );
 
   /** Signed tyre travel into the wheel's nonnegative knob range. */
   const spin = (travel: number): number =>
     ((((travel / circumference) * 360) % 360) + 360) % 360;
-  return AutoMovieArchetypeRide.along(
+  return AutoMovieArchetypeRide.articulated(
     chair,
     plan,
     (
       state: AutoMovieArchetypeCourse.IState,
-    ): AutoMovieArchetypeRide.IPose<
-      createWheelchair.Affordance,
-      createWheelchair.Dimension
-    > => {
-      const outside: number = turns.reduce(
-        (distance: number, turn: (typeof turns)[number]): number =>
-          distance +
-          turn.outer *
-            Math.min(1, Math.max(0, (state.distance - turn.from) / turn.span)),
-        0,
-      );
+      seconds: number,
+      id?: createWheelchair.Affordance,
+    ): Partial<Record<createWheelchair.Affordance, number>> => {
+      const left: boolean =
+        id === undefined || id === "leftRim" || id === "leftSpin";
+      const right: boolean =
+        id === undefined || id === "rightRim" || id === "rightSpin";
+      if (!left && !right) return {};
+      const outside: number = halfTrack * heading(state, seconds)[0]!;
       return {
-        archetype: chair.articulate({
-          leftSpin: spin(state.progress - outside),
-          rightSpin: spin(state.progress + outside),
-        }),
-        placement: state.placement,
+        ...(left ? { leftSpin: spin(state.progress - outside) } : {}),
+        ...(right ? { rightSpin: spin(state.progress + outside) } : {}),
       };
     },
   );

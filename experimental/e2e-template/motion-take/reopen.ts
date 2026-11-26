@@ -4,7 +4,13 @@ import { readFile, rename, writeFile } from "node:fs/promises";
 
 import { openMotionTake } from "../../src/executable/motionTake/openMotionTake";
 import { draw } from "./draw";
-import { assertObserved, cues, observe, sampleTimes } from "./observe";
+import {
+  assertObserved,
+  cues,
+  observe,
+  playbackOrder,
+  sampleTimes,
+} from "./observe";
 import { fixture } from "./source";
 
 /** The uninterrupted observations saved by the first installed process. */
@@ -22,7 +28,10 @@ const original: Parameters<typeof openMotionTake>[0] = {
   artifact: fixture.artifact,
 };
 
-/** Refuse malformed, incompatible or incomplete inputs before a rerender can use them. */
+/**
+ * Refuse malformed, incompatible or incomplete inputs before a rerender can use
+ * them.
+ */
 async function verifyRefusals(take: IAutoMovieMotionTake): Promise<void> {
   const rejected: string = `${fixture.directory}/rejected.json`;
   for (const { change, diagnostic } of [
@@ -72,15 +81,17 @@ async function verifyRefusals(take: IAutoMovieMotionTake): Promise<void> {
   } finally {
     await rename(moved, fixture.data);
   }
+  const opaqueArtifact: string = `${fixture.directory}/opaque-rejected.json`;
   await assert.rejects(
     openMotionTake({
       ...original,
       source: fixture.opaqueSource,
-      artifact: rejected,
+      artifact: opaqueArtifact,
       create: { mode: "save", outputSeconds: fixture.seconds },
     }),
-    /take-provider: opaque provider/,
+    /take-provider: opaque provider at .*\.articulateSite/u,
   );
+  await assert.rejects(readFile(opaqueArtifact), { code: "ENOENT" });
   await assert.rejects(
     openMotionTake({
       ...original,
@@ -103,7 +114,10 @@ async function verifyRefusals(take: IAutoMovieMotionTake): Promise<void> {
   );
 }
 
-/** Reopen in a fresh process, rerender across the seam and replace an existing suffix. */
+/**
+ * Reopen in a fresh process, rerender across the seam and replace an existing
+ * suffix.
+ */
 async function reopen(): Promise<void> {
   const reference: IReference = JSON.parse(
     await readFile(fixture.reference, "utf8"),
@@ -117,12 +131,14 @@ async function reopen(): Promise<void> {
     sourceSeconds: fixture.sourceSeconds,
     side: "after",
   });
-  for (const [index, seconds] of sampleTimes.entries())
+  for (const index of playbackOrder) {
+    const seconds: number = sampleTimes[index]!;
     assertObserved(
       observe(replay.performanceAt(seconds), seconds),
       reference.samples[index],
       `reopened at ${seconds}`,
     );
+  }
   assertObserved(cues(replay.source), reference.events, "source cue sequence");
   assert.deepEqual(
     await draw(take),

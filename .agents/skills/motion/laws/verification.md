@@ -7,7 +7,9 @@ Test each isolated action's own goal with bounded assertions in unit tests. Unit
 - slip of every planted or held contact;
 - range-of-motion overshoot;
 - balance for a staged physical outcome or on request, using extrapolated center of mass against the support (Hof 2005);
-- continuity of every displayed channel and of its velocity at every cut and at both joins of each prepared physical response.
+- pose and rate continuity at cuts and at both joins of each prepared response.
+
+Check all displayed channels. Where an impact or release intentionally changes a rate or contact, test the declared change.
 
 ## Checks that can fail
 

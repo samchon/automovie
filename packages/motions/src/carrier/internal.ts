@@ -18,4 +18,5 @@ export * from "./supportTransfer";
 export * from "./HumanSwingLeap";
 export * from "./HumanIceGlide";
 export * from "./HumanSnowGlide";
+export * from "./prepareGlideSlope";
 export * from "./HumanRoundaboutPush";

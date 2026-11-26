@@ -28,7 +28,7 @@ Follow the [generated-film workflow](../video/generated-film.md), [assemble](ass
 
 ### Standalone asset
 
-Set the promised asset and its use from the commission. Where the choice is delegated, use [direction](../story/planning/direction.md). Prepare it under [image](../image/SKILL.md), [3D modeling](../3d-modeling/SKILL.md), [motion](../motion/SKILL.md) or [audio](../audio/SKILL.md), as applicable. Verify it under [asset review](../review/delivery-review.md#assets). This route has no narrative pass.
+Set the asset and its use at [intake](project-context.md#intake). Use the applicable skill in `AGENTS.md` and complete [asset review](../review/delivery-review.md#assets).
 
 ## Programmed performance
 

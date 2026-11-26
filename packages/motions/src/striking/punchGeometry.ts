@@ -228,34 +228,30 @@ export namespace punchGeometry {
     // corrected only as each correction arrives. A feint tracks nothing.
     const corrections = (t: number): readonly punchReach.ICorrection[] =>
       p.feint === undefined ? contact.corrected(t0 + t) : [];
-    const carry = (
-      origin: IAutoMovieVector3,
-      t: number,
-      of: (c: punchReach.ICorrection) => IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      superposeMinimumJerk.position(
-        origin,
-        corrections(t).map(
-          (
-            c: punchReach.ICorrection,
-          ): IAutoMovieSuperposeMinimumJerk.IUnit => ({
-            displacement: of(c),
-            start: c.start,
-            duration: c.duration,
-          }),
-        ),
-        t0 + t,
-      );
+    const prepared: readonly punchReach.ICorrection[] = corrections(Infinity);
+    const unitsOf = (
+      displacement: (correction: punchReach.ICorrection) => IAutoMovieVector3,
+    ): IAutoMovieSuperposeMinimumJerk.IUnit[] =>
+      prepared.map((correction: punchReach.ICorrection) => ({
+        displacement: displacement(correction),
+        start: correction.start,
+        duration: correction.duration,
+      }));
+    const advanceUnits: IAutoMovieSuperposeMinimumJerk.IUnit[] = unitsOf(
+      (c: punchReach.ICorrection): IAutoMovieVector3 => ({
+        x: c.advance,
+        y: 0,
+        z: 0,
+      }),
+    );
+    const hints: IAutoMovieSuperposeMinimumJerk.IUnit[] = unitsOf(
+      (c: punchReach.ICorrection): IAutoMovieVector3 => c.hint,
+    );
+    const advanced: IAutoMovieVector3 = { x: contact.advance, y: 0, z: 0 };
     const step = (t: number): number =>
-      carry(
-        { x: contact.advance, y: 0, z: 0 },
-        t,
-        (c: punchReach.ICorrection): IAutoMovieVector3 => ({
-          x: c.advance,
-          y: 0,
-          z: 0,
-        }),
-      ).x;
+      superposeMinimumJerk.position(advanced, advanceUnits, t0 + t).x;
+    const hint = (t: number): IAutoMovieVector3 =>
+      superposeMinimumJerk.position(contact.hint, hints, t0 + t);
 
     const origin: IAutoMovieVector3 = bones.get(
       `${side}Hand` as AutoMovieHumanoidBone,
@@ -345,15 +341,18 @@ export namespace punchGeometry {
     // The stop is the performance's joint resolution of the arm's capsules
     // (`fixed`); the stroke scans nothing itself.
     const stroke: IAutoMovieMotionHumanStrikingStroke.IStroke =
-      StrikingStroke.create({
-        origin,
-        units,
-        ...(p.feint === undefined ? { tracker: corrected } : {}),
-        contact: t0 + shown,
-        back: (): IAutoMovieVector3 => guardEnd().point,
-        recoil,
-        ...(fixed === undefined ? {} : { fixed }),
-      });
+      StrikingStroke.create(
+        {
+          origin,
+          units,
+          ...(p.feint === undefined ? { tracker: corrected } : {}),
+          contact: t0 + shown,
+          back: (): IAutoMovieVector3 => guardEnd().point,
+          recoil,
+          ...(fixed === undefined ? {} : { fixed }),
+        },
+        ended.point,
+      );
 
     // The punch's posture for a wrist goal at a second, the arm's elbow and
     // the trunk's turn on a clock (the second itself unless withdrawing),
@@ -465,8 +464,7 @@ export namespace punchGeometry {
       raised,
       guardAt,
       startElbow,
-      carry,
-      contact,
+      hint,
       arm,
       drop,
       sag,
@@ -483,7 +481,7 @@ export namespace punchGeometry {
       new Map(
         [
           contact.launched,
-          ...corrections(Infinity)
+          ...prepared
             .filter((c: punchReach.ICorrection): boolean => c.moved)
             .map((c: punchReach.ICorrection): punchReach.IReach => c.reach),
         ].map(
@@ -495,10 +493,8 @@ export namespace punchGeometry {
           ],
         ),
       );
-    const landing = (): punchReach.IReach =>
-      p.feint === undefined
-        ? (contact.corrected(Infinity).at(-1)?.reach ?? contact.launched)
-        : contact.launched;
+    const landing: punchReach.IReach =
+      prepared.at(-1)?.reach ?? contact.launched;
     return {
       contacts: footwork.contacts,
       record: {
@@ -507,10 +503,10 @@ export namespace punchGeometry {
         planned: tracker.planned,
         // Where the arm lands once every correction has arrived.
         get reached(): IAutoMovieVector3 {
-          return Vector3.add(landing().solved.end, socket);
+          return Vector3.add(landing.solved.end, socket);
         },
         get status(): IAutoMovieMotionHumanStrikingReach.ISolution["status"] {
-          return landing().solved.status;
+          return landing.solved.status;
         },
         stop: stroke.stop,
       },

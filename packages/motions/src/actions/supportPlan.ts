@@ -15,6 +15,7 @@ import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanArmSwing } from "../posture/HumanArmSwing";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
+import { knockdown } from "../reaction/knockdown";
 import { prepareSupportHelperGrip } from "./prepareSupportHelperGrip";
 import { prepareSupportInterval } from "./prepareSupportInterval";
 import { supportBalance } from "./supportBalance";
@@ -78,6 +79,8 @@ export function supportPlan(
     }
   const follow: ReturnType<typeof prepareSupportHelperGrip> =
     prepareSupportHelperGrip(context, contacts, duration);
+  const floor: ReturnType<typeof knockdown.prepareRest> =
+    knockdown.prepareRest(body);
   const intervals: ReturnType<typeof prepareSupportInterval>[] = keys
     .slice(0, Math.max(1, keys.length - 1))
     .map(
@@ -92,6 +95,7 @@ export function supportPlan(
           key.place,
           socket,
           course?.material,
+          floor,
         ),
     );
 
@@ -142,6 +146,8 @@ export function supportPlan(
         ),
       ),
   );
+  const armCourse: Array<ReturnType<typeof HumanArmSwing.course> | undefined> =
+    [];
 
   /**
    * Carry a support interval, its hanging arms let out of the legs and trunk
@@ -162,9 +168,22 @@ export function supportPlan(
       projection,
     );
     const sides: AutoMovieHumanSide[] = free[index] ?? hanging;
-    return sides.length === 0
+    return sides.length === 0 ||
+      (channels !== undefined &&
+        !sides.some((side: AutoMovieHumanSide): boolean =>
+          channels.includes(`${side}Arm`),
+        ))
       ? carried
-      : HumanArmSwing(body, carried, sides, resolution, projection);
+      : HumanArmSwing(
+          body,
+          carried,
+          sides,
+          resolution,
+          projection,
+          undefined,
+          undefined,
+          armCourse[index]?.(seconds),
+        );
   };
 
   /** Carry a support interval after the containing transfer has been selected. */
@@ -228,6 +247,20 @@ export function supportPlan(
     yields,
     prepare: (): void => {
       for (const interval of intervals) interval.prepare();
+      if (follow === undefined && course?.material === undefined)
+        free.forEach((sides: AutoMovieHumanSide[], index: number): void => {
+          const from: number = keys[index]!.seconds;
+          const to: number = keys[index + 1]?.seconds ?? duration;
+          if (sides.length !== 0 && from < to)
+            armCourse[index] = HumanArmSwing.course(
+              body,
+              from,
+              to,
+              (second: number): IAutoMovieMotionHumanPosture =>
+                interval(index, second),
+              sides,
+            );
+        });
     },
     posture: (
       t: number,
@@ -272,7 +305,10 @@ export function supportPlan(
               IAutoMovieMotionHumanActionPlan["posture"]
             >
           ): IAutoMovieMotionHumanPlayback.ISample => ({
-            posture: transfer(i, seconds, channels, resolution, projection),
+            posture:
+              seconds === keys[i + 1]!.seconds
+                ? planned.posture(seconds, channels, resolution, projection)
+                : transfer(i, seconds, channels, resolution, projection),
           }),
         }),
       ),

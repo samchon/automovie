@@ -196,6 +196,12 @@ export namespace IAutoMovieMotionHumanWorkout {
     };
 
     /**
+     * Static friction coefficient of the planted floor for a named wall sit,
+     * nonnegative. When absent the law uses 0.6 for a dry shoe-floor pair.
+     */
+    floorFriction?: number;
+
+    /**
      * Whether the body stays on its support at the end instead of standing up;
      * `false` when absent.
      */

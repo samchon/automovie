@@ -85,6 +85,9 @@ export namespace IAutoMovieMotionHumanSeated {
     /** Backrest height above the surface, metres; backless when absent. */
     back?: number;
 
+    /** Finite receiving backrest on the carrier, named `back` by default. */
+    backrest?: string;
+
     /** For a seat fixed by task geometry, use the body's reachable contacts. */
     workingSeat?: boolean;
 
@@ -116,8 +119,8 @@ export namespace IAutoMovieMotionHumanSeated {
     footrests?: Partial<Record<"left" | "right", IAutoMovieVector3>>;
 
     /**
-     * Each footrest's affordance on the carrier. A point on a bar may be
-     * offset from the affordance's origin.
+     * Each footrest's affordance on the carrier. A point on a bar may be offset
+     * from the affordance's origin.
      */
     footrestPoints?: Partial<Record<"left" | "right", string>>;
   }

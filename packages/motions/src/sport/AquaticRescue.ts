@@ -170,6 +170,12 @@ export namespace AquaticRescue {
     );
     const hipsAt: ReturnType<typeof AquaticPosture.markers> =
       AquaticPosture.markers(body, ["hips"]);
+    const hipsOf = (posture: IAutoMovieMotionHumanPosture): IAutoMovieVector3 =>
+      hipsAt(posture).get("hips")!.worldPosition;
+    // Both kicks change only descendants of the hips. The transition is
+    // the only interval where the hips follow a varying trunk attitude.
+    const crawlHips: IAutoMovieVector3 = hipsOf(swim);
+    const sideHips: IAutoMovieVector3 = hipsOf(side);
     // The body without the holding arm's goal.
     const bodyAt: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
@@ -194,7 +200,8 @@ export namespace AquaticRescue {
                 { ...behind, y: 0 },
                 Vector3.scale(tow.toward, along(tow, t - hold)),
               );
-      const hips: IAutoMovieVector3 = hipsAt(shaped).get("hips")!.worldPosition;
+      const hips: IAutoMovieVector3 =
+        t < arrive ? crawlHips : t >= hold ? sideHips : hipsOf(shaped);
       const placed: IAutoMovieMotionHumanPosture = AquaticPosture.translate(
         shaped,
         Vector3.add(shaped.root, {
@@ -394,6 +401,7 @@ export namespace AquaticRescue {
     );
     const mouthAt = (posture: IAutoMovieMotionHumanPosture): number =>
       HumanTrunk.region(body, posture, "mouth").point.y;
+    const settledMouth: number = mouthAt(lie(1));
     const duration: number = tow.seconds;
     return {
       duration,
@@ -404,6 +412,7 @@ export namespace AquaticRescue {
       ],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.max(0, Math.min(duration, seconds));
+        const settling: boolean = t < AquaticRescueBounds.GRIP;
         const shaped: IAutoMovieMotionHumanPosture = lie(
           t / AquaticRescueBounds.GRIP,
         );
@@ -412,7 +421,9 @@ export namespace AquaticRescue {
           Vector3.scale(tow.toward, along(tow, t)),
         );
         const lift: number =
-          water + AquaticRescueBounds.CLEAR - mouthAt(shaped);
+          water +
+          AquaticRescueBounds.CLEAR -
+          (settling ? mouthAt(shaped) : settledMouth);
         return AquaticPosture.translate(shaped, {
           x: where.x,
           y: shaped.root.y + lift,

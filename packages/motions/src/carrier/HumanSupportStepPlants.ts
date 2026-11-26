@@ -5,7 +5,6 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
@@ -14,6 +13,9 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+
+import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 
 /**
  * The footprints of a support step (`HumanSupportStep`): which support each of
@@ -45,6 +47,9 @@ export namespace HumanSupportStepPlants {
     /** Its touchdown, seconds of the step. */
     down: number;
 
+    /** Named material frame that carries this footprint after touchdown. */
+    site?: string;
+
     /**
      * How far it is slid along a surface to keep off an edge, and lifted onto a
      * moving surface it arrives on, world metres.
@@ -57,6 +62,9 @@ export namespace HumanSupportStepPlants {
 
   /** One declared surface of a support in the world. */
   export interface ISurface {
+    /** The affordance id of an authored support, when available. */
+    id?: string;
+
     /** Its centre. */
     origin: IAutoMovieVector3;
 
@@ -110,6 +118,8 @@ export namespace HumanSupportStepPlants {
       frame(
         seconds: number,
       ): Pick<IAutoMovieRigidTransform, "position" | "rotation">;
+      /** Optional displayed material frame of an articulated surface. */
+      site?(id: string, seconds: number): IAutoMovieRigidTransform;
     };
   }
 
@@ -126,20 +136,38 @@ export namespace HumanSupportStepPlants {
     prop: string,
     at: number,
   ): ISurface[] {
-    const frame: Pick<IAutoMovieRigidTransform, "position" | "rotation"> =
-      context.prop(prop).frame(context.start + at);
-    return (context.prop(prop).prop.affordances ?? [])
+    const reader: ReturnType<ISurfacesContext["prop"]> = context.prop(prop);
+    const seconds: number = context.start + at;
+    let frame:
+      | Pick<IAutoMovieRigidTransform, "position" | "rotation">
+      | undefined;
+    const placed = (item: IAutoMovieAffordance): IAutoMovieRigidTransform => {
+      frame ??= reader.frame(seconds);
+      return {
+        position: Vector3.add(
+          frame.position,
+          Quaternion.rotateVector(frame.rotation, item.frame.translation),
+        ),
+        rotation: Quaternion.multiply(frame.rotation, item.frame.rotation),
+      };
+    };
+    return (reader.prop.affordances ?? [])
       .filter((item: IAutoMovieAffordance): boolean => item.kind === "surface")
-      .map(
-        (item: IAutoMovieAffordance): ISurface => ({
-          origin: Vector3.add(
-            frame.position,
-            Quaternion.rotateVector(frame.rotation, item.frame.translation),
-          ),
-          rotation: Quaternion.multiply(frame.rotation, item.frame.rotation),
+      .map((item: IAutoMovieAffordance): ISurface => {
+        const site: IAutoMovieRigidTransform =
+          reader.site?.(item.id, seconds) ?? placed(item);
+        return {
+          id: item.id,
+          origin: site.position,
+          rotation: site.rotation,
           width: item.width ?? Infinity,
           depth: item.depth ?? Infinity,
-        }),
+        };
+      })
+      .filter(
+        (surface: ISurface): boolean =>
+          Quaternion.rotateVector(surface.rotation, { x: 0, y: 1, z: 0 }).y >=
+          1 - 1e-8,
       );
   }
 
@@ -176,14 +204,34 @@ export namespace HumanSupportStepPlants {
     );
   }
 
+  /** The smallest horizontal translation to contain the whole sole on a face. */
+  export function fit(
+    surface: ISurface,
+    footprint: readonly IAutoMovieVector3[],
+  ): IAutoMovieVector3 | null {
+    const projected: IBounds = bounds(surface, footprint);
+    const x: number | null = correction(
+      projected.left,
+      projected.right,
+      surface.width,
+    );
+    const z: number | null = correction(
+      projected.back,
+      projected.front,
+      surface.depth,
+    );
+    return x === null || z === null
+      ? null
+      : Quaternion.rotateVector(surface.rotation, { x, y: 0, z });
+  }
+
   /**
    * Each foot's plants in time order and the support each bears on: the entry's
    * on the support left, each new one on the support whose surface holds the
    * middle of the foot where it lands. A new footprint is slid along the
    * surface, the least it takes, to lie wholly on the moving support that bears
-   * it, or wholly off the one beside it, so no foot straddles an edge; one
-   * crossing the edge head-on slides along its own length, so it keeps its lane
-   * beside the other foot.
+   * it, or wholly off the one beside it. A step off the support that crosses
+   * its edge head-on keeps its lane beside the other foot.
    *
    * @param step The step.
    * @param walked The walk planned on the support left.
@@ -201,21 +249,17 @@ export namespace HumanSupportStepPlants {
     const { context, moved, level, settled }: IStep = step;
     const { to, from, onto }: IAutoMovieMotionHumanSurface.ISupportStepParams =
       context.params;
-    const measure: IAutoMovieMotionHumanBody["measure"] = context.body.measure;
-    const heel: number = -measure.heel;
-    const toe: number = measure.footLength - measure.heel;
-    const sole = (
-      ankle: IAutoMovieVector3,
-      yaw: number,
-      along: number,
-    ): IAutoMovieVector3 =>
-      Vector3.add(
-        ankle,
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-          { x: 0, y: -measure.ankleHeight, z: along },
-        ),
-      );
+    const soles: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof HumanFoot.prepareSole>
+    > = {
+      left: HumanFoot.prepareSole(context.body, "left"),
+      right: HumanFoot.prepareSole(context.body, "right"),
+    };
+    const leftSurfaces: ISurface[] =
+      from === undefined ? [] : surfaces(context, from, 0);
+    const rightSurfaces: ISurface[] =
+      onto === undefined ? [] : surfaces(context, onto, land);
     const duration: number = walked.duration;
     const plants: Record<AutoMovieHumanSide, IPlant[]> = {
       left: [],
@@ -243,38 +287,21 @@ export namespace HumanSupportStepPlants {
         floor: 0,
       };
       if (goal !== undefined) {
-        const centre: IAutoMovieVector3 = sole(
-          goal.point,
-          middle.yaw,
-          (heel + toe) / 2,
-        );
+        const sole: IAutoMovieVector3[] = soles[side]({
+          ankle: goal.point,
+          rotation:
+            goal.rotation ??
+            Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, middle.yaw),
+        });
+        const centre: IAutoMovieVector3 = Vector3.lerp(sole[0]!, sole[2]!, 0.5);
         if (window.from > 0)
           plant.arrived =
             onto !== undefined
-              ? surfaces(context, onto, land).some((s: ISurface): boolean =>
+              ? rightSurfaces.some((s: ISurface): boolean =>
                   holds(s, moved(from, 0, leave, centre)),
                 )
               : from !== undefined &&
-                !surfaces(context, from, 0).some((s: ISurface): boolean =>
-                  holds(s, centre),
-                );
-        // A footprint on the support arrived on stands on its surface as it
-        // is when the last foot lands, which a moving tread may have carried
-        // above or below the floor the walk was planned on.
-        if (plant.arrived && onto !== undefined) {
-          const aimed: IAutoMovieVector3 = moved(from, 0, leave, centre);
-          const under: ISurface | undefined = surfaces(
-            context,
-            onto,
-            land,
-          ).find((s: ISurface): boolean => holds(s, aimed));
-          if (under !== undefined)
-            plant.shift = {
-              x: 0,
-              y: under.origin.y - aimed.y,
-              z: 0,
-            };
-        }
+                !leftSurfaces.some((s: ISurface): boolean => holds(s, centre));
         // Where the plant lands in the world at its touchdown.
         const placed = (point: IAutoMovieVector3): IAutoMovieVector3 =>
           plant.arrived
@@ -282,70 +309,80 @@ export namespace HumanSupportStepPlants {
             : moved(from, 0, down, point);
         const bearing: string | undefined = plant.arrived ? onto : from;
         const beside: string | undefined = plant.arrived ? from : onto;
+        const mid: IAutoMovieVector3 = placed(centre);
+        const owned: ISurface[] =
+          bearing === undefined
+            ? []
+            : down === 0
+              ? leftSurfaces
+              : surfaces(context, bearing, down);
+        const candidates: ISurface[] = owned.filter(
+          (surface: ISurface): boolean => holds(surface, mid),
+        );
+        const own: ISurface | undefined =
+          candidates.find(
+            (surface: ISurface): boolean =>
+              Number.isFinite(surface.width) && Number.isFinite(surface.depth),
+          ) ?? candidates[0];
+        if (own?.id !== undefined) plant.site = own.id;
         if (window.from > 0) {
-          const back: IAutoMovieVector3 = placed(
-            sole(goal.point, middle.yaw, heel),
+          const footprint: IAutoMovieVector3[] = sole.map(placed);
+          let shift: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+          if (own !== undefined) {
+            const correction: IAutoMovieVector3 | null = fit(own, footprint);
+            if (correction === null)
+              throw new HumanRefusal({
+                kind: "reach",
+                axis: "support",
+                value: bearing,
+                reason: `the ${side} sole is larger than the support it lands on`,
+                fix: "choose a wider or deeper landing surface",
+              });
+            shift = plant.arrived
+              ? { ...correction, y: correction.y - local(own, mid).y }
+              : correction;
+          } else if (bearing === undefined && beside !== undefined) {
+            for (const s of surfaces(context, beside, down)) {
+              const edge: IAutoMovieVector3 = Quaternion.rotateVector(
+                s.rotation,
+                { x: 0, y: 0, z: 1 },
+              );
+              const ahead: boolean =
+                Vector3.dot(
+                  edge,
+                  Vector3.subtract(to, context.entry.posture.root),
+                ) > 0;
+              const shifted: IAutoMovieVector3[] = footprint.map(
+                (p: IAutoMovieVector3): IAutoMovieVector3 =>
+                  Vector3.add(p, shift),
+              );
+              const along: number = outside(
+                s,
+                shifted,
+                ahead === plant.arrived,
+              );
+              const length: IAutoMovieVector3 = Vector3.normalize(
+                Vector3.subtract(footprint[2]!, footprint[0]!),
+              );
+              const facing: number = Vector3.dot(length, edge);
+              shift = Vector3.add(
+                shift,
+                Math.abs(facing) > HEAD_ON
+                  ? Vector3.scale(length, along / facing)
+                  : Vector3.scale(edge, along),
+              );
+            }
+          }
+          // The travel reader applies a plant's shift before carrying it.
+          // Convert the displacement seen at touchdown back to that frame.
+          const unplace = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+            plant.arrived
+              ? moved(from, leave, 0, moved(onto, down, land, point))
+              : moved(from, down, 0, point);
+          plant.shift = Vector3.subtract(
+            unplace(Vector3.add(mid, shift)),
+            unplace(mid),
           );
-          const front: IAutoMovieVector3 = placed(
-            sole(goal.point, middle.yaw, toe),
-          );
-          const fit = (surface: ISurface, inside: boolean): number => {
-            const a: number = local(surface, back).z;
-            const b: number = local(surface, front).z;
-            const low: number = Math.min(a, b);
-            const high: number = Math.max(a, b);
-            const half: number = surface.depth / 2;
-            if (inside)
-              return high - low > 2 * half
-                ? 0
-                : Math.max(0, -half - low) + Math.min(0, half - high);
-            if (high <= -half || low >= half) return 0;
-            const forth: number = half - low;
-            const backward: number = -half - high;
-            // Off the support beside it, a foot keeps to the landing's side:
-            // ahead toward the arrival when stepping off, back from the
-            // support when it has yet to board it.
-            const ahead: number = Vector3.dot(
-              Quaternion.rotateVector(surface.rotation, { x: 0, y: 0, z: 1 }),
-              Vector3.subtract(to, context.entry.posture.root),
-            );
-            return ahead > 0 === plant.arrived ? forth : backward;
-          };
-          // A footprint crossing the edge more head-on than side-on slides
-          // along its own length, shortening or lengthening its step, so it
-          // keeps its lane beside the other foot; one more side-on slides
-          // square to the edge.
-          const length: IAutoMovieVector3 = Vector3.normalize({
-            x: front.x - back.x,
-            y: 0,
-            z: front.z - back.z,
-          });
-          const slide = (surface: ISurface, inside: boolean): void => {
-            const along: number = fit(surface, inside);
-            if (along === 0) return;
-            const square: IAutoMovieVector3 = Quaternion.rotateVector(
-              surface.rotation,
-              { x: 0, y: 0, z: 1 },
-            );
-            const facing: number = Vector3.dot(length, square);
-            plant.shift = Vector3.add(
-              plant.shift,
-              Math.abs(facing) > HEAD_ON
-                ? Vector3.scale(length, along / facing)
-                : Vector3.scale(square, along),
-            );
-          };
-          const mid: IAutoMovieVector3 = placed(centre);
-          if (bearing !== undefined) {
-            const own: ISurface | undefined = surfaces(
-              context,
-              bearing,
-              down,
-            ).find((s: ISurface): boolean => holds(s, mid));
-            if (own !== undefined) slide(own, true);
-          } else if (beside !== undefined)
-            for (const s of surfaces(context, beside, down))
-              if (Math.abs(local(s, mid).x) <= s.width / 2) slide(s, false);
         }
         // A fixed landing's height: the entry's floor for the feet that
         // start there, the arrival point's for those that arrive on it.
@@ -357,4 +394,60 @@ export namespace HumanSupportStepPlants {
       plants[side].sort((a: IPlant, b: IPlant): number => a.down - b.down);
     return plants;
   }
+}
+
+/** A sole's extrema in the deck's horizontal material coordinates. */
+interface IBounds {
+  left: number;
+  right: number;
+  back: number;
+  front: number;
+}
+
+/** Project all sole points onto one material plane. */
+function bounds(
+  surface: HumanSupportStepPlants.ISurface,
+  sole: readonly IAutoMovieVector3[],
+): IBounds {
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(surface.rotation);
+  let left: number = Infinity;
+  let right: number = -Infinity;
+  let back: number = Infinity;
+  let front: number = -Infinity;
+  for (const point of sole) {
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      inverse,
+      Vector3.subtract(point, surface.origin),
+    );
+    left = Math.min(left, local.x);
+    right = Math.max(right, local.x);
+    back = Math.min(back, local.z);
+    front = Math.max(front, local.z);
+  }
+  return { left, right, back, front };
+}
+
+/** Minimum translation of one finite interval inside its support. */
+function correction(low: number, high: number, extent: number): number | null {
+  if (high - low > extent + 1e-12) return null;
+  return Math.max(0, -extent / 2 - low) + Math.min(0, extent / 2 - high);
+}
+
+/** Move clear of the nearby deck on the side the step is already taking. */
+function outside(
+  surface: HumanSupportStepPlants.ISurface,
+  sole: readonly IAutoMovieVector3[],
+  forward: boolean,
+): number {
+  const at: IBounds = bounds(surface, sole);
+  const half: number = surface.depth / 2;
+  if (
+    !Number.isFinite(half) ||
+    at.right <= -surface.width / 2 ||
+    at.left >= surface.width / 2 ||
+    at.front <= -half ||
+    at.back >= half
+  )
+    return 0;
+  return forward ? half - at.back : -half - at.front;
 }

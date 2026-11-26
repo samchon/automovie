@@ -14,6 +14,7 @@ import type {
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -161,12 +162,38 @@ export function seatLadderAccessGrips(
         leave,
         onto: hand(side, from - prepare, from),
         off: hand(side, to, to + leave),
+        target:
+          grip.rung === undefined
+            ? rung
+            : climbLadderHands(
+                body,
+                grip.rung.normal,
+                Vector3.scale(grip.rung.axis, -1),
+              ),
       };
     });
   };
   const tracks: Record<AutoMovieHumanSide, ISeat[]> = {
     left: schedule("left"),
     right: schedule("right"),
+  };
+  const index = (
+    side: AutoMovieHumanSide,
+  ): ((seconds: number) => ISeat | undefined) => {
+    const lookup = PreparedHumanIntervals.first(
+      tracks[side].map(
+        (seat: ISeat): { from: number; to: number; seat: ISeat } => ({
+          from: seat.from - seat.prepare,
+          to: seat.to + seat.leave,
+          seat,
+        }),
+      ),
+    );
+    return (seconds: number): ISeat | undefined => lookup(seconds)?.seat;
+  };
+  const activeTrack: Record<AutoMovieHumanSide, ReturnType<typeof index>> = {
+    left: index("left"),
+    right: index("right"),
   };
 
   return (
@@ -182,11 +209,7 @@ export function seatLadderAccessGrips(
     for (const side of ["left", "right"] as const) {
       const arm: AutoMovieHumanLimb = `${side}Arm`;
       if (channels !== undefined && !channels.includes(arm)) continue;
-      const active: ISeat | undefined = tracks[side].find(
-        (seat: ISeat): boolean =>
-          seconds >= seat.from - seat.prepare &&
-          seconds <= seat.to + seat.leave,
-      );
+      const active: ISeat | undefined = activeTrack[side](seconds);
       if (active === undefined || active.behind) continue;
       const target: IAutoMovieHumanLimbGoal = active.grip.rail
         ? AutoMovieMotionHumanArmTarget.fromWrist(
@@ -194,7 +217,7 @@ export function seatLadderAccessGrips(
             AutoMovieMotionHumanBend.arm(body, posture, side, "hang"),
             offsets[side],
           )
-        : rung(side, posture, active.grip.point);
+        : active.target(side, posture, active.grip.point);
       if (seconds >= active.from && seconds <= active.to) {
         limbs[arm] = { ...target, planted: true };
         continue;
@@ -238,6 +261,9 @@ type SampleRest =
 
 /** A grip with its window and easing in plan seconds. */
 interface ISeat {
+  /** The prepared grip writer for this rung. */
+  target: ReturnType<typeof climbLadderHands>;
+
   /** The grip. */
   grip: ILadderAccessGrip;
 

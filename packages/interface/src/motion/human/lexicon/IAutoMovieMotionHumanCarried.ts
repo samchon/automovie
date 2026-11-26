@@ -156,7 +156,7 @@ export namespace IAutoMovieMotionHumanCarried {
   }
 
   /** Parameters of the carrier's hold in a named carry. */
-  export interface IBearing {
+  export interface IBearing extends IAutoMovieMotionHumanCarriedLift.IParams {
     /** The carry; `piggyback` when absent. */
     carry?: IAutoMovieMotionHumanCarried.Carry;
 

@@ -122,10 +122,13 @@ export namespace IAutoMovieMotionHumanEntryState {
 
   /**
    * One support the body rests on, retaining its anatomical region, foot
-   * socket and explicit weight share when the contact declares them.
+   * socket, fitted material and explicit weight share when the contact declares
+   * them.
    */
-  export interface ISupport
-    extends Pick<IAutoMovieMotionHumanContactWindow, "region" | "socket" | "load"> {
+  export interface ISupport extends Pick<
+    IAutoMovieMotionHumanContactWindow,
+    "region" | "socket" | "material" | "load"
+  > {
     /** The body part that bears. */
     part: IAutoMovieMotionHumanContactWindow["part"];
 

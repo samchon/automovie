@@ -17,6 +17,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
 /** Each world goal that can follow the stair body or a held foot. */
@@ -65,6 +66,19 @@ export function climbStairsCarry(
     left: footPlants(plan.contacts, "leftFoot"),
     right: footPlants(plan.contacts, "rightFoot"),
   };
+  const closing = (
+    list: readonly IAutoMovieMotionHumanContactWindow[],
+  ): number[] => {
+    let last: number = -Infinity;
+    return list.map((window: IAutoMovieMotionHumanContactWindow): number => {
+      last = Math.max(last, window.to);
+      return last;
+    });
+  };
+  const endings: Record<AutoMovieHumanSide, number[]> = {
+    left: closing(plants.left),
+    right: closing(plants.right),
+  };
   const onProp: (w: IAutoMovieMotionHumanContactWindow) => boolean = (
     w: IAutoMovieMotionHumanContactWindow,
   ): boolean => w.support.kind === "prop" && w.support.subject === prop;
@@ -98,21 +112,22 @@ export function climbStairsCarry(
     const list: IAutoMovieMotionHumanContactWindow[] = plants[side];
     if (list.length === 0) return STILL;
     const share: number = at / duration;
-    for (let k: number = 0; k < list.length; ++k) {
-      const w: IAutoMovieMotionHumanContactWindow = list[k]!;
-      if (share < w.from) {
-        if (k === 0) return borne(w, at);
-        const before: IAutoMovieMotionHumanContactWindow = list[k - 1]!;
-        return HumanSupportCarry.blend(
-          borne(before, at),
-          borne(w, at),
-          anchor,
-          minimumJerk.share((share - before.to) / (w.from - before.to)),
-        );
-      }
-      if (share <= w.to) return borne(w, at);
-    }
-    return borne(list[list.length - 1]!, at);
+    const end: number[] = endings[side];
+    const k: number = PreparedHumanIntervals.lowerBound(
+      end.length,
+      (index: number): number => end[index]!,
+      share,
+    );
+    if (k === list.length) return borne(list[k - 1]!, at);
+    const next: IAutoMovieMotionHumanContactWindow = list[k]!;
+    if (k === 0 || share >= next.from) return borne(next, at);
+    const before: IAutoMovieMotionHumanContactWindow = list[k - 1]!;
+    return HumanSupportCarry.blend(
+      borne(before, at),
+      borne(next, at),
+      anchor,
+      minimumJerk.share((share - before.to) / (next.from - before.to)),
+    );
   };
   // The weight passes onto the prop from the first tread touchdown to the
   // last floor print's lift.

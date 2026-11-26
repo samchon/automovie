@@ -189,6 +189,9 @@ export namespace walkSteps {
     const airborne: AutoMovieHumanSide | undefined = walkStride.airborne(
       input.entry,
     );
+    const inherited: walkStride.IFlight | undefined = walkStride.flight(
+      input.entry,
+    );
     const pace: WalkPace = walkStride.pace(
       {
         ...input,
@@ -203,6 +206,7 @@ export namespace walkSteps {
       reach > 0
         ? { x: (ahead.x - S.x) / reach, y: 0, z: (ahead.z - S.z) / reach }
         : undefined,
+      inherited,
     );
     const delta: number = D / pace.steps;
     // The equivalent of an angle nearest a reference heading, so the headings
@@ -269,6 +273,7 @@ export namespace walkSteps {
     const behind: AutoMovieHumanSide =
       along("left") < along("right") - 1e-6 ? "left" : "right";
     const lead: AutoMovieHumanSide =
+      inherited?.side ??
       opening?.lead ??
       airborne ??
       (inPlace
@@ -284,7 +289,7 @@ export namespace walkSteps {
             half,
           ));
     const turning: number =
-      opening?.turning ??
+      (inherited === undefined ? opening?.turning : 0) ??
       (facing === undefined
         ? walkHeading.opening(
             heading,
@@ -391,6 +396,8 @@ export namespace walkSteps {
         facing,
         inPlace,
         airborne,
+        doubleFlight: inherited !== undefined,
+        landing: inherited?.landing,
         yaw0,
         lead,
         n,
@@ -425,6 +432,7 @@ export namespace walkSteps {
         inPlace,
         raised,
         steps,
+        doubleFlight: inherited !== undefined,
         yawAt,
         T,
         swing,

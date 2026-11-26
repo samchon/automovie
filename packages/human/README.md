@@ -63,22 +63,13 @@ The polygon man is plain because it only has to show motion cheaply. Nothing abo
 
 ## Inspection
 
-From this package directory, `pnpm capture` saves stills and contact sheets, and `pnpm inspect` opens the interactive inspector. Both use the Human subject module. Capture uses Playwright's Chromium or the Chromium executable specified by `CHROME_PATH`. [Inspection request keys](../render/README.md#request-keys).
+From this package directory, `pnpm capture` saves stills and contact sheets, and `pnpm inspect` opens the interactive inspector. Both use `src/executable/subjects.ts`. Capture uses Playwright's Chromium or the executable specified by `CHROME_PATH`. To install Playwright's browser, run `pnpm exec playwright-core install chromium-headless-shell` from the checkout root. [Human inspection selectors](docs/inspection.md), [inspection request keys](../render/docs/capture-requests.md).
 
 ```powershell
 pnpm capture --subject ansur-upper-arm-envelope --views 'front@ortho;right@ortho;three-quarter' --passes clay --marks 'curve/*'
 ```
 
 The `ansur-upper-arm-envelope` subject is a circular conic loft with geometric caps. It uses the ANSUR II women's mean acromion-radiale length of 311.2 mm and flexed upper-arm circumference of 305.6 mm. [ANSUR II measurements](docs/sources/ansur-ii.md).
-
-| Path or pattern | Selection |
-| --- | --- |
-| `ansur-upper-arm-envelope/upperarm` | The surface |
-| `ansur-upper-arm-envelope/upperarm/section/*` | Section rings |
-| `ansur-upper-arm-envelope/upperarm/guide/*` | Guide rails |
-| `ansur-upper-arm-envelope/upperarm/axis` | The centreline |
-
-The available curve kinds are `curve/section`, `curve/guide` and `curve/axis`. Use `--marks 'curve/*' --surface 0` to see the curves alone and `--shade clay` for the form pass. [Anatomical consistency](docs/testing/consistency.md).
 
 ## Background
 

@@ -75,6 +75,7 @@ export * from "./HumanPostureRaw";
 export * from "./createHumanPostureCurve";
 export * from "./HumanColliderCorners";
 export * from "./HumanSupportPatch";
+export * from "./HumanMaterialContact";
 export * from "./HumanArmSeedContinuation";
 export * from "./HumanInteractionMeshLaplacian";
 export * from "./HumanLimbIncumbent";

@@ -6,7 +6,6 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
-  IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionTarget,
@@ -16,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanObject } from "../perform/HumanObject";
 
 /**
  * The part an operation moves on a prop that articulates, and the drive the
@@ -123,13 +123,21 @@ export namespace operateDrive {
       ),
     );
     let link: IAutoMovieAffordance | undefined = contact;
+    let operated: IAutoMovieAffordance | undefined;
     const seen: Set<string> = new Set();
-    while (link !== undefined && !kinds.has(link.kind) && !seen.has(link.id)) {
+    const dependencies: Set<string> = new Set();
+    while (link !== undefined && !seen.has(link.id)) {
       seen.add(link.id);
+      const leader: string | null = AffordanceArticulation.leader(
+        byId,
+        link.id,
+      );
+      if (leader !== null) dependencies.add(leader);
+      if (operated === undefined && kinds.has(link.kind)) operated = link;
       link = link.rides === undefined ? undefined : byId.get(link.rides);
     }
-    if (link === undefined || !kinds.has(link.kind)) return undefined;
-    const articulation: string = link.id;
+    if (operated === undefined) return undefined;
+    const articulation: string = operated.id;
     const before: Readonly<Record<string, number>> =
       held.state?.(context.start) ?? {};
     const base: number | null = AffordanceArticulation.travel(
@@ -147,31 +155,53 @@ export namespace operateDrive {
       });
     const degree: string =
       AffordanceArticulation.leader(byId, articulation) ?? articulation;
+    dependencies.delete(degree);
 
-    // A prior writer may name a reversible follower of this same degree.
-    // Keep other degrees, replacing this one in the operation's coordinate.
-    const other: Readonly<Record<string, number>> = Object.fromEntries(
-      Object.entries(before).filter(
-        ([id]: [string, number]): boolean =>
-          (AffordanceArticulation.leader(byId, id) ?? id) !== degree,
-      ),
+    // A prior writer may name a reversible follower. Resolve its ownership
+    // once, retain unrelated opening inputs for legacy full-posing props, and
+    // borrow only the current inputs capable of moving this contact.
+    const leaders: ReadonlyMap<string, string | null> = new Map(
+      Array.from(byId.keys(), (id: string): [string, string | null] => [
+        id,
+        AffordanceArticulation.leader(byId, id),
+      ]),
     );
+    const narrow: typeof held.prop.articulateSite = HumanObject.articulateSite(
+      held.prop,
+    );
+    const unrelated: Readonly<Record<string, number>> = Object.fromEntries(
+      Object.entries(before).filter(([id]: [string, number]): boolean => {
+        const leader: string = leaders.get(id) ?? id;
+        return leader !== degree && !dependencies.has(leader);
+      }),
+    );
+    const site = (
+      id: string,
+      state: Readonly<Record<string, number>>,
+    ): IAutoMovieAffordance => {
+      const posed: IAutoMovieAffordance | undefined =
+        narrow?.(id, state) ??
+        articulate({ ...unrelated, ...state }).affordances.find(
+          (a: IAutoMovieAffordance): boolean => a.id === id,
+        );
+      if (posed === undefined)
+        throw new HumanRefusal({
+          kind: "affordance",
+          axis: "at",
+          value: id,
+          reason: `the posed ${at.subject} does not expose its declared contact`,
+          fix: "keep this contact in the prop's articulation reader",
+        });
+      return posed;
+    };
     const frame: IAutoMovieRigidTransform = held.frame(context.start);
 
     // A hinge's own line, read off the prop posed where the stroke starts.
-    const hinge: IAutoMovieAffordance | undefined = (
-      held.prop.affordances ?? []
-    ).find(
-      (a: IAutoMovieAffordance): boolean =>
-        a.id === articulation && a.kind === "hinge",
-    );
     const line: IAutoMovieMotionHumanOperateDrive.ILine | undefined = (():
       | IAutoMovieMotionHumanOperateDrive.ILine
       | undefined => {
-      if (hinge === undefined) return undefined;
-      const pin: IAutoMovieAffordance = articulate(before).affordances.find(
-        (a: IAutoMovieAffordance): boolean => a.id === articulation,
-      )!;
+      if (operated.kind !== "hinge") return undefined;
+      const pin: IAutoMovieAffordance = site(articulation, before);
       return {
         point: Vector3.add(
           frame.position,
@@ -197,13 +227,17 @@ export namespace operateDrive {
       ): IAutoMovieMotionHumanOperateDrive.IPlace => {
         const shown: IAutoMovieRigidTransform =
           seconds === undefined ? frame : held.frame(seconds);
-        const posed: IAutoMovieMotionHumanProp.IPosed = articulate({
-          ...other,
+        const state: Record<string, number> = {
           [articulation]: base + amount * progress,
-        });
-        const moved: IAutoMovieAffordance = posed.affordances.find(
-          (a: IAutoMovieAffordance): boolean => a.id === contact.id,
-        )!;
+        };
+        if (dependencies.size !== 0)
+          for (const [id, travel] of Object.entries(
+            seconds === undefined || seconds === context.start
+              ? before
+              : (held.state?.(seconds) ?? before),
+          ))
+            if (dependencies.has(leaders.get(id) ?? id)) state[id] = travel;
+        const moved: IAutoMovieAffordance = site(contact.id, state);
         const turn: IAutoMovieQuaternion = Quaternion.multiply(
           shown.rotation,
           moved.frame.rotation,

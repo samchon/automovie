@@ -6,6 +6,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -13,7 +14,9 @@ import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { ExerciseKey } from "../exercise/ExerciseKey";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { AquaticEdge } from "./AquaticEdge";
 import { AquaticPosture } from "./AquaticPosture";
 
@@ -65,6 +68,12 @@ export namespace AquaticEdgeExit {
     const { body, entry } = context;
     const edge: AquaticEdge.IEdge = AquaticEdge(context);
     const { id, lip, out } = edge;
+    const deck: HumanMaterialContact.ISite | undefined = AquaticEdge.deck(
+      context,
+      edge,
+    );
+    const support: IAutoMovieMotionHumanContactWindow.Support =
+      deck?.support ?? { kind: "prop", subject: id };
     const freeboard: number = lip.y - water;
     if (freeboard > FREEBOARD)
       throw new HumanRefusal({
@@ -148,7 +157,7 @@ export namespace AquaticEdgeExit {
           kind: "bear",
           from: PLACE,
           to: KNEE,
-          support: { kind: "prop", subject: id },
+          support,
         }),
       ),
       ...(["left", "right"] as const).map(
@@ -157,16 +166,59 @@ export namespace AquaticEdgeExit {
           kind: "plant",
           from: 0.95,
           to: 1,
-          support: { kind: "prop", subject: id },
+          support,
         }),
       ),
     ];
     // The palms' goals, written through the hands' whole courses.
+    const left: ReturnType<typeof palm> = palm(body, "left", palms.left, out);
+    const right: ReturnType<typeof palm> = palm(
+      body,
+      "right",
+      palms.right,
+      out,
+    );
+    if (deck !== undefined) {
+      const opening: HumanMaterialContact.IFace = deck.at(
+        context.start + PLACE * DURATION,
+      );
+      const end: HumanMaterialContact.IFace = deck.at(context.start + DURATION);
+      const posed: ReturnType<ReturnType<typeof AquaticPosture.markers>> =
+        AquaticPosture.markers(body, ["leftFoot", "rightFoot"])(upright);
+      for (const side of HumanHand.SIDES) {
+        const goal: IAutoMovieHumanLimbGoal = (side === "left" ? left : right)(
+          1,
+        );
+        const palm: IAutoMovieVector3[] = (
+          ["palm", "thumbPad", "indexPad", "littlePad"] as const
+        ).map(
+          (site): IAutoMovieVector3 =>
+            Vector3.add(
+              goal.point,
+              Quaternion.rotateVector(
+                goal.rotation!,
+                HumanHand.offset(body, side, site, "flat").point,
+              ),
+            ),
+        );
+        AquaticEdge.admit(edge, opening, palm, `${side} palm`);
+        const ankle: IAutoMovieResolvedBone = posed.get(`${side}Foot`)!;
+        AquaticEdge.admit(
+          edge,
+          end,
+          HumanFoot.sole(body, side, {
+            ankle: ankle.worldPosition,
+            rotation: ankle.worldRotation,
+          }),
+          `${side} sole`,
+        );
+      }
+    }
     const arms = (u: number): IAutoMovieMotionHumanPosture["limbs"] => {
       const reach: number = Math.min(1, u / PLACE);
       return {
-        leftArm: palm(body, "left", palms.left, out, reach),
-        rightArm: palm(body, "right", palms.right, out, reach),
+        leftArm: left(reach),
+        rightArm: right(reach),
       };
     };
     const plan: IAutoMovieMotionHumanActionPlan = {
@@ -239,8 +291,7 @@ export namespace AquaticEdgeExit {
     side: AutoMovieHumanSide,
     point: IAutoMovieVector3,
     out: IAutoMovieVector3,
-    reach: number,
-  ): IAutoMovieHumanLimbGoal {
+  ): (reach: number) => IAutoMovieHumanLimbGoal {
     const frame: ReturnType<typeof HumanHand.offset> = HumanHand.offset(
       body,
       side,
@@ -250,24 +301,24 @@ export namespace AquaticEdgeExit {
       normal: { x: 0, y: -1, z: 0 },
       forward: Vector3.scale(out, -1),
     });
-    const placed: IAutoMovieVector3 = {
-      ...point,
-      y: point.y + LIFT * (1 - reach),
-    };
     const wrist: IAutoMovieVector3 = Vector3.subtract(
-      placed,
+      point,
       Quaternion.rotateVector(rotation, frame.point),
     );
 
     // The elbow bends back toward the water, behind the pressing hand.
-    return {
-      point: wrist,
-      rotation,
-      contact: frame.point,
-      bend: Vector3.add(
-        wrist,
-        Vector3.add(Vector3.scale(out, 0.25), { x: 0, y: 0.05, z: 0 }),
-      ),
+    const bend: IAutoMovieVector3 = Vector3.add(
+      wrist,
+      Vector3.add(Vector3.scale(out, 0.25), { x: 0, y: 0.05, z: 0 }),
+    );
+    return (reach: number): IAutoMovieHumanLimbGoal => {
+      const lift: number = LIFT * (1 - reach);
+      return {
+        point: { ...wrist, y: wrist.y + lift },
+        rotation: { ...rotation },
+        contact: { ...frame.point },
+        bend: { ...bend, y: bend.y + lift },
+      };
     };
   }
 }

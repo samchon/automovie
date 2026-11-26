@@ -40,6 +40,7 @@ export function walkStepsPelvis(
     inPlace,
     raised,
     steps,
+    doubleFlight,
     yawAt,
     T,
     swing,
@@ -84,7 +85,7 @@ export function walkStepsPelvis(
       typical,
       raised,
       inPlace,
-      walkStride.flying(input.entry, side),
+      walkStride.flying(input.entry, side, doubleFlight),
     );
   const schedules: Record<
     AutoMovieHumanSide,
@@ -133,6 +134,9 @@ export function walkStepsPelvis(
 export namespace walkStepsPelvis {
   /** What a walk plan schedules its feet and pelvis from. */
   export interface IScope {
+    /** Both feet were airborne at an outgoing running cut. */
+    doubleFlight: boolean;
+
     /** The walk's input. */
     input: IAutoMovieMotionHumanWalkSteps.IInput;
 

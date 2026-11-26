@@ -1,45 +1,21 @@
 # @automovie/engine
 
-The deterministic core of AutoMovie. It takes the authoring AST a coding agent writes with `@automovie/interface`, validates it, and computes what each frame contains: poses within range of motion, sampled motion, staging and cuts, physics, buildings, light and sound. The same input produces the same frames; [Physical performance](#physical-performance) states the one limit that has not been measured.
+Validate authored AutoMovie data and compute what a scene contains at a given time. Use the engine when your application needs scene evaluation, composition or physical playback.
 
-Drawing belongs to `@automovie/render`, and the host, the program that calls the engine, loads the assets and hands them over.
+## Start
 
-## Use
-
-```bash
+```powershell
 npm install @automovie/engine @automovie/interface
 ```
 
-```ts
-import { validateModel } from "@automovie/engine";
-import type { IAutoMovieModel, IAutoMovieValidation } from "@automovie/interface";
+Import the engine functions from the package root and the authored types from `@automovie/interface`.
 
-declare const model: IAutoMovieModel;
+## Entry points
 
-const result: IAutoMovieValidation = validateModel({ model });
-if (result.success === false)
-  for (const violation of result.violations) console.error(violation);
-```
-
-Functions named `validate*` return a result that lists every violation with its field, which is what a coding agent needs to correct its own output. Compute and playback functions throw on malformed input instead.
-
-## Where to look
-
-Import from the package root. Units, limits and non-guarantees are in each function's JSDoc. The source is grouped by subject:
-
-| Folder | Subject |
+| Entry | Use |
 | --- | --- |
-| `math`, `geometry`, `kinematics`, `skinning`, `rom`, `motion` | Vectors and quaternions, tessellation and lofted surfaces, skeletal kinematics, skinned vertices, range of motion, motion sampling |
-| `perform`, `film`, `scene`, `resolve`, `composition` | Performance synthesis, staging with shots and edits, scene fog, resolving a scene's nodes and channels at an instant, and composing actions on one schedule |
-| `physics`, `soft`, `fluid` | Rigid-body performance, soft bodies and bounded fluid solves |
-| `architecture`, `space`, `service`, `drawing`, `analysis` | Buildings, spaces, service networks, drawings and environmental analyses |
-| `render`, `effectRuntime`, `populationRuntime`, `sound`, `text` | Render facts and budgets, runtime effects and populations, sound and text |
-| `validation`, `constants` | Input validation and shared constants |
+| `validateModel` | Check a model and read its field-level violations |
+| `stageScene`, `performShot`, `cutSequence` | Place a scene, perform a shot and assemble a sequence |
+| `AutoMoviePhysicalSimulation`, `AutoMoviePhysicalPlayback` | Compute a simulation once and replay its saved result |
 
-Staging a film starts at `stageScene`, `performShot` and `cutSequence` in `film`.
-
-## Physical performance
-
-`AutoMoviePhysicalSimulation.compute` precomputes a physical performance, motion simulated by the engine's own extended position-based dynamics solver in plain TypeScript, and `AutoMoviePhysicalPlayback` encodes the result into an archive that can be decoded and sampled later without rerunning it. Run the simulation in a build process or a Worker, not on a page's main thread. `npm run physics` in a generated production runs it under Node.
-
-An archive is reproducible for the same inputs on the tested build and platform family; equality across machines has not been measured.
+Run physical simulation in a build process or worker for an interactive application. See the [engine API](https://samchon.github.io/automovie/api/) and [rendering package](https://github.com/samchon/automovie/tree/master/packages/render).

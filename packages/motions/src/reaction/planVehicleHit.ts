@@ -23,6 +23,7 @@ import { lieDown } from "../floor/lieDown";
 import { createHumanPostureRotation } from "../posture/createHumanPostureRotation";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
+import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
 import { stuntFallPose } from "./stuntFallPose";
 import { vehicleFront } from "./vehicleFront";
@@ -207,17 +208,20 @@ export function planVehicleHit(
     ? ((body.measure.stature - front.top) * (Math.PI / 2)) /
       Math.max(speed, vehicleFront.STEP)
     : 0;
-  const local: IAutoMovieQuaternion = Quaternion.inverse(struck.rotation);
+  const faced: IAutoMovieQuaternion = Quaternion.multiply(
+    Quaternion.inverse(struck.rotation),
+    q0,
+  );
+  const fromPivot: IAutoMovieVector3 = Vector3.subtract(at, pivot);
+  const turnAboutEdge: ReturnType<typeof Quaternion.prepareAxisAngle> =
+    Quaternion.prepareAxisAngle({ x: 1, y: 0, z: 0 });
   // Where the full turn alone would leave the hips in the car's frame, and
   // where they lie on the bonnet: over the leading edge, the turned body's
   // lowest point on the bonnet's top.
-  const quarter: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-    { x: 1, y: 0, z: 0 },
-    -90,
-  );
+  const quarter: IAutoMovieQuaternion = turnAboutEdge(-90);
   const turned: IAutoMovieVector3 = Vector3.add(
     pivot,
-    Quaternion.rotateVector(quarter, Vector3.subtract(at, pivot)),
+    Quaternion.rotateVector(quarter, fromPivot),
   );
   const settle: IAutoMovieVector3 = wraps
     ? Vector3.subtract(
@@ -228,7 +232,7 @@ export function planVehicleHit(
             lowAt(
               Quaternion.multiply(
                 struck.rotation,
-                Quaternion.multiply(quarter, Quaternion.multiply(local, q0)),
+                Quaternion.multiply(quarter, faced),
               ),
               joints,
               stoodOffset,
@@ -247,28 +251,19 @@ export function planVehicleHit(
     // axis-angle reads them).
     const theta: number =
       90 * Math.min(1, Math.max(0, (film - tc) / wrapSeconds));
-    const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-      { x: 1, y: 0, z: 0 },
-      -theta,
-    );
+    const turn: IAutoMovieQuaternion = turnAboutEdge(-theta);
     // The body slides back over the edge as it turns, so the hips come to
     // rest over the leading edge with the body's underside on the bonnet.
     const hips: IAutoMovieVector3 = vehicleFront.world(
       frame,
       Vector3.add(
-        Vector3.add(
-          pivot,
-          Quaternion.rotateVector(turn, Vector3.subtract(at, pivot)),
-        ),
+        Vector3.add(pivot, Quaternion.rotateVector(turn, fromPivot)),
         Vector3.scale(settle, theta / 90),
       ),
     );
     return shaped(
       hips,
-      Quaternion.multiply(
-        frame.rotation,
-        Quaternion.multiply(turn, Quaternion.multiply(local, q0)),
-      ),
+      Quaternion.multiply(frame.rotation, Quaternion.multiply(turn, faced)),
       joints,
       stoodOffset,
     );
@@ -364,26 +359,12 @@ export function planVehicleHit(
   const rest: number = land + slide;
   const duration: number = rest + (p.hold ?? 1);
 
-  const blend: (w: number) => IAutoMovieMotionHumanPosture["joints"] = (
-    w: number,
-  ): IAutoMovieMotionHumanPosture["joints"] => {
-    const out: IAutoMovieMotionHumanPosture["joints"] = {};
-    for (const bone of new Set([
-      ...Object.keys(joints),
-      ...Object.keys(supine.joints),
-    ]) as Set<keyof IAutoMovieMotionHumanPosture["joints"]>) {
-      const a: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
-      const b: readonly [number, number, number] = supine.joints[bone] ?? [
-        0, 0, 0,
-      ];
-      out[bone] = [
-        a[0] + (b[0] - a[0]) * w,
-        a[1] + (b[1] - a[1]) * w,
-        a[2] + (b[2] - a[2]) * w,
-      ];
-    }
-    return out;
-  };
+  const blend: ReturnType<typeof prepareHumanShapeBlend> =
+    prepareHumanShapeBlend(joints, supine.joints);
+  const stopped: IAutoMovieVector3 = Vector3.add(
+    landing,
+    Vector3.scale(direction, (slideSpeed * slide) / 2),
+  );
 
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
@@ -392,28 +373,15 @@ export function planVehicleHit(
     if (t < impact) return entry;
     if (t < leave) return wrapped(context.start + t);
     if (t >= rest)
-      return shaped(
-        {
-          ...Vector3.add(
-            landing,
-            Vector3.scale(direction, (slideSpeed * slide) / 2),
-          ),
-          y: lieHips,
-        },
-        qLie,
-        supine.joints,
-        lieOffset,
-      );
+      return shaped({ ...stopped, y: lieHips }, qLie, supine.joints, lieOffset);
     // In the air the body turns onto its back by the landing; on the road it
     // slides to rest on it.
-    const tau: number = Math.min(t, land) - leave;
-    const w: number = minimumJerk.share(
-      flight > 0 ? Math.min(1, tau / flight) : 1,
-    );
-    const shape: IAutoMovieMotionHumanPosture["joints"] = blend(w);
-    const turn: IAutoMovieQuaternion = Quaternion.slerp(qS, qLie, w);
-    const offset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(shape));
     if (t < land) {
+      const tau: number = t - leave;
+      const w: number = minimumJerk.share(flight > 0 ? tau / flight : 1);
+      const shape: IAutoMovieMotionHumanPosture["joints"] = blend(w);
+      const turn: IAutoMovieQuaternion = Quaternion.slerp(qS, qLie, w);
+      const offset: IAutoMovieVector3 = stuntFallPose.offset(body, bare(shape));
       const ballistic: IAutoMovieVector3 = {
         x: hipsS.x + vS.x * tau,
         y: hipsS.y + vS.y * tau - 0.5 * g * tau * tau,

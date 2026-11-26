@@ -12,7 +12,7 @@ A law deterministically plans an action from a body and inputs. For new laws, st
 | [Effector goals](authoring.md) | State movement as goals on targets, never as tuned joint angles |
 | [Law design](declaration.md) | Design a law's plan, entry state, events, outcome and time scale |
 | [Variation](variation.md) | Vary a law by parameters, skill or seed |
-| [Time, transitions and layers](transitions.md) | Prepare a law's knots and pure pose function, cut it, change its target or layer over it |
+| [Time, transitions and layers](transitions.md) | Prepare and sample motion, or declare cuts and layers |
 | [Contacts](contacts.md) | Plant, grip, carry or touch |
 | [Verification](verification.md) | Write a law's bounded checks and review its frames |
 | [Method references](method-references.md) | Choose a law's algorithm from primary sources |

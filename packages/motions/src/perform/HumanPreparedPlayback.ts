@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { PreparedHumanIntervals } from "./PreparedHumanIntervals";
 
 /** The plan a playback is bound to. */
 type Plan = IAutoMovieMotionHumanActionPlan;
@@ -15,6 +16,12 @@ type Reader = Plan["posture"];
 
 /** Where placement put a plan. */
 type Where = IAutoMovieMotionHumanRefusal.IWhere;
+
+/** The prepared interval index belongs to the attached phase records. */
+const PHASE_READERS: WeakMap<
+  readonly IAutoMovieMotionHumanPlayback.IPhase[],
+  (second: number) => IAutoMovieMotionHumanPlayback.IPhase | undefined
+> = new WeakMap();
 
 /**
  * Pass a native action's phase evaluators to its display leaf. Public authoring
@@ -49,15 +56,47 @@ export namespace HumanPreparedPlayback {
    * @param source The phases.
    */
   export function attach(plan: Plan, body: IBody, source: ISource): void {
+    const phases: IPhase[] = source.phases.map(
+      (phase: IPhase): IPhase => ({ ...phase }),
+    );
+    PHASE_READERS.set(phases, PreparedHumanIntervals.first(phases));
     plan.playback = {
       body,
       original: plan.posture,
       source: {
         ...source,
-        phases: source.phases.map((phase: IPhase): IPhase => ({ ...phase })),
+        phases,
       },
       ready: source.prepare === undefined,
     };
+  }
+
+  /**
+   * Bind a composed posture after it replaces the underlying plan's authoring.
+   * Preserve the predecessor's optional native setup. A composed posture cannot
+   * reuse a fit resolved against the predecessor alone.
+   */
+  export function rebindPosture(
+    plan: Plan,
+    predecessor: Plan,
+    body: IBody,
+  ): Plan {
+    const posture: Reader = plan.posture;
+    const prepare: ISource["prepare"] = predecessor.playback?.source.prepare;
+    attach(plan, body, {
+      mode: "posture",
+      phases: [
+        {
+          from: 0,
+          to: plan.duration,
+          sample: (...args: Parameters<Reader>): ISample => ({
+            posture: posture(...args),
+          }),
+        },
+      ],
+      ...(prepare === undefined ? {} : { prepare }),
+    });
+    return plan;
   }
 
   /**
@@ -148,9 +187,16 @@ export namespace HumanPreparedPlayback {
       return undefined;
 
     const local: number = args[0];
-    const phase: IPhase | undefined = binding.source.phases.find(
-      (entry: IPhase): boolean => local >= entry.from && local <= entry.to,
-    );
+    const phases: readonly IPhase[] = binding.source.phases;
+    const prepared: ((second: number) => IPhase | undefined) | undefined =
+      PHASE_READERS.get(phases);
+    const phase: IPhase | undefined =
+      prepared === undefined
+        ? phases.find(
+            (entry: IPhase): boolean =>
+              local >= entry.from && local <= entry.to,
+          )
+        : prepared(local);
     if (phase === undefined) return undefined;
     return placed && binding.where !== undefined
       ? HumanRefusal.located(binding.where, (): ISample | undefined =>

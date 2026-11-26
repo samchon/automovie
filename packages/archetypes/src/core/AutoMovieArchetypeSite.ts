@@ -20,8 +20,7 @@ import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
  * | -------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------- |
  * | `handle`, `bar`, `ledge`, `rein` | along `+X`, from `-length / 2` to `+length / 2`                                | unused                                         |
  * | `seat`                           | across `+X`, from `-width / 2` to `+width / 2`                                 | from the front edge back along `-Z` to `depth` |
- * | `surface`, `pedal`               | across `+X`, over `width`                                                      | along `+Z`, over `depth`, both centred         |
- * | `stirrup`                        | across `+X`, over `width`                                                      | unused                                         |
+ * | `surface`, `pedal`, `stirrup`    | across `+X`, over `width`                                                      | along `+Z`, over `depth`, both centred         |
  * | `aperture`                       | across `+X`, over `width`                                                      | up `+Y`, from the threshold to `height`        |
  * | `wheel`                          | round the rim from the frame's `+X`, turning about `+Y` by the right-hand rule | unused                                         |
  * | `crank`                          | unused: the one site at `radius` along `+X`                                    | unused                                         |
@@ -83,9 +82,8 @@ export namespace AutoMovieArchetypeSite {
       return offset({ x: (u - 0.5) * length, y: 0, z: 0 });
     if (kind === "seat")
       return offset({ x: (u - 0.5) * width, y: 0, z: -v * depth });
-    if (kind === "surface" || kind === "pedal")
+    if (kind === "surface" || kind === "pedal" || kind === "stirrup")
       return offset({ x: (u - 0.5) * width, y: 0, z: (v - 0.5) * depth });
-    if (kind === "stirrup") return offset({ x: (u - 0.5) * width, y: 0, z: 0 });
     if (kind === "aperture")
       return offset({
         x: (u - 0.5) * width,

@@ -61,13 +61,15 @@ export namespace IAutoMovieMotionHumanCrutchWalk {
     /**
      * From one crutch's staged floor frame, the walk's parameters, the crutch's
      * side and the walk's first film second (zero when absent), the crutch's
-     * world frame at each film second.
+     * world frame at each film second. If the crutch's origin differs from its
+     * named tip, supply that tip in crutch-local metres.
      */
     track: (
       start: IAutoMovieRigidTransform,
       params: IAutoMovieMotionHumanCrutchWalk,
       side: AutoMovieHumanSide,
       startsAt?: number,
+      localTip?: IAutoMovieVector3,
     ) => (filmSecond: number) => IAutoMovieRigidTransform;
   }
 }

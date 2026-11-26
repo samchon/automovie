@@ -1,21 +1,25 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
+  IAutoMovieAffordance,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { ExerciseKey } from "../exercise/ExerciseKey";
-import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
+import { HumanHand } from "../posture/HumanHand";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { AquaticDive } from "./AquaticDive";
 import { AquaticPosture } from "./AquaticPosture";
+import { AquaticWallContact } from "./AquaticWallContact";
 import { swim } from "./swim";
 
 /** The alternatives of `RaceStroke`'s site. */
@@ -26,20 +30,18 @@ type RaceKind = "crawlStartTurn" | "breaststrokeStartTurn";
 
 /**
  * Pool racing starts, stroke and wall reversal. World Aquatics distinguishes
- * crawl wall contact from the two-hand breaststroke touch. Puel et al. (PMID
- * 22176710) motivate separating rotation, plant and push.
+ * crawl wall contact from the simultaneous separated breaststroke touch (7.7).
+ * Puel et al. (PMID 22176710) motivate separating rotation, plant and push.
  */
 export namespace AquaticPool {
   /** Calibrated wall crossing and horizontal clearance for the swimmer's lane. */
   interface IEdge {
     /** Forward distance from the entered root to the wall plane, in metres. */
     distance: number;
-    /** World unit direction along the finite edge. */
-    along: IAutoMovieVector3;
-    /** Distance from the edge centre to the swimmer's lane, in metres. */
-    offset: number;
-    /** Half the physical edge span, in metres. */
-    halfSpan: number;
+    /** Which named frame owns the wall contact. */
+    point: string;
+    /** The displayed face at an action second. */
+    face(seconds: number): AquaticWallContact.Face;
   }
 
   /**
@@ -74,11 +76,26 @@ export namespace AquaticPool {
       },
       params: { kind: stroke, water, count: 1 },
     });
+    const tBreakout: number = flight.entry + 0.55;
+    const tApproach: number = tBreakout + inbound.duration;
+    const tTouch: number = tApproach + 0.28;
+    const tPlant: number = tTouch + (breast ? 0.43 : 0.35);
+    const tPush: number = tPlant + 0.2;
+    const tResume: number = tPush + 0.56;
+    const duration: number = tResume + outbound.duration;
     const wall: IAutoMovieVector3 = AquaticPosture.along(
       entry.posture,
       distance,
       water - 0.32,
     );
+    const virtual: AquaticWallContact.Face = {
+      origin: wall,
+      rotation: wallRotation(forward),
+      width: Infinity,
+      depth: Infinity,
+    };
+    const at = (seconds: number): AquaticWallContact.Face =>
+      edge?.face(seconds) ?? virtual;
     const tuck: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
       ExerciseKey.from(
@@ -94,60 +111,71 @@ export namespace AquaticPool {
       ),
       AquaticPosture.along(entry.posture, distance - 0.55, water - 0.57),
     );
-    const approaching: IAutoMovieMotionHumanPosture = breast
-      ? pin(
-          context,
-          ["leftHand", "rightHand"],
-          { ...wall, y: water - 0.07 },
-          edge,
-        )(
-          AquaticPosture.key(
-            entry.posture,
-            ExerciseKey.from(
-              body,
-              { pitch: 85 },
-              {
-                shoulder: 160,
-                raise: 8,
-                elbow: 14,
-                ankle: -18,
-                knee: 18,
-              },
-            ),
-            tuck.root,
+    const handKey: IAutoMovieMotionHumanPosture = breast
+      ? AquaticPosture.key(
+          entry.posture,
+          ExerciseKey.from(
+            body,
+            { pitch: 85 },
+            {
+              shoulder: 160,
+              raise: 8,
+              elbow: 14,
+              ankle: -18,
+              knee: 18,
+            },
           ),
+          tuck.root,
         )
       : tuck;
-    const pinFeet: ReturnType<typeof pin> = pin(
-      context,
-      ["leftFoot", "rightFoot"],
-      wall,
-      edge,
+    const touchFace: AquaticWallContact.Face = at(tTouch);
+    const hands: AquaticWallContact.IContactPair | undefined = breast
+      ? AquaticWallContact.prepare(context, "Hand", handKey, touchFace, {
+          ...wall,
+          y: water - 0.07,
+        })
+      : undefined;
+    const approaching: IAutoMovieMotionHumanPosture =
+      hands === undefined ? tuck : hands.make(hands.start, touchFace);
+    const handClearance: number[] | undefined = hands?.verify(
+      approaching,
+      touchFace,
     );
-    const planted: IAutoMovieMotionHumanPosture = pinFeet(
-      AquaticPosture.key(
-        entry.posture,
-        ExerciseKey.from(
-          body,
-          {
-            yaw: 180,
-            pitch: 68,
-            spine: [14, 0, 0],
-          },
-          {
-            hip: 50,
-            spread: 8,
-            knee: 95,
-            ankle: 10,
-            shoulder: 165,
-            raise: 8,
-            elbow: 10,
-          },
-        ),
-        tuck.root,
+    const plantKey: IAutoMovieMotionHumanPosture = AquaticPosture.key(
+      entry.posture,
+      ExerciseKey.from(
+        body,
+        {
+          yaw: 180,
+          pitch: 68,
+          spine: [14, 0, 0],
+        },
+        {
+          hip: 50,
+          spread: 8,
+          knee: 95,
+          ankle: 10,
+          shoulder: 165,
+          raise: 8,
+          elbow: 10,
+        },
       ),
+      tuck.root,
     );
-    const pushing: IAutoMovieMotionHumanPosture = pinFeet(
+    const plantFace: AquaticWallContact.Face = at(tPlant);
+    const feet: AquaticWallContact.IContactPair = AquaticWallContact.prepare(
+      context,
+      "Foot",
+      plantKey,
+      plantFace,
+      wall,
+    );
+    const planted: IAutoMovieMotionHumanPosture = feet.make(
+      feet.start,
+      plantFace,
+    );
+    const pushFace: AquaticWallContact.Face = at(tPush);
+    const pushKey: IAutoMovieMotionHumanPosture = feet.center(
       AquaticPosture.key(
         entry.posture,
         ExerciseKey.from(
@@ -165,14 +193,9 @@ export namespace AquaticPool {
         ),
         planted.root,
       ),
+      pushFace,
     );
-    const tBreakout: number = flight.entry + 0.55;
-    const tApproach: number = tBreakout + inbound.duration;
-    const tTouch: number = tApproach + 0.28;
-    const tPlant: number = tTouch + (breast ? 0.43 : 0.35);
-    const tPush: number = tPlant + 0.2;
-    const tResume: number = tPush + 0.56;
-    const duration: number = tResume + outbound.duration;
+    const pushing: IAutoMovieMotionHumanPosture = feet.make(pushKey, pushFace);
 
     const inboundStart: IAutoMovieVector3 = AquaticPosture.along(
       entry.posture,
@@ -184,14 +207,15 @@ export namespace AquaticPool {
       distance - 1.1,
       inbound.posture(inbound.duration).root.y,
     );
+    const outboundOpening: IAutoMovieMotionHumanPosture = outbound.posture(0);
     const outboundStart: IAutoMovieVector3 = AquaticPosture.along(
       entry.posture,
       distance - 1.65,
-      outbound.posture(0).root.y,
+      outboundOpening.root.y,
     );
     const outShift: IAutoMovieVector3 = Vector3.subtract(
       outboundStart,
-      outbound.posture(0).root,
+      outboundOpening.root,
     );
     const swimIn: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
@@ -207,7 +231,8 @@ export namespace AquaticPool {
     const swimOut: (seconds: number) => IAutoMovieMotionHumanPosture = (
       seconds: number,
     ): IAutoMovieMotionHumanPosture => {
-      const shaped: IAutoMovieMotionHumanPosture = outbound.posture(seconds);
+      const shaped: IAutoMovieMotionHumanPosture =
+        seconds === 0 ? outboundOpening : outbound.posture(seconds);
       return AquaticPosture.translate(
         shaped,
         Vector3.add(shaped.root, outShift),
@@ -215,30 +240,47 @@ export namespace AquaticPool {
     };
     const entering: ReturnType<typeof AquaticPosture.blend> =
       AquaticPosture.blend(flight.immersed, swimIn(0));
+    const touched: IAutoMovieMotionHumanPosture =
+      hands === undefined
+        ? approaching
+        : AquaticWallContact.key(context, approaching);
     const reach: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
       swimIn(inbound.duration),
-      approaching,
+      touched,
     );
     const turn: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
-      approaching,
-      planted,
+      touched,
+      AquaticWallContact.key(context, planted),
     );
     const push: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
-      planted,
-      pushing,
+      feet.start,
+      pushKey,
     );
     const glide: ReturnType<typeof AquaticPosture.blend> = AquaticPosture.blend(
-      pushing,
+      AquaticWallContact.key(context, pushing),
       swimOut(0),
     );
 
-    // Keep the measured foot midpoint on the wall while shape extends to push-off.
+    const pressed = (seconds: number): IAutoMovieMotionHumanPosture =>
+      feet.make(push((seconds - tPlant) / (tPush - tPlant)), at(seconds));
+    const footClearance: number[] = feet.verify(planted, plantFace);
+    for (const share of [0.25, 0.5, 0.75, 1]) {
+      const seconds: number = tPlant + (tPush - tPlant) * share;
+      feet.verify(pressed(seconds), at(seconds));
+    }
+    const wallSupport = {
+      kind: "prop" as const,
+      subject: support!,
+      ...(edge?.point === "wall" ? { point: edge.point } : {}),
+    };
+    // The hands touch once and the feet retain their own anchors until push-off.
     const wallContacts: IAutoMovieMotionHumanContactWindow[] =
       context.params.support === undefined
         ? []
         : (["left", "right"] as const).flatMap(
             (
               side: AutoMovieHumanSide,
+              index: number,
             ): IAutoMovieMotionHumanContactWindow[] => [
               ...(breast
                 ? [
@@ -247,10 +289,17 @@ export namespace AquaticPool {
                       kind: "strike" as const,
                       from: tTouch / duration,
                       to: tTouch / duration,
-                      support: {
-                        kind: "prop" as const,
-                        subject: context.params.support!,
-                      },
+                      support: wallSupport,
+                      ...(edge?.point === "wall"
+                        ? {
+                            material: {
+                              bone: `${side}Hand` as const,
+                              point: hands!.anchor[index]!,
+                              normal: HumanMaterialContact.NORMAL,
+                              clearance: handClearance![index]!,
+                            },
+                          }
+                        : {}),
                     },
                   ]
                 : []),
@@ -259,7 +308,17 @@ export namespace AquaticPool {
                 kind: "bear",
                 from: tPlant / duration,
                 to: tPush / duration,
-                support: { kind: "prop", subject: context.params.support! },
+                support: wallSupport,
+                ...(edge?.point === "wall"
+                  ? {
+                      material: {
+                        bone: `${side}Foot` as const,
+                        point: feet.anchor[index]!,
+                        normal: HumanMaterialContact.NORMAL,
+                        clearance: footClearance[index]!,
+                      },
+                    }
+                  : {}),
               },
             ],
           );
@@ -295,38 +354,83 @@ export namespace AquaticPool {
         if (t < tApproach) return swimIn(t - tBreakout);
         if (t < tTouch) return reach((t - tApproach) / (tTouch - tApproach));
         if (t < tPlant) return turn((t - tTouch) / (tPlant - tTouch));
-        if (t <= tPush) return pinFeet(push((t - tPlant) / (tPush - tPlant)));
+        if (t <= tPush) return pressed(t);
         if (t < tResume) return glide((t - tPush) / (tResume - tPush));
         return swimOut(t - tResume);
       },
     };
   }
 
-  /** Read the planted edge of a fixed, perpendicular lane wall at action entry. */
+  /** Bind the named wall face and the starting distance of the swimmer's lane. */
   function laneEdge(
     context: AquaticPosture.Context,
     support: string,
     forward: IAutoMovieVector3,
   ): IEdge {
-    const placed: ReturnType<typeof WorkoutSupport.placed> =
-      WorkoutSupport.placed(context, { prop: support, affordance: "edge" });
-    const length: number | undefined = placed.affordance.length;
-    const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-      placed.frame.rotation,
-      placed.affordance.frame.rotation,
+    const reader: IAutoMovieMotionHumanPropReader = context.prop(support);
+    const contacts: readonly IAutoMovieAffordance[] =
+      reader.prop.affordances ?? [];
+    const named: IAutoMovieAffordance | undefined =
+      contacts.find(
+        (item: IAutoMovieAffordance): boolean =>
+          item.id === "wall" && item.kind === "surface",
+      ) ??
+      contacts.find(
+        (item: IAutoMovieAffordance): boolean =>
+          item.id === "edge" && item.kind === "ledge",
+      );
+    const refuse = (): HumanRefusal =>
+      new HumanRefusal({
+        kind: "affordance",
+        axis: "support",
+        value: support,
+        reason:
+          "the pool end wall needs a finite level edge across and facing the swimmer's lane",
+        fix: "align the end wall perpendicularly to the lane with enough span for both contacts",
+      });
+    if (named === undefined) throw refuse();
+    const legacy: boolean = named.kind === "ledge";
+    const width: number = named.width ?? named.length ?? Infinity;
+    const depth: number = named.depth ?? Infinity;
+    const edgeToFace: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+      { x: 1, y: 0, z: 0 },
+      90,
     );
-    const along: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    const face = (seconds: number): AquaticWallContact.Face => {
+      const time: number = context.start + seconds;
+      const frame: IAutoMovieRigidTransform =
+        reader.site?.(named.id, time) ??
+        (() => {
+          const root: IAutoMovieRigidTransform = reader.frame(time);
+          return {
+            position: Vector3.add(
+              root.position,
+              Quaternion.rotateVector(root.rotation, named.frame.translation),
+            ),
+            rotation: Quaternion.multiply(root.rotation, named.frame.rotation),
+          };
+        })();
+      return {
+        origin: frame.position,
+        rotation: legacy
+          ? Quaternion.multiply(frame.rotation, edgeToFace)
+          : frame.rotation,
+        width,
+        depth,
+      };
+    };
+    const opening: AquaticWallContact.Face = face(0);
+    const along: IAutoMovieVector3 = Quaternion.rotateVector(opening.rotation, {
       x: 1,
       y: 0,
       z: 0,
     });
-    const normal: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
+    const normal: IAutoMovieVector3 = Quaternion.rotateVector(
+      opening.rotation,
+      HumanMaterialContact.NORMAL,
+    );
     const delta: IAutoMovieVector3 = Vector3.subtract(
-      placed.point,
+      opening.origin,
       context.entry.posture.root,
     );
     const offset: number = Math.abs(Vector3.dot(delta, along));
@@ -334,67 +438,19 @@ export namespace AquaticPool {
     // The authored turn keeps both contacts at one lane depth, which requires
     // the wall plane to face the swimmer. Allow rotation roundoff.
     if (
-      placed.affordance.kind !== "ledge" ||
-      length === undefined ||
-      !(offset < length / 2) ||
+      !(offset < width / 2) ||
       !(Math.abs(along.y) <= 1e-8) ||
       !(Vector3.dot(normal, forward) <= -1 + 1e-8)
     )
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "support",
-        value: support,
-        reason:
-          "the pool end wall must provide a finite level edge across and facing the swimmer's lane",
-        fix: "align the end wall perpendicularly to the lane with enough edge span for both contacts",
-      });
-    return {
-      distance: Vector3.dot(delta, forward),
-      along,
-      offset,
-      halfSpan: length / 2,
-    };
+      throw refuse();
+    return { distance: Vector3.dot(delta, forward), point: named.id, face };
   }
+}
 
-  /**
-   * Centre a displayed marker pair at the target and keep both within the
-   * physical wall span.
-   */
-  function pin(
-    context: AquaticPosture.Context,
-    bones: readonly [AutoMovieHumanoidBone, AutoMovieHumanoidBone],
-    target: IAutoMovieVector3,
-    edge: IEdge | undefined,
-  ): (posture: IAutoMovieMotionHumanPosture) => IAutoMovieMotionHumanPosture {
-    const markersAt: ReturnType<typeof AquaticPosture.markers> =
-      AquaticPosture.markers(context.body, bones);
-    return (
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieMotionHumanPosture => {
-      const markers: ReturnType<typeof markersAt> = markersAt(posture);
-      const a: IAutoMovieVector3 = markers.get(bones[0])!.worldPosition;
-      const b: IAutoMovieVector3 = markers.get(bones[1])!.worldPosition;
-      if (
-        edge !== undefined &&
-        edge.offset +
-          Math.abs(Vector3.dot(Vector3.subtract(a, b), edge.along)) / 2 >
-          edge.halfSpan
-      )
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "support",
-          value: context.params.support,
-          reason:
-            "the swimmer's contact pair extends past the end of the physical wall",
-          fix: "centre the swimmer's lane within the end wall or widen its span",
-        });
-      return AquaticPosture.translate(
-        posture,
-        Vector3.add(
-          posture.root,
-          Vector3.subtract(target, Vector3.lerp(a, b, 0.5)),
-        ),
-      );
-    };
-  }
+/** Give an unstaged wall the lane's normal and true vertical depth axis. */
+function wallRotation(forward: IAutoMovieVector3): IAutoMovieQuaternion {
+  return HumanHand.align(
+    { normal: HumanMaterialContact.NORMAL, forward: { x: 0, y: 0, z: -1 } },
+    { normal: Vector3.scale(forward, -1), forward: { x: 0, y: 1, z: 0 } },
+  );
 }

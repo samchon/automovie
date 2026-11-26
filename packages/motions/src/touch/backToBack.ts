@@ -8,8 +8,10 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBackToBack,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanJoints,
+  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanRise,
@@ -27,6 +29,7 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingBody } from "../striking/StrikingBody";
 import { backToBackLoad } from "./backToBackLoad";
@@ -277,30 +280,72 @@ function planBackToBack(
       ],
       contact: "stroke",
     });
-  return {
+  const partner: IAutoMovieMotionHumanPerformerReader = context.performer(
+    p.partner,
+  );
+  const ownBone: AutoMovieHumanoidBone = body.surfaces.regions.upperBack.bone;
+  const otherBone: AutoMovieHumanoidBone =
+    partner.body.surfaces.regions.upperBack.bone;
+  const otherBones: ReadonlySet<AutoMovieHumanoidBone> = new Set([otherBone]);
+  const ownBones: ReturnType<typeof HumanTrunk.prepareResolve> =
+    HumanTrunk.prepareResolve(body, new Set([ownBone]));
+  const paired: ReturnType<typeof HumanMaterialContact.preparePair> =
+    HumanMaterialContact.preparePair(body, ownBone, partner.body, otherBone);
+  const result: IAutoMovieMotionHumanActionPlan = {
     ...plan,
     events: [
       ...plan.events,
       { name: "lean", share: clock.at("ready") / duration },
       { name: "part", share: clock.at("relax") / duration },
     ],
-    contacts: [
-      ...plan.contacts,
-      {
-        part: "back",
-        kind: "bear",
-        region: "upperBack",
-        load: backToBackLoad(body, pitch),
-        from: clock.at("ready") / duration,
-        to: clock.at("relax") / duration,
-        support: {
-          kind: "person",
-          subject: p.partner,
-          region: "upperBack",
-        },
-      },
-    ],
+    prepare: (): void => {
+      plan.prepare?.();
+      const ready: number = clock.at("ready");
+      const relax: number = clock.at("relax");
+      const bearing = (
+        seconds: number,
+      ): IAutoMovieMotionHumanContactWindow.IMaterial | undefined => {
+        const a: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = ownBones(
+          plan.posture(seconds),
+          resolution,
+        );
+        const b: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+          partner.bones(context.start + seconds, otherBones);
+        return paired(
+          a,
+          b,
+          StrikingBody.region(body, a, "upperBack").normal,
+          StrikingBody.region(partner.body, b, "upperBack").normal,
+          NEAR,
+        )?.first;
+      };
+      const material: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+        bearing(ready);
+      result.contacts =
+        material === undefined ||
+        bearing((ready + relax) / 2) === undefined ||
+        bearing(relax) === undefined
+          ? [...plan.contacts]
+          : [
+              ...plan.contacts,
+              {
+                part: "back",
+                kind: "bear",
+                region: "upperBack",
+                load: backToBackLoad(body, pitch),
+                from: ready / duration,
+                to: relax / duration,
+                support: {
+                  kind: "person",
+                  subject: p.partner,
+                  region: "upperBack",
+                },
+                material,
+              },
+            ];
+    },
   };
+  return result;
 }
 
 /**

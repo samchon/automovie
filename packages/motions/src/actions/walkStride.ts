@@ -1,6 +1,10 @@
 import type {
   AutoMovieHumanSide,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanWalkFoot,
   IAutoMovieMotionHumanWalkPace,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -22,6 +26,70 @@ import type { walkStepFoot } from "./walkStepFoot";
  * have landed.
  */
 export namespace walkStride {
+  /** The outgoing flight's next ground plant on the new local clock. */
+  export interface IFlight {
+    /** The first side to land. */
+    side: AutoMovieHumanSide;
+
+    /** Seconds from the cut to that landing. */
+    remaining: number;
+
+    /** The predecessor's next footfall frame and its contact offset. */
+    landing?: IAutoMovieMotionHumanWalkFoot.IFoot & {
+      contact?: IAutoMovieVector3;
+    };
+  }
+
+  /**
+   * Find the incoming gait's first ground plant in the displayed outgoing
+   * contact schedule. A double-unplanted non-gait pose has no gait landmark.
+   */
+  export function flight(
+    entry: IAutoMovieMotionHumanEntryState,
+  ): IFlight | undefined {
+    const from: IAutoMovieMotionHumanEntryState.IFrom | undefined = entry.from;
+    if (
+      from?.family !== "run" ||
+      entry.feet.left.planted ||
+      entry.feet.right.planted
+    )
+      return undefined;
+    let next: IAutoMovieMotionHumanContactWindow | undefined;
+    for (const contact of from.plan.contacts)
+      if (
+        contact.kind === "plant" &&
+        contact.support.kind === "ground" &&
+        (contact.part === "leftFoot" || contact.part === "rightFoot") &&
+        contact.from > from.share &&
+        (next === undefined || contact.from < next.from)
+      )
+        next = contact;
+    if (next === undefined) return undefined;
+    const side: AutoMovieHumanSide =
+      next.part === "leftFoot" ? "left" : "right";
+    const posture: IAutoMovieMotionHumanPosture = from.plan.posture(
+      next.from * from.plan.duration,
+      ["root", "trunk", `${side}Leg`],
+    );
+    const planted: IAutoMovieHumanLimbGoal | undefined =
+      posture.limbs[`${side}Leg`];
+    return {
+      side,
+      remaining: (next.from - from.share) * from.plan.duration,
+      ...(planted?.rotation === undefined
+        ? {}
+        : {
+            landing: {
+              placement: { ankle: planted.point, rotation: planted.rotation },
+              toes: posture.joints[`${side}Toes`]?.[0] ?? 0,
+              ...(planted.contact === undefined
+                ? {}
+                : { contact: planted.contact }),
+            },
+          }),
+    };
+  }
+
   /** What `airborne` reads of an entry: whether each foot is planted. */
   export interface IFeet {
     /** The entry's feet. */
@@ -60,7 +128,10 @@ export namespace walkStride {
     longest: number,
     entry: IAutoMovieMotionHumanEntryState,
     way: IAutoMovieVector3 | undefined,
+    flight?: IFlight,
   ): WalkPace {
+    if (flight !== undefined)
+      return WalkPace.fit({ ...props, firstPlant: flight.remaining }, longest);
     const flying: AutoMovieHumanSide | undefined = airborne(entry);
     if (flying === undefined) return WalkPace.fit(props, longest);
     const opening: WalkPace = WalkPace.fit({ ...props, stride: 0 }, longest);
@@ -91,8 +162,9 @@ export namespace walkStride {
   export function flying(
     entry: IAutoMovieMotionHumanEntryState,
     side: AutoMovieHumanSide,
+    doubleFlight: boolean,
   ): walkStepFoot.IAirborne | undefined {
-    return side !== airborne(entry)
+    return !doubleFlight && side !== airborne(entry)
       ? undefined
       : {
           foot: {

@@ -68,8 +68,8 @@ export class AutoMovieCaptureHost {
   private readonly root: string;
 
   /**
-   * Per-call milliseconds for draw-function readiness, subject
-   * description/creation and drawing, not a total build or render deadline.
+   * Per-call milliseconds for page navigation, draw-function readiness, subject
+   * creation and drawing.
    */
   private readonly timeout: number;
 
@@ -119,10 +119,9 @@ export class AutoMovieCaptureHost {
     env: Readonly<Record<string, string | undefined>>;
 
     /**
-     * Per-call milliseconds for draw-function readiness, subject
-     * description/creation and drawing; absent, 120000. This is not a total
-     * build or render deadline. Invalid timer delays fail before resources are
-     * acquired.
+     * Per-call milliseconds for page navigation, draw-function readiness,
+     * subject creation and drawing. Defaults to 120,000. Invalid timer delays
+     * fail before resources are acquired.
      */
     timeout?: number;
   }): Promise<AutoMovieCaptureHost> {

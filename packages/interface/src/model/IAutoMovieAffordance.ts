@@ -72,12 +72,19 @@ export interface IAutoMovieAffordance<Id extends string = string> {
   aperture?: number;
 
   /**
-   * A `seat`'s depth from its front edge back along `-Z`, a `surface`'s or
-   * `pedal`'s extent along `+Z` centred on the frame, or a `socket`'s depth
-   * from its mouth inward against its `+Y` (a bore's length, a scabbard's),
-   * metres, positive; other kinds ignore it.
+   * A `seat`'s depth from its front edge back along `-Z`, a `surface`'s,
+   * `pedal`'s or `stirrup`'s extent along `+Z` centred on the frame, or a
+   * `socket`'s depth from its mouth inward against its `+Y` (a bore's length, a
+   * scabbard's), metres, positive; other kinds ignore it.
    */
   depth?: number;
+
+  /**
+   * The id of the model part carrying this material site. Its frame and
+   * dimensions locate the site on that same part throughout its motion. Absent
+   * for contacts without a declared material owner.
+   */
+  materialPart?: string;
 
   /**
    * A `seat`'s backrest height above the sitting surface, metres, positive;

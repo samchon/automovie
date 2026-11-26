@@ -10,12 +10,10 @@ const HALF_KNEEL: IAutoMovieMotionHumanSupport.IStance["prefer"] =
   getUp.halfKneeling("left");
 
 /**
- * The scramble preset: up onto a ledge in four stances, the palms on its top
- * half a forearm and hand's length in from the edge, a knee up onto the edge,
- * the other foot up beside it while the hands still bear, then standing. Each
- * stance takes the planner's `SECONDS`, 1 s, so about 4 s (provisional: no
- * timing study). Passed as `support`'s `stances`; the `scramble` row of
- * `HumanSupportRows` reads it.
+ * The scramble preset: up onto a ledge, the palms on its top half a forearm and
+ * hand's length in from the edge, a knee up onto the edge, the other foot up
+ * beside it while the hands still bear. Release the hands over the supported
+ * knee and foot before standing on both feet.
  */
 export const HUMAN_SUPPORT_SCRAMBLE: IAutoMovieMotionHumanSupport.IPreset = {
   stances: [
@@ -39,8 +37,17 @@ export const HUMAN_SUPPORT_SCRAMBLE: IAutoMovieMotionHumanSupport.IPreset = {
       prefer: HALF_KNEEL,
     },
     {
+      contacts: [on("rightKnee"), on("leftFoot", 0.5)],
+      prefer: HALF_KNEEL,
+      free: ["leftHand", "rightHand"],
+      seconds: 0.25,
+      event: "handsFree",
+    },
+    {
       contacts: [on("leftFoot", 0.5), on("rightFoot", 0.5)],
       prefer: getUp.POSES.stood,
+      seconds: 0.75,
+      event: "stance3",
     },
   ],
 };

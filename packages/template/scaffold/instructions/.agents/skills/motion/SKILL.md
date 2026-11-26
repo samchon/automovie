@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Composes and verifies performance through the installed motion vocabulary.
+description: Authors and verifies staged motion for a scene or action.
 ---
 
 # Programmed motion
@@ -8,7 +8,7 @@ description: Composes and verifies performance through the installed motion voca
 | Read | For |
 | --- | --- |
 | [Programmed performance](performance.md) | Building and verifying a scene, film or standalone case |
-| [Composition](compose/composition.md) | Joining installed actions into a performance |
+| [Composition](compose/composition.md) | Choosing, adapting and joining actions |
 | [Refusals](compose/refusals.md) | Diagnosing a refused composition |
 | [Catalog cases](catalog-cases.md) | Reviewing a capability in use or in a separate case |
 | [Staging](staging.md) | Listing a scene's beat elements and planning blocking and camera |

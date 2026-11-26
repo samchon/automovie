@@ -36,23 +36,23 @@ Work with the user.
 
 ## Skills
 
-Open a skill when the work reaches the task its trigger names. Open only the pages its router names for that task, and read no page before the work reaches it.
+Open the skill and routed pages for the task at hand.
 
 | Skill | Use when |
 | --- | --- |
-| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Changing geometry, rigs, assets, materials or lighting |
-| [benchmark-campaign](.agents/skills/benchmark-campaign/SKILL.md) | Measuring AutoMovie on real productions |
-| [contracts](.agents/skills/contracts/SKILL.md) | Writing or reviewing maintained source or tests, or changing Evidence selection |
-| [development](.agents/skills/development/SKILL.md) | Changing code, tests or workflows |
-| [documentation](.agents/skills/documentation/SKILL.md) | Writing any document or doc comment |
-| [human](.agents/skills/human/SKILL.md) | Working on `packages/human`, a human figure or the Human viewer, or supervising that work |
-| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Running a broad audit or repeated issue-to-pull-request work |
-| [motion](.agents/skills/motion/SKILL.md) | Authoring or verifying body motion, the motion vocabulary or its grammar, an action law, a motion primitive or retargeting |
-| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Starting, briefing or supervising subagents on the user's explicit order |
-| [project](.agents/skills/project/SKILL.md) | Judging product scope, or choosing a package owner or a command |
-| [prompting](.agents/skills/prompting/SKILL.md) | Changing `AGENTS.md`, `CLAUDE.md` or a skill |
-| [pull-request](.agents/skills/pull-request/SKILL.md) | Pushing, opening, updating or merging a pull request, when asked or under a delivery mandate |
-| [review](.agents/skills/review/SKILL.md) | Doing any review or self-review |
-| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Editing `packages/template` or its shipped skills, or reading, authoring or reviewing production content |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Judging anything on screen, before claiming a visual change works, or changing a viewer or capture |
-| [website](.agents/skills/website/SKILL.md) | Changing the public website: its pages, design, docs or baked takes |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Change geometry, rigs, assets, materials or lights |
+| [benchmark-campaign](.agents/skills/benchmark-campaign/SKILL.md) | Measure AutoMovie on real productions |
+| [contracts](.agents/skills/contracts/SKILL.md) | Write or review source and tests, or change Evidence selection |
+| [development](.agents/skills/development/SKILL.md) | Change code, tests or workflows |
+| [documentation](.agents/skills/documentation/SKILL.md) | Write a document or comment |
+| [human](.agents/skills/human/SKILL.md) | Build, inspect or supervise the Human figure and viewer |
+| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Audit broadly or run repeated issue-to-PR cycles |
+| [motion](.agents/skills/motion/SKILL.md) | Develop motion, its grammar, primitives or retargeting |
+| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Brief or supervise user-authorized workers |
+| [project](.agents/skills/project/SKILL.md) | Decide product scope, ownership or commands |
+| [prompting](.agents/skills/prompting/SKILL.md) | Change agent instructions or skills |
+| [pull-request](.agents/skills/pull-request/SKILL.md) | Open, update or merge an authorized pull request |
+| [review](.agents/skills/review/SKILL.md) | Review changes |
+| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Change scaffold code or skills, or work on production content |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Inspect pictures or change the viewer or capture |
+| [website](.agents/skills/website/SKILL.md) | Change the website, its docs or its takes |

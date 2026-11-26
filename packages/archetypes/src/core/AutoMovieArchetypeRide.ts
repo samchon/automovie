@@ -225,6 +225,53 @@ export namespace AutoMovieArchetypeRide {
   }
 
   /**
+   * Ride a rigid articulated model. The travel reader is given a contact id
+   * when a named frame needs only its carrier's inputs. A foreign or flexible
+   * model requests full travels and uses its ordinary poser.
+   */
+  export function articulated<Id extends string, D extends string>(
+    model: AutoMovieArchetype<Id, D>,
+    plan: AutoMovieArchetypeCourse.IPlan,
+    read: (
+      state: AutoMovieArchetypeCourse.IState,
+      seconds: number,
+      contact?: Id,
+    ) => Partial<Record<Id, number>>,
+    options: {
+      instants?: readonly { seconds: number; label: string }[];
+      placement?: (
+        state: AutoMovieArchetypeCourse.IState,
+        seconds: number,
+      ) => IAutoMovieTransform;
+    } = {},
+  ): IRide<Id, D> {
+    const site: ReturnType<typeof model.prepareArticulateSite> =
+      model.prepareArticulateSite();
+    return along(
+      model,
+      plan,
+      (
+        state: AutoMovieArchetypeCourse.IState,
+        seconds: number,
+      ): IPose<Id, D> => {
+        return {
+          get archetype(): typeof model {
+            return model.articulate(read(state, seconds));
+          },
+          placement: options.placement?.(state, seconds) ?? state.placement,
+          ...(site === undefined
+            ? {}
+            : {
+                frame: (id: Id): IAutoMovieTransform | undefined =>
+                  site(id, read(state, seconds, id))?.frame,
+              }),
+        };
+      },
+      options.instants,
+    );
+  }
+
+  /**
    * A trailer towed by a leader: the trailer's coupling held on the leader's
    * hitch at every second, and its axle following as a single-axle trailer
    * does, its heading lagging into the turns.

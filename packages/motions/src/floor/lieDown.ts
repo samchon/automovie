@@ -449,6 +449,9 @@ export namespace lieDown {
     const settled: number = clock.at("settled") / duration;
     const sitting: boolean = position.startsWith("sit");
     const contacts: IAutoMovieMotionHumanContactWindow[] = lieDownContacts({
+      body,
+      posture: at(clock.at("settled")),
+      position,
       sitting,
       settled,
     });

@@ -1,7 +1,30 @@
-import type { IAutoMovieMotionClock, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionClock, bowViolinGrip, bowViolinHairAxis, bowViolinStroke } from "@automovie/motions/internal";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanBowViolinParams,
+  IAutoMovieQuaternion,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionClock,
+  HumanHand,
+  bowViolin,
+  bowViolinGrip,
+  bowViolinHairAxis,
+  bowViolinStroke,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
+import { motionActionContext } from "../../internal/motionActionContext";
 import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
@@ -28,8 +51,10 @@ const HALF: IAutoMovieQuaternion = { x: 0, y: 0, z: 1, w: 0 };
  * 3. With the frog 0.1 m below the grip and the hair 0.6 m along -X, the bow
  *    turned a half turn about +Z lays half its hair on (1, 1, 0) from a grip at
  *    (0.7, 0.9, 0).
+ * 4. A fixed string at a reachable grip checks the actual hair point at both
+ *    boundaries and an unseen offset, read in shuffled order.
  */
-export function test_motions_music_bow_violin(): void {
+export async function test_motions_music_bow_violin(): Promise<void> {
   // 1. The stroke.
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
     { name: "approach", seconds: 1 },
@@ -93,4 +118,140 @@ export function test_motions_music_bow_violin(): void {
     "the grip that lays the hair on the string",
     vclose(grip(0.5, 0), { x: 0.7, y: 0.9, z: 0 }, 1e-12),
   );
+  await activeHair();
+}
+
+/** Place a small playable hair line on a staged string using a real arm. */
+async function activeHair(): Promise<void> {
+  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const params: IAutoMovieMotionHumanBowViolinParams = {
+    violin: "violin",
+    bow: "bow",
+    string: "string1",
+    duration: 1.3,
+  };
+  const entry: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams> =
+    motionActionContext(body, params);
+  const before: ReturnType<typeof poseBones> = poseBones(
+    body,
+    entry.entry.pose,
+  );
+  const initial: IAutoMovieResolvedBone = before.get("rightHand")!;
+  const grip: IAutoMovieVector3 = HumanHand.frame(
+    body,
+    before,
+    "right",
+    "grip",
+  ).point;
+  const along: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
+  const outward: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
+  const hair: IAutoMovieVector3 = bowViolinHairAxis(along, outward, "string1");
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    initial.worldRotation,
+  );
+  const localHair: IAutoMovieVector3 = Quaternion.rotateVector(
+    inverse,
+    Vector3.scale(hair, 0.16),
+  );
+  const transverse: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(
+      Vector3.scale(outward, -1),
+      Vector3.scale(hair, -Vector3.dot(outward, hair)),
+    ),
+  );
+  const hairRotation: IAutoMovieQuaternion = HumanHand.align(
+    { normal: outward, forward: along },
+    {
+      normal: Quaternion.rotateVector(inverse, transverse),
+      forward: Quaternion.rotateVector(inverse, hair),
+    },
+  );
+  const frog: IAutoMovieVector3 = Vector3.scale(localHair, -0.3);
+  const tip: IAutoMovieVector3 = Vector3.add(frog, localHair);
+  const frame = (
+    translation: IAutoMovieVector3,
+    rotation: IAutoMovieQuaternion,
+  ): IAutoMovieAffordance["frame"] => ({
+    translation,
+    rotation,
+    scale: { x: 1, y: 1, z: 1 },
+  });
+  const string: IAutoMovieAffordance = {
+    id: "string1",
+    kind: "bar",
+    length: 0.25,
+    extent: null,
+    frame: frame({ x: 0.1, y: 0, z: 0 }, Quaternion.identity()),
+  };
+  const staged: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBowViolinParams> =
+    motionActionContext(body, params, {
+      holds: { right: "bow" },
+      carried: {
+        right: {
+          position: HumanHand.offset(body, "right", "grip").point,
+          rotation: Quaternion.identity(),
+        },
+      },
+      props: [
+        {
+          subject: "violin",
+          fixed: true,
+          frame: { position: grip, rotation: Quaternion.identity() },
+          points: {},
+          affordances: [string],
+        },
+        {
+          subject: "bow",
+          frame: { position: grip, rotation: initial.worldRotation },
+          points: {},
+          affordances: [
+            {
+              id: "hairFrog",
+              kind: "socket",
+              extent: null,
+              frame: frame(frog, hairRotation),
+            },
+            {
+              id: "hairTip",
+              kind: "socket",
+              extent: null,
+              frame: frame(tip, hairRotation),
+            },
+          ],
+        },
+      ],
+    });
+  const plan: IAutoMovieMotionHumanActionPlan = bowViolin.plan(staged);
+  const instant = (name: string): number =>
+    plan.events.find(
+      (event: IAutoMovieMotionEvent): boolean => event.name === name,
+    )!.share * plan.duration;
+  const touch: number = instant("contact");
+  const release: number = instant("lift");
+  for (const u of [1, 0.37, 0, 1]) {
+    const seconds: number = touch + u * (release - touch);
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture(body, plan.posture(seconds)),
+    );
+    const hand: IAutoMovieResolvedBone = bones.get("rightHand")!;
+    const handGrip: IAutoMovieVector3 = HumanHand.frame(
+      body,
+      bones,
+      "right",
+      "grip",
+    ).point;
+    const share: number = 0.18 + 0.24 * u ** 3 * (10 + u * (-15 + 6 * u));
+    const placed: IAutoMovieVector3 = Vector3.add(
+      handGrip,
+      Quaternion.rotateVector(
+        hand.worldRotation,
+        Vector3.add(frog, Vector3.scale(localHair, share)),
+      ),
+    );
+    TestValidator.predicate(
+      `displayed hair on the string at ${u}`,
+      vclose(placed, grip, 0.002),
+    );
+  }
 }

@@ -1,13 +1,147 @@
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
+  IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
+  IAutoMovieMotionHumanTravelCarExit,
   IAutoMovieMotionObstacleAperture,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { admitCarExitSill } from "@automovie/motions/internal";
+import {
+  HumanRefusal,
+  admitCarExitSill,
+  stand,
+  verifyCarExitSill,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
+import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 import { vclose } from "../../internal/vclose";
+
+/**
+ * A rotating foot is admitted against a finite material strip in the doorway,
+ * with a named failure for a low crossing.
+ *
+ * Scenarios:
+ *
+ * 1. At the 30 degree midpoint, a point 0.06 m below and 0.14 m in front of the
+ *    ankle drops 0.12196 m, more than the provisional 0.08 m.
+ * 2. A strip covering the displayed foot refuses the low crossing. The same strip
+ *    away from the actor, or at a safe height, is admitted.
+ */
+async function materialContact(): Promise<void> {
+  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const upright: IAutoMovieMotionHumanPosture = stand.posture(
+    body,
+    { x: 0, y: 0, z: 0 },
+    0,
+  );
+  const foot: IAutoMovieHumanLimbGoal = upright.limbs.leftLeg!;
+  const pose = (seconds: number): IAutoMovieMotionHumanPosture => ({
+    ...upright,
+    limbs: {
+      ...upright.limbs,
+      leftLeg: {
+        ...foot,
+        rotation: Quaternion.fromAxisAngle(
+          { x: 1, y: 0, z: 0 },
+          60 * (1 - seconds),
+        ),
+        planted: false,
+      },
+    },
+  });
+  const pitched = Quaternion.rotateVector(pose(0.5).limbs.leftLeg!.rotation!, {
+    x: 0,
+    y: -0.06,
+    z: 0.14,
+  });
+  TestValidator.predicate(
+    "midpoint toe drops a measured 41.96 mm below ankle-based allowance",
+    nclose(-pitched.y - 0.08, (0.06 * Math.sqrt(3)) / 2 + 0.07 - 0.08, 1e-12),
+  );
+  const frame: IAutoMovieRigidTransform = {
+    position: { x: 0, y: 0, z: 0 },
+    rotation: Quaternion.identity(),
+  };
+  const through: IAutoMovieMotionObstacleAperture = {
+    ...DOOR,
+    at: foot.point,
+    across: { x: 1, y: 0, z: 0 },
+  };
+  const params: IAutoMovieMotionHumanTravelCarExit.IParams = {
+    through,
+    floor: 0,
+    sill: { subject: "car", point: "rearSill" },
+    bench: { at: frame.position, yaw: 0, depth: 0.6 },
+    width: 1,
+    turnSeconds: 1,
+    clearance: 0.02,
+    landingDistance: 0.6,
+    duckDegrees: 15,
+    stagger: 0.1,
+    liftShare: 0.2,
+  };
+  const check = (x: number, y: number): string | undefined => {
+    const param: IAutoMovieAffordance = {
+      id: "rearSill",
+      kind: "surface",
+      extent: null,
+      width: 0.18,
+      depth: 0.34,
+      frame: {
+        translation: Vector3.add(foot.point, { x, y, z: 0.04 }),
+        rotation: frame.rotation,
+        scale: { x: 1, y: 1, z: 1 },
+      },
+    };
+    const prop = (): IAutoMovieMotionHumanPropReader => ({
+      prop: {
+        subject: "car",
+        fixed: true,
+        points: {},
+        frame,
+        affordances: [param],
+      },
+      frame: (): IAutoMovieRigidTransform => frame,
+    });
+    try {
+      verifyCarExitSill(
+        {
+          body,
+          params: {
+            ...params,
+            through: { ...through, at: { ...through.at, y: through.at.y + y } },
+          },
+          prop,
+          start: 0,
+        },
+        pose,
+        1,
+        [0.5],
+      );
+      return undefined;
+    } catch (error: unknown) {
+      if (!(error instanceof HumanRefusal)) throw error;
+      return error.reason;
+    }
+  };
+  TestValidator.predicate(
+    "posed foot contacts matter only within the named finite strip",
+    check(0, -0.08)?.includes("car/rearSill") === true &&
+      check(0.4, -0.08) === undefined &&
+      check(0, -0.3) === undefined,
+  );
+  TestValidator.predicate(
+    "a different object's patch is not the rear sill",
+    check(2, -0.08)?.includes("outside the selected aperture") === true,
+  );
+}
 
 /** A rear opening 0.8 m wide in the plane x = 1, outward along +X. */
 const DOOR: IAutoMovieMotionObstacleAperture = {
@@ -56,7 +190,7 @@ const landing = (
  * 2. A landing foot still inside, or feet so wide that with a 0.25 m clearance
  *    they need more than the 0.8 m opening, are refused.
  */
-export function test_motions_lexicon_travel_car_exit(): void {
+export async function test_motions_lexicon_travel_car_exit(): Promise<void> {
   const input = (
     gap: number,
     landed: IAutoMovieMotionHumanPosture,
@@ -103,4 +237,5 @@ export function test_motions_lexicon_travel_car_exit(): void {
         ),
       ),
   );
+  await materialContact();
 }

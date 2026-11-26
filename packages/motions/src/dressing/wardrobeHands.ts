@@ -17,6 +17,7 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
+import { prepareHumanElbowPath } from "../compose/prepareHumanElbowPath";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
@@ -207,17 +208,57 @@ export namespace wardrobeHands {
       rotation: target.rotation,
       fallback: "hang",
     });
-    return {
-      ...posture,
-      limbs: {
-        ...posture.limbs,
-        [side === "left" ? "leftArm" : "rightArm"]:
-          AutoMovieMotionHumanArmTarget.fromWrist(
-            { point, rotation: target.rotation },
-            bend,
-            site,
-          ),
+    return gripGoal(posture, side, point, target.rotation, bend, site);
+  }
+
+  /** Prepare elbow hints over a bound path, keeping the exact grip geometry. */
+  export function prepareArm(
+    body: IAutoMovieMotionHumanBody,
+    base: (seconds: number) => IAutoMovieMotionHumanPosture,
+    side: AutoMovieHumanSide,
+    path: (seconds: number) => IAutoMovieRigidTransform,
+    duration: number,
+    knots: readonly number[],
+  ): (
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+  ) => IAutoMovieMotionHumanPosture {
+    const site: IAutoMovieVector3 = HumanHand.offset(body, side, "grip").point;
+    const wrist = (target: IAutoMovieRigidTransform): IAutoMovieVector3 =>
+      Vector3.subtract(
+        target.position,
+        Quaternion.rotateVector(target.rotation, site),
+      );
+    const elbow: (seconds: number) => IAutoMovieVector3 = prepareHumanElbowPath(
+      duration,
+      knots,
+      (
+        seconds: number,
+      ): Parameters<typeof AutoMovieMotionHumanBend.solve>[0] => {
+        const target: IAutoMovieRigidTransform = path(seconds);
+        return {
+          body,
+          posture: base(seconds),
+          side,
+          point: wrist(target),
+          rotation: target.rotation,
+          fallback: "hang",
+        };
       },
+    );
+    return (
+      posture: IAutoMovieMotionHumanPosture,
+      seconds: number,
+    ): IAutoMovieMotionHumanPosture => {
+      const target: IAutoMovieRigidTransform = path(seconds);
+      return gripGoal(
+        posture,
+        side,
+        wrist(target),
+        target.rotation,
+        elbow(seconds),
+        site,
+      );
     };
   }
 
@@ -236,10 +277,11 @@ export namespace wardrobeHands {
     side: AutoMovieHumanSide,
     desired: IAutoMovieRigidTransform,
     fraction: number,
+    displayed?: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
     if (fraction <= 0) return STILL;
     const turn: IAutoMovieRigidTransform["rotation"] = HumanPropFrame.relative(
-      grip(body, posture, side),
+      displayed ?? grip(body, posture, side),
       desired,
     ).rotation;
     return {
@@ -408,17 +450,22 @@ export namespace wardrobeHands {
     const slide: number = duration(start, end);
     const closed: number = take + slide;
     const total: number = closed + duration(end, hand);
-    const posture: (seconds: number) => IAutoMovieMotionHumanPosture = (
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      const goal: IAutoMovieRigidTransform =
-        seconds <= take
-          ? path(hand, start, seconds / take)
-          : seconds <= closed
-            ? path(start, end, (seconds - take) / slide)
-            : path(end, hand, (seconds - closed) / (total - closed));
-      return arm(body, entry.posture, side, goal);
-    };
+    const goal = (seconds: number): IAutoMovieRigidTransform =>
+      seconds <= take
+        ? path(hand, start, seconds / take)
+        : seconds <= closed
+          ? path(start, end, (seconds - take) / slide)
+          : path(end, hand, (seconds - closed) / (total - closed));
+    const prepared: ReturnType<typeof prepareArm> = prepareArm(
+      body,
+      () => entry.posture,
+      side,
+      goal,
+      total,
+      [take, closed],
+    );
+    const posture = (seconds: number): IAutoMovieMotionHumanPosture =>
+      prepared(entry.posture, seconds);
     verify(context, posture(take), side, start, MISS);
     verify(context, posture(closed), side, end, MISS);
     const support: IAutoMovieMotionHumanActionPlan =
@@ -490,4 +537,26 @@ export namespace wardrobeHands {
     if (!(best <= MISS)) throw refusal("reach", best, reason);
     return answer;
   }
+}
+
+/** Merge a grip's exact wrist and prepared bend into a posture. */
+function gripGoal(
+  posture: IAutoMovieMotionHumanPosture,
+  side: AutoMovieHumanSide,
+  point: IAutoMovieVector3,
+  rotation: IAutoMovieRigidTransform["rotation"],
+  bend: IAutoMovieVector3,
+  site: IAutoMovieVector3,
+): IAutoMovieMotionHumanPosture {
+  return {
+    ...posture,
+    limbs: {
+      ...posture.limbs,
+      [`${side}Arm`]: AutoMovieMotionHumanArmTarget.fromWrist(
+        { point, rotation },
+        bend,
+        site,
+      ),
+    },
+  };
 }

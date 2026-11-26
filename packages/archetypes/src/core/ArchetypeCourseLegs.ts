@@ -323,9 +323,14 @@ export namespace ArchetypeCourseLegs {
       at: (seconds: number): AutoMovieArchetypeCourse.IState => {
         const { distance, speed }: IAutoMovieSpeedProfile.IState =
           profile.at(seconds);
-        let row: ArchetypeCoursePath.IRow = rows[0]!;
-        for (const candidate of rows)
-          if (distance >= candidate.from) row = candidate;
+        let low: number = 0;
+        let high: number = rows.length;
+        while (high - low > 1) {
+          const middle: number = (low + high) >>> 1;
+          if (rows[middle]!.from <= distance) low = middle;
+          else high = middle;
+        }
+        const row: ArchetypeCoursePath.IRow = rows[low]!;
         const pose: ArchetypeCoursePath.IPose = ArchetypeCoursePath.advance(
           row,
           Math.min(row.span, distance - row.from),

@@ -21,8 +21,14 @@ export interface IAutoMovieDrawPage {
    */
   addInitScript(script: { content: string }): Promise<unknown>;
 
-  /** Load an address, resolving at the `load` event. */
-  goto(url: string, options: { waitUntil: "load" }): Promise<unknown>;
+  /**
+   * Load an address and wait for its `load` event within the given
+   * milliseconds.
+   */
+  goto(
+    url: string,
+    options: { waitUntil: "load"; timeout?: number },
+  ): Promise<unknown>;
 
   /**
    * Resolve once `predicate(arg)`, run in the page, is truthy; reject after

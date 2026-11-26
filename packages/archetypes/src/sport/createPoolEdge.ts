@@ -25,12 +25,12 @@ const FR: string =
  * deck, and the wall reaches down to the pool's floor. A swimmer in the water
  * faces the wall along `-Z`; one on the platform faces the water along `+Z`.
  *
- * - `deck` is the deck at its edge, a surface stood on, as wide as the segment
- *   and its run behind the edge not stated; `edge` the deck's edge over the
- *   water, a ledge along `+X` with `+Z` out over the water, which a swimmer
- *   grips and hauls out by; `water` the water's surface at the wall's face, the
- *   plane a swimming act swims on, as wide as the segment; `restLedge` the rest
- *   ledge's outer edge, a ledge a swimmer stands or rests on.
+ * - `deck` marks the deck edge, `deckFace` its bounded top and `wall` its bounded
+ *   water-facing surface; `edge` the deck's edge over the water, a ledge along
+ *   `+X` with `+Z` out over the water, which a swimmer grips and hauls out by;
+ *   `water` the water's surface at the wall's face, the plane a swimming act
+ *   swims on, as wide as the segment; `restLedge` the rest ledge's outer edge,
+ *   a ledge a swimmer stands or rests on.
  * - A starting platform's `platform` is its top, a surface sloping down toward
  *   the water; `front` the top's front edge, a ledge the toes curl over;
  *   `backstrokeGrip` the horizontal backstroke grip under the top's front, a
@@ -102,6 +102,28 @@ export function createPoolEdge(
     frame: AutoMovieArchetypeFrame.upright(v(0, 0, 0)),
     extent: null,
     width,
+  });
+  builder.affordance({
+    id: "deckFace",
+    kind: "surface",
+    materialPart: "wall",
+    frame: AutoMovieArchetypeFrame.upright(v(0, 0, -E.deck / 2)),
+    extent: null,
+    width,
+    depth: E.deck,
+  });
+  builder.affordance({
+    id: "wall",
+    kind: "surface",
+    materialPart: "wall",
+    frame: AutoMovieArchetypeFrame.facing(
+      v(0, floor / 2, 0),
+      v(0, 0, 1),
+      v(1, 0, 0),
+    ),
+    extent: null,
+    width,
+    depth: -floor,
   });
   builder.affordance({
     id: "edge",
@@ -213,12 +235,14 @@ export namespace createPoolEdge {
   /**
    * The affordance ids:
    *
-   * - `deck`, `edge`, `water`, `restLedge`: every kind's, as
+   * - `deck`, `deckFace`, `wall`, `edge`, `water`, `restLedge`: every kind's, as
    *   {@link createPoolEdge} describes them.
    * - `platform`, `front`, `backstrokeGrip`: a starting platform's.
    */
   export type Affordance =
     | "deck"
+    | "deckFace"
+    | "wall"
     | "edge"
     | "water"
     | "restLedge"

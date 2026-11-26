@@ -123,8 +123,10 @@ export namespace HumanCoupled {
     ): IAutoMovieMotionHumanMutual.IAct => {
       const shared: object = {
         ...(params?.carry === undefined ? {} : { carry: params.carry }),
-        ...(params?.hold === undefined ? {} : { seconds: params.hold }),
+        ...(params?.hold === undefined ? {} : { hold: params.hold }),
         ...(params?.mass === undefined ? {} : { mass: params.mass }),
+        lift: params?.lift ?? 0,
+        ...(params?.setDown === undefined ? {} : { setDown: params.setDown }),
       };
       return role === "bearer"
         ? { name: "bearing", params: { ...shared, of: cast.borne } }
@@ -132,11 +134,7 @@ export namespace HumanCoupled {
             name: "borne",
             params: {
               ...shared,
-              by: cast.bearer,
-              ...(params?.lift === undefined ? {} : { lift: params.lift }),
-              ...(params?.setDown === undefined
-                ? {}
-                : { setDown: params.setDown }),
+              partner: cast.bearer,
             },
           };
     },

@@ -74,10 +74,8 @@ function planTurnOver(
     lyingTurn.TURNS[p.to],
     p.via ?? "left",
   );
-  const quarters: number = Math.max(
-    1,
-    Math.ceil(Math.abs(target - from.turn) / 90 - 1e-6),
-  );
+  const delta: number = target - from.turn;
+  const quarters: number = Math.max(1, Math.ceil(Math.abs(delta) / 90 - 1e-6));
   const support: number = height(context, p.on);
   const hips: IAutoMovieVector3 = Vector3.add(
     entry.root,
@@ -100,13 +98,15 @@ function planTurnOver(
     turn: number,
   ): IAutoMovieMotionHumanPosture["joints"] =>
     KEYS[((Math.round(turn / 90) % 4) + 4) % 4]!.joints;
-  const leave: (w: number) => IAutoMovieMotionHumanPosture["joints"] =
-    prepareHumanShapeBlend(
-      entry.joints,
-      key(
-        from.turn + Math.sign(target - from.turn) * 90 * Math.min(1, quarters),
+  const quarterTurn: number = Math.sign(delta) * 90;
+  const blends: ReturnType<typeof prepareHumanShapeBlend>[] = Array.from(
+    { length: quarters },
+    (_, quarter: number): ReturnType<typeof prepareHumanShapeBlend> =>
+      prepareHumanShapeBlend(
+        quarter === 0 ? entry.joints : key(from.turn + quarterTurn * quarter),
+        key(from.turn + quarterTurn * (quarter + 1)),
       ),
-    );
+  );
   const rest: ReturnType<typeof knockdown.prepareRest> =
     knockdown.prepareRest(body);
   const at: (
@@ -119,22 +119,14 @@ function planTurnOver(
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture => {
     const u: number = progress.progress(seconds);
-    const turn: number = from.turn + (target - from.turn) * u;
-    const step: number = ((turn - from.turn) / (target - from.turn)) * quarters;
+    const turn: number = from.turn + delta * u;
+    const step: number = u * quarters;
     const quarter: number = Math.min(quarters - 1, Math.floor(step));
     const w: number = step - quarter;
-    const sign: number = Math.sign(target - from.turn);
-    const joints: IAutoMovieMotionHumanPosture["joints"] =
-      quarter === 0
-        ? leave(w)
-        : prepareHumanShapeBlend(
-            key(from.turn + sign * 90 * quarter),
-            key(from.turn + sign * 90 * (quarter + 1)),
-          )(w);
     const posture: IAutoMovieMotionHumanPosture = {
       ...lyingTurn.tilt({ yaw: from.yaw, turn }),
       root: { x: 0, y: 0, z: 0 },
-      joints,
+      joints: blends[quarter]!(w),
       limbs: {},
     };
     const offset: IAutoMovieVector3 = Quaternion.rotateVector(

@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSupportCarry,
   IAutoMovieMotionHumanSurface,
   IAutoMovieQuaternion,
@@ -102,6 +103,20 @@ export function HumanSupportStep(
 ): Plan {
   const { to, from, onto }: Params = context.params;
 
+  /** Resolve the current displayed material frame when the plant named one. */
+  const frame = (
+    prop: string,
+    at: number,
+    site?: string,
+  ): IAutoMovieRigidTransform => {
+    const reader: IAutoMovieMotionHumanPropReader = context.prop(prop);
+    const seconds: number = context.start + at;
+    return (
+      (site === undefined ? undefined : reader.site?.(site, seconds)) ??
+      reader.frame(seconds)
+    );
+  };
+
   // A point moved by a support's motion between two seconds of the step;
   // the ground keeps it.
   const moved = (
@@ -109,14 +124,11 @@ export function HumanSupportStep(
     begin: number,
     end: number,
     point: IAutoMovieVector3,
+    site?: string,
   ): IAutoMovieVector3 => {
     if (prop === undefined || begin === end) return point;
-    const a: IAutoMovieRigidTransform = context
-      .prop(prop)
-      .frame(context.start + begin);
-    const b: IAutoMovieRigidTransform = context
-      .prop(prop)
-      .frame(context.start + end);
+    const a: IAutoMovieRigidTransform = frame(prop, begin, site);
+    const b: IAutoMovieRigidTransform = frame(prop, end, site);
     return Vector3.add(
       b.position,
       Quaternion.rotateVector(
@@ -281,6 +293,19 @@ export function HumanSupportStep(
     point: IAutoMovieVector3,
   ): IAutoMovieVector3 => {
     const shifted: IAutoMovieVector3 = Vector3.add(point, plant.shift);
+    if (plant.site !== undefined) {
+      // Meet the deck at touchdown, then travel in that material frame.
+      const touchdown: IAutoMovieVector3 = plant.arrived
+        ? moved(onto, land, plant.down, moved(from, 0, leave, shifted))
+        : moved(from, 0, plant.down, shifted);
+      return moved(
+        plant.arrived ? onto : from,
+        plant.down,
+        plant.arrived ? Math.max(at, plant.down) : at,
+        touchdown,
+        plant.site,
+      );
+    }
     return plant.arrived
       ? moved(
           onto,
@@ -350,24 +375,32 @@ export function HumanSupportStep(
     prop: string | undefined,
     begin: number,
     end: number,
+    site?: string,
   ): number => {
     if (prop === undefined || begin === end) return 0;
     const delta: IAutoMovieQuaternion = Quaternion.multiply(
-      context.prop(prop).frame(context.start + end).rotation,
-      Quaternion.inverse(
-        context.prop(prop).frame(context.start + begin).rotation,
-      ),
+      frame(prop, end, site).rotation,
+      Quaternion.inverse(frame(prop, begin, site).rotation),
     );
     return (2 * Math.atan2(delta.y, delta.w)) / Quaternion.DEG2RAD;
   };
 
   // How far a plant's support has turned the foot by a second, and one
   // foot's turn blended between its plants as its carry is.
-  const turnedBy = (plant: IPlant, at: number): number =>
-    plant.arrived
-      ? turnOf(onto, plant.down, Math.max(at, plant.down)) +
-        turnOf(from, 0, leave)
-      : turnOf(from, 0, at);
+  const turnedBy = (plant: IPlant, at: number): number => {
+    const end: number = plant.arrived ? Math.max(at, plant.down) : at;
+    if (plant.site === undefined)
+      return plant.arrived
+        ? turnOf(onto, land, end) + turnOf(from, 0, leave)
+        : turnOf(from, 0, end);
+    const beforeTouchdown: number = plant.arrived
+      ? turnOf(onto, land, plant.down) + turnOf(from, 0, leave)
+      : turnOf(from, 0, plant.down);
+    return (
+      beforeTouchdown +
+      turnOf(plant.arrived ? onto : from, plant.down, end, plant.site)
+    );
+  };
   const spin = (side: AutoMovieHumanSide, at: number): number => {
     const list: IPlant[] = plants[side];
     if (list.length === 0) return turnOf(from, 0, at);
@@ -398,7 +431,11 @@ export function HumanSupportStep(
     const prop: string | undefined = plant.arrived ? onto : from;
     return prop === undefined
       ? { kind: "ground", height: plant.floor }
-      : { kind: "prop", subject: prop };
+      : {
+          kind: "prop",
+          subject: prop,
+          ...(plant.site === undefined ? {} : { point: plant.site }),
+        };
   };
   const byWindow: Map<Window, IPlant> = new Map(
     SIDES.flatMap((side: AutoMovieHumanSide): WindowPlant[] =>

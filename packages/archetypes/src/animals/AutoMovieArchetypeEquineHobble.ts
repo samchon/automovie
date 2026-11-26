@@ -10,6 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "../core";
+import { AnnularFitting } from "./AnnularFitting";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /** The pose's frame: the hobble is posed in world coordinates. */
@@ -46,17 +47,21 @@ export namespace AutoMovieArchetypeEquineHobble {
     hobble: AutoMovieArchetype<never, never>,
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
   ): AutoMovieArchetypeRide.IRide<never, never> {
+    const left: ReadonlySet<string> = new Set(AnnularFitting.ids("leftCuff"));
+    const right: ReadonlySet<string> = new Set(AnnularFitting.ids("rightCuff"));
     const at = (
       seconds: number,
     ): AutoMovieArchetypeRide.ISample<never, never> => {
       const horse: AutoMovieArchetypeRide.ISample<Id, D> = ride.at(seconds);
-      const cuffs: ReadonlyMap<string, IAutoMovieTransform> = new Map([
-        ["leftCuff", cuff(horse, "leftFore")],
-        ["rightCuff", cuff(horse, "rightFore")],
-      ]);
+      const leftCuff: IAutoMovieTransform = cuff(horse, "leftFore");
+      const rightCuff: IAutoMovieTransform = cuff(horse, "rightFore");
       const parts: IAutoMovieModelPart[] = hobble.parts.map(
         (part: IAutoMovieModelPart): IAutoMovieModelPart => {
-          const transform: IAutoMovieTransform | undefined = cuffs.get(part.id);
+          const transform: IAutoMovieTransform | undefined = left.has(part.id)
+            ? leftCuff
+            : right.has(part.id)
+              ? rightCuff
+              : undefined;
           return transform === undefined ? part : { ...part, transform };
         },
       );

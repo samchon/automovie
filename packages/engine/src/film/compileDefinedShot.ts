@@ -36,15 +36,15 @@ type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;
  * contract realization, or into the diagnostics of the first phase that
  * failed.
  *
- * The phases run in order: one synchronous `build` call with
- * `context`, the program held to its registration, the runtime's physics
- * advice, staging, blocking against `runtime.previous`, restaging at the
- * resumed placements, performance, contract realization, and continuity
- * sampling. The builder supplies ordinary code; the engine owns referential
- * integrity, blocking coherence, verb composition, range-of-motion and artifact
- * validation, and continuity. A throw from the builder becomes
- * `builder-failed`, and a throw from any other phase becomes `pipeline-failed`
- * named after the phase that was running, so this boundary never throws.
+ * The phases run in order: one synchronous `build` call with `context`, the
+ * program held to its registration, the runtime's physics advice, staging,
+ * blocking against `runtime.previous`, restaging at the resumed placements,
+ * performance, contract realization, and continuity sampling. The builder
+ * supplies ordinary code; the engine owns referential integrity, blocking
+ * coherence, verb composition, range-of-motion and artifact validation, and
+ * continuity. A throw from the builder becomes `builder-failed`, and a throw
+ * from any other phase becomes `pipeline-failed` named after the phase that was
+ * running, so this boundary never throws.
  *
  * When `runtime.previous` is supplied, each actor it names opens at that beat's
  * position, facing, mount and pose, and the opening snapshot keeps its gait
@@ -323,6 +323,7 @@ function resumeOpeningSnapshot(
           : {
               ...actor,
               gaitPhase: state.gaitPhase,
+              gaitPeriod: state.gaitPeriod,
               rootVelocity: structuredClone(state.rootVelocity),
               footPlants: suspended.has(actor.node)
                 ? actor.footPlants

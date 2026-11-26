@@ -195,13 +195,20 @@ export const makeActorSynthesizer: (
         (g: IAutoMovieGait): boolean => g.name === action.gait,
       );
       if (gait === undefined) return null;
+      const phase: number = ctx.gaitPhase ?? 0;
+      const previousPeriod: number | undefined = ctx.gaitPeriod;
       const cycle: IAutoMovieMotion = seedRestArticulation(
         gaitMotion(
           `${actor}:${action.gait}`,
           ctx.skeleton,
           gait,
           GAIT_SAMPLES,
-          ctx.gaitPhase ?? 0,
+          previousPeriod !== undefined &&
+            previousPeriod > 0 &&
+            Number.isFinite(previousPeriod) &&
+            previousPeriod !== gait.period
+            ? (phase / previousPeriod) * gait.period
+            : phase,
         ),
         ctx.restPose,
       );

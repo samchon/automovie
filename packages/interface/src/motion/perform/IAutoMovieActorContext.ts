@@ -39,6 +39,9 @@ export interface IAutoMovieActorContext {
    */
   gaitPhase?: number | null;
 
+  /** The previous gait's cycle duration in seconds, when known. */
+  gaitPeriod?: number;
+
   /**
    * Finite degrees about +Y, zero facing +Z; staged synthesis supports this
    * rigid heading rather than arbitrary affine placement.

@@ -1,10 +1,15 @@
-import { resolveAutoMovieHumanoidSurfaces } from "@automovie/engine";
+import {
+  Quaternion,
+  Vector3,
+  resolveAutoMovieHumanoidSurfaces,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanoidSurfaces,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,14 +24,24 @@ export function HumanSupportPatch(
   body: IAutoMovieMotionHumanBody,
   bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   contact: IAutoMovieMotionHumanContactWindow,
+  support?: IAutoMovieRigidTransform,
 ): IAutoMovieVector3[] {
   if (
     contact.region === undefined &&
+    (contact.material === undefined || contact.support.kind === "ground") &&
     (contact.part === "leftFoot" || contact.part === "rightFoot")
   )
     return HumanFoot.base(body, bones, [
       contact.part === "leftFoot" ? "left" : "right",
     ]);
+  if (contact.material !== undefined && support !== undefined)
+    return (contact.material.patch ?? [contact.material.point]).map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 =>
+        Vector3.add(
+          support.position,
+          Quaternion.rotateVector(support.rotation, point),
+        ),
+    );
   return [HumanSupportPatch.point(body, bones, contact)];
 }
 

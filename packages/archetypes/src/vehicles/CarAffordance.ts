@@ -9,6 +9,8 @@
  *   `rearRightDoorHandle`: the outside handles, each riding its door.
  * - `driverAperture`, `passengerAperture`, `rearLeftAperture`,
  *   `rearRightAperture`: the door openings, passed through into the car.
+ * - `rearLeftSill`, `rearRightSill`: the bounded floor strip at each rear
+ *   opening.
  * - `driverWindow`, `passengerWindow`, `rearLeftWindow`, `rearRightWindow`: each
  *   door's glass, sliding down into it, riding the door; and
  *   `driverWindowOpening` and the rest, the opening above the glass, its
@@ -57,6 +59,8 @@ export type CarAffordance =
   | "passengerAperture"
   | "rearLeftAperture"
   | "rearRightAperture"
+  | "rearLeftSill"
+  | "rearRightSill"
   | "driverWindow"
   | "passengerWindow"
   | "rearLeftWindow"

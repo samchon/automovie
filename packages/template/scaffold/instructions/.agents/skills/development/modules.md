@@ -6,9 +6,9 @@ Read the existing source and relevant installed APIs before implementing a capab
 
 Build each entity from its settings or brief facts. Compose fragments into capabilities that name what it does and to whom.
 
-Compose a person's action in the installed vocabulary using its prepared body, recorded proficiency and scene targets. Settle it under [action axes](../motion/compose/composition.md#action-axes).
+Use the person's prepared body, recorded proficiency and scene targets under [composition](../motion/compose/composition.md).
 
-Scenes, films and catalog cases compose entity capabilities, interactions and consequences with installed operators. Their owners handle calculations, constants, geometry, direct law imports, loads and runtime selection. The vocabulary resolves alignment and contact timing.
+Scenes, films and catalog cases compose capabilities and consequences. Keep calculations, constants, geometry, law imports and runtime selection with their owners.
 
 Resolve one immutable schedule per film and evaluate each second from it. Derive all streams from one film seed. Start a continuation from the prior film's final state snapshots.
 

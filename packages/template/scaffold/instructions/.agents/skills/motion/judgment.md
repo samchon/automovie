@@ -14,7 +14,7 @@ At the film camera's scale, do the proportions, orientation and attachments hold
 
 <!-- @source [Kovar, Schreiner and Gleicher](https://pages.cs.wisc.edu/~kovar/footskateCleanup.pdf) describe sliding during an intended footplant. -->
 
-Do the participants' preparation, support, movement and recovery produce the response shown? For a reaction to contact, locate where the depicted surfaces meet at or before its onset. Follow clearance along the path and judge a planted foot or held object relative to its support, even when that support moves. If perspective hides the answer, use another view or measure the posed surfaces at and around the event under [frame evaluation](frame-evaluation.md).
+Do posture, preparation, support and recovery read as this person's behavior and practiced style? For a reaction to contact, locate the surface meeting at or before its onset. Check clearance and plants or grasps relative to their moving support. If perspective hides the contact, use another view or measure the posed surfaces under [frame evaluation](frame-evaluation.md).
 
 ### Pace
 

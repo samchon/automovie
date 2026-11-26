@@ -24,6 +24,7 @@ const resumeActorContext: (
     facingDeg:
       (Math.atan2(previous.facing.x, previous.facing.z) * 180) / Math.PI,
     gaitPhase: previous.gaitPhase,
+    gaitPeriod: previous.gaitPeriod,
     speed: carriedSpeed > 1e-6 ? carriedSpeed : context.speed,
     restPose: previous.pose ?? context.restPose,
   };

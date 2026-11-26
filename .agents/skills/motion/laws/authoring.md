@@ -14,7 +14,7 @@ Define the action's interaction through time-bounded effector goals. Fit them wi
 
 Measure distances from the body and target. Cite provisional values. Take key poses, timing and windows from primary studies. Specify joint angles only where goals leave them open.
 
-A goal on a body attaches to the bone under its target, so a layered sway carries it along. Read a tracked target one reaction time late, with the delay from the study, or the limb cannot be dodged, feinted or made to miss.
+A goal on a body follows the bone under its target. Use the study's delay for a performer's reaction to another person's movement. Read an active material contact at the current pose under [support frames](contacts.md#windows-and-support-frames).
 
 ## The path in time
 

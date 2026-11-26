@@ -17,11 +17,15 @@ import type {
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 
 /** The context of the seat's carrier and film clock. */
-type SitCarriedContext = Pick<IAutoMovieMotionHumanActionContext, "prop" | "start">;
+type SitCarriedContext = Pick<
+  IAutoMovieMotionHumanActionContext,
+  "prop" | "start"
+>;
 
 /**
  * Carry a low sit in the frame of its moving seat. A high mount has already
- * placed its feet in their material supports before preparing its limb courses.
+ * placed its feet in their material supports before preparing its limb
+ * courses.
  *
  * @param context The sit's start and props.
  * @param seat The seat, read where its carrier stands at the sit's start.
@@ -37,16 +41,26 @@ export function sitCarried(
 ): IAutoMovieMotionHumanActionPlan {
   if (declared || seat.carrier === undefined) return plan;
   const subject: string = seat.carrier;
-  const carry: sitCarried.Pose = sitCarried.prepare(context, seat, plan.duration);
+  const finite: boolean = plan.contacts.some(
+    (contact: IAutoMovieMotionHumanContactWindow): boolean =>
+      contact.part === "seat" && contact.material !== undefined,
+  );
+  const carry: sitCarried.Pose = sitCarried.prepare(
+    context,
+    seat,
+    plan.duration,
+    finite ? plan.contacts : undefined,
+  );
   return {
     ...plan,
     contacts: plan.contacts.map(
       (
         window: IAutoMovieMotionHumanContactWindow,
       ): IAutoMovieMotionHumanContactWindow =>
-        window.part === "seat" ||
-        window.part === "leftFoot" ||
-        window.part === "rightFoot"
+        !finite &&
+        (window.part === "seat" ||
+          window.part === "leftFoot" ||
+          window.part === "rightFoot")
           ? { ...window, support: { kind: "prop", subject } }
           : window,
     ),
@@ -145,10 +159,13 @@ export namespace sitCarried {
             );
             const window = windows.find(
               (item) =>
-                item.support.kind === "prop" && item.support.point !== undefined,
+                item.support.kind === "prop" &&
+                item.support.point !== undefined,
             );
             const id: string | undefined =
-              window?.support.kind === "prop" ? window.support.point : undefined;
+              window?.support.kind === "prop"
+                ? window.support.point
+                : undefined;
             const frame: IAutoMovieRigidTransform | undefined =
               id === undefined
                 ? undefined
@@ -158,7 +175,9 @@ export namespace sitCarried {
             return {
               limb: `${side}Leg`,
               ground,
-              ...(window === undefined || id === undefined || frame === undefined
+              ...(window === undefined ||
+              id === undefined ||
+              frame === undefined
                 ? {}
                 : {
                     part: {
@@ -187,7 +206,8 @@ export namespace sitCarried {
         if (raw === undefined || rigid === undefined) continue;
         if (
           ground.some(
-            (window) => t >= window.from * duration && t <= window.to * duration,
+            (window) =>
+              t >= window.from * duration && t <= window.to * duration,
           )
         ) {
           posture.limbs[limb] = raw;
@@ -203,12 +223,11 @@ export namespace sitCarried {
         const bearing: boolean = t >= part.bearing;
         const fromWorld: boolean = part.fromFloor && !bearing;
         const approach: IAutoMovieHumanLimbGoal = fromWorld ? raw : rigid;
-        const share: number =
-          bearing
-            ? 1
-            : minimumJerk.share(
-                (t - part.release) / (part.bearing - part.release),
-              );
+        const share: number = bearing
+          ? 1
+          : minimumJerk.share(
+              (t - part.release) / (part.bearing - part.release),
+            );
         const delta: IAutoMovieQuaternion = Quaternion.multiply(
           target.rotation,
           part.inverse,
@@ -216,7 +235,10 @@ export namespace sitCarried {
         const place = (value: IAutoMovieVector3): IAutoMovieVector3 =>
           Vector3.add(
             target.position,
-            Quaternion.rotateVector(delta, Vector3.subtract(value, part.position)),
+            Quaternion.rotateVector(
+              delta,
+              Vector3.subtract(value, part.position),
+            ),
           );
         const point: IAutoMovieVector3 = place(raw.point);
         const rotation: IAutoMovieQuaternion | undefined =

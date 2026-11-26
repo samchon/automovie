@@ -16,7 +16,9 @@ import type {
 import { standingLegs } from "../actions/standingLegs";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanFoot } from "../posture/HumanFoot";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
+import { prepareGlideSlope } from "./prepareGlideSlope";
 
 /** Fixed traversal order of the two independently fitted feet. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -189,7 +191,10 @@ export namespace HumanSurfaceGlide {
           !entry.supports.some(
             (support: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
               support.part === `${side}Foot` &&
-              support.support.kind === "ground" &&
+              (support.support.kind === "ground" ||
+                (slope !== undefined &&
+                  support.support.kind === "prop" &&
+                  support.support.subject === slope)) &&
               (support.kind === "plant" ||
                 support.kind === "pivot" ||
                 support.kind === "bear"),
@@ -210,12 +215,17 @@ export namespace HumanSurfaceGlide {
       left: entry.feet.left.ankle,
       right: entry.feet.right.ankle,
     };
+    const desired: IAutoMovieQuaternion = Quaternion.multiply(
+      Quaternion.fromAxisAngle(UP, start.yaw),
+      Quaternion.fromAxisAngle(RIGHT, grade),
+    );
+    const deck: prepareGlideSlope.ISlope | undefined =
+      slope === undefined
+        ? undefined
+        : prepareGlideSlope(context, slope, desired);
     const origin: IAutoMovieRigidTransform = {
       position: Vector3.lerp(ankle.left, ankle.right, 0.5),
-      rotation: Quaternion.multiply(
-        Quaternion.fromAxisAngle(UP, start.yaw),
-        Quaternion.fromAxisAngle(RIGHT, grade),
-      ),
+      rotation: deck?.rotation ?? desired,
     };
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(origin.rotation);
     const forward: IAutoMovieVector3 = Quaternion.rotateVector(
@@ -228,10 +238,23 @@ export namespace HumanSurfaceGlide {
     );
     const course: ICourse = motionClock.prepare(enteredSpeed);
     const curvature: number = (turn * Quaternion.DEG2RAD) / course.travel;
+    const offsets: Readonly<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {
+      left: HumanFoot.offset(body, "left", "sole"),
+      right: HumanFoot.offset(body, "right", "sole"),
+    };
+    const contact = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
+      deck === undefined
+        ? ankle[side]
+        : deck.enter(
+            Vector3.add(
+              ankle[side],
+              Quaternion.rotateVector(entry.feet[side].rotation, offsets[side]),
+            ),
+          );
     const foot = (side: AutoMovieHumanSide): IAutoMovieVector3 =>
       Quaternion.rotateVector(
         inverse,
-        Vector3.subtract(ankle[side], origin.position),
+        Vector3.subtract(contact(side), origin.position),
       );
     const local: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
       left: foot("left"),
@@ -252,6 +275,9 @@ export namespace HumanSurfaceGlide {
           "the glide arc must be finite and turn outside both skate or ski paths",
         fix: "use a gentler turn, a longer duration or a higher travel speed",
       });
+    if (deck !== undefined)
+      for (const side of SIDES)
+        deck.travel(origin.position, local[side], course.travel, curvature);
 
     const tangent = (side: AutoMovieHumanSide): IAutoMovieQuaternion =>
       Quaternion.fromAxisAngle(
@@ -279,7 +305,12 @@ export namespace HumanSurfaceGlide {
         support:
           slope === undefined
             ? { kind: "ground" }
-            : { kind: "prop", subject: slope, carries: false },
+            : {
+                kind: "prop",
+                subject: slope,
+                point: deck!.point,
+                carries: false,
+              },
       }),
     );
     if (braking > 0 && grade === 0)
@@ -348,12 +379,24 @@ export namespace HumanSurfaceGlide {
             delta,
             entry.feet[side].rotation,
           );
+          const rotation: IAutoMovieQuaternion = Quaternion.slerp(
+            before,
+            Quaternion.multiply(frame.rotation, toe[side]),
+            set,
+          );
+          const contact: IAutoMovieVector3 = Vector3.add(
+            frame.position,
+            Quaternion.rotateVector(frame.rotation, local[side]),
+          );
           limbs[part] = {
             ...knee,
-            point: Vector3.add(
-              frame.position,
-              Quaternion.rotateVector(frame.rotation, local[side]),
-            ),
+            point:
+              deck === undefined
+                ? contact
+                : Vector3.subtract(
+                    contact,
+                    Quaternion.rotateVector(rotation, offsets[side]),
+                  ),
             bend: Vector3.add(
               frame.position,
               Quaternion.rotateVector(
@@ -361,11 +404,7 @@ export namespace HumanSurfaceGlide {
                 Vector3.subtract(knee.bend, origin.position),
               ),
             ),
-            rotation: Quaternion.slerp(
-              before,
-              Quaternion.multiply(frame.rotation, toe[side]),
-              set,
-            ),
+            rotation,
           };
         }
         return {

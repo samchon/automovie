@@ -1,4 +1,4 @@
-import { minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -6,6 +6,8 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanContactWindow,
+  IAutoMovieMotionHumanEntryState,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanShift,
   IAutoMovieVector3,
@@ -16,7 +18,11 @@ import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
+import { prepareSeatedMaterial } from "./prepareSeatedMaterial";
 import { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seated } from "./seated";
 import { seatedHands } from "./seatedHands";
@@ -96,6 +102,10 @@ export namespace shift {
     const by: number = travel(body.measure.thigh, context.params.by);
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const start: IAutoMovieVector3 = seated.socket(body, entry);
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+      humanPostureHeading(entry),
+      seated.offset(body),
+    );
     const under: number = seated.floor(body, context.entry);
 
     // The shift pushes off the feet planted on the floor, which a high seat takes off it.
@@ -112,6 +122,8 @@ export namespace shift {
       { origin: start, yaw: entry.yaw },
       { x: by, y: 0, z: 0 },
     );
+    const travelX: number = goal.x - start.x;
+    const travelZ: number = goal.z - start.z;
     const slide: number = 0.6 + Math.abs(by);
     const duration: number = slide + (context.params.hold ?? 0.5);
     const feet: Record<AutoMovieHumanSide, IAutoMovieVector3> = stand.feet(
@@ -125,6 +137,56 @@ export namespace shift {
     );
     const lift: number = UNWEIGHT * slide;
     const set: number = (1 - UNWEIGHT) * slide;
+    const entered: IAutoMovieMotionHumanEntryState.ISupport | undefined =
+      context.entry.supports.find(
+        (contact: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+          contact.part === "seat",
+      );
+    const support: IAutoMovieMotionHumanContactWindow.Support =
+      entered?.support ?? HumanSupportFrame.contact(context, "seat");
+    const named: prepareSeatedMaterial.ISeat | undefined =
+      support.kind === "prop" && support.point !== undefined
+        ? prepareSeatedMaterial(context, {
+            at: start,
+            yaw: entry.yaw,
+            carrier: support.subject,
+            point: support.point,
+          })
+        : undefined;
+    const correction: ((seconds: number) => number[]) | undefined =
+      named === undefined
+        ? undefined
+        : prepareHumanSampledCourse({
+            from: 0,
+            to: slide,
+            marks: [lift, set],
+            sample: (seconds: number): readonly number[] => {
+              const bearing:
+                | IAutoMovieMotionHumanContactWindow.IMaterial
+                | undefined = named.bearing(
+                raw(seconds),
+                context.start + seconds,
+              );
+              if (bearing === undefined)
+                throw prepareSeatedMaterial.refusal(
+                  "seat",
+                  support.kind === "prop" ? support.point : undefined,
+                );
+              return [-bearing.clearance / named.vertical];
+            },
+            tolerance: { kind: "absolute", absolute: 0.0005 },
+            step: 1 / 120,
+          });
+    const end: IAutoMovieMotionHumanContactWindow.IMaterial | undefined =
+      named?.bearing(placed(slide), context.start + slide);
+    if (
+      named !== undefined &&
+      (end === undefined || Math.abs(end.clearance) > HumanFoot.BEARING)
+    )
+      throw prepareSeatedMaterial.refusal(
+        "seat",
+        support.kind === "prop" ? support.point : undefined,
+      );
     const planned: IAutoMovieMotionHumanActionPlan = {
       duration,
       // A shift slides along the seat it was entered on and stays seated on
@@ -156,9 +218,21 @@ export namespace shift {
           part: "seat",
           kind: "seat",
           from: 0,
-          to: 1,
-          support: HumanSupportFrame.contact(context, "seat"),
+          to: end === undefined ? 1 : slide / duration,
+          support,
         },
+        ...(end === undefined
+          ? []
+          : [
+              {
+                part: "seat" as const,
+                kind: "seat" as const,
+                from: slide / duration,
+                to: 1,
+                support,
+                material: end,
+              },
+            ]),
       ],
       posture: (seconds, channels, resolution, projection) =>
         read(seconds, channels, resolution, projection),
@@ -187,6 +261,26 @@ export namespace shift {
     });
     return planned;
 
+    /** Socket and leg goals before the finite seat's height correction. */
+    function raw(seconds: number): IAutoMovieMotionHumanPosture {
+      return placed(seconds, false);
+    }
+
+    /** Keep the ankles placed while the hull follows the receiving surface. */
+    function placed(
+      seconds: number,
+      corrected: boolean = true,
+    ): IAutoMovieMotionHumanPosture {
+      const s: number = minimumJerk.share(seconds / slide);
+      const socket: IAutoMovieVector3 = {
+        x: start.x + travelX * s,
+        y: start.y + (corrected ? (correction?.(seconds)[0] ?? 0) : 0),
+        z: start.z + travelZ * s,
+      };
+      const root: IAutoMovieVector3 = Vector3.subtract(socket, offset);
+      return { ...entry, root, limbs: legged(root, feet) };
+    }
+
     /** Follow the authored socket and observe the current legs at their plants. */
     function read(
       seconds: number,
@@ -196,21 +290,9 @@ export namespace shift {
       prepared?: ReturnType<typeof prepareSeatedPalms>,
     ): IAutoMovieMotionHumanPosture {
       const t: number = Math.min(duration, Math.max(0, seconds));
-      const s: number = minimumJerk.share(t / slide);
-      const socket: IAutoMovieVector3 = {
-        x: start.x + (goal.x - start.x) * s,
-        y: start.y,
-        z: start.z + (goal.z - start.z) * s,
-      };
-      const root: IAutoMovieVector3 = seated.root(body, socket, entry);
-      const posture: IAutoMovieMotionHumanPosture = {
-        ...entry,
-        root,
-        limbs: legged(root, feet),
-      };
       return seatedHands.arms(
         body,
-        posture,
+        placed(t),
         1,
         resolution,
         projection,

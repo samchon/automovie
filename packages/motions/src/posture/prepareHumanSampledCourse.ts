@@ -1,3 +1,4 @@
+import { PreparedHumanIntervals } from "../perform/PreparedHumanIntervals";
 import type { HumanKnot } from "./HumanKnot";
 import { prepareHumanAdaptiveKnots } from "./prepareHumanAdaptiveKnots";
 import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
@@ -73,9 +74,13 @@ export function prepareHumanSampledCourse(
       return { to: end, course: prepareHumanSampledCourse.through(knots) };
     });
   const last: IPiece = pieces[pieces.length - 1]!;
+  const endAt = (index: number): number => pieces[index]!.to;
   return (seconds: number): number[] => {
     const t: number = Math.min(to, Math.max(from, seconds));
-    return (pieces.find((piece: IPiece): boolean => t <= piece.to) ?? last).course(t);
+    const index: number = Number.isNaN(t)
+      ? pieces.length
+      : PreparedHumanIntervals.lowerBound(pieces.length, endAt, t);
+    return (pieces[index] ?? last).course(t);
   };
 }
 
