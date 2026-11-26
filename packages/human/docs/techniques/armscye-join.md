@@ -258,3 +258,69 @@ arm stock re-enters. The retained trim removes that intrusion and reaches
 departure bound at 23 of 25 measured points. The forward phase clock, the
 material clearance and the continuous slope bound each qualify a full
 edge. [Fuchs, Kedem and Uselton, Optimal surface reconstruction from planar contours](https://www.cs.jhu.edu/~misha/Fall13b/Papers/Fuchs77.pdf) · [Buchin et al., Locally correct Fréchet matchings](https://arxiv.org/abs/1206.6257).
+
+### Global meridians without the cutter
+
+The held bilateral comparison removed the historical cutter from both
+controls and applied spatial Hermite around the entire port. It held the
+parent and arm walls, seam jets through second order and material-clock
+correspondence fixed. At 768 clocks and 97 stations per side, the candidate
+showed zero sampled trunk intrusions, orientation reversals, winding
+failures and strict triangle crossings. The matched front and close clay
+views showed a brighter transverse ridge and a lower curled crease inside
+the port. The thin diagonal remained visible from below on the right.
+These images reject this replacement for the held pose.
+
+On each side, the greatest turn between adjacent clock normals increased
+from 6.47 to 33.37 degrees. The number of nonpositive chord projections of
+the longitudinal derivative grew from 52 to 234 per side. Both controls
+already departed backward at the same 13 parent seam clocks, from 3.36249
+through 3.46066 radians, and had positive chord projections at every arm
+seam clock. For a meridian `P` and its fixed unit endpoint chord `d`, the
+projected derivative of `P(s(t))` is `d · P′(s(t)) s′(t)`. A positive
+change of parameter speed preserves its sign. If a different departure is
+needed at those clocks, inspect the parent loop, its inherited derivative
+and the receiving correspondence together. Treat the turn and projection
+as diagnostics of the observed fold. Inspect both surface directions
+before evaluating a replacement, as fairness of a surface involves more
+than the curvature along any one set of curves. [Moreton and Séquin, Functional Optimization for Fair Surface Design](https://www2.eecs.berkeley.edu/Pubs/TechRpts/1992/6142.html).
+
+The unchanged walls and common cameras locate the new folds inside the
+port. Adaptive diagonals left 434 band triangles unique to each variant.
+Their separate contribution to shading remains unmeasured. The
+held comparison covers two isolated shoulders and leaves whole-body
+closure, clearance between samples, motion and tissue response open.
+
+### Source of the anterior turn
+
+Resolve the inherited parent derivative into the unit loop tangent and
+the inward unit cross direction in the trunk tangent plane. The 13
+backward meridians have positive chord projections in the inward cross
+direction on both sides. Their negative along-loop contributions dominate,
+with a lowest total projection of −0.08641. A positive longitudinal
+scale keeps that sign. An orientation-preserving G1 shear adds a
+multiple of the loop tangent and can change the projection while keeping
+the tangent plane. This identifies a correspondence effect at the lower
+fossa. It supplies no evidence of a smoother skin surface. [Collin, Sangalli and Takacs, G1 interface conditions](https://arxiv.org/abs/1509.07619).
+
+The observed anterior ledge lies farther along the material clock. All 15
+sampled meridians at 4.12334–4.58149 radians have positive endpoint
+advance. At 4.12334 radians the endpoint tangents turn 81.92 degrees, with
+the curvature peak within the first 6.25% of the span. Check how the
+parent loop reads the trunk's anterior fold approach. A same-clock
+inward displacement changes the angle between the two outward source
+normals by −26.35 degrees/mm at 3.92699 radians and +6.23 degrees/mm at
+4.12334 radians to first order. A uniform small offset therefore cannot
+decrease both angles. Read a continuous, landmark-anchored trim on the
+existing trunk wall and check both sides of the sign change. Preserve the
+front and rear fold roots and the superficial hollow. If the wall cannot
+supply that trim, the trunk's sectional guide that carries the anterior
+fold approach is the next dependency. Cadaver sections and ultrasound
+support those landmarks. The current person's field supplies their shape
+and scale. [Berthier et al., anatomy of the axilla and upper arm junction](https://pubmed.ncbi.nlm.nih.gov/19669074/) · [Cocco et al., Ultrasound imaging of the axilla](https://link.springer.com/article/10.1186/s13244-023-01430-9).
+
+In the right below view, seven ray samples on the thin diagonal met the
+low trunk in front of the local shoulder and arm. The analytic clay
+shade of the trunk reproduced the archived red-channel values within one
+level. Those samples locate the line at the foreground overlap in this
+camera. The exact tessellated owner at its short bright base remains open.
