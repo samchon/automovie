@@ -14,7 +14,7 @@ import { HumanEdgeRescue as HumanEdgeRescueLaw } from "../lexicon/HumanEdgeRescu
  * A member here is the shipped law, preset or row itself, bound to its owner by
  * `typeof` and never wrapped, so its parameters, units, frames and refusals are
  * those its own comment states. The family's shared model and each law's
- * parameters are declared by {@link IAutoMovieMotionHumanRescue} in
+ * parameters are declared by {@link IAutoMovieMotionHumanEdgeRescue} in
  * `@automovie/interface`.
  */
 export namespace AutoMovieMotionHumanRescue {

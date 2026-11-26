@@ -37,7 +37,6 @@ export type { IAutoMovieMotionHumanOperate } from "./IAutoMovieMotionHumanOperat
 export type { IAutoMovieMotionHumanPolo } from "./IAutoMovieMotionHumanPolo";
 export type { IAutoMovieMotionHumanPrehension } from "./IAutoMovieMotionHumanPrehension";
 export type { IAutoMovieMotionHumanReaction } from "./IAutoMovieMotionHumanReaction";
-export type { IAutoMovieMotionHumanRescue } from "./IAutoMovieMotionHumanRescue";
 export type { IAutoMovieMotionHumanRide } from "./IAutoMovieMotionHumanRide";
 export type { IAutoMovieMotionHumanRitual } from "./IAutoMovieMotionHumanRitual";
 export type { IAutoMovieMotionHumanSearch } from "./IAutoMovieMotionHumanSearch";
