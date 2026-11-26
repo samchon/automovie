@@ -1,9 +1,6 @@
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./AUTOMOVIE_REVIEW_OPTIONS";
 import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
 
-/** The longest Inspector recording in wall-clock seconds, one day. */
-const LONGEST: number = 86_400;
-
 /**
  * Admit one `automovie review` operation.
  *
@@ -31,6 +28,9 @@ export function readAutoMovieReviewOptions(
     ? fileOptions(values)
     : inspectorOptions(values);
 }
+
+/** The longest Inspector recording in wall-clock seconds, one day. */
+const LONGEST: number = 86_400;
 
 /** Record only a loopback HTTP Inspector for a finite wall-clock duration. */
 function inspectorOptions(

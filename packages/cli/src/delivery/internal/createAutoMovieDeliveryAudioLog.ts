@@ -2,19 +2,6 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import type { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
 
-type Observation = IAutoMovieDeliveryContentAudit.IObservation;
-type Stream = IAutoMovieDeliveryContentAudit.Stream;
-type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
-type PcmEvidence = ReturnType<
-  ReturnType<typeof createAutoMovieDeliveryAudioScan>["finish"]
->;
-
-/** The decoded sample rate and interleaved channel count. */
-interface IAudioFormat {
-  sampleRate: number;
-  channels: number;
-}
-
 /**
  * Accumulates exact decoded coverage from FFmpeg's audio frame log.
  *
@@ -138,4 +125,17 @@ export function createAutoMovieDeliveryAudioLog() {
       };
     },
   };
+}
+
+type Observation = IAutoMovieDeliveryContentAudit.IObservation;
+type Stream = IAutoMovieDeliveryContentAudit.Stream;
+type Timestamp = IAutoMovieDeliveryContentAudit.ITimestamp;
+type PcmEvidence = ReturnType<
+  ReturnType<typeof createAutoMovieDeliveryAudioScan>["finish"]
+>;
+
+/** The decoded sample rate and interleaved channel count. */
+interface IAudioFormat {
+  sampleRate: number;
+  channels: number;
 }

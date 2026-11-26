@@ -5,10 +5,7 @@ import type {
 
 import { createAutoMovieDeliveryAudioLog } from "./createAutoMovieDeliveryAudioLog";
 import { createAutoMovieDeliveryAudioScan } from "./createAutoMovieDeliveryAudioScan";
-import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
-
-/** Caps PCM received before the first matching frame log reaches the other pipe. */
-const MAXIMUM_PENDING_PCM = 1024 * 1024;
+import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
 
 /**
  * Runs one FFmpeg audio decode that writes f32le PCM to stdout and an
@@ -93,3 +90,6 @@ export async function decodeAutoMovieDeliveryAudio(
     };
   return audioLog.finish(streamIndex, state.scan.finish(), presented);
 }
+
+/** Caps PCM received before the first matching frame log reaches the other pipe. */
+const MAXIMUM_PENDING_PCM = 1024 * 1024;

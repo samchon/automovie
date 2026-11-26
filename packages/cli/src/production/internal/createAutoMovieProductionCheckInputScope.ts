@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { hashAutoMovieFile } from "./hashAutoMovieFile";
+import { hashAutoMovieFile } from "../../hashAutoMovieFile";
 
 /**
  * Resolve explicitly named verification inputs to files in the production or

@@ -3,9 +3,9 @@ import type {
   IAutoMovieLoudnessMeter,
 } from "@automovie/interface";
 
-import { planAutoMovieDeliveryDecode } from "../../planAutoMovieDeliveryDecode";
+import { planAutoMovieDeliveryDecode } from "./planAutoMovieDeliveryDecode";
 import { readAutoMovieDeliveryDecode } from "./readAutoMovieDeliveryDecode";
-import { runAutoMovieDeliveryAudioDecode } from "../../runAutoMovieDeliveryAudioDecode";
+import { runAutoMovieDeliveryAudioDecode } from "./runAutoMovieDeliveryAudioDecode";
 import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
 
 /**

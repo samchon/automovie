@@ -11,7 +11,7 @@ import {
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
+import { createAutoMovieProductionCheckInputScope } from "./production/internal/createAutoMovieProductionCheckInputScope";
 import { importAutoMovieProductionCheckEntry } from "./importAutoMovieProductionCheckEntry.mjs";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 

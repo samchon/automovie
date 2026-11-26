@@ -4,69 +4,6 @@ import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
 import { planAutoMovieChromiumLaunch } from "../../capture/internal/planAutoMovieChromiumLaunch";
 
 /**
- * Milliseconds the page may take to load and show its controls: ten minutes,
- * room for a film that prepares its performance before its first frame.
- */
-const PREPARE: number = 600_000;
-
-/** Longest pause between two readings of the time readout, milliseconds. */
-const READING: number = 500;
-
-/**
- * The time readout the inspector shows: the second and the duration, such as
- * `1.25 / 12.00 s`.
- */
-const READOUT: RegExp = /\d+\.\d+ \/ \d+\.\d+ s/u;
-
-/** The part of `playwright-core`'s `chromium` a playback recording calls. */
-interface IRecordingChromium {
-  launch(options: {
-    headless: true;
-    args: string[];
-    executablePath?: string;
-  }): Promise<IRecordingBrowser>;
-}
-
-/** A launched browser that opens recording contexts. */
-interface IRecordingBrowser {
-  newContext(options: {
-    viewport: { width: number; height: number };
-    recordVideo: { dir: string; size: { width: number; height: number } };
-  }): Promise<IRecordingContext>;
-  close(): Promise<void>;
-}
-
-/** A recording browser context. */
-interface IRecordingContext {
-  newPage(): Promise<IRecordingPage>;
-  close(): Promise<void>;
-}
-
-/** The page calls a recording makes. */
-interface IRecordingPage {
-  on(event: "pageerror", listener: (error: Error) => void): unknown;
-  goto(
-    url: string,
-    options: { waitUntil: "domcontentloaded"; timeout: number },
-  ): Promise<unknown>;
-  getByRole(
-    role: "button",
-    options: { name: string; exact: true },
-  ): IRecordingLocator;
-  locator(selector: string, options: { hasText: RegExp }): IRecordingLocator;
-  waitForTimeout(milliseconds: number): Promise<void>;
-  video(): { path(): Promise<string> } | null;
-}
-
-/** A located element. */
-interface IRecordingLocator {
-  first(): IRecordingLocator;
-  waitFor(options: { timeout: number }): Promise<void>;
-  click(): Promise<void>;
-  innerText(): Promise<string>;
-}
-
-/**
  * Record real-time playback of the running inspector page: load it, press its
  * Play button, and record the page as a video while reading its time readout,
  * for a person to watch.
@@ -171,4 +108,67 @@ export async function recordAutoMoviePlayback(
   } finally {
     await browser.close();
   }
+}
+
+/**
+ * Milliseconds the page may take to load and show its controls: ten minutes,
+ * room for a film that prepares its performance before its first frame.
+ */
+const PREPARE: number = 600_000;
+
+/** Longest pause between two readings of the time readout, milliseconds. */
+const READING: number = 500;
+
+/**
+ * The time readout the inspector shows: the second and the duration, such as
+ * `1.25 / 12.00 s`.
+ */
+const READOUT: RegExp = /\d+\.\d+ \/ \d+\.\d+ s/u;
+
+/** The part of `playwright-core`'s `chromium` a playback recording calls. */
+interface IRecordingChromium {
+  launch(options: {
+    headless: true;
+    args: string[];
+    executablePath?: string;
+  }): Promise<IRecordingBrowser>;
+}
+
+/** A launched browser that opens recording contexts. */
+interface IRecordingBrowser {
+  newContext(options: {
+    viewport: { width: number; height: number };
+    recordVideo: { dir: string; size: { width: number; height: number } };
+  }): Promise<IRecordingContext>;
+  close(): Promise<void>;
+}
+
+/** A recording browser context. */
+interface IRecordingContext {
+  newPage(): Promise<IRecordingPage>;
+  close(): Promise<void>;
+}
+
+/** The page calls a recording makes. */
+interface IRecordingPage {
+  on(event: "pageerror", listener: (error: Error) => void): unknown;
+  goto(
+    url: string,
+    options: { waitUntil: "domcontentloaded"; timeout: number },
+  ): Promise<unknown>;
+  getByRole(
+    role: "button",
+    options: { name: string; exact: true },
+  ): IRecordingLocator;
+  locator(selector: string, options: { hasText: RegExp }): IRecordingLocator;
+  waitForTimeout(milliseconds: number): Promise<void>;
+  video(): { path(): Promise<string> } | null;
+}
+
+/** A located element. */
+interface IRecordingLocator {
+  first(): IRecordingLocator;
+  waitFor(options: { timeout: number }): Promise<void>;
+  click(): Promise<void>;
+  innerText(): Promise<string>;
 }

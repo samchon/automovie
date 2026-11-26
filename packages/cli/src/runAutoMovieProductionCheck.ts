@@ -4,43 +4,16 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
-import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
-import { createAutoMovieProductionCheckMediaHash } from "./createAutoMovieProductionCheckMediaHash";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
-import { inspectAutoMovieProductionCheckCapture } from "./inspectAutoMovieProductionCheckCapture";
-import { inspectAutoMovieProductionCheckDelivery } from "./inspectAutoMovieProductionCheckDelivery";
-import { inspectAutoMovieProductionCheckReview } from "./inspectAutoMovieProductionCheckReview";
+import { createAutoMovieProductionCheckInputScope } from "./production/internal/createAutoMovieProductionCheckInputScope";
+import { createAutoMovieProductionCheckMediaHash } from "./production/internal/createAutoMovieProductionCheckMediaHash";
+import { inspectAutoMovieProductionCheckCapture } from "./production/internal/inspectAutoMovieProductionCheckCapture";
+import { inspectAutoMovieProductionCheckDelivery } from "./production/internal/inspectAutoMovieProductionCheckDelivery";
+import { inspectAutoMovieProductionCheckReview } from "./production/internal/inspectAutoMovieProductionCheckReview";
+import { writeAutoMovieProductionCheckReceipt } from "./production/internal/writeAutoMovieProductionCheckReceipt";
 import type { readAutoMovieCheckOptions } from "./readAutoMovieCheckOptions";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
-import { writeAutoMovieProductionCheckReceipt } from "./writeAutoMovieProductionCheckReceipt";
-
-/** Settings the evaluator needs after the CLI admitted its arguments. */
-type ISelection = Pick<
-  ReturnType<typeof readAutoMovieCheckOptions>,
-  "subjects" | "only" | "require" | "run"
->;
-
-/** A scoped result before its identity and stage membership are attached. */
-type IOutcome = Pick<
-  IAutoMovieProductionCheck.IResult,
-  "state" | "message" | "evidence"
->;
-
-/** A retained local run and its input identity. */
-interface IReceipt {
-  readonly signature: string;
-  readonly outcome: IOutcome;
-  readonly measurement?: number;
-  readonly recordSha256?: string;
-}
-
-/** Lazily resolved boundaries for explicitly named production inputs. */
-type AutoMovieProductionCheckInputScope = ReturnType<
-  typeof createAutoMovieProductionCheckInputScope
->;
-
-const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
 
 /**
  * Evaluate selected targets in declaration order. A status read uses available
@@ -212,6 +185,33 @@ export async function runAutoMovieProductionCheck(props: {
     ),
   };
 }
+
+/** Settings the evaluator needs after the CLI admitted its arguments. */
+type ISelection = Pick<
+  ReturnType<typeof readAutoMovieCheckOptions>,
+  "subjects" | "only" | "require" | "run"
+>;
+
+/** A scoped result before its identity and stage membership are attached. */
+type IOutcome = Pick<
+  IAutoMovieProductionCheck.IResult,
+  "state" | "message" | "evidence"
+>;
+
+/** A retained local run and its input identity. */
+interface IReceipt {
+  readonly signature: string;
+  readonly outcome: IOutcome;
+  readonly measurement?: number;
+  readonly recordSha256?: string;
+}
+
+/** Lazily resolved boundaries for explicitly named production inputs. */
+type AutoMovieProductionCheckInputScope = ReturnType<
+  typeof createAutoMovieProductionCheckInputScope
+>;
+
+const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
 
 /** Read a check's owning evidence or produce an explicit local or capture run. */
 async function evaluate(props: {

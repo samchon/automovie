@@ -7,25 +7,6 @@ import type {
 
 import { AutoMovieMp4Boxes } from "../../AutoMovieMp4Boxes";
 
-/** The box readers the probe walks the movie box with. */
-const {
-  children,
-  clock,
-  edits,
-  field,
-  handler,
-  only,
-}: typeof AutoMovieMp4Boxes = AutoMovieMp4Boxes;
-
-/**
- * MPEG-4 audio sampling-frequency table, by `samplingFrequencyIndex` (ISO/IEC
- * 14496-3 Table 1.18).
- */
-const AAC_SAMPLE_RATES: readonly number[] = [
-  96_000, 88_200, 64_000, 48_000, 44_100, 32_000, 24_000, 22_050, 16_000,
-  12_000, 11_025, 8_000, 7_350,
-];
-
 /**
  * Read the picture and sound facts a delivery profile is checked against from
  * an MP4 file's own boxes, as ISO/IEC 14496-12 and 14496-14 lay them out.
@@ -101,6 +82,25 @@ export async function readAutoMovieDeliveryProbe(
         : readAudio(movie, audio[0], movieTimescale),
   };
 }
+
+/** The box readers the probe walks the movie box with. */
+const {
+  children,
+  clock,
+  edits,
+  field,
+  handler,
+  only,
+}: typeof AutoMovieMp4Boxes = AutoMovieMp4Boxes;
+
+/**
+ * MPEG-4 audio sampling-frequency table, by `samplingFrequencyIndex` (ISO/IEC
+ * 14496-3 Table 1.18).
+ */
+const AAC_SAMPLE_RATES: readonly number[] = [
+  96_000, 88_200, 64_000, 48_000, 44_100, 32_000, 24_000, 22_050, 16_000,
+  12_000, 11_025, 8_000, 7_350,
+];
 
 /** The clocks and edit list every track shares. */
 interface ITrackClock {

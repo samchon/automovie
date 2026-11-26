@@ -15,13 +15,6 @@ import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
 import { sameAutoMovieReviewFile } from "../../sameAutoMovieReviewFile";
 
-/** Native clock terms verified by the successful delivery's continuous decode. */
-interface IAutoMovieReviewClock {
-  frameCount: number;
-  timeBase: IAutoMovieDeliveryContentAudit.Ratio;
-  ticksPerFrame: number;
-}
-
 /**
  * Create or explicitly rebind a review mark from a published film's verified
  * native clock. Replay extracts the exact original frame indices as stills with
@@ -123,6 +116,13 @@ export async function reviewAutoMovieFile(
       (previous === null ? "" : `${originalAddress(previous, report)}\n`),
   );
   return mark;
+}
+
+/** Native clock terms verified by the successful delivery's continuous decode. */
+interface IAutoMovieReviewClock {
+  frameCount: number;
+  timeBase: IAutoMovieDeliveryContentAudit.Ratio;
+  ticksPerFrame: number;
 }
 
 /** Verifies the render report corresponds to the current file. */

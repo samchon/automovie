@@ -38,13 +38,6 @@ import { handleAutoMovieInspectorKey } from "./handleAutoMovieInspectorKey.js";
 import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
 import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
 
-/** No labels, the state before a paused picture places any. */
-const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
-  labels: [],
-  lineHeight: 0,
-  dropped: 0,
-};
-
 /**
  * The inspection page as a React component: one canvas showing a subject
  * through one request, and the panels that edit that request.
@@ -429,6 +422,13 @@ export function AutoMovieInspector(
     </div>
   );
 }
+
+/** No labels, the state before a paused picture places any. */
+const UNLABELLED: IAutoMovieInspectorScene.ILabels = {
+  labels: [],
+  lineHeight: 0,
+  dropped: 0,
+};
 
 /** Below this width, in pixels, the sections move under the transport. */
 const NARROW: number = 900;

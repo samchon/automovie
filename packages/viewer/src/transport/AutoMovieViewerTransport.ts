@@ -247,9 +247,6 @@ export namespace AutoMovieViewerTransport {
     return { start, end, speed };
   }
 
-  /** A decimal number, optionally signed, with an optional exponent. */
-  const DECIMAL: RegExp = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/iu;
-
   /** A synchronized sound source. */
   export interface IAudio {
     /** Start from a film second at a speed; resolves once sounding. */
@@ -279,4 +276,7 @@ export namespace AutoMovieViewerTransport {
     /** Clock in milliseconds; `performance.now` by default. */
     now?(): number;
   }
+
+  /** A decimal number, optionally signed, with an optional exponent. */
+  const DECIMAL: RegExp = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/iu;
 }

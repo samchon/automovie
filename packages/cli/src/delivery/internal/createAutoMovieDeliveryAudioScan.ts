@@ -3,12 +3,6 @@ import type {
   IAutoMovieLoudnessMeter,
 } from "@automovie/interface";
 
-/** A qualifying quiet run in sample frames; a null end runs to the stream end. */
-interface ISampleRange {
-  start: number;
-  end: number | null;
-}
-
 /**
  * Measures silence at exact sample frame boundaries in f32le PCM. Every channel
  * must be within the amplitude limit. Separate pipe chunks can split a float or
@@ -147,4 +141,10 @@ export function createAutoMovieDeliveryAudioScan(
       };
     },
   };
+}
+
+/** A qualifying quiet run in sample frames; a null end runs to the stream end. */
+interface ISampleRange {
+  start: number;
+  end: number | null;
 }

@@ -2,9 +2,9 @@ import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { AutoMovieCliReview } from "./review/AutoMovieCliReview";
-import type { IAutoMovieCliReviewObservation } from "./review/IAutoMovieCliReviewObservation";
-import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
+import { AutoMovieCliReview } from "../../review/AutoMovieCliReview";
+import type { IAutoMovieCliReviewObservation } from "../../review/IAutoMovieCliReviewObservation";
+import { sameAutoMovieReviewFile } from "../../sameAutoMovieReviewFile";
 
 /**
  * Check the existing review owner's explicit observation of the exact file. Its

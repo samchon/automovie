@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
+import { readAutoMovieErrorCode } from "../../readAutoMovieErrorCode";
 
 /** Publish the latest receipt and preserve the first failure when requested. */
 export async function writeAutoMovieProductionCheckReceipt(

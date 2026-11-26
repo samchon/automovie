@@ -8,32 +8,6 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-type AutoMovieAuditedClock = Pick<
-  IAutoMovieDeliveryContentAudit.IResult["expected"],
-  "frameRate" | "frameCount"
->;
-
-type AutoMovieReportedFrame = Pick<
-  IAutoMovieDrawnVideoResult["frames"][number],
-  "index" | "seconds"
->;
-
-type AutoMovieDeliveryOutcome = Pick<
-  IAutoMovieProductionCheck.IResult,
-  "state" | "message" | "evidence"
->;
-
-/** Fields the existing render report publishes for its file and attempt. */
-interface IRenderReport {
-  readonly subject: string;
-  readonly status: "published" | "blocked" | "failed";
-  readonly video: string | null;
-  readonly source: { readonly file: string; readonly sha256: string } | null;
-  readonly frames?: readonly AutoMovieReportedFrame[];
-  readonly delivery?: { readonly expected?: AutoMovieAuditedClock } | null;
-  readonly failure?: { readonly message?: string };
-}
-
 /**
  * Verify the promoted movie beside its report using the digest of the staged
  * bytes audited before publication. Required controls carry the same digest. A
@@ -164,6 +138,32 @@ export async function inspectAutoMovieProductionCheckDelivery(
   return controls.state === "passed"
     ? { state: "passed", message: `${match} ${controls.message}`, evidence }
     : controls;
+}
+
+type AutoMovieAuditedClock = Pick<
+  IAutoMovieDeliveryContentAudit.IResult["expected"],
+  "frameRate" | "frameCount"
+>;
+
+type AutoMovieReportedFrame = Pick<
+  IAutoMovieDrawnVideoResult["frames"][number],
+  "index" | "seconds"
+>;
+
+type AutoMovieDeliveryOutcome = Pick<
+  IAutoMovieProductionCheck.IResult,
+  "state" | "message" | "evidence"
+>;
+
+/** Fields the existing render report publishes for its file and attempt. */
+interface IRenderReport {
+  readonly subject: string;
+  readonly status: "published" | "blocked" | "failed";
+  readonly video: string | null;
+  readonly source: { readonly file: string; readonly sha256: string } | null;
+  readonly frames?: readonly AutoMovieReportedFrame[];
+  readonly delivery?: { readonly expected?: AutoMovieAuditedClock } | null;
+  readonly failure?: { readonly message?: string };
 }
 
 async function inspectControlRecord(props: {

@@ -1,10 +1,7 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import { decodeAutoMovieDeliveryAudio } from "./decodeAutoMovieDeliveryAudio";
-import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
-
-/** The delivery encoder's soundtrack rate, in Hz. */
-const SOURCE_SAMPLE_RATE = 48_000;
+import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
 
 /**
  * Audits a soundtrack exactly as the delivery encoder feeds it: resampled to 48
@@ -69,3 +66,6 @@ export async function runAutoMovieDeliverySourceAudioDecode(
     undefined,
   );
 }
+
+/** The delivery encoder's soundtrack rate, in Hz. */
+const SOURCE_SAMPLE_RATE = 48_000;

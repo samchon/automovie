@@ -2,9 +2,6 @@ import * as path from "node:path";
 
 import { AUTOMOVIE_DEFAULT_PROJECT_NAME } from "./AUTOMOVIE_DEFAULT_PROJECT_NAME";
 
-/** Longest package name npm accepts. */
-const NPM_NAME_LIMIT: number = 214;
-
 /**
  * Derive a lowercase project-name candidate from the target directory's
  * basename.
@@ -32,3 +29,6 @@ export function deriveAutoMovieProjectName(targetDir: string): string {
     .replace(/^[-._]+|[-.]+$/g, "");
   return name.length === 0 ? AUTOMOVIE_DEFAULT_PROJECT_NAME : name;
 }
+
+/** Longest package name npm accepts. */
+const NPM_NAME_LIMIT: number = 214;

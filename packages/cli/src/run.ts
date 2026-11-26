@@ -14,74 +14,6 @@ import { AutoMovieCliRender } from "./render/AutoMovieCliRender";
 import { AutoMovieCliReview } from "./review/AutoMovieCliReview";
 import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
 
-const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
-
-Usage:
-  npx automovie create <directory> [--workspace] [--name <name>] [--force]
-  pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
-  automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
-  automovie capture --file <video> [--out <dir>] [<request>]
-  automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
-  automovie check [--module <file>] [--subject <id>] [--only <check>] [--run] [--require <stage>] [--json]
-  automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
-  automovie review --url <inspector address> --seconds <s> [--out <dir>]
-  automovie review --file <video> (--at <s> | --from <s> --to <s>) --note <text> [--out <dir>]
-  automovie review --mark <review.json> [--file <video>] [--out <dir>]
-
-Commands:
-  create          A single production, or with --workspace a pnpm workspace
-                  root for movies/shorts, movies/series and packages.
-  add             From a workspace root, a production at movies/<family>/<name>:
-                  shorts run brief -> screenplay, series the long route.
-  capture         In a production, draw the subjects a module offers in headless
-                  Chromium, or take a video file's own frames, into stills,
-                  contact sheets and record.json. Needs @automovie/render, vite
-                  and playwright-core in the production, and FFmpeg for --file.
-  inspect         In a production or package, serve the inspector page over the
-                  subjects a module offers and print its address, whose query
-                  is the request. Needs @automovie/render, @automovie/viewer,
-                  react, react-dom and vite there; Ctrl+C stops it.
-  check           Read selected production observations or run their declared
-                  checks. --require gates an adopted stage.
-  render          In a production, draw every frame of one subject through the
-                  draw page in headless Chromium and encode film.mp4 with
-                  render-report.json. Needs what capture needs, and FFmpeg.
-  review          Record real-time playback of the running inspector page as a
-                  video with playback.json. Needs playwright-core and
-                  Playwright's ffmpeg (npx playwright-core install ffmpeg).
-
-Options:
-  --workspace     Create a pnpm workspace root instead of a single production.
-  --name          Package name; create asks for one when the target is the
-                  current directory, and add defaults to the directory name.
-  --force         Install into a non-empty directory, replacing same-path files.
-  --module        capture, inspect, render: the module whose subjects(props)
-                  the page draws.
-  --port          inspect: the port to serve on; default a free port.
-  --props         capture, inspect, render: a JSON file the module's subjects(props) is
-                  called with; default null.
-  --file          capture: an encoded video file instead of a subject.
-  --backend       capture, render: software (SwiftShader, the default) or gpu.
-  --timeout-ms    capture, render: budget per browser navigation, subject
-                  preparation or draw call (default 120000 ms).
-  --out           capture: the folder; default media/capture/<subject>.
-                  render: default media/automovie/<subject>/videos.
-                  review: default media/automovie/review.
-  --url           review: the running inspector page's address.
-  --seconds       review: wall-clock seconds of Inspector playback recorded.
-  --at            review: point in film seconds, or select --from and --to.
-  --mark          review: reopen exact source bytes or rebind with --file and a new time.
-  --reviewer      review: with --decision accepted|needs-repair and --viewed still|playback|listening,
-                  explicitly record the named reviewer's decision. Use --at for a still,
-                  or --from and --to for playback or listening.
-  <request>       capture, inspect: --subject, --at, --from, --to, --rate, --events,
-                  --views, --passes, --marks, --label, --round, --compare and
-                  every other key of the capture request grammar; render takes
-                  --subject alone, the subject rendered, default the only one.
-  -h, --help      Show this help as a standalone request.
-  -v, --version   Print the version as a standalone request.
-`;
-
 /**
  * The `automovie` CLI entry. `argv` is the full process vector; its first two
  * positions (executable and script) are skipped.
@@ -204,6 +136,74 @@ export async function run(argv: readonly string[]): Promise<number> {
     return 1;
   }
 }
+
+const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
+
+Usage:
+  npx automovie create <directory> [--workspace] [--name <name>] [--force]
+  pnpm automovie add <shorts|series>/<name> [--name <name>] [--force]
+  automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
+  automovie capture --file <video> [--out <dir>] [<request>]
+  automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
+  automovie check [--module <file>] [--subject <id>] [--only <check>] [--run] [--require <stage>] [--json]
+  automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
+  automovie review --url <inspector address> --seconds <s> [--out <dir>]
+  automovie review --file <video> (--at <s> | --from <s> --to <s>) --note <text> [--out <dir>]
+  automovie review --mark <review.json> [--file <video>] [--out <dir>]
+
+Commands:
+  create          A single production, or with --workspace a pnpm workspace
+                  root for movies/shorts, movies/series and packages.
+  add             From a workspace root, a production at movies/<family>/<name>:
+                  shorts run brief -> screenplay, series the long route.
+  capture         In a production, draw the subjects a module offers in headless
+                  Chromium, or take a video file's own frames, into stills,
+                  contact sheets and record.json. Needs @automovie/render, vite
+                  and playwright-core in the production, and FFmpeg for --file.
+  inspect         In a production or package, serve the inspector page over the
+                  subjects a module offers and print its address, whose query
+                  is the request. Needs @automovie/render, @automovie/viewer,
+                  react, react-dom and vite there; Ctrl+C stops it.
+  check           Read selected production observations or run their declared
+                  checks. --require gates an adopted stage.
+  render          In a production, draw every frame of one subject through the
+                  draw page in headless Chromium and encode film.mp4 with
+                  render-report.json. Needs what capture needs, and FFmpeg.
+  review          Record real-time playback of the running inspector page as a
+                  video with playback.json. Needs playwright-core and
+                  Playwright's ffmpeg (npx playwright-core install ffmpeg).
+
+Options:
+  --workspace     Create a pnpm workspace root instead of a single production.
+  --name          Package name; create asks for one when the target is the
+                  current directory, and add defaults to the directory name.
+  --force         Install into a non-empty directory, replacing same-path files.
+  --module        capture, inspect, render: the module whose subjects(props)
+                  the page draws.
+  --port          inspect: the port to serve on; default a free port.
+  --props         capture, inspect, render: a JSON file the module's subjects(props) is
+                  called with; default null.
+  --file          capture: an encoded video file instead of a subject.
+  --backend       capture, render: software (SwiftShader, the default) or gpu.
+  --timeout-ms    capture, render: budget per browser navigation, subject
+                  preparation or draw call (default 120000 ms).
+  --out           capture: the folder; default media/capture/<subject>.
+                  render: default media/automovie/<subject>/videos.
+                  review: default media/automovie/review.
+  --url           review: the running inspector page's address.
+  --seconds       review: wall-clock seconds of Inspector playback recorded.
+  --at            review: point in film seconds, or select --from and --to.
+  --mark          review: reopen exact source bytes or rebind with --file and a new time.
+  --reviewer      review: with --decision accepted|needs-repair and --viewed still|playback|listening,
+                  explicitly record the named reviewer's decision. Use --at for a still,
+                  or --from and --to for playback or listening.
+  <request>       capture, inspect: --subject, --at, --from, --to, --rate, --events,
+                  --views, --passes, --marks, --label, --round, --compare and
+                  every other key of the capture request grammar; render takes
+                  --subject alone, the subject rendered, default the only one.
+  -h, --help      Show this help as a standalone request.
+  -v, --version   Print the version as a standalone request.
+`;
 
 /**
  * Write one created installation into `directory`, then list the written files
