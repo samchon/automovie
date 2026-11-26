@@ -9,12 +9,12 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { armourBone } from "./armourBone";
-import { createCostumeCuirass } from "./createCostumeCuirass";
-import { createCostumeGauntlet } from "./createCostumeGauntlet";
-import { createCostumeGreave } from "./createCostumeGreave";
-import { createCostumeHelmet } from "./createCostumeHelmet";
-import { createCostumeMail } from "./createCostumeMail";
-import { createCostumeVambrace } from "./createCostumeVambrace";
+import { AutoMovieArchetypeCostumeCuirass } from "./AutoMovieArchetypeCostumeCuirass";
+import { AutoMovieArchetypeCostumeGauntlet } from "./AutoMovieArchetypeCostumeGauntlet";
+import { AutoMovieArchetypeCostumeGreave } from "./AutoMovieArchetypeCostumeGreave";
+import { AutoMovieArchetypeCostumeHelmet } from "./AutoMovieArchetypeCostumeHelmet";
+import { AutoMovieArchetypeCostumeMail } from "./AutoMovieArchetypeCostumeMail";
+import { AutoMovieArchetypeCostumeVambrace } from "./AutoMovieArchetypeCostumeVambrace";
 
 /**
  * A piece of armour worn on one bone: a helmet (open, closed or brimmed), a
@@ -67,14 +67,14 @@ export function createArmour(
       ) => AutoMovieArchetype<createArmour.Affordance, createArmour.Dimension>
     >
   > = {
-    openHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "openHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
-    closedHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "closedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
-    brimmedHelmet: (p, s) => createCostumeHelmet({ ...p, kind: "brimmedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
-    cuirass: (p, s) => createCostumeCuirass({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22359", "met23084"] as const) }, s),
-    mail: (p, s) => createCostumeMail({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met34324", "met22415", "met633538", "met27635"] as const) }, s),
-    gauntlet: (p, s) => createCostumeGauntlet({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met23255", "met23256", "met23199"] as const) }, s),
-    vambrace: (p, s) => createCostumeVambrace({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met24896", "met35850"] as const) }, s),
-    greave: (p, s) => createCostumeGreave({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22970", "met22276"] as const) }, s),
+    openHelmet: (p, s) => AutoMovieArchetypeCostumeHelmet.create({ ...p, kind: "openHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    closedHelmet: (p, s) => AutoMovieArchetypeCostumeHelmet.create({ ...p, kind: "closedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    brimmedHelmet: (p, s) => AutoMovieArchetypeCostumeHelmet.create({ ...p, kind: "brimmedHelmet", model: ArchetypeDraw.admit("armour", "model", p.model, ["met26453", "met25388", "met23232", "met26508", "met26512", "met21972"] as const) }, s),
+    cuirass: (p, s) => AutoMovieArchetypeCostumeCuirass.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22359", "met23084"] as const) }, s),
+    mail: (p, s) => AutoMovieArchetypeCostumeMail.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met34324", "met22415", "met633538", "met27635"] as const) }, s),
+    gauntlet: (p, s) => AutoMovieArchetypeCostumeGauntlet.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met23255", "met23256", "met23199"] as const) }, s),
+    vambrace: (p, s) => AutoMovieArchetypeCostumeVambrace.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met24896", "met35850"] as const) }, s),
+    greave: (p, s) => AutoMovieArchetypeCostumeGreave.create({ ...p, model: ArchetypeDraw.admit("armour", "model", p.model, ["met22970", "met22276"] as const) }, s),
   };
   return variants[kind](params, seed);
 }
@@ -91,29 +91,29 @@ const PAD: string =
 export namespace createArmour {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get openHelmet(): typeof createCostumeHelmet {
-      return createCostumeHelmet;
+    get openHelmet(): typeof AutoMovieArchetypeCostumeHelmet.create {
+      return AutoMovieArchetypeCostumeHelmet.create;
     },
-    get closedHelmet(): typeof createCostumeHelmet {
-      return createCostumeHelmet;
+    get closedHelmet(): typeof AutoMovieArchetypeCostumeHelmet.create {
+      return AutoMovieArchetypeCostumeHelmet.create;
     },
-    get brimmedHelmet(): typeof createCostumeHelmet {
-      return createCostumeHelmet;
+    get brimmedHelmet(): typeof AutoMovieArchetypeCostumeHelmet.create {
+      return AutoMovieArchetypeCostumeHelmet.create;
     },
-    get cuirass(): typeof createCostumeCuirass {
-      return createCostumeCuirass;
+    get cuirass(): typeof AutoMovieArchetypeCostumeCuirass.create {
+      return AutoMovieArchetypeCostumeCuirass.create;
     },
-    get mail(): typeof createCostumeMail {
-      return createCostumeMail;
+    get mail(): typeof AutoMovieArchetypeCostumeMail.create {
+      return AutoMovieArchetypeCostumeMail.create;
     },
-    get gauntlet(): typeof createCostumeGauntlet {
-      return createCostumeGauntlet;
+    get gauntlet(): typeof AutoMovieArchetypeCostumeGauntlet.create {
+      return AutoMovieArchetypeCostumeGauntlet.create;
     },
-    get vambrace(): typeof createCostumeVambrace {
-      return createCostumeVambrace;
+    get vambrace(): typeof AutoMovieArchetypeCostumeVambrace.create {
+      return AutoMovieArchetypeCostumeVambrace.create;
     },
-    get greave(): typeof createCostumeGreave {
-      return createCostumeGreave;
+    get greave(): typeof AutoMovieArchetypeCostumeGreave.create {
+      return AutoMovieArchetypeCostumeGreave.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

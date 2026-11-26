@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCapturePlanRequest,
+  IAutoMovieCaptureRequestEntry,
   IAutoMovieCaptureSampling,
   IAutoMovieInspectionRequest,
 } from "@automovie/interface";
@@ -32,11 +33,11 @@ import { parseAutoMovieCapturePlanRequest } from "./parseAutoMovieCapturePlanReq
  */
 export function formatAutoMovieCapturePlanRequest(
   request: IAutoMovieCapturePlanRequest,
-): [key: string, value: string][] {
+): IAutoMovieCaptureRequestEntry[] {
   const absent: IAutoMovieCapturePlanRequest = parseAutoMovieCapturePlanRequest(
     new Map<string, string>(),
   );
-  const values: [key: string, value: string][] = [];
+  const values: IAutoMovieCaptureRequestEntry[] = [];
   if (request.subject !== null) values.push(["subject", request.subject]);
 
   // Seconds: explicit, or an even sampling against the reader's own defaults.

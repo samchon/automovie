@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, createBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, createScenicParadeBanner, createScenicStandard, AutoMovieArchetypeTablet, createWatch, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost } from "@automovie/archetypes";
+import { type AutoMovieArchetype, createBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, createScenicParadeBanner, createScenicStandard, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
@@ -99,7 +99,7 @@ const LISTED: readonly IListed[] = [
     name: "createWatch",
     surface: "face",
     top: BACK,
-    builds: () => seeded((seed) => createWatch({}, seed)),
+    builds: () => seeded((seed) => AutoMovieArchetypeWatch.create({}, seed)),
   },
   {
     name: "createAtm",

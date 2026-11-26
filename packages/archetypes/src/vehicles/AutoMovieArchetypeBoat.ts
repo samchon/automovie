@@ -6,9 +6,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { BOAT_BANDS } from "./BOAT_BANDS";
-import { createCanoe } from "./createCanoe";
-import { createPullingBoat } from "./createPullingBoat";
-import { createRowboat } from "./createRowboat";
+import { AutoMovieArchetypeCanoe } from "./AutoMovieArchetypeCanoe";
+import { AutoMovieArchetypePullingBoat } from "./AutoMovieArchetypePullingBoat";
+import { AutoMovieArchetypeRowboat } from "./AutoMovieArchetypeRowboat";
 
 /** The canonical producer and authoring contract for boats. */
 export namespace AutoMovieArchetypeBoat {
@@ -65,7 +65,7 @@ export namespace AutoMovieArchetypeBoat {
       >
     > = {
       rowboat: (p, s) =>
-        createRowboat(
+        AutoMovieArchetypeRowboat.create(
           {
             ...p,
             model: ArchetypeDraw.admit("boat", "model", p.model, [
@@ -77,7 +77,7 @@ export namespace AutoMovieArchetypeBoat {
           s,
         ),
       canoe: (p, s) =>
-        createCanoe(
+        AutoMovieArchetypeCanoe.create(
           {
             ...p,
             model: ArchetypeDraw.admit("boat", "model", p.model, [
@@ -89,7 +89,7 @@ export namespace AutoMovieArchetypeBoat {
           },
           s,
         ),
-      launch: ({ model: _model, ...rest }, s) => createPullingBoat(rest, s),
+      launch: ({ model: _model, ...rest }, s) => AutoMovieArchetypePullingBoat.create(rest, s),
     };
     return variants[kind](params, seed);
   }
@@ -99,14 +99,14 @@ export namespace AutoMovieArchetypeBoat {
 export namespace AutoMovieArchetypeBoat {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get rowboat(): typeof createRowboat {
-      return createRowboat;
+    get rowboat(): typeof AutoMovieArchetypeRowboat.create {
+      return AutoMovieArchetypeRowboat.create;
     },
-    get canoe(): typeof createCanoe {
-      return createCanoe;
+    get canoe(): typeof AutoMovieArchetypeCanoe.create {
+      return AutoMovieArchetypeCanoe.create;
     },
-    get launch(): typeof createPullingBoat {
-      return createPullingBoat;
+    get launch(): typeof AutoMovieArchetypePullingBoat.create {
+      return AutoMovieArchetypePullingBoat.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

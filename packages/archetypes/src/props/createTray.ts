@@ -5,8 +5,8 @@ import {
   AutoMovieArchetypeDrawSession,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createCarryBasket } from "./createCarryBasket";
-import { createServingTray } from "./createServingTray";
+import { AutoMovieArchetypeCarryBasket } from "./AutoMovieArchetypeCarryBasket";
+import { AutoMovieArchetypeServingTray } from "./AutoMovieArchetypeServingTray";
 
 /** What no source read gives. */
 const UNREAD: string = "the IKEA pages read give no weight of the item alone";
@@ -46,8 +46,8 @@ export function createTray(
       ) => AutoMovieArchetype<createTray.Affordance, createTray.Dimension>
     >
   > = {
-    tray: (p, s) => createServingTray({ ...p, model: ArchetypeDraw.admit("tray", "model", p.model, ["smorling", "grilltider", "smula"] as const) }, s),
-    basket: (p, s) => createCarryBasket({ ...p, model: ArchetypeDraw.admit("tray", "model", p.model, ["risatorp25", "risatorp42"] as const) }, s),
+    tray: (p, s) => AutoMovieArchetypeServingTray.create({ ...p, model: ArchetypeDraw.admit("tray", "model", p.model, ["smorling", "grilltider", "smula"] as const) }, s),
+    basket: (p, s) => AutoMovieArchetypeCarryBasket.create({ ...p, model: ArchetypeDraw.admit("tray", "model", p.model, ["risatorp25", "risatorp42"] as const) }, s),
   };
   return variants[kind](params, seed);
 }
@@ -57,19 +57,19 @@ export namespace createTray {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `tray` selector. */
-    tray: typeof createServingTray;
+    tray: typeof AutoMovieArchetypeServingTray.create;
 
     /** The named producer for the saved `basket` selector. */
-    basket: typeof createCarryBasket;
+    basket: typeof AutoMovieArchetypeCarryBasket.create;
   }
 
   /** Resolve the exact named producer for a saved selector on demand. */
   export const PRODUCERS: Readonly<IProducers> = {
-    get tray(): typeof createServingTray {
-      return createServingTray;
+    get tray(): typeof AutoMovieArchetypeServingTray.create {
+      return AutoMovieArchetypeServingTray.create;
     },
-    get basket(): typeof createCarryBasket {
-      return createCarryBasket;
+    get basket(): typeof AutoMovieArchetypeCarryBasket.create {
+      return AutoMovieArchetypeCarryBasket.create;
     },
   };
 

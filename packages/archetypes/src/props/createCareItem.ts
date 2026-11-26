@@ -1,11 +1,11 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { GroomingPropDraw } from "./GroomingPropDraw";
-import { createComb } from "./createComb";
-import { createLipstick } from "./createLipstick";
+import { AutoMovieArchetypeComb } from "./AutoMovieArchetypeComb";
+import { AutoMovieArchetypeLipstick } from "./AutoMovieArchetypeLipstick";
 import { createShavingRazor } from "./createShavingRazor";
 import { createSqueezeTube } from "./createSqueezeTube";
-import { createTissue } from "./createTissue";
-import { createToothbrush } from "./createToothbrush";
+import { AutoMovieArchetypeTissue } from "./AutoMovieArchetypeTissue";
+import { AutoMovieArchetypeToothbrush } from "./AutoMovieArchetypeToothbrush";
 
 /**
  * Read a saved grooming prop recipe and call the producer for its kind.
@@ -41,12 +41,12 @@ export function createCareItem(
       ) => AutoMovieArchetype<createCareItem.Affordance, createCareItem.Dimension>
     >
   > = {
-    tissue: ({ model: _model, ...rest }, s) => createTissue(rest, s),
-    comb: ({ model: _model, ...rest }, s) => createComb(rest, s),
-    toothbrush: ({ model: _model, ...rest }, s) => createToothbrush(rest, s),
+    tissue: ({ model: _model, ...rest }, s) => AutoMovieArchetypeTissue.create(rest, s),
+    comb: ({ model: _model, ...rest }, s) => AutoMovieArchetypeComb.create(rest, s),
+    toothbrush: ({ model: _model, ...rest }, s) => AutoMovieArchetypeToothbrush.create(rest, s),
     tube: (p, s) => createSqueezeTube({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["alltub13_5", "alltub19", "alltub22", "alltub25", "alltub28", "alltub30", "alltub35", "alltub38", "alltub40", "alltub50"] as const) }, s),
     razor: (p, s) => createShavingRazor({ ...p, model: ArchetypeDraw.admit("careItem", "model", p.model, ["edwinJagger", "gilletteMach3"] as const) }, s),
-    lipstick: ({ model: _model, ...rest }, s) => createLipstick(rest, s),
+    lipstick: ({ model: _model, ...rest }, s) => AutoMovieArchetypeLipstick.create(rest, s),
   };
   return variants[kind](params, seed);
 }
@@ -96,11 +96,11 @@ export namespace createCareItem {
 
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
-    tissue: createTissue,
-    comb: createComb,
-    toothbrush: createToothbrush,
+    tissue: AutoMovieArchetypeTissue.create,
+    comb: AutoMovieArchetypeComb.create,
+    toothbrush: AutoMovieArchetypeToothbrush.create,
     tube: createSqueezeTube,
     razor: createShavingRazor,
-    lipstick: createLipstick,
+    lipstick: AutoMovieArchetypeLipstick.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

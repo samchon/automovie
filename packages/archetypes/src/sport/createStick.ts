@@ -3,7 +3,7 @@ import { StickBuild } from "./StickBuild";
 import { createCricketBat } from "./createCricketBat";
 import { createFieldHockeyStick } from "./createFieldHockeyStick";
 import { createIceHockeyStick } from "./createIceHockeyStick";
-import { createLacrosseCrosse } from "./createLacrosseCrosse";
+import { AutoMovieArchetypeLacrosseCrosse } from "./AutoMovieArchetypeLacrosseCrosse";
 
 /**
  * Reads a saved stick recipe using its canonical producer.
@@ -97,7 +97,7 @@ export namespace createStick {
     fieldHockey: typeof createFieldHockeyStick;
 
     /** The named producer for the saved `lacrosse` selector. */
-    lacrosse: typeof createLacrosseCrosse;
+    lacrosse: typeof AutoMovieArchetypeLacrosseCrosse.create;
 
     /** The named producer for the saved `cricketBat` selector. */
     cricketBat: typeof createCricketBat;
@@ -107,7 +107,7 @@ export namespace createStick {
   export const PRODUCERS: Readonly<IProducers> = {
     iceHockey: createIceHockeyStick,
     fieldHockey: createFieldHockeyStick,
-    lacrosse: createLacrosseCrosse,
+    lacrosse: AutoMovieArchetypeLacrosseCrosse.create,
     cricketBat: createCricketBat,
   };
 }

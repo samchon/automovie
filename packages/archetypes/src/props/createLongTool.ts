@@ -1,15 +1,15 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { LongImplementDraw } from "./LongImplementDraw";
-import { createBroom } from "./createBroom";
+import { AutoMovieArchetypeBroom } from "./AutoMovieArchetypeBroom";
 import { createFishingRod } from "./createFishingRod";
-import { createForestAxe } from "./createForestAxe";
-import { createMop } from "./createMop";
-import { createShovel } from "./createShovel";
-import { createStageAtlatl } from "./createStageAtlatl";
-import { createStageSling } from "./createStageSling";
-import { createStageSpongeRammer } from "./createStageSpongeRammer";
-import { createStageTrailHandspike } from "./createStageTrailHandspike";
-import { createStageWorm } from "./createStageWorm";
+import { AutoMovieArchetypeForestAxe } from "./AutoMovieArchetypeForestAxe";
+import { AutoMovieArchetypeMop } from "./AutoMovieArchetypeMop";
+import { AutoMovieArchetypeShovel } from "./AutoMovieArchetypeShovel";
+import { AutoMovieArchetypeStageAtlatl } from "./AutoMovieArchetypeStageAtlatl";
+import { AutoMovieArchetypeStageSling } from "./AutoMovieArchetypeStageSling";
+import { AutoMovieArchetypeStageSpongeRammer } from "./AutoMovieArchetypeStageSpongeRammer";
+import { AutoMovieArchetypeStageTrailHandspike } from "./AutoMovieArchetypeStageTrailHandspike";
+import { AutoMovieArchetypeStageWorm } from "./AutoMovieArchetypeStageWorm";
 
 /**
  * Read a saved long implement recipe and call the producer for its kind.
@@ -88,15 +88,15 @@ export namespace createLongTool {
 
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
-    broom: createBroom,
-    mop: createMop,
-    shovel: createShovel,
-    forestAxe: createForestAxe,
+    broom: AutoMovieArchetypeBroom.create,
+    mop: AutoMovieArchetypeMop.create,
+    shovel: AutoMovieArchetypeShovel.create,
+    forestAxe: AutoMovieArchetypeForestAxe.create,
     fishingRod: createFishingRod,
-    spongeRammer: createStageSpongeRammer,
-    worm: createStageWorm,
-    trailHandspike: createStageTrailHandspike,
-    sling: createStageSling,
-    atlatl: createStageAtlatl,
+    spongeRammer: AutoMovieArchetypeStageSpongeRammer.create,
+    worm: AutoMovieArchetypeStageWorm.create,
+    trailHandspike: AutoMovieArchetypeStageTrailHandspike.create,
+    sling: AutoMovieArchetypeStageSling.create,
+    atlatl: AutoMovieArchetypeStageAtlatl.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

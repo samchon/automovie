@@ -6,10 +6,10 @@ import {
 import { FixtureDraw } from "./FixtureDraw";
 import { SANITARY_BANDS } from "./SANITARY_BANDS";
 import { SanitaryConstruction } from "./SanitaryConstruction";
-import { createBathtub } from "./createBathtub";
-import { createShower } from "./createShower";
-import { createToilet } from "./createToilet";
-import { createWashbasin } from "./createWashbasin";
+import { AutoMovieArchetypeBathtub } from "./AutoMovieArchetypeBathtub";
+import { AutoMovieArchetypeShower } from "./AutoMovieArchetypeShower";
+import { AutoMovieArchetypeToilet } from "./AutoMovieArchetypeToilet";
+import { AutoMovieArchetypeWashbasin } from "./AutoMovieArchetypeWashbasin";
 
 /**
  * Read a saved sanitary recipe and call the corresponding fixed producer.
@@ -160,10 +160,10 @@ export namespace createSanitary {
 
   /** The fixed producer of each saved kind. */
   export const PRODUCERS = {
-    washbasin: createWashbasin,
-    toilet: createToilet,
-    bathtub: createBathtub,
-    shower: createShower,
+    washbasin: AutoMovieArchetypeWashbasin.create,
+    toilet: AutoMovieArchetypeToilet.create,
+    bathtub: AutoMovieArchetypeBathtub.create,
+    shower: AutoMovieArchetypeShower.create,
   } as const satisfies Readonly<
     Record<Kind, (...args: never[]) => AutoMovieArchetype>
   >;

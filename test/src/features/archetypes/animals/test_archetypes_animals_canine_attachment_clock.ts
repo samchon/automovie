@@ -1,11 +1,4 @@
-import {
-  AutoMovieArchetypeQuadrupedBody as Body,
-  AutoMovieArchetypeQuadrupedGait as Gait,
-  AutoMovieArchetypeQuadrupedLocomotion,
-  AutoMovieArchetypeQuadrupedMotion,
-  createDog,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, AutoMovieArchetypeQuadrupedLocomotion, AutoMovieArchetypeQuadrupedMotion, createQuadruped, AutoMovieArchetypeDog } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -28,7 +21,7 @@ const CLOCK_ROUNDOFF: number = 32 * Number.EPSILON;
 export function test_archetypes_animals_canine_attachment_clock(): void {
   const findings: string[] = [];
   for (const cohort of ["pet", "show", "sled"] as const) {
-    const dog: ReturnType<typeof createDog> = createDog(
+    const dog: ReturnType<typeof AutoMovieArchetypeDog.create> = AutoMovieArchetypeDog.create(
       {
         mass: 22,
         cohort,

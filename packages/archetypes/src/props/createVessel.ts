@@ -6,9 +6,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createAshtray } from "./createAshtray";
+import { AutoMovieArchetypeAshtray } from "./AutoMovieArchetypeAshtray";
 import { createBowl } from "./createBowl";
-import { createCookingPot } from "./createCookingPot";
+import { AutoMovieArchetypeCookingPot } from "./AutoMovieArchetypeCookingPot";
 import { createVase } from "./createVase";
 
 /** IKEA's saucepan, read. */
@@ -62,9 +62,9 @@ export function createVessel(
     >
   > = {
     bowl: (p, s) => createBowl({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["ikea365", "sunnyDay18", "sunnyDayCereal"] as const) }, s),
-    ashtray: (p, s) => createAshtray({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["nachtmann", "harris"] as const) }, s),
-    saucepan: ({ model: _model, ...rest }, s) => createCookingPot({ ...rest, kind: "saucepan" }, s),
-    stockpot: ({ model: _model, ...rest }, s) => createCookingPot({ ...rest, kind: "stockpot" }, s),
+    ashtray: (p, s) => AutoMovieArchetypeAshtray.create({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["nachtmann", "harris"] as const) }, s),
+    saucepan: ({ model: _model, ...rest }, s) => AutoMovieArchetypeCookingPot.create({ ...rest, kind: "saucepan" }, s),
+    stockpot: ({ model: _model, ...rest }, s) => AutoMovieArchetypeCookingPot.create({ ...rest, kind: "stockpot" }, s),
     vase: ({ model: _model, ...rest }, s) => createVase(rest, s),
   };
   return variants[kind](params, seed);
@@ -78,13 +78,13 @@ export namespace createVessel {
     bowl: typeof createBowl;
 
     /** The named producer for the saved `ashtray` selector. */
-    ashtray: typeof createAshtray;
+    ashtray: typeof AutoMovieArchetypeAshtray.create;
 
     /** The named producer for the saved `saucepan` selector. */
-    saucepan: typeof createCookingPot;
+    saucepan: typeof AutoMovieArchetypeCookingPot.create;
 
     /** The named producer for the saved `stockpot` selector. */
-    stockpot: typeof createCookingPot;
+    stockpot: typeof AutoMovieArchetypeCookingPot.create;
 
     /** The named producer for the saved `vase` selector. */
     vase: typeof createVase;
@@ -95,14 +95,14 @@ export namespace createVessel {
     get bowl(): typeof createBowl {
       return createBowl;
     },
-    get ashtray(): typeof createAshtray {
-      return createAshtray;
+    get ashtray(): typeof AutoMovieArchetypeAshtray.create {
+      return AutoMovieArchetypeAshtray.create;
     },
-    get saucepan(): typeof createCookingPot {
-      return createCookingPot;
+    get saucepan(): typeof AutoMovieArchetypeCookingPot.create {
+      return AutoMovieArchetypeCookingPot.create;
     },
-    get stockpot(): typeof createCookingPot {
-      return createCookingPot;
+    get stockpot(): typeof AutoMovieArchetypeCookingPot.create {
+      return AutoMovieArchetypeCookingPot.create;
     },
     get vase(): typeof createVase {
       return createVase;

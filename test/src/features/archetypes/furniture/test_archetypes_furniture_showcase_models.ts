@@ -1,4 +1,4 @@
-import { createShowcase } from "@automovie/archetypes";
+import { AutoMovieArchetypeShowcase } from "@automovie/archetypes";
 import type { IAutoMoviePhysicalShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { strict as assert } from "node:assert";
@@ -24,7 +24,7 @@ export function test_archetypes_furniture_showcase_models(): void {
     ["PW/SC482", 48 * INCH, 170 * POUND],
     ["PW/SC702", 70 * INCH, 190 * POUND],
   ] as const) {
-    const item: ReturnType<typeof createShowcase> = createShowcase({ model });
+    const item: ReturnType<typeof AutoMovieArchetypeShowcase.create> = AutoMovieArchetypeShowcase.create({ model });
     const body: IAutoMoviePhysicalShape | undefined = item
       .shapes()
       .find((part): boolean => part.id === "case");

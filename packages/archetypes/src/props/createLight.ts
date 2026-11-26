@@ -7,10 +7,10 @@ import {
 } from "../core";
 import { LIGHT_BANDS } from "./LIGHT_BANDS";
 import { createCandle } from "./createCandle";
-import { createFireTorch } from "./createFireTorch";
-import { createLantern } from "./createLantern";
-import { createPendantLamp } from "./createPendantLamp";
-import { createStandingLamp } from "./createStandingLamp";
+import { AutoMovieArchetypeFireTorch } from "./AutoMovieArchetypeFireTorch";
+import { AutoMovieArchetypeLantern } from "./AutoMovieArchetypeLantern";
+import { AutoMovieArchetypePendantLamp } from "./AutoMovieArchetypePendantLamp";
+import { AutoMovieArchetypeStandingLamp } from "./AutoMovieArchetypeStandingLamp";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -49,11 +49,11 @@ export function createLight(
     >
   > = {
     candle: { build: createCandle },
-    fireTorch: { build: createFireTorch },
-    pendant: { build: createPendantLamp },
-    tableLamp: { build: createStandingLamp },
-    floorLamp: { build: createStandingLamp },
-    lantern: { build: createLantern },
+    fireTorch: { build: AutoMovieArchetypeFireTorch.create },
+    pendant: { build: AutoMovieArchetypePendantLamp.create },
+    tableLamp: { build: AutoMovieArchetypeStandingLamp.create },
+    floorLamp: { build: AutoMovieArchetypeStandingLamp.create },
+    lantern: { build: AutoMovieArchetypeLantern.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -66,19 +66,19 @@ export namespace createLight {
     candle: typeof createCandle;
 
     /** The named producer for the saved `fireTorch` selector. */
-    fireTorch: typeof createFireTorch;
+    fireTorch: typeof AutoMovieArchetypeFireTorch.create;
 
     /** The named producer for the saved `pendant` selector. */
-    pendant: typeof createPendantLamp;
+    pendant: typeof AutoMovieArchetypePendantLamp.create;
 
     /** The named producer for the saved `tableLamp` selector. */
-    tableLamp: typeof createStandingLamp;
+    tableLamp: typeof AutoMovieArchetypeStandingLamp.create;
 
     /** The named producer for the saved `floorLamp` selector. */
-    floorLamp: typeof createStandingLamp;
+    floorLamp: typeof AutoMovieArchetypeStandingLamp.create;
 
     /** The named producer for the saved `lantern` selector. */
-    lantern: typeof createLantern;
+    lantern: typeof AutoMovieArchetypeLantern.create;
   }
 
   /** Resolve the exact named producer for a saved selector on demand. */
@@ -86,20 +86,20 @@ export namespace createLight {
     get candle(): typeof createCandle {
       return createCandle;
     },
-    get fireTorch(): typeof createFireTorch {
-      return createFireTorch;
+    get fireTorch(): typeof AutoMovieArchetypeFireTorch.create {
+      return AutoMovieArchetypeFireTorch.create;
     },
-    get pendant(): typeof createPendantLamp {
-      return createPendantLamp;
+    get pendant(): typeof AutoMovieArchetypePendantLamp.create {
+      return AutoMovieArchetypePendantLamp.create;
     },
-    get tableLamp(): typeof createStandingLamp {
-      return createStandingLamp;
+    get tableLamp(): typeof AutoMovieArchetypeStandingLamp.create {
+      return AutoMovieArchetypeStandingLamp.create;
     },
-    get floorLamp(): typeof createStandingLamp {
-      return createStandingLamp;
+    get floorLamp(): typeof AutoMovieArchetypeStandingLamp.create {
+      return AutoMovieArchetypeStandingLamp.create;
     },
-    get lantern(): typeof createLantern {
-      return createLantern;
+    get lantern(): typeof AutoMovieArchetypeLantern.create {
+      return AutoMovieArchetypeLantern.create;
     },
   };
 
@@ -175,7 +175,7 @@ export namespace createLight {
    * the RINGSTA shades' 0.19 kg (search only) and 0.49 kg (read), the rest of
    * the lamp's mass its base's.
    */
-  export const SHADE_MASS: Readonly<Record<createStandingLamp.Kind, number>> = {
+  export const SHADE_MASS: Readonly<Record<AutoMovieArchetypeStandingLamp.Kind, number>> = {
     tableLamp: 0.19,
     floorLamp: 0.49,
   };

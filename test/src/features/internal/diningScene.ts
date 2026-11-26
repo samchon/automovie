@@ -1,10 +1,4 @@
-import {
-  createBowl,
-  createChopsticks,
-  createFoodPortion,
-  createFork,
-  createTableKnife,
-} from "@automovie/archetypes";
+import { createBowl, createTableKnife, AutoMovieArchetypeChopsticks, AutoMovieArchetypeFoodPortion, AutoMovieArchetypeFork } from "@automovie/archetypes";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -84,9 +78,9 @@ export namespace diningScene {
     const sign: number = side === "right" ? -1 : 1;
     const rice: IAutoMovieVector3 = diningTable.on(stage, sign * 0.15, 0.08);
     const models: Record<string, everydayTake.IPosable> = {
-      rice: createFoodPortion({ id: "rice", kind: "steak" }),
-      morsel: createFoodPortion({ id: "morsel", kind: "morsel" }),
-      sticks: createChopsticks({ id: "sticks" }),
+      rice: AutoMovieArchetypeFoodPortion.create({ id: "rice", kind: "steak" }),
+      morsel: AutoMovieArchetypeFoodPortion.create({ id: "morsel", kind: "morsel" }),
+      sticks: AutoMovieArchetypeChopsticks.create({ id: "sticks" }),
       bowl: createBowl({ id: "bowl" }),
     };
     return {
@@ -122,10 +116,10 @@ export namespace diningScene {
     const sign: number = side === "right" ? -1 : 1;
     const plate: IAutoMovieVector3 = diningTable.on(stage, sign * 0.04, 0.08);
     const models: Record<string, everydayTake.IPosable> = {
-      steak: createFoodPortion({ id: "steak", kind: "steak" }),
-      piece: createFoodPortion({ id: "piece", kind: "piece" }),
+      steak: AutoMovieArchetypeFoodPortion.create({ id: "steak", kind: "steak" }),
+      piece: AutoMovieArchetypeFoodPortion.create({ id: "piece", kind: "piece" }),
       knife: createTableKnife({ id: "knife" }),
-      fork: createFork({ id: "fork" }),
+      fork: AutoMovieArchetypeFork.create({ id: "fork" }),
     };
     return {
       ...hands(side),

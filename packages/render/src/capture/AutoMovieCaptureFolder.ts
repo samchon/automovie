@@ -268,11 +268,11 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
    */
   public async close(
     record: Omit<
-      Extract<IAutoMovieCaptureRecord, { state: "complete" }>,
+      IAutoMovieCaptureCompleteRecord,
       "files" | "state"
     >,
-  ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
-    const complete: Extract<IAutoMovieCaptureRecord, { state: "complete" }> = {
+  ): Promise<IAutoMovieCaptureCompleteRecord> {
+    const complete: IAutoMovieCaptureCompleteRecord = {
       state: "complete",
       ...record,
       files: [...this.written, RECORD],

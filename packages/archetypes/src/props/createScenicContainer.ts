@@ -7,9 +7,9 @@ import {
 import { SCENIC_CONTAINER_BANDS } from "./SCENIC_CONTAINER_BANDS";
 import { ScenicContainerConstruction } from "./ScenicContainerConstruction";
 import { createCargoPod } from "./createCargoPod";
-import { createMoldedCrate } from "./createMoldedCrate";
-import { createPlankCoffer } from "./createPlankCoffer";
-import { createScenicBasket } from "./createScenicBasket";
+import { AutoMovieArchetypeMoldedCrate } from "./AutoMovieArchetypeMoldedCrate";
+import { AutoMovieArchetypePlankCoffer } from "./AutoMovieArchetypePlankCoffer";
+import { AutoMovieArchetypeScenicBasket } from "./AutoMovieArchetypeScenicBasket";
 
 /**
  * Replay a saved scenicContainer variant with the original dimensions,
@@ -55,10 +55,10 @@ export function createScenicContainer(
       ) => AutoMovieArchetype<createScenicContainer.Affordance, createScenicContainer.Dimension>
     >
   > = {
-    coilBasket: (p, s) => createScenicBasket({ ...p, kind: "coilBasket" }, s),
-    woodenFishBasket: (p, s) => createScenicBasket({ ...p, kind: "woodenFishBasket" }, s),
-    plankCoffer: (p, s) => createPlankCoffer({ ...p }, s),
-    moldedCrate: (p, s) => createMoldedCrate({ ...p }, s),
+    coilBasket: (p, s) => AutoMovieArchetypeScenicBasket.create({ ...p, kind: "coilBasket" }, s),
+    woodenFishBasket: (p, s) => AutoMovieArchetypeScenicBasket.create({ ...p, kind: "woodenFishBasket" }, s),
+    plankCoffer: (p, s) => AutoMovieArchetypePlankCoffer.create({ ...p }, s),
+    moldedCrate: (p, s) => AutoMovieArchetypeMoldedCrate.create({ ...p }, s),
   };
   return variants[kind](params, seed);
 }
@@ -71,16 +71,16 @@ export namespace createScenicContainer {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `coilBasket` selector. */
-    coilBasket: typeof createScenicBasket;
+    coilBasket: typeof AutoMovieArchetypeScenicBasket.create;
 
     /** The named producer for the saved `woodenFishBasket` selector. */
-    woodenFishBasket: typeof createScenicBasket;
+    woodenFishBasket: typeof AutoMovieArchetypeScenicBasket.create;
 
     /** The named producer for the saved `plankCoffer` selector. */
-    plankCoffer: typeof createPlankCoffer;
+    plankCoffer: typeof AutoMovieArchetypePlankCoffer.create;
 
     /** The named producer for the saved `moldedCrate` selector. */
-    moldedCrate: typeof createMoldedCrate;
+    moldedCrate: typeof AutoMovieArchetypeMoldedCrate.create;
 
     /** The named producer for the saved `cargoPod` selector. */
     cargoPod: typeof createCargoPod;
@@ -92,17 +92,17 @@ export namespace createScenicContainer {
    * the gallery opens.
    */
   export const PRODUCERS: Readonly<IProducers> = {
-    get coilBasket(): typeof createScenicBasket {
-      return createScenicBasket;
+    get coilBasket(): typeof AutoMovieArchetypeScenicBasket.create {
+      return AutoMovieArchetypeScenicBasket.create;
     },
-    get woodenFishBasket(): typeof createScenicBasket {
-      return createScenicBasket;
+    get woodenFishBasket(): typeof AutoMovieArchetypeScenicBasket.create {
+      return AutoMovieArchetypeScenicBasket.create;
     },
-    get plankCoffer(): typeof createPlankCoffer {
-      return createPlankCoffer;
+    get plankCoffer(): typeof AutoMovieArchetypePlankCoffer.create {
+      return AutoMovieArchetypePlankCoffer.create;
     },
-    get moldedCrate(): typeof createMoldedCrate {
-      return createMoldedCrate;
+    get moldedCrate(): typeof AutoMovieArchetypeMoldedCrate.create {
+      return AutoMovieArchetypeMoldedCrate.create;
     },
     get cargoPod(): typeof createCargoPod {
       return createCargoPod;

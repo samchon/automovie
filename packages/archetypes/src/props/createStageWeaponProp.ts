@@ -1,9 +1,9 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
-import { createStageHammerProp } from "./createStageHammerProp";
-import { createStageLinkedProp } from "./createStageLinkedProp";
-import { createStageMaceProp } from "./createStageMaceProp";
-import { createStagePoleBladeProp } from "./createStagePoleBladeProp";
-import { createStageShaftProp } from "./createStageShaftProp";
+import { AutoMovieArchetypeStageHammerProp } from "./AutoMovieArchetypeStageHammerProp";
+import { AutoMovieArchetypeStageLinkedProp } from "./AutoMovieArchetypeStageLinkedProp";
+import { AutoMovieArchetypeStageMaceProp } from "./AutoMovieArchetypeStageMaceProp";
+import { AutoMovieArchetypeStagePoleBladeProp } from "./AutoMovieArchetypeStagePoleBladeProp";
+import { AutoMovieArchetypeStageShaftProp } from "./AutoMovieArchetypeStageShaftProp";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -44,16 +44,16 @@ export function createStageWeaponProp(
       >
     >
   > = {
-    mace: { build: createStageMaceProp },
-    pike: { build: createStageShaftProp },
-    shuo: { build: createStageShaftProp },
-    halberd: { build: createStageShaftProp },
-    longBlade: { build: createStagePoleBladeProp },
-    crescentBlade: { build: createStagePoleBladeProp },
-    sideBlade: { build: createStagePoleBladeProp },
-    serpentBlade: { build: createStagePoleBladeProp },
-    offsetHammer: { build: createStageHammerProp },
-    linked: { build: createStageLinkedProp },
+    mace: { build: AutoMovieArchetypeStageMaceProp.create },
+    pike: { build: AutoMovieArchetypeStageShaftProp.create },
+    shuo: { build: AutoMovieArchetypeStageShaftProp.create },
+    halberd: { build: AutoMovieArchetypeStageShaftProp.create },
+    longBlade: { build: AutoMovieArchetypeStagePoleBladeProp.create },
+    crescentBlade: { build: AutoMovieArchetypeStagePoleBladeProp.create },
+    sideBlade: { build: AutoMovieArchetypeStagePoleBladeProp.create },
+    serpentBlade: { build: AutoMovieArchetypeStagePoleBladeProp.create },
+    offsetHammer: { build: AutoMovieArchetypeStageHammerProp.create },
+    linked: { build: AutoMovieArchetypeStageLinkedProp.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -62,35 +62,35 @@ export function createStageWeaponProp(
 export namespace createStageWeaponProp {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get mace(): typeof createStageMaceProp {
-      return createStageMaceProp;
+    get mace(): typeof AutoMovieArchetypeStageMaceProp.create {
+      return AutoMovieArchetypeStageMaceProp.create;
     },
-    get pike(): typeof createStageShaftProp {
-      return createStageShaftProp;
+    get pike(): typeof AutoMovieArchetypeStageShaftProp.create {
+      return AutoMovieArchetypeStageShaftProp.create;
     },
-    get shuo(): typeof createStageShaftProp {
-      return createStageShaftProp;
+    get shuo(): typeof AutoMovieArchetypeStageShaftProp.create {
+      return AutoMovieArchetypeStageShaftProp.create;
     },
-    get halberd(): typeof createStageShaftProp {
-      return createStageShaftProp;
+    get halberd(): typeof AutoMovieArchetypeStageShaftProp.create {
+      return AutoMovieArchetypeStageShaftProp.create;
     },
-    get longBlade(): typeof createStagePoleBladeProp {
-      return createStagePoleBladeProp;
+    get longBlade(): typeof AutoMovieArchetypeStagePoleBladeProp.create {
+      return AutoMovieArchetypeStagePoleBladeProp.create;
     },
-    get crescentBlade(): typeof createStagePoleBladeProp {
-      return createStagePoleBladeProp;
+    get crescentBlade(): typeof AutoMovieArchetypeStagePoleBladeProp.create {
+      return AutoMovieArchetypeStagePoleBladeProp.create;
     },
-    get sideBlade(): typeof createStagePoleBladeProp {
-      return createStagePoleBladeProp;
+    get sideBlade(): typeof AutoMovieArchetypeStagePoleBladeProp.create {
+      return AutoMovieArchetypeStagePoleBladeProp.create;
     },
-    get serpentBlade(): typeof createStagePoleBladeProp {
-      return createStagePoleBladeProp;
+    get serpentBlade(): typeof AutoMovieArchetypeStagePoleBladeProp.create {
+      return AutoMovieArchetypeStagePoleBladeProp.create;
     },
-    get offsetHammer(): typeof createStageHammerProp {
-      return createStageHammerProp;
+    get offsetHammer(): typeof AutoMovieArchetypeStageHammerProp.create {
+      return AutoMovieArchetypeStageHammerProp.create;
     },
-    get linked(): typeof createStageLinkedProp {
-      return createStageLinkedProp;
+    get linked(): typeof AutoMovieArchetypeStageLinkedProp.create {
+      return AutoMovieArchetypeStageLinkedProp.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

@@ -1,12 +1,4 @@
-import {
-  AutoMovieArchetypeFrame,
-  type AutoMovieArchetypeQuadrupedBody,
-  type AutoMovieArchetypeQuadrupedGait,
-  AutoMovieArchetypeRefusal,
-  type AutoMovieArchetypeRide,
-  createCamel,
-  type rideQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeFrame, type AutoMovieArchetypeQuadrupedBody, type AutoMovieArchetypeQuadrupedGait, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide, type rideQuadruped, AutoMovieArchetypeCamel } from "@automovie/archetypes";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -21,7 +13,7 @@ import { animalTerminalSole } from "./animalTerminalSole";
  */
 export namespace animalLocomotionFixture {
   /** Actual cohort consumer, including its producer-owned contact vocabulary. */
-  export type Animal = ReturnType<typeof createCamel>;
+  export type Animal = ReturnType<typeof AutoMovieArchetypeCamel.create>;
 
   /** The shared ride with the actual consumer's own contact and dimension types. */
   export type Ride = AutoMovieArchetypeRide.IRide<

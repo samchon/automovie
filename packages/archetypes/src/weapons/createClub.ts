@@ -1,7 +1,7 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { createBaseballBat } from "../sport/createBaseballBat";
 import { ClubBuild } from "./ClubBuild";
-import { createPracticeBaton } from "./createPracticeBaton";
+import { AutoMovieArchetypePracticeBaton } from "./AutoMovieArchetypePracticeBaton";
 
 /**
  * Reads a saved club recipe using its canonical producer.
@@ -37,7 +37,7 @@ export function createClub(
     >
   > = {
     bat: (p, s) => createBaseballBat({ ...p, model: ArchetypeDraw.admit("club", "model", p.model, ["s154", "s155", "t153", "t156"] as const) }, s),
-    baton: (p, s) => createPracticeBaton({ ...p, model: ArchetypeDraw.admit("club", "model", p.model, ["mp24", "mp26"] as const) }, s),
+    baton: (p, s) => AutoMovieArchetypePracticeBaton.create({ ...p, model: ArchetypeDraw.admit("club", "model", p.model, ["mp24", "mp26"] as const) }, s),
   };
   return variants[kind](params, seed);
 }
@@ -146,12 +146,12 @@ export namespace createClub {
     bat: typeof createBaseballBat;
 
     /** The named producer for the saved `baton` selector. */
-    baton: typeof createPracticeBaton;
+    baton: typeof AutoMovieArchetypePracticeBaton.create;
   }
 
   /** The canonical producer for each saved kind. */
   export const PRODUCERS: Readonly<IProducers> = {
     bat: createBaseballBat,
-    baton: createPracticeBaton,
+    baton: AutoMovieArchetypePracticeBaton.create,
   };
 }

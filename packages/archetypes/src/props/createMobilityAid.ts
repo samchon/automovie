@@ -6,9 +6,9 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { createCane } from "./createCane";
-import { createInfusionStand } from "./createInfusionStand";
-import { createWalker } from "./createWalker";
+import { AutoMovieArchetypeCane } from "./AutoMovieArchetypeCane";
+import { AutoMovieArchetypeInfusionStand } from "./AutoMovieArchetypeInfusionStand";
+import { AutoMovieArchetypeWalker } from "./AutoMovieArchetypeWalker";
 
 /** The maker's offset cane, read. */
 const CANE: string =
@@ -65,25 +65,25 @@ export namespace createMobilityAid {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `cane` selector. */
-    cane: typeof createCane;
+    cane: typeof AutoMovieArchetypeCane.create;
 
     /** The named producer for the saved `walker` selector. */
-    walker: typeof createWalker;
+    walker: typeof AutoMovieArchetypeWalker.create;
 
     /** The named producer for the saved `infusionStand` selector. */
-    infusionStand: typeof createInfusionStand;
+    infusionStand: typeof AutoMovieArchetypeInfusionStand.create;
   }
 
   /** Resolve the exact named producer for a saved selector on demand. */
   export const PRODUCERS: Readonly<IProducers> = {
-    get cane(): typeof createCane {
-      return createCane;
+    get cane(): typeof AutoMovieArchetypeCane.create {
+      return AutoMovieArchetypeCane.create;
     },
-    get walker(): typeof createWalker {
-      return createWalker;
+    get walker(): typeof AutoMovieArchetypeWalker.create {
+      return AutoMovieArchetypeWalker.create;
     },
-    get infusionStand(): typeof createInfusionStand {
-      return createInfusionStand;
+    get infusionStand(): typeof AutoMovieArchetypeInfusionStand.create {
+      return AutoMovieArchetypeInfusionStand.create;
     },
   };
 

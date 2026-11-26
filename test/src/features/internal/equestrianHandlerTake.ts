@@ -1,16 +1,4 @@
-import {
-  AutoMovieArchetypeEquine,
-  AutoMovieArchetypeEquineCare,
-  AutoMovieArchetypeEquineExpression,
-  type AutoMovieArchetypeEquineExpressionCue,
-  AutoMovieArchetypeEquineSaddleProp,
-  AutoMovieArchetypeEquineStance,
-  type AutoMovieArchetypeRide,
-  createGroomingBrush,
-  createHalter,
-  createHorse,
-  rideHorse,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeEquine, AutoMovieArchetypeEquineCare, AutoMovieArchetypeEquineExpression, type AutoMovieArchetypeEquineExpressionCue, AutoMovieArchetypeEquineSaddleProp, AutoMovieArchetypeEquineStance, type AutoMovieArchetypeRide, createGroomingBrush, createHorse, rideHorse, AutoMovieArchetypeHalter } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -120,7 +108,7 @@ export namespace equestrianHandlerTake {
     affordances: readonly IAutoMovieAffordance[];
 
     /** The halter fitted to the horse. */
-    halter: ReturnType<typeof createHalter>;
+    halter: ReturnType<typeof AutoMovieArchetypeHalter.create>;
 
     /** Where the halter hangs before it is taken. */
     hook: IAutoMovieVector3;
@@ -225,7 +213,7 @@ export namespace equestrianHandlerTake {
     const headPart: IAutoMovieModelPart = horse.parts.find(
       (candidate: IAutoMovieModelPart): boolean => candidate.id === "head",
     )!;
-    const halter: ReturnType<typeof createHalter> = createHalter({
+    const halter: ReturnType<typeof AutoMovieArchetypeHalter.create> = AutoMovieArchetypeHalter.create({
       length:
         headPart.geometry.type === "primitive" &&
         headPart.geometry.shape.type === "capsule"

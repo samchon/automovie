@@ -1,4 +1,4 @@
-import { createDog, rideQuadruped } from "../animals";
+import { rideQuadruped, AutoMovieArchetypeDog } from "../animals";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -10,9 +10,9 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureDogGaits(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const dog: ReturnType<typeof createDog> = createDog(
+  const dog: ReturnType<typeof AutoMovieArchetypeDog.create> = AutoMovieArchetypeDog.create(
     {
-      ...createDog.REFERENCE,
+      ...AutoMovieArchetypeDog.REFERENCE,
       cohort: "pet",
       tempo: 0,
       collar: {

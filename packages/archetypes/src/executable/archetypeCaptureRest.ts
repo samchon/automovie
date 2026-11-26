@@ -8,7 +8,7 @@ import { AutoMovieArchetypeQuadrupedBody } from "../animals/AutoMovieArchetypeQu
 import { AutoMovieArchetypeQuadrupedRest } from "../animals/AutoMovieArchetypeQuadrupedRest";
 import type { AutoMovieArchetypeQuadrupedRestPlan } from "../animals/AutoMovieArchetypeQuadrupedRestPlan";
 import { QuadrupedCarriage } from "../animals/QuadrupedCarriage";
-import { createDog } from "../animals/createDog";
+import { AutoMovieArchetypeDog } from "../animals/AutoMovieArchetypeDog";
 import { createHorse } from "../animals/createHorse";
 import { createQuadruped } from "../animals/createQuadruped";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame } from "../core";
@@ -31,8 +31,8 @@ import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 export function archetypeCaptureRest(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const dog: ReturnType<typeof createDog> = createDog({
-    ...createDog.REFERENCE,
+  const dog: ReturnType<typeof AutoMovieArchetypeDog.create> = AutoMovieArchetypeDog.create({
+    ...AutoMovieArchetypeDog.REFERENCE,
     cohort: "pet",
     tempo: 0,
     collar: {
@@ -57,7 +57,7 @@ export function archetypeCaptureRest(): Readonly<
   const dogCarriers: ReturnType<typeof QuadrupedCarriage.of> =
     QuadrupedCarriage.of(dog, createQuadruped.species(dog));
   const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
-    createDog.Affordance,
+    AutoMovieArchetypeDog.Affordance,
     AutoMovieArchetypeQuadrupedBody.Dimension
   > = AutoMovieArchetypeQuadrupedRest(dog, {
     ...params,

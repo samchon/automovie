@@ -5,8 +5,8 @@ import type { AutoMovieArchetypeQuadrupedEquipment } from "../animals/AutoMovieA
 import type { AutoMovieArchetypeQuadrupedLead } from "../animals/AutoMovieArchetypeQuadrupedLead";
 import { AutoMovieArchetypeQuadrupedLocomotion } from "../animals/AutoMovieArchetypeQuadrupedLocomotion";
 import { buildCamelBody } from "../animals/camel/internal/buildCamelBody";
-import { createCamel } from "../animals/createCamel";
-import { createDeer } from "../animals/createDeer";
+import { AutoMovieArchetypeCamel } from "../animals/AutoMovieArchetypeCamel";
+import { AutoMovieArchetypeDeer } from "../animals/AutoMovieArchetypeDeer";
 import { createOx } from "../animals/createOx";
 import { buildDeerBody } from "../animals/deer/internal/buildDeerBody";
 import { buildOxBody } from "../animals/ox/internal/buildOxBody";
@@ -24,12 +24,12 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
   const ox: ReturnType<typeof createOx> = createOx(createOx.REFERENCE, 73);
-  const camel: ReturnType<typeof createCamel> = createCamel(
-    createCamel.REFERENCE,
+  const camel: ReturnType<typeof AutoMovieArchetypeCamel.create> = AutoMovieArchetypeCamel.create(
+    AutoMovieArchetypeCamel.REFERENCE,
     73,
   );
-  const deer: ReturnType<typeof createDeer> = createDeer(
-    createDeer.REFERENCE,
+  const deer: ReturnType<typeof AutoMovieArchetypeDeer.create> = AutoMovieArchetypeDeer.create(
+    AutoMovieArchetypeDeer.REFERENCE,
     73,
   );
   const oxRig: AutoMovieArchetypeQuadrupedBody.IRig =
@@ -63,17 +63,17 @@ export function archetypeCaptureReferenceAnimals(): Readonly<
     },
     73,
   );
-  const equippedCamel: ReturnType<typeof createCamel> = createCamel(
+  const equippedCamel: ReturnType<typeof AutoMovieArchetypeCamel.create> = AutoMovieArchetypeCamel.create(
     {
-      ...createCamel.REFERENCE,
+      ...AutoMovieArchetypeCamel.REFERENCE,
       lead: lead(camelRig),
       equipment: { pack: pack(camelRig) },
     },
     73,
   );
-  const equippedDeer: ReturnType<typeof createDeer> = createDeer(
+  const equippedDeer: ReturnType<typeof AutoMovieArchetypeDeer.create> = AutoMovieArchetypeDeer.create(
     {
-      ...createDeer.REFERENCE,
+      ...AutoMovieArchetypeDeer.REFERENCE,
 
       // This number now declares complete authored model kilograms, rather than a measured bare/equipment sum.
       mass: deer.dimensions.mass!,

@@ -1,5 +1,6 @@
 import type {
   IAutoMovieCaptureFindingDiff,
+  IAutoMovieCaptureFindingDiffProps,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
 
@@ -66,13 +67,9 @@ interface ISummary {
  * @returns The compared entries and outcome, or `omitted` naming the records
  *   without diagnostics.
  */
-export function diffAutoMovieCaptureFindings(props: {
-  /** The earlier round's recorded audit, absent when its record has none. */
-  earlier: IAutoMovieInspectionDiagnostics.IAudit | undefined;
-
-  /** This round's audit, absent when no drawn cell supplied diagnostics. */
-  current: IAutoMovieInspectionDiagnostics.IAudit | undefined;
-}): IAutoMovieCaptureFindingDiff {
+export function diffAutoMovieCaptureFindings(
+  props: IAutoMovieCaptureFindingDiffProps,
+): IAutoMovieCaptureFindingDiff {
   const { earlier, current }: typeof props = props;
   if (earlier === undefined || current === undefined)
     return {

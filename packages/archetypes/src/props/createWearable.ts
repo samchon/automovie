@@ -1,9 +1,9 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { WornPropDraw } from "./WornPropDraw";
-import { createCyclingHelmet } from "./createCyclingHelmet";
-import { createHat } from "./createHat";
-import { createSpectacles } from "./createSpectacles";
-import { createWatch } from "./createWatch";
+import { AutoMovieArchetypeCyclingHelmet } from "./AutoMovieArchetypeCyclingHelmet";
+import { AutoMovieArchetypeHat } from "./AutoMovieArchetypeHat";
+import { AutoMovieArchetypeSpectacles } from "./AutoMovieArchetypeSpectacles";
+import { AutoMovieArchetypeWatch } from "./AutoMovieArchetypeWatch";
 
 /**
  * Read a saved wearable recipe and call the producer for its kind.
@@ -62,9 +62,9 @@ export namespace createWearable {
 
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
-    watch: createWatch,
-    hat: createHat,
-    spectacles: createSpectacles,
-    helmet: createCyclingHelmet,
+    watch: AutoMovieArchetypeWatch.create,
+    hat: AutoMovieArchetypeHat.create,
+    spectacles: AutoMovieArchetypeSpectacles.create,
+    helmet: AutoMovieArchetypeCyclingHelmet.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

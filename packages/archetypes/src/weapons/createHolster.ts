@@ -7,10 +7,10 @@ import {
 } from "../core";
 import { HOLSTER_BANDS } from "./HOLSTER_BANDS";
 import { HOLSTER_BLADES } from "./HOLSTER_BLADES";
-import { createStageBladeCarrier } from "./createStageBladeCarrier";
-import { createStageHolster } from "./createStageHolster";
-import { createStagePouch } from "./createStagePouch";
-import { createStageQuiver } from "./createStageQuiver";
+import { AutoMovieArchetypeStageBladeCarrier } from "./AutoMovieArchetypeStageBladeCarrier";
+import { AutoMovieArchetypeStageHolster } from "./AutoMovieArchetypeStageHolster";
+import { AutoMovieArchetypeStagePouch } from "./AutoMovieArchetypeStagePouch";
+import { AutoMovieArchetypeStageQuiver } from "./AutoMovieArchetypeStageQuiver";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -82,11 +82,11 @@ export function createHolster(
       >
     >
   > = {
-    holster: { build: createStageHolster },
-    scabbard: { build: createStageBladeCarrier },
-    sheath: { build: createStageBladeCarrier },
-    quiver: { build: createStageQuiver },
-    pouch: { build: createStagePouch },
+    holster: { build: AutoMovieArchetypeStageHolster.create },
+    scabbard: { build: AutoMovieArchetypeStageBladeCarrier.create },
+    sheath: { build: AutoMovieArchetypeStageBladeCarrier.create },
+    quiver: { build: AutoMovieArchetypeStageQuiver.create },
+    pouch: { build: AutoMovieArchetypeStagePouch.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -95,20 +95,20 @@ export function createHolster(
 export namespace createHolster {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get holster(): typeof createStageHolster {
-      return createStageHolster;
+    get holster(): typeof AutoMovieArchetypeStageHolster.create {
+      return AutoMovieArchetypeStageHolster.create;
     },
-    get scabbard(): typeof createStageBladeCarrier {
-      return createStageBladeCarrier;
+    get scabbard(): typeof AutoMovieArchetypeStageBladeCarrier.create {
+      return AutoMovieArchetypeStageBladeCarrier.create;
     },
-    get sheath(): typeof createStageBladeCarrier {
-      return createStageBladeCarrier;
+    get sheath(): typeof AutoMovieArchetypeStageBladeCarrier.create {
+      return AutoMovieArchetypeStageBladeCarrier.create;
     },
-    get quiver(): typeof createStageQuiver {
-      return createStageQuiver;
+    get quiver(): typeof AutoMovieArchetypeStageQuiver.create {
+      return AutoMovieArchetypeStageQuiver.create;
     },
-    get pouch(): typeof createStagePouch {
-      return createStagePouch;
+    get pouch(): typeof AutoMovieArchetypeStagePouch.create {
+      return AutoMovieArchetypeStagePouch.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

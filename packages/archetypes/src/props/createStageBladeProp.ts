@@ -1,7 +1,7 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
-import { createStageFencingProp } from "./createStageFencingProp";
-import { createStagePracticeSwordProp } from "./createStagePracticeSwordProp";
-import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
+import { AutoMovieArchetypeStageFencingProp } from "./AutoMovieArchetypeStageFencingProp";
+import { AutoMovieArchetypeStagePracticeSwordProp } from "./AutoMovieArchetypeStagePracticeSwordProp";
+import { AutoMovieArchetypeStageTwoHandedSwordProp } from "./AutoMovieArchetypeStageTwoHandedSwordProp";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -43,11 +43,11 @@ export function createStageBladeProp(
       >
     >
   > = {
-    foil: { build: createStageFencingProp },
-    epee: { build: createStageFencingProp },
-    sabre: { build: createStageFencingProp },
-    shinai: { build: createStagePracticeSwordProp },
-    longsword: { build: createStageTwoHandedSwordProp },
+    foil: { build: AutoMovieArchetypeStageFencingProp.create },
+    epee: { build: AutoMovieArchetypeStageFencingProp.create },
+    sabre: { build: AutoMovieArchetypeStageFencingProp.create },
+    shinai: { build: AutoMovieArchetypeStagePracticeSwordProp.create },
+    longsword: { build: AutoMovieArchetypeStageTwoHandedSwordProp.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -56,20 +56,20 @@ export function createStageBladeProp(
 export namespace createStageBladeProp {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get foil(): typeof createStageFencingProp {
-      return createStageFencingProp;
+    get foil(): typeof AutoMovieArchetypeStageFencingProp.create {
+      return AutoMovieArchetypeStageFencingProp.create;
     },
-    get epee(): typeof createStageFencingProp {
-      return createStageFencingProp;
+    get epee(): typeof AutoMovieArchetypeStageFencingProp.create {
+      return AutoMovieArchetypeStageFencingProp.create;
     },
-    get sabre(): typeof createStageFencingProp {
-      return createStageFencingProp;
+    get sabre(): typeof AutoMovieArchetypeStageFencingProp.create {
+      return AutoMovieArchetypeStageFencingProp.create;
     },
-    get shinai(): typeof createStagePracticeSwordProp {
-      return createStagePracticeSwordProp;
+    get shinai(): typeof AutoMovieArchetypeStagePracticeSwordProp.create {
+      return AutoMovieArchetypeStagePracticeSwordProp.create;
     },
-    get longsword(): typeof createStageTwoHandedSwordProp {
-      return createStageTwoHandedSwordProp;
+    get longsword(): typeof AutoMovieArchetypeStageTwoHandedSwordProp.create {
+      return AutoMovieArchetypeStageTwoHandedSwordProp.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

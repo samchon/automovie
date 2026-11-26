@@ -1,9 +1,9 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { GoalBuild } from "./GoalBuild";
-import { createBasketballHoop } from "./createBasketballHoop";
-import { createFieldGoal } from "./createFieldGoal";
-import { createTennisNet } from "./createTennisNet";
-import { createVolleyballNet } from "./createVolleyballNet";
+import { AutoMovieArchetypeBasketballHoop } from "./AutoMovieArchetypeBasketballHoop";
+import { AutoMovieArchetypeFieldGoal } from "./AutoMovieArchetypeFieldGoal";
+import { AutoMovieArchetypeTennisNet } from "./AutoMovieArchetypeTennisNet";
+import { AutoMovieArchetypeVolleyballNet } from "./AutoMovieArchetypeVolleyballNet";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /**
@@ -39,14 +39,14 @@ export function createGoal(
       >
     >
   > = {
-    footballGoal: { build: createFieldGoal },
-    fieldHockeyGoal: { build: createFieldGoal },
-    iceHockeyGoal: { build: createFieldGoal },
-    lacrosseGoal: { build: createFieldGoal },
-    handballGoal: { build: createFieldGoal },
-    basketballHoop: { build: createBasketballHoop },
-    volleyballNet: { build: createVolleyballNet },
-    tennisNet: { build: createTennisNet },
+    footballGoal: { build: AutoMovieArchetypeFieldGoal.create },
+    fieldHockeyGoal: { build: AutoMovieArchetypeFieldGoal.create },
+    iceHockeyGoal: { build: AutoMovieArchetypeFieldGoal.create },
+    lacrosseGoal: { build: AutoMovieArchetypeFieldGoal.create },
+    handballGoal: { build: AutoMovieArchetypeFieldGoal.create },
+    basketballHoop: { build: AutoMovieArchetypeBasketballHoop.create },
+    volleyballNet: { build: AutoMovieArchetypeVolleyballNet.create },
+    tennisNet: { build: AutoMovieArchetypeTennisNet.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -165,39 +165,39 @@ export namespace createGoal {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `footballGoal` selector. */
-    footballGoal: typeof createFieldGoal;
+    footballGoal: typeof AutoMovieArchetypeFieldGoal.create;
 
     /** The named producer for the saved `fieldHockeyGoal` selector. */
-    fieldHockeyGoal: typeof createFieldGoal;
+    fieldHockeyGoal: typeof AutoMovieArchetypeFieldGoal.create;
 
     /** The named producer for the saved `iceHockeyGoal` selector. */
-    iceHockeyGoal: typeof createFieldGoal;
+    iceHockeyGoal: typeof AutoMovieArchetypeFieldGoal.create;
 
     /** The named producer for the saved `lacrosseGoal` selector. */
-    lacrosseGoal: typeof createFieldGoal;
+    lacrosseGoal: typeof AutoMovieArchetypeFieldGoal.create;
 
     /** The named producer for the saved `handballGoal` selector. */
-    handballGoal: typeof createFieldGoal;
+    handballGoal: typeof AutoMovieArchetypeFieldGoal.create;
 
     /** The named producer for the saved `basketballHoop` selector. */
-    basketballHoop: typeof createBasketballHoop;
+    basketballHoop: typeof AutoMovieArchetypeBasketballHoop.create;
 
     /** The named producer for the saved `volleyballNet` selector. */
-    volleyballNet: typeof createVolleyballNet;
+    volleyballNet: typeof AutoMovieArchetypeVolleyballNet.create;
 
     /** The named producer for the saved `tennisNet` selector. */
-    tennisNet: typeof createTennisNet;
+    tennisNet: typeof AutoMovieArchetypeTennisNet.create;
   }
 
   /** The canonical producer for each saved kind. */
   export const PRODUCERS: Readonly<IProducers> = {
-    footballGoal: createFieldGoal,
-    fieldHockeyGoal: createFieldGoal,
-    iceHockeyGoal: createFieldGoal,
-    lacrosseGoal: createFieldGoal,
-    handballGoal: createFieldGoal,
-    basketballHoop: createBasketballHoop,
-    volleyballNet: createVolleyballNet,
-    tennisNet: createTennisNet,
+    footballGoal: AutoMovieArchetypeFieldGoal.create,
+    fieldHockeyGoal: AutoMovieArchetypeFieldGoal.create,
+    iceHockeyGoal: AutoMovieArchetypeFieldGoal.create,
+    lacrosseGoal: AutoMovieArchetypeFieldGoal.create,
+    handballGoal: AutoMovieArchetypeFieldGoal.create,
+    basketballHoop: AutoMovieArchetypeBasketballHoop.create,
+    volleyballNet: AutoMovieArchetypeVolleyballNet.create,
+    tennisNet: AutoMovieArchetypeTennisNet.create,
   };
 }

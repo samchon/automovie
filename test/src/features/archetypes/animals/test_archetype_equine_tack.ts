@@ -1,8 +1,4 @@
-import {
-  AutoMovieArchetypeEquineSaddleProp,
-  createHorse,
-  createPony,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeEquineSaddleProp, createHorse, AutoMovieArchetypePony } from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -193,7 +189,7 @@ export function test_archetype_equine_tack(): void {
     findings.push("surcingle: wants a seat astride and a pad surface");
 
   // 6. A pony takes the new tacks.
-  const pony = createPony({ tack: "sidesaddle" }, 7);
+  const pony = AutoMovieArchetypePony.create({ tack: "sidesaddle" }, 7);
   if (contact(pony, "fixedHead") === undefined || pony.name !== "pony")
     findings.push(`pony: side saddle missing or misnamed (${pony.name})`);
 

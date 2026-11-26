@@ -7,12 +7,12 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { PROJECTILE_BANDS } from "./PROJECTILE_BANDS";
-import { createStageBallProp } from "./createStageBallProp";
-import { createStageCartridgeProp } from "./createStageCartridgeProp";
-import { createStageGrenadeProp } from "./createStageGrenadeProp";
-import { createStageRoundProp } from "./createStageRoundProp";
-import { createStageShaftToken } from "./createStageShaftToken";
-import { createStageStoneProp } from "./createStageStoneProp";
+import { AutoMovieArchetypeStageBallProp } from "./AutoMovieArchetypeStageBallProp";
+import { AutoMovieArchetypeStageCartridgeProp } from "./AutoMovieArchetypeStageCartridgeProp";
+import { AutoMovieArchetypeStageGrenadeProp } from "./AutoMovieArchetypeStageGrenadeProp";
+import { AutoMovieArchetypeStageRoundProp } from "./AutoMovieArchetypeStageRoundProp";
+import { AutoMovieArchetypeStageShaftToken } from "./AutoMovieArchetypeStageShaftToken";
+import { AutoMovieArchetypeStageStoneProp } from "./AutoMovieArchetypeStageStoneProp";
 import { projectileFlight } from "./projectileFlight";
 
 /**
@@ -78,13 +78,13 @@ export function createProjectile(
       ) => AutoMovieArchetype<createProjectile.Affordance, createProjectile.Dimension>
     >
   > = {
-    ball: ({ model: _model, ...rest }, s) => createStageBallProp(rest, s),
-    arrow: (p, s) => createStageShaftToken({ ...p, kind: "arrow", model: ArchetypeDraw.admit("projectile", "model", p.model, ["westminster", "az472", "nmm11461", "met33754"] as const) }, s),
-    bolt: (p, s) => createStageShaftToken({ ...p, kind: "bolt", model: ArchetypeDraw.admit("projectile", "model", p.model, ["westminster", "az472", "nmm11461", "met33754"] as const) }, s),
-    roundShot: (p, s) => createStageRoundProp({ ...p, model: ArchetypeDraw.admit("projectile", "model", p.model, ["sixPounder", "twelvePounder"] as const) }, s),
-    grenade: ({ model: _model, ...rest }, s) => createStageGrenadeProp(rest, s),
-    cartridge: ({ model: _model, ...rest }, s) => createStageCartridgeProp(rest, s),
-    stone: ({ model: _model, ...rest }, s) => createStageStoneProp(rest, s),
+    ball: ({ model: _model, ...rest }, s) => AutoMovieArchetypeStageBallProp.create(rest, s),
+    arrow: (p, s) => AutoMovieArchetypeStageShaftToken.create({ ...p, kind: "arrow", model: ArchetypeDraw.admit("projectile", "model", p.model, ["westminster", "az472", "nmm11461", "met33754"] as const) }, s),
+    bolt: (p, s) => AutoMovieArchetypeStageShaftToken.create({ ...p, kind: "bolt", model: ArchetypeDraw.admit("projectile", "model", p.model, ["westminster", "az472", "nmm11461", "met33754"] as const) }, s),
+    roundShot: (p, s) => AutoMovieArchetypeStageRoundProp.create({ ...p, model: ArchetypeDraw.admit("projectile", "model", p.model, ["sixPounder", "twelvePounder"] as const) }, s),
+    grenade: ({ model: _model, ...rest }, s) => AutoMovieArchetypeStageGrenadeProp.create(rest, s),
+    cartridge: ({ model: _model, ...rest }, s) => AutoMovieArchetypeStageCartridgeProp.create(rest, s),
+    stone: ({ model: _model, ...rest }, s) => AutoMovieArchetypeStageStoneProp.create(rest, s),
   };
   return variants[kind](params, seed);
 }
@@ -93,26 +93,26 @@ export function createProjectile(
 export namespace createProjectile {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get ball(): typeof createStageBallProp {
-      return createStageBallProp;
+    get ball(): typeof AutoMovieArchetypeStageBallProp.create {
+      return AutoMovieArchetypeStageBallProp.create;
     },
-    get arrow(): typeof createStageShaftToken {
-      return createStageShaftToken;
+    get arrow(): typeof AutoMovieArchetypeStageShaftToken.create {
+      return AutoMovieArchetypeStageShaftToken.create;
     },
-    get bolt(): typeof createStageShaftToken {
-      return createStageShaftToken;
+    get bolt(): typeof AutoMovieArchetypeStageShaftToken.create {
+      return AutoMovieArchetypeStageShaftToken.create;
     },
-    get roundShot(): typeof createStageRoundProp {
-      return createStageRoundProp;
+    get roundShot(): typeof AutoMovieArchetypeStageRoundProp.create {
+      return AutoMovieArchetypeStageRoundProp.create;
     },
-    get grenade(): typeof createStageGrenadeProp {
-      return createStageGrenadeProp;
+    get grenade(): typeof AutoMovieArchetypeStageGrenadeProp.create {
+      return AutoMovieArchetypeStageGrenadeProp.create;
     },
-    get cartridge(): typeof createStageCartridgeProp {
-      return createStageCartridgeProp;
+    get cartridge(): typeof AutoMovieArchetypeStageCartridgeProp.create {
+      return AutoMovieArchetypeStageCartridgeProp.create;
     },
-    get stone(): typeof createStageStoneProp {
-      return createStageStoneProp;
+    get stone(): typeof AutoMovieArchetypeStageStoneProp.create {
+      return AutoMovieArchetypeStageStoneProp.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

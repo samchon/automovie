@@ -1,10 +1,10 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { InstrumentBuild } from "./InstrumentBuild";
-import { createBugle } from "./createBugle";
-import { createGuitar } from "./createGuitar";
-import { createSideDrum } from "./createSideDrum";
-import { createUprightPiano } from "./createUprightPiano";
-import { createViolin } from "./createViolin";
+import { AutoMovieArchetypeBugle } from "./AutoMovieArchetypeBugle";
+import { AutoMovieArchetypeGuitar } from "./AutoMovieArchetypeGuitar";
+import { AutoMovieArchetypeSideDrum } from "./AutoMovieArchetypeSideDrum";
+import { AutoMovieArchetypeUprightPiano } from "./AutoMovieArchetypeUprightPiano";
+import { AutoMovieArchetypeViolin } from "./AutoMovieArchetypeViolin";
 
 /**
  * Reads a saved instrument recipe using its canonical producer.
@@ -145,27 +145,27 @@ export namespace createInstrument {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `uprightPiano` selector. */
-    uprightPiano: typeof createUprightPiano;
+    uprightPiano: typeof AutoMovieArchetypeUprightPiano.create;
 
     /** The named producer for the saved `guitar` selector. */
-    guitar: typeof createGuitar;
+    guitar: typeof AutoMovieArchetypeGuitar.create;
 
     /** The named producer for the saved `violin` selector. */
-    violin: typeof createViolin;
+    violin: typeof AutoMovieArchetypeViolin.create;
 
     /** The named producer for the saved `sideDrum` selector. */
-    sideDrum: typeof createSideDrum;
+    sideDrum: typeof AutoMovieArchetypeSideDrum.create;
 
     /** The named producer for the saved `bugle` selector. */
-    bugle: typeof createBugle;
+    bugle: typeof AutoMovieArchetypeBugle.create;
   }
 
   /** The canonical producer for each saved kind. */
   export const PRODUCERS: Readonly<IProducers> = {
-    uprightPiano: createUprightPiano,
-    guitar: createGuitar,
-    violin: createViolin,
-    sideDrum: createSideDrum,
-    bugle: createBugle,
+    uprightPiano: AutoMovieArchetypeUprightPiano.create,
+    guitar: AutoMovieArchetypeGuitar.create,
+    violin: AutoMovieArchetypeViolin.create,
+    sideDrum: AutoMovieArchetypeSideDrum.create,
+    bugle: AutoMovieArchetypeBugle.create,
   };
 }

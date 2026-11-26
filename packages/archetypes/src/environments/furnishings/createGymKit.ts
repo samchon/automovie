@@ -8,7 +8,7 @@ import type {
 
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createBench } from "../../gym/createBench";
-import { createDumbbell } from "../../gym/createDumbbell";
+import { AutoMovieArchetypeDumbbell } from "../../gym/AutoMovieArchetypeDumbbell";
 import { furnishRoom } from "./furnishRoom";
 
 /**
@@ -35,7 +35,7 @@ export function createGymKit(
       { kind: "flat" },
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "bench"),
     );
-    const dumbbell: IAutoMovieModel = createDumbbell(
+    const dumbbell: IAutoMovieModel = AutoMovieArchetypeDumbbell.create(
       {},
       seed === undefined ? undefined : deriveArchetypeSeed(seed, "dumbbell"),
     );

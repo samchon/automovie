@@ -1,12 +1,12 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { HandToolDraw } from "./HandToolDraw";
-import { createFork } from "./createFork";
-import { createHammer } from "./createHammer";
-import { createHandSaw } from "./createHandSaw";
-import { createLadle } from "./createLadle";
-import { createScrewdriver } from "./createScrewdriver";
-import { createSpoon } from "./createSpoon";
-import { createStagePrimingWire } from "./createStagePrimingWire";
+import { AutoMovieArchetypeFork } from "./AutoMovieArchetypeFork";
+import { AutoMovieArchetypeHammer } from "./AutoMovieArchetypeHammer";
+import { AutoMovieArchetypeHandSaw } from "./AutoMovieArchetypeHandSaw";
+import { AutoMovieArchetypeLadle } from "./AutoMovieArchetypeLadle";
+import { AutoMovieArchetypeScrewdriver } from "./AutoMovieArchetypeScrewdriver";
+import { AutoMovieArchetypeSpoon } from "./AutoMovieArchetypeSpoon";
+import { AutoMovieArchetypeStagePrimingWire } from "./AutoMovieArchetypeStagePrimingWire";
 import { createTableKnife } from "./createTableKnife";
 
 /**
@@ -86,13 +86,13 @@ export namespace createTool {
 
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
-    hammer: createHammer,
-    saw: createHandSaw,
-    screwdriver: createScrewdriver,
-    spoon: createSpoon,
-    fork: createFork,
-    ladle: createLadle,
+    hammer: AutoMovieArchetypeHammer.create,
+    saw: AutoMovieArchetypeHandSaw.create,
+    screwdriver: AutoMovieArchetypeScrewdriver.create,
+    spoon: AutoMovieArchetypeSpoon.create,
+    fork: AutoMovieArchetypeFork.create,
+    ladle: AutoMovieArchetypeLadle.create,
     knife: createTableKnife,
-    primingWire: createStagePrimingWire,
+    primingWire: AutoMovieArchetypeStagePrimingWire.create,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

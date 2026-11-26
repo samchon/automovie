@@ -1,6 +1,6 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { SmokingPropDraw } from "./SmokingPropDraw";
-import { createCigarette } from "./createCigarette";
+import { AutoMovieArchetypeCigarette } from "./AutoMovieArchetypeCigarette";
 import { createLighter } from "./createLighter";
 
 /**
@@ -63,7 +63,7 @@ export namespace createSmoking {
 
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
-    cigarette: createCigarette,
+    cigarette: AutoMovieArchetypeCigarette.create,
     lighter: createLighter,
   } as const satisfies Readonly<Record<Kind, unknown>>;
 }

@@ -11,8 +11,8 @@ import {
 import { BOW_BANDS } from "./BOW_BANDS";
 import { bowLaunchSpeed } from "./bowLaunchSpeed";
 import { bowLimbs } from "./bowLimbs";
-import { createStageHandBowProp } from "./createStageHandBowProp";
-import { createStageStockBowProp } from "./createStageStockBowProp";
+import { AutoMovieArchetypeStageHandBowProp } from "./AutoMovieArchetypeStageHandBowProp";
+import { AutoMovieArchetypeStageStockBowProp } from "./AutoMovieArchetypeStageStockBowProp";
 import type { IArchetypeDispatch } from "../core/IArchetypeDispatch";
 
 /** The Olympic recurve's maker's chart. */
@@ -85,10 +85,10 @@ export function createBow(
       >
     >
   > = {
-    longbow: { build: createStageHandBowProp },
-    recurve: { build: createStageHandBowProp },
-    horseBow: { build: createStageHandBowProp },
-    crossbow: { build: createStageStockBowProp },
+    longbow: { build: AutoMovieArchetypeStageHandBowProp.create },
+    recurve: { build: AutoMovieArchetypeStageHandBowProp.create },
+    horseBow: { build: AutoMovieArchetypeStageHandBowProp.create },
+    crossbow: { build: AutoMovieArchetypeStageStockBowProp.create },
   };
   return variants[kind].build(params, seed);
 }
@@ -97,17 +97,17 @@ export function createBow(
 export namespace createBow {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
-    get longbow(): typeof createStageHandBowProp {
-      return createStageHandBowProp;
+    get longbow(): typeof AutoMovieArchetypeStageHandBowProp.create {
+      return AutoMovieArchetypeStageHandBowProp.create;
     },
-    get recurve(): typeof createStageHandBowProp {
-      return createStageHandBowProp;
+    get recurve(): typeof AutoMovieArchetypeStageHandBowProp.create {
+      return AutoMovieArchetypeStageHandBowProp.create;
     },
-    get horseBow(): typeof createStageHandBowProp {
-      return createStageHandBowProp;
+    get horseBow(): typeof AutoMovieArchetypeStageHandBowProp.create {
+      return AutoMovieArchetypeStageHandBowProp.create;
     },
-    get crossbow(): typeof createStageStockBowProp {
-      return createStageStockBowProp;
+    get crossbow(): typeof AutoMovieArchetypeStageStockBowProp.create {
+      return AutoMovieArchetypeStageStockBowProp.create;
     },
   } satisfies Readonly<Record<Kind, unknown>>;
 

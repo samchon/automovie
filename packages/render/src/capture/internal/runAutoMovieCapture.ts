@@ -6,7 +6,7 @@ import type {
   IAutoMovieCaptureDrawing,
   IAutoMovieCaptureFolder,
   IAutoMovieCapturePlan,
-  IAutoMovieCaptureRecord,
+  IAutoMovieCaptureCompleteRecord,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieRasterImage,
   IAutoMovieRunCaptureProps,
@@ -64,7 +64,7 @@ import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
  */
 export async function runAutoMovieCapture(
   props: IAutoMovieRunCaptureProps,
-): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+): Promise<IAutoMovieCaptureCompleteRecord> {
   const { plan } = props;
   const { layout, subject, request } = plan;
   const { folder } = props;

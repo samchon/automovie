@@ -1,4 +1,4 @@
-import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieInspectionDiagnostics, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieCaptureRecord, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage } from "@automovie/interface";
+import { type IAutoMovieCaptureComparison, type IAutoMovieCaptureComparisonProps, type IAutoMovieCaptureFindingDiff, type IAutoMovieCaptureFindingDiffProps, type IAutoMovieCaptureRequestEntry, type IAutoMovieCaptureCompleteRecord, type IAutoMovieCapturePlanRequest, type IAutoMovieCaptureRequestSource, type IAutoMovieCapturePlan, type IAutoMovieCapturePlanProps, type IAutoMovieCaptureFramePlan, type IAutoMovieCaptureFramePlanProps, type IAutoMovieCaptureLayout, type IAutoMovieCaptureLayoutProps, type IAutoMoviePlanVideoFramesProps, type IAutoMoviePlanVideoSceneCutsProps, type IAutoMovieCaptureVideoSource, type IAutoMovieCaptureResolution, type IAutoMovieResolveCapturePatternsProps, type IAutoMovieRunCaptureProps, type IAutoMovieRunVideoCaptureProps, type IAutoMovieRasterImage } from "@automovie/interface";
 import { compareAutoMovieCaptureRounds as compareAutoMovieCaptureRoundsImplementation } from "./internal/compareAutoMovieCaptureRounds.js";
 import { diffAutoMovieCaptureFindings as diffAutoMovieCaptureFindingsImplementation } from "./internal/diffAutoMovieCaptureFindings.js";
 import { formatAutoMovieCapturePlanRequest as formatAutoMovieCapturePlanRequestImplementation } from "./internal/formatAutoMovieCapturePlanRequest.js";
@@ -78,13 +78,7 @@ export namespace AutoMovieRenderCapture {
    * @returns The compared entries and outcome, or `omitted` naming the records
    *   without diagnostics.
    */
-  export function diffFindings(props: {
-  /** The earlier round's recorded audit, absent when its record has none. */
-  earlier: IAutoMovieInspectionDiagnostics.IAudit | undefined;
-
-  /** This round's audit, absent when no drawn cell supplied diagnostics. */
-  current: IAutoMovieInspectionDiagnostics.IAudit | undefined;
-}): IAutoMovieCaptureFindingDiff {
+  export function diffFindings(props: IAutoMovieCaptureFindingDiffProps): IAutoMovieCaptureFindingDiff {
     return diffAutoMovieCaptureFindingsImplementation(props);
   }
 
@@ -111,7 +105,7 @@ export namespace AutoMovieRenderCapture {
    * );
    * ```
    */
-  export function formatPlanRequest(request: IAutoMovieCapturePlanRequest): [key: string, value: string][] {
+  export function formatPlanRequest(request: IAutoMovieCapturePlanRequest): IAutoMovieCaptureRequestEntry[] {
     return formatAutoMovieCapturePlanRequestImplementation(request);
   }
 
@@ -440,7 +434,7 @@ export namespace AutoMovieRenderCapture {
    * });
    * ```
    */
-  export function run(props: IAutoMovieRunCaptureProps): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+  export function run(props: IAutoMovieRunCaptureProps): Promise<IAutoMovieCaptureCompleteRecord> {
     return runAutoMovieCaptureImplementation(props);
   }
 
@@ -473,7 +467,7 @@ export namespace AutoMovieRenderCapture {
    * since a file's pixels are drawn already, and explicit seconds that fall
    * between the file's frames.
    */
-  export function runVideo(props: IAutoMovieRunVideoCaptureProps): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+  export function runVideo(props: IAutoMovieRunVideoCaptureProps): Promise<IAutoMovieCaptureCompleteRecord> {
     return runAutoMovieVideoCaptureImplementation(props);
   }
 

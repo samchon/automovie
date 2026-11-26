@@ -1,11 +1,4 @@
-import {
-  createDrinkware,
-  createMirror,
-  createMoldedCrate,
-  createRock,
-  createSeat,
-  createTable,
-} from "@automovie/archetypes";
+import { createDrinkware, createMirror, createRock, createSeat, createTable, AutoMovieArchetypeMoldedCrate } from "@automovie/archetypes";
 import { createBuilding, createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
@@ -60,7 +53,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  * @evidence contracts/development/common.md#meaningful-documentation Lists its ten scenarios with the input and expected behavior of each.
  */
 export function test_environment_support_report(): void {
-  const crate: IAutoMovieModel = createMoldedCrate({}, 1021);
+  const crate: IAutoMovieModel = AutoMovieArchetypeMoldedCrate.create({}, 1021);
   const crateRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(crate)!;
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({

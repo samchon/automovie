@@ -1,13 +1,4 @@
-import {
-  AutoMovieArchetypeQuadrupedBody as Body,
-  AutoMovieArchetypeQuadrupedGait as Gait,
-  type AutoMovieArchetypeEquine,
-  createDonkey,
-  createHorse,
-  createMule,
-  createPony,
-  createQuadruped,
-} from "@automovie/archetypes";
+import { AutoMovieArchetypeQuadrupedBody as Body, AutoMovieArchetypeQuadrupedGait as Gait, type AutoMovieArchetypeEquine, createDonkey, createHorse, createQuadruped, AutoMovieArchetypeMule, AutoMovieArchetypePony } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -46,9 +37,9 @@ export function test_archetypes_animals_equid_attachment_clock(): void {
     { name: "donkey", height: 1.1262, model: (tack: Tack): ReturnType<typeof createHorse> =>
       createDonkey({ withersHeight: 1.1262, tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
     { name: "Connemara pony", height: 1.46, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createPony({ breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+      AutoMovieArchetypePony.create({ breed: "connemara", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
     { name: "female mule", height: 1.304, model: (tack: Tack): ReturnType<typeof createHorse> =>
-      createMule({ sex: "female", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
+      AutoMovieArchetypeMule.create({ sex: "female", tack, tempo: 0, stirrupDrop: 0.575 }, 43) },
   ];
   const saddle: readonly string[] = ["seat", "pommel", "cantle", "leftStirrup", "rightStirrup",
     "leftRein", "rightRein", "lead", "mane"];

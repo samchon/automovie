@@ -7,8 +7,8 @@ import type {
   IAutoMoviePropBox,
 } from "@automovie/interface";
 
-import { createRange } from "../../architecture/createRange";
-import { createRefrigerator } from "../../architecture/createRefrigerator";
+import { AutoMovieArchetypeRange } from "../../architecture/AutoMovieArchetypeRange";
+import { AutoMovieArchetypeRefrigerator } from "../../architecture/AutoMovieArchetypeRefrigerator";
 import { deriveArchetypeSeed } from "../../core/deriveArchetypeSeed";
 import { createTable } from "../../furniture/createTable";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
@@ -48,7 +48,7 @@ export function createKitchenKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const refrigerator: IAutoMovieModel = createRefrigerator(
+    const refrigerator: IAutoMovieModel = AutoMovieArchetypeRefrigerator.create(
       {},
       draw("refrigerator"),
     );
@@ -56,7 +56,7 @@ export function createKitchenKit(
       { kind: "counter" },
       draw("counter"),
     );
-    const range: IAutoMovieModel = createRange({}, draw("range"));
+    const range: IAutoMovieModel = AutoMovieArchetypeRange.create({}, draw("range"));
     const aisle: number = (
       cooks === 1 ? ROOM_CLEARANCES.workAisle : ROOM_CLEARANCES.sharedWorkAisle
     ).depth;

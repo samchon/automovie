@@ -1,9 +1,9 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StationeryDraw } from "./StationeryDraw";
-import { createBook } from "./createBook";
+import { AutoMovieArchetypeBook } from "./AutoMovieArchetypeBook";
 import { createClipboard } from "./createClipboard";
 import { createPaper } from "./createPaper";
-import { createPen } from "./createPen";
+import { AutoMovieArchetypePen } from "./AutoMovieArchetypePen";
 
 /**
  * Read a saved stationery recipe and call the producer for its kind.
@@ -70,9 +70,9 @@ export namespace createStationery {
 
   /** The named producer selected by each saved kind. */
   export const PRODUCERS = {
-    book: createBook,
+    book: AutoMovieArchetypeBook.create,
     paper: createPaper,
-    pen: createPen,
+    pen: AutoMovieArchetypePen.create,
     clipboard: createClipboard,
     map: createPaper,
   } as const satisfies Readonly<Record<Kind, unknown>>;

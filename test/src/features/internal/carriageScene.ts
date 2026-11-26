@@ -1,8 +1,4 @@
-import {
-  createBag,
-  createBowl,
-  createServingTray,
-} from "@automovie/archetypes";
+import { createBag, createBowl, AutoMovieArchetypeServingTray } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -254,7 +250,7 @@ export namespace carriageScene {
    */
   export function trayProps(): IAutoMovieMotionHumanProp[] {
     return [
-      everydayTake.prop("tray", createServingTray({ id: "tray" }), {
+      everydayTake.prop("tray", AutoMovieArchetypeServingTray.create({ id: "tray" }), {
         x: -0.3,
         y: 1.0,
         z: 0.3,
@@ -317,7 +313,7 @@ export namespace carriageScene {
    */
   export function headLoad(body: IAutoMovieMotionHumanBody): IHeadLoad {
     // A porter's flat tray, the bundle's base, lifted by its end grip.
-    const basket: everydayTake.IPosable = createServingTray({ id: "basket" });
+    const basket: everydayTake.IPosable = AutoMovieArchetypeServingTray.create({ id: "basket" });
     return {
       basket,
       crown: offsetOn(

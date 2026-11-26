@@ -8,7 +8,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { createStageTwoHandedSwordProp } from "./createStageTwoHandedSwordProp";
+import { AutoMovieArchetypeStageTwoHandedSwordProp } from "./AutoMovieArchetypeStageTwoHandedSwordProp";
 
 /** Authored clearance around the rounded foam display profile, in metres. */
 const GAP: number = 0.006;
@@ -147,7 +147,7 @@ export namespace createStageFittedCarrier {
   /** The separately modelled padded display and carrier identity. */
   export interface IParams {
     /** The generated digital display that fits this carrier. */
-    display: ReturnType<typeof createStageTwoHandedSwordProp>;
+    display: ReturnType<typeof AutoMovieArchetypeStageTwoHandedSwordProp.create>;
     /** The carrier model's own id, distinct from the display's id. */
     id?: string;
   }
@@ -159,7 +159,7 @@ export namespace createStageFittedCarrier {
    */
   export function REFERENCE(): Readonly<IParams> {
     return {
-      display: createStageTwoHandedSwordProp({
+      display: AutoMovieArchetypeStageTwoHandedSwordProp.create({
         id: "fitted-carrier-reference-display",
       }),
     };

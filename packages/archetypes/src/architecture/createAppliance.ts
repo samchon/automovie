@@ -5,10 +5,10 @@ import {
 } from "../core";
 import { APPLIANCE_BANDS } from "./APPLIANCE_BANDS";
 import { FixtureDraw } from "./FixtureDraw";
-import { createMicrowave } from "./createMicrowave";
-import { createRange } from "./createRange";
-import { createRefrigerator } from "./createRefrigerator";
-import { createWashingMachine } from "./createWashingMachine";
+import { AutoMovieArchetypeMicrowave } from "./AutoMovieArchetypeMicrowave";
+import { AutoMovieArchetypeRange } from "./AutoMovieArchetypeRange";
+import { AutoMovieArchetypeRefrigerator } from "./AutoMovieArchetypeRefrigerator";
+import { AutoMovieArchetypeWashingMachine } from "./AutoMovieArchetypeWashingMachine";
 
 /**
  * Read a saved appliance recipe and call the corresponding fixed producer.
@@ -120,10 +120,10 @@ export namespace createAppliance {
 
   /** The fixed producer of each saved kind. */
   export const PRODUCERS = {
-    refrigerator: createRefrigerator,
-    cooker: createRange,
-    microwave: createMicrowave,
-    washingMachine: createWashingMachine,
+    refrigerator: AutoMovieArchetypeRefrigerator.create,
+    cooker: AutoMovieArchetypeRange.create,
+    microwave: AutoMovieArchetypeMicrowave.create,
+    washingMachine: AutoMovieArchetypeWashingMachine.create,
   } as const satisfies Readonly<
     Record<Kind, (...args: never[]) => AutoMovieArchetype>
   >;

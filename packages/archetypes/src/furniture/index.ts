@@ -6,7 +6,7 @@ export * from "./createLectern";
 export * from "./createLoad";
 export * from "./createSafe";
 export * from "./createSeat";
-export * from "./createShowcase";
+export { AutoMovieArchetypeShowcase } from "./AutoMovieArchetypeShowcase";
 export * from "./createStorage";
 export * from "./createTable";
 export * from "./createBookcase";

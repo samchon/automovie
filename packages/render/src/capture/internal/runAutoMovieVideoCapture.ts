@@ -3,7 +3,7 @@ import type {
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCapturePlanRequest,
-  IAutoMovieCaptureRecord,
+  IAutoMovieCaptureCompleteRecord,
   IAutoMovieCaptureSubject,
   IAutoMovieRunVideoCaptureProps,
 } from "@automovie/interface";
@@ -57,7 +57,7 @@ const BACKEND: string = "ffmpeg";
  */
 export async function runAutoMovieVideoCapture(
   props: IAutoMovieRunVideoCaptureProps,
-): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> {
+): Promise<IAutoMovieCaptureCompleteRecord> {
   // 1. What a file cannot give is refused before the folder is touched.
   const { request } = props;
   if (

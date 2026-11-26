@@ -16,19 +16,7 @@ import {
   createWindow,
 } from "../architecture";
 import { type AutoMovieArchetype, AutoMovieArchetypeRide } from "../core";
-import {
-  createBarrel,
-  createBed,
-  createConsole,
-  createHighChair,
-  createLectern,
-  createLoad,
-  createSafe,
-  createSeat,
-  createShowcase,
-  createStorage,
-  createTable,
-} from "../furniture";
+import { createBarrel, createBed, createConsole, createHighChair, createLectern, createLoad, createSafe, createSeat, createStorage, createTable, AutoMovieArchetypeShowcase } from "../furniture";
 import {
   createBalanceBeam,
   createBoxingGlove,
@@ -57,17 +45,7 @@ import {
   createUmbrella,
   createVessel,
 } from "../props";
-import {
-  createCue,
-  createCueTable,
-  createGoal,
-  createHighJump,
-  createPoolEdge,
-  createSkateboard,
-  createSki,
-  createStick,
-  createSurfboard,
-} from "../sport";
+import { createCue, createCueTable, createGoal, createHighJump, createPoolEdge, createSkateboard, createSki, createStick, AutoMovieArchetypeSurfboard } from "../sport";
 import {
   AutoMovieArchetypeBicycle,
   AutoMovieArchetypeCar,
@@ -276,7 +254,7 @@ export function archetypeCaptureCatalog(): Readonly<
       lectern: createLectern(),
       console: createConsole(),
       safe: createSafe(),
-      showcase: createShowcase(),
+      showcase: AutoMovieArchetypeShowcase.create(),
     }),
     ...archetypeCaptureFixtures(door),
     vehicles: still({
@@ -410,7 +388,7 @@ export function archetypeCaptureCatalog(): Readonly<
       cueTable: createCueTable(),
       skateboard: createSkateboard(),
       ski: createSki(),
-      surfboard: createSurfboard(),
+      surfboard: AutoMovieArchetypeSurfboard.create(),
     }),
     music: still({
       ...kinds(
