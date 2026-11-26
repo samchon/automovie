@@ -10,8 +10,6 @@ import type {
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
-
-type Vec3 = AutoMovieVector3Tuple;
 const {
   sub,
   plus: add,
@@ -101,3 +99,5 @@ export namespace AutoMovieHumanWebCrest {
     return { webs, webOf, position, outward, parentJet };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

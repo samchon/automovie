@@ -13,8 +13,6 @@ import { AutoMovieHumanLegAnkleSeam } from "./AutoMovieHumanLegAnkleSeam";
 import { AutoMovieHumanLegCrotchRoot } from "./AutoMovieHumanLegCrotchRoot";
 import { AutoMovieHumanLegLaw } from "./AutoMovieHumanLegLaw";
 
-type Vec3 = AutoMovieVector3Tuple;
-
 /**
  * The feet moved rigidly under the stance: each foot stands under its leg's
  * ankle, its chains and poles shifted horizontally by the move from its own
@@ -126,3 +124,5 @@ export namespace AutoMovieHumanLegStand {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

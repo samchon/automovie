@@ -9,7 +9,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/internal/closestPointsBetweenSegments";
-import { physicalHullEdges } from "./physicalHullEdges";
+import { physicalHullEdges } from "./internal/physicalHullEdges";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { physicalShapeNearest } from "./physicalShapeNearest";

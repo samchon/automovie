@@ -15,8 +15,6 @@ import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-
-type Vec3 = AutoMovieVector3Tuple;
 const {
   sub,
   plus,
@@ -214,3 +212,5 @@ export namespace AutoMovieHumanHandSolve {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFlat } from "./physicalHullFlat";
+import { physicalHullFlat } from "./internal/physicalHullFlat";
 
 /** The full-contact signature: the signed distance, surface point and normal. */
 export function readPhysicalHullFacesPoint(

@@ -11,26 +11,26 @@ import {
 import type * as THREE from "three";
 
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
-import { AutoMovieInspectorBeauty } from "../AutoMovieInspectorBeauty.js";
-import { AutoMovieInspectorDiagnosticLog } from "../AutoMovieInspectorDiagnosticLog.js";
+import { AutoMovieInspectorBeauty } from "./AutoMovieInspectorBeauty.js";
+import { AutoMovieInspectorDiagnosticLog } from "./AutoMovieInspectorDiagnosticLog.js";
 import type { AutoMovieInspectorPlayhead } from "../AutoMovieInspectorPlayhead.js";
 import { AutoMovieInspectorTransition } from "../AutoMovieInspectorTransition.js";
-import type { IAutoMovieInspectorLive } from "../IAutoMovieInspectorLive.js";
+import type { IAutoMovieInspectorLive } from "./IAutoMovieInspectorLive.js";
 import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 import { assertAutoMovieInspectorRaster } from "../assertAutoMovieInspectorRaster.js";
 import { changesAutoMovieObservedScene } from "../changesAutoMovieObservedScene.js";
 import { firstAutoMovieInspectorSecond } from "../firstAutoMovieInspectorSecond.js";
-import { followAutoMovieInspectorSize } from "../followAutoMovieInspectorSize.js";
-import { inspectAutoMovieInspectorRequest } from "../inspectAutoMovieInspectorRequest.js";
-import { installAutoMovieInspectorRequest } from "../installAutoMovieInspectorRequest.js";
+import { followAutoMovieInspectorSize } from "./followAutoMovieInspectorSize.js";
+import { inspectAutoMovieInspectorRequest } from "./inspectAutoMovieInspectorRequest.js";
+import { installAutoMovieInspectorRequest } from "./installAutoMovieInspectorRequest.js";
 import { messageOfAutoMovieInspectorError } from "../messageOfAutoMovieInspectorError.js";
 import { readAutoMovieInspectorAddress } from "../readAutoMovieInspectorAddress.js";
-import { readAutoMovieInspectorFacts } from "../readAutoMovieInspectorFacts.js";
+import { readAutoMovieInspectorFacts } from "./readAutoMovieInspectorFacts.js";
 import { readsAutoMovieInspectorPlacedScene } from "../readsAutoMovieInspectorPlacedScene.js";
-import { releaseAutoMovieInspectorSteps } from "../releaseAutoMovieInspectorSteps.js";
-import { reportAutoMovieInspectorLabels } from "../reportAutoMovieInspectorLabels.js";
-import { resolveAutoMovieInspectorCamera } from "../resolveAutoMovieInspectorCamera.js";
+import { releaseAutoMovieInspectorSteps } from "./releaseAutoMovieInspectorSteps.js";
+import { reportAutoMovieInspectorLabels } from "./reportAutoMovieInspectorLabels.js";
+import { resolveAutoMovieInspectorCamera } from "./resolveAutoMovieInspectorCamera.js";
 import { writeAutoMovieInspectorInspection } from "../writeAutoMovieInspectorInspection.js";
 
 /**

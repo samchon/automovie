@@ -9,9 +9,9 @@ import type {
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
-import { measureAutoMovieMeshGap } from "./measureAutoMovieMeshGap";
+import { measureAutoMovieMeshGap } from "./internal/measureAutoMovieMeshGap";
 import { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
-import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
+import { placeAutoMovieModelPartMesh } from "./internal/placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 

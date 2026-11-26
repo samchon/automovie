@@ -19,7 +19,7 @@ import { AutoMovieHumanBodyAnatomy } from "../generation/AutoMovieHumanBodyAnato
 import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 import { AutoMovieHumanCanonicalBind } from "./AutoMovieHumanCanonicalBind";
 import { AutoMovieHumanCanonicalProfile as Profile } from "./AutoMovieHumanCanonicalProfile";
-import type { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
+import type { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJointStrength";
 
 /**
  * A Human's polygon man on the engine's canonical humanoid rig, so a motion

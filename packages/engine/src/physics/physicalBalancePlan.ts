@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
-import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
+import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";

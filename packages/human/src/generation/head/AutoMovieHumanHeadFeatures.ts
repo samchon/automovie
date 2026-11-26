@@ -81,14 +81,6 @@ export namespace AutoMovieHumanHeadFeatures {
   }
 
   /**
-   * One factory's actual return or original thrown value, owned by this
-   * preparation.
-   */
-  type IAttempt =
-    | { kind: "returned"; parts: IAutoMovieHumanHeadFeatures.IFeature[] }
-    | { kind: "threw"; error: unknown };
-
-  /**
    * Names of these same five factory slots; no parent input or geometry is
    * required.
    */
@@ -261,6 +253,14 @@ export namespace AutoMovieHumanHeadFeatures {
       },
     };
   }
+
+  /**
+   * One factory's actual return or original thrown value, owned by this
+   * preparation.
+   */
+  type IAttempt =
+    | { kind: "returned"; parts: IAutoMovieHumanHeadFeatures.IFeature[] }
+    | { kind: "threw"; error: unknown };
 
   /** One dome feature. */
   function dome(

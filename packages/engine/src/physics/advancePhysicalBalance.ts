@@ -14,7 +14,7 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
-import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
+import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
 import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
 import { physicalBalancePlan } from "./physicalBalancePlan";
 import { physicalBalanceRamp } from "./physicalBalanceRamp";

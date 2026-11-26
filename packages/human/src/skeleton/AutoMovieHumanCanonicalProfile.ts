@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanCanonicalSolids as Solids } from "./AutoMovieHumanCanonicalSolids";
-import { AutoMovieHumanJointStrength } from "./AutoMovieHumanJointStrength";
+import { AutoMovieHumanJointStrength } from "./internal/AutoMovieHumanJointStrength";
 
 /**
  * The contact and mass profile of a polygon man, built from the same joints and

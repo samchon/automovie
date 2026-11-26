@@ -13,9 +13,9 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMoviePhysicalCoupledTargetError } from "./AutoMoviePhysicalCoupledTargetError";
-import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
-import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
-import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetGroup } from "./internal/IPhysicalCoupledTargetGroup";
+import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
+import { fitPhysicalCoupledTargetGroup } from "./internal/fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";

@@ -37,11 +37,11 @@ import type {
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { measureAutoMovieRenderFilmStage } from "../measureAutoMovieRenderFilmStage";
-import { measureRenderGeometryBytes } from "../measureRenderGeometryBytes";
-import { measureRenderPasses } from "../measureRenderPasses";
+import { measureRenderGeometryBytes } from "./measureRenderGeometryBytes";
+import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";
 import { measureRenderSimulation } from "./measureRenderSimulation";
-import { measureRenderTextures } from "../measureRenderTextures";
+import { measureRenderTextures } from "./measureRenderTextures";
 import { resolveAutoMovieMaterial } from "../resolveAutoMovieMaterial";
 
 /**

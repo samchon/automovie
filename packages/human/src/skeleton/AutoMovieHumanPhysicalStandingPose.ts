@@ -10,8 +10,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPhysicalArmRoom } from "./HumanPhysicalArmRoom";
-import { HumanPhysicalSolePlant } from "./HumanPhysicalSolePlant";
+import { HumanPhysicalArmRoom } from "./internal/HumanPhysicalArmRoom";
+import { HumanPhysicalSolePlant } from "./internal/HumanPhysicalSolePlant";
 
 /** Fit an authored Human standing pose to physical support. */
 export namespace AutoMovieHumanPhysicalStandingPose {

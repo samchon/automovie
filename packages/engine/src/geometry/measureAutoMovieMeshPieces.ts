@@ -1,7 +1,7 @@
 import type { IAutoMovieMesh, IAutoMovieMeshPiece } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/internal/createMeshEdgeKey";
-import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
+import { weldAutoMovieMeshCorners } from "./internal/weldAutoMovieMeshCorners";
 
 /**
  * Report the topology of each piece of a mesh: its counts, boundary loops,

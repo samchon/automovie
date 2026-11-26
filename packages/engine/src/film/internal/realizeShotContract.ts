@@ -21,7 +21,7 @@ import {
 import { productionRuntimeModelId } from "../../model/internal/productionRuntimeModelId";
 import { createShotContractSubjectReader } from "./createShotContractSubjectReader";
 import { evaluateShotPredicate } from "./evaluateShotPredicate";
-import { realizeShotCameraOutcome } from "../realizeShotCameraOutcome";
+import { realizeShotCameraOutcome } from "./realizeShotCameraOutcome";
 
 /** One graded camera sample of the realization record. */
 type ICameraOutcome = IAutoMovieCompiledContractRealization["camera"][number];

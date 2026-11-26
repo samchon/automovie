@@ -22,7 +22,6 @@ import type {
  * skins on it, which is what the join's tolerance has to admit.
  */
 export namespace AutoMovieHumanJoinLoop {
-  type V = [number, number, number];
 
   /**
    * The generated contact.
@@ -221,4 +220,5 @@ export namespace AutoMovieHumanJoinLoop {
       stations,
     };
   }
+  type V = [number, number, number];
 }

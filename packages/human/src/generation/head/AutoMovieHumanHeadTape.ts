@@ -9,12 +9,6 @@ import type {
 import { AutoMovieHumanHeadTapeBrow } from "./AutoMovieHumanHeadTapeBrow";
 import { AutoMovieHumanHeadTapeSource } from "./AutoMovieHumanHeadTapeSource";
 
-/** One accepted trial and its numerical course maximum. */
-type Trial = IAutoMovieHumanHeadTape.Member & {
-  power: number;
-  course: IAutoMovieHumanHeadTape.ICourse;
-};
-
 /**
  * Close the public tape on a numerically maximizing actual source course.
  * ANSUR's above-brow/ear, front-higher/no-side-tilt protocol defines the
@@ -444,3 +438,9 @@ export namespace AutoMovieHumanHeadTape {
     }
   }
 }
+
+/** One accepted trial and its numerical course maximum. */
+type Trial = IAutoMovieHumanHeadTape.Member & {
+  power: number;
+  course: IAutoMovieHumanHeadTape.ICourse;
+};

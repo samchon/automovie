@@ -559,41 +559,6 @@ export namespace AutoMovieHumanF1 {
     fair: [0.35, 0.35],
   };
 
-  /** A limb whose open end is split into its knuckled digits. */
-  interface IFan {
-    /** The digits in the seams' order, from the little finger or the little toe (`fanSeams`). */
-    digits: string[];
-
-    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`). */
-    webs: [number, number][][];
-
-    /** The bands' turn at each fork, radians of clock. */
-    corner: number;
-
-    /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
-    reach?: number;
-
-    /** Whether the bands leave the limb's end square to its ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station lines. */
-    square?: boolean;
-
-    /** The radius of the skin faired about each fork, as a share of its seam's chord (`IAutoMovieConstructionSplit.IProfile.fair`), one for both forks or `[palm or sole, back]`; absent, the forks stay as drawn. */
-    fair?: number | [number, number];
-
-    /** Where each digit's band lands on it, mm past its first station, the web. */
-    rail: number;
-
-    /** Columns round each band, a quarter on each seam it takes. */
-    columns: number;
-
-    /**
-     * Grid stations across each band (`IAutoMovieConstructionSplit.rows`). At the bands' default 8, rows up to 2 mm apart drew the fork
-     * fills as facets and folded the bands where a column turns, beside the hand's palm forks (173 degrees on the middle finger's band) and
-     * in front of the toes' plantar forks (179); at 24 the hand's split keeps one edge folding by 90 degrees or more (8 before) and the
-     * leg's 22 (51), and the toes' tops are smooth (`limbview`, a scratch render of one limb's split). At 16 the leg kept 33.
-     */
-    rows: number;
-  }
-
   /**
    * The limbs split at their ends, Birn's hand: the palm lofted on past the knuckles, its end cut into one opening per finger along the
    * webs, and each opening bridged to its finger by a band. The hand's end at 595 mm on the arm's course, which turns at the middle
@@ -1155,14 +1120,6 @@ export namespace AutoMovieHumanF1 {
    * 47 mm within an eighth of a turn.
    */
   const BREAST_FAN_FILL_MM: number = 4;
-
-  /** Native anatomy fields have a distinct fixed-reference entry. These original producers preserve the existing non-native posed constructor. */
-  /** A point in the trunk's chart: its station along the trunk's course from the course's foot, mm, and its coordinates across it, mm. */
-  interface IChart {
-    station: number;
-    u: number;
-    v: number;
-  }
 
   /**
    * The trunk's chart of a point of the figure's frame at a pose: its station along the trunk's course and its coordinates across it, `u`
@@ -3105,5 +3062,48 @@ export namespace AutoMovieHumanF1 {
       }
     }
     return pieces;
+  }
+
+  /** A limb whose open end is split into its knuckled digits. */
+  interface IFan {
+    /** The digits in the seams' order, from the little finger or the little toe (`fanSeams`). */
+    digits: string[];
+
+    /** Each seam's web line, knots `[along, depth]` in metres in its plane (`IAutoMovieConstructionSplit.IProfile`). */
+    webs: [number, number][][];
+
+    /** The bands' turn at each fork, radians of clock. */
+    corner: number;
+
+    /** The share of its length each band's ribbon keeps at a fork (`IAutoMovieConstructionSplit.IProfile.reach`); absent, the whole. */
+    reach?: number;
+
+    /** Whether the bands leave the limb's end square to its ring (`IAutoMovieConstructionSplit.IProfile.square`); absent, along its station lines. */
+    square?: boolean;
+
+    /** The radius of the skin faired about each fork, as a share of its seam's chord (`IAutoMovieConstructionSplit.IProfile.fair`), one for both forks or `[palm or sole, back]`; absent, the forks stay as drawn. */
+    fair?: number | [number, number];
+
+    /** Where each digit's band lands on it, mm past its first station, the web. */
+    rail: number;
+
+    /** Columns round each band, a quarter on each seam it takes. */
+    columns: number;
+
+    /**
+     * Grid stations across each band (`IAutoMovieConstructionSplit.rows`). At the bands' default 8, rows up to 2 mm apart drew the fork
+     * fills as facets and folded the bands where a column turns, beside the hand's palm forks (173 degrees on the middle finger's band) and
+     * in front of the toes' plantar forks (179); at 24 the hand's split keeps one edge folding by 90 degrees or more (8 before) and the
+     * leg's 22 (51), and the toes' tops are smooth (`limbview`, a scratch render of one limb's split). At 16 the leg kept 33.
+     */
+    rows: number;
+  }
+
+  /** Native anatomy fields have a distinct fixed-reference entry. These original producers preserve the existing non-native posed constructor. */
+  /** A point in the trunk's chart: its station along the trunk's course from the course's foot, mm, and its coordinates across it, mm. */
+  interface IChart {
+    station: number;
+    u: number;
+    v: number;
   }
 }

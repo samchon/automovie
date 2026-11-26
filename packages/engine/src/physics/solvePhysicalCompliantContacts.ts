@@ -7,7 +7,7 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { physicalShapePairContact } from "./physicalShapePairContact";
+import { physicalShapePairContact } from "./internal/physicalShapePairContact";
 
 /**
  * Apply implicit Kelvin-Voigt surface impulses to the sensor overlaps of the

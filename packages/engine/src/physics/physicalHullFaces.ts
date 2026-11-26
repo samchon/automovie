@@ -4,11 +4,11 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalHullEdges } from "./physicalHullEdges";
-import { physicalHullFlat } from "./physicalHullFlat";
-import { physicalHullLoop } from "./physicalHullLoop";
-import { physicalHullPlanes } from "./physicalHullPlanes";
-import { physicalHullTriangles } from "./physicalHullTriangles";
+import { physicalHullEdges } from "./internal/physicalHullEdges";
+import { physicalHullFlat } from "./internal/physicalHullFlat";
+import { physicalHullLoop } from "./internal/physicalHullLoop";
+import { physicalHullPlanes } from "./internal/physicalHullPlanes";
+import { physicalHullTriangles } from "./internal/physicalHullTriangles";
 
 /**
  * The faces of the convex hull of a point set: each face's outward unit normal,

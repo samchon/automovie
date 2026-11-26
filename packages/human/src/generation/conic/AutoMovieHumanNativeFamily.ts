@@ -20,19 +20,6 @@ import type {
 
 /** A full native source generated from qualified F1 controls, independently of any loft. */
 export namespace AutoMovieHumanNativeFamily {
-  /** Invocation-local canonical controls, cap binding and independent density estimate. */
-  interface IPreparedSource {
-    values: number[][];
-    knots: number[];
-    layout: IAutoMovieHumanConicSection.ILayout;
-    caps: string;
-    source: IAutoMovieViewPart;
-    /** Selected name/source identity participates in this local cache. */
-    selected: IAutoMovieViewPart | undefined;
-    /** Named source identity in the same invocation cache. */
-    name: string;
-    girth: number;
-  }
 
   /**
    * One invocation's original controls, axis, material addresses and directional tissue law.
@@ -589,5 +576,18 @@ export namespace AutoMovieHumanNativeFamily {
       },
     };
     return made;
+  }
+  /** Invocation-local canonical controls, cap binding and independent density estimate. */
+  interface IPreparedSource {
+    values: number[][];
+    knots: number[];
+    layout: IAutoMovieHumanConicSection.ILayout;
+    caps: string;
+    source: IAutoMovieViewPart;
+    /** Selected name/source identity participates in this local cache. */
+    selected: IAutoMovieViewPart | undefined;
+    /** Named source identity in the same invocation cache. */
+    name: string;
+    girth: number;
   }
 }

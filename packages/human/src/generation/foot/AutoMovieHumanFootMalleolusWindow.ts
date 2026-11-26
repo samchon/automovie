@@ -7,8 +7,6 @@ import type {
 import { AutoMovieHumanFootGeometry as G } from "./AutoMovieHumanFootGeometry";
 import { AutoMovieHumanFootMalleolusBump } from "./AutoMovieHumanFootMalleolusBump";
 
-type Vec3 = AutoMovieVector3Tuple;
-
 /**
  * Where a malleolus's relief window stands on the body's chain: the stations
  * and phases it covers, from the border's guide, the section's perimeter and
@@ -72,6 +70,8 @@ export namespace AutoMovieHumanFootMalleolusWindow {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;
 
 /** Bisections that close the station where a border reaches a height. */
 const BISECTIONS: number = 48;

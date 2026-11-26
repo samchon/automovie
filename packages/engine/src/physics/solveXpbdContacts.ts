@@ -9,13 +9,13 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
-import type { IAutoMovieXpbdContactRow } from "./IAutoMovieXpbdContactRow";
-import type { IAutoMovieXpbdResponder } from "./IAutoMovieXpbdResponder";
-import { correctXpbdContactRow } from "./correctXpbdContactRow";
-import { pairXpbdContactRow } from "./pairXpbdContactRow";
+import type { IAutoMovieXpbdContactRow } from "./internal/IAutoMovieXpbdContactRow";
+import type { IAutoMovieXpbdResponder } from "./internal/IAutoMovieXpbdResponder";
+import { correctXpbdContactRow } from "./internal/correctXpbdContactRow";
+import { pairXpbdContactRow } from "./internal/pairXpbdContactRow";
 import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
-import { physicalShapePairContact } from "./physicalShapePairContact";
-import { physicalShapePenetration } from "./physicalShapePenetration";
+import { physicalShapePairContact } from "./internal/physicalShapePairContact";
+import { physicalShapePenetration } from "./internal/physicalShapePenetration";
 
 /**
  * The contact phase of one extended position-based dynamics step (Mueller,

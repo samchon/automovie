@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
-import { exactPlaybackHardCut } from "../exactPlaybackHardCut";
+import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
 /** Original clock tolerance for ordinary numeric plays away from exact seams. */

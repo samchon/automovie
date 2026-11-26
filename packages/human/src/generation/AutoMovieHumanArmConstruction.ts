@@ -69,21 +69,6 @@ export namespace AutoMovieHumanArmConstruction {
   /** Builds kept: both sides of one person. */
   const KEPT: number = 2;
 
-  /** One side's chains, poles and bone landmarks. */
-  interface ILimb {
-    /** The arm's, palm's and digits' chains. */
-    chains: IAutoMovieLoftChain[];
-
-    /** The digits' poles. */
-    poles: IAutoMovieHumanSurfacePole[];
-
-    /** The digits' nail plates. */
-    nails: IAutoMovieHumanNailWindow[];
-
-    /** The bone landmarks. */
-    bones: IAutoMovieHumanArmConstruction.IBones;
-  }
-
   /**
    * Calibration with both arms and hands, their events and poles added.
    *
@@ -176,6 +161,21 @@ export namespace AutoMovieHumanArmConstruction {
       left: limb(calibration, inputs, "left", undefined, false).bones,
       right: limb(calibration, inputs, "right", undefined, false).bones,
     };
+  }
+
+  /** One side's chains, poles and bone landmarks. */
+  interface ILimb {
+    /** The arm's, palm's and digits' chains. */
+    chains: IAutoMovieLoftChain[];
+
+    /** The digits' poles. */
+    poles: IAutoMovieHumanSurfacePole[];
+
+    /** The digits' nail plates. */
+    nails: IAutoMovieHumanNailWindow[];
+
+    /** The bone landmarks. */
+    bones: IAutoMovieHumanArmConstruction.IBones;
   }
 
   /**

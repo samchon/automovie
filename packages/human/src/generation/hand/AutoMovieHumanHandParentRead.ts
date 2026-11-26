@@ -15,11 +15,6 @@ import type {
 
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
 
-/** The same actual parent-frame result used by the attachment owner. */
-type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
-/** Four original support/fullness values in material order. */
-type Quarters = [number, number, number, number];
-
 /**
  * Original parent-coordinate and native-section reads shared by hand
  * attachments.
@@ -125,3 +120,8 @@ export namespace AutoMovieHumanHandParentRead {
     return section;
   }
 }
+
+/** The same actual parent-frame result used by the attachment owner. */
+type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
+/** Four original support/fullness values in material order. */
+type Quarters = [number, number, number, number];

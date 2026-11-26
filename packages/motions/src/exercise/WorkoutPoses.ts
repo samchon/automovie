@@ -8,7 +8,7 @@ import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 import { WorkoutStance } from "./WorkoutStance";
 import { karateBlockChamber } from "./karateBlockChamber";
-import { workoutTurn } from "./workoutTurn";
+import { workoutTurn } from "./workout/workoutTurn";
 
 /**
  * The standing poses and single acts of the workout law: stretches and yoga

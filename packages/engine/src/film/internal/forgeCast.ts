@@ -4,7 +4,7 @@ import type {
   IAutoMovieScript,
 } from "@automovie/interface";
 
-import { admitForgedCastEntries } from "../admitForgedCastEntries";
+import { admitForgedCastEntries } from "./admitForgedCastEntries";
 
 /** Admit the generated stand-in rigs against the script's cast declarations. */
 export function forgeCast(

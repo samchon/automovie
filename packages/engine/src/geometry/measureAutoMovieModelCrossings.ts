@@ -9,7 +9,7 @@ import type {
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
-import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
+import { placeAutoMovieModelPartMesh } from "./internal/placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";
 
 /**

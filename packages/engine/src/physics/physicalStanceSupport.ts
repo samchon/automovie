@@ -8,7 +8,7 @@ import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import { physicalStanceBalance } from "./physicalStanceBalance";
-import { physicalSupportFootprint } from "./physicalSupportFootprint";
+import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 
 /** A support limb of the balance pattern. */
 type Limb = IAutoMovieFootfallPattern["limbs"][number];

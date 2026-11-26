@@ -28,7 +28,7 @@ import { sampleStanceTimes } from "../../motion/sampleStanceTimes";
 import { spaceGround } from "../../space/spaceGround";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import type { IStageGround } from "../staging/IStageGround";
-import { prepareStageSupport } from "../staging/prepareStageSupport";
+import { prepareStageSupport } from "../staging/internal/prepareStageSupport";
 
 /**
  * Pin the stance feet of every gait-bearing or resumed actor clip, replacing

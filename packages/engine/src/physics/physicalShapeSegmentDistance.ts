@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalShapeQuery } from "./physicalShapeQuery";
+import { physicalShapeQuery } from "./internal/physicalShapeQuery";
 
 /**
  * The signed distance, metres, from a world segment to an admitted sphere, Y

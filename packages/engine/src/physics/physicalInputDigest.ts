@@ -3,7 +3,7 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { autoMovieRenderDigest } from "../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { AutoMoviePhysicsCache } from "./AutoMoviePhysicsCache";
-import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
+import { physicalProfileWithoutHulls } from "./internal/physicalProfileWithoutHulls";
 
 /**
  * Hash every admitted sampled value without retaining one film-sized JSON

@@ -43,9 +43,6 @@ export namespace AutoMovieHumanF1TrunkCentre {
    */
   export const SCALE_SHARE: number = 0.5;
 
-  /** Phases a section's area is integrated over. */
-  const ROUND: number = 1440;
-
   /**
    * A family re-expressed about a centre line.
    *
@@ -70,6 +67,9 @@ export namespace AutoMovieHumanF1TrunkCentre {
     /** The base course with its origin on the line, every section plane and chart direction kept. */
     axis: IAutoMovieViewAxis.IAxis;
   }
+
+  /** Phases a section's area is integrated over. */
+  const ROUND: number = 1440;
 
   /**
    * The centroid of a section's area in its chart, `[u, v]` mm about the point the section is charted about.

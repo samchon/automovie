@@ -12,8 +12,6 @@ import type {
 
 import { AutoMovieHumanLoftMesh } from "../../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
-
-type Vec3 = AutoMovieVector3Tuple;
 const {
   sub,
   plus: add,
@@ -223,3 +221,5 @@ export namespace AutoMovieHumanWebMesh {
     return { rings, construction };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

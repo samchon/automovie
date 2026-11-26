@@ -15,8 +15,6 @@ import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
 import { AutoMovieHumanFootToeSection } from "./AutoMovieHumanFootToeSection";
 import { AutoMovieHumanFootToeStations } from "./AutoMovieHumanFootToeStations";
 
-type Vec3 = AutoMovieVector3Tuple;
-
 /**
  * A toe's loft chain: its sections ({@link AutoMovieHumanFootToeSection})
  * square to its line, from the tip up, at the toe's own stations
@@ -127,6 +125,8 @@ export namespace AutoMovieHumanFootToeChain {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;
 
 /** Length step of a toe's layers' slopes, mm. */
 const SLOPE_STEP: number = 0.05;

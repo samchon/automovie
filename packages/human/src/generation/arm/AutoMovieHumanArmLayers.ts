@@ -11,8 +11,6 @@ import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanHandSide } from "../hand/AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
-
-type Vec3 = AutoMovieVector3Tuple;
 const { dot, mean, norm, scale, sub, TWO_PI }: typeof AutoMovieHumanHandVector =
   AutoMovieHumanHandVector;
 
@@ -136,3 +134,5 @@ export namespace AutoMovieHumanArmLayers {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

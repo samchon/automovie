@@ -13,8 +13,8 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { validateBlockingAnchors } from "../validateBlockingAnchors";
-import { validateBlockingClock } from "../validateBlockingClock";
+import { validateBlockingAnchors } from "./validateBlockingAnchors";
+import { validateBlockingClock } from "./validateBlockingClock";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**

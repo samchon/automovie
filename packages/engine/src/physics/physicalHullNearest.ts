@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { readPhysicalHullPoint } from "./readPhysicalHullPoint";
+import { readPhysicalHullPoint } from "./internal/readPhysicalHullPoint";
 
 /**
  * Read only signed metres from the same hull query. Every plane/edge test,

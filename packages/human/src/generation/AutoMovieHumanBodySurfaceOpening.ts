@@ -19,7 +19,6 @@ import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanEyelidSurface } from "./AutoMovieHumanEyelidSurface";
 
 const { chain, interval } = AutoMovieHumanBodySurfaceRead;
-type IPoint = IAutoMovieHumanApertureSpan.IPoint;
 
 /**
  * An opening closed from its trim (`AutoMovieHumanApertureSpan`): the rim's
@@ -306,3 +305,4 @@ export namespace AutoMovieHumanBodySurfaceOpening {
     return edge;
   }
 }
+type IPoint = IAutoMovieHumanApertureSpan.IPoint;

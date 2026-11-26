@@ -10,10 +10,10 @@ import type {
 
 import { support } from "../actions/support";
 import { poseBones } from "../posture/poseBones";
-import { treeClimbDrop } from "./treeClimbDrop";
-import { treeClimbRoute } from "./treeClimbRoute";
-import { treeClimbRouteExpand } from "./treeClimbRouteExpand";
-import { treeLimbs } from "./treeLimbs";
+import { treeClimbDrop } from "./treeClimb/treeClimbDrop";
+import { treeClimbRoute } from "./treeClimb/treeClimbRoute";
+import { treeClimbRouteExpand } from "./treeClimb/treeClimbRouteExpand";
+import { treeLimbs } from "./treeClimb/treeLimbs";
 
 /**
  * How far from the bole's face the climber stands on the ground, metres

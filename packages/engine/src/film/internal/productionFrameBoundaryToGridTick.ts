@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
-import { roundProductionGridTick } from "../roundProductionGridTick";
+import { roundProductionGridTick } from "./roundProductionGridTick";
 
 /**
  * Map one non-negative film-frame boundary onto a destination integer clock,

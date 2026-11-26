@@ -16,7 +16,7 @@ import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
-import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
+import { stabilizePhysicalJointReturn } from "./internal/stabilizePhysicalJointReturn";
 
 /**
  * Switch native ownership at declared subtree boundaries. Activation retains

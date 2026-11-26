@@ -98,18 +98,6 @@ export namespace AutoMovieHumanHandPalm {
     };
   }
 
-  /** One physical reference plane in capture-world millimetres. */
-  interface IPhysicalPlane {
-    /** Absolute capture-world millimetre origin. */
-    origin: AutoMovieVector3Tuple;
-    /** Unit first tangent in capture-world axes. */
-    u: AutoMovieVector3Tuple;
-    /** Unit second tangent after the native chart reflection. */
-    v: AutoMovieVector3Tuple;
-    /** Distal normal derived from the retained chart handedness. */
-    normal: AutoMovieVector3Tuple;
-  }
-
   /** The recorded chart after converting its handedness to capture world. */
   function physicalPlane(
     row: IAutoMovieHumanHandPalm.IFixedSection,
@@ -669,5 +657,17 @@ export namespace AutoMovieHumanHandPalm {
         prior.palmSection.order,
       ),
     };
+  }
+
+  /** One physical reference plane in capture-world millimetres. */
+  interface IPhysicalPlane {
+    /** Absolute capture-world millimetre origin. */
+    origin: AutoMovieVector3Tuple;
+    /** Unit first tangent in capture-world axes. */
+    u: AutoMovieVector3Tuple;
+    /** Unit second tangent after the native chart reflection. */
+    v: AutoMovieVector3Tuple;
+    /** Distal normal derived from the retained chart handedness. */
+    normal: AutoMovieVector3Tuple;
   }
 }

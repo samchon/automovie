@@ -13,50 +13,6 @@ const ROOT_ACCURACY: number = 1e-3;
 /** Bounded phase refinements are independent of rendering resolution. */
 const MAX_PHASES: number = 1024;
 
-/** Own footprint coordinates with the actual parent contact interval. */
-interface FootprintContact {
-  /** World height, mm. */
-  y: number;
-  /** World across coordinate, mm. */
-  z: number;
-  /** Actual composite original-parent interval. */
-  chord: IAutoMovieHumanGlutealParent.IChord;
-}
-
-/** A sampled limiting AP boundary and its exact queried footprint phase. */
-interface RootLimit {
-  /**
-   * Null is the independent central wall constraint, rather than a footprint
-   * sample.
-   */
-  footprintPhase: number | null;
-  /**
-   * Identical original source owner, physical station, phase and world AP
-   * position.
-   */
-  boundary: IAutoMovieHumanGlutealParent.IBoundary;
-}
-
-/**
- * One completed numerical grid, retained only for a failed refinement's
- * provenance.
- */
-interface RootRefinement {
-  /** Uniform footprint phase count. */
-  phases: number;
-  /** Common AP interval, calibration mm. */
-  interval: [number, number];
-  /**
-   * Largest change from the preceding nested grid, mm; absent on the first
-   * grid.
-   */
-  change: number | null;
-  /** Source-owned limiting back boundary or independent central wall. */
-  lower: RootLimit;
-  /** Source-owned limiting front boundary. */
-  upper: RootLimit;
-}
-
 /** A gluteal root/contact derived from its actual composite original parent. */
 export namespace AutoMovieHumanGlutealConnection {
   /**
@@ -216,4 +172,48 @@ export namespace AutoMovieHumanGlutealConnection {
       },
     )}`;
   }
+}
+
+/** Own footprint coordinates with the actual parent contact interval. */
+interface FootprintContact {
+  /** World height, mm. */
+  y: number;
+  /** World across coordinate, mm. */
+  z: number;
+  /** Actual composite original-parent interval. */
+  chord: IAutoMovieHumanGlutealParent.IChord;
+}
+
+/** A sampled limiting AP boundary and its exact queried footprint phase. */
+interface RootLimit {
+  /**
+   * Null is the independent central wall constraint, rather than a footprint
+   * sample.
+   */
+  footprintPhase: number | null;
+  /**
+   * Identical original source owner, physical station, phase and world AP
+   * position.
+   */
+  boundary: IAutoMovieHumanGlutealParent.IBoundary;
+}
+
+/**
+ * One completed numerical grid, retained only for a failed refinement's
+ * provenance.
+ */
+interface RootRefinement {
+  /** Uniform footprint phase count. */
+  phases: number;
+  /** Common AP interval, calibration mm. */
+  interval: [number, number];
+  /**
+   * Largest change from the preceding nested grid, mm; absent on the first
+   * grid.
+   */
+  change: number | null;
+  /** Source-owned limiting back boundary or independent central wall. */
+  lower: RootLimit;
+  /** Source-owned limiting front boundary. */
+  upper: RootLimit;
 }

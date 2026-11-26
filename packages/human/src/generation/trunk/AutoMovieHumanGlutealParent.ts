@@ -21,17 +21,6 @@ import type {
 
 import { AutoMovieHumanGlutealCut } from "./AutoMovieHumanGlutealCut";
 
-/** A calibration-mm point or dimensionless direction. */
-type Vec3 = AutoMovieVector3Tuple;
-
-/** One admitted original source, before lofting or Boolean assembly. */
-interface Field {
-  /** Identical original production part, including its actual frame owner. */
-  part: IAutoMovieViewPart;
-  /** Prepared original scalar/fullness/cap owner. */
-  source: IAutoMovieLoftViewSource.ISource;
-}
-
 /** Existing scalar meeting accuracy, in calibration millimetres. */
 const TOLERANCE: number = 1e-9;
 
@@ -127,6 +116,17 @@ export namespace AutoMovieHumanGlutealParent {
       },
     };
   }
+}
+
+/** A calibration-mm point or dimensionless direction. */
+type Vec3 = AutoMovieVector3Tuple;
+
+/** One admitted original source, before lofting or Boolean assembly. */
+interface Field {
+  /** Identical original production part, including its actual frame owner. */
+  part: IAutoMovieViewPart;
+  /** Prepared original scalar/fullness/cap owner. */
+  source: IAutoMovieLoftViewSource.ISource;
 }
 
 /**

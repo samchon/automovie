@@ -13,11 +13,11 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { combinePhysicalMassProperties } from "./combinePhysicalMassProperties";
+import { combinePhysicalMassProperties } from "./internal/combinePhysicalMassProperties";
 import { derivePhysicalModelJoints } from "./derivePhysicalModelJoints";
 import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
-import { primitiveCentroid } from "./primitiveCentroid";
-import { primitiveVolume } from "./primitiveVolume";
+import { primitiveCentroid } from "./internal/primitiveCentroid";
+import { primitiveVolume } from "./internal/primitiveVolume";
 import { validatePhysicalProfile } from "./validatePhysicalProfile";
 
 /**

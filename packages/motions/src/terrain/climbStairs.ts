@@ -35,19 +35,19 @@ import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { climbStairsBounds } from "./climbStairsBounds";
-import { climbStairsCarry } from "./climbStairsCarry";
-import { climbStairsFeet } from "./climbStairsFeet";
-import { climbStairsFlight } from "./climbStairsFlight";
-import { climbStairsPelvis } from "./climbStairsPelvis";
-import { climbStairsPlants } from "./climbStairsPlants";
-import { climbStairsPrints } from "./climbStairsPrints";
-import { climbStairsProfile } from "./climbStairsProfile";
-import { climbStairsRail } from "./climbStairsRail";
-import { climbStairsRocker } from "./climbStairsRocker";
-import { climbStairsSwing } from "./climbStairsSwing";
-import { climbStairsToes } from "./climbStairsToes";
-import { climbStairsWeight } from "./climbStairsWeight";
+import { climbStairsBounds } from "./stairs/climbStairsBounds";
+import { climbStairsCarry } from "./stairs/climbStairsCarry";
+import { climbStairsFeet } from "./stairs/climbStairsFeet";
+import { climbStairsFlight } from "./stairs/climbStairsFlight";
+import { climbStairsPelvis } from "./stairs/climbStairsPelvis";
+import { climbStairsPlants } from "./stairs/climbStairsPlants";
+import { climbStairsPrints } from "./stairs/climbStairsPrints";
+import { climbStairsProfile } from "./stairs/climbStairsProfile";
+import { climbStairsRail } from "./stairs/climbStairsRail";
+import { climbStairsRocker } from "./stairs/climbStairsRocker";
+import { climbStairsSwing } from "./stairs/climbStairsSwing";
+import { climbStairsToes } from "./stairs/climbStairsToes";
+import { climbStairsWeight } from "./stairs/climbStairsWeight";
 
 /**
  * Climbing a flight of stairs up or down from standing before its first nosing,

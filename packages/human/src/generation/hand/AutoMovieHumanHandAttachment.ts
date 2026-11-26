@@ -15,19 +15,6 @@ import { AutoMovieHumanHandParentRead } from "./AutoMovieHumanHandParentRead";
 import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
 
 /**
- * Selected skin datum and the original joint's separate coordinate
- * availability.
- */
-interface Placement {
-  /** Supported source skin root, calibration mm. */
-  root: AutoMovieVector3Tuple;
-  /** Actual parent material section at that root. */
-  section: IAutoMovieHumanHandAttachment.ISection;
-  /** Original anatomical joint coordinate, with unavailability preserved. */
-  jointSection: IAutoMovieHumanHandAttachment.ISection | null;
-}
-
-/**
  * Parent-owned hand attachments, before either side is lofted.
  *
  * The palm's +u is radial breadth; its +v is palmar/dorsal depth. A digit
@@ -208,6 +195,19 @@ export namespace AutoMovieHumanHandAttachment {
   ): IAutoMovieHumanHandAttachment.ISection | null {
     return AutoMovieHumanHandParentRead.locate(parent, point);
   }
+}
+
+/**
+ * Selected skin datum and the original joint's separate coordinate
+ * availability.
+ */
+interface Placement {
+  /** Supported source skin root, calibration mm. */
+  root: AutoMovieVector3Tuple;
+  /** Actual parent material section at that root. */
+  section: IAutoMovieHumanHandAttachment.ISection;
+  /** Original anatomical joint coordinate, with unavailability preserved. */
+  jointSection: IAutoMovieHumanHandAttachment.ISection | null;
 }
 
 /** The parent depth chord is along +v at fixed radial +u, not the old +u span. */

@@ -15,8 +15,6 @@ import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanThumbBones } from "./AutoMovieHumanThumbBones";
-
-type Vec3 = AutoMovieVector3Tuple;
 const { sub, norm }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 const { STYLION }: typeof AutoMovieHumanHandJoints = AutoMovieHumanHandJoints;
@@ -82,3 +80,5 @@ export namespace AutoMovieHumanHandFingers {
     );
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
-import { roundProductionGridTick } from "../film/roundProductionGridTick";
+import { roundProductionGridTick } from "../film/internal/roundProductionGridTick";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 
 /** Build a music-only sample gain curve for adopted dialogue on the film clock. */

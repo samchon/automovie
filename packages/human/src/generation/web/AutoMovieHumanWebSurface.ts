@@ -9,8 +9,6 @@ import type {
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
-
-type Vec3 = AutoMovieVector3Tuple;
 const {
   sub,
   plus: add,
@@ -178,6 +176,8 @@ export namespace AutoMovieHumanWebSurface {
     return { levelOf, rowOf, lip, chart, plainAt };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;
 
 /** A web column's end levels and its chart's points there. */
 interface IEnds {

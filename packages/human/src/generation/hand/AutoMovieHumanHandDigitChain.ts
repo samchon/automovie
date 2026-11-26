@@ -13,8 +13,6 @@ import { AutoMovieHumanLimbFrame } from "../AutoMovieHumanLimbFrame";
 import { AutoMovieHumanDigitStations } from "./AutoMovieHumanDigitStations";
 import { AutoMovieHumanHandSide } from "./AutoMovieHumanHandSide";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
-
-type Vec3 = AutoMovieVector3Tuple;
 const { sub, norm, unit }: typeof AutoMovieHumanHandVector =
   AutoMovieHumanHandVector;
 const { sidedFrame, reflect }: typeof AutoMovieHumanHandSide =
@@ -134,3 +132,5 @@ export namespace AutoMovieHumanHandDigitChain {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

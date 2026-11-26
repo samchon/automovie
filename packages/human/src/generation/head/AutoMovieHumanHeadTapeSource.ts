@@ -10,27 +10,6 @@ import type {
 
 import { AutoMovieHumanHeadTapeStation } from "./AutoMovieHumanHeadTapeStation";
 
-/** One numerical trial and the exact source used at that station. */
-interface ILocated {
-  /** Actual selected physical station, calibration mm. */
-  station: number;
-
-  /**
-   * Present after numerical inversion; exact anchors request their own station
-   * directly.
-   */
-  source?: IAutoMovieHumanHeadTapeStation.IPrepared;
-}
-
-/** An original plane residual and its same-trial numeric source. */
-interface IResidual {
-  /** Actual world-plane residual, calibration mm. */
-  value: number;
-
-  /** Exact scalar/native station used to compute that residual. */
-  source: IAutoMovieHumanHeadTapeStation.IPrepared;
-}
-
 /**
  * Actual oblique head-tape courses on the original native generating field.
  *
@@ -324,4 +303,25 @@ export namespace AutoMovieHumanHeadTapeSource {
       "Head tape original plane inverse did not resolve within its numerical budget",
     );
   }
+}
+
+/** One numerical trial and the exact source used at that station. */
+interface ILocated {
+  /** Actual selected physical station, calibration mm. */
+  station: number;
+
+  /**
+   * Present after numerical inversion; exact anchors request their own station
+   * directly.
+   */
+  source?: IAutoMovieHumanHeadTapeStation.IPrepared;
+}
+
+/** An original plane residual and its same-trial numeric source. */
+interface IResidual {
+  /** Actual world-plane residual, calibration mm. */
+  value: number;
+
+  /** Exact scalar/native station used to compute that residual. */
+  source: IAutoMovieHumanHeadTapeStation.IPrepared;
 }

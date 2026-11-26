@@ -21,35 +21,6 @@ const { lerp, normalize, plus, scale, sub } = AutoMovieHumanLegVector;
  * The loop is read at the leg's phases about the ring's centre.
  */
 export namespace AutoMovieHumanLegCrotchFillet {
-  /** A point of the trunk's arc read at a length along it. */
-  interface IPlace {
-    /** The point. */
-    p: AutoMovieVector3Tuple;
-
-    /** The trunk's station derivative there, per mm up. */
-    d: AutoMovieVector3Tuple;
-
-    /** The trunk's second station derivative there. */
-    e: AutoMovieVector3Tuple;
-
-    /** Unit tangent of the arc there, in its own order. */
-    t: AutoMovieVector3Tuple;
-  }
-
-  /** One run of the loop's samples with what they carry. */
-  interface IRun {
-    /** Points. */
-    points: AutoMovieVector3Tuple[];
-
-    /** The trunk's station derivative carried along, per mm up. */
-    rates: AutoMovieVector3Tuple[];
-
-    /** The trunk's second station derivative carried along. */
-    seconds: AutoMovieVector3Tuple[];
-
-    /** Distance along the arc to the nearer pinch, carried along. */
-    edges: number[];
-  }
 
   /** Largest share of the slit or the arc a corner may take. */
   export const CORNER_SHARE: number = 0.45;
@@ -258,5 +229,34 @@ export namespace AutoMovieHumanLegCrotchFillet {
       );
     }
     return out;
+  }
+  /** A point of the trunk's arc read at a length along it. */
+  interface IPlace {
+    /** The point. */
+    p: AutoMovieVector3Tuple;
+
+    /** The trunk's station derivative there, per mm up. */
+    d: AutoMovieVector3Tuple;
+
+    /** The trunk's second station derivative there. */
+    e: AutoMovieVector3Tuple;
+
+    /** Unit tangent of the arc there, in its own order. */
+    t: AutoMovieVector3Tuple;
+  }
+
+  /** One run of the loop's samples with what they carry. */
+  interface IRun {
+    /** Points. */
+    points: AutoMovieVector3Tuple[];
+
+    /** The trunk's station derivative carried along, per mm up. */
+    rates: AutoMovieVector3Tuple[];
+
+    /** The trunk's second station derivative carried along. */
+    seconds: AutoMovieVector3Tuple[];
+
+    /** Distance along the arc to the nearer pinch, carried along. */
+    edges: number[];
   }
 }

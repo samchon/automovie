@@ -21,8 +21,6 @@ import { AutoMovieHumanHandFingers } from "./AutoMovieHumanHandFingers";
 import { AutoMovieHumanHandMap } from "./AutoMovieHumanHandMap";
 import { AutoMovieHumanHandPalm } from "./AutoMovieHumanHandPalm";
 import { AutoMovieHumanHandSolve } from "./AutoMovieHumanHandSolve";
-
-type Vec3 = AutoMovieVector3Tuple;
 const { handPoint }: typeof AutoMovieHumanHandMap = AutoMovieHumanHandMap;
 const { digitsOf }: typeof AutoMovieHumanHandFingers =
   AutoMovieHumanHandFingers;
@@ -149,3 +147,5 @@ export namespace AutoMovieHumanHandSkinTargets {
     return targets;
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

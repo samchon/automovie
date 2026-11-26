@@ -15,7 +15,7 @@ import { buildAutoMovieConvexHull } from "./buildAutoMovieConvexHull";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
 import { measureAutoMovieMeshPieces } from "./measureAutoMovieMeshPieces";
 import { measureAutoMovieModelContacts } from "./measureAutoMovieModelContacts";
-import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
+import { placeAutoMovieModelPartMesh } from "./internal/placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 

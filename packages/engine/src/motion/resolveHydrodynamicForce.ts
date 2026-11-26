@@ -5,7 +5,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
-import { physicalHullFacesMass } from "../physics/physicalHullFacesMass";
+import { physicalHullFacesMass } from "../physics/internal/physicalHullFacesMass";
 import { physicalShapeHull } from "../physics/physicalShapeHull";
 
 /**

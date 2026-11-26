@@ -16,7 +16,7 @@ import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { solveXpbdArticulation } from "./solveXpbdArticulation";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
-import { solveXpbdJointTree } from "./solveXpbdJointTree";
+import { solveXpbdJointTree } from "./internal/solveXpbdJointTree";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
 
 /**

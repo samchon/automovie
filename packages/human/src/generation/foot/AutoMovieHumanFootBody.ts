@@ -18,8 +18,6 @@ import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
 import { AutoMovieHumanFootSectionJets } from "./AutoMovieHumanFootSectionJets";
 import { AutoMovieHumanFootSectors } from "./AutoMovieHumanFootSectors";
 
-type Vec2 = AutoMovieVector2Tuple;
-
 /**
  * The foot's body from the web ring to the ankle ring, composed of its pieces.
  *
@@ -226,6 +224,8 @@ export namespace AutoMovieHumanFootBody {
     };
   }
 }
+
+type Vec2 = AutoMovieVector2Tuple;
 
 /**
  * Control points of each of the body's five pieces: dorsal-lateral,

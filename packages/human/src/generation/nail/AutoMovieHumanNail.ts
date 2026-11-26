@@ -89,33 +89,6 @@ export namespace AutoMovieHumanNail {
     return [a[0] / n, a[1] / n, a[2] / n];
   };
 
-  /** One section of the plate, in its own chart about its crown. */
-  interface ISection {
-    /** The edge's distance from the median line, mm. */
-    edge: number;
-
-    /** The side extreme's distance from the median line, mm. */
-    side: number;
-
-    /** How far the side extreme stands under the crown, mm. */
-    drop: number;
-
-    /** The middle weight of the upper face's conic from the crown to the side extreme. */
-    weight: number;
-
-    /** How far the edge stands under the crown, mm. */
-    sagitta: number;
-
-    /** The section's turn about the plate's course from the nail's dorsal direction toward its lateral, radians. */
-    turn: number;
-
-    /** How far the plate's edge lies under the mean of the skin's two edges there, mm; negative where it stands over them. */
-    under: number;
-
-    /** Half the skin's breadth there, mm. */
-    reach: number;
-  }
-
   /** Stations along the bed the nail's frame is fitted over. */
   const BED: number = 9;
 
@@ -174,27 +147,6 @@ export namespace AutoMovieHumanNail {
   export function step(t: number): number {
     const x: number = Math.max(0, Math.min(1, t));
     return x * x * x * (10 + x * (-15 + 6 * x));
-  }
-
-  /** A skin read in a frame: `[along the distal axis, dorsal height, lateral]` from the frame's origin. */
-  interface IReader {
-    /** The frame's lateral direction, `distal x dorsal`. */
-    lateral: AutoMovieVector3Tuple;
-
-    /** The chart point's frame coordinates. */
-    at: (station: number, phase: number) => AutoMovieVector3Tuple;
-
-    /** The station whose point at a phase stands a distance along the distal axis. */
-    station: (x: number, phase: number) => number;
-
-    /** The phase and station of the dorsal skin at a distance along and a lateral offset. */
-    find: (x: number, z: number) => { station: number; phase: number; height: number };
-
-    /** The skin's ring a distance along, at `RING` equal steps of phase from 0. */
-    ring: (x: number) => AutoMovieVector3Tuple[];
-
-    /** The skin's lateral extent at a distance along: `[least, greatest]`. */
-    extent: (x: number) => [number, number];
   }
 
   /** Read a skin in a frame. */
@@ -813,5 +765,53 @@ export namespace AutoMovieHumanNail {
         levelling,
       },
     };
+  }
+
+  /** One section of the plate, in its own chart about its crown. */
+  interface ISection {
+    /** The edge's distance from the median line, mm. */
+    edge: number;
+
+    /** The side extreme's distance from the median line, mm. */
+    side: number;
+
+    /** How far the side extreme stands under the crown, mm. */
+    drop: number;
+
+    /** The middle weight of the upper face's conic from the crown to the side extreme. */
+    weight: number;
+
+    /** How far the edge stands under the crown, mm. */
+    sagitta: number;
+
+    /** The section's turn about the plate's course from the nail's dorsal direction toward its lateral, radians. */
+    turn: number;
+
+    /** How far the plate's edge lies under the mean of the skin's two edges there, mm; negative where it stands over them. */
+    under: number;
+
+    /** Half the skin's breadth there, mm. */
+    reach: number;
+  }
+
+  /** A skin read in a frame: `[along the distal axis, dorsal height, lateral]` from the frame's origin. */
+  interface IReader {
+    /** The frame's lateral direction, `distal x dorsal`. */
+    lateral: AutoMovieVector3Tuple;
+
+    /** The chart point's frame coordinates. */
+    at: (station: number, phase: number) => AutoMovieVector3Tuple;
+
+    /** The station whose point at a phase stands a distance along the distal axis. */
+    station: (x: number, phase: number) => number;
+
+    /** The phase and station of the dorsal skin at a distance along and a lateral offset. */
+    find: (x: number, z: number) => { station: number; phase: number; height: number };
+
+    /** The skin's ring a distance along, at `RING` equal steps of phase from 0. */
+    ring: (x: number) => AutoMovieVector3Tuple[];
+
+    /** The skin's lateral extent at a distance along: `[least, greatest]`. */
+    extent: (x: number) => [number, number];
   }
 }

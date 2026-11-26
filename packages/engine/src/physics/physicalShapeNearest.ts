@@ -5,7 +5,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalShapeQuery } from "./physicalShapeQuery";
+import { physicalShapeQuery } from "./internal/physicalShapeQuery";
 
 /**
  * Where a world segment comes nearest an admitted sphere, Y capsule, oriented

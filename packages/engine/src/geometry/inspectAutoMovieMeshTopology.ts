@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/internal/createMeshEdgeKey";
-import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
+import { weldAutoMovieMeshCorners } from "./internal/weldAutoMovieMeshCorners";
 
 /**
  * Measure a mesh's triangle topology and signed volume from its actual buffers

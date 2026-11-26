@@ -14,9 +14,6 @@ import { AutoMovieHumanWalkPart } from "../limb/AutoMovieHumanWalkPart";
 import { AutoMovieHumanLegDistal } from "./AutoMovieHumanLegDistal";
 import { AutoMovieHumanLegProximal } from "./AutoMovieHumanLegProximal";
 
-/** A calibration-mm point or a unit course direction. */
-type Vec3 = AutoMovieVector3Tuple;
-
 /**
  * One leg as one walk over the femur and the tibia (#3048): straight along each
  * bone's mechanical axis at the neutral pose, the knee a C2 turn over its own
@@ -354,3 +351,6 @@ export namespace AutoMovieHumanLegWalk {
     });
   }
 }
+
+/** A calibration-mm point or a unit course direction. */
+type Vec3 = AutoMovieVector3Tuple;

@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMoviePhysicsCache as Cache } from "./AutoMoviePhysicsCache";
-import { physicalProfileWithoutHulls } from "./physicalProfileWithoutHulls";
+import { physicalProfileWithoutHulls } from "./internal/physicalProfileWithoutHulls";
 
 /**
  * An unchanged prefix is established from actual data, never from an edit-time

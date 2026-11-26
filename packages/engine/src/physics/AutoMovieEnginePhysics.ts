@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieFootfallPattern,
   IAutoMovieModel,
@@ -12,15 +12,15 @@
 } from "@automovie/interface";
 
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import { bodyCenterOfMass } from "./bodyCenterOfMass";
-import { combinePhysicalMassProperties } from "./combinePhysicalMassProperties";
-import { deriveCenterOfMass as derivePhysicalCenterOfMass } from "./deriveCenterOfMass";
-import { physicalHullFacesMass } from "./physicalHullFacesMass";
-import { physicalHullMass } from "./physicalHullMass";
-import { physicalShapePairContact } from "./physicalShapePairContact";
-import { physicalSupportFootprint } from "./physicalSupportFootprint";
-import { primitiveCentroid as readPrimitiveCentroid } from "./primitiveCentroid";
-import { primitiveVolume as readPrimitiveVolume } from "./primitiveVolume";
+import { bodyCenterOfMass } from "./internal/bodyCenterOfMass";
+import { combinePhysicalMassProperties } from "./internal/combinePhysicalMassProperties";
+import { deriveCenterOfMass as derivePhysicalCenterOfMass } from "./internal/deriveCenterOfMass";
+import { physicalHullFacesMass } from "./internal/physicalHullFacesMass";
+import { physicalHullMass } from "./internal/physicalHullMass";
+import { physicalShapePairContact } from "./internal/physicalShapePairContact";
+import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
+import { primitiveCentroid as readPrimitiveCentroid } from "./internal/primitiveCentroid";
+import { primitiveVolume as readPrimitiveVolume } from "./internal/primitiveVolume";
 
 /** Neutral contact, mass and support geometry operations. */
 export namespace AutoMovieEnginePhysics {

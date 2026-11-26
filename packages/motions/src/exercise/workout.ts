@@ -50,12 +50,12 @@ import { WorkoutStanding } from "./WorkoutStanding";
 import { WorkoutSupport } from "./WorkoutSupport";
 import { hangRings } from "./hangRings";
 import { prepareWorkoutBlends } from "./prepareWorkoutBlends";
-import { workoutContacts } from "./workoutContacts";
-import { workoutFloorClearance } from "./workoutFloorClearance";
-import { workoutFloorStance } from "./workoutFloorStance";
-import { workoutLaidHands } from "./workoutLaidHands";
-import { workoutSpans } from "./workoutSpans";
-import { workoutWallSit } from "./workoutWallSit";
+import { workoutContacts } from "./workout/workoutContacts";
+import { workoutFloorClearance } from "./workout/workoutFloorClearance";
+import { workoutFloorStance } from "./workout/workoutFloorStance";
+import { workoutLaidHands } from "./workout/workoutLaidHands";
+import { workoutSpans } from "./workout/workoutSpans";
+import { workoutWallSit } from "./workout/workoutWallSit";
 
 /**
  * An exercise, a stretch or a pose done on a support that is not only the feet,

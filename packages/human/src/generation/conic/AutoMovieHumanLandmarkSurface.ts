@@ -12,7 +12,6 @@
  * trunk and the arm by that surface, and the figure cuts the arm's own skin by the same surface to find where the two meet.
  */
 export namespace AutoMovieHumanLandmarkSurface {
-  type V = readonly number[];
 
   /**
    * The surface.
@@ -123,4 +122,5 @@ export namespace AutoMovieHumanLandmarkSurface {
       },
     };
   }
+  type V = readonly number[];
 }

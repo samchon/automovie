@@ -9,9 +9,6 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-/** Source value with first/second physical-station derivatives. */
-type Scalar = [number, number, number];
-
 /**
  * A toe's origin and plantar edge as one same-clock linear source combination.
  *
@@ -208,6 +205,9 @@ export namespace AutoMovieHumanToeVertical {
     };
   }
 }
+
+/** Source value with first/second physical-station derivatives. */
+type Scalar = [number, number, number];
 
 /** Convert actual physical jets through the selected angle clock into normalized source jets. */
 function convert(

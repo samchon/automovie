@@ -30,8 +30,6 @@ import { AutoMovieHumanLegSection } from "./AutoMovieHumanLegSection";
 import { AutoMovieHumanLegSectionLaw } from "./AutoMovieHumanLegSectionLaw";
 import { AutoMovieHumanLegStations } from "./AutoMovieHumanLegStations";
 import { AutoMovieHumanLegVector } from "./AutoMovieHumanLegVector";
-
-type Vec3 = AutoMovieVector3Tuple;
 const { lerp, norm, sub } = AutoMovieHumanLegVector;
 
 /**
@@ -574,3 +572,5 @@ export namespace AutoMovieHumanLegChain {
     );
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

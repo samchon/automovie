@@ -20,7 +20,7 @@ import type { physicalIcpController } from "./physicalIcpController";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalStanceDemand } from "./physicalStanceDemand";
 import { physicalStanceSwing } from "./physicalStanceSwing";
-import { physicalSupportFootprint } from "./physicalSupportFootprint";
+import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 
 /**
  * The root's demand under internal actuation (`trackPhysicalRoot`): the

@@ -6,7 +6,7 @@ import type {
   IAutoMovieSequenceEntry,
 } from "@automovie/interface";
 
-import { exactPlaybackHardCut } from "../exactPlaybackHardCut";
+import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { playbackEntryAt } from "./playbackEntryAt";
 import { playbackSampleAt } from "./playbackSampleAt";
 

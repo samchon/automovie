@@ -25,7 +25,48 @@ import type {
  * fold's law, so the cap needs no band to turn and the armpit no cutter.
  */
 export namespace AutoMovieHumanF1Armscye {
-  type V = [number, number, number];
+
+  /**
+   * The generated contact.
+   *
+   * @evidence contracts/development/design.md#principled-representation The loop as the engine admits it, the two chart points a point seed names, and the two readings the join's tolerance and an inspection need.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member is read by the figure's join or by the pre-check tool.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The gap is reported, never folded into the loop.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state charts and units.
+   */
+  export interface IContact {
+    /** The loop on the trunk's chart, `count` shares about its own centre. */
+    loop: IAutoMovieConstructionPortLoop;
+
+    /** The arm's chart point `[station m, phase rad]` of the loop's point at clock 0. */
+    part: [number, number];
+
+    /** The trunk's chart point `[station m, phase rad]` at clock 0. */
+    host: [number, number];
+
+    /** The largest distance between the arm's face and the trunk's skin on the loop, mm: what the join's tolerance must admit. */
+    gap: number;
+
+    /** The loop's station on the arm's course at each arm phase read, mm, after fairing. */
+    stations: number[];
+  }
+
+  /**
+   * How the contact's station is sought at each phase of the part: about a ring of the part (`ring`, the crossing nearest it within
+   * `near` mm of its course, and the ring itself where there is none), or as the last station at which the part's station line leaves
+   * the host within `within` mm of the face's start (`outermost`), for a part whose course leaves the host obliquely; or where the
+   * part's station line passes the dividing surface the two parts were fitted either side of (`surface`, positive on the part's side).
+   * The first two read the crossing of the two fitted walls, which is the contact only where both walls are skin: fitted either side
+   * of one surface, the host's wall past it and the part's before it are closures, and their crossing is nobody's curve (measured on
+   * f1: it jumped between arm stations 74 and 119 over the shoulder's cap). The third reads the surface itself, where both are skin
+   * (`AutoMovieHumanJoinLoop`), and is not faired: a skin cut by a smooth surface is a smooth curve.
+   *
+   * @evidence contracts/development/design.md#principled-representation Two closed cases, each with the lengths its search reads.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `create` alone.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default hides which rule a caller chose for another part than the arm.
+   * @evidence contracts/development/common.md#meaningful-documentation Lengths in mm of the part's course.
+   */
+  export type IRule = { type: "ring"; ring: number; near: number } | { type: "outermost"; within: number } | { type: "surface"; side: (p: readonly number[]) => number };
 
   /**
    * The arm's root ring the contact is sought about, mm of the arm's course: one millimetre before its first knot, which stands 2 mm
@@ -89,48 +130,6 @@ export namespace AutoMovieHumanF1Armscye {
    * the weave.
    */
   const FAIR_RAD: number = (15 * Math.PI) / 180;
-
-  /**
-   * The generated contact.
-   *
-   * @evidence contracts/development/design.md#principled-representation The loop as the engine admits it, the two chart points a point seed names, and the two readings the join's tolerance and an inspection need.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Each member is read by the figure's join or by the pre-check tool.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts The gap is reported, never folded into the loop.
-   * @evidence contracts/development/common.md#meaningful-documentation Members state charts and units.
-   */
-  export interface IContact {
-    /** The loop on the trunk's chart, `count` shares about its own centre. */
-    loop: IAutoMovieConstructionPortLoop;
-
-    /** The arm's chart point `[station m, phase rad]` of the loop's point at clock 0. */
-    part: [number, number];
-
-    /** The trunk's chart point `[station m, phase rad]` at clock 0. */
-    host: [number, number];
-
-    /** The largest distance between the arm's face and the trunk's skin on the loop, mm: what the join's tolerance must admit. */
-    gap: number;
-
-    /** The loop's station on the arm's course at each arm phase read, mm, after fairing. */
-    stations: number[];
-  }
-
-  /**
-   * How the contact's station is sought at each phase of the part: about a ring of the part (`ring`, the crossing nearest it within
-   * `near` mm of its course, and the ring itself where there is none), or as the last station at which the part's station line leaves
-   * the host within `within` mm of the face's start (`outermost`), for a part whose course leaves the host obliquely; or where the
-   * part's station line passes the dividing surface the two parts were fitted either side of (`surface`, positive on the part's side).
-   * The first two read the crossing of the two fitted walls, which is the contact only where both walls are skin: fitted either side
-   * of one surface, the host's wall past it and the part's before it are closures, and their crossing is nobody's curve (measured on
-   * f1: it jumped between arm stations 74 and 119 over the shoulder's cap). The third reads the surface itself, where both are skin
-   * (`AutoMovieHumanJoinLoop`), and is not faired: a skin cut by a smooth surface is a smooth curve.
-   *
-   * @evidence contracts/development/design.md#principled-representation Two closed cases, each with the lengths its search reads.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Read by `create` alone.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No default hides which rule a caller chose for another part than the arm.
-   * @evidence contracts/development/common.md#meaningful-documentation Lengths in mm of the part's course.
-   */
-  export type IRule = { type: "ring"; ring: number; near: number } | { type: "outermost"; within: number } | { type: "surface"; side: (p: readonly number[]) => number };
 
   /**
    * Generate the contact of an arm on a trunk.
@@ -299,4 +298,5 @@ export namespace AutoMovieHumanF1Armscye {
       stations,
     };
   }
+  type V = [number, number, number];
 }

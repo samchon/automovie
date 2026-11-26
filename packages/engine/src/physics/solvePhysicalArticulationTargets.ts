@@ -1,6 +1,6 @@
 import type { IAutoMovieSolvePhysicalArticulationTargets } from "@automovie/interface";
 
-import { solvePhysicalTargetForest } from "./solvePhysicalTargetForest";
+import { solvePhysicalTargetForest } from "./internal/solvePhysicalTargetForest";
 
 /**
  * Solve a bounded metre residual for one admitted articulation with fixed

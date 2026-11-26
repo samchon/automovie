@@ -12,7 +12,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalStanceBalance } from "./physicalStanceBalance";
-import { physicalSupportFootprint } from "./physicalSupportFootprint";
+import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";

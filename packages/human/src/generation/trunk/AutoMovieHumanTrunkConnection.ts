@@ -21,9 +21,6 @@ import type {
 
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 
-/** A physical-station scalar value and its available first two derivatives. */
-type Scalar = readonly [number, number, number];
-
 /**
  * Transfer the canonical regular neck family into the trunk's original sources,
  * before either loft or tree publication.
@@ -260,6 +257,9 @@ export namespace AutoMovieHumanTrunkConnection {
     }
   }
 }
+
+/** A physical-station scalar value and its available first two derivatives. */
+type Scalar = readonly [number, number, number];
 
 /**
  * Reproduce every old polynomial span by its value/two jets, changing only this

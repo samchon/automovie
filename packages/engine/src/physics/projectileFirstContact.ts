@@ -17,8 +17,8 @@ import { physicalShapeNearest } from "./physicalShapeNearest";
 import { physicalShapeSegmentDistance } from "./physicalShapeSegmentDistance";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
-import { projectilePlaneDeparture } from "./projectilePlaneDeparture";
-import { projectileShapeDeparture } from "./projectileShapeDeparture";
+import { projectilePlaneDeparture } from "./internal/projectilePlaneDeparture";
+import { projectileShapeDeparture } from "./internal/projectileShapeDeparture";
 
 /**
  * A projectile's first contact with any of several colliders over a span of its

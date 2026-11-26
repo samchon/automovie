@@ -20,8 +20,6 @@ import { AutoMovieHumanLoftMesh } from "../lofting/AutoMovieHumanLoftMesh";
 import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 
-type Vec3 = AutoMovieVector3Tuple;
-
 /**
  * The skin of the solids: every chain a merge or diff names, and every face of
  * a published body (`IAutoMovieHumanBodyCalibration.bodies`, merges onto merged
@@ -386,3 +384,5 @@ export namespace AutoMovieHumanBodySurfaceSolids {
     return diagnostics;
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

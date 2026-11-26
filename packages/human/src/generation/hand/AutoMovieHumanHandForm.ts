@@ -12,8 +12,6 @@ import { AutoMovieHumanHandDigitLaw } from "./AutoMovieHumanHandDigitLaw";
 import { AutoMovieHumanHandStar } from "./AutoMovieHumanHandStar";
 import { AutoMovieHumanHandVector } from "./AutoMovieHumanHandVector";
 import { AutoMovieHumanHandWeb } from "./AutoMovieHumanHandWeb";
-
-type Vec3 = AutoMovieVector3Tuple;
 const {
   sub,
   dot,
@@ -455,3 +453,5 @@ export namespace AutoMovieHumanHandForm {
     };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;

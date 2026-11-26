@@ -16,8 +16,6 @@ import type {
 import { AutoMovieHumanSeam } from "../../lofting/AutoMovieHumanSeam";
 import { AutoMovieHumanHandVector } from "../hand/AutoMovieHumanHandVector";
 import { AutoMovieHumanWebCurve } from "./AutoMovieHumanWebCurve";
-
-type Vec3 = AutoMovieVector3Tuple;
 const {
   sub,
   plus: add,
@@ -29,9 +27,6 @@ const {
 }: typeof AutoMovieHumanHandVector = AutoMovieHumanHandVector;
 const { sampled, leaving, H }: typeof AutoMovieHumanWebCurve =
   AutoMovieHumanWebCurve;
-
-/** A column away from the pinches. */
-type Plain = Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>;
 
 /**
  * The second stage of a web's build: every child's columns, and how many rows
@@ -421,3 +416,8 @@ export namespace AutoMovieHumanWebColumns {
     return { children, rows, crestRow };
   }
 }
+
+type Vec3 = AutoMovieVector3Tuple;
+
+/** A column away from the pinches. */
+type Plain = Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>;

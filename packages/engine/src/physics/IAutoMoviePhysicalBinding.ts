@@ -15,7 +15,7 @@ import type {
 
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
-import type { IPhysicalCoupledTargetRun } from "./IPhysicalCoupledTargetRun";
+import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
 import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 
 /**

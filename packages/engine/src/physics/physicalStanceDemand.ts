@@ -19,7 +19,7 @@ import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalStanceHip } from "./physicalStanceHip";
 import { physicalStancePressure } from "./physicalStancePressure";
 import { physicalStanceSupport } from "./physicalStanceSupport";
-import { physicalSupportFootprint } from "./physicalSupportFootprint";
+import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
 
 /** A support limb of the balance pattern. */
 type Limb = IAutoMovieFootfallPattern["limbs"][number];

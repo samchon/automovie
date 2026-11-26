@@ -17,22 +17,6 @@ const TOLERANCE: number = 1e-9;
  */
 const SUBDIVISIONS: number = 8;
 
-/** A station's immutable original section and its actual world plane. */
-interface Station {
-  /** Actual axis frame in calibration millimetres. */
-  frame: ReturnType<IAutoMovieViewPart["axis"]["at"]>;
-  /** Null is the actual collapsed axis point, not a regular section. */
-  point: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
-}
-
-/** One original point, before any loft or tessellation. */
-interface Reading {
-  /** World point in calibration millimetres. */
-  point: AutoMovieVector3Tuple;
-  /** Whether the original section is exactly its zero-radius axis point. */
-  collapsed: boolean;
-}
-
 /** Original horizontal cuts of the same leg field consumed by the pelvis. */
 export namespace AutoMovieHumanGlutealCut {
   /**
@@ -188,6 +172,22 @@ export namespace AutoMovieHumanGlutealCut {
       return `${part.name}: original level cut: ${error instanceof Error ? error.message : String(error)}`;
     }
   }
+}
+
+/** A station's immutable original section and its actual world plane. */
+interface Station {
+  /** Actual axis frame in calibration millimetres. */
+  frame: ReturnType<IAutoMovieViewPart["axis"]["at"]>;
+  /** Null is the actual collapsed axis point, not a regular section. */
+  point: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
+}
+
+/** One original point, before any loft or tessellation. */
+interface Reading {
+  /** World point in calibration millimetres. */
+  point: AutoMovieVector3Tuple;
+  /** Whether the original section is exactly its zero-radius axis point. */
+  collapsed: boolean;
 }
 
 /**
