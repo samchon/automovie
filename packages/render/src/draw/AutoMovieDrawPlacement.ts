@@ -18,14 +18,14 @@ import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IA
 import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
-import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
+import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
 import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection.js";
 
 /**
  * The draw page's placement of its subject: the current inspection, the framing
  * boxes of fitted views and the dialogue mouths handed to the subject.
  *
- * Every placement it makes is a shot planned by `planAutoMovieDrawPicture` and
+ * Every placement it makes is a shot planned by `AutoMovieRenderDraw.planPicture` and
  * placed on its own entry clock by `placeAutoMovieDrawLayer`: the drawn second
  * and each of its trail times as the shot the drawn second's picture shows, and
  * each framing second as the shot its own picture shows. So a trail at a cut's
@@ -156,7 +156,7 @@ export class AutoMovieDrawPlacement {
   ): Promise<IAutoMovieMark[]> {
     const scene: IAutoMovieDrawScene = this.scene;
     const placed: Pick<IAutoMoviePlaybackLayer, "entry" | "shot"> | null =
-      planAutoMovieDrawPicture(this.name, scene, seconds).placed;
+      AutoMovieRenderDraw.planPicture(this.name, scene, seconds).placed;
     const seek: (at: number) => Promise<void> = (at: number): Promise<void> =>
       placeAutoMovieDrawLayer(this.name, scene, placed, at);
     const trails: IAutoMovieInspectionTrail[] = [];

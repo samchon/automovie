@@ -7,8 +7,8 @@ import type {
   IAutoMovieInspectionView,
 } from "@automovie/interface";
 
-import { scaleAutoMovieCaptureLabels } from "../capture/scaleAutoMovieCaptureLabels.js";
-import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
+import { scaleAutoMovieCaptureLabels } from "../../capture/scaleAutoMovieCaptureLabels.js";
+import { parseAutoMovieInspectionView } from "../../scene/inspection/parseAutoMovieInspectionView.js";
 
 /**
  * Turn one planned capture cell into the call a draw page answers: the cell's

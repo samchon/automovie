@@ -1,7 +1,7 @@
 import { playbackEntryAt, playbackShownLayer } from "@automovie/engine";
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
+import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 import { planAutoMovieDrawLayers } from "./planAutoMovieDrawLayers.js";
 
 /**

@@ -7,7 +7,7 @@ import {
   type IAutoMovieDrawScene,
   isAutoMoviePlainBeautyRequest,
   placeAutoMovieDrawLayer,
-  planAutoMovieDrawPicture,
+  AutoMovieRenderDraw,
 } from "@automovie/render";
 import type * as THREE from "three";
 
@@ -16,7 +16,7 @@ import type * as THREE from "three";
  * film picture inside a transition, so the Viewer paints the frame and keeps
  * the records the draw page delivers and captures at the same second.
  *
- * `place` plans the second by `planAutoMovieDrawPicture` and places the shot
+ * `place` plans the second by `AutoMovieRenderDraw.planPicture` and places the shot
  * the picture shows most of last, by `seekShot` when it is a transition's
  * outgoing shot and by `seek` otherwise, so the mount's diagnostics, marks,
  * camera and every non-film picture follow that shot. For a plain `beauty`
@@ -95,8 +95,8 @@ export class AutoMovieInspectorTransition {
     paint: () => void;
   }): Promise<void> {
     const { instance, seconds, compositor }: typeof props = props;
-    const plan: ReturnType<typeof planAutoMovieDrawPicture> =
-      planAutoMovieDrawPicture(props.name, instance, seconds);
+    const plan: ReturnType<typeof AutoMovieRenderDraw.planPicture> =
+      AutoMovieRenderDraw.planPicture(props.name, instance, seconds);
     this.shown_ = plan.shown;
     this.layers_ =
       compositor !== null && isAutoMoviePlainBeautyRequest(props.request)

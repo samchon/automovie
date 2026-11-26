@@ -12,13 +12,13 @@ import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAuto
 import type { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
-import { planAutoMovieDrawPicture } from "./planAutoMovieDrawPicture.js";
+import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
 
 /**
  * One draw call's picture of a subject: which shot it shows, and for a film
  * picture its transition's layers and its shutter and lens samples.
  *
- * The constructor plans the drawn second by `planAutoMovieDrawPicture`: the
+ * The constructor plans the drawn second by `AutoMovieRenderDraw.planPicture`: the
  * shown layer is the shot the picture shows most of, or outside every
  * transition the entry live at the second. The host's `AutoMovieDrawPlacement`
  * places that shot last, so every record of the frame, from marks and trails to
@@ -78,8 +78,8 @@ export class AutoMovieDrawFilm<
   public constructor(
     private readonly props: AutoMovieDrawFilm.IProps<TRenderer>,
   ) {
-    const plan: ReturnType<typeof planAutoMovieDrawPicture> =
-      planAutoMovieDrawPicture(props.name, props.scene, props.seconds);
+    const plan: ReturnType<typeof AutoMovieRenderDraw.planPicture> =
+      AutoMovieRenderDraw.planPicture(props.name, props.scene, props.seconds);
     this.layers = props.film ? plan.layers : null;
     this.shown_ = plan.shown;
     this.placed_ = plan.placed;

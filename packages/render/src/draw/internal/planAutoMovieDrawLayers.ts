@@ -1,7 +1,7 @@
 import { playbackLayersAt } from "@automovie/engine";
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
-import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
+import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
 
 /**
  * The layers a draw subject's film picture composites at a second, outgoing

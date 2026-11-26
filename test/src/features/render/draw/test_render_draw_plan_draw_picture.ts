@@ -2,11 +2,11 @@ import type {
   IAutoMoviePlaybackTimeline,
   IAutoMovieSequence,
 } from "@automovie/interface";
-import { planAutoMovieDrawPicture } from "@automovie/render";
+import { AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieDrawPicture` decides which shots a drawn picture shows.
+ * `AutoMovieRenderDraw.planPicture` decides which shots a drawn picture shows.
  *
  * Scenarios:
  *
@@ -17,7 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    outgoing shot the plan is refused; with one it is planned.
  */
 export function test_render_draw_plan_draw_picture(): void {
-  TestValidator.equals("no sequence", planAutoMovieDrawPicture("hero", {}, 1), {
+  TestValidator.equals("no sequence", AutoMovieRenderDraw.planPicture("hero", {}, 1), {
     layers: null,
     shown: null,
     placed: null,
@@ -43,16 +43,16 @@ export function test_render_draw_plan_draw_picture(): void {
     ],
     runtime: 2,
   };
-  const alone = planAutoMovieDrawPicture("hero", { sequence, cut }, 0.25);
+  const alone = AutoMovieRenderDraw.planPicture("hero", { sequence, cut }, 0.25);
   TestValidator.equals(
     "lone shot",
     [alone.layers, alone.shown, alone.placed?.shot],
     [null, null, "shot:a"],
   );
   TestValidator.error("outgoing cannot be placed", (): void => {
-    planAutoMovieDrawPicture("hero", { sequence, cut }, 0.75);
+    AutoMovieRenderDraw.planPicture("hero", { sequence, cut }, 0.75);
   });
-  const blended = planAutoMovieDrawPicture(
+  const blended = AutoMovieRenderDraw.planPicture(
     "hero",
     { sequence, cut, seekShot: async (): Promise<void> => {} },
     0.75,

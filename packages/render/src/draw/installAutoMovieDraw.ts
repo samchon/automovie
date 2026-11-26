@@ -57,7 +57,7 @@ const SUPERSAMPLE = 2 as const;
  *    frames the union of what the inspection leaves drawn, or its focus,
  *    measured once per view and selection;
  * 3. Plans the second through `AutoMovieDrawFilm`: the shot it shows,
- *    `playbackShownLayer` of the layers `planAutoMovieDrawLayers` gives, and,
+ *    `playbackShownLayer` of the layers `AutoMovieRenderDraw.planLayers` gives, and,
  *    for the film picture, a delivered or plain `beauty` picture or `graphics`
  *    plate, a transition's layers. Every layer of positive weight but the shown
  *    one is placed on its own entry's clock, drawn and held, and a sampled

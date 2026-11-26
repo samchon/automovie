@@ -1,8 +1,11 @@
-import { parseAutoMovieInspectionRequest, planAutoMovieDrawCall } from "@automovie/render";
+import {
+  parseAutoMovieInspectionRequest,
+  AutoMovieRenderDraw,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieDrawCall` turns one capture cell into the call a draw page
+ * `AutoMovieRenderDraw.planCall` turns one capture cell into the call a draw page
  * answers.
  *
  * Scenarios:
@@ -24,7 +27,7 @@ export function test_render_draw_plan_draw_call(): void {
     view,
     request,
   });
-  TestValidator.equals("front", planAutoMovieDrawCall(cell("front"), plan), {
+  TestValidator.equals("front", AutoMovieRenderDraw.planCall(cell("front"), plan), {
     seconds: 2,
     view: "front",
     request,
@@ -35,7 +38,7 @@ export function test_render_draw_plan_draw_call(): void {
   });
   TestValidator.equals(
     "follow",
-    planAutoMovieDrawCall(cell("front@follow"), plan).frame,
+    AutoMovieRenderDraw.planCall(cell("front@follow"), plan).frame,
     [2],
   );
 }

@@ -20,7 +20,7 @@ import type { IAutoMovieDrawPage } from "./IAutoMovieDrawPage.js";
 import type { IAutoMovieDrawPageRequest } from "./IAutoMovieDrawPageRequest.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import { decodeAutoMovieDrawPixels } from "./decodeAutoMovieDrawPixels.js";
-import { planAutoMovieDrawCall } from "./planAutoMovieDrawCall.js";
+import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
 import { stampAutoMovieDrawLegend } from "./stampAutoMovieDrawLegend.js";
 
 /**
@@ -198,7 +198,7 @@ export class AutoMovieDrawSession {
 
   /**
    * The capture run's draw function: draw one planned cell through
-   * `planAutoMovieDrawCall`, returning its picture with the legend of its marks
+   * `AutoMovieRenderDraw.planCall`, returning its picture with the legend of its marks
    * in the top-left corner by `stampAutoMovieDrawLegend`, the legend texts and
    * the inspection's labels for the run to stamp, the session's backend, the
    * resolved camera as JSON with the fixed view text that draws it again, and
@@ -208,7 +208,7 @@ export class AutoMovieDrawSession {
     cell: IAutoMovieCaptureCell,
     plan: Pick<IAutoMovieCapturePlan, "subject" | "times" | "layout">,
   ): Promise<IAutoMovieCaptureDrawing> {
-    const call: IAutoMovieDrawCall = planAutoMovieDrawCall(cell, plan);
+    const call: IAutoMovieDrawCall = AutoMovieRenderDraw.planCall(cell, plan);
     const { picture, result } = await this.draw(call, `Cell ${cell.name}`);
     return {
       picture,

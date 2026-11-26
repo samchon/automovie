@@ -24,7 +24,7 @@ import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
  * frame or a trail at a hard cut shows only the entry's own shot.
  *
  * A subject without `seekShot`, which only a transition requires and whose
- * transitions `planAutoMovieDrawLayers` refuses, has no clock but `seek`: a
+ * transitions `AutoMovieRenderDraw.planLayers` refuses, has no clock but `seek`: a
  * second outside the entry's live span is held at the nearest second the entry
  * is live at, its in-point or the last representable second before the next
  * entry's start, so a cut's first frame shows nothing of the previous shot and
