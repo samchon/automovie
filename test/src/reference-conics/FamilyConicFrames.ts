@@ -1,8 +1,8 @@
+import { AutoMovieHumanSegmentFrame as F } from "@automovie/human";
 import {
   AutoMovieHumanF1Frames,
-  AutoMovieHumanSegmentFrame as F,
   AutoMovieHumanF1Joints as J,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,

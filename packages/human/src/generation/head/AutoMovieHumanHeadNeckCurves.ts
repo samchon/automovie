@@ -261,7 +261,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
       [rho, rho, rho, rho],
     );
     const prepared: number = performance.now();
-    const fault: string | null = AutoMovieViewSection.fault(value);
+    const fault: string | null = AutoMovieViewSection.geometryFault(value);
     if (work !== undefined) {
       work.normalSection += prepared - started;
       work.normalAdmission += performance.now() - prepared;

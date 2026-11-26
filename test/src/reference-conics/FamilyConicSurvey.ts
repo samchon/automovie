@@ -2,8 +2,8 @@ import { AutoMovieLoftRelief, AutoMovieViewChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
-  AutoMovieHumanF1,
 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,

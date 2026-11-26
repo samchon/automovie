@@ -1,4 +1,4 @@
-import { AutoMovieHumanF1Joints as J } from "@automovie/human";
+import { AutoMovieHumanF1Joints as J } from "@automovie/human/capture";
 import type {
   IAutoMovieLoftSectionFrame,
   IAutoMovieMillimeterMesh,

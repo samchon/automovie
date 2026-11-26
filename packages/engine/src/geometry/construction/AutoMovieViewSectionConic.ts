@@ -173,16 +173,22 @@ export namespace AutoMovieViewSectionConic {
     return total > 0 ? total : NaN;
   }
 
-  /** Actual finite-source, curvature or support diagnostic, otherwise null. */
+  /** Actual geometry and measured-girth diagnostic, otherwise null. */
   export function fault(
     section: Pick<IAutoMovieViewSection.ISection, "conics" | "box" | "girth">,
   ): string | null {
     if (section.conics.failure !== null) return section.conics.failure;
 
-    // A girth is a positive length; the quadrature reports one it could not
-    // admit as no length at all (`girth`).
-    if (!(section.girth > 0))
+    if (!Number.isFinite(section.girth) || !(section.girth > 0))
       return "the actual native arclength has no admitted finite quadrature";
+    return geometryFault(section);
+  }
+
+  /** Actual geometry diagnostic for source-only or measured sections. */
+  export function geometryFault(
+    section: Pick<IAutoMovieViewSection.ISection, "conics" | "box">,
+  ): string | null {
+    if (section.conics.failure !== null) return section.conics.failure;
     const e: readonly number[] = section.box.extents;
     for (let q: number = 0; q < 4; q++)
       for (let k: number = 0; k <= 96; k++) {
@@ -190,10 +196,15 @@ export namespace AutoMovieViewSectionConic {
         const phi: number = start + (k * Math.PI) / 192;
         const [r, first, second]: IAutoMoviePolarSector.Jet =
           AutoMovieViewConic.radius(section.conics, phi);
-        if (!(r > 0))
+        if (
+          !Number.isFinite(r) ||
+          !Number.isFinite(first) ||
+          !Number.isFinite(second) ||
+          !(r > 0)
+        )
           return `nonfinite/nonpositive radius jet ${[r, first, second]} at angle ${phi}`;
         const turn: number = r * r + 2 * first * first - r * second;
-        if (turn < -1e-12 * r * r)
+        if (!Number.isFinite(turn) || turn < -1e-12 * r * r)
           return `concave or unrepresentable at angle ${phi} (curvature numerator ${turn})`;
         const along: number = r * Math.cos(phi - start);
         const across: number = r * Math.sin(phi - start);

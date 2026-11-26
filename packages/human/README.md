@@ -18,7 +18,7 @@ Use `AutoMovieHumanCanonicalBody.display` to supply the rest or posed body to `b
 
 ## Inspection
 
-The checkout's Human subject module is `src/executable/subjects.ts`. From `packages/human`, run `pnpm inspect --subject f1` to open it in the inspector. For stills, install Chromium once from the checkout root with `pnpm exec playwright-core install chromium-headless-shell`.
+The checkout's Human subject module is `src/executable/subjects.ts`. From `packages/human`, run `pnpm inspect --subject f1` to open it in the inspector. The F1 source is a checkout-only visual debugging subject. The published Human package excludes the capture entry and fitted source. For stills, install Chromium once from the checkout root with `pnpm exec playwright-core install chromium-headless-shell`.
 
 Capture builds the full mesh before drawing. From `packages/human`, give it a ten-minute per-call budget.
 

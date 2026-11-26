@@ -13,8 +13,8 @@ import {
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
-  AutoMovieHumanF1,
 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,

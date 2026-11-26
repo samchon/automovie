@@ -164,8 +164,8 @@ const fit = (
  *    mm, the joints move at most 5 degrees per step and the original target's
  *    residual, once out of reach, only grows. Below that band the answer is
  *    bit-identical to the unsoftened fit.
- * 4. Opposition: the thumb's tip reaches the index pad of a pinching index within
- *    1 mm on every body of `EXTREMES`.
+ * 4. Opposition: either thumb's tip reaches its pinching index pad within 1 mm on
+ *    every body of `EXTREMES`.
  * 5. No fitted joint leaves its range.
  * 6. A zero, negative or non-finite radial rate is refused.
  *
@@ -432,36 +432,48 @@ export function test_engine_digit_fit(): void {
   // 4. Opposition on every body.
   for (const name of motionHumanBody.EXTREMES) {
     const person: IAutoMovieMotionHumanBody = motionHumanBody(name);
-    const pinch: IAutoMoviePose = posed(person, [
-      { bone: "rightIndexProximal", flexion: 45, abduction: 0, twist: null },
-      {
-        bone: "rightIndexIntermediate",
-        flexion: 45,
-        abduction: null,
-        twist: null,
-      },
-      { bone: "rightIndexDistal", flexion: 30, abduction: null, twist: null },
-    ]);
-    const pad: IAutoMovieVector3 = surfaceAt(
-      person,
-      pinch,
-      "indexPadRight",
-    ).point;
-    const result: IAutoMovieFitDigitToTarget.IResult = fit(
-      person,
-      "right",
-      "Thumb",
-      pad,
-      pinch,
-    );
-    check(
-      `${name}: the thumb tip reaches the pinching index pad within 1 mm (${(result.residual * 1000).toFixed(3)} mm)`,
-      result.residual <= PINCH,
-    );
+    for (const side of ["right", "left"] as const) {
+      const pinch: IAutoMoviePose = posed(person, [
+        {
+          bone: `${side}IndexProximal`,
+          flexion: 45,
+          abduction: 0,
+          twist: null,
+        },
+        {
+          bone: `${side}IndexIntermediate`,
+          flexion: 45,
+          abduction: null,
+          twist: null,
+        },
+        {
+          bone: `${side}IndexDistal`,
+          flexion: 30,
+          abduction: null,
+          twist: null,
+        },
+      ]);
+      const pad: IAutoMovieVector3 = surfaceAt(
+        person,
+        pinch,
+        side === "right" ? "indexPadRight" : "indexPadLeft",
+      ).point;
+      const result: IAutoMovieFitDigitToTarget.IResult = fit(
+        person,
+        side,
+        "Thumb",
+        pad,
+        pinch,
+      );
+      check(
+        `${name} ${side}: the thumb tip reaches the pinching index pad within 1 mm (${(result.residual * 1000).toFixed(3)} mm)`,
+        result.residual <= PINCH,
+      );
+    }
   }
 
-  // 6. A radial rate is a positive rate, not a division by zero.
-  for (const rate of [0, -1, NaN]) {
+  // 6. A radial rate must be finite and positive.
+  for (const rate of [0, -1, Infinity, NaN]) {
     let refused: boolean = false;
     try {
       fit(body, "right", "Index", origin, start, rate);

@@ -4,7 +4,7 @@ import {
   AutoMovieLoftViewSource,
   AutoMovieLoftViewWorldJet,
 } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionProfileSource,
   IAutoMovieHumanF1,

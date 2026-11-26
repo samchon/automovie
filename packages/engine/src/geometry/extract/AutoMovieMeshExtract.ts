@@ -43,7 +43,7 @@ export namespace AutoMovieMeshExtract {
    * by more than the tolerance is flagged as a jump. The outer boundaries join
    * open chains across gaps up to the bridge, each bridged gap flagged
    * "bridged", chains still open flagged "unclosed", and drop the pieces
-   * enclosed by another (see {@link ISection.outer}).
+   * enclosed by another (see {@link IAutoMovieMeshSectionCut.outer}).
    *
    * @param mesh The mesh.
    * @param frame The frame.
@@ -64,13 +64,65 @@ export namespace AutoMovieMeshExtract {
     tolerance: number = 0.5,
     bridge: number = 25,
   ): IAutoMovieMeshSectionCut[] {
+    return prepareOutline(mesh, frame, axis)(stations, tolerance, bridge);
+  }
+
+  /**
+   * Prepare the vertex heights for repeated {@link outline} queries on one mesh
+   * and frame axis. Keep the mesh and frame fixed while using the returned
+   * function. Stations are millimetres from the frame origin along that axis.
+   * Each query applies the usual tolerance and bridge and checks jumps only
+   * between neighbours in its own station list.
+   *
+   * @param mesh The fixed mesh.
+   * @param frame The fixed section frame.
+   * @param axis Index of the station axis in `frame.axes`.
+   * @returns A function taking stations in order, the jump tolerance (0.5 mm by
+   *   default) and the bridge length (25 mm by default) for that query.
+   */
+  export function prepareOutline(
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieMeshSectionFrame,
+    axis: 0 | 1 | 2,
+  ): (
+    stations: readonly number[],
+    tolerance?: number,
+    bridge?: number,
+  ) => IAutoMovieMeshSectionCut[] {
+    const n: AutoMovieVector3Tuple = frame.axes[axis];
+    const height: Float64Array = new Float64Array(mesh.positions.length / 3);
+    for (let v: number = 0; v < height.length; ++v)
+      height[v] = dot(sub(at(mesh, v), frame.origin), n);
+    return (
+      stations: readonly number[],
+      tolerance: number = 0.5,
+      bridge: number = 25,
+    ): IAutoMovieMeshSectionCut[] =>
+      outlineWithHeights(
+        mesh,
+        frame,
+        stations,
+        axis,
+        height,
+        tolerance,
+        bridge,
+      );
+  }
+
+  /** Cut a station list using its frame's prepared vertex heights. */
+  function outlineWithHeights(
+    mesh: IAutoMovieMillimeterMesh,
+    frame: IAutoMovieMeshSectionFrame,
+    stations: readonly number[],
+    axis: 0 | 1 | 2,
+    height: Float64Array,
+    tolerance: number,
+    bridge: number,
+  ): IAutoMovieMeshSectionCut[] {
     const n: AutoMovieVector3Tuple = frame.axes[axis];
     const a: AutoMovieVector3Tuple = frame.axes[((axis + 1) % 3) as 0 | 1 | 2];
     const b: AutoMovieVector3Tuple = frame.axes[((axis + 2) % 3) as 0 | 1 | 2];
     const count: number = Math.floor(mesh.indices.length / 3);
-    const height: Float64Array = new Float64Array(mesh.positions.length / 3);
-    for (let v: number = 0; v < height.length; ++v)
-      height[v] = dot(sub(at(mesh, v), frame.origin), n);
     const r2: number = Math.SQRT1_2;
     const directions: [
       keyof NonNullable<IAutoMovieMeshSectionCut["extremes"]>,

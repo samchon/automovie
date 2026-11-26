@@ -6,7 +6,7 @@ import { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1 as F1 } from "@automovie/human";
+import { AutoMovieHumanF1 as F1 } from "@automovie/human/capture";
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";

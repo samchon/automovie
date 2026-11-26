@@ -6,10 +6,12 @@ import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRelief,
   AutoMovieHumanConicSection as S,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Joints,
   AutoMovieHumanF1NativeSites,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
@@ -215,8 +217,9 @@ namespace FamilyConicBodyParts {
 
     // The skin: the wall with its nets, read as points and projected on the station's plane.
     let off: number = 0;
+    const at = of.skin.pointAt(s);
     const skinPolygon: P[] = Array.from({ length: RAYS }, (_: unknown, k: number): P => {
-      const p: V = of.skin.point(s, (2 * Math.PI * k) / RAYS) as V;
+      const p: V = at((2 * Math.PI * k) / RAYS);
       const local: V = [p[0] - frame.origin[0]!, p[1] - frame.origin[1]!, p[2] - frame.origin[2]!];
       off = Math.max(off, Math.abs(dot(local, normal)));
       return [dot(local, frame.u), dot(local, frame.v)];

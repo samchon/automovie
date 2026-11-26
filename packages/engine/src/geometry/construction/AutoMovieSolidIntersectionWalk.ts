@@ -30,25 +30,25 @@ const { add, cross, dot, norm, scale, sub }: typeof AutoMovieSolidVector =
  */
 export namespace AutoMovieSolidIntersectionWalk {
   /**
-   * Walk the loop from the seed by pseudo-arclength continuation, once to
-   * measure its polygonal length and once in equal chords, then make the
-   * reference-guide law used for requested normalized arclength.
+   * Walk the loop by pseudo-arclength continuation and sample the accepted walk
+   * at uniform accumulated chord distances. The periodic reference guide
+   * supplies normal planes to the final exact surface solve.
    *
    * Each step predicts `P + h T` along the curve's unit tangent `T = n_A x n_B`
    * (turned with the previous) and corrects on the plane square to `T` through
-   * the prediction; the first walk halves a step that fails or lands more than
-   * a quarter step off, and ends where the start lies ahead within a step; the
-   * second takes `walkPoints * count` equal steps of that length. The first
-   * step's length is the arc a part ring step covers there, `|A_phi| 2 pi /
-   * count`.
+   * the prediction. It halves a step that fails or lands more than a quarter
+   * step off and ends where the start lies ahead within a step. The initial
+   * step is the original part-phase arc `|A_phi| 2 pi / count`. Guide density
+   * is independent of the continuation's step limit.
    *
    * The internal caller supplies captured count/tolerance values and the
-   * unchanged public controls (64 first-walk steps per target, 4 guide points
-   * per target and 6 closing trials). Valid finite counts, host-face indices
-   * and regular callback jets remain premises, not new admissions. Failed first
-   * walks retain at most the two actual terminal direction contexts.
-   * Observation never queries a surface or changes a proposal.
+   * unchanged walk and guide counts (64 steps and 4 guide points per target).
+   * Valid finite counts, host-face indices and regular callback jets remain
+   * premises, not new admissions. Failed first walks retain at most the two
+   * actual terminal direction contexts. Observation never queries a surface or
+   * changes a proposal.
    *
+   * @param _closingSteps Compatibility argument for the former closing walk.
    * @returns The walk, or why it failed.
    */
   export function create(
@@ -59,7 +59,7 @@ export namespace AutoMovieSolidIntersectionWalk {
     tolerance: number,
     walkSteps: number,
     walkPoints: number,
-    closingSteps: number,
+    _closingSteps: number,
   ): IAutoMovieSolidIntersectionWalk.IWalk | string {
     /**
      * Read the two original surface jets and consistently orient their
@@ -192,15 +192,22 @@ export namespace AutoMovieSolidIntersectionWalk {
       /** Accepted preimages before the original secant guess. */
       const x: AutoMovieSolidChartVector4 = [p.s, p.phi, p.y, p.theta];
 
-      /** Original same-face extrapolation or unchanged-face starting guess. */
-      const guess: AutoMovieSolidChartVector4 =
+      /** Previous accepted world chord, which may differ from the new step. */
+      const previousChord: number =
         previous === null || previous.face !== p.face
+          ? 0
+          : norm(sub(p.point, previous.point));
+      const advance: number = previousChord === 0 ? 0 : h / previousChord;
+
+      /** Same-face secant in the requested chord's scale. */
+      const guess: AutoMovieSolidChartVector4 =
+        previous === null || previousChord === 0
           ? x
           : [
-              2 * x[0] - previous.s,
-              2 * x[1] - previous.phi,
-              2 * x[2] - previous.y,
-              2 * x[3] - previous.theta,
+              x[0] + (x[0] - previous.s) * advance,
+              x[1] + (x[1] - previous.phi) * advance,
+              x[2] + (x[2] - previous.y) * advance,
+              x[3] + (x[3] - previous.theta) * advance,
             ];
 
       if (observation !== undefined)
@@ -242,12 +249,13 @@ export namespace AutoMovieSolidIntersectionWalk {
           );
     };
 
-    // The first walk: the loop's length.
+    // The walk and its accumulated physical length.
 
     /**
      * Original phase-sized initial chord, reduced only by existing failed
      * halvings.
      */
+    const n: number = walkPoints * count;
     const stride: number = (norm(a0.v) * 2 * Math.PI) / count;
 
     /**
@@ -259,10 +267,14 @@ export namespace AutoMovieSolidIntersectionWalk {
      * walking it the other way round.
      */
     const directions: Observation.IDirection[] = [];
-    const around: (sense: 1 | -1) => number | string = (
+    const around: (
       sense: 1 | -1,
-    ): number | string => {
+    ) => { points: Vec3[]; distances: number[] } | string = (
+      sense: 1 | -1,
+    ): { points: Vec3[]; distances: number[] } | string => {
       let h: number = stride;
+      const points: Vec3[] = [start.point];
+      const distances: number[] = [0];
 
       /** Current accepted point of the first length walk. */
       let p: IPoint = start;
@@ -309,8 +321,12 @@ export namespace AutoMovieSolidIntersectionWalk {
       for (let k: number = 0; k < walkSteps * count; k++) {
         /** Displacement from the current point back toward its start. */
         const ahead: Vec3 = sub(start.point, p.point);
-        if (k > 2 && norm(ahead) <= h && dot(ahead, T) > 0)
-          return length + norm(ahead);
+        const closing: number = norm(ahead);
+        if (k > 2 && closing <= h && dot(ahead, T) > 0) {
+          points.push(start.point);
+          distances.push(length + closing);
+          return { points, distances };
+        }
 
         /** Candidate retained through the original failed-halving loop. */
         let next: IPoint | null = null;
@@ -328,6 +344,8 @@ export namespace AutoMovieSolidIntersectionWalk {
           return `lost after ${length} mm of the walk, at [${p.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${p.face}`;
         }
         length += norm(sub(next.point, p.point));
+        points.push(next.point);
+        distances.push(length);
         previous = p;
         p = next;
 
@@ -352,125 +370,33 @@ export namespace AutoMovieSolidIntersectionWalk {
      * walk along it was lost and the other way round closes.
      */
     let sense: 1 | -1 = 1;
-    const forth: number | string = around(1);
-    let length: number;
+    const forth = around(1);
+    let adaptive: Exclude<ReturnType<typeof around>, string>;
     if (typeof forth === "string") {
-      const back: number | string = around(-1);
+      const back = around(-1);
       if (typeof back === "string")
         return Observation.format(forth, directions);
       sense = -1;
-      length = back;
-    } else length = forth;
+      adaptive = back;
+    } else adaptive = forth;
 
-    // The second walk: equal chords whose last, closing the loop, matches the
-    // others. The first walk's length sums uneven steps, so `length / n`
-    // leaves the closing chord off by their difference; the chord is set by
-    // the secant method on that closing mismatch, a few walks at most.
+    // Interpolate the accepted loop by length. Each spline plane then
+    // determines its own point on the actual surface intersection.
+    const { points, distances } = adaptive;
+    const length: number = distances.at(-1)!;
+    let edge: number = 1;
+    const p0: Vec3[] = Array.from({ length: n }, (_, k: number): Vec3 => {
+      const target: number = (length * k) / n;
+      while (distances[edge]! <= target && edge + 1 < distances.length) edge++;
+      const share: number =
+        (target - distances[edge - 1]!) /
+        (distances[edge]! - distances[edge - 1]!);
+      return add(
+        points[edge - 1]!,
+        scale(sub(points[edge]!, points[edge - 1]!), share),
+      );
+    });
 
-    /** Original reference point population from the public walkPoints control. */
-    const n: number = walkPoints * count;
-
-    /** Repeat the original fixed-chord walk for one secant candidate. */
-    const equal: (chord: number) => Vec3[] | string = (
-      chord: number,
-    ): Vec3[] | string => {
-      /** Accepted world points for this one reference candidate. */
-      const points: Vec3[] = [start.point];
-
-      /** Current point of the equal-chord walk. */
-      let q: IPoint = start;
-
-      /**
-       * Original consistently oriented equal-walk tangent, the way round the
-       * first walk went.
-       */
-      let along: Vec3 = scale(T0, sense);
-
-      /** Previous equal-walk iterate used by the same predictor. */
-      let before: IPoint | null = null;
-      for (let k: number = 1; k < n; k++) {
-        /** Next accepted point of this fixed-chord reference walk. */
-        let next: IPoint | null = step(q, along, chord, before);
-
-        // Where the curve turns within less than a chord, the tangent
-        // prediction a whole chord ahead is refused. The chord is then walked
-        // in halved steps along the curve, as the first walk goes, and the
-        // point its length ahead stands in for the one a straight chord ahead.
-        if (next === null) {
-          let from: IPoint = q;
-          let heading: Vec3 = along;
-          let last: IPoint | null = before;
-          let left: number = chord;
-          let h: number = chord / 2;
-          for (
-            let halving: number = 0;
-            left > 1e-9 * chord && halving < AutoMovieSolidTraceSolve.HALVINGS;
-          ) {
-            const part: IPoint | null = step(
-              from,
-              heading,
-              Math.min(h, left),
-              last,
-            );
-            if (part === null) {
-              h /= 2;
-              halving++;
-              continue;
-            }
-            left -= norm(sub(part.point, from.point));
-            last = from;
-            from = part;
-            const turned: Vec3 | null = tangent(from, heading);
-            if (turned === null) break;
-            heading = turned;
-          }
-          if (left <= 1e-9 * chord) next = from;
-        }
-        if (next === null)
-          return `the equal-chord walk is lost at step ${k} of ${n}, at [${q.point.map((x: number): string => x.toFixed(1)).join(", ")}] mm on host face ${q.face}`;
-        points.push(next.point);
-        before = q;
-        q = next;
-
-        /** Continue this candidate using the same directed tangent. */
-        const t: Vec3 | null = tangent(q, along);
-        if (t === null)
-          return `the surfaces touch at step ${k} of the equal-chord walk`;
-        along = t;
-      }
-      return points;
-    };
-
-    /** Closing chord minus the chosen chord, with the original sign. */
-    const mismatch: (points: Vec3[], chord: number) => number = (
-      points: Vec3[],
-      chord: number,
-    ): number => norm(sub(points[0]!, points[points.length - 1]!)) - chord;
-
-    /** Current secant chord candidate from the first measured length. */
-    let c0: number = length / n;
-
-    /** Last accepted reference-point candidate. */
-    let p0: Vec3[] | string = equal(c0);
-    if (typeof p0 === "string") return p0;
-
-    /** Closing mismatch at that accepted candidate. */
-    let g0: number = mismatch(p0, c0);
-
-    /** Original next secant trial chord. */
-    let c1: number = c0 + g0 / n;
-    for (let i: number = 0; i < closingSteps && Math.abs(g0) > 1e-9 * c0; i++) {
-      /** Reference points for the next trial, or its original failure. */
-      const p1: Vec3[] | string = equal(c1);
-      if (typeof p1 === "string") break;
-
-      /** Closing mismatch for the successful trial. */
-      const g1: number = mismatch(p1, c1);
-
-      /** Original secant update, including its equal-residual fallback. */
-      const c2: number = g1 === g0 ? c1 : c1 - (g1 * (c1 - c0)) / (g1 - g0);
-      [c0, p0, g0, c1] = [c1, p1, g1, c2];
-    }
     // Walked against `T0`, the points are read back in its order from the seed, so the parameter still increases along `n_part x n_host`.
     const ordered: Vec3[] =
       sense === 1 ? p0 : [p0[0]!, ...p0.slice(1).reverse()];

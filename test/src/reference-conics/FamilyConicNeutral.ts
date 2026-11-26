@@ -5,11 +5,13 @@ import {
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
+  AutoMovieHumanConicPose as Q,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Placement as P,
-  AutoMovieHumanConicPose as Q,
   AutoMovieHumanF1Placing as T,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicPose,
@@ -31,6 +33,9 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
  *
  * Usage, from `test/` after `pnpm conic:build`: `node .shots/esbuild/FamilyConicNeutral.cjs`. It writes `precheck.txt` under
  * `test/.shots/family-conic-neutral/<time>/` and reads only f1's tables, never the reference.
+ *
+ * `--shoulder-snapshot=<directory> [--right]` writes the neutral shoulder's
+ * placed sources and declaration for `FamilyConicArchivedAssembly`.
  *
  * `--realize` then realizes the neutral figure once (`AutoMovieHumanF1.construction` at `AutoMovieHumanF1Placement.NEUTRAL`) into the same
  * directory: `realization.json` (the refusal that stopped the declaration or the realization, or the mesh's size and the diagnostics
@@ -56,6 +61,37 @@ namespace FamilyConicNeutral {
 
   /** Write the pre-check. */
   export async function main(): Promise<void> {
+    const output = process.argv
+      .find((arg) => arg.startsWith("--shoulder-snapshot="))
+      ?.slice("--shoulder-snapshot=".length);
+    if (output !== undefined) {
+      const neutral = AutoMovieHumanF1.assemble(P.NEUTRAL);
+      const side = process.argv.includes("--right") ? -1 : 1;
+      const { root, fills, sources } = AutoMovieHumanF1.constructionFrom(
+        neutral,
+        undefined,
+        side,
+      );
+      const assembled = Object.fromEntries(
+        [
+          AutoMovieHumanF1.sourceScope(neutral, "trunk").family,
+          AutoMovieHumanF1.sourceScope(neutral, "arm").family,
+          neutral.axilla,
+        ].map((family) => [family.name, family]),
+      );
+      await fs.mkdir(output, { recursive: true });
+      await Promise.all([
+        fs.writeFile(
+          path.join(output, "construction.json"),
+          JSON.stringify({ root, fills, sources: Object.fromEntries(sources) }),
+        ),
+        fs.writeFile(
+          path.join(output, "placement.json"),
+          JSON.stringify({ assembled }),
+        ),
+      ]);
+      return;
+    }
     const root: string = path.resolve(process.cwd(), "..");
     const out: string = path.join(
       root,

@@ -17,21 +17,21 @@ const { add, cross, dot, scale, sub } = AutoMovieSolidVector;
  *
  * Phase gives g=phi-t; angle gives g=(P-c).m(t), a rotating plane equation
  * whose branch is selected by the seed/continuation. Requested arc mode uses
- * g=(P-Q(t)).Q'(t), the normal plane of a periodic spline through equal-chord
- * walked points. That guide parameter approximates arclength rather than
- * proving exact constant speed on the realized intersection.
+ * g=(P-Q(t)).Q'(t), the normal plane of a periodic spline through samples at
+ * uniform accumulated chord distances. That guide parameter approximates
+ * arclength on the realized intersection.
  */
 export namespace AutoMovieSolidTraceLaw {
   /**
-   * The reference-guide law used for requested arc parameterization through
-   * equal-chord walked points; it is not an exact arclength reparameterization.
+   * The reference-guide law used for approximate arclength parameterization
+   * through uniformly spaced accumulated-chord samples.
    * The periodic cubic B-spline `Q` through them (`AutoMovieSplineCurve`'s
    * interpolation, component by component), and `g = (P - Q(t)) . Q'(t)`, whose
    * zero is the point's foot on `Q`. With `P' = A_s s' + A_phi phi'`: `g_t =
    * -Q' . Q' + (P - Q) . Q''` and, past the terms of `J x''` and `Q_A . Q'`,
    * `d^2 g / dt^2` keeps `2 P' . Q'' - 3 Q' . Q'' + (P - Q) . Q'''`.
    *
-   * @param points The loop's equal-chord points, mm.
+   * @param points The accumulated-chord samples of the closed walk, mm.
    * @returns The law.
    */
   export function arc(

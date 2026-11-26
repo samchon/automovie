@@ -48,6 +48,7 @@ import type {
   IAutoMovieConstructionBandProfile,
   IAutoMovieConstructionFill,
   IAutoMovieConstructionNode,
+  IAutoMovieConstructionPort,
   IAutoMovieConstructionPortLoop,
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionSplit,
@@ -168,9 +169,9 @@ export namespace AutoMovieHumanF1 {
     const end: IAutoMovieHumanConicLoft.ITip = family.tips![1]!;
     const read: (s: number) => number[] =
       AutoMovieHumanConicLoft.reader(family);
+    const resolve = AutoMovieHumanConicSection.prepare(layout);
     const reach = (s: number): number => {
-      const chain: IAutoMovieHumanConicSection.IChain =
-        AutoMovieHumanConicSection.resolve(read(s), layout);
+      const chain: IAutoMovieHumanConicSection.IChain = resolve(read(s));
       return (
         chain.guides.reduce(
           (sum: number, g: number, q: number): number =>
@@ -2095,6 +2096,8 @@ export namespace AutoMovieHumanF1 {
    * that invocation. No pose argument can be silently ignored or applied twice.
    * Existing bare-root loft helpers and anatomical priors remain unchanged;
    * this ownership prerequisite does not establish a new anatomical boundary law.
+   * A neutral-shoulder capture can request the same three sources and operators
+   * without constructing unrelated distal joints.
    * The supplied central pelvis/thorax/head frames, courses/datums and pose
    * preserve the fixed bilateral figure plane z=0 consumed by twins, fans and
    * fills. This function does not validate arbitrary supplied frame callbacks,
@@ -2113,6 +2116,7 @@ export namespace AutoMovieHumanF1 {
   export function constructionFrom(
     placed: IAutoMovieHumanF1.IAssembly,
     layer: number = LAYER_MM,
+    neutralShoulder?: 1 | -1,
   ): IAutoMovieHumanF1.IConstruction {
     const sources: Map<string, IAutoMovieViewPart> = new Map();
     const faceLayers: [number, number, number] = [
@@ -2445,6 +2449,115 @@ export namespace AutoMovieHumanF1 {
       mm: number,
     ): number => placed.station(family.name, stored(family.name).knots[0]!, mm);
 
+    const trunkLeaf = (): IAutoMovieConstructionNode =>
+      leaf(
+        sourceScope(placed, "trunk").family,
+        -Infinity,
+        WEB_LAYER_MM,
+        layer,
+        Infinity,
+        placed.station(trunk, CROWN_MM),
+      );
+    const armLeaf = (
+      side: 1 | -1,
+    ): { node: IAutoMovieConstructionNode; face: string } => {
+      const scope = sourceScope(placed, "arm");
+      const family = side > 0 ? scope.family : twin(scope.family);
+      return {
+        node: leaf(family, -Infinity, WEB_LAYER_MM, layer, scope.wallDomain[1]),
+        face: family.name,
+      };
+    };
+    const attachArm = (
+      host: IAutoMovieConstructionNode,
+      arm: { node: IAutoMovieConstructionNode; face: string },
+      side: 1 | -1,
+      loop = armscye(side, placed),
+    ): IAutoMovieConstructionNode => {
+      const armPort: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = placed.nativePorts?.get(
+        arm.face,
+      );
+      const port: IAutoMovieConstructionPort = {
+        type: "port",
+        name: "armscye." + arm.face,
+        host,
+        hostFace: trunk,
+        loop,
+        band: "band." + arm.face,
+        part: arm.node,
+        partFace: arm.face,
+        partEnd: "bottom",
+        rail:
+          armPort === undefined
+            ? reach(placed.body.arm, Math.min(...ARM_RAILS_MM)) / 1000
+            : Math.min(...armPort.railDistances) / 1000,
+        rails:
+          armPort === undefined
+            ? armRails(side).map(
+                (mm: number): number => reach(placed.body.arm, mm) / 1000,
+              )
+            : armPort.railDistances.map((mm: number): number => mm / 1000),
+        ribbons: "column",
+        count: SHOULDER_COLUMNS,
+        rows: ARMSCYE_ROWS,
+      };
+      // The armpit's slit, cut after the arm's port: no wall is star-shaped about the slit (the conic audit), and the arm's band closes it
+      // 12 to 17 mm under its apex. The cutter's sections are the slit's air from 3 mm under that band up to its apex, drawn in from the
+      // walls, its arm-side flank concave under the apex (`AutoMovieHumanF1Axilla`). It is seeded on its bottom, phase pi, whose station line
+      // stands in the flesh above the band where the cutter closes at its front end and runs on under the band; its top's stays above the
+      // band all along. Walked by its own length; at a phase parameter the twin's trace was lost. Blended 0.25 mm wide on either side: at
+      // 0.5 mm the twin's cutter face did not triangulate ("subconstraints cross without a supplied shared vertex"), with 256 columns or
+      // the search reversed as well.
+      const axilla: IAutoMovieHumanConicLoft.IFamily =
+        side > 0 ? placed.axilla : twin(placed.axilla);
+      return {
+        type: "join",
+        kind: "diff",
+        name: "cut." + axilla.name,
+        host: port,
+        part: leaf(axilla, Infinity, AXILLA_LAYER_MM),
+        seed: placed.nativeSeed?.(axilla, {
+          phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase,
+          from: AXILLA_SEED.from,
+          to: AXILLA_SEED.to,
+        }, "band." + arm.face) ?? {
+          type: "search",
+          partFace: axilla.name,
+          hostFace: "band." + arm.face,
+          phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase,
+          from: AXILLA_SEED.from,
+          to: AXILLA_SEED.to,
+        },
+        parameter: { type: "arc" },
+
+        // A quarter-millimetre chord, held under half the radius of the tighter turn the rail meets
+        // (`IAutoMovieConstructionCurvatureWidth`), as the concha's. The arm's band crosses this cutter's closed end at station 83.95,
+        // 2.05 mm before its pole at 86, where every radius of its section shrinks with the cap: the contact there turned 24.7 degrees
+        // in 0.047 mm (radius 0.11 mm), 7.6 a millimetre toward the part's rail, so the rail 0.25 mm away moved at 1 - 7.6 * 0.25 =
+        // -0.9 of the contact's speed, backward, and the blend's normal reversed (t 5.0396, share 1, +Z side). Half the radius there
+        // is 0.066 mm.
+        partWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
+        hostWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
+        continuity: "G2",
+        count: 192,
+        rows: 4,
+        tolerance: 1e-12,
+        grazing: 0.04,
+      };
+    };
+
+    if (neutralShoulder !== undefined)
+      return {
+        root: attachArm(
+          trunkLeaf(),
+          armLeaf(neutralShoulder),
+          neutralShoulder,
+          legacyArmscye(neutralShoulder, placed),
+        ),
+        sources,
+        fills: [],
+      };
+
     // A limb with its digits: each digit is merged onto the limb's cap before the limb is attached to the trunk, so the engine traces where a
     // capsule comes out against the limb alone. Merged after the whole body was sewn, every digit was traced against all of it.
     const limb = (
@@ -2526,11 +2639,12 @@ export namespace AutoMovieHumanF1 {
         );
       const endSource: IAutoMovieLoftViewFullSource.IReader =
         AutoMovieLoftViewFullSource.create(endPart);
+      const endPoint = endSource.pointAt(fan.station);
       const seam = (j: number): IAutoMovieConstructionSplit.ISeam => {
         const [a, b]: [number, number] = fan.seams[j]!;
         const [pa, pb]: number[][] = [
-          endSource.point(fan.station, a),
-          endSource.point(fan.station, b),
+          endPoint(a),
+          endPoint(b),
         ];
         const chord: number =
           Math.hypot(pb[0]! - pa[0]!, pb[1]! - pa[1]!, pb[2]! - pa[2]!) / 1000;
@@ -2630,25 +2744,13 @@ export namespace AutoMovieHumanF1 {
 
       // The arm ends open before the wrist (`ARM_TO_MM`) and the hand, a family of its own on a wider knuckle turn, continues it across a
       // band (`WRIST`), since the two families' sections need not share one ring.
-      const armScope: AutoMovieHumanF1SourceScope.IResult = sourceScope(
-        placed,
-        "arm",
-      );
-      const arm: IAutoMovieHumanConicLoft.IFamily = armScope.family;
-      const armFamily: IAutoMovieHumanConicLoft.IFamily =
-        side > 0 ? arm : twin(arm);
+      const arm = armLeaf(side);
       return {
         node: {
           type: "continue",
-          name: "wrist." + armFamily.name,
-          host: leaf(
-            armFamily,
-            -Infinity,
-            WEB_LAYER_MM,
-            layer,
-            armScope.wallDomain[1],
-          ),
-          hostFace: armFamily.name,
+          name: "wrist." + arm.face,
+          host: arm.node,
+          hostFace: arm.face,
           hostEnd: "top",
           part: node,
           partFace: family.name,
@@ -2660,7 +2762,7 @@ export namespace AutoMovieHumanF1 {
             correspondence: "length",
           },
         },
-        face: armFamily.name,
+        face: arm.face,
       };
     };
 
@@ -2672,14 +2774,7 @@ export namespace AutoMovieHumanF1 {
     let root: IAutoMovieConstructionNode = {
       type: "split",
       name: "crotch",
-      host: leaf(
-        sourceScope(placed, "trunk").family,
-        -Infinity,
-        WEB_LAYER_MM,
-        layer,
-        Infinity,
-        placed.station(trunk, CROWN_MM),
-      ),
+      host: trunkLeaf(),
       hostFace: trunk,
       hostEnd: "bottom",
       seam: [0, Math.PI],
@@ -2708,76 +2803,8 @@ export namespace AutoMovieHumanF1 {
         "arm",
         side,
       );
-      const armPort: IAutoMovieHumanF1NativeRoot.IRootSpec | undefined = placed.nativePorts?.get(
-        arm.face,
-      );
-      root = {
-        type: "port",
-        name: "armscye." + arm.face,
-        host: root,
-        hostFace: trunk,
-        loop: armscye(side, placed),
-        band: "band." + arm.face,
-        part: arm.node,
-        partFace: arm.face,
-        partEnd: "bottom",
-        rail:
-          armPort === undefined
-            ? reach(placed.body.arm, Math.min(...ARM_RAILS_MM)) / 1000
-            : Math.min(...armPort.railDistances) / 1000,
-        rails:
-          armPort === undefined
-            ? armRails(side).map(
-                (mm: number): number => reach(placed.body.arm, mm) / 1000,
-              )
-            : armPort.railDistances.map((mm: number): number => mm / 1000),
-        ribbons: "column",
-        count: SHOULDER_COLUMNS,
-        rows: ARMSCYE_ROWS,
-      };
-      // The armpit's slit, cut after the arm's port: no wall is star-shaped about the slit (the conic audit), and the arm's band closes it
-      // 12 to 17 mm under its apex. The cutter's sections are the slit's air from 3 mm under that band up to its apex, drawn in from the
-      // walls, its arm-side flank concave under the apex (`AutoMovieHumanF1Axilla`). It is seeded on its bottom, phase pi, whose station line
-      // stands in the flesh above the band where the cutter closes at its front end and runs on under the band; its top's stays above the
-      // band all along. Walked by its own length; at a phase parameter the twin's trace was lost. Blended 0.25 mm wide on either side: at
-      // 0.5 mm the twin's cutter face did not triangulate ("subconstraints cross without a supplied shared vertex"), with 256 columns or
-      // the search reversed as well.
-      const axilla: IAutoMovieHumanConicLoft.IFamily =
-        side > 0 ? placed.axilla : twin(placed.axilla);
-      root = {
-        type: "join",
-        kind: "diff",
-        name: "cut." + axilla.name,
-        host: root,
-        part: leaf(axilla, Infinity, AXILLA_LAYER_MM),
-        seed: placed.nativeSeed?.(axilla, {
-          phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase,
-          from: AXILLA_SEED.from,
-          to: AXILLA_SEED.to,
-        }, "band." + arm.face) ?? {
-          type: "search",
-          partFace: axilla.name,
-          hostFace: "band." + arm.face,
-          phase: side > 0 ? AXILLA_SEED.phase : 2 * Math.PI - AXILLA_SEED.phase,
-          from: AXILLA_SEED.from,
-          to: AXILLA_SEED.to,
-        },
-        parameter: { type: "arc" },
-
-        // A quarter-millimetre chord, held under half the radius of the tighter turn the rail meets
-        // (`IAutoMovieConstructionCurvatureWidth`), as the concha's. The arm's band crosses this cutter's closed end at station 83.95,
-        // 2.05 mm before its pole at 86, where every radius of its section shrinks with the cap: the contact there turned 24.7 degrees
-        // in 0.047 mm (radius 0.11 mm), 7.6 a millimetre toward the part's rail, so the rail 0.25 mm away moved at 1 - 7.6 * 0.25 =
-        // -0.9 of the contact's speed, backward, and the blend's normal reversed (t 5.0396, share 1, +Z side). Half the radius there
-        // is 0.066 mm.
-        partWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
-        hostWidth: { type: "curvature", share: 0.5, cap: 0.00025, end: null },
-        continuity: "G2",
-        count: 192,
-        rows: 4,
-        tolerance: 1e-12,
-        grazing: 0.04,
-      }; // The ear as its parts. The plate is the auricle's back sheet from its root, 6 mm inside the head, out to under the rim, the whole
+      root = attachArm(root, arm, side);
+      // The ear as its parts. The plate is the auricle's back sheet from its root, 6 mm inside the head, out to under the rim, the whole
       // lobule included; at mid heights it runs from the head out to the rim, so its front face is the concha's back wall. The helix and
       // the antihelix are round tubes along their crests, walked by their own length and seeded on their top lines, phase 0, which come up
       // out of the plate past their buried ends; the scapha and the fossa are the plate's floor between them. The plate is merged onto the

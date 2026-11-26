@@ -21,8 +21,8 @@ import {
 import {
   AutoMovieHumanConicSection as S,
   AutoMovieHumanCourseRuns,
-  AutoMovieHumanF1,
 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicSection,
   IAutoMovieHumanF1,

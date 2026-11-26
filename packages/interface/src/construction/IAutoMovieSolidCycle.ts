@@ -123,10 +123,21 @@ export namespace IAutoMovieSolidCycle {
     kept?: (u: number, v: number) => boolean;
 
     /**
+     * Project onto an intact boundary by its owner's correspondence. Absent,
+     * the atlas selects the nearest polygon segment in chart space.
+     */
+    foot?: (u: number, v: number) => IFoot;
+
+    /**
      * The neighbour's chart point corresponding to a chart point past the
      * curve: the point's foot on the curve by the owner's correspondence, read
      * in the neighbour's chart.
      */
-    across: (u: number, v: number) => [number, number];
+    across: (
+      u: number,
+      v: number,
+      foot?: IFoot,
+      neighbour?: INeighbour,
+    ) => [number, number];
   }
 }

@@ -4,13 +4,14 @@ import {
   AutoMovieNaturalSpline,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
+import { AutoMovieHumanConicLoft } from "@automovie/human";
 import {
-  AutoMovieHumanConicLoft,
   AutoMovieHumanF1,
   AutoMovieHumanF1Joints,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
+  IAutoMovieMeshSectionFrame,
   IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
@@ -461,27 +462,26 @@ namespace FamilyConicArmscye {
       joint[1]!,
       Math.abs(joint[2]!),
     ];
+
+    // Stations in this frame are world Y coordinates in millimetres.
+    const frame: IAutoMovieMeshSectionFrame = {
+      origin: [0, 0, 0],
+      axes: [
+        [0, 1, 0],
+        [1, 0, 0],
+        [0, 0, 1],
+      ],
+    };
     for (const [label, mesh] of [
       ["reference", source.body],
       ["generated", generated],
     ] as [string, IAutoMovieMillimeterMesh][]) {
-      // The level's closed loops on the +Z side, in (x, z), mm.
+      const outline: ReturnType<typeof AutoMovieMeshExtract.prepareOutline> =
+        AutoMovieMeshExtract.prepareOutline(mesh, frame, 0);
+
+      // Read the closed loops in (x, z), mm, with each level cut in isolation.
       const level = (y: number): [number, number][][] =>
-        AutoMovieMeshExtract.outline(
-          mesh,
-          {
-            origin: [0, y, 0],
-            axes: [
-              [0, 1, 0],
-              [1, 0, 0],
-              [0, 0, 1],
-            ],
-          },
-          [0],
-          0,
-          0.5,
-          0,
-        )[0]!
+        outline([y], 0.5, 0)[0]!
           .loops.filter((loop): boolean => loop.closed)
           .map((loop): [number, number][] =>
             loop.points.map((p): [number, number] => [p[0], p[1]]),
@@ -599,11 +599,15 @@ namespace FamilyConicArmscye {
     ).chain;
     if (trunk === null)
       throw new Error("the trunk does not loft over the loop's heights");
-    const skin: number[][] = stations.flatMap((s: number): number[][] =>
-      Array.from({ length: 720 }, (_: unknown, j: number): number[] =>
-        AutoMovieLoftChain.point(trunk, s, (2 * Math.PI * j) / 720),
-      ),
-    );
+    const skin: number[][] = stations.flatMap((s: number): number[][] => {
+      const at: (phase: number) => number[] = AutoMovieLoftChain.sampler(
+        trunk,
+        s,
+      );
+      return Array.from({ length: 720 }, (_: unknown, j: number): number[] =>
+        at((2 * Math.PI * j) / 720),
+      );
+    });
     for (let k: number = 0; k < count; ++k) {
       const p: number[] =
         loop.points[

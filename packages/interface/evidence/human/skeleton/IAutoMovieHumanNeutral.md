@@ -50,11 +50,11 @@ Required fields are `rings`, `joints`; callers supply the complete record.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-One calibrated body's neutral, derived at its first request and shared by every later one.
+Supplies the original rings and bind skeleton for one neutral request.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One calibrated body's neutral, derived at its first request and shared by every later one. The callable takes  and returns ISource.
+The zero-argument supplier returns the caller's actual rings and bind skeleton.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -62,4 +62,4 @@ IAutoMovieHumanNeutral.OfSource is the canonical exchange used by AutoMovieHuman
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The representation is used by AutoMovieHumanNeutral.of for one calibrated body's neutral, derived at its first request and shared by every later one.
+AutoMovieHumanNeutral.of reads the current supplier directly and passes its original inputs to the neutral derivation.

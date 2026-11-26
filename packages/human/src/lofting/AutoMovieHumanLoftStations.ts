@@ -16,6 +16,13 @@ import type { IAutoMovieLoftChain } from "@automovie/interface";
  */
 export namespace AutoMovieHumanLoftStations {
   /**
+   * Default pitch in millimetres. ESTIMATE for the broad body: use the
+   * same starting spacing along the course and around a conic section for approximately
+   * square cells on gently turning surfaces. The chord and turn rules refine
+   * tighter features by geometric deflection.
+   */
+  export const BODY_PITCH_MM: number = 4;
+  /**
    * Stations between `from` and `to` by recursive bisection.
    *
    * @param chain Chain to tessellate.

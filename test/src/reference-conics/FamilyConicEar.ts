@@ -1,6 +1,7 @@
 import path from "node:path";
 import { AutoMovieLoftChain } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicLoft } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 
 /**

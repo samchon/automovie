@@ -6,12 +6,14 @@ import { realizeAutoMovieConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanChainTopology,
   AutoMovieHumanConicLoft as H,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Centres,
   AutoMovieHumanF1Placement,
   AutoMovieHumanF1Placing,
   AutoMovieHumanF1SegmentLengths,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,

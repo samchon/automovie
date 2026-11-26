@@ -5,10 +5,10 @@ import {
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicRelief,
-  AutoMovieHumanF1,
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicLoft,

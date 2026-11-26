@@ -26,6 +26,12 @@ import { nclose } from "../../internal/predicates";
  * 3. `reduce` of the straight dense run (0,0) to (4,4) at tolerance 0.01 keeps
  *    only its two ends with slope 1 and zero error; the tent (0,0), (1,1),
  *    (2,2), (3,1), (4,0) keeps its peak as well: indices 0, 2, 4.
+ * 4. Reusing a prepared outline on the triangle at z = 2 retains its cut flags.
+ *    The same station has jump flags only in a query with neighbours.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the millimetre fixtures, closed and open cuts, line reductions and prepared-query isolation.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the public outline, prepared outline and reducer directly on a cube, a triangle and two polylines.
+ * @evidence contracts/development/testing.md#independent-expectations Cube face diagonals determine the section vertices. The triangle has open ends and its +b reaches at stations 1, 2 and 9 give a middle departure of 2 - (1 + 9) / 2 = -3 mm. The straight line and tent distinguish removable samples from the retained peak.
  */
 export function test_engine_geometry_mesh_extract(): void {
   const positions: number[] = [];
@@ -121,5 +127,25 @@ export function test_engine_geometry_mesh_extract(): void {
     "tent knots",
     tent.knots.map((knot) => knot.index),
     [0, 2, 4],
+  );
+
+  const prepared: ReturnType<typeof AutoMovieMeshExtract.prepareOutline> =
+    AutoMovieMeshExtract.prepareOutline(triangle, world, 2);
+  const batch: IAutoMovieMeshSectionCut[] = prepared([1, 2, 9], 0.5, 0);
+  const isolated: IAutoMovieMeshSectionCut = prepared([2], 0.5, 0)[0]!;
+  TestValidator.equals("triangle cut flags", isolated.flags, [
+    "open: 2 dangling crossings in 1 broken chains",
+    "unclosed: 1 chains left open past the 0 mm bridge",
+  ]);
+  TestValidator.equals(
+    "batched cut flags",
+    batch[1]!.flags.filter(
+      (flag: string): boolean => !flag.startsWith("jump "),
+    ),
+    isolated.flags,
+  );
+  TestValidator.predicate(
+    "batched jump",
+    batch[1]!.flags.includes("jump +b: -3.000 mm"),
   );
 }

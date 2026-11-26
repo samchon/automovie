@@ -162,6 +162,20 @@ export namespace AutoMovieConstructionAdmission {
                 `${what} plane (point [${plane.point.join(", ")}] m, normal [${plane.normal.join(", ")}]) is not finite with a nonzero normal`,
               );
           };
+          if (node.hostCut !== undefined) {
+            if (node.hostCut.frame !== "tree" && node.hostCut.frame !== "host")
+              refuse(
+                `host cut frame ${String(node.hostCut.frame)} is neither tree nor host`,
+              );
+            if (
+              ![
+                ...node.hostCut.plane.point,
+                ...node.hostCut.plane.normal,
+              ].every(Number.isFinite)
+            )
+              refuse("host cut plane has a nonfinite coordinate");
+            flat(node.hostCut.plane, "host cut");
+          }
           if (node.compose !== undefined) {
             if (node.compose.frame !== "tree" && node.compose.frame !== "host")
               refuse(

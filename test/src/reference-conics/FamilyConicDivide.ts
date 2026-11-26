@@ -1,4 +1,5 @@
-import { AutoMovieHumanF1Divide, AutoMovieHumanLandmarkSurface } from "@automovie/human";
+import { AutoMovieHumanLandmarkSurface } from "@automovie/human";
+import { AutoMovieHumanF1Divide } from "@automovie/human/capture";
 
 import { FamilyConicLoop } from "./FamilyConicLoop";
 import type { FamilyConicSource as R } from "./FamilyConicSource";

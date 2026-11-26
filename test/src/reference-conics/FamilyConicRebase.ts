@@ -1,11 +1,13 @@
 import {
   AutoMovieHumanConicLoft,
+  AutoMovieHumanSegmentFrame as F,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Frames,
   AutoMovieHumanF1Joints,
   AutoMovieHumanF1Landmarks,
-  AutoMovieHumanSegmentFrame as F,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   AutoMovieMatrix3Tuple,
   AutoMovieVector3Tuple,

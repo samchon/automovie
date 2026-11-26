@@ -14,13 +14,15 @@ import {
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as Loft,
+  AutoMovieHumanNativeCalipers,
+  AutoMovieHumanSegmentFrame as Frame,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1Engineering as Engineering,
   AutoMovieHumanF1NativeLaw as Law,
   AutoMovieHumanF1NativeTape,
-  AutoMovieHumanNativeCalipers,
-  AutoMovieHumanSegmentFrame as Frame,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanF1,
   IAutoMovieHumanF1Engineering,

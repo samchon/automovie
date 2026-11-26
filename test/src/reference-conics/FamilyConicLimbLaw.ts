@@ -11,10 +11,12 @@ import {
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
-  AutoMovieHumanF1,
-  AutoMovieHumanF1Placing as T,
   AutoMovieHumanSegmentFrame as SF,
 } from "@automovie/human";
+import {
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placing as T,
+} from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieHumanConicLoft,

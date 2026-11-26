@@ -2,10 +2,12 @@ import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRelief,
   AutoMovieHumanConicSection as S,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Placement,
   AutoMovieHumanF1Placing as T,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicLoft,

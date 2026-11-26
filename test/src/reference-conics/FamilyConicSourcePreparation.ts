@@ -1,7 +1,8 @@
 import type { FamilyConicCaptureInput as Input } from "./FamilyConicCaptureInput";
 import { FamilyConicOriginalCatalog as Original } from "./FamilyConicOriginalCatalog";
 import type { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
-import { AutoMovieHumanConicLoft as H, AutoMovieHumanF1 as F1 } from "@automovie/human";
+import { AutoMovieHumanConicLoft as H } from "@automovie/human";
+import { AutoMovieHumanF1 as F1 } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,

@@ -24,7 +24,7 @@ Point0 does not require physical2; a collapsed pole may have a value while its r
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Root construction reads domain, point and jet; no surface orientation or topology certificate is asserted.
+Root construction reads the domain, singleton points, prepared phase reads and physical2. A prepared phase read belongs to one explicitly selected station.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -32,4 +32,4 @@ Numeric unavailability throws AdmissionError; actual axis callback errors retain
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Gives domain, fresh-vector ownership and the distinction between value and derivative admission.
+Gives station/phase units, fresh-vector ownership and the distinction between value and derivative admission.

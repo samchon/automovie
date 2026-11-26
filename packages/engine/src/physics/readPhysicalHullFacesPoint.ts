@@ -33,12 +33,58 @@ export function readPhysicalHullFacesPoint(
   p: IAutoMovieVector3,
   details: boolean,
 ): IAutoMoviePhysicalHullNearest.IResult | number {
-  if (!hull.faces.length) throw new Error("A hull must span a volume");
-  const flat: IAutoMoviePhysicalHullFaces.IFlat =
-    hull.flat ?? physicalHullFlat(hull);
+  const flat: IAutoMoviePhysicalHullFaces.IFlat = pack(hull);
+  return nearest(hull, flat, new Float64Array(hull.faces.length), p, details);
+}
+
+/** Scoped scalar preparation over the same supporting faces. */
+export namespace readPhysicalHullFacesPoint {
+  /** Reuse the fixed planes and one fully overwritten distance buffer. */
+  export function prepare(
+    hull: IAutoMoviePhysicalHullFaces.IHull,
+  ): (p: IAutoMovieVector3) => number {
+    const flat: IAutoMoviePhysicalHullFaces.IFlat = pack(hull);
+    const distances: Float64Array = new Float64Array(hull.faces.length);
+    return (p: IAutoMovieVector3): number =>
+      nearest(hull, flat, distances, p, false);
+  }
+}
+
+/** Admit the solid and borrow its existing packed supporting faces. */
+function pack(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+): IAutoMoviePhysicalHullFaces.IFlat {
+  if (hull.faces.length === 0) throw new Error("A hull must span a volume");
+  return hull.flat ?? physicalHullFlat(hull);
+}
+
+/** The scalar specialization skips construction of contact records. */
+function nearest(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+  flat: IAutoMoviePhysicalHullFaces.IFlat,
+  distances: Float64Array,
+  p: IAutoMovieVector3,
+  details: false,
+): number;
+
+/** Same ordered plane and edge tests for direct and prepared reads. */
+function nearest(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+  flat: IAutoMoviePhysicalHullFaces.IFlat,
+  distances: Float64Array,
+  p: IAutoMovieVector3,
+  details: boolean,
+): IAutoMoviePhysicalHullNearest.IResult | number;
+
+function nearest(
+  hull: IAutoMoviePhysicalHullFaces.IHull,
+  flat: IAutoMoviePhysicalHullFaces.IFlat,
+  distances: Float64Array,
+  p: IAutoMovieVector3,
+  details: boolean,
+): IAutoMoviePhysicalHullNearest.IResult | number {
   const planes: number[] = flat.planes;
-  const count: number = hull.faces.length;
-  const distances: Float64Array = new Float64Array(count);
+  const count: number = distances.length;
   const px: number = p.x;
   const py: number = p.y;
   const pz: number = p.z;

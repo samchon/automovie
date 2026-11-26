@@ -1,6 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicLoft } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import { FamilyConicConvert as T } from "./FamilyConicConvert";
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";

@@ -30,6 +30,8 @@ import { nclose } from "../../internal/predicates";
  *    tiny negative phases 1e-20, 1e-30 and 1e-100 gives the limit jet (20, 0,
  *    20 - 400 kappa), with kappa the smaller of 1 / (40 w^2) over the two end
  *    weights w = 0.55 / 0.45 and 0.25 / 0.75, each component within 1e-6 x 20.
+ * 5. A bare section admits geometry with its girth unmeasured. Measured
+ *    admission requires a finite positive girth on the same source.
  */
 export function test_engine_geometry_conic_fidelity(): void {
   const k: number = Math.SQRT2 - 1;
@@ -164,4 +166,25 @@ export function test_engine_geometry_conic_fidelity(): void {
       );
     });
   }
+
+  TestValidator.equals("bare girth", asymmetric.girth, 0);
+  TestValidator.equals(
+    "bare geometry admission",
+    AutoMovieViewSection.geometryFault(asymmetric),
+    null,
+  );
+  const measured: IAutoMovieViewSection.ISection = {
+    ...asymmetric,
+    girth: AutoMovieViewSection.length(asymmetric),
+  };
+  TestValidator.equals(
+    "same source measured admission",
+    AutoMovieViewSection.fault(measured),
+    null,
+  );
+  for (const girth of [0, -1, NaN, Infinity])
+    TestValidator.predicate(
+      `reject measured girth ${girth}`,
+      AutoMovieViewSection.fault({ ...measured, girth }) !== null,
+    );
 }

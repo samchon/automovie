@@ -1,90 +1,33 @@
-# Construction
+# Human construction
 
-## Tree
+## Anatomical inputs
 
-Build one tree from the interface's construction types. Human derives nodes from measurements and laws. The engine realizes their chains, joins, trims and skin. Downstream rigs, bindings, appearance and garments use that realization.
+Construct and measure each public input at its published landmark, site and posture. Use ISO 8559-1 and ANSUR II for body measures and Farkas for head measures. State units and population ranges. Apply published relations in their own covariates. Apply the [research requirements](supervision.md#evidence-before-implementation) to estimates and check them against held-out evidence. [Anatomical consistency](../../../packages/human/docs/testing/consistency.md).
 
-Compose profiles and section pieces in a declared plane before lofting. Keep guides, extrema, fullness and measurement constraints explicit. Derive ports, trim landmarks and domains in relative coordinates from the landmark curves, courses and bind skeleton.
+Place joint centres from the person's inputs in the parent's anatomical frame. Derive the loft course and section scaling centres independently when their definitions differ. Read each girth on the original surface at its own site and solve only the controls that own it. [Centres and courses](../../../packages/human/docs/techniques/centres-and-courses.md).
 
-A missing capability belongs in the interface and engine. Add an independent operator test before a part uses it.
+## Body construction
+
+Use one parameterized body definition for the supported population. Human authors the anatomical nodes and their relative frames. The interface declares the construction, and the engine realizes its chains, connections and skin. Add missing shared operations at that owner with an independent operator test.
+
+Use conic families for the body's lofted regions. Choose the representation for folds, openings and other features under [3D modeling](../3d-modeling/crafting/lofting.md#composition-before-lofting). Build bilateral regions from the same law and reflect their frames with consistent orientation. Keep the same realized atlas for binding, appearance and export. Keep the modelled skin free of genitals and nipples.
+
+Derive production curves from the person's inputs with a method that meets the [research requirements](supervision.md#evidence-before-implementation). Use the fewest curves and simplest rules that satisfy the anatomical form and connections. Use reference observations to investigate laws and check generalization. [Mesh recovery](../3d-modeling/crafting/recovery.md).
+
+For Campaign 3, inspect each proposed joint law on the local Campaign 2 F1 assembly before changing the surrounding source shape. Use the accepted Phase 2.5 curves where available. Change only the source curves the connection needs. Record the unaffected neighbours in the same views. When a connection depends on a regional parameter, derive that parameter first and verify the two changes separately. [Campaign 2](https://github.com/samchon/automovie/issues/3150) · [Phase 2.5](https://github.com/samchon/automovie/issues/3197).
 
 ## Connections
 
-Choose the operator by the parts' topology.
+Use [Lofting](../3d-modeling/crafting/lofting.md#connections) for the common connection rules. Choose the Human operator by anatomy and topology.
 
-| Where parts meet | Operator |
+| Connection | Human operator |
 | --- | --- |
-| A child branches from a continuing parent | Port on the parent's landmark loop |
-| Children branch from the same open end | Split along a shared saddle seam |
-| Two compatible open ends meet | Continuation |
-| A part emerges through a surface | Merge from a shared landmark seed |
-| A recess or opening removes volume | Diff or trim |
+| A child leaves a continuing parent surface | Landmark port, for example the arm at the armscye |
+| Several children leave one open parent end | Split along the anatomical saddle, as at the finger webs or crotch |
+| Two compatible open ends continue one field | Continuation |
+| One defined volume enters another | Seeded merge |
+| A recess or opening removes a defined volume | Difference or trim |
 
-### Ownership
+The parent owns its shared loop and publishes the original curve and available transverse derivatives. The child starts at those values under the declared frame and parameter maps. Correct the source line where the band reveals a gap or a turn the source cannot support.
 
-One owner supplies the common section or both complete port curves with transverse data. Each part reads it under declared frame and direction maps. Mark an unavailable derivative explicitly. Reading coordinates from a realized mesh leaves both interiors free to drift after an edit.
-
-### Ports
-
-Use the published anatomical landmarks to define the parent loop, such as the shoulder and axillary folds for the armscye. Cut the loop from the parent's skin with a surface in skeleton coordinates. Derive the cut's offset and orientation from the person's measures. Verify that every defining landmark lies on the result.
-
-The parent publishes the loop's outlines and slopes. Start the child's view curves from those values in its own frame. [Compare both sides](verification.md#shared-connections) before lofting.
-
-The child forms its mass from its joint through the port and extends its field past the root rail. Blend both 2-jets with the engine's quintic Hermite strip for G2. Derive margins, rails, ribbons and ring placement from the same curves. Size loops to clear neighbouring loops and the section family, and put the port on the landmark loop at a crest.
-
-### Splits
-
-End the parent at its last single-loop section that is star-shaped about its course. Start each child at its saddle. Trace each seam from its fork through the web to the saddle. The children's bands carry the valleys.
-
-### Recesses and merges
-
-Preserve recesses and openings, including the underarm slit and lip gap. Establish the shared source before inspecting a realized continuation, trim or Boolean. If the input meets its anatomical and representational constraints, fix the failing operator.
-
-## Repair
-
-Find each defect from the first stage that produces it. Keep working neighbours in their existing representation. Plan changes to a working family's layout as a separate part of the issue.
-
-1. Identify the owning face, observed deviation and generating stage.
-2. Reconcile the 2D source lines at shared boundaries.
-3. Trace a wall defect to the anchor curves, curvature or field between knots.
-   - Record bound or near-chord values and reconstruct from sound neighbouring knots.
-4. Refit all dependent reliefs, cutters and bands affected by the change.
-5. Use a relief where its [cast](../3d-modeling/crafting/lofting.md#composition-before-lofting) sees the skin.
-   - Use an inflection line or a family for skin outside that cast.
-6. Extend the [tree](#tree) when the kernel lacks a capability.
-
-Follow [research](SKILL.md#research) before editing. For a refusal, isolate the target, window or bound against a passing control. Change the method when measured constraints show it cannot express the form.
-
-## Parametric identity and binding
-
-Map every anatomical region to its source subdomain, ports and material charts. Keep those identities distinct from generated streams. Fit a curve edit against locked measurements or refuse it explicitly.
-
-Publish boundary bindings and material coordinates with the realized atlas. Derive joint datums from the common source and skeleton. Coincident sheets such as closed lips retain separate bindings.
-
-Recompute affected addresses and bindings after topology or chart edits. Recompute inverse binds after rest-skeleton edits. Retain the identity of unaffected bones.
-
-## Form
-
-Use the [2D curves](curves.md) as the source through composition and lofting. Author each shared contour in one frame and map its interval into the neighbouring parts. Reflect both sides from one construction, including boundary maps, derivatives and orientation.
-
-Keep part files named for their region and piece, with controls in common body or bone-relative frames. Split domains where topology, continuity or editability requires it. Use multiple pieces or loops when a section has branches or undercuts.
-
-Differentiate smooth functions or fits. Preserve declared creases and apply C2 or G2 only on their promised domains. For a changed representation, verify exact preservation or state the approximation and its error.
-
-When a part or join fails, return its diagnostic and keep the rest of the figure available. Keep skin, rigs, export and other consumers working through the change. Omit genitals and nipples.
-
-## Numbers
-
-The first two [steps](SKILL.md#three-steps) trace one reference. Step 3 derives from anatomical inputs, published laws, geometry and population priors.
-
-Use the fewest independent values that still express the guides, sections and measurements. Use named constants for fixed definitions, unit factors, published ranges, ratios and normalized priors. Calculate values that depend on the person's inputs. Cite each constant and curve in its doc comment.
-
-When an input definition changes, solve that measure against the construction's surface using the new definition.
-
-## Inputs
-
-Each public parameter has a published measurement definition, unit and population range. Use ISO 8559-1 and ANSUR II for body sites and Farkas for face sites. Validate measurements and their population relations at admission.
-
-## Evidence
-
-Use reference meshes and curves as observations for deriving laws. Compare appearance against the [photographs](screenshot.md#references). Test an estimated law on people outside its fit and replace it when a published law covers the definition. Resolve in-scope findings together by cause and report other findings as open.
+For a port, cut the parent's field with a surface defined in the relevant skeletal frame and check the loop against its defining landmarks. For a split, end the parent at its last regular common section and follow each measured web from the fork to its saddle. [Armscye](../../../packages/human/docs/techniques/armscye-join.md) · [Joint logic](../../../packages/human/docs/techniques/joint-logic.md).

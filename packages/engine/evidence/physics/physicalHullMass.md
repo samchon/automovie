@@ -2,28 +2,28 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the decomposition, the exact quadrature, the frame of each result and that the moments are per unit mass.
+States the outward face decomposition and exact quadrature. The result contains shape-local mass properties in metre units, and inertia components are per unit mass. The prepared path borrows an admitted set of supporting faces.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Polyhedral mass properties by tetrahedral decomposition (Mirtich 1996, Fast and accurate computation of polyhedral mass properties; Tonon 2004, Explicit exact formulas for the 3-D tetrahedron inertia tensor): the degree-two quadrature with weights 1/20 at the four vertices and 4/5 at the centroid integrates every product of two coordinates exactly.
+Integrates the outward face fans by tetrahedral decomposition and diagonalizes the same moment tensor through `physicalPrincipalAxes`. The degree-two quadrature uses weight 1/20 at each vertex and 4/5 at the centroid. Mirtich (1996) derives the polyhedral mass calculation, and Tonon (2004) gives the exact tetrahedral inertia formulas.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Reads the faces from `physicalHullFaces` and the diagonalization from `physicalPrincipalAxes`; it owns only the integration.
+The point-set entry gets its supporting faces from `physicalHullFaces`. The prepared hull entry passes its supplied faces to the same integrator. The mass owner handles only integration and principal axes.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No tolerance and no sampling: the sums are exact for the polytope; the non-null assertions index loops and 3x3 rows the function bounds itself.
+Both entries use exact polytope quadrature and share the empty or zero-volume refusal. The bounded fan and matrix indices supply the loop premises.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the hull's triangle count, a few dozen for a body module, once per profile build.
+Performs linear work in the number of triangles of the supporting face fans.
 
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A profile integrates each hull once while it is built; the face search behind it is already shared by `physicalHullFaces`.
+A caller that already read the supporting planes can pass that hull to the integrator directly. The point-set entry shares existing hull admission.
 
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Keeps nothing between calls; its temporaries die with the call.
+Both entries borrow faces during the call and return a fresh result. The returned mass record retains none of that scratch.

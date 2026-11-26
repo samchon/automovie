@@ -7,11 +7,13 @@ import {
 } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
+  AutoMovieHumanHipSupportPlacement,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1NativeLaw as Law,
   AutoMovieHumanF1Placing as Placing,
-  AutoMovieHumanHipSupportPlacement,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,

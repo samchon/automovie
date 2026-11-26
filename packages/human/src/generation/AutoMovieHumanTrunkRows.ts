@@ -1,5 +1,7 @@
 import type { IAutoMovieHumanTrunkRows } from "@automovie/interface";
 
+import { AutoMovieHumanLoftStations } from "../lofting/AutoMovieHumanLoftStations";
+
 /**
  * The sampling rule of a trunk chain's layers: where its rows stand between
  * the chain's ends.
@@ -17,23 +19,12 @@ import type { IAutoMovieHumanTrunkRows } from "@automovie/interface";
  * a millimetre apart would otherwise put an interval a fifth of its
  * neighbours' between them, a step the C2 rule prints as a ring.
  *
- * The count is never below the reference's: the four reference bodies' trunk
- * region carries 158 (f1), 151 (f2), 150 (m1) and 171 (m2) sections over 609,
- * 606, 685 and 694 mm (`docs/testing/reference-layer.md`, Counts by region), a
- * mean gap of 3.9, 4.0, 4.6 and 4.1 mm, with up to 100 Hermite spans per loop.
- * The spacing here never exceeds `MAX_GAP`, so the trunk and the shoulders
- * carry at least 175 rows over the same height and 256 controls on every row,
- * 2.5 times the reference's spans per loop.
+ * The spacing here shares the body sampling pitch, with finer intervals
+ * wherever the caller supplies a smaller local bound.
  */
 export namespace AutoMovieHumanTrunkRows {
-  /**
-   * The widest row spacing, mm: under the smallest mean gap of the four
-   * references' trunk sections (f1, 158 sections over 609 mm of the MetaHuman
-   * reference asset's trunk region, 3.9 mm). Derived from the reference's
-   * density; the rule that places the rows is the spacing function the caller
-   * passes.
-   */
-  export const MAX_GAP: number = 3.5;
+  /** Maximum trunk row spacing in millimetres, from the body sampling pitch. */
+  export const MAX_GAP: number = AutoMovieHumanLoftStations.BODY_PITCH_MM;
 
   /** Share of the spacing under which two kept stations are one row. */
   export const MERGE: number = 0.4;

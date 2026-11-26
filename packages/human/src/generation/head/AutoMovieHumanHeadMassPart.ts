@@ -406,7 +406,7 @@ export namespace AutoMovieHumanHeadMassPart {
         common + departure(3),
       ],
     );
-    const fault: string | null = AutoMovieViewSection.fault(section);
+    const fault: string | null = AutoMovieViewSection.geometryFault(section);
     if (fault !== null)
       throw new Error(`Head attachment section at ${y}: ${fault}`);
     return { section, extents, frame: part.axis.at(y) };

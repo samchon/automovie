@@ -27,7 +27,10 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 /** A scripted transfer whose start will be read from the native schedule. */
 type Crossing = Omit<createLift.ICrossing, "id" | "start">;
 
-/** Stage a call, boarding, turn on the cab, ride and alighting on real lift prop frames. */
+/**
+ * Stage a call, boarding, turn on the cab, ride and alighting on real lift prop
+ * frames.
+ */
 export function environmentLiftActor(input: {
   environment: IAutoMovieEnvironment;
   id: string;
@@ -96,8 +99,8 @@ export function environmentLiftActor(input: {
     Vector3.create(0, 0, 1),
   );
   const yaw: number = (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
-  // The quiet stance's forward toes stay fully on the landing.
-  const at: IAutoMovieVector3 = local(0.37, 0.322);
+  // At this mark the displayed quiet-stance toes clear the sill by 5.5 mm.
+  const at: IAutoMovieVector3 = local(0.37, 0.342);
   const passageX: number = 0.32;
   const node: string = input.node ?? "lift-rider";
   const walkAcross: IAutoMovieMotionHumanActionLaw<Crossing> = {

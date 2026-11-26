@@ -19,23 +19,13 @@ import { AutoMovieLoftViewWorldJet } from "./AutoMovieLoftViewWorldJet";
 /** A fresh world coordinate or derivative vector. */
 type V = AutoMovieVector3Tuple;
 
-/** One immutable station's Point0 preparation, without physical derivatives. */
-interface Station {
-  /** Actual physical station in mm. */
-  s: number;
-  /** Original axis value at that station. */
-  frame: IAutoMovieLoftSectionFrame;
-  /** A declared collapsed pole has no polar point reader. */
-  local: ReturnType<typeof AutoMovieLoftSectionNative.point> | null;
-}
-
 /**
  * Original native field values and physical2 before any loft or mesh.
  * Relief/shift composition is shared with chain consumers. This reader owns no
  * emitted rows, fitted source, legacy lift or geometry process.
  */
 export namespace AutoMovieLoftViewFullSource {
-  /** Prepare one actual direct field and its bounded caller-owned value cache. */
+  /** Prepare the actual direct field and provide station-scoped point readers. */
   export function create(
     input: IAutoMovieLoftViewFullSource.IInput,
   ): IAutoMovieLoftViewFullSource.IReader {
@@ -54,8 +44,6 @@ export namespace AutoMovieLoftViewFullSource {
     const axis: IAutoMovieLoftViewFullSource.IInput["axis"] = input.axis;
     const reliefs: NonNullable<IAutoMovieLoftViewFullSource.IInput["reliefs"]> =
       [...(input.reliefs ?? [])];
-    const stations: Station[] = [];
-
     /** Each capability admits the actual owned physical domain before reading. */
     const admit = (s: number): void => {
       if (s < domain[0] || s > domain[1])
@@ -65,11 +53,8 @@ export namespace AutoMovieLoftViewFullSource {
     };
 
     /** Value preparation requests no physical-station derivatives. */
-    const station = (s: number): Station => {
-      const prior: Station | undefined = stations.find(
-        (entry: Station): boolean => entry.s === s,
-      );
-      if (prior !== undefined) return prior;
+    const pointAt = (s: number): ((t: number) => V) => {
+      admit(s);
       const values: IAutoMovieLoftViewRead.IValues | string =
         AutoMovieLoftViewRead.values(source, s);
       if (typeof values === "string")
@@ -87,30 +72,22 @@ export namespace AutoMovieLoftViewFullSource {
         throw new AutoMovieLoftAdmissionError(
           "The original cap tip differs from its actual collapsed source.",
         );
-      const next: Station = {
-        s,
-        frame,
-        local: pole ? null : AutoMovieLoftSectionNative.point(values),
+      const sample = pole ? null : AutoMovieLoftSectionNative.point(values);
+      return (t: number): V => {
+        const local = sample === null ? null : sample(t);
+        const p: V =
+          local === null
+            ? [...frame.origin]
+            : AutoMovieLoftFrame.place(frame, local[0], local[1]);
+        AutoMovieLoftReliefCompose.point(p, reliefs, s, t, pole);
+        return p;
       };
-      stations.unshift(next);
-      if (stations.length > 8) stations.pop();
-      return next;
     };
 
     return {
       domain,
-      point: (s: number, t: number): V => {
-        admit(s);
-        const at: Station = station(s);
-        const local: [number, number] | null =
-          at.local === null ? null : at.local(t);
-        const p: V =
-          local === null
-            ? [...at.frame.origin]
-            : AutoMovieLoftFrame.place(at.frame, local[0], local[1]);
-        AutoMovieLoftReliefCompose.point(p, reliefs, s, t, at.local === null);
-        return p;
-      },
+      pointAt,
+      point: (s: number, t: number): V => pointAt(s)(t),
       jet: (s: number, t: number): IAutoMovieSolidSurface.IJet => {
         admit(s);
         if (

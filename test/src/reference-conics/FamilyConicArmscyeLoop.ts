@@ -6,11 +6,13 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { AutoMovieLoftChain } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
+  AutoMovieHumanSegmentFrame as SF,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Joints as J,
   AutoMovieHumanF1Placement,
-  AutoMovieHumanSegmentFrame as SF,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,

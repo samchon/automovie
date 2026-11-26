@@ -165,11 +165,18 @@ export namespace AutoMovieViewSection {
     return { lengthMm: fine, differenceMm: Math.abs(fine - coarse) };
   }
 
-  /** The original source's finite, convexity and support diagnostic. */
+  /** The original source's geometry and finite measured-girth diagnostic. */
   export function fault(
     section: IAutoMovieViewSection.ISection,
   ): string | null {
     return AutoMovieViewSectionConic.fault(section);
+  }
+
+  /** The original source's geometry diagnostic without a girth observation. */
+  export function geometryFault(
+    section: Pick<IAutoMovieViewSection.ISection, "conics" | "box">,
+  ): string | null {
+    return AutoMovieViewSectionConic.geometryFault(section);
   }
 
   /** Finite admitted common-shoulder reach with original quarter departures. */

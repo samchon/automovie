@@ -137,9 +137,9 @@ export namespace IAutoMovieHumanConicLoft {
 
     /**
      * The length over which the angle's slope rises or falls beside each knot,
-     * mm, one per knot, not negative; on each stretch the two eases together
-     * are no longer than the stretch. Present, the angle is the local eased
-     * law; absent, the natural cubic.
+     * mm, one finite nonnegative value per knot. Where the angle changes,
+     * the two eases together fit within the stretch. A constant stretch
+     * uses neither ease. When omitted, the angle follows a natural cubic.
      */
     eases?: number[];
   }

@@ -5,7 +5,7 @@ import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import {
   AutoMovieHumanF1Joints as J,
   AutoMovieHumanF1Landmarks as L,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type { IAutoMovieMillimeterMesh } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";

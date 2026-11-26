@@ -126,10 +126,10 @@ function hullPoints(
     const axis: IAutoMovieViewAxis.IAxis = AutoMovieHumanConicLoft.axis(family);
     const read: (s: number) => number[] =
       AutoMovieHumanConicLoft.reader(family);
+    const resolve = AutoMovieHumanConicSection.prepare(family.layout);
     for (const knot of family.knots) {
       const frame: IAutoMovieLoftSectionFrame = axis.at(knot);
-      const chain: IAutoMovieHumanConicSection.IChain =
-        AutoMovieHumanConicSection.resolve(read(knot), family.layout);
+      const chain: IAutoMovieHumanConicSection.IChain = resolve(read(knot));
       const own: number[][] = [
         [...frame.origin],
         ...(AutoMovieViewChain.of(chain.input).fault !== null

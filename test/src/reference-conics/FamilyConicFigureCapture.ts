@@ -5,7 +5,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import { realizeAutoMovieConstruction } from "@automovie/engine";
-import { AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";

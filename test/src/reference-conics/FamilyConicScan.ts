@@ -9,9 +9,11 @@ import {
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Frames,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanConicSection,

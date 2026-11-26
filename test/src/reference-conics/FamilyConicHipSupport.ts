@@ -7,11 +7,11 @@ import {
   AutoMovieSolidVector as V,
   AutoMovieViewLoft,
 } from "@automovie/engine";
+import { AutoMovieHumanSegmentFrame as F } from "@automovie/human";
 import {
   AutoMovieHumanF1 as H,
   AutoMovieHumanF1Placing as T,
-  AutoMovieHumanSegmentFrame as F,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionNode,

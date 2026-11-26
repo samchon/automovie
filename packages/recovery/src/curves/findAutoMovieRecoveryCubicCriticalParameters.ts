@@ -5,15 +5,14 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Locate isolated cubic regularity and affine-curvature candidates
- * analytically.
+ * Locate isolated cubic regularity and affine-curvature candidates analytically.
  *
- * For p(t)=a_t^3+b_t^2+c_t+d, D=cross(p',p'') is quadratic, D=D0+e0_t+f_t^2/2
- * with e0=6_cross(c,a), f=12_cross(b,a). Away from D=0, affine curvature has a
- * stationary value only where e=D'=0 or 4_e^2-9_f_D=0. The existing engine
- * polynomial-root owner evaluates these source-coefficient polynomials; it does
- * not fit observations or a point grid. Roots of the two derivative components
- * also identify stationary candidates.
+ * For p(t)=a*t^3+b*t^2+c*t+d, D=cross(p',p'') is quadratic,
+ * D=D0+e0*t+f*t^2/2 with e0=6*cross(c,a), f=12*cross(b,a).
+ * Away from D=0, affine curvature has a stationary value only where e=D'=0
+ * or 4*e^2-9*f*D=0. The existing engine polynomial-root owner evaluates these
+ * source-coefficient polynomials; it does not fit observations or a point grid.
+ * Roots of the two derivative components also identify stationary candidates.
  *
  * Input is a finite planar Bernstein control quadruple, in any fixed uniform
  * spatial unit. Translation and uniform edge normalization condition only the
@@ -21,8 +20,8 @@ import type {
  * Results are numerical candidates in the open normalized interval, not exact
  * real roots or certified isolating intervals. Exactly identical values merge;
  * nearby distinct values remain separate. A constant polynomial has no isolated
- * roots. Zero-curvature values include inflections, repeated roots and
- * stationary points and do not themselves establish source regularity.
+ * roots. Zero-curvature values include inflections, repeated roots and stationary
+ * points and do not themselves establish source regularity.
  */
 export function findAutoMovieRecoveryCubicCriticalParameters(
   controls: readonly [
@@ -32,6 +31,23 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
     Readonly<AutoMovieVector2Tuple>,
   ],
 ): IAutoMovieCubicCriticalParameters {
+  if (controls.length !== 4)
+    throw new RangeError(
+      "Cubic critical parameters require four finite planar Bernstein controls.",
+    );
+  for (let i: number = 0; i < 4; ++i) {
+    const p: Readonly<AutoMovieVector2Tuple> | undefined = controls[i];
+    if (
+      p === undefined ||
+      !Array.isArray(p) ||
+      p.length !== 2 ||
+      !Number.isFinite(p[0]) ||
+      !Number.isFinite(p[1])
+    )
+      throw new RangeError(
+        "Cubic critical parameters require four finite planar Bernstein controls.",
+      );
+  }
   const raw: Readonly<AutoMovieVector2Tuple>[] = controls
     .slice(1)
     .map(
@@ -49,6 +65,10 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
       Math.abs(p[1]),
     ]),
   );
+  if (!Number.isFinite(scale))
+    throw new RangeError(
+      "Source control differences exceed finite binary64 arithmetic.",
+    );
   if (scale === 0)
     return {
       breaks: [],

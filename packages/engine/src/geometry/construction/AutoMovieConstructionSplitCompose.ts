@@ -57,7 +57,7 @@ export namespace AutoMovieConstructionSplitCompose {
    * A declared plane in kernel coordinates: metres in its frame to mm, its
    * normal made unit; null for a zero normal.
    */
-  function plane(
+  export function plane(
     declared: IAutoMovieConstructionSplit.IPlane,
     frame: IAutoMovieConstructionSplitCompose.IBasis | null,
   ): IAutoMovieConstructionSkinCut.IPlane | null {

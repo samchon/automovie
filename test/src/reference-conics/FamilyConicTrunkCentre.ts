@@ -12,6 +12,9 @@ import {
   AutoMovieHumanConicRelief as Relief,
   AutoMovieHumanConicReliefRecentre as Nets,
   AutoMovieHumanConicSection as S,
+  AutoMovieHumanSegmentFrame as F,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1CourseLaw as Law,
   AutoMovieHumanF1Placement as Placement,
@@ -19,8 +22,7 @@ import {
   AutoMovieHumanF1RootControls as RootControls,
   AutoMovieHumanF1RootRails as RootRails,
   AutoMovieHumanF1TrunkCentre as TrunkCentre,
-  AutoMovieHumanSegmentFrame as F,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionPortLoop,
   IAutoMovieHumanConicLoft,

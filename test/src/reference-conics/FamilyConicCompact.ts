@@ -1,5 +1,8 @@
 import { AutoMovieLoftRelief } from "@automovie/engine";
-import { AutoMovieHumanF1, AutoMovieHumanF1Placement } from "@automovie/human";
+import {
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Placement,
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieLoftRelief,

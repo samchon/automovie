@@ -1,10 +1,10 @@
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { AutoMovieLoftViewSource, AutoMovieViewLoft } from "@automovie/engine";
+import { AutoMovieHumanConicLoft as Loft } from "@automovie/human";
 import {
-  AutoMovieHumanConicLoft as Loft,
   AutoMovieHumanF1 as Figure,
   AutoMovieHumanF1NativeLaw as Law,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1Engineering,

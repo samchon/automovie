@@ -2,7 +2,8 @@ import {
   AutoMovieLoftChain,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
-import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
+import { AutoMovieHumanConicLoft } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieHumanF1,

@@ -12,11 +12,13 @@ import {
   AutoMovieHumanBendArc,
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicPose,
+  AutoMovieHumanSegmentFrame as SF,
+} from "@automovie/human";
+import {
   AutoMovieHumanF1,
   AutoMovieHumanF1Placement as P,
   AutoMovieHumanF1Placing,
-  AutoMovieHumanSegmentFrame as SF,
-} from "@automovie/human";
+} from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,

@@ -13,6 +13,7 @@ import type {
   IAutoMovieHumanLimbRootStrip,
 } from "@automovie/interface";
 
+import { AutoMovieHumanLoftStations } from "../../lofting/AutoMovieHumanLoftStations";
 import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanLimbRootStrip } from "../AutoMovieHumanLimbRootStrip";
 import { AutoMovieHumanHandHeel } from "../hand/AutoMovieHumanHandHeel";
@@ -68,12 +69,10 @@ export namespace AutoMovieHumanArmLaw {
   const WRIST_TURN: number = 50;
 
   /**
-   * Widest spacing of the arm's own layers along the walk, world mm: finer than
-   * the 3.5 mm plane spacing of the MetaHuman reference asset's bone-normal arm
-   * sections (f1, 151 stations over 526 mm), so the arm never carries fewer
-   * sections than the reference.
+   * Maximum distance between arm layers in calibration millimetres. Use the
+   * shared body sampling estimate, scaled by the person's arm law inputs.
    */
-  const LAYER_STEP: number = 3;
+  const LAYER_STEP: number = AutoMovieHumanLoftStations.BODY_PITCH_MM;
 
   /**
    * Half the walk length over which the tube's jet is read at the arm's last

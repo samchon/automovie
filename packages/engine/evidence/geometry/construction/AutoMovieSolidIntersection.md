@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Delegates the original continuation/publication statements with the same input and unchanged public walk controls.
+Delegates the continuation and publication with the same input, public walk limit and guide density. Arc mode now prepares its guide from the accepted adaptive walk.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ Preserves the original public signature and distinguishes local observations fro
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Includes C output targets, original continuation accepted-substep work and optional bounded reference walks rather than only wrapper cost.
+Includes C output targets, continuation accepted-substep work and a bounded adaptive reference walk in arc mode.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

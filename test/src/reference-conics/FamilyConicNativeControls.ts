@@ -1,8 +1,8 @@
 import {
   AutoMovieHumanConicSection as Section,
-  AutoMovieHumanF1Placing as T,
   AutoMovieHumanSegmentFrame as F,
 } from "@automovie/human";
+import { AutoMovieHumanF1Placing as T } from "@automovie/human/capture";
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 
 /** Existing inventory metadata and actual signed control receipts, without generating geometry. */

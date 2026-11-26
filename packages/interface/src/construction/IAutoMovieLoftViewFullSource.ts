@@ -20,6 +20,8 @@ export namespace IAutoMovieLoftViewFullSource {
   export interface IReader {
     /** Inclusive physical station bounds, mm. */
     readonly domain: readonly [number, number];
+    /** Prepare one physical station in mm and read fresh world points by phase in radians. */
+    pointAt(s: number): (t: number) => AutoMovieVector3Tuple;
     /** Fresh full world Point0, mm; no axis.jet is requested. */
     point(s: number, t: number): AutoMovieVector3Tuple;
     /**

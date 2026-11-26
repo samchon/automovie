@@ -6,14 +6,16 @@ import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/eng
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
-  AutoMovieHumanF1,
-  AutoMovieHumanF1Frames,
-  AutoMovieHumanF1Nails,
-  AutoMovieHumanF1Placement,
   AutoMovieHumanNail,
   AutoMovieHumanNailLoop,
   AutoMovieHumanTipDome,
 } from "@automovie/human";
+import {
+  AutoMovieHumanF1,
+  AutoMovieHumanF1Frames,
+  AutoMovieHumanF1Nails,
+  AutoMovieHumanF1Placement,
+} from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieHumanConicLoft,
@@ -70,7 +72,7 @@ namespace FamilyConicNail {
    * Each digit family's distal segment in `AutoMovieHumanF1Frames`, and which of its axes are distal and dorsal: a hand's phalanx has Y
    * proximal and X volar (Wu et al. 2005 4.3.5), a toe's has X distal and Y dorsal, as the frames' own rules state.
    */
-  const SEGMENTS: Record<string, { segment: string; pad: keyof typeof import("@automovie/human").AutoMovieHumanF1Joints; hand: boolean }> = {
+  const SEGMENTS: Record<string, { segment: string; pad: keyof typeof import("@automovie/human/capture").AutoMovieHumanF1Joints; hand: boolean }> = {
     "finger.index": { segment: "index.distal", pad: "indexPad", hand: true },
     "finger.middle": { segment: "middle.distal", pad: "middlePad", hand: true },
     "finger.ring": { segment: "ring.distal", pad: "ringPad", hand: true },
@@ -523,7 +525,7 @@ namespace FamilyConicNail {
     await fs.mkdir(out, { recursive: true });
     const source: R.ISource = await R.load(root);
     const frames: Map<string, IAutoMovieHumanSegmentFrame> = new Map(AutoMovieHumanF1Frames.segments().map((segment: IAutoMovieHumanF1Frames.ISegment): [string, IAutoMovieHumanSegmentFrame] => [segment.name, segment.frame]));
-    const joints: Record<string, unknown> = (await import("@automovie/human")).AutoMovieHumanF1Joints as unknown as Record<string, unknown>;
+    const joints: Record<string, unknown> = (await import("@automovie/human/capture")).AutoMovieHumanF1Joints as unknown as Record<string, unknown>;
     const survey: Record<string, unknown>[] = [];
     if (process.argv.includes("--frames")) NodeCanvasRaster.initialize();
 

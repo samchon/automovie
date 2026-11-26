@@ -62,7 +62,7 @@ Eight local quadratic-half domains and bounded invocation-owned subdivision stac
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Source preparation proves the positive regular convex pieces; unchanged polar observations additionally expose floating arithmetic, girth or support failures.
+Source preparation establishes positive regular convex pieces. The shared geometry check reads finite polar jets, curvature and support. The measured check also requires a positive finite girth.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -74,11 +74,11 @@ Keeps the existing1e-12 relative convexity and1e-6 support thresholds; observati
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Bare sections have unevaluated zero girth; nonfinite computed girth and nonfinite jets are refused explicitly.
+Geometry-only callers admit the prepared source before requesting length in their own metric. Measured callers receive a refusal for a nonpositive or nonfinite girth.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most388 prepared-source polar readings and constant storage.
+At most 388 prepared-source polar readings and constant storage.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -87,3 +87,13 @@ Reads the section's prepared source without rebuilding its quarters.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns one string or null and retains no input.
+
+# src/geometry/construction/AutoMovieViewSectionConic.ts#AutoMovieViewSectionConic.geometryFault
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The prepared rational source supplies the actual radius and its derivatives. Finite positive jets, the polar curvature numerator and the original section supports give the geometry checks independently of any girth observation.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One pass reads at most 388 supported native jets. It builds no derivative table and keeps no results after returning.

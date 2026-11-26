@@ -104,13 +104,14 @@ export namespace AutoMovieSolidBodyMerge {
           for (const c of f.cycles) {
             if (AutoMovieSolidCycle.held(c, u, v, f.surface.period)) continue;
 
-            /** The original polygon reader's chart-space foot. */
-            const foot: IAutoMovieSolidCycle.IFoot = AutoMovieSolidCycle.foot(
-              c,
-              u,
-              v,
-              f.surface.period,
-            );
+            /** The intact owner's projection, or the polygon's chart foot. */
+            const project: IAutoMovieSolidCycle.IExact["foot"] =
+              c.segments === undefined && c.exact?.count === c.chart.length
+                ? c.exact.foot
+                : undefined;
+            const foot: IAutoMovieSolidCycle.IFoot =
+              project?.(u, v) ??
+              AutoMovieSolidCycle.foot(c, u, v, f.surface.period);
             if (best === null || foot.distance < best.foot.distance)
               best = { cycle: c, foot };
           }
@@ -131,7 +132,7 @@ export namespace AutoMovieSolidBodyMerge {
             AutoMovieSolidCycle.piece(best.cycle, best.foot.segment)?.exact ??
             null;
           if (exact !== null) {
-            const [eu, ev]: [number, number] = exact.across(u, v);
+            const [eu, ev]: [number, number] = exact.across(u, v, best.foot, n);
             return { face: to, u: eu, v: ev };
           }
 

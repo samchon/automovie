@@ -1,4 +1,4 @@
-import { AutoMovieHumanF1FaceCentres as C } from "@automovie/human";
+import { AutoMovieHumanF1FaceCentres as C } from "@automovie/human/capture";
 
 /**
  * The head's parts as the fit will take them, as far as they go before the fit tool exports its part record: each part's course, the

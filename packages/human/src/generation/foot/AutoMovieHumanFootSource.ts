@@ -108,27 +108,19 @@ export namespace AutoMovieHumanFootSource {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts A failed full resolver propagates and cannot select earlier geometry or a different source.
    * @evidence contracts/common.md#meaningful-documentation Regional availability is not complete-parent or proximal-contact success.
    * @evidence contracts/performance.md#efficient-algorithms Regional demand performs only its unchanged native reading; full admission occurs only on explicit full demand.
-   * @evidence contracts/performance.md#reuse-equivalent-work One latest full-part identity retains its preparation; proximal-only changes retain the same regional authority.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The caller owns one regional reference and at most one latest full preparation; replacement drops the old full record.
+   * @evidence contracts/performance.md#reuse-equivalent-work A complete request prepares the actual resolved part once; all local reads share the independently prepared regional authority.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The regional reader retains only the original regional authority and resolver. Each complete result belongs to its caller.
    */
   export function fromRegion(
     region: IAutoMovieHumanFootSource.IRegion,
     resolve: IAutoMovieHumanFootSource.FromRegionResolve,
   ): IAutoMovieHumanFootSource.IRegional {
-    let retained: IAutoMovieHumanFootSource.IComplete | undefined;
-    const full: () => IAutoMovieHumanFootSource.IComplete =
-      (): IAutoMovieHumanFootSource.IComplete => {
-        const part: IAutoMovieViewPart = resolve();
-        if (retained === undefined || retained.part !== part)
-          retained = prepare(part);
-        return retained;
-      };
     const owner: IAutoMovieHumanFootSource.IRegional = {
       name: region.name,
       axis: region.axis,
       region,
       part: { name: region.name, axis: region.axis },
-      complete: full,
+      complete: (): IAutoMovieHumanFootSource.IComplete => prepare(resolve()),
     };
     return owner;
   }

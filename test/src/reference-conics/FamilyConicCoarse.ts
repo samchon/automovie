@@ -3,8 +3,8 @@ import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicRelief,
   AutoMovieHumanConicSection,
-  AutoMovieHumanF1,
 } from "@automovie/human";
+import { AutoMovieHumanF1 } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
   IAutoMovieHumanF1,
