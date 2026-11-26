@@ -29,6 +29,8 @@ The rollback engine also replayed the approved archive with 1,545,080 triangles 
 
 The station sampler is already present on master for conic loft and aperture readers. Keep the following independent changes available by their original commits. Before reapplying, check the receiving owner and its actual dependencies.
 
+The median partition was reapplied at `a8a489792a` as a shared Engine operation. It preserves the complete crossing witnesses in the existing Engine fixture. The fixed Phase 2.5 construction replay kept all 1,545,080 triangles, no diagnostics and identical PNG hashes for six whole-body, pelvis and hand views. Shape source changes return only when they are usable at the original connection, beginning with the [isolated shoulder baseline](armscye-join.md#restart-from-the-original-surfaces).
+
 | Independent change | Commits to inspect |
 | --- | --- |
 | Active-set orthogonality on the opening PR fitter | `9460f130f2`. Master has the older fitter and does not provide the same active-set owner. |

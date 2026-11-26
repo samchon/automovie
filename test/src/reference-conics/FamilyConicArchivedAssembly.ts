@@ -1,7 +1,13 @@
-import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
+import {
+  AutoMovieLoftChain,
+  realizeAutoMovieConstruction,
+} from "@automovie/engine";
 import { AutoMovieHumanConicLoft } from "@automovie/human";
 import type {
   IAutoMovieConstruction,
+  IAutoMovieConstructionJoin,
+  IAutoMovieConstructionNode,
+  IAutoMovieConstructionPort,
   IAutoMovieConstructionRealization,
   IAutoMovieHumanConicLoft,
   IAutoMovieViewPart,
@@ -27,6 +33,7 @@ async function capture(
   out: string,
   scopes: readonly string[],
   frameHands: boolean,
+  shoulder: "left" | "right" | undefined,
 ): Promise<void> {
   const [constructionBytes, placementBytes, cameraBytes] = await Promise.all(
     [constructionFile, placementFile, cameraFile].map((file) => readFile(file)),
@@ -62,10 +69,16 @@ async function capture(
   );
   if (cameras.length === 0)
     throw new Error("No archived replay camera selected");
+  const scoped =
+    shoulder === undefined
+      ? undefined
+      : shoulderRoot(construction.root, shoulder);
   const name = "archived-assembly";
   const begin = performance.now();
   const result = realizeAutoMovieConstruction(
-    { name, root: construction.root, fills: construction.fills },
+    scoped === undefined
+      ? { name, root: construction.root, fills: construction.fills }
+      : { name, root: scoped.root },
     { chord: 0.001, sources },
   );
   console.log(
@@ -85,31 +98,41 @@ async function capture(
     indices,
     colour: [0.64, 0.65, 0.67],
   };
-  const guides: N.Curve[] = result.chains.flatMap((chain) => {
-    const first = chain.layers[0]!.y;
-    const last = chain.layers.at(-1)!.y;
-    const phases = [0, Math.PI / 2];
-    const rows = Array.from({ length: 32 }, (_, i) => {
-      const at = AutoMovieLoftChain.sampler(
-        chain,
-        first + ((last - first) * i) / 31,
-      );
-      return phases.map((phase) => at(phase).map((mm) => mm / 1000) as N.Point);
+  const edges =
+    scoped === undefined ? undefined : shoulderEdges(result, scoped.band);
+  const guides: N.Curve[] =
+    edges ??
+    result.chains.flatMap((chain) => {
+      const first = chain.layers[0]!.y;
+      const last = chain.layers.at(-1)!.y;
+      const phases = [0, Math.PI / 2];
+      const rows = Array.from({ length: 32 }, (_, i) => {
+        const at = AutoMovieLoftChain.sampler(
+          chain,
+          first + ((last - first) * i) / 31,
+        );
+        return phases.map(
+          (phase) => at(phase).map((mm) => mm / 1000) as N.Point,
+        );
+      });
+      return phases.map((phase, i) => ({
+        id: chain.name + "." + phase,
+        points: rows.map((row) => row[i]!),
+        closed: false,
+        colour: "b42d3a",
+      }));
     });
-    return phases.map((phase, i) => ({
-      id: chain.name + "." + phase,
-      points: rows.map((row) => row[i]!),
-      closed: false,
-      colour: "b42d3a",
-    }));
-  });
   await mkdir(out, { recursive: true });
   Raster.initialize();
   const frames = [];
   for (const { file, camera: original, scope } of cameras) {
     const hand = /^hand\.(left|right)$/.exec(scope)?.[1];
-    const camera =
-      frameHands && (hand === "left" || hand === "right")
+    const camera = edges?.length
+      ? frameCamera(
+          original,
+          edges.flatMap(({ points }) => points),
+        )
+      : frameHands && (hand === "left" || hand === "right")
         ? handCamera(result.mesh, original, hand)
         : original;
     for (const pass of ["clay", "curves-over-clay"] as const) {
@@ -142,6 +165,9 @@ async function capture(
         constructionHash: hash(constructionBytes!),
         placementHash: hash(placementBytes!),
         cameraHash: hash(cameraBytes!),
+        ...(scoped === undefined
+          ? {}
+          : { operators: [scoped.root.host.name, scoped.root.name] }),
         triangles: indices.length / 3,
         diagnostics: result.diagnostics,
         frames,
@@ -150,6 +176,62 @@ async function capture(
       2,
     ) + "\n",
   );
+}
+
+/** Isolate the historical port and its cutter, keeping all three source leaves. */
+function shoulderRoot(
+  root: IAutoMovieConstructionNode,
+  side: "left" | "right",
+) {
+  const suffix = side === "right" ? ".mirror" : "";
+  const find = (
+    node: IAutoMovieConstructionNode,
+    name: string,
+  ): IAutoMovieConstructionNode => {
+    if (node.name === name) return node;
+    if ("host" in node) return find(node.host, name);
+    throw new Error("Archive lacks shoulder ancestor " + name);
+  };
+  const cut = find(root, "cut.axilla" + suffix);
+  if (
+    cut.type !== "join" ||
+    cut.host.type !== "port" ||
+    cut.host.name !== "armscye.arm" + suffix
+  )
+    throw new Error(
+      "Archive does not declare the original armscye and axilla cutter",
+    );
+  const port: IAutoMovieConstructionPort = cut.host;
+  const host = find(port.host, port.hostFace);
+  const part = find(port.part, port.partFace);
+  const isolated: IAutoMovieConstructionJoin = {
+    ...cut,
+    host: { ...port, host, part },
+  };
+  return { root: isolated, band: port.band };
+}
+
+/** Read the published positions of the actual port boundary and trimmed cycles. */
+function shoulderEdges(
+  result: IAutoMovieConstructionRealization.IRealization,
+  band: string,
+): N.Curve[] {
+  const face = result.body.faces.find(({ chain }) => chain === band);
+  if (face === undefined) return [];
+  const surfaces = new Map(
+    result.surfaces.map((surface) => [surface.name, surface]),
+  );
+  return [...(face.domainLoops ?? []), ...face.cycles].map((cycle, i) => ({
+    id: band + "." + i,
+    closed: true,
+    colour: "b42d3a",
+    points: cycle.points.map((index) => {
+      const { chain, chart } = result.body.points[index]!;
+      const surface = surfaces.get(chain)!;
+      const point = surface.point?.(...chart) ?? surface.jet(...chart).p;
+      return point.map((mm) => mm / 1000) as N.Point;
+    }),
+  }));
 }
 
 /**
@@ -161,8 +243,7 @@ function handCamera(
   camera: N.Camera,
   side: "left" | "right",
 ): N.Camera {
-  const axes = [camera.right, camera.up, camera.back];
-  const bounds = axes.map(() => ({ low: Infinity, high: -Infinity }));
+  const points: N.Point[] = [];
   for (let i = 0; i < mesh.positions.length; i += 3) {
     const owner = mesh.owners[mesh.coordinates[i]!];
     const z = mesh.positions[i + 2]!;
@@ -172,7 +253,17 @@ function handCamera(
       !/^(hand|finger\.[^.]+)(\.mirror)?$/.test(owner)
     )
       continue;
-    const point: N.Point = [mesh.positions[i]!, mesh.positions[i + 1]!, z];
+    points.push([mesh.positions[i]!, mesh.positions[i + 1]!, z]);
+  }
+  if (points.length === 0)
+    throw new Error("The archive contains no indexed hand for " + side);
+  return frameCamera(camera, points);
+}
+
+function frameCamera(camera: N.Camera, points: readonly N.Point[]): N.Camera {
+  const axes = [camera.right, camera.up, camera.back];
+  const bounds = axes.map(() => ({ low: Infinity, high: -Infinity }));
+  for (const point of points) {
     axes.forEach((axis, j) => {
       const target = Camera.dot(point, axis);
       const bound = bounds[j]!;
@@ -180,8 +271,6 @@ function handCamera(
       bound.high = Math.max(bound.high, target);
     });
   }
-  if (bounds.some(({ low }) => !Number.isFinite(low)))
-    throw new Error("The archive contains no indexed hand for " + side);
   const mid = bounds.map(({ low, high }) => (low + high) / 2);
   const target = [0, 1, 2].map((k) =>
     axes.reduce((sum, axis, i) => sum + axis[k]! * mid[i]!, 0),
@@ -195,13 +284,19 @@ if (!construction || !placement || !cameras || !out || !scopes.length)
   throw new Error(
     "Supply a construction, placement, camera receipt, output and view scopes",
   );
+const shoulder = scopes
+  .find((scope) => scope.startsWith("--shoulder="))
+  ?.slice(11);
+if (shoulder !== undefined && shoulder !== "left" && shoulder !== "right")
+  throw new Error("Choose --shoulder=left or --shoulder=right");
 void capture(
   construction,
   placement,
   cameras,
   out,
-  scopes.filter((s) => s !== "--frame-hands"),
+  scopes.filter((s) => !s.startsWith("--")),
   scopes.includes("--frame-hands"),
+  shoulder,
 ).catch((error: unknown) => {
   console.error(error);
   process.exitCode = 1;

@@ -40,7 +40,7 @@ export namespace AutoMovieHumanConicLoft {
    *
    * @evidence contracts/development/implementation.md#principled-implementation On a stretch the slope is `m S(x / a)` over the first ease, `m` between, `m S((L - x) / b)` over the last, `S` the quintic smoothstep whose integral over its window is half the window, so the angle is the closed-form integral and reaches the second value exactly with `m = d / (L - (a + b) / 2)`.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One stretch search and one polynomial per read.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Eases longer than their stretch, negative eases and mismatched counts are refused; a stretch of equal values returns that value with no arithmetic on it.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Require finite nonnegative ease windows and enforce their disjointness on changing-angle stretches. Equal endpoint angles own an exact constant, so no ease window is read on that stretch.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear in the knot count per read; no solve.
    * @evidence contracts/development/implementation.md#reuse-equivalent-work The admission runs once at creation and the closure serves every read.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure borrows the roll's three arrays.
@@ -52,7 +52,18 @@ export namespace AutoMovieHumanConicLoft {
     if (eases === undefined || eases.length !== knots.length || values.length !== knots.length || knots.length < 2) throw new Error("roll: an eased roll needs one value and one ease per knot, at least two knots");
     for (let i: number = 0; i + 1 < knots.length; ++i) {
       if (!(knots[i + 1]! > knots[i]!)) throw new Error("roll: the knots must increase");
-      if (!(eases[i]! >= 0 && eases[i + 1]! >= 0 && eases[i]! + eases[i + 1]! <= knots[i + 1]! - knots[i]!)) throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative or longer than it");
+      const start = eases[i]!;
+      const end = eases[i + 1]!;
+      // Placement holds the material angle across a turn. Its represented
+      // endpoint difference can round below the sum of the two inactive eases.
+      if (
+        !Number.isFinite(start) ||
+        !Number.isFinite(end) ||
+        start < 0 ||
+        end < 0 ||
+        (values[i] !== values[i + 1] && start + end > knots[i + 1]! - knots[i]!)
+      )
+        throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative, nonfinite or longer than it");
     }
     // The quintic smoothstep, its integral from 0 and its derivative, at a share of its window.
     const step = (t: number): number => t * t * t * (10 + t * (-15 + 6 * t));

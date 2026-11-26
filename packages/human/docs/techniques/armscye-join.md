@@ -2,6 +2,20 @@
 
 What f1's trunk and arm sources are at the shoulder, measured against every premise the shared-loop join admits on, and the order of work that follows. [Joint logic](joint-logic.md) gives the joint's anatomy and kind; this note holds the numbers.
 
+## Restart from the original surfaces
+
+The Phase 2.5 reference pose and the identity-joint neutral pose have different receiving geometry. The Phase 2.5 reference shoulder retains its overall outline, with a narrow slit visible from below. In neutral, the arm's first sections cross to the medial side of the legacy sagittal plane. The close clay shows a shelf below the front of the shoulder and a pocket behind it. Keep the parent wall and the unaffected arm sections together when investigating that seam. [Campaign 2.5](https://github.com/samchon/automovie/pull/3533) · [Historical neutral inspection](https://github.com/samchon/automovie/issues/3171#issuecomment-6876575198).
+
+Replay the original port and cutter using `FamilyConicArchivedAssembly` with `--shoulder=left` or `--shoulder=right` and the matching `shoulder.left` or `shoulder.right` camera scope. The overlay evaluates the published boundary points on their original owners. The replay holds each saved camera's orientation and scale and centres it on the port. Build the neutral input with `FamilyConicNeutral --shoulder-snapshot=<directory>` and add `--right` for the mirrored side. These captures contain the trunk, arm and cutter. Other joins and the whole-figure closure are outside their scope.
+
+The original Phase 2.5 left port and cutter replayed in 57.1 seconds with no diagnostic. The current neutral ports replayed in 30.5 and 27.5 seconds. Both neutral cutters fail the historical seed search on the actual port band. A diagnostic sweep over the left cutter's full station domain and at its existing 192-column angular resolution found a meeting, but the intersection walk lost the branch at `[-1.0, 1265.1, 156.4]` mm. All eight images were identical to the neutral capture that failed at the seed. The previous shared-loop control also independently failed the kept-side condition at 4.385 radians with a 6.325 mm largest source separation. The visible shelf, the search window and the incomplete traced branch describe different parts of the failure.
+
+The restored roll reader had also refused seven constant-angle spans in the arm, hand and digits. Subtracting their world stations made the represented span up to `2.13e-14` mm shorter than the sum of the unused ease windows. A constant-angle span has zero first and second derivatives and uses neither window. Its reader retains the exact constant. The spans whose angles change still require disjoint, finite, nonnegative windows.
+
+Use the front and back folds as separate landmarks. The shared curve should come from the retained parent surface and supply its tangent plane to the proximal arm. Trace any cutter against the live receiving surface and check the entire branch and its kept side. ISO 8559-1 defines the folds and armscye landmarks. Gabrielides et al. derive a cross tangent that remains independent of the guide tangent and use both for compatible Hermite ribbons. CGAL corefinement uses the same intersection edge incidence on both surfaces. These sources support the construction and ownership rules. The actual chart supplies the curve and its derivatives. [ISO 8559-1:2017, §§3.1.13–3.1.14 and Fig. 29](https://gso-sims-preview-doc-aws.s3-eu-west-1.amazonaws.com/iso-8559-1-2017-en.html) · [Gabrielides et al., §§4.2–4.3](https://users.math.uoc.gr/~mkaravel/files/papers/bransurf.pdf) · [CGAL, Corefinement and Boolean Operations](https://doc.cgal.org/6.1.2/Polygon_mesh_processing/index.html).
+
+## Previous shared-loop investigation
+
 Measured 2026-11-17 by `test/src/reference-conics/FamilyConicArmscyeJoin.ts` on the two complete native sources (reliefs included, no loft and no mesh). From `test/`: `pnpm conic:build`, then `node .shots/esbuild/FamilyConicArmscyeJoin.cjs`.
 
 ## Today's construction
