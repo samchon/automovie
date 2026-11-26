@@ -1,4 +1,4 @@
-import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
+import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
 import type { AutoMovieCliCaptureTypes } from "./AutoMovieCliCaptureTypes";
 import { captureAutoMovie } from "./internal/captureAutoMovie";
 import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
@@ -8,8 +8,8 @@ import { readAutoMovieVideoProbe } from "./internal/readAutoMovieVideoProbe";
 
 /**
  * Public command and helper operations for deterministic AutoMovie capture. The
- * capture host class is separately exposed as `AutoMovieCaptureHost` and shared
- * with rendering.
+ * capture host class is separately exposed as `AutoMovieCliCaptureHost` and
+ * shared with rendering.
  */
 export namespace AutoMovieCliCapture {
   /** Capture a production subject or the frames of an encoded video file. */
@@ -28,7 +28,7 @@ export namespace AutoMovieCliCapture {
 
   /** Plan Chromium switches and executable for a capture backend. */
   export function planChromiumLaunch(
-    backend: AutoMovieCaptureBackend,
+    backend: AutoMovieCliCaptureBackend,
     env: Readonly<Record<string, string | undefined>>,
   ): AutoMovieCliCaptureTypes.ChromiumLaunchPlan {
     return planAutoMovieChromiumLaunch(backend, env);

@@ -1,4 +1,5 @@
-import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
 
 /**
  * Notify a supported canvas subscriber from the actual draw-completion owner.
@@ -16,15 +17,9 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * capture authority without implementing validation or delivery gates.
  */
 export function publishViewerCompletedFrame(
-  canvas: {
-    getAttribute?: (name: string) => string | null;
-    dispatchEvent?: (
-      event: HTMLElementEventMap["automovie:completed-frame"],
-    ) => boolean;
-  },
-  frame: IAutoMovieViewerCompletedFrame,
-  explicitDraw: boolean = false,
+  request: AutoMovieViewerDisplay.IPublishCompletedFrameRequest,
 ): void {
+  const { canvas, frame, explicitDraw = false } = request;
   if (canvas.getAttribute?.("data-automovie-frame-observer") !== "on") return;
   canvas.dispatchEvent?.(
     new CustomEvent<IAutoMovieViewerCompletedFrame>(

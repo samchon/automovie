@@ -1,4 +1,5 @@
-import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
 
 /**
  * Admit an original synchronous redraw only from a new completed observation.
@@ -8,25 +9,9 @@ import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompleted
  * supplied time must agree exactly. The producer must throw on refusal.
  */
 export function redrawViewerCompletedFrame(
-  seconds: number,
-  options: {
-    /** Actual completed publication count. */
-    completedCount: () => number;
-    /** Actual last completed scene seconds. */
-    completedSeconds: () => number;
-    /** Current original-producer observation, absent before any completed draw. */
-    readFrame: () =>
-      | Omit<IAutoMovieViewerCompletedFrame, "control">
-      | undefined;
-    /** Original draw; must throw if it refuses the requested state. */
-    produce: (seconds: number) => void;
-    /** Publish a newly supplied legacy producer observation at these seconds. */
-    publish: (
-      frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
-      seconds: number,
-    ) => void;
-  },
+  request: AutoMovieViewerDisplay.IRedrawCompletedFrameRequest,
 ): void {
+  const { seconds, options } = request;
   if (seconds < 0) throw new Error("A redraw requires nonnegative seconds.");
   const before: number = options.completedCount();
   const previous: Omit<IAutoMovieViewerCompletedFrame, "control"> | undefined =

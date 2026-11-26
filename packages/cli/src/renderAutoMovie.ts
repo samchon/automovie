@@ -4,7 +4,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
-import { AutoMovieCaptureHost } from "./capture/AutoMovieCaptureHost";
+import { AutoMovieCliCaptureHost } from "./capture/AutoMovieCliCaptureHost";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
@@ -25,9 +25,9 @@ import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
  * too. `--background transparent` renders the straight-alpha layer and refuses
  * `--passes`. A `--props` file is read as JSON before anything starts. FFmpeg
  * is resolved before the page is built, so a missing encoder costs no drawing.
- * The work is `renderAutoMovieVideo` through one `AutoMovieCaptureHost`, closed
- * on every outcome. It prints the video, the report and the frame count, and
- * resolves to 0; a refusal throws to `run`, which prints it.
+ * The work is `renderAutoMovieVideo` through one `AutoMovieCliCaptureHost`,
+ * closed on every outcome. It prints the video, the report and the frame count,
+ * and resolves to 0; a refusal throws to `run`, which prints it.
  */
 export async function renderAutoMovie(props: {
   /** The tokens after `render`. */
@@ -76,7 +76,7 @@ export async function renderAutoMovie(props: {
       loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
   });
 
-  const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
+  const host: AutoMovieCliCaptureHost = await AutoMovieCliCaptureHost.open({
     root,
     module: options.module,
     backend: options.backend,

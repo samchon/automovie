@@ -3,7 +3,7 @@ import type {
   IAutoMovieRasterImage,
 } from "@automovie/interface";
 
-import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
+import { AutoMovieRenderPicture } from "./AutoMovieRenderPicture.js";
 
 /**
  * A contact sheet of pictures, filled one picture at a time: each picture is
@@ -13,27 +13,27 @@ import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
  * caption longer than the cell is wide wraps onto further lines at word
  * boundaries, so it keeps every word that identifies the cell; the sheet's
  * strip holds the number of lines its constructor states, which
- * `AutoMovieRasterSheet.lines` and `AutoMovieRasterSheet.caption` let a layout
- * size from its captions before any picture is added. Reduction averages every
- * source pixel a cell pixel covers (`area`, the default), or copies the source
- * pixel at the cell pixel's centre (`nearest`), which keeps exact colours for a
- * review that reads pixel values.
+ * `AutoMovieRenderRasterSheet.lines` and `AutoMovieRenderRasterSheet.caption`
+ * let a layout size from its captions before any picture is added. Reduction
+ * averages every source pixel a cell pixel covers (`area`, the default), or
+ * copies the source pixel at the cell pixel's centre (`nearest`), which keeps
+ * exact colours for a review that reads pixel values.
  *
  * A cell takes any picture, a drawn frame, a difference image or a decoded
  * still alike. Pictures are reduced as they arrive, so a sheet never holds more
  * than its own pixels; the finished sheet is an ordinary picture for
- * `encodeAutoMovieRasterPng`, cut to the cells that were filled.
+ * `AutoMovieRenderPicture.encodeRasterPng`, cut to the cells that were filled.
  *
  * ```ts
- * const sheet = new AutoMovieRasterSheet(20, 5, 180, 320);
+ * const sheet = new AutoMovieRenderRasterSheet(20, 5, 180, 320);
  * for (const [seconds, frame] of frames) sheet.add(frame, `${seconds}s`);
  * await writeFile(
  *   "sheet.png",
- *   await encodeAutoMovieRasterPng(sheet.finish()),
+ *   await AutoMovieRenderPicture.encodeRasterPng(sheet.finish()),
  * );
  * ```
  */
-export class AutoMovieRasterSheet {
+export class AutoMovieRenderRasterSheet {
   /** The sheet pixels, opaque RGBA. */
   private readonly sheet: IAutoMovieRasterImage;
 
@@ -68,7 +68,7 @@ export class AutoMovieRasterSheet {
    * between lines and two of margin above and below.
    */
   public static caption(cellHeight: number, lines: number = 1): number {
-    return (6 * lines + 3) * AutoMovieRasterSheet.scale(cellHeight);
+    return (6 * lines + 3) * AutoMovieRenderRasterSheet.scale(cellHeight);
   }
 
   /**
@@ -81,7 +81,7 @@ export class AutoMovieRasterSheet {
     cellWidth: number,
     cellHeight: number,
   ): string[] {
-    const scale: number = AutoMovieRasterSheet.scale(cellHeight);
+    const scale: number = AutoMovieRenderRasterSheet.scale(cellHeight);
     const room: number = Math.max(
       1,
       Math.floor((cellWidth - 3 * scale) / (4 * scale)),
@@ -122,7 +122,7 @@ export class AutoMovieRasterSheet {
     for (const caption of captions)
       most = Math.max(
         most,
-        AutoMovieRasterSheet.wrap(caption, cellWidth, cellHeight).length,
+        AutoMovieRenderRasterSheet.wrap(caption, cellWidth, cellHeight).length,
       );
     return most;
   }
@@ -162,7 +162,7 @@ export class AutoMovieRasterSheet {
     this.cellHeight = cellHeight;
     this.reduction = reduction;
     this.lines = lines;
-    this.strip = AutoMovieRasterSheet.caption(cellHeight, lines);
+    this.strip = AutoMovieRenderRasterSheet.caption(cellHeight, lines);
     if (
       ![capacity, columns, cellWidth, cellHeight, lines].every(
         (value: number): boolean => value > 0,
@@ -256,19 +256,19 @@ export class AutoMovieRasterSheet {
     for (let offset: number = 0; offset < strip.pixels.length; offset += 4)
       strip.pixels.set([16, 16, 16, 255], offset);
     // Each line is stamped on a band of its own and only its glyph rows are copied, so a line's box never paints over the glyphs of the line above it.
-    const scale: number = AutoMovieRasterSheet.scale(this.cellHeight);
+    const scale: number = AutoMovieRenderRasterSheet.scale(this.cellHeight);
     const row: number = this.cellWidth * 4;
     const band: IAutoMovieRasterImage = {
       width: this.cellWidth,
       height: 9 * scale,
       pixels: new Uint8ClampedArray(row * 9 * scale),
     };
-    AutoMovieRasterSheet.wrap(caption, this.cellWidth, this.cellHeight)
+    AutoMovieRenderRasterSheet.wrap(caption, this.cellWidth, this.cellHeight)
       .slice(0, this.lines)
       .forEach((line: string, index: number): void => {
         for (let offset: number = 0; offset < band.pixels.length; offset += 4)
           band.pixels.set([16, 16, 16, 255], offset);
-        stampAutoMovieRasterLabel(band, line, scale);
+        AutoMovieRenderPicture.stampRasterLabel(band, line, scale);
         strip.pixels.set(
           band.pixels.subarray(2 * scale * row, 7 * scale * row),
           (index * 6 + 2) * scale * row,

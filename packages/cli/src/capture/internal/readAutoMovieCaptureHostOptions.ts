@@ -1,5 +1,4 @@
 import { readAutoMoviePageTimeout } from "../../readAutoMoviePageTimeout";
-import type { AutoMovieCaptureBackend } from "../AutoMovieCaptureBackend";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { AUTOMOVIE_CAPTURE_OPTIONS } from "./AUTOMOVIE_CAPTURE_OPTIONS";
 

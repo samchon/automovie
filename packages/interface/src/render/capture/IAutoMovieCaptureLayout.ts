@@ -21,7 +21,7 @@ export interface IAutoMovieCaptureLayout {
 
   /**
    * Height in pixels of the caption strip under each cell, outside the picture,
-   * as `AutoMovieRasterSheet.caption` gives it for the cell's height and
+   * as `AutoMovieRenderRasterSheet.caption` gives it for the cell's height and
    * `lines`.
    */
   caption: number;

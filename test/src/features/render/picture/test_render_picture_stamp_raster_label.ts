@@ -1,5 +1,5 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import { stampAutoMovieRasterLabel } from "@automovie/render";
+import { AutoMovieRenderPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -41,7 +41,7 @@ export function test_render_picture_stamp_raster_label(): void {
 
   // 1. At an anchor.
   const one: IAutoMovieRasterImage = picture();
-  stampAutoMovieRasterLabel(one, "1", 2, { x: 10, y: 20 });
+  AutoMovieRenderPicture.stampRasterLabel(one, "1", 2, { x: 10, y: 20 });
   const inside: number[] = box(one, 10, 20, 14, 18);
   TestValidator.predicate(
     "the box is dark with white glyphs",
@@ -57,7 +57,7 @@ export function test_render_picture_stamp_raster_label(): void {
 
   // 2. Kept inside.
   const edge: IAutoMovieRasterImage = picture();
-  stampAutoMovieRasterLabel(edge, "1", 2, { x: 60, y: 60 });
+  AutoMovieRenderPicture.stampRasterLabel(edge, "1", 2, { x: 60, y: 60 });
   TestValidator.equals(
     "the box moves back against the edges",
     [at(edge, 50, 46), at(edge, 63, 63), at(edge, 49, 46)],
@@ -66,7 +66,7 @@ export function test_render_picture_stamp_raster_label(): void {
 
   // 3. No anchor.
   const corner: IAutoMovieRasterImage = picture();
-  stampAutoMovieRasterLabel(corner, "1", 1);
+  AutoMovieRenderPicture.stampRasterLabel(corner, "1", 1);
   TestValidator.equals(
     "the box starts at the corner",
     [at(corner, 0, 0), at(corner, 6, 8), at(corner, 7, 0)],
@@ -76,6 +76,6 @@ export function test_render_picture_stamp_raster_label(): void {
   // 4. Refusal.
   for (const scale of [0, -1])
     TestValidator.error(`scale ${scale} is refused`, (): void => {
-      stampAutoMovieRasterLabel(picture(), "1", scale);
+      AutoMovieRenderPicture.stampRasterLabel(picture(), "1", scale);
     });
 }

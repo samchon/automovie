@@ -15,8 +15,8 @@ import { loadAutoMovieProductionModule } from "../loadAutoMovieProductionModule"
 import { readAutoMoviePageTimeout } from "../readAutoMoviePageTimeout";
 import { readAutoMovieRevision } from "../readAutoMovieRevision";
 import { serveAutoMovieDrawPage } from "../serveAutoMovieDrawPage";
-import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
-import type { IAutoMovieChromium } from "./IAutoMovieChromium";
+import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
+import type { IAutoMovieCliChromium } from "./IAutoMovieCliChromium";
 import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
 
 /**
@@ -38,7 +38,7 @@ import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
  * host for all of them.
  *
  * ```ts
- * const host = await AutoMovieCaptureHost.open({
+ * const host = await AutoMovieCliCaptureHost.open({
  *   root,
  *   module: "src/subjects.ts",
  *   backend: "software",
@@ -51,7 +51,7 @@ import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
  * }
  * ```
  */
-export class AutoMovieCaptureHost {
+export class AutoMovieCliCaptureHost {
   /**
    * The production's `@automovie/render`, which drew the page; a host that
    * draws through `session` uses it for the rules it applies.
@@ -74,7 +74,7 @@ export class AutoMovieCaptureHost {
   private readonly timeout: number;
 
   /** The launched browser. */
-  private readonly browser: IAutoMovieChromium.IBrowser;
+  private readonly browser: IAutoMovieCliChromium.IBrowser;
 
   /** The served draw page. */
   private readonly page: { url: string; close: () => Promise<void> };
@@ -85,7 +85,7 @@ export class AutoMovieCaptureHost {
     backend: string;
     root: string;
     timeout: number;
-    browser: IAutoMovieChromium.IBrowser;
+    browser: IAutoMovieCliChromium.IBrowser;
     page: { url: string; close: () => Promise<void> };
   }) {
     this.render = props.render;
@@ -105,33 +105,16 @@ export class AutoMovieCaptureHost {
    * failed build, and a missing Chromium with the command that installs it;
    * whatever was started before the failure is stopped.
    */
-  public static async open(props: {
-    /** The production's root folder. */
-    root: string;
-
-    /** Path of the subject module, relative to `root` or absolute. */
-    module: string;
-
-    /** How the browser draws. */
-    backend: AutoMovieCaptureBackend;
-
-    /** The environment, read for `CHROME_PATH`. */
-    env: Readonly<Record<string, string | undefined>>;
-
-    /**
-     * Per-call milliseconds for page navigation, draw-function readiness,
-     * subject creation and drawing. Defaults to 120,000. Invalid timer delays
-     * fail before resources are acquired.
-     */
-    timeout?: number;
-  }): Promise<AutoMovieCaptureHost> {
+  public static async open(
+    props: AutoMovieCliCaptureHost.OpenProps,
+  ): Promise<AutoMovieCliCaptureHost> {
     const timeout: number = readAutoMoviePageTimeout(props.timeout);
 
     const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
       props.root,
       "@automovie/render",
     );
-    const chromium: IAutoMovieChromium = loadAutoMovieProductionModule<
+    const chromium: IAutoMovieCliChromium = loadAutoMovieProductionModule<
       typeof Playwright
     >(props.root, "playwright-core").chromium;
 
@@ -150,7 +133,7 @@ export class AutoMovieCaptureHost {
           backend: props.backend,
           env: props.env,
         });
-      return new AutoMovieCaptureHost({
+      return new AutoMovieCliCaptureHost({
         render,
         backend: launched.backend,
         root: props.root,
@@ -181,7 +164,7 @@ export class AutoMovieCaptureHost {
     /** Data the subject module reads, as JSON, or null. */
     props: unknown;
   }): Promise<Render.AutoMovieDrawSession> {
-    const page: Awaited<ReturnType<IAutoMovieChromium.IBrowser["newPage"]>> =
+    const page: Awaited<ReturnType<IAutoMovieCliChromium.IBrowser["newPage"]>> =
       await this.browser.newPage();
 
     // A module can fail before installing the draw port, leaving only a timeout.
@@ -326,5 +309,30 @@ export class AutoMovieCaptureHost {
     } finally {
       await this.page.close();
     }
+  }
+}
+
+/** Options accepted by `AutoMovieCliCaptureHost.open`. */
+export namespace AutoMovieCliCaptureHost {
+  /** Input for loading the draw page and launching the capture browser. */
+  export interface OpenProps {
+    /** The production's root folder. */
+    root: string;
+
+    /** Path of the subject module, relative to `root` or absolute. */
+    module: string;
+
+    /** How the browser draws. */
+    backend: AutoMovieCliCaptureBackend;
+
+    /** The environment, read for `CHROME_PATH`. */
+    env: Readonly<Record<string, string | undefined>>;
+
+    /**
+     * Per-call milliseconds for page navigation, draw-function readiness,
+     * subject creation and drawing. Defaults to 120,000. Invalid timer delays
+     * fail before resources are acquired.
+     */
+    timeout?: number;
   }
 }

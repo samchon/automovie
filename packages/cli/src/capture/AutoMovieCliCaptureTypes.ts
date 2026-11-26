@@ -1,5 +1,5 @@
-import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
-import type { IAutoMovieChromium } from "./IAutoMovieChromium";
+import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
+import type { IAutoMovieCliChromium } from "./IAutoMovieCliChromium";
 
 /** Shared named contracts for capture operations and their focused helpers. */
 export namespace AutoMovieCliCaptureTypes {
@@ -39,7 +39,7 @@ export namespace AutoMovieCliCaptureTypes {
     out: string | null;
 
     /** How the browser draws. */
-    backend: AutoMovieCaptureBackend;
+    backend: AutoMovieCliCaptureBackend;
 
     /**
      * Per-call milliseconds for draw-function readiness, subject
@@ -54,10 +54,10 @@ export namespace AutoMovieCliCaptureTypes {
   /** Inputs for launching the production's Chromium instance. */
   export interface LaunchChromiumProps {
     /** Playwright's `chromium`, loaded from the production. */
-    chromium: IAutoMovieChromium;
+    chromium: IAutoMovieCliChromium;
 
     /** How the browser draws. */
-    backend: AutoMovieCaptureBackend;
+    backend: AutoMovieCliCaptureBackend;
 
     /** The environment, read for `CHROME_PATH`. */
     env: Readonly<Record<string, string | undefined>>;
@@ -78,7 +78,7 @@ export namespace AutoMovieCliCaptureTypes {
   /** Browser and backend description returned after launch. */
   export interface ChromiumLaunch {
     /** The launched browser. */
-    browser: IAutoMovieChromium.IBrowser;
+    browser: IAutoMovieCliChromium.IBrowser;
 
     /**
      * The backend and Chromium version, such as `swiftshader; Chromium

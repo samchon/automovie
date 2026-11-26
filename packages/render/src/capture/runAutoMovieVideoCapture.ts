@@ -8,7 +8,7 @@ import type {
   IAutoMovieRunVideoCaptureProps,
 } from "@automovie/interface";
 
-import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
+import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
 import { formatAutoMovieInspectionRequest } from "../scene/inspection/formatAutoMovieInspectionRequest.js";
 import { AutoMovieCaptureFolder } from "./AutoMovieCaptureFolder.js";
 import { planAutoMovieCapture } from "./planAutoMovieCapture.js";
@@ -164,7 +164,7 @@ export async function runAutoMovieVideoCapture(
       }
       await folder.remove(name);
       return {
-        picture: await decodeAutoMovieRasterPng(bytes),
+        picture: await AutoMovieRenderPicture.decodeRasterPng(bytes),
         labels: [],
         backend: BACKEND,
       };

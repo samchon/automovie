@@ -3,7 +3,7 @@ import type {
   IAutoMovieCaptureLayoutProps,
 } from "@automovie/interface";
 
-import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
+import { AutoMovieRenderRasterSheet } from "../picture/AutoMovieRenderRasterSheet.js";
 
 /**
  * Slack for the rounding of a pixel size that is a whole number in exact
@@ -18,8 +18,9 @@ const EPSILON: number = 1e-9;
  * Each cell's caption strip is reserved under it and counted against the
  * longest edge, never taken from the cell: it holds as many lines as the
  * longest of `captions` wraps to at the cell's width, by
- * `AutoMovieRasterSheet.lines`, at the height `AutoMovieRasterSheet.caption`
- * gives, so every caption keeps every word that identifies its cell.
+ * `AutoMovieRenderRasterSheet.lines`, at the height
+ * `AutoMovieRenderRasterSheet.caption` gives, so every caption keeps every word
+ * that identifies its cell.
  *
  * A cell keeps the still's proportions, so a portrait still gives upright
  * cells, and never enlarges the still. The smallest cell decides how many cells
@@ -75,12 +76,12 @@ export function planAutoMovieCaptureLayout(
   const strip: (cell: number) => { lines: number; height: number } = (
     cell: number,
   ): { lines: number; height: number } => {
-    const lines: number = AutoMovieRasterSheet.lines(
+    const lines: number = AutoMovieRenderRasterSheet.lines(
       props.captions,
       Math.max(1, Math.floor((width * cell) / height + EPSILON)),
       cell,
     );
-    return { lines, height: AutoMovieRasterSheet.caption(cell, lines) };
+    return { lines, height: AutoMovieRenderRasterSheet.caption(cell, lines) };
   };
   const rowsMost: number = Math.max(
     1,

@@ -2,7 +2,7 @@ import type {
   IAutoMovieRasterComparison,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import { compareAutoMovieRasters } from "@automovie/render";
+import { AutoMovieRenderPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -52,10 +52,11 @@ export function test_render_picture_compare_rasters(): void {
     );
 
   // 1. Identical pictures.
-  const same: IAutoMovieRasterComparison = compareAutoMovieRasters(
-    paint(picture(4, 3, [200, 200, 200]), 3, 2, [255, 0, 0]),
-    paint(picture(4, 3, [200, 200, 200]), 3, 2, [255, 0, 0]),
-  );
+  const same: IAutoMovieRasterComparison =
+    AutoMovieRenderPicture.compareRasters(
+      paint(picture(4, 3, [200, 200, 200]), 3, 2, [255, 0, 0]),
+      paint(picture(4, 3, [200, 200, 200]), 3, 2, [255, 0, 0]),
+    );
   TestValidator.equals(
     "identical pictures report no change",
     [same.changed, same.ratio, same.maximum, same.bounds],
@@ -85,10 +86,8 @@ export function test_render_picture_compare_rasters(): void {
     2,
     [0, 200, 210],
   );
-  const changed: IAutoMovieRasterComparison = compareAutoMovieRasters(
-    before,
-    after,
-  );
+  const changed: IAutoMovieRasterComparison =
+    AutoMovieRenderPicture.compareRasters(before, after);
   TestValidator.equals("two pixels changed", changed.changed, 2);
   TestValidator.equals("their share of twelve", changed.ratio, 2 / 12);
   TestValidator.equals("the largest difference", changed.maximum, 200);
@@ -130,31 +129,26 @@ export function test_render_picture_compare_rasters(): void {
     0,
     [10, 13, 10],
   );
-  const tolerated: IAutoMovieRasterComparison = compareAutoMovieRasters(
-    dim,
-    nudged,
-    3,
-  );
+  const tolerated: IAutoMovieRasterComparison =
+    AutoMovieRenderPicture.compareRasters(dim, nudged, 3);
   TestValidator.equals(
     "a difference at the tolerance is unchanged, and still the maximum",
     [tolerated.changed, tolerated.maximum, tolerated.bounds],
     [0, 3, null],
   );
-  const strict: IAutoMovieRasterComparison = compareAutoMovieRasters(
-    dim,
-    nudged,
-    2,
-  );
+  const strict: IAutoMovieRasterComparison =
+    AutoMovieRenderPicture.compareRasters(dim, nudged, 2);
   TestValidator.equals(
     "a difference above the tolerance is changed",
     [strict.changed, strict.ratio, strict.maximum, strict.bounds],
     [1, 0.5, 3, { left: 1, top: 0, right: 1, bottom: 0 }],
   );
-  const newer: IAutoMovieRasterComparison = compareAutoMovieRasters(
-    picture(1, 1, [100, 100, 100]),
-    picture(1, 1, [140, 140, 140]),
-    50,
-  );
+  const newer: IAutoMovieRasterComparison =
+    AutoMovieRenderPicture.compareRasters(
+      picture(1, 1, [100, 100, 100]),
+      picture(1, 1, [140, 140, 140]),
+      50,
+    );
   TestValidator.equals(
     "an unchanged pixel is dimmed from the newer picture",
     [newer.changed, newer.maximum, at(newer.image, 0, 0)],
@@ -163,12 +157,15 @@ export function test_render_picture_compare_rasters(): void {
 
   // 4. Refusals.
   TestValidator.error("pictures of different sizes are refused", (): void => {
-    compareAutoMovieRasters(picture(4, 3, [0, 0, 0]), picture(3, 4, [0, 0, 0]));
+    AutoMovieRenderPicture.compareRasters(
+      picture(4, 3, [0, 0, 0]),
+      picture(3, 4, [0, 0, 0]),
+    );
   });
   TestValidator.error(
     "a picture whose pixels do not match its size is refused",
     (): void => {
-      compareAutoMovieRasters(picture(2, 2, [0, 0, 0]), {
+      AutoMovieRenderPicture.compareRasters(picture(2, 2, [0, 0, 0]), {
         width: 2,
         height: 2,
         pixels: new Uint8ClampedArray(12),
@@ -177,7 +174,7 @@ export function test_render_picture_compare_rasters(): void {
   );
   for (const tolerance of [-1])
     TestValidator.error(`a tolerance of ${tolerance} is refused`, (): void => {
-      compareAutoMovieRasters(
+      AutoMovieRenderPicture.compareRasters(
         picture(1, 1, [0, 0, 0]),
         picture(1, 1, [0, 0, 0]),
         tolerance,

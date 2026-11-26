@@ -10,11 +10,8 @@ import * as THREE from "three";
 import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
 import type { IAutoMovieViewerHandle } from "../../IAutoMovieViewerHandle.js";
 import type { IMountViewerOptions } from "../../IMountViewerOptions.js";
-import { createViewerDisplayClock } from "../../createViewerDisplayClock.js";
-import { createViewerFrameControl } from "../../createViewerFrameControl.js";
+import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
 import { createViewerViewportResize } from "../../createViewerViewportResize.js";
-import { publishViewerCompletedFrame } from "../../publishViewerCompletedFrame.js";
-import { redrawViewerCompletedFrame } from "../../redrawViewerCompletedFrame.js";
 import type { AutoMovieViewer } from "../AutoMovieViewer.js";
 import { releaseMountedViewer } from "./releaseMountedViewer.js";
 
@@ -51,7 +48,7 @@ export function mountViewer(
   });
   let running: boolean = true;
   let scheduled: number | undefined;
-  let frameControl: ReturnType<typeof createViewerFrameControl> | undefined;
+  let frameControl: AutoMovieViewerDisplay.IFrameControl | undefined;
   try {
     const resize: ReturnType<typeof createViewerViewportResize> =
       createViewerViewportResize(renderer, camera);
@@ -66,8 +63,8 @@ export function mountViewer(
     synchronizeViewport();
 
     let startMs: number | null = null;
-    const clock: ReturnType<typeof createViewerDisplayClock> =
-      createViewerDisplayClock();
+    const clock: AutoMovieViewerDisplay.IClock =
+      AutoMovieViewerDisplay.createClock();
     let timeOffset: number = 0;
     let lastCompleted:
       | Omit<IAutoMovieViewerCompletedFrame, "control">
@@ -76,8 +73,8 @@ export function mountViewer(
     function active(): void {
       if (!running) throw new Error("The mounted viewer is closed.");
     }
-    const ownedControl: ReturnType<typeof createViewerFrameControl> =
-      createViewerFrameControl({
+    const ownedControl: AutoMovieViewerDisplay.IFrameControl =
+      AutoMovieViewerDisplay.createFrameControl({
         camera,
         currentSeconds: (): number => clock.current(),
         assertActive: active,
@@ -148,16 +145,18 @@ export function mountViewer(
       );
       lastCompleted = completed;
       ++completions;
-      publishViewerCompletedFrame(
+      AutoMovieViewerDisplay.publishCompletedFrame({
         canvas,
-        { ...completed, elapsedSeconds, control },
+        frame: { ...completed, elapsedSeconds, control },
         explicitDraw,
-      );
+      });
     }
     function redraw(seconds: number = clock.current()): void {
       active();
       clock.run(seconds, (): void => {
-        redrawViewerCompletedFrame(seconds, {
+        AutoMovieViewerDisplay.redrawCompletedFrame({
+          seconds,
+          options: {
           completedCount: (): number => completions,
           completedSeconds: (): number => clock.current(),
           readFrame: ():
@@ -168,10 +167,11 @@ export function mountViewer(
               options.redrawCompleted(time);
             else draw(time, true);
           },
-          publish: (
-            frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
-            time: number,
-          ): void => publishCompleted(frame, time, true),
+            publish: (
+              frame: Omit<IAutoMovieViewerCompletedFrame, "control">,
+              time: number,
+            ): void => publishCompleted(frame, time, true),
+          },
         });
       });
     }

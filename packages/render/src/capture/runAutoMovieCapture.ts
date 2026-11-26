@@ -12,10 +12,8 @@ import type {
   IAutoMovieRunCaptureProps,
 } from "@automovie/interface";
 
-import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
-import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
-import { stampAutoMovieRasterLabel } from "../picture/stampAutoMovieRasterLabel.js";
+import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
+import { AutoMovieRenderRasterSheet } from "../picture/AutoMovieRenderRasterSheet.js";
 import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
 import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
 import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
@@ -95,7 +93,7 @@ export async function runAutoMovieCapture(
   const rows: IAutoMovieCaptureCellRecord[] = [];
   const packets: IAutoMovieInspectionDiagnostics[] = [];
   const sheets: string[] = [];
-  let sheet: AutoMovieRasterSheet | null = null;
+  let sheet: AutoMovieRenderRasterSheet | null = null;
   for (const cell of plan.cells) {
     const place: Pick<IAutoMovieCaptureCellRecord, "sheet" | "row" | "column"> =
       {
@@ -115,7 +113,7 @@ export async function runAutoMovieCapture(
       pass: cell.pass,
       label: cell.label,
     };
-    sheet ??= new AutoMovieRasterSheet(
+    sheet ??= new AutoMovieRenderRasterSheet(
       layout.perSheet,
       layout.columns,
       layout.cell.width,
@@ -166,19 +164,27 @@ export async function runAutoMovieCapture(
     }
     const picture: IAutoMovieRasterImage = drawing.picture;
     for (const label of drawing.labels)
-      stampAutoMovieRasterLabel(picture, label.text, labelScale, label);
+      AutoMovieRenderPicture.stampRasterLabel(
+        picture,
+        label.text,
+        labelScale,
+        label,
+      );
     const file: string = `${cell.name}.png`;
     // The graphics plate keeps its straight alpha as the compositing matte.
-    const bytes: Uint8Array = await encodeAutoMovieRasterPng(picture, {
-      alpha: cell.pass === "graphics",
-    });
+    const bytes: Uint8Array = await AutoMovieRenderPicture.encodeRasterPng(
+      picture,
+      {
+        alpha: cell.pass === "graphics",
+      },
+    );
     await folder.write(file, bytes);
     rows.push({
       ...fixed,
       ...place,
       state: "drawn",
       file,
-      hash: hashAutoMovieRasterImage(picture),
+      hash: AutoMovieRenderPicture.hashRasterImage(picture),
       fileSha256: digestAutoMovieBytes(bytes).slice("sha256:".length),
       backend: drawing.backend ?? null,
       camera: drawing.camera ?? null,
@@ -242,17 +248,20 @@ export async function runAutoMovieCapture(
  * back the sheet still being filled.
  */
 async function full(
-  sheet: AutoMovieRasterSheet,
+  sheet: AutoMovieRenderRasterSheet,
   cell: IAutoMovieCaptureCell,
   folder: IAutoMovieCaptureFolder,
   sheets: string[],
   names: readonly string[],
   plan: IAutoMovieCapturePlan,
-): Promise<AutoMovieRasterSheet | null> {
+): Promise<AutoMovieRenderRasterSheet | null> {
   const last: boolean = cell.index === plan.cells.length - 1;
   if ((cell.index + 1) % plan.layout.perSheet !== 0 && !last) return sheet;
   const name: string = names[sheets.length]!;
-  await folder.write(name, await encodeAutoMovieRasterPng(sheet.finish()));
+  await folder.write(
+    name,
+    await AutoMovieRenderPicture.encodeRasterPng(sheet.finish()),
+  );
   sheets.push(name);
   return null;
 }

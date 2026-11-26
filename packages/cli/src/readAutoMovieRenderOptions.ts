@@ -1,5 +1,5 @@
 import { AUTOMOVIE_RENDER_OPTIONS } from "./AUTOMOVIE_RENDER_OPTIONS";
-import type { AutoMovieCaptureBackend } from "./capture/AutoMovieCaptureBackend";
+import type { AutoMovieCliCaptureBackend } from "./capture/AutoMovieCliCaptureBackend";
 import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
 
 /**
@@ -36,7 +36,7 @@ export function readAutoMovieRenderOptions(
   out: string | null;
 
   /** How the browser draws. */
-  backend: AutoMovieCaptureBackend;
+  backend: AutoMovieCliCaptureBackend;
 
   /**
    * Per-call milliseconds for draw-function readiness, subject

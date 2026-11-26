@@ -4,14 +4,17 @@ import type {
   IAutoMovieRasterImage,
 } from "@automovie/interface";
 import {
-  AutoMovieRasterSheet,
+  AutoMovieRenderRasterSheet,
   planAutoMovieCaptureLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
 
-/** The Claude vision guide's reader: downsized above 1568 px, unreliable under 200 px. */
+/**
+ * The Claude vision guide's reader: downsized above 1568 px, unreliable under
+ * 200 px.
+ */
 const READER: IAutoMovieCaptureBudget = {
   longest: 1568,
   smallest: 200,
@@ -19,19 +22,31 @@ const READER: IAutoMovieCaptureBudget = {
 };
 
 /**
- * Sheet layout follows the reader budget, never a fixed cell size: every sheet within the longest edge, every cell at least the smallest edge, cells as large as both allow, and as many sheets as the cells need.
+ * Sheet layout follows the reader budget, never a fixed cell size: every sheet
+ * within the longest edge, every cell at least the smallest edge, cells as
+ * large as both allow, and as many sheets as the cells need.
  *
  * Scenarios:
  *
- * 1. Fifty 1280 by 720 cells: cells with a shorter edge of at least 200 px and an 18 px caption strip under each, sheets of at most 1568 px on the longer edge counting the strips, two sheets of 25 cells in 4 columns of 7 rows.
+ * 1. Fifty 1280 by 720 cells: cells with a shorter edge of at least 200 px and an
+ *    18 px caption strip under each, sheets of at most 1568 px on the longer
+ *    edge counting the strips, two sheets of 25 cells in 4 columns of 7 rows.
  * 2. Fifty 720 by 1280 portrait cells: upright cells under the same bounds.
- * 3. Five hundred cells spread over several sheets, each within the budget and holding at most what one sheet can, so every cell has a sheet in plan order.
- * 4. One cell takes the still at its own size when that fits, and a 160 by 90 still is never enlarged.
+ * 3. Five hundred cells spread over several sheets, each within the budget and
+ *    holding at most what one sheet can, so every cell has a sheet in plan
+ *    order.
+ * 4. One cell takes the still at its own size when that fits, and a 160 by 90
+ *    still is never enlarged.
  * 5. Cells in groups of three put whole groups on each row and sheet.
- * 6. A 4000 by 200 still, whose smallest cell is wider than the longest edge, is shrunk to fit it.
+ * 6. A 4000 by 200 still, whose smallest cell is wider than the longest edge, is
+ *    shrunk to fit it.
  * 7. A zero count and a zero group are refused.
- * 8. A real sheet filled with the first layout's 25 pictures of 1280 by 720 finishes at 1464 by 1568, within the longest edge, with each cell's picture 366 by 206 and the dark caption strip in the 18 rows under it.
- * 9. Captions of up to 87 characters wrap onto two or more lines under 1280 by 720 cells; the strip holds every line of the longest, and the sheet still stays within the longest edge with cells at least 200 px.
+ * 8. A real sheet filled with the first layout's 25 pictures of 1280 by 720
+ *    finishes at 1464 by 1568, within the longest edge, with each cell's
+ *    picture 366 by 206 and the dark caption strip in the 18 rows under it.
+ * 9. Captions of up to 87 characters wrap onto two or more lines under 1280 by 720
+ *    cells; the strip holds every line of the longest, and the sheet still
+ *    stays within the longest edge with cells at least 200 px.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Computes layouts through the public planner and checks the sheet and cell sizes they imply; a layout with a fixed 320 px cell, a fixed column count, or one that let a sheet exceed the budget fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the budget's own numbers, from the Claude vision guide the issue cites; sheet extent is columns times cell width and rows times cell height plus strip, computed here; the 1280 by 720 case's 366 by 206 cells follow by hand: seven rows share 1568 px as 224 px each, and 206 px plus its 18 px strip (two font pixels per 90 cell pixels, nine strip pixels per font pixel) is the tallest cell that fits.
@@ -150,7 +165,7 @@ export function test_capture_layout_budget(): void {
     );
 
   // 8. A real sheet filled with the first layout.
-  const sheet: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+  const sheet: AutoMovieRenderRasterSheet = new AutoMovieRenderRasterSheet(
     wide.perSheet,
     wide.columns,
     wide.cell.width,
@@ -199,12 +214,15 @@ export function test_capture_layout_budget(): void {
   TestValidator.predicate(
     `the strip holds every line of the longest caption: ${captioned.lines} lines`,
     captioned.lines >= 2 &&
-      AutoMovieRasterSheet.wrap(
+      AutoMovieRenderRasterSheet.wrap(
         long,
         captioned.cell.width,
         captioned.cell.height,
       ).length <= captioned.lines &&
       captioned.caption ===
-        AutoMovieRasterSheet.caption(captioned.cell.height, captioned.lines),
+        AutoMovieRenderRasterSheet.caption(
+          captioned.cell.height,
+          captioned.lines,
+        ),
   );
 }

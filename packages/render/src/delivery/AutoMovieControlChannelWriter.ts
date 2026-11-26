@@ -8,7 +8,7 @@ import type {
 
 import { guidePassFrameName } from "../guidePassFrameName.js";
 import { guidePassFramePattern } from "../guidePassFramePattern.js";
-import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
+import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
 import { autoMovieControlConvention } from "./autoMovieControlConvention.js";
 
 /**
@@ -83,9 +83,12 @@ export class AutoMovieControlChannelWriter {
         );
       if (pass === "mask") this.admitMask(index, drawn.semanticMask ?? null);
       // The graphics plate keeps its straight alpha as the compositing matte.
-      const bytes: Uint8Array = await encodeAutoMovieRasterPng(drawn.picture, {
-        alpha: pass === "graphics",
-      });
+      const bytes: Uint8Array = await AutoMovieRenderPicture.encodeRasterPng(
+        drawn.picture,
+        {
+          alpha: pass === "graphics",
+        },
+      );
       await this.write(
         `${this.frameDir}/${guidePassFrameName(index, pass)}`,
         bytes,

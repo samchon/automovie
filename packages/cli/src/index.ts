@@ -1,5 +1,7 @@
 export * from "./AutoMovieCommand";
 export * from "./delivery/AutoMovieCliDelivery";
+export * from "./delivery/IAutoMovieCliDeliveryProbe";
+export * from "./delivery/IAutoMovieCliDeliveryReferenceDecode";
 export * from "./runAutoMovieProductionCheck";
 export * from "./readAutoMovieCommandArguments";
 export * from "./scaffold/AutoMovieCliScaffold";
@@ -7,9 +9,9 @@ export type { AutoMovieCliProjectNameSelection } from "./scaffold/AutoMovieCliPr
 export * from "./run";
 export * from "./capture/AutoMovieCliCapture";
 export type { AutoMovieCliCaptureTypes } from "./capture/AutoMovieCliCaptureTypes";
-export * from "./capture/AutoMovieCaptureBackend";
-export * from "./capture/AutoMovieCaptureHost";
-export * from "./capture/IAutoMovieChromium";
+export * from "./capture/AutoMovieCliCaptureBackend";
+export * from "./capture/AutoMovieCliCaptureHost";
+export * from "./capture/IAutoMovieCliChromium";
 export * from "./loadAutoMovieProductionModule";
 export * from "./readAutoMovieRevision";
 export * from "./resolveAutoMovieFfmpeg";

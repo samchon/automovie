@@ -8,7 +8,7 @@ import {
   readAutoMovieCaptureArguments,
 } from "@automovie/render";
 import {
-  AutoMovieCaptureHost,
+  AutoMovieCliCaptureHost,
   loadAutoMovieProductionModule,
   renderAutoMovieVideo,
   resolveAutoMovieFfmpeg,
@@ -132,7 +132,7 @@ export async function motionCapture(): Promise<void> {
           loadAutoMovieProductionModule<string | null>(ROOT, id),
       })
     : null;
-  const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
+  const host: AutoMovieCliCaptureHost = await AutoMovieCliCaptureHost.open({
     root: ROOT,
     module: MODULE,
     backend,

@@ -1,4 +1,4 @@
-import type { AutoMovieCaptureBackend } from "../AutoMovieCaptureBackend";
+import type { AutoMovieCliCaptureBackend } from "../AutoMovieCliCaptureBackend";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 
 /**
@@ -14,7 +14,7 @@ import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
  * absent.
  */
 export function planAutoMovieChromiumLaunch(
-  backend: AutoMovieCaptureBackend,
+  backend: AutoMovieCliCaptureBackend,
   env: Readonly<Record<string, string | undefined>>,
 ): AutoMovieCliCaptureTypes.ChromiumLaunchPlan {
   const chrome: string | undefined = env.CHROME_PATH?.trim();

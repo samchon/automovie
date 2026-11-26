@@ -1,8 +1,8 @@
-import { encodeAutoMovieRasterPng } from "@automovie/render";
+import { AutoMovieRenderPicture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `encodeAutoMovieRasterPng` writes an 8-bit PNG of the raster.
+ * `AutoMovieRenderPicture.encodeRasterPng` writes an 8-bit PNG of the raster.
  *
  * Scenarios:
  *
@@ -17,7 +17,7 @@ export async function test_render_picture_encode_raster_png(): Promise<void> {
     height: 1,
     pixels: Uint8ClampedArray.from([10, 20, 30, 255, 40, 50, 60, 128]),
   };
-  const rgb: Uint8Array = await encodeAutoMovieRasterPng(raster);
+  const rgb: Uint8Array = await AutoMovieRenderPicture.encodeRasterPng(raster);
   TestValidator.equals(
     "signature",
     [...rgb.subarray(0, 8)],
@@ -33,19 +33,22 @@ export async function test_render_picture_encode_raster_png(): Promise<void> {
     [...rgb.subarray(rgb.length - 12)],
     [0, 0, 0, 0, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82],
   );
-  const rgba: Uint8Array = await encodeAutoMovieRasterPng(raster, {
-    alpha: true,
-  });
+  const rgba: Uint8Array = await AutoMovieRenderPicture.encodeRasterPng(
+    raster,
+    {
+      alpha: true,
+    },
+  );
   TestValidator.equals("alpha colour type", rgba[25], 6);
   await TestValidator.error("empty", async (): Promise<void> => {
-    await encodeAutoMovieRasterPng({
+    await AutoMovieRenderPicture.encodeRasterPng({
       width: 0,
       height: 1,
       pixels: new Uint8ClampedArray(0),
     });
   });
   await TestValidator.error("mismatch", async (): Promise<void> => {
-    await encodeAutoMovieRasterPng({
+    await AutoMovieRenderPicture.encodeRasterPng({
       width: 2,
       height: 1,
       pixels: new Uint8ClampedArray(4),

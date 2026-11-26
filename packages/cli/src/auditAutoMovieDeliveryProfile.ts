@@ -1,11 +1,9 @@
-import type {
-  IAutoMovieProductionAudioProbe,
-  IAutoMovieProductionVideoProbe,
-} from "@automovie/interface";
+import type { IAutoMovieProductionAudioProbe } from "@automovie/interface";
 import type * as Render from "@automovie/render";
 
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
 import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
+import type { IAutoMovieCliDeliveryProbe } from "./delivery/IAutoMovieCliDeliveryProbe";
 
 /** The documented refusal form of both profile asserters. */
 const REFUSAL: RegExp =
@@ -48,10 +46,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
   frameRate: readonly [number, number];
   audio: boolean;
 }): Promise<IAutoMovieDeliveryProfileFinding[]> {
-  let probe: {
-    video: IAutoMovieProductionVideoProbe;
-    audio: IAutoMovieProductionAudioProbe | null;
-  };
+  let probe: IAutoMovieCliDeliveryProbe;
   try {
     probe = await AutoMovieCliDelivery.readProbe(
       props.path,

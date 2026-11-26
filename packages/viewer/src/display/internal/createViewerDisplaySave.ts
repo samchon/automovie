@@ -1,4 +1,5 @@
-import type { IAutoMovieViewerDisplayMetadata } from "./IAutoMovieViewerDisplayMetadata.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { IAutoMovieViewerDisplayMetadata } from "../../IAutoMovieViewerDisplayMetadata.js";
 import { createViewerDisplayPublication } from "./createViewerDisplayPublication.js";
 
 /**
@@ -11,20 +12,9 @@ import { createViewerDisplayPublication } from "./createViewerDisplayPublication
  * return whether synchronous copying succeeded; asynchronous encoding or HTTP
  * failures are reported separately and do not certify IO.
  */
-export function createViewerDisplaySave(props: {
-  canvas: HTMLCanvasElement;
-  observe: () => IAutoMovieViewerDisplayMetadata | undefined;
-  /** Paint existing visible layers onto this owned surface, when applicable. */
-  paint?: (surface: HTMLCanvasElement) => void;
-  /** Keep the encoded completed bitmap for this display's graphics recovery. */
-  retain?: (blob: Blob) => void;
-}): {
-  active: () => boolean;
-  prepare: () => boolean;
-  commit: (session: string, generation: number) => boolean;
-  changed: () => boolean;
-  dispose: () => void;
-} {
+export function createViewerDisplaySave(
+  props: AutoMovieViewerDisplay.ISaveRequest,
+): AutoMovieViewerDisplay.IPublication {
   let sequence: number = 0;
   let running: boolean = false;
   const cancellation: AbortController = new AbortController();
@@ -188,13 +178,7 @@ export function createViewerDisplaySave(props: {
       return false;
     }
   };
-  const publication: {
-    active: () => boolean;
-    prepare: () => boolean;
-    commit: (session: string, generation: number) => boolean;
-    changed: () => boolean;
-    dispose: () => void;
-  } = createViewerDisplayPublication({
+  const publication: AutoMovieViewerDisplay.IPublication = createViewerDisplayPublication({
     copy,
     start: (session: string, generation: number): void => {
       // The lifecycle calls start only after a successful original copy.

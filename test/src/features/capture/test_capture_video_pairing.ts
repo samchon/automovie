@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
-  encodeAutoMovieRasterPng,
+  AutoMovieRenderPicture,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
   runAutoMovieCapture,
@@ -116,7 +116,7 @@ export async function test_capture_video_pairing(): Promise<void> {
       for (const [k, n] of selected.entries())
         await memory.storage.writeFile(
           pattern.replace("%05d", String(k).padStart(5, "0")),
-          await encodeAutoMovieRasterPng(flat(n * 10)),
+          await AutoMovieRenderPicture.encodeRasterPng(flat(n * 10)),
         );
     };
   const request: (

@@ -1,6 +1,6 @@
 import {
+  AutoMovieViewerDisplay,
   type IViewerFrameTransfer,
-  createViewerFrameControl,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -30,8 +30,8 @@ export function test_viewer_root_create_frame_control_restore_refusal(): void {
   let base: number = 3.4;
   const refusal: Error = new Error("source admission refused");
   const rebases: number[] = [];
-  const owner: ReturnType<typeof createViewerFrameControl> =
-    createViewerFrameControl({
+  const owner: AutoMovieViewerDisplay.IFrameControl =
+    AutoMovieViewerDisplay.createFrameControl({
       camera,
       currentSeconds: (): number => displayed,
       assertActive: (): void => {},
@@ -82,8 +82,8 @@ export function test_viewer_root_create_frame_control_restore_refusal(): void {
   );
   const baseFailure: Error = new Error("mount rollback refused");
   let baseAttempts: number = 0;
-  const failed: ReturnType<typeof createViewerFrameControl> =
-    createViewerFrameControl({
+  const failed: AutoMovieViewerDisplay.IFrameControl =
+    AutoMovieViewerDisplay.createFrameControl({
       camera: changedCamera,
       currentSeconds: (): number => 3.4,
       assertActive: (): void => {},

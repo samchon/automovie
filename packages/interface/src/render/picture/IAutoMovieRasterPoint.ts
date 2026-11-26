@@ -1,5 +1,5 @@
 /**
- * Top-left pixel anchor for a raster label. stampAutoMovieRasterLabel measures
+ * Top-left pixel anchor for a raster label. AutoMovieRenderPicture.stampRasterLabel measures
  * x rightward and y downward from the image origin, rounds the anchor and moves
  * the label box back inside the image before clipping oversized content. This
  * pixel coordinate is distinct from a world-space vector.

@@ -14,7 +14,7 @@ import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReserva
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
 import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
 import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
-import type { AutoMovieCaptureHost } from "./capture/AutoMovieCaptureHost";
+import type { AutoMovieCliCaptureHost } from "./capture/AutoMovieCliCaptureHost";
 import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
@@ -36,7 +36,7 @@ interface IDeliveryHost {
     | "resolveProductionVideoProfile"
   >;
   session(
-    props: Parameters<AutoMovieCaptureHost["session"]>[0],
+    props: Parameters<AutoMovieCliCaptureHost["session"]>[0],
   ): Promise<
     Pick<
       Render.AutoMovieDrawSession,

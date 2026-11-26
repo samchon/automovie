@@ -1,6 +1,6 @@
 import {
+  AutoMovieViewerDisplay,
   type IAutoMovieViewerCompletedFrame,
-  publishViewerCompletedFrame,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -25,7 +25,7 @@ export function test_viewer_root_publish_completed_frame(): void {
   };
   const delivered: IAutoMovieViewerCompletedFrame[] = [];
   const types: string[] = [];
-  const canvas: Parameters<typeof publishViewerCompletedFrame>[0] = {
+  const canvas: AutoMovieViewerDisplay.IFrameCanvas = {
     getAttribute: (): string => "on",
     dispatchEvent: (
       event: CustomEvent<IAutoMovieViewerCompletedFrame>,
@@ -35,8 +35,8 @@ export function test_viewer_root_publish_completed_frame(): void {
       return true;
     },
   };
-  publishViewerCompletedFrame(canvas, frame, true);
-  publishViewerCompletedFrame(canvas, frame, true);
+  AutoMovieViewerDisplay.publishCompletedFrame({ canvas, frame, explicitDraw: true });
+  AutoMovieViewerDisplay.publishCompletedFrame({ canvas, frame, explicitDraw: true });
   TestValidator.equals("the completed-frame event", types, [
     "automovie:completed-frame",
     "automovie:completed-frame",
@@ -61,7 +61,7 @@ export function test_viewer_root_publish_completed_frame(): void {
     frame.changed,
     false,
   );
-  publishViewerCompletedFrame(canvas, frame);
+  AutoMovieViewerDisplay.publishCompletedFrame({ canvas, frame });
   TestValidator.predicate(
     "ordinary idle frame preserves producer identity",
     delivered[2] === frame,
@@ -70,28 +70,32 @@ export function test_viewer_root_publish_completed_frame(): void {
     ...frame,
     changed: undefined,
   };
-  publishViewerCompletedFrame(canvas, eager);
+  AutoMovieViewerDisplay.publishCompletedFrame({ canvas, frame: eager });
   TestValidator.predicate(
     "ordinary eager frame is retained",
     delivered[3] === eager,
   );
   const changed: IAutoMovieViewerCompletedFrame = { ...frame, changed: true };
-  publishViewerCompletedFrame(canvas, changed, false);
+  AutoMovieViewerDisplay.publishCompletedFrame({ canvas, frame: changed });
   TestValidator.predicate(
     "ordinary meaningful frame is retained",
     delivered[4] === changed,
   );
-  publishViewerCompletedFrame(
-    { ...canvas, getAttribute: (): null => null },
+  AutoMovieViewerDisplay.publishCompletedFrame({
+    canvas: { ...canvas, getAttribute: (): null => null },
     frame,
-    true,
-  );
-  publishViewerCompletedFrame({}, frame, true);
-  publishViewerCompletedFrame(
-    { getAttribute: (): string => "on" },
+    explicitDraw: true,
+  });
+  AutoMovieViewerDisplay.publishCompletedFrame({
+    canvas: {},
     frame,
-    true,
-  );
+    explicitDraw: true,
+  });
+  AutoMovieViewerDisplay.publishCompletedFrame({
+    canvas: { getAttribute: (): string => "on" },
+    frame,
+    explicitDraw: true,
+  });
   TestValidator.equals(
     "missing or unsubscribed ports do not deliver",
     delivered.length,

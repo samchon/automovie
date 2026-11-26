@@ -1,6 +1,5 @@
-import type { AutoMovieCaptureBackend } from "../AutoMovieCaptureBackend";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
-import type { IAutoMovieChromium } from "../IAutoMovieChromium";
+import type { IAutoMovieCliChromium } from "../IAutoMovieCliChromium";
 import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
 
 /**
@@ -23,7 +22,7 @@ export async function launchAutoMovieChromium(
 ): Promise<AutoMovieCliCaptureTypes.ChromiumLaunch> {
   const plan: ReturnType<typeof planAutoMovieChromiumLaunch> =
     planAutoMovieChromiumLaunch(props.backend, props.env);
-  let browser: IAutoMovieChromium.IBrowser;
+  let browser: IAutoMovieCliChromium.IBrowser;
   try {
     browser = await props.chromium.launch({
       headless: true,

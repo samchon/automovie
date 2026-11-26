@@ -19,8 +19,7 @@ import { planAutoMovieDeliveredCut } from "../delivery/planAutoMovieDeliveredCut
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
 import { frameTimes } from "../frameTimes.js";
-import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
-import { hashAutoMovieRasterImage } from "../picture/hashAutoMovieRasterImage.js";
+import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
 import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
 
@@ -50,21 +49,19 @@ interface ISpeech {
  *
  * A subject that declares a sound list gets its soundtrack from it: before the
  * first frame, `AutoMovieRenderAudio.mixFilmSound` reads the list's files
- * through `read`,
- * admits and mixes them to the subject's `delivery.loudness` targets (EBU R 128
- * without them), and the WAVE master is written as `<frameDir>/soundtrack.wav`
- * and encoded as the film's soundtrack; the result's `sound` carries its
- * digest, each line's PCM digest, the master's analysis and the loudness
- * record. A subject that declares a sound list and a soundtrack `audio` is
- * refused.
+ * through `read`, admits and mixes them to the subject's `delivery.loudness`
+ * targets (EBU R 128 without them), and the WAVE master is written as
+ * `<frameDir>/soundtrack.wav` and encoded as the film's soundtrack; the
+ * result's `sound` carries its digest, each line's PCM digest, the master's
+ * analysis and the loudness record. A subject that declares a sound list and a
+ * soundtrack `audio` is refused.
  *
  * The same lines then give the subject its dialogue mouths: before the first
  * frame, `AutoMovieRenderAudio.planDialogueMouths` plans the track; the
  * session's `speak` hands it to the page, also for a transparent layer, whose
  * lines are admitted by `AutoMovieRenderAudio.admitDialogue` without a mix.
  * Each frame's beauty pass carries the mouths the subject read for that frame,
- * and the sound
- * record's `lipSync` measures each line against them
+ * and the sound record's `lipSync` measures each line against them
  * (`measureAutoMovieDialogueLipSync`), so the lag is the lag of the mouth
  * actually handed to the drawing.
  *
@@ -283,13 +280,15 @@ export async function renderAutoMovieDrawnVideo(props: {
     const file: string = `${props.frameDir}/${frameName(index)}`;
     await props.write(
       file,
-      await encodeAutoMovieRasterPng(picture, { alpha: transparent }),
+      await AutoMovieRenderPicture.encodeRasterPng(picture, {
+        alpha: transparent,
+      }),
     );
     frames.push({
       index,
       seconds,
       file,
-      hash: hashAutoMovieRasterImage(picture),
+      hash: AutoMovieRenderPicture.hashRasterImage(picture),
     });
   }
 

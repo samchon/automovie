@@ -3,9 +3,10 @@ import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSet
 
 /**
  * Compiled-shot appearance and host raster settings for a target identity.
- * autoMovieRenderTargetSettingsOfShot reads authored tone mapping when present
- * and uses delivery otherwise; dimensions and pixelRatio are caller-provided
- * drawing-buffer facts, not browser observations made by this helper.
+ * `AutoMovieRenderBudgetPreflight.targetSettingsOfShot` reads authored tone
+ * mapping when present and uses delivery otherwise; dimensions and pixelRatio
+ * are caller-provided drawing-buffer facts, not browser observations made by
+ * this helper.
  */
 export interface IAutoMovieRenderTargetSettingsOfShotProps {
   /** Fully builder-owned shot artifact. */

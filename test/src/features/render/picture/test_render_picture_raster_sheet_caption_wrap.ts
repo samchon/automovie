@@ -1,5 +1,5 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
-import { AutoMovieRasterSheet } from "@automovie/render";
+import { AutoMovieRenderRasterSheet } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,9 +13,9 @@ import { TestValidator } from "@nestia/e2e";
  *    at scale 1, `f8 0.250s r toeoff1 front` wraps to `f8 0.250s`, `r toeoff1`
  *    and `front`, and a 12-character word is broken into 9 and 3 characters.
  * 2. A caption that fits is one line, and an empty caption one empty line.
- * 3. `AutoMovieRasterSheet.lines` is the most lines any caption takes, at least
- *    one, and `caption` grows a strip by six font pixels a line: 9, 15 and 21
- *    px for one, two and three lines at scale 1.
+ * 3. `AutoMovieRenderRasterSheet.lines` is the most lines any caption takes, at
+ *    least one, and `caption` grows a strip by six font pixels a line: 9, 15
+ *    and 21 px for one, two and three lines at scale 1.
  * 4. A sheet made for two lines of an 8 by 12 cell is 8 by 27; adding a picture
  *    captioned with two lines writes white glyph pixels in both lines' rows,
  *    the first line's bottom glyph row survives the second line's box, the gap
@@ -27,24 +27,24 @@ export function test_render_picture_raster_sheet_caption_wrap(): void {
   // 1. Wrapping at words, and breaking a long word.
   TestValidator.equals(
     "words wrap at the cell's width",
-    AutoMovieRasterSheet.wrap("f8 0.250s r toeoff1 front", 40, 12),
+    AutoMovieRenderRasterSheet.wrap("f8 0.250s r toeoff1 front", 40, 12),
     ["f8 0.250s", "r toeoff1", "front"],
   );
   TestValidator.equals(
     "a word longer than a line is broken",
-    AutoMovieRasterSheet.wrap("abcdefghijkl", 40, 12),
+    AutoMovieRenderRasterSheet.wrap("abcdefghijkl", 40, 12),
     ["abcdefghi", "jkl"],
   );
 
   // 2. Short and empty captions.
   TestValidator.equals(
     "a caption that fits is one line",
-    AutoMovieRasterSheet.wrap("f8 0.25s", 40, 12),
+    AutoMovieRenderRasterSheet.wrap("f8 0.25s", 40, 12),
     ["f8 0.25s"],
   );
   TestValidator.equals(
     "an empty caption is one empty line",
-    AutoMovieRasterSheet.wrap("", 40, 12),
+    AutoMovieRenderRasterSheet.wrap("", 40, 12),
     [""],
   );
 
@@ -52,15 +52,19 @@ export function test_render_picture_raster_sheet_caption_wrap(): void {
   TestValidator.equals(
     "the most lines of any caption",
     [
-      AutoMovieRasterSheet.lines([], 40, 12),
-      AutoMovieRasterSheet.lines(["a", "f8 0.250s r toeoff1 front"], 40, 12),
+      AutoMovieRenderRasterSheet.lines([], 40, 12),
+      AutoMovieRenderRasterSheet.lines(
+        ["a", "f8 0.250s r toeoff1 front"],
+        40,
+        12,
+      ),
     ],
     [1, 3],
   );
   TestValidator.equals(
     "a strip grows six font pixels a line",
     [1, 2, 3].map((lines: number): number =>
-      AutoMovieRasterSheet.caption(12, lines),
+      AutoMovieRenderRasterSheet.caption(12, lines),
     ),
     [9, 15, 21],
   );
@@ -71,7 +75,7 @@ export function test_render_picture_raster_sheet_caption_wrap(): void {
     height: 12,
     pixels: new Uint8ClampedArray(8 * 12 * 4).fill(100),
   };
-  const two: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+  const two: AutoMovieRenderRasterSheet = new AutoMovieRenderRasterSheet(
     1,
     1,
     8,
@@ -102,7 +106,7 @@ export function test_render_picture_raster_sheet_caption_wrap(): void {
     [red(2, 12 + 6), red(4, 12 + 6), red(2, 12 + 6 + 6), red(3, 12 + 7)],
     [255, 255, 255, 16],
   );
-  const cut: AutoMovieRasterSheet = new AutoMovieRasterSheet(
+  const cut: AutoMovieRenderRasterSheet = new AutoMovieRenderRasterSheet(
     1,
     1,
     8,
@@ -120,6 +124,6 @@ export function test_render_picture_raster_sheet_caption_wrap(): void {
   // 5. Refusal.
   TestValidator.error(
     "zero lines are refused",
-    (): unknown => new AutoMovieRasterSheet(1, 1, 8, 12, "area", 0),
+    (): unknown => new AutoMovieRenderRasterSheet(1, 1, 8, 12, "area", 0),
   );
 }

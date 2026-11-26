@@ -8,8 +8,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
-  encodeAutoMovieRasterPng,
-  hashAutoMovieRasterImage,
+  AutoMovieRenderPicture,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
   runAutoMovieCapture,
@@ -107,7 +106,8 @@ export async function test_cli_production_check_records(): Promise<void> {
       height: 18,
       pixels: new Uint8ClampedArray(32 * 18 * 4).fill(140),
     };
-    const png: Uint8Array = await encodeAutoMovieRasterPng(picture);
+    const png: Uint8Array =
+      await AutoMovieRenderPicture.encodeRasterPng(picture);
     await fs.writeFile(path.join(root, "one.png"), png);
     await fs.writeFile(path.join(root, "two.png"), png);
     const still: IAutoMovieProductionCheck.ICapture = {
@@ -134,7 +134,7 @@ export async function test_cli_production_check_records(): Promise<void> {
       pass: "beauty",
       state: "drawn",
       file: "one.png",
-      hash: hashAutoMovieRasterImage(picture),
+      hash: AutoMovieRenderPicture.hashRasterImage(picture),
       time: { seconds: 0, frame: 0 },
     };
     const lastRow = {
@@ -179,7 +179,10 @@ export async function test_cli_production_check_records(): Promise<void> {
     replacement[0] = 0;
     await fs.writeFile(
       onePath,
-      await encodeAutoMovieRasterPng({ ...picture, pixels: replacement }),
+      await AutoMovieRenderPicture.encodeRasterPng({
+        ...picture,
+        pixels: replacement,
+      }),
     );
     const replaced: string = (await verifyCapture(still, single)).state;
     await fs.writeFile(onePath, png);
@@ -374,7 +377,7 @@ export async function test_cli_production_check_records(): Promise<void> {
     changedAlpha[3] = 0;
     await fs.writeFile(
       alphaPath,
-      await encodeAutoMovieRasterPng(
+      await AutoMovieRenderPicture.encodeRasterPng(
         { ...picture, pixels: changedAlpha },
         { alpha: true },
       ),

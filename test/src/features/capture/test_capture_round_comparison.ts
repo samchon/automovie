@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
-  decodeAutoMovieRasterPng,
+  AutoMovieRenderPicture,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
   runAutoMovieCapture,
@@ -194,9 +194,10 @@ export async function test_capture_round_comparison(): Promise<void> {
     "the changed still's hash differs",
     hash(third, 1) !== hash(before, 1),
   );
-  const image: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-    memory.files.get("out/rounds/third/diff-t002.000-film-beauty.png")!,
-  );
+  const image: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(
+      memory.files.get("out/rounds/third/diff-t002.000-film-beauty.png")!,
+    );
   TestValidator.equals(
     "the difference image marks the pixel in magenta",
     Array.from(
@@ -267,9 +268,10 @@ export async function test_capture_round_comparison(): Promise<void> {
     ],
     [["comparison-001.png"], true, true],
   );
-  const sheet: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(
-    memory.files.get("out/rounds/after/comparison-001.png")!,
-  );
+  const sheet: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(
+      memory.files.get("out/rounds/after/comparison-001.png")!,
+    );
   TestValidator.equals(
     "two entries of three cells share one row with its caption strip",
     [sheet.width, sheet.height],

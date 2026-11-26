@@ -18,8 +18,8 @@ const SIGNATURE: readonly number[] = [
  * and one zlib stream made by `CompressionStream("deflate")`, which Node 22 and
  * every current browser provide as a global, so this module imports no Node
  * built-in and runs in a page as in a Node host. Encoding is therefore
- * asynchronous. `decodeAutoMovieRasterPng` and every PNG reader decode the
- * result.
+ * asynchronous. `AutoMovieRenderPicture.decodeRasterPng` and every PNG reader
+ * decode the result.
  *
  * It rejects a size that is not a positive whole number of pixels and a pixel
  * buffer whose length disagrees with the size.
@@ -27,7 +27,7 @@ const SIGNATURE: readonly number[] = [
  * ```ts
  * await storage.writeFile(
  *   `${root}/still.png`,
- *   await encodeAutoMovieRasterPng(picture),
+ *   await AutoMovieRenderPicture.encodeRasterPng(picture),
  * );
  * ```
  */

@@ -1,7 +1,7 @@
 import type { IAutoMovieRasterImage } from "./IAutoMovieRasterImage.js";
 
 /**
- * What `compareAutoMovieRasters` found between two pictures of one size: a
+ * What `AutoMovieRenderPicture.compareRasters` found between two pictures of one size: a
  * difference image to look at and the numbers that say how much changed and
  * where.
  */

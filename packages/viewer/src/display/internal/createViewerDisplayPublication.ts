@@ -1,3 +1,5 @@
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+
 /**
  * Stage an original completed snapshot without publishing its generation. The
  * caller's copy port owns one latest bitmap and leaves it intact on a refused
@@ -7,17 +9,9 @@
  * reports lifecycle availability, including uncommitted staging; it does not
  * assert an admitted display or completed filesystem IO.
  */
-export function createViewerDisplayPublication(props: {
-  copy: () => boolean;
-  start: (session: string, generation: number) => void;
-  release: () => void;
-}): {
-  active: () => boolean;
-  prepare: () => boolean;
-  commit: (session: string, generation: number) => boolean;
-  changed: () => boolean;
-  dispose: () => void;
-} {
+export function createViewerDisplayPublication(
+  props: AutoMovieViewerDisplay.IPublicationRequest,
+): AutoMovieViewerDisplay.IPublication {
   let identity: { session: string; generation: number } | undefined;
   let prepared: boolean = false;
   let disposed: boolean = false;

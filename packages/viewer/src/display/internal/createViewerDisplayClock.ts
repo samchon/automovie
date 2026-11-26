@@ -1,3 +1,5 @@
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+
 /**
  * Keep requested draw time separate from the last completed display clock. A
  * completion inherits its synchronous producer's time; an out-of-loop guide
@@ -5,11 +7,7 @@
  * Nested redraws restore the enclosing request after completion or refusal.
  * Seconds must be finite and nonnegative before clock state changes.
  */
-export function createViewerDisplayClock(): {
-  current: () => number;
-  run: (seconds: number, produce: () => void) => void;
-  complete: (seconds?: number) => number;
-} {
+export function createViewerDisplayClock(): AutoMovieViewerDisplay.IClock {
   let displayed: number = 0;
   let producing: number | undefined;
   const validate: (seconds: number) => void = (seconds: number): void => {

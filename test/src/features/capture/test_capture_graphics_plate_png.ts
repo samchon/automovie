@@ -7,8 +7,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
-  decodeAutoMovieRasterPng,
-  encodeAutoMovieRasterPng,
+  AutoMovieRenderPicture,
   parseAutoMovieCapturePlanRequest,
   planAutoMovieCapture,
   planGuidePassOutputs,
@@ -57,11 +56,15 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     height: 1,
     pixels: new Uint8ClampedArray([255, 0, 0, 255, 0, 0, 0, 0]),
   };
-  const bytes: Uint8Array = await encodeAutoMovieRasterPng(plate, {
-    alpha: true,
-  });
+  const bytes: Uint8Array = await AutoMovieRenderPicture.encodeRasterPng(
+    plate,
+    {
+      alpha: true,
+    },
+  );
   TestValidator.equals("PNG colour type 6", bytes[25], 6);
-  const decoded: IAutoMovieRasterImage = await decodeAutoMovieRasterPng(bytes);
+  const decoded: IAutoMovieRasterImage =
+    await AutoMovieRenderPicture.decodeRasterPng(bytes);
   TestValidator.equals(
     "straight alpha kept",
     Array.from(decoded.pixels),
@@ -111,7 +114,10 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     "the graphics still keeps its alpha and the beauty still is RGB",
     [
       still("graphics")[25],
-      Array.from((await decodeAutoMovieRasterPng(still("graphics"))).pixels),
+      Array.from(
+        (await AutoMovieRenderPicture.decodeRasterPng(still("graphics")))
+          .pixels,
+      ),
       still("beauty")[25],
     ],
     [6, [255, 0, 0, 255, 0, 0, 0, 0], 2],

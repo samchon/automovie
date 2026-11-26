@@ -105,8 +105,8 @@ export async function inspectAutoMovieProductionCheckCapture(
   let from: number = Infinity;
   let to: number = -Infinity;
   const hashPixels = async (bytes: Uint8Array): Promise<string> =>
-    render.hashAutoMovieRasterImage(
-      await render.decodeAutoMovieRasterPng(bytes),
+    render.AutoMovieRenderPicture.hashRasterImage(
+      await render.AutoMovieRenderPicture.decodeRasterPng(bytes),
     );
   for (const row of rows) {
     if (row.type !== "drawn") continue;

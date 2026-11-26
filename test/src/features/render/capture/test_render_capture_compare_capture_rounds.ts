@@ -3,8 +3,8 @@ import type {
   IAutoMovieCaptureRecord,
 } from "@automovie/interface";
 import {
+  AutoMovieRenderPicture,
   compareAutoMovieCaptureRounds,
-  encodeAutoMovieRasterPng,
   planAutoMovieCaptureLayout,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -19,22 +19,34 @@ import { createCaptureFolderDouble } from "../../internal/createCaptureFolderDou
  *
  * 1. A cell both rounds drew with one backend, one pixel apart, is paired as a
  *    difference of 1 changed pixel and writes `diff-c1.png`.
- * 2. A cell the earlier round failed, a cell only this round has and a cell
- *    only the earlier round has are unmatched, each with its cause.
- * 3. The pictures are laid on `comparison-001.png`, claimed before it is
- *    written; without an earlier round a comparison is refused.
+ * 2. A cell the earlier round failed, a cell only this round has and a cell only
+ *    the earlier round has are unmatched, each with its cause.
+ * 3. The pictures are laid on `comparison-001.png`, claimed before it is written;
+ *    without an earlier round a comparison is refused.
  */
 export async function test_render_capture_compare_capture_rounds(): Promise<void> {
   const raster = { width: 2, height: 2 };
   const pixels = (green: boolean): Uint8ClampedArray =>
     Uint8ClampedArray.from([
       ...(green ? [0, 255, 0, 255] : [255, 0, 0, 255]),
-      255, 0, 0, 255,
-      255, 0, 0, 255,
-      255, 0, 0, 255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
+      255,
+      0,
+      0,
+      255,
     ]);
   const png = (green: boolean): Promise<Uint8Array> =>
-    encodeAutoMovieRasterPng({ ...raster, pixels: pixels(green) }, { alpha: true });
+    AutoMovieRenderPicture.encodeRasterPng(
+      { ...raster, pixels: pixels(green) },
+      { alpha: true },
+    );
   const base = (name: string, seconds: number) => ({
     index: 0,
     name,
@@ -47,7 +59,11 @@ export async function test_render_capture_compare_capture_rounds(): Promise<void
     row: 0,
     column: 0,
   });
-  const drawn = (name: string, seconds: number, file: string): IAutoMovieCaptureCellRecord => ({
+  const drawn = (
+    name: string,
+    seconds: number,
+    file: string,
+  ): IAutoMovieCaptureCellRecord => ({
     ...base(name, seconds),
     state: "drawn",
     file,
@@ -57,7 +73,10 @@ export async function test_render_capture_compare_capture_rounds(): Promise<void
     repeat: null,
     resolved: null,
   });
-  const failed = (name: string, seconds: number): IAutoMovieCaptureCellRecord => ({
+  const failed = (
+    name: string,
+    seconds: number,
+  ): IAutoMovieCaptureCellRecord => ({
     ...base(name, seconds),
     state: "failed",
     cause: "boom",
@@ -105,7 +124,11 @@ export async function test_render_capture_compare_capture_rounds(): Promise<void
   const result = await compareAutoMovieCaptureRounds({
     folder,
     round: "before",
-    rows: [drawn("c1", 0, "c1.png"), drawn("c2", 1, "c2.png"), drawn("new", 2, "new.png")],
+    rows: [
+      drawn("c1", 0, "c1.png"),
+      drawn("c2", 1, "c2.png"),
+      drawn("new", 2, "new.png"),
+    ],
     match: "cell",
     tolerance: 0,
     budget,

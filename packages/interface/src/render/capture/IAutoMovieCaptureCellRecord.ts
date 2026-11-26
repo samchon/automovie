@@ -45,7 +45,7 @@ export type IAutoMovieCaptureCellRecord = {
       /** File name of the still. */
       file: string;
 
-      /** Content hash of the still's pixels, from `hashAutoMovieRasterImage`. */
+      /** Content hash of the still's pixels, from `AutoMovieRenderPicture.hashRasterImage`. */
       hash: string;
 
       /** SHA-256 of the stored still's encoded file bytes when provided by the host. */

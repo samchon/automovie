@@ -13,7 +13,7 @@ import type {
  * recognizable, with every changed pixel in magenta.
  *
  * ```ts
- * const difference = compareAutoMovieRasters(before, after);
+ * const difference = AutoMovieRenderPicture.compareRasters(before, after);
  * if (difference.changed > 0) sheet.add(difference.image, "changed");
  * ```
  */

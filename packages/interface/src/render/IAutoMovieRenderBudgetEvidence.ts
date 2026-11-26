@@ -31,9 +31,10 @@ export interface IAutoMovieRenderBudgetEvidence {
    * The worst outcome any shot produced.
    *
    * `over` beats `not-run`, which beats `incomplete`, which beats `within`.
-   * This aggregate states the supplied outcomes; autoMovieRenderBudgetRefusal
-   * returns text for over-limit and required-texture gaps, but no current job
-   * consumer automatically enforces it.
+   * This aggregate states the supplied outcomes;
+   * `AutoMovieRenderBudgetPreflight.budgetRefusal` returns text for over-limit
+   * and required-texture gaps, but no current job consumer automatically
+   * enforces it.
    *
    * A document over no shots at all is `not-run`, never `within`: nothing was
    * measured, and a verdict over an empty set is the cheapest way a report ends

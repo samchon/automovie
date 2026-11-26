@@ -109,8 +109,8 @@ assert.deepEqual(failures, [], "both installed browser consumers run");
 
 // The capture host builds a separate draw page. Exercise that consumer too,
 // then prove an uncaught module error survives without the old 120-second wait.
-const { AutoMovieCaptureHost } = require("automovie");
-const host = await AutoMovieCaptureHost.open({
+const { AutoMovieCliCaptureHost } = require("automovie");
+const host = await AutoMovieCliCaptureHost.open({
   root,
   module: "src/subjects.ts",
   backend: "software",
@@ -148,7 +148,7 @@ await fs.writeFile(
 let failedHost;
 let timer;
 try {
-  failedHost = await AutoMovieCaptureHost.open({
+  failedHost = await AutoMovieCliCaptureHost.open({
     root,
     module: scratch,
     backend: "software",

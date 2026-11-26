@@ -2,12 +2,11 @@ import {
   restoreAutoMovieRenderModeOnce,
   restoreAutoMovieRenderModeState,
 } from "@automovie/render";
-import type * as THREE from "three";
-
-import type { IAutoMovieViewerCompletedFrame } from "./IAutoMovieViewerCompletedFrame.js";
-import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js";
-import type { IViewerFrameTransfer } from "./IViewerFrameTransfer.js";
-import { createViewerCameraState } from "./createViewerCameraState.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
+import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
+import type { IViewerFrameTransfer } from "../../IViewerFrameTransfer.js";
+import { createViewerCameraState } from "../../createViewerCameraState.js";
 
 /**
  * Own a mounted frame's camera/time controller and nested playback freezes.
@@ -17,30 +16,9 @@ import { createViewerCameraState } from "./createViewerCameraState.js";
  * with resume=false. The borrowed camera is the mount's camera, so switching
  * active-camera or other application state needs that application's adapter.
  */
-export function createViewerFrameControl(options: {
-  /**
-   * Native camera owned by this mount; other active cameras need their source
-   * adapter.
-   */
-  camera: THREE.Camera;
-  /** Actual completed scene time, in seconds. */
-  currentSeconds: () => number;
-  /** Refuse operations after the mounted owner has stopped. */
-  assertActive: () => void;
-  /** Rebase the mount clock before an explicit restored draw or resumed tick. */
-  rebase: (seconds: number) => void;
-  /** Complete an original draw at these authoritative scene seconds. */
-  redraw: (seconds: number) => void;
-  /**
-   * Optional source pause; release(true) resumes, release(false) retires
-   * without resuming.
-   */
-  freezeCompleted?: () => (resume: boolean) => void;
-}): {
-  control: NonNullable<IAutoMovieViewerCompletedFrame["control"]>;
-  frame: (produce: () => void) => void;
-  dispose: () => void;
-} {
+export function createViewerFrameControl(
+  options: AutoMovieViewerDisplay.IFrameControlRequest,
+): AutoMovieViewerDisplay.IFrameControl {
   const cameraState: ReturnType<typeof createViewerCameraState> =
     createViewerCameraState(options.camera);
   let leases: number = 0;

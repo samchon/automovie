@@ -11,10 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieRasterSheet } from "../picture/AutoMovieRasterSheet.js";
-import { compareAutoMovieRasters } from "../picture/compareAutoMovieRasters.js";
-import { decodeAutoMovieRasterPng } from "../picture/decodeAutoMovieRasterPng.js";
-import { encodeAutoMovieRasterPng } from "../picture/encodeAutoMovieRasterPng.js";
+import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
+import { AutoMovieRenderRasterSheet } from "../picture/AutoMovieRenderRasterSheet.js";
 import { diffAutoMovieCaptureFindings } from "./diffAutoMovieCaptureFindings.js";
 import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
@@ -52,12 +50,13 @@ interface IRowGroup {
  * unique pair may have different views, as when an encoded file is compared
  * with its drawn source. Where a key repeats, only unique equal views pair.
  * Surplus, incompatible or ambiguous rows are reported as unmatched. A pair
- * whose stills name the same backend is measured by `compareAutoMovieRasters`
- * at `tolerance`, and a changed pair gets `diff-<name>.png`, the newer picture
- * dimmed with every changed pixel in magenta. A pair drawn by different or
- * unstated backends is laid side by side without a difference image. A cell
- * either capture failed to draw, a cell only one capture holds and a measured
- * pair whose rasters differ are unmatched, each with the cause.
+ * whose stills name the same backend is measured by
+ * `AutoMovieRenderPicture.compareRasters` at `tolerance`, and a changed pair
+ * gets `diff-<name>.png`, the newer picture dimmed with every changed pixel in
+ * magenta. A pair drawn by different or unstated backends is laid side by side
+ * without a difference image. A cell either capture failed to draw, a cell only
+ * one capture holds and a measured pair whose rasters differ are unmatched,
+ * each with the cause.
  *
  * The findings of the two rounds are compared by diffAutoMovieCaptureFindings,
  * from the earlier record's diagnostics and this round's, which the caller
@@ -118,14 +117,17 @@ export async function compareAutoMovieCaptureRounds(
   // Measure each pair and lay it on the sheets.
   const entries: IAutoMovieCaptureCellComparison[] = [];
   const sheets: string[] = [];
-  let sheet: AutoMovieRasterSheet | null = null;
+  let sheet: AutoMovieRenderRasterSheet | null = null;
   let filled: number = 0;
   const flush: () => Promise<void> = async (): Promise<void> => {
     if (sheet === null) return;
     const name: string = sheetNames[sheets.length]!;
     const picture: IAutoMovieRasterImage = sheet.finish();
     sheet = null;
-    await folder.write(name, await encodeAutoMovieRasterPng(picture));
+    await folder.write(
+      name,
+      await AutoMovieRenderPicture.encodeRasterPng(picture),
+    );
     sheets.push(name);
   };
   const lay: (
@@ -135,7 +137,7 @@ export async function compareAutoMovieCaptureRounds(
     picture: IAutoMovieRasterImage | null,
     caption: string,
   ): Promise<void> => {
-    sheet ??= new AutoMovieRasterSheet(
+    sheet ??= new AutoMovieRenderRasterSheet(
       layout.perSheet,
       layout.columns,
       layout.cell.width,
@@ -156,11 +158,15 @@ export async function compareAutoMovieCaptureRounds(
     );
     const oldPicture: IAutoMovieRasterImage | null =
       old?.state === "drawn"
-        ? await decodeAutoMovieRasterPng(await folder.read(old.file, true))
+        ? await AutoMovieRenderPicture.decodeRasterPng(
+            await folder.read(old.file, true),
+          )
         : null;
     const nowPicture: IAutoMovieRasterImage | null =
       now?.state === "drawn"
-        ? await decodeAutoMovieRasterPng(await folder.read(now.file))
+        ? await AutoMovieRenderPicture.decodeRasterPng(
+            await folder.read(now.file),
+          )
         : null;
     let difference: IAutoMovieRasterImage | null = null;
     let final: IAutoMovieCaptureCellComparison = entry;
@@ -181,17 +187,18 @@ export async function compareAutoMovieCaptureRounds(
           cause: `the rasters differ: ${oldPicture.width}x${oldPicture.height} in round ${props.round} against ${nowPicture.width}x${nowPicture.height}`,
         };
       else {
-        const measured: IAutoMovieRasterComparison = compareAutoMovieRasters(
-          oldPicture,
-          nowPicture,
-          props.tolerance,
-        );
+        const measured: IAutoMovieRasterComparison =
+          AutoMovieRenderPicture.compareRasters(
+            oldPicture,
+            nowPicture,
+            props.tolerance,
+          );
         const file: string | null =
           measured.changed > 0 ? `diff-${entry.current}.png` : null;
         if (file !== null) {
           await folder.write(
             file,
-            await encodeAutoMovieRasterPng(measured.image),
+            await AutoMovieRenderPicture.encodeRasterPng(measured.image),
           );
           difference = measured.image;
         }

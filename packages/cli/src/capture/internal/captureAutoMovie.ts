@@ -15,7 +15,7 @@ import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModu
 import { readAutoMovieRevision } from "../../readAutoMovieRevision";
 import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
-import { AutoMovieCaptureHost } from "../AutoMovieCaptureHost";
+import { AutoMovieCliCaptureHost } from "../AutoMovieCliCaptureHost";
 import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { readAutoMovieCaptureHostOptions } from "./readAutoMovieCaptureHostOptions";
 import { readAutoMovieVideoProbe } from "./readAutoMovieVideoProbe";
@@ -29,7 +29,7 @@ import { readAutoMovieVideoProbe } from "./readAutoMovieVideoProbe";
  * `readAutoMovieCaptureHostOptions`; the rest is the request
  * `parseAutoMovieCapturePlanRequest` reads, so the command takes exactly the
  * keys of a page's address. With `--module` the subject is drawn through
- * `AutoMovieCaptureHost`, its module called with the JSON of `--props` when
+ * `AutoMovieCliCaptureHost`, its module called with the JSON of `--props` when
  * given; with `--file` the file is probed by FFmpeg and captured by
  * `runAutoMovieVideoCapture`, its subject named by `subject` or the file's
  * name. Both write into `--out`, or `media/capture/<subject>`.
@@ -142,7 +142,7 @@ export async function captureAutoMovie(
     backend = `ffmpeg ${ffmpeg}`;
   } else {
     // A drawn subject, through the draw page in headless Chromium.
-    const host: AutoMovieCaptureHost = await AutoMovieCaptureHost.open({
+    const host: AutoMovieCliCaptureHost = await AutoMovieCliCaptureHost.open({
       root,
       module: options.module!,
       backend: options.backend,

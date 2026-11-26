@@ -1,6 +1,6 @@
 import {
+  AutoMovieViewerDisplay,
   type IViewerFrameTransfer,
-  createViewerFrameControl,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
@@ -39,8 +39,8 @@ export function test_viewer_root_create_frame_control(): void {
   let rebases: number = 0;
   let acquired: number = 0;
   const released: boolean[] = [];
-  const owner: ReturnType<typeof createViewerFrameControl> =
-    createViewerFrameControl({
+  const owner: AutoMovieViewerDisplay.IFrameControl =
+    AutoMovieViewerDisplay.createFrameControl({
       camera,
       currentSeconds: (): number => seconds,
       assertActive: (): void => {},

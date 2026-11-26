@@ -11,10 +11,10 @@ import type { IAutoMovieRenderTargetSettings } from "./IAutoMovieRenderTargetSet
 
 /**
  * Compiled-shot cost inputs and caller-observed graphics/texture facts.
- * assessAutoMovieRenderBudget returns not-run without renderer identity;
- * otherwise it measures and seals a target under the supplied settings and
- * budget. Absent textures/residency remain unmeasured rather than fabricated
- * zero costs.
+ * `AutoMovieRenderBudgetPreflight.assessBudget` returns not-run without
+ * renderer identity; otherwise it measures and seals a target under the
+ * supplied settings and budget. Absent textures/residency remain unmeasured
+ * rather than fabricated zero costs.
  */
 export interface IAutoMovieAssessRenderBudgetProps {
   /** Fully builder-owned shot artifact. */

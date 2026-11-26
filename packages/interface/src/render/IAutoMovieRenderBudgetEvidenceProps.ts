@@ -3,9 +3,10 @@ import type { IAutoMovieRenderBudgetAssessment } from "./IAutoMovieRenderBudgetA
 
 /**
  * Tier budgets and supplied shot assessments for deterministic evidence
- * assembly. autoMovieRenderBudgetEvidence sorts declared tiers and shot ids,
- * hashes the supplied identities, and records not-run for no assessments. It
- * cannot establish that the caller supplied every production shot.
+ * assembly. `AutoMovieRenderBudgetPreflight.budgetEvidence` sorts declared
+ * tiers and shot ids, hashes the supplied identities, and records not-run for
+ * no assessments. It cannot establish that the caller supplied every
+ * production shot.
  */
 export interface IAutoMovieRenderBudgetEvidenceProps {
   /** Quality tier the job targeted. */

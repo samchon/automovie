@@ -4,7 +4,10 @@ import {
   resolveProductionVideoProfile,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import { AutoMovieCliDelivery } from "automovie";
+import {
+  AutoMovieCliDelivery,
+  type IAutoMovieCliDeliveryProbe,
+} from "automovie";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -15,7 +18,7 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
 type Video = NonNullable<Parameters<typeof writeDeliveryMp4Header>[0]["video"]>;
 
 /** What the delivery probe reads from one file. */
-type Probed = Awaited<ReturnType<typeof AutoMovieCliDelivery.readProbe>>;
+type Probed = IAutoMovieCliDeliveryProbe;
 
 /**
  * The delivery probe reads every picture and sound fact the delivery profiles

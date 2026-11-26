@@ -13,7 +13,7 @@ import * as THREE from "three";
  * Each path is given as its world box, and its label reads the path's last
  * name, `(root)` for the empty path. A label's anchor is the pixel the centre
  * of its box projects to, with the top-left of the picture at (0, 0), x to the
- * right and y down, and its box is the box `stampAutoMovieRasterLabel` stamps
+ * right and y down, and its box is the box `AutoMovieRenderPicture.stampRasterLabel` stamps
  * at `scale` with its top-left corner on the anchor: `scale * (4 * length + 3)`
  * pixels wide and `9 * scale` high. Labels are taken in the order given; one
  * whose box overlaps a kept box, or whose anchor lies behind the camera or

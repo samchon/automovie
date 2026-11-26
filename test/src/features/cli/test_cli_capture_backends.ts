@@ -1,5 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
-import { AutoMovieCliCapture, type IAutoMovieChromium } from "automovie";
+import { AutoMovieCliCapture, type IAutoMovieCliChromium } from "automovie";
 
 /**
  * The capture host launches Chromium with the switches of the asked backend and
@@ -60,10 +60,10 @@ export async function test_cli_capture_backends(): Promise<void> {
 
   // 4. The launch and its description.
   const launches: unknown[] = [];
-  const chromium: IAutoMovieChromium = {
+  const chromium: IAutoMovieCliChromium = {
     launch: async (
-      options: Parameters<IAutoMovieChromium["launch"]>[0],
-    ): Promise<IAutoMovieChromium.IBrowser> => {
+      options: Parameters<IAutoMovieCliChromium["launch"]>[0],
+    ): Promise<IAutoMovieCliChromium.IBrowser> => {
       launches.push(options);
       return {
         version: (): string => "151.0.7922.34",

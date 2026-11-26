@@ -4,4 +4,4 @@
  * recorded output, or `gpu` through the machine's graphics driver, which is
  * faster and may differ by machine.
  */
-export type AutoMovieCaptureBackend = "software" | "gpu";
+export type AutoMovieCliCaptureBackend = "software" | "gpu";

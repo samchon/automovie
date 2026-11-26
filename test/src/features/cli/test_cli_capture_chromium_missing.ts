@@ -1,5 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
-import { AutoMovieCliCapture, type IAutoMovieChromium } from "automovie";
+import { AutoMovieCliCapture, type IAutoMovieCliChromium } from "automovie";
 
 /**
  * A capture on a machine without the Chromium build Playwright pins fails with
@@ -22,15 +22,15 @@ import { AutoMovieCliCapture, type IAutoMovieChromium } from "automovie";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_cli_capture_chromium_missing(): Promise<void> {
-  const failing: (message: string) => IAutoMovieChromium = (
+  const failing: (message: string) => IAutoMovieCliChromium = (
     message: string,
-  ): IAutoMovieChromium => ({
-    launch: async (): Promise<IAutoMovieChromium.IBrowser> => {
+  ): IAutoMovieCliChromium => ({
+    launch: async (): Promise<IAutoMovieCliChromium.IBrowser> => {
       throw new Error(message);
     },
   });
-  const failure: (chromium: IAutoMovieChromium) => Promise<Error | null> = (
-    chromium: IAutoMovieChromium,
+  const failure: (chromium: IAutoMovieCliChromium) => Promise<Error | null> = (
+    chromium: IAutoMovieCliChromium,
   ): Promise<Error | null> =>
     AutoMovieCliCapture.launchChromium({
       chromium,
