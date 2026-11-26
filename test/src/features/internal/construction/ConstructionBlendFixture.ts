@@ -1,10 +1,4 @@
-import {
-  AutoMovieConstructionContinuation,
-  AutoMovieConstructionRing,
-  AutoMovieSolidBody,
-  AutoMovieSolidChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieConstructionContinuation, AutoMovieConstructionRing, AutoMovieSolidBody, AutoMovieSolidChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -95,7 +89,7 @@ export namespace ConstructionBlendFixture {
     );
     const width: number = 0.006;
     const real: IAutoMovieConstructionRealization.IWithoutSkin =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         {
           name: "made",
           root: ConstructionShapes.join(

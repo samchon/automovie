@@ -1,9 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  formatAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import {
   AutoMovieCliCommand,
@@ -64,7 +60,7 @@ export function test_cli_inspect_arguments(): void {
   ) => AutoMovieCliInspectTypes.HostOptions = (
     ...args: string[]
   ): AutoMovieCliInspectTypes.HostOptions =>
-    AutoMovieCliInspect.readHostOptions(readAutoMovieCaptureArguments(args));
+    AutoMovieCliInspect.readHostOptions(AutoMovieRenderCapture.readArguments(args));
   const options: AutoMovieCliInspectTypes.HostOptions = read(
     "--module",
     "src/subjects.ts",
@@ -146,7 +142,7 @@ export function test_cli_inspect_arguments(): void {
   // 4. The printed address reads back to the request.
   const base: string = "http://127.0.0.1:5174/";
   const requested: IAutoMovieCapturePlanRequest =
-    parseAutoMovieCapturePlanRequest(
+    AutoMovieRenderCapture.parsePlanRequest(
       read(
         "--module",
         "m.ts",
@@ -164,19 +160,19 @@ export function test_cli_inspect_arguments(): void {
     );
   const url: string = AutoMovieCliInspect.formatUrl(
     base,
-    formatAutoMovieCapturePlanRequest(requested),
+    AutoMovieRenderCapture.formatPlanRequest(requested),
   );
   TestValidator.equals(
     "the address reads back",
-    parseAutoMovieCapturePlanRequest(new URL(url).searchParams),
+    AutoMovieRenderCapture.parsePlanRequest(new URL(url).searchParams),
     requested,
   );
   TestValidator.equals(
     "the empty request is the base address",
     AutoMovieCliInspect.formatUrl(
       base,
-      formatAutoMovieCapturePlanRequest(
-        parseAutoMovieCapturePlanRequest(new Map()),
+      AutoMovieRenderCapture.formatPlanRequest(
+        AutoMovieRenderCapture.parsePlanRequest(new Map()),
       ),
     ),
     base,

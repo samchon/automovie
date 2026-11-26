@@ -1,9 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieMeshExtract,
-  AutoMovieNaturalSpline,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieMeshExtract, AutoMovieNaturalSpline, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanF1,
@@ -444,7 +439,7 @@ namespace FamilyConicArmscye {
     const to: number = Number(process.argv[4] ?? 1330);
     const source: R.ISource = await R.load(path.resolve(process.cwd(), ".."));
     const declared = AutoMovieHumanF1.construction();
-    const real = realizeAutoMovieConstruction(
+    const real = AutoMovieEngineConstruction.realize(
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );
@@ -631,7 +626,7 @@ namespace FamilyConicArmscye {
    */
   export function realize(): void {
     const declared = AutoMovieHumanF1.construction();
-    const real = realizeAutoMovieConstruction(
+    const real = AutoMovieEngineConstruction.realize(
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );

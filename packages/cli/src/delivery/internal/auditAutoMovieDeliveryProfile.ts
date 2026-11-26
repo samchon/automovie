@@ -32,9 +32,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
   render: Pick<
     typeof Render,
     | "AUTOMOVIE_MP4_SRGB_COLOUR"
-    | "assertProductionAacProfile"
-    | "assertProductionVideoProfile"
-    | "resolveProductionVideoProfile"
+    | "AutoMovieRenderDelivery"
   >;
   path: string;
   width: number;
@@ -83,8 +81,8 @@ export async function auditAutoMovieDeliveryProfile(props: {
     }
   };
   check("video", (): void =>
-    props.render.assertProductionVideoProfile({
-      expected: props.render.resolveProductionVideoProfile({
+    props.render.AutoMovieRenderDelivery.assertVideoProfile({
+      expected: props.render.AutoMovieRenderDelivery.resolveVideoProfile({
         width: props.width,
         height: props.height,
         frameRate: {
@@ -111,7 +109,7 @@ export async function auditAutoMovieDeliveryProfile(props: {
       observed: audio.codec,
     });
   else if (audio !== null)
-    check("audio", (): void => props.render.assertProductionAacProfile(audio));
+    check("audio", (): void => props.render.AutoMovieRenderDelivery.assertAacProfile(audio));
   return findings;
 }
 

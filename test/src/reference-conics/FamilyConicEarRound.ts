@@ -1,7 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieHumanConicLoft,
@@ -831,7 +828,7 @@ namespace FamilyConicEarRound {
 
     const declared = AutoMovieHumanF1.construction();
     const started: number = performance.now();
-    const real = realizeAutoMovieConstruction(
+    const real = AutoMovieEngineConstruction.realize(
       { name: "f1.body", root: declared.root, fills: declared.fills },
       { chord: 0.001, sources: declared.sources },
     );

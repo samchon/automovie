@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
-import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
+import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
 import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";

@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -52,7 +52,7 @@ export function test_engine_geometry_construction_continue(): void {
     partEnd: "bottom",
   };
   const real: IAutoMovieConstructionRealization.IRealization =
-    realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root: tree }, { chord: 1e-4 });
   TestValidator.equals("diagnostics", real.diagnostics.length, 0);
   const trunk: IAutoMovieSolidSurface = ConstructionRead.surface(real, "trunk");
   const neck: IAutoMovieSolidSurface = ConstructionRead.surface(real, "neck");

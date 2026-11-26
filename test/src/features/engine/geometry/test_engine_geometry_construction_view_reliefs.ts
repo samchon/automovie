@@ -1,10 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewAxis,
-  AutoMovieViewLoft,
-  AutoMovieViewSection,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieViewSection, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieLoftChain,
@@ -84,7 +78,7 @@ export function test_engine_geometry_construction_view_reliefs(): void {
   // 2.
   const part: IAutoMovieViewPart = { ...tube, reliefs: [relief] };
   const realized: IAutoMovieConstructionRealization.IWithoutSkin =
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       {
         name: "relief-tree",
         root: { type: "source", name: part.name, source: part.name },

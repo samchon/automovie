@@ -1,8 +1,5 @@
 import type { IAutoMovieCaptureResolution } from "@automovie/interface";
-import {
-  parseAutoMovieCapturePlanRequest,
-  resolveAutoMovieCapturePatterns,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** Object paths of a small scene, then the paths of the marks it draws, in scene order. */
@@ -40,9 +37,9 @@ export function test_capture_pattern_resolution(): void {
     text: string,
     view: string,
   ): IAutoMovieCaptureResolution[] =>
-    resolveAutoMovieCapturePatterns({
+    AutoMovieRenderCapture.resolvePatterns({
       paths: PATHS,
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text))
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text))
         .inspection,
       view,
     });

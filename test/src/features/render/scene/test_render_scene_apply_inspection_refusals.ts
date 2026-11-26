@@ -1,9 +1,5 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
-import {
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieSectionRenderer,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { type IAutoMovieInspectionHandle, type IAutoMovieSectionRenderer, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -60,14 +56,14 @@ export function test_render_scene_apply_inspection_refusals(): void {
   ];
   for (const [title, request] of refusals) {
     TestValidator.error(`${title} is refused`, (): void => {
-      applyAutoMovieInspection({ scene: kept, request });
+      AutoMovieRenderInspection.apply({ scene: kept, request });
     });
     TestValidator.predicate(`${title} leaves the scene untouched`, untouched());
   }
 
   // 2. A failure after changes began.
   TestValidator.error("a mark that cannot be built is refused", (): void => {
-    applyAutoMovieInspection({
+    AutoMovieRenderInspection.apply({
       scene: kept,
       request: InspectionScene.ask({
         parts: ["left"],
@@ -98,7 +94,7 @@ export function test_render_scene_apply_inspection_refusals(): void {
   clipped.clipIntersection = true;
   const solid: THREE.Scene = InspectionScene.scene(slab);
   const renderer: IAutoMovieSectionRenderer = { localClippingEnabled: false };
-  const cut: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const cut: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: solid,
     request: InspectionScene.ask({
       section: { point: { x: 0, y: 0, z: 0 }, normal: { x: 1, y: 0, z: 0 } },

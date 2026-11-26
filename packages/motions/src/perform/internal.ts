@@ -65,3 +65,6 @@ export * from "./HumanPerformanceAim";
 export * from "./HumanPerformanceMeeting";
 export * from "./HumanPerformanceAhead";
 export * from "./HumanPerformanceContacts";
+export * from "./expression/HumanAffect";
+export * from "./expression/HumanBreath";
+export * from "./expression/affectHeldHands";

@@ -15,9 +15,9 @@ import {
   Vector3,
 } from "three";
 
-import { boundAutoMovieCameraSubject } from "./boundAutoMovieCameraSubject.js";
+import { boundAutoMovieCameraSubject } from "./internal/boundAutoMovieCameraSubject.js";
 import { crossesAutoMovieFrustumPlane } from "./crossesAutoMovieFrustumPlane.js";
-import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
+import { listAutoMovieCameraSubjectMeshes } from "./internal/listAutoMovieCameraSubjectMeshes.js";
 import { sampleAutoMovieCameraOcclusion } from "./sampleAutoMovieCameraOcclusion.js";
 
 /** The delivered camera and one source-resolved requirement, after placement. */

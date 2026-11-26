@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftStations,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieLoftStations, AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +24,7 @@ type V3 = [number, number, number];
  *    interval past 0.01 mm.
  */
 export function test_engine_geometry_loft_stations(): void {
-  const chain: IAutoMovieLoftChain = realizeAutoMovieConstruction(
+  const chain: IAutoMovieLoftChain = AutoMovieEngineConstruction.realize(
     {
       name: "made",
       root: ConstructionShapes.ellipsoid(

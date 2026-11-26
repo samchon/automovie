@@ -1,5 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import { buildAutoMovieInspectionMarks } from "@automovie/render";
+import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -32,7 +32,7 @@ export function test_render_scene_build_inspection_marks(): void {
       marks: shapes.map(([path, shape]) => ({ mark: mark(path, shape), color: 0x00ff00 })),
     },
   ];
-  const overlay = buildAutoMovieInspectionMarks(
+  const overlay = AutoMovieRenderInspectionMarks.build(
     set(
       ["line", { type: "polyline", points: [0, 0, 0, 1, 0, 0, 1, 1, 0], closed: true }],
       ["pair", { type: "segments", points: [0, 0, 0, 0, 1, 0] }],
@@ -56,7 +56,7 @@ export function test_render_scene_build_inspection_marks(): void {
   for (const [path, shape] of refused) {
     let message: string = "";
     try {
-      buildAutoMovieInspectionMarks(set([path, shape]), { stroke: 3, xray: false });
+      AutoMovieRenderInspectionMarks.build(set([path, shape]), { stroke: 3, xray: false });
     } catch (error) {
       message = error instanceof Error ? error.message : "";
     }

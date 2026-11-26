@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePhysicalShapePairContact,
   IAutoMovieSolvePhysicalCompliantContacts,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -81,12 +82,13 @@ export function solvePhysicalCompliantContacts(
     if (!a || a.compliance === 0 || !b || a.body === b.body || visited.has(key))
       return null;
     visited.add(key);
-    const contact: physicalShapePairContact.IResult = physicalShapePairContact(
-      first.bodyPose(),
-      first.shape,
-      second.bodyPose(),
-      second.shape,
-    );
+    const contact: IAutoMoviePhysicalShapePairContact =
+      physicalShapePairContact(
+        first.bodyPose(),
+        first.shape,
+        second.bodyPose(),
+        second.shape,
+      );
     if (contact.distance > 0) return null;
     const parentA: AutoMovieXpbdBody = first.parent();
     const parentB: AutoMovieXpbdBody = second.parent();

@@ -1,6 +1,7 @@
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
+  IAutoMoviePhysicalShapePairContact,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -39,8 +40,8 @@ export function physicalShapePairContact(
   shapeA: IAutoMoviePhysicalShape,
   poseB: IAutoMovieRigidTransform,
   shapeB: IAutoMoviePhysicalShape,
-): physicalShapePairContact.IResult {
-  let best: physicalShapePairContact.IResult | null = null;
+): IAutoMoviePhysicalShapePairContact {
+  let best: IAutoMoviePhysicalShapePairContact | null = null;
   let core: number = Infinity;
   for (const [pose, shape, otherPose, other, first] of [
     [poseA, shapeA, poseB, shapeB, true],
@@ -105,22 +106,4 @@ export function physicalShapePairContact(
       };
   }
   return best!;
-}
-
-/** Companion types of {@link physicalShapePairContact}. */
-export namespace physicalShapePairContact {
-  /** A contact between two convex colliders, world metres. */
-  export interface IResult {
-    /** Signed distance, metres; negative when they overlap. */
-    distance: number;
-
-    /** Unit normal from the first shape toward the second. */
-    normal: IAutoMovieVector3;
-
-    /** The first shape's witness. */
-    pointA: IAutoMovieVector3;
-
-    /** The second shape's witness. */
-    pointB: IAutoMovieVector3;
-  }
 }

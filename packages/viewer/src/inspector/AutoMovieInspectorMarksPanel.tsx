@@ -2,10 +2,7 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
-import {
-  type IApplyAutoMovieInspectionProps,
-  listAutoMovieInspectionKindOptions,
-} from "@automovie/render";
+import { type IApplyAutoMovieInspectionProps, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import type { ChangeEvent, JSX } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
@@ -33,7 +30,7 @@ export function AutoMovieInspectorMarksPanel(props: {
 }): JSX.Element {
   const marks: string[] = props.request.inspection.marks;
   const colors: ReadonlyMap<string, number | undefined> =
-    listAutoMovieInspectionKindOptions(
+    AutoMovieRenderInspectionRequest.listKindOptions(
       { request: props.request.inspection, marks: props.marks },
       props.markKinds,
     );

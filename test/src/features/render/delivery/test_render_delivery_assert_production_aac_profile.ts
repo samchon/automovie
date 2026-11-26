@@ -1,10 +1,10 @@
-import { assertProductionAacProfile } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createProductionAudioProbe } from "../../internal/createProductionAudioProbe";
 
 /**
- * `assertProductionAacProfile` accepts a probed audio track of AAC-LC at 48 kHz
+ * `AutoMovieRenderDelivery.assertAacProfile` accepts a probed audio track of AAC-LC at 48 kHz
  * in two channels with at least one sample.
  *
  * Scenarios:
@@ -14,12 +14,12 @@ import { createProductionAudioProbe } from "../../internal/createProductionAudio
  *    each refused, naming the field.
  */
 export function test_render_delivery_assert_production_aac_profile(): void {
-  assertProductionAacProfile(createProductionAudioProbe());
+  AutoMovieRenderDelivery.assertAacProfile(createProductionAudioProbe());
   const message = (edit: (probe: ReturnType<typeof createProductionAudioProbe>) => void): string => {
     const probe = createProductionAudioProbe();
     edit(probe);
     try {
-      assertProductionAacProfile(probe);
+      AutoMovieRenderDelivery.assertAacProfile(probe);
     } catch (error) {
       return error instanceof Error ? error.message : "";
     }

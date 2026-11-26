@@ -1,10 +1,4 @@
-import {
-  type IAutoMovieDrawFunction,
-  type IAutoMovieDrawGlobal,
-  type IAutoMovieDrawScene,
-  installAutoMovieDraw,
-  parseAutoMovieInspectionRequest,
-} from "@automovie/render";
+import { type IAutoMovieDrawFunction, type IAutoMovieDrawGlobal, type IAutoMovieDrawScene, installAutoMovieDraw, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 
@@ -60,7 +54,7 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
   const drawn: ReturnType<IAutoMovieDrawFunction["draw"]> = draw.draw({
     seconds: 0,
     view: "film",
-    request: parseAutoMovieInspectionRequest((): undefined => undefined),
+    request: AutoMovieRenderInspectionRequest.parseRequest((): undefined => undefined),
     width: 1,
     height: 1,
     frame: [0],

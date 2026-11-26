@@ -1,4 +1,4 @@
-import type { autoMovieAnalysisMetric } from "@automovie/engine";
+import type { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisReport,
@@ -84,8 +84,8 @@ export function test_analysis_run_contract(): void {
     warnings: IAutoMovieAnalysisWarning[];
     build: (
       value: number | null,
-      targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
-      extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+      targets: Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]["targets"],
+      extra?: Partial<Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]>,
     ) => IAutoMovieAnalysisMetric;
   } = assertAnalysisRunContractPart4(measured, solved, absent, at);
   const {

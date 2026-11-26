@@ -3,10 +3,7 @@ import type {
   IAutoMovieCaptureLayout,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieRenderRasterSheet,
-  planAutoMovieCaptureLayout,
-} from "@automovie/render";
+import { AutoMovieRenderRasterSheet, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -66,7 +63,7 @@ export function test_capture_layout_budget(): void {
     count: number,
     group: number = 1,
   ): IAutoMovieCaptureLayout =>
-    planAutoMovieCaptureLayout({
+    AutoMovieRenderCapture.planLayout({
       width,
       height,
       count,
@@ -202,7 +199,7 @@ export function test_capture_layout_budget(): void {
   // 9. Long captions wrap and the strip grows, still within the budget.
   const long: string =
     "f8 0.250s r toeoff1 three-quarter-back@ortho@follow depth neighbours hero_arm not drawn";
-  const captioned: IAutoMovieCaptureLayout = planAutoMovieCaptureLayout({
+  const captioned: IAutoMovieCaptureLayout = AutoMovieRenderCapture.planLayout({
     width: 1280,
     height: 720,
     count: 50,

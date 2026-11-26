@@ -5,7 +5,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicSourceCapture as Source } from "./FamilyConicSourceCapture";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import { AutoMovieHumanF1 as F1 } from "@automovie/human";
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 import fs from "node:fs/promises";
@@ -22,7 +22,7 @@ export namespace FamilyConicCaptureContext {
    * @evidence contracts/development/common.md#meaningful-documentation The comment names the imported actual realization mesh.
    */
   export type IMesh = NonNullable<
-    ReturnType<typeof realizeAutoMovieConstruction>["mesh"]
+    ReturnType<typeof AutoMovieEngineConstruction.realize>["mesh"]
   >;
   /**
    * Shared close-zone framing, recorded by Figure before Deviation consumes it.
@@ -136,15 +136,15 @@ export namespace FamilyConicCaptureContext {
     const started: number = performance.now();
     const assembly: IAutoMovieHumanF1.IAssembly = source.assembly;
     const declared: IAutoMovieHumanF1.IConstruction = F1.constructionFrom(assembly);
-    const real: ReturnType<typeof realizeAutoMovieConstruction> =
-      realizeAutoMovieConstruction(
+    const real: ReturnType<typeof AutoMovieEngineConstruction.realize> =
+      AutoMovieEngineConstruction.realize(
         { name: "f1.body", root: declared.root, fills: declared.fills },
         { chord: 0.001, sources: declared.sources },
       );
     const diagnostics: string[] = real.diagnostics.map(
       (
         item: ReturnType<
-          typeof realizeAutoMovieConstruction
+          typeof AutoMovieEngineConstruction.realize
         >["diagnostics"][number],
       ): string => item.node + " (" + item.contract + "): " + item.detail,
     );

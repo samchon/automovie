@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieConstructionView,
@@ -58,7 +58,7 @@ export function test_engine_geometry_construction_trim(): void {
     },
   );
   const real: IAutoMovieConstructionRealization.IWithoutSkin =
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       {
         name: "made",
         root: {

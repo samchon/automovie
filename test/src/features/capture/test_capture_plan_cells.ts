@@ -3,10 +3,7 @@ import type {
   IAutoMovieCapturePlan,
   IAutoMovieCaptureSubject,
 } from "@automovie/interface";
-import {
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** A subject of four seconds at 30 fps, 1280 by 720, with two named views, three objects and one mark kind. */
@@ -54,8 +51,8 @@ export function test_capture_plan_cells(): void {
   const plan: (text: string) => IAutoMovieCapturePlan = (
     text: string,
   ): IAutoMovieCapturePlan =>
-    planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+    AutoMovieRenderCapture.plan({
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       subject: SUBJECT,
       cuts: [],
     });

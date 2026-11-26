@@ -1,4 +1,4 @@
-import { validateAutoMovieEnvironmentContext, AutoMovieEngineAnalysis, AutoMovieEngineEnvironment } from "@automovie/engine";
+import { AutoMovieEngineAnalysis, AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
@@ -26,7 +26,7 @@ export function assertAnalysisEnvironmentContextPart2(
   occluded: IAutoMovieEnvironmentContext,
   broken: (
     overrides: Partial<IAutoMovieEnvironmentContext>,
-  ) => ReturnType<typeof validateAutoMovieEnvironmentContext>,
+  ) => ReturnType<typeof AutoMovieEngineEnvironment.validateContext>,
   instantOf: (
     index: number,
     patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
@@ -47,7 +47,7 @@ export function assertAnalysisEnvironmentContextPart2(
       ),
       // The night instant already declares a sun below the horizon and no beam;
       // it is the negative twin of the case above and must stay clean.
-      darkBelow: validateAutoMovieEnvironmentContext({ context }).success,
+      darkBelow: AutoMovieEngineEnvironment.validateContext({ context }).success,
       // A zero ground direction must report itself rather than produce a second
       // complaint about the beam that reads it.
       unusableGround: hasViolation(
@@ -66,7 +66,7 @@ export function assertAnalysisEnvironmentContextPart2(
     "no context id may collide with a building-owned id",
     {
       site: hasViolation(
-        validateAutoMovieEnvironmentContext({
+        AutoMovieEngineEnvironment.validateContext({
           context,
           reserved: ["site"],
         }),
@@ -74,7 +74,7 @@ export function assertAnalysisEnvironmentContextPart2(
         "$input.id",
       ),
       instant: hasViolation(
-        validateAutoMovieEnvironmentContext({
+        AutoMovieEngineEnvironment.validateContext({
           context,
           reserved: ["noon"],
         }),
@@ -82,14 +82,14 @@ export function assertAnalysisEnvironmentContextPart2(
         "instants[0].id",
       ),
       occluder: hasViolation(
-        validateAutoMovieEnvironmentContext({
+        AutoMovieEngineEnvironment.validateContext({
           context: occluded,
           reserved: ["neighbour"],
         }),
         "type",
         "occluders[0].id",
       ),
-      unrelated: validateAutoMovieEnvironmentContext({
+      unrelated: AutoMovieEngineEnvironment.validateContext({
         context: occluded,
         reserved: ["tower/hall-wall", "space:tower/hall"],
       }).success,

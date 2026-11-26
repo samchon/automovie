@@ -1,4 +1,4 @@
-import { listAutoMovieInspectionKindOptions } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -23,7 +23,7 @@ export function test_render_scene_list_inspection_kind_options(): void {
     flagged: false,
     anchor: null,
   };
-  const plain = listAutoMovieInspectionKindOptions(
+  const plain = AutoMovieRenderInspectionRequest.listKindOptions(
     { request: { sliver: null, trail: [] }, marks: [mark] },
     ["custom"],
   );
@@ -38,7 +38,7 @@ export function test_render_scene_list_inspection_kind_options(): void {
     kinds.some((kind: string): boolean => kind.startsWith("trail")),
     false,
   );
-  const asked = listAutoMovieInspectionKindOptions({
+  const asked = AutoMovieRenderInspectionRequest.listKindOptions({
     request: { sliver: 10, trail: ["hero"] },
     marks: [],
   });

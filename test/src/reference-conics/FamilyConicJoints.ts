@@ -2,7 +2,7 @@ import { FamilyConicLoop } from "./FamilyConicLoop";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { FamilyConicThumbRoot } from "./FamilyConicThumbRoot";
 import { FamilyConicValley } from "./FamilyConicValley";
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import {
   AutoMovieHumanChainTopology,
   AutoMovieHumanConicLoft as H,
@@ -214,7 +214,7 @@ namespace FamilyConicJoints {
       compose: { frame: "host", plane: { point: [0, 0, plane / 1000], normal: [0, 0, 1] } },
     };
     const started: number = performance.now();
-    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "joint." + name, root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = AutoMovieEngineConstruction.realize({ name: "joint." + name, root }, { chord: 0.0005, sources });
     process.stdout.write(`== ${name} alone as a composed end: plane ${plane} mm out of the host's end, children carried ${carried} mm, rail ${rail === undefined ? "the figure's" : rail * 1000 + " mm"} ==\n`);
     process.stdout.write(`children: ${children.map((child: IAutoMovieConstructionSplit.IChild): string => `${child.partFace} (rail ${(child.rail * 1000).toFixed(1)} mm)`).join(", ")}\n`);
     process.stdout.write(`realized in ${Math.round(performance.now() - started)} ms, ${real.mesh.indices.length / 3} triangles, ${real.diagnostics.length} diagnostics\n`);

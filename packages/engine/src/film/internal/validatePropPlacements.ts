@@ -14,7 +14,7 @@ import {
 
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { forgeProp } from "./forgeProp";
-import { propBoxAxisIsSound } from "../propBoxAxisIsSound";
+import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
 import { validatePropAffordanceTarget } from "./validatePropAffordanceTarget";
 import { validatePropPlacementGeometry } from "./validatePropPlacementGeometry";
 import { validatePropSupportCycles } from "./validatePropSupportCycles";

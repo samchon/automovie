@@ -8,14 +8,7 @@ import type {
   IAutoMovieCaptureSubject,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  AutoMovieRenderPicture,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-  runAutoMovieVideoCapture,
-} from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { rejectsError } from "../internal/rejectsError";
@@ -121,10 +114,10 @@ export async function test_capture_video_pairing(): Promise<void> {
     };
   const request: (
     text: string,
-  ) => ReturnType<typeof parseAutoMovieCapturePlanRequest> = (
+  ) => ReturnType<typeof AutoMovieRenderCapture.parsePlanRequest> = (
     text: string,
-  ): ReturnType<typeof parseAutoMovieCapturePlanRequest> =>
-    parseAutoMovieCapturePlanRequest(new URLSearchParams(text));
+  ): ReturnType<typeof AutoMovieRenderCapture.parsePlanRequest> =>
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text));
   const video: (
     text: string,
     report: string,
@@ -134,7 +127,7 @@ export async function test_capture_video_pairing(): Promise<void> {
     report: string,
     held: number,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> =>
-    runAutoMovieVideoCapture({
+    AutoMovieRenderCapture.runVideo({
       file: "clip.mp4",
       subject: SOURCE,
       request: request(text),
@@ -148,12 +141,12 @@ export async function test_capture_video_pairing(): Promise<void> {
   const source: (text: string) => Promise<void> = async (
     text: string,
   ): Promise<void> => {
-    const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
+    const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
       request: request(text),
       subject: SOURCE,
       cuts: [],
     });
-    await runAutoMovieCapture({
+    await AutoMovieRenderCapture.run({
       plan,
       folder: await AutoMovieCaptureFolder.open({
         storage: memory.storage,

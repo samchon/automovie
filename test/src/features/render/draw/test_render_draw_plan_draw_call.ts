@@ -1,7 +1,4 @@
-import {
-  parseAutoMovieInspectionRequest,
-  AutoMovieRenderDraw,
-} from "@automovie/render";
+import { AutoMovieRenderDraw, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A view with `@follow` frames on the cell's own second alone.
  */
 export function test_render_draw_plan_draw_call(): void {
-  const request = parseAutoMovieInspectionRequest((): undefined => undefined);
+  const request = AutoMovieRenderInspectionRequest.parseRequest((): undefined => undefined);
   const plan = {
     subject: { width: 100, height: 50 },
     times: [{ seconds: 0 }, { seconds: 2 }],

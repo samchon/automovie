@@ -1,8 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  formatAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -25,12 +22,12 @@ export function test_capture_request_round_trip(): void {
   const read: (pairs: [string, string][]) => IAutoMovieCapturePlanRequest = (
     pairs: [string, string][],
   ): IAutoMovieCapturePlanRequest =>
-    parseAutoMovieCapturePlanRequest(new Map(pairs));
+    AutoMovieRenderCapture.parsePlanRequest(new Map(pairs));
 
   // 1. Nothing asked writes nothing.
   TestValidator.equals(
     "the empty request writes no value",
-    formatAutoMovieCapturePlanRequest(read([])),
+    AutoMovieRenderCapture.formatPlanRequest(read([])),
     [],
   );
 
@@ -79,7 +76,7 @@ export function test_capture_request_round_trip(): void {
   for (const pairs of cases) {
     const request: IAutoMovieCapturePlanRequest = read(pairs);
     const written: [string, string][] =
-      formatAutoMovieCapturePlanRequest(request);
+      AutoMovieRenderCapture.formatPlanRequest(request);
     TestValidator.equals(
       `${pairs.map(([key]: [string, string]): string => key).join(",")} reads back`,
       read(written),
@@ -89,7 +86,7 @@ export function test_capture_request_round_trip(): void {
     // 4. The address form.
     TestValidator.equals(
       `${pairs[0]![0]} reads back from an address`,
-      parseAutoMovieCapturePlanRequest(new URLSearchParams(written)),
+      AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(written)),
       request,
     );
   }
@@ -98,7 +95,7 @@ export function test_capture_request_round_trip(): void {
   const keys: (pairs: [string, string][]) => string[] = (
     pairs: [string, string][],
   ): string[] =>
-    formatAutoMovieCapturePlanRequest(read(pairs)).map(
+    AutoMovieRenderCapture.formatPlanRequest(read(pairs)).map(
       ([key]: [string, string]): string => key,
     );
   TestValidator.equals("one pass is the shade", keys([["passes", "clay"]]), [

@@ -6,9 +6,9 @@ import type {
   IAutoMovieRecoveryEpipolarModelRefinementOperation,
 } from "@automovie/interface";
 
-import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
+import { measureRecoveryEpipolarErrors } from "../geometry/internal/measureRecoveryEpipolarErrors";
 import { refineRecoveryCameraPose } from "./refineRecoveryCameraPose";
-import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
+import { scoreRecoveryCameraResiduals } from "../geometry/internal/scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "./selectRecoveryCameraPose";
 
 /**

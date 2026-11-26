@@ -13,8 +13,8 @@ import type {
   IAutoMovieInspectionRequest,
 } from "@automovie/interface";
 
-import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatAutoMovieInspectionCameraView.js";
-import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
+import { formatAutoMovieInspectionCameraView } from "../scene/inspection/internal/formatAutoMovieInspectionCameraView.js";
+import { parseAutoMovieInspectionRequest } from "../scene/inspection/internal/parseAutoMovieInspectionRequest.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { IAutoMovieDrawPage } from "./IAutoMovieDrawPage.js";
 import type { IAutoMovieDrawPageRequest } from "./IAutoMovieDrawPageRequest.js";

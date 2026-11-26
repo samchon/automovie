@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionKnot,
   IAutoMovieConstructionRealization,
@@ -59,7 +59,7 @@ export function test_engine_geometry_construction_view_girth(): void {
     },
   };
   const real: IAutoMovieConstructionRealization.IWithoutSkin =
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       { name: "made", root: part },
       { chord: 1e-4, skin: false },
     );

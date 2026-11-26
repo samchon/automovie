@@ -2,11 +2,7 @@ import type {
   IAutoMovieCaptureCellRecord,
   IAutoMovieCaptureRecord,
 } from "@automovie/interface";
-import {
-  AutoMovieRenderPicture,
-  compareAutoMovieCaptureRounds,
-  planAutoMovieCaptureLayout,
-} from "@automovie/render";
+import { AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureFolderDouble } from "../../internal/createCaptureFolderDouble";
@@ -82,7 +78,7 @@ export async function test_render_capture_compare_capture_rounds(): Promise<void
     cause: "boom",
   });
   const budget = { longest: 4096, smallest: 16, reduction: "area" as const };
-  const layout = planAutoMovieCaptureLayout({
+  const layout = AutoMovieRenderCapture.planLayout({
     ...raster,
     count: 3,
     group: 3,
@@ -121,7 +117,7 @@ export async function test_render_capture_compare_capture_rounds(): Promise<void
       ["new.png", await png(false)],
     ]),
   });
-  const result = await compareAutoMovieCaptureRounds({
+  const result = await AutoMovieRenderCapture.compareRounds({
     folder,
     round: "before",
     rows: [
@@ -164,7 +160,7 @@ export async function test_render_capture_compare_capture_rounds(): Promise<void
       folder.claimed.includes("comparison-001.png"),
   );
   await TestValidator.error("no earlier round", async (): Promise<void> => {
-    await compareAutoMovieCaptureRounds({
+    await AutoMovieRenderCapture.compareRounds({
       folder: createCaptureFolderDouble({
         earlier: null,
         earlierFiles: new Map(),

@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionLegendEntry } from "@automovie/interface";
-import { mergeAutoMovieInspectionLegends } from "@automovie/render";
+import { AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -21,7 +21,7 @@ export function test_render_scene_merge_inspection_legends(): void {
   TestValidator.equals(
     "merged",
     [
-      mergeAutoMovieInspectionLegends([
+      AutoMovieRenderInspectionMarks.mergeLegends([
         first,
         [{ label: "edge", color: 0xff0000, count: 3 }],
       ]),
@@ -36,7 +36,7 @@ export function test_render_scene_merge_inspection_legends(): void {
     ],
   );
   TestValidator.error("two colours", (): unknown =>
-    mergeAutoMovieInspectionLegends([
+    AutoMovieRenderInspectionMarks.mergeLegends([
       [{ label: "edge", color: 0xff0000, count: 1 }],
       [{ label: "edge", color: 0x0000ff, count: 1 }],
     ]),

@@ -1,8 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  formatAutoMovieCapturePlanRequest,
-  parseAutoMovieCapturePlanRequest,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
@@ -46,7 +43,7 @@ export function reduceAutoMovieInspectorState(
 
   // Every other edit changes the text of the keys it names.
   const values: Map<string, string> = new Map<string, string>(
-    formatAutoMovieCapturePlanRequest(state.request),
+    AutoMovieRenderCapture.formatPlanRequest(state.request),
   );
   switch (action.type) {
     case "select":
@@ -99,7 +96,7 @@ export function reduceAutoMovieInspectorState(
   return read(
     state,
     (): IAutoMovieCapturePlanRequest =>
-      parseAutoMovieCapturePlanRequest(values),
+      AutoMovieRenderCapture.parsePlanRequest(values),
   );
 }
 

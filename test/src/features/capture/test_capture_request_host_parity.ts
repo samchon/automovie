@@ -1,8 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/predicates";
@@ -47,10 +44,10 @@ export function test_capture_request_host_parity(): void {
     ["stroke", "4"],
   ];
   const address: IAutoMovieCapturePlanRequest =
-    parseAutoMovieCapturePlanRequest(new URLSearchParams(pairs));
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(pairs));
   const command: IAutoMovieCapturePlanRequest =
-    parseAutoMovieCapturePlanRequest(
-      readAutoMovieCaptureArguments(
+    AutoMovieRenderCapture.parsePlanRequest(
+      AutoMovieRenderCapture.readArguments(
         pairs.flatMap(([key, value]: [string, string]): string[] => [
           `--${key}`,
           value,
@@ -100,14 +97,14 @@ export function test_capture_request_host_parity(): void {
 
   // 2. Every switch form.
   const switched: boolean[] = [
-    parseAutoMovieCapturePlanRequest(new URLSearchParams("xray")),
-    parseAutoMovieCapturePlanRequest(new URLSearchParams("xray=1")),
-    parseAutoMovieCapturePlanRequest(readAutoMovieCaptureArguments(["--xray"])),
-    parseAutoMovieCapturePlanRequest(
-      readAutoMovieCaptureArguments(["--xray=1"]),
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams("xray")),
+    AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams("xray=1")),
+    AutoMovieRenderCapture.parsePlanRequest(AutoMovieRenderCapture.readArguments(["--xray"])),
+    AutoMovieRenderCapture.parsePlanRequest(
+      AutoMovieRenderCapture.readArguments(["--xray=1"]),
     ),
-    parseAutoMovieCapturePlanRequest(
-      readAutoMovieCaptureArguments(["--xray", "1", "--stroke", "2"]),
+    AutoMovieRenderCapture.parsePlanRequest(
+      AutoMovieRenderCapture.readArguments(["--xray", "1", "--stroke", "2"]),
     ),
   ].map(
     (request: IAutoMovieCapturePlanRequest): boolean => request.inspection.xray,
@@ -124,7 +121,7 @@ export function test_capture_request_host_parity(): void {
   TestValidator.equals(
     "a dash-leading value is a value",
     [
-      ...readAutoMovieCaptureArguments([
+      ...AutoMovieRenderCapture.readArguments([
         "--section",
         "-x:0.2",
         "--from",
@@ -147,6 +144,6 @@ export function test_capture_request_host_parity(): void {
   ] as const)
     TestValidator.predicate(
       `${title} is refused naming it`,
-      throwsError((): unknown => readAutoMovieCaptureArguments(argv), fragment),
+      throwsError((): unknown => AutoMovieRenderCapture.readArguments(argv), fragment),
     );
 }

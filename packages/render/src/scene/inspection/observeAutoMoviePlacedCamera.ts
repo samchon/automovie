@@ -7,7 +7,7 @@ import type {
 import type { Mesh, Object3D } from "three";
 
 import type { IAutoMovieDrawScene } from "../../draw/IAutoMovieDrawScene.js";
-import { listAutoMovieCameraSubjectMeshes } from "./listAutoMovieCameraSubjectMeshes.js";
+import { listAutoMovieCameraSubjectMeshes } from "./internal/listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdge } from "./measureAutoMovieCameraFrameEdge.js";
 import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
 import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";

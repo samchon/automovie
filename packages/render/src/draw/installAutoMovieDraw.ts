@@ -11,8 +11,8 @@ import * as THREE from "three";
 
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
-import { parseAutoMovieInspectionView } from "../scene/inspection/parseAutoMovieInspectionView.js";
-import { renderWithAutoMovieInspectionDiagnostics } from "../scene/inspection/renderWithAutoMovieInspectionDiagnostics.js";
+import { parseAutoMovieInspectionView } from "../scene/inspection/internal/parseAutoMovieInspectionView.js";
+import { renderWithAutoMovieInspectionDiagnostics } from "../scene/inspection/internal/renderWithAutoMovieInspectionDiagnostics.js";
 import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoMovieInspectionView.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";

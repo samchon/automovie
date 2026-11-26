@@ -1,8 +1,10 @@
-import { type IAutoMovieMotionTake, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieMotion, type IAutoMovieClip, type IAutoMovieTransform, type IAutoMovieSampledChannel, type IAutoMovieScriptNode, type IAutoMovieBlockedBeat, type IAutoMovieScript, type IAutoMovieStagedSet, type IAutoMovieBlocking, type IAutoMovieBeatEndState, type IAutoMovieModel, type IAutoMovieCameraClearanceDeformationRadius, type IAutoMovieShot, type IAutoMovieCameraClearanceSampleTimes, type IAutoMovieProductionFrameRate, type IAutoMovieClassifyPlaybackBoundary, type AutoMovieSectionPlaneState, type IAutoMovieClassifySectionPlaneBox, type IAutoMovieCameraIntent, type IAutoMovieShotCoverage, type IAutoMovieCompileCameraCoverage, type IAutoMovieCompileCameraMove, type IAutoMovieLaunchResult, type IAutoMovieCompileLaunch, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieCompilePerformShotCameras, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieActionSynthesizer, type IAutoMovieCompilePracticalLightMotion, type IAutoMovieComputeModelRestExtent, type IAutoMovieComputeModelRestExtentY, type IAutoMovieSkeleton, type IAutoMoviePropBox, type IAutoMoviePassageBlockage, type IAutoMovieBuiltEnvironment, type IAutoMovieShotContractSubjectReader, type IAutoMovieRealizeShotContractProps, type IAutoMovieCut, type IAutoMovieEditPlan, type IAutoMovieDefinedShot, type IAutoMovieShotDefinition, type IAutoMovieDeliveryCropNdc, type IAutoMovieDeliveryCrop, type IAutoMovieCameraDepthPrecisionReport, type IAutoMovieEvaluateCameraDepthPrecision, type IAutoMovieStorySyncOutcome, type IAutoMovieEvaluateStorySync, type IAutoMovieCompiledPredicateResult, type IAutoMovieShotPredicate, type IAutoMovieForgedCast, type IAutoMovieForgePlan, type IAutoMovieForgedProp, type IAutoMoviePropSpec, type IAutoMovieFormationMemberExtent, type IAutoMovieCompiledFormation, type IAutoMovieSubjectBox, type IAutoMovieFormationSubjectBox, type IAutoMovieFramedBox, type IAutoMovieConstraintViolation, type IAutoMovieObjectMotionGate, type IAutoMovieActionCall, type IAutoMoviePerformShotFrameJob, type IAutoMovieGatePerformShotCamera, type IAutoMovieReviewNote, type IAutoMovieGrammarDiagnosticsToReviewNotes, type IAutoMovieInteractionEvent, type IAutoMovieLight, type IAutoMovieInheritProductionLighting, type IAutoMovieGrammarDiagnostic, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, type IAutoMovieInspectGrammarCut, type IAutoMovieIntersectsPerspectiveFrustumBox, type IAutoMovieIntersectsPerspectiveFrustumSegment, type IAutoMovieIntersectsPerspectiveFrustumSphere, type IAutoMovieLocalSegmentMeetsPerspectiveFrustum, type IAutoMovieGrammarShotObservation, type IAutoMoviePerformedShot, type IAutoMoviePerformShotProps, type IAutoMoviePlantPerformShotStanceFeet, type IAutoMovieViolationAppendSink, type IAutoMovieBeatEndFootPlant, type IAutoMoviePlaybackSample, type IAutoMovieSequence, type IAutoMoviePlaybackTimeline, type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackLayer, type IAutoMoviePointSubjectBox, type IAutoMoviePreparePlaybackTimeline, type IAutoMovieProductionFrameBoundaryToGridTick, type IAutoMovieProductionFrameBoundaryToSeconds, type IAutoMovieProductionFrameIntervalToGridTicks, type IAutoMovieProductionRenderLayersForPass, type AutoMovieGuidePass, type IAutoMovieProjectToNdc, type IAutoMovieResolvedCamera, type IAutoMoviePropAnchorFrame, type IAutoMoviePropBlockedPassages, type IAutoMoviePropClearanceBounds, type IAutoMoviePropOccupancyBounds, type IAutoMoviePropSpaceContainsBounds, type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, type IAutoMovieGrammarReading, type IAutoMovieGrammarInput, type IAutoMovieRealizeShotContract, type IAutoMovieFilmOptics, type IAutoMovieResolveLensAt, type IAutoMovieResolveBeatProps, type IAutoMovieResolveCameraAt, type IAutoMovieMotionTakeAnchor, type IAutoMoviePoseKeypoint, type IAutoMovieResolvePoseKeypoints, type IAutoMovieResolveProductionFrameRate, type IAutoMovieResolveProductionLighting, type IAutoMovieReviewVisualRead, type IAutoMovieSceneNode, type IAutoMoviePracticalSurfaceTrack, type IAutoMovieProductionRenderFrame, type IAutoMovieFilmTimeline, type IAutoMovieSurfaceGraphicTrack, type IAutoMoviePlaybackEvent, type AutoMovieHumanoidBone, type IAutoMovieValidatePerformShotFraming, type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, type IAutoMovieValidatePropPlacementGeometry, type IAutoMovieValidation, type IAutoMovieValidatePropPlacements, type IAutoMovieAuthoringDiagnostic, type IAutoMovieShotPhysicsAdvice, type IAutoMovieShotProgram } from "@automovie/interface";
+import { type IAutoMovieMotionTake, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieMotion, type IAutoMovieClip, type IAutoMovieTransform, type IAutoMovieSampledChannel, type IAutoMovieScriptNode, type IAutoMovieBlockedBeat, type IAutoMovieScript, type IAutoMovieStagedSet, type IAutoMovieBlocking, type IAutoMovieBeatEndState, type IAutoMovieModel, type IAutoMovieCameraClearanceDeformationRadius, type IAutoMovieShot, type IAutoMovieCameraClearanceSampleTimes, type IAutoMovieProductionFrameRate, type IAutoMovieClassifyPlaybackBoundary, type AutoMovieSectionPlaneState, type IAutoMovieClassifySectionPlaneBox, type IAutoMovieCameraIntent, type IAutoMovieShotCoverage, type IAutoMovieCompileCameraCoverage, type IAutoMovieCompileCameraMove, type IAutoMovieLaunchResult, type IAutoMovieCompileLaunch, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieCompilePerformShotCameras, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieActionSynthesizer, type IAutoMovieCompilePracticalLightMotion, type IAutoMovieComputeModelRestExtent, type IAutoMovieComputeModelRestExtentY, type IAutoMovieSkeleton, type IAutoMoviePropBox, type IAutoMoviePassageBlockage, type IAutoMovieBuiltEnvironment, type IAutoMovieShotContractSubjectReader, type IAutoMovieRealizeShotContractProps, type IAutoMovieCut, type IAutoMovieEditPlan, type IAutoMovieDefinedShot, type IAutoMovieShotDefinition, type IAutoMovieDeliveryCropNdc, type IAutoMovieDeliveryCrop, type IAutoMovieCameraDepthPrecisionReport, type IAutoMovieEvaluateCameraDepthPrecision, type IAutoMovieStorySyncOutcome, type IAutoMovieEvaluateStorySync, type IAutoMovieCompiledPredicateResult, type IAutoMovieShotPredicate, type IAutoMovieForgedCast, type IAutoMovieForgePlan, type IAutoMovieForgedProp, type IAutoMoviePropSpec, type IAutoMovieFormationMemberExtent, type IAutoMovieCompiledFormation, type IAutoMovieSubjectBox, type IAutoMovieFormationSubjectBox, type IAutoMovieFramedBox, type IAutoMovieConstraintViolation, type IAutoMovieObjectMotionGate, type IAutoMovieActionCall, type IAutoMoviePerformShotFrameJob, type IAutoMovieGatePerformShotCamera, type IAutoMovieReviewNote, type IAutoMovieGrammarDiagnosticsToReviewNotes, type IAutoMovieInteractionEvent, type IAutoMovieLight, type IAutoMovieInheritProductionLighting, type IAutoMovieGrammarDiagnostic, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, type IAutoMovieInspectGrammarCut, type IAutoMovieIntersectsPerspectiveFrustumBox, type IAutoMovieIntersectsPerspectiveFrustumSegment, type IAutoMovieIntersectsPerspectiveFrustumSphere, type IAutoMovieLocalSegmentMeetsPerspectiveFrustum, type IAutoMovieGrammarShotObservation, type IAutoMoviePerformedShot, type IAutoMoviePerformShotProps, type IAutoMoviePlantPerformShotStanceFeet, type IAutoMovieViolationAppendSink, type IAutoMovieBeatEndFootPlant, type IAutoMoviePlaybackSample, type IAutoMovieSequence, type IAutoMoviePlaybackTimeline, type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackLayer, type IAutoMoviePointSubjectBox, type IAutoMoviePreparePlaybackTimeline, type IAutoMovieProductionFrameBoundaryToGridTick, type IAutoMovieProductionFrameBoundaryToSeconds, type IAutoMovieProductionFrameIntervalToGridTicks, type IAutoMovieProductionRenderLayersForPass, type AutoMovieGuidePass, type IAutoMovieProjectToNdc, type IAutoMovieResolvedCamera, type IAutoMoviePropAnchorFrame, type IAutoMoviePropBlockedPassages, type IAutoMoviePropClearanceBounds, type IAutoMoviePropOccupancyBounds, type IAutoMoviePropSpaceContainsBounds, type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, type IAutoMovieGrammarReading, type IAutoMovieGrammarInput, type IAutoMovieRealizeShotContract, type IAutoMovieFilmOptics, type IAutoMovieResolveLensAt, type IAutoMovieResolveBeatProps, type IAutoMovieResolveCameraAt, type IAutoMovieMotionTakeAnchor, type IAutoMoviePoseKeypoint, type IAutoMovieResolvePoseKeypoints, type IAutoMovieResolveProductionFrameRate, type IAutoMovieResolveProductionLighting, type IAutoMovieReviewVisualRead, type IAutoMovieSceneNode, type IAutoMoviePracticalSurfaceTrack, type IAutoMovieProductionRenderFrame, type IAutoMovieFilmTimeline, type IAutoMovieSurfaceGraphicTrack, type IAutoMoviePlaybackEvent, type AutoMovieHumanoidBone, type IAutoMovieValidatePerformShotFraming, type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, type IAutoMovieValidatePropPlacementGeometry, type IAutoMovieValidation, type IAutoMovieValidatePropPlacements, type IAutoMovieAuthoringDiagnostic, type IAutoMovieShotPhysicsAdvice, type IAutoMovieShotProgram, type IAutoMovieShotStoryTime, type IAutoMovieStoryInterval } from "@automovie/interface";
 import { admitMotionTake as admitMotionTakeImplementation } from "./internal/admitMotionTake";
 import { animatedBaseAt as animatedBaseAtImplementation } from "./internal/animatedBaseAt";
 import { assertGrammarPositive as assertGrammarPositiveImplementation } from "./internal/assertGrammarPositive";
 import { authoredRotationCriticalTimes as authoredRotationCriticalTimesImplementation } from "./internal/authoredRotationCriticalTimes";
+import { autoMovieStoryInterval as autoMovieStoryIntervalImplementation } from "./internal/autoMovieStoryInterval";
+import { autoMovieStoryTime as autoMovieStoryTimeImplementation } from "./internal/autoMovieStoryTime";
 import { bakedTransformFromChannels as bakedTransformFromChannelsImplementation } from "./internal/bakedTransformFromChannels";
 import { bakedTransformFromClipsAt as bakedTransformFromClipsAtImplementation } from "./internal/bakedTransformFromClipsAt";
 import { beatNodeOf as beatNodeOfImplementation } from "./internal/beatNodeOf";
@@ -82,6 +84,7 @@ import { productionRenderLayersForPass as productionRenderLayersForPassImplement
 import { projectToNdc as projectToNdcImplementation } from "./internal/projectToNdc";
 import { propAnchorFrame as propAnchorFrameImplementation } from "./internal/propAnchorFrame";
 import { propBlockedPassages as propBlockedPassagesImplementation } from "./internal/propBlockedPassages";
+import { propBoxAxisIsSound as propBoxAxisIsSoundImplementation } from "./internal/propBoxAxisIsSound";
 import { propBoundsOverlap as propBoundsOverlapImplementation } from "./internal/propBoundsOverlap";
 import { propClearanceBounds as propClearanceBoundsImplementation } from "./internal/propClearanceBounds";
 import { propOccupancyBounds as propOccupancyBoundsImplementation } from "./internal/propOccupancyBounds";
@@ -198,6 +201,52 @@ export namespace AutoMovieEngineFilm {
    * read-only unit scale when no scale track writes. This helper does not choose
    * authority or sample time.
    */
+
+  /**
+   * Map one shot-local time in seconds onto the production story clock,
+   * originSeconds + localSeconds * rate, with an omitted rate meaning 1.
+   *
+   * The map is affine, so a shot that stretches or compresses time still lands on
+   * the same clock as one that does not. Nothing is validated here: a non-finite
+   * input, or an overflow, yields a non-finite story time.
+   *
+   * @param pin The shot's story-clock origin and optional playback rate.
+   * @param localSeconds Shot-local time in seconds.
+   * @returns Story-clock time in seconds.
+   */
+  export function autoMovieStoryTime(
+    pin: IAutoMovieShotStoryTime,
+    localSeconds: number,
+  ): number {
+    return autoMovieStoryTimeImplementation(pin, localSeconds);
+  }
+
+  /**
+   * Map a shot-local window onto the story-clock interval it occupies, in
+   * seconds.
+   *
+   * The edit places a shot in the presentation; this places a stretch of the same
+   * shot in the story, either the whole shot ({ from: 0, to: duration }) or an
+   * event window inside it. Two windows may overlap here while their shots sit
+   * far apart in the cut, which is a relationship a cut list cannot express.
+   *
+   * Both ends go through
+   * {@link AutoMovieEngineFilm.autoMovieStoryTime}, so the interval keeps the
+   * window's order exactly when the pin's rate is positive. Nothing is validated
+   * here: a non-finite bound or pin yields a non-finite end, and an inverted
+   * window yields an inverted interval, for the caller to refuse.
+   *
+   * @param pin The shot's story-clock origin and optional playback rate.
+   * @param window Shot-local seconds to map onto the story clock.
+   * @returns The resulting story-clock interval.
+   */
+  export function autoMovieStoryInterval(
+    pin: IAutoMovieShotStoryTime,
+    window: IAutoMovieStoryInterval.IWindow,
+  ): IAutoMovieStoryInterval.IResult {
+    return autoMovieStoryIntervalImplementation(pin, window);
+  }
+
   export function bakedTransformFromChannels(sampled: ReadonlyMap<string, IAutoMovieSampledChannel>, node: string): IAutoMovieTransform | null {
     return bakedTransformFromChannelsImplementation(sampled, node);
   }
@@ -841,7 +890,7 @@ export namespace AutoMovieEngineFilm {
    * Measure one cross-shot simultaneity claim on the production story clock.
    *
    * Each addressed event is taken at its realized shot-local time, mapped through
-   * its own shot's pin by {@link autoMovieStoryTime}, and the widest gap between
+   * its own shot's pin by {@link AutoMovieEngineFilm.autoMovieStoryTime}, and the widest gap between
    * any two resulting story times is compared against the tolerance, inclusive.
    * Nothing here consults the edit: two shots cut minutes apart pass when their
    * pins put the events together, and two adjacent shots fail when their pins do
@@ -2177,6 +2226,27 @@ export namespace AutoMovieEngineFilm {
    * @returns True when, on every axis, each box's minimum lies strictly below the
    *   other's maximum.
    */
+
+  /**
+   * Whether one axis of a declared prop volume is a real extent: both bounds
+   * finite and the minimum strictly below the maximum.
+   *
+   * A flat or inverted axis encloses no volume, so a footprint or clearance box
+   * failing it can be neither contained, borne nor overlapped. The prop placement
+   * gate reports a failing axis by its path and measures only props whose every
+   * declared box passes, so the report and the measurement read one rule.
+   *
+   * @param box A declared footprint or clearance box, in metres.
+   * @param axis The axis to judge.
+   * @returns true only for finite bounds with min < max on that axis.
+   */
+  export function propBoxAxisIsSound(
+    box: IAutoMoviePropBox,
+    axis: "x" | "y" | "z",
+  ): boolean {
+    return propBoxAxisIsSoundImplementation(box, axis);
+  }
+
   export function propBoundsOverlap(left: IAutoMoviePropBox, right: IAutoMoviePropBox): boolean {
     return propBoundsOverlapImplementation(left, right);
   }

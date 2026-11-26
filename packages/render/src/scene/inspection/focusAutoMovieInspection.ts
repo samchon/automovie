@@ -6,7 +6,7 @@ import type * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
+import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPaths.js";
 
 /**

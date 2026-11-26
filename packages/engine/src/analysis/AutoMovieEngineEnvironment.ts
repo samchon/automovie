@@ -1,4 +1,20 @@
-import { type IAutoMovieAnalysisSolid, type IAutoMovieEnvironmentContext, type IAutoMovieEnvironmentInstant, type IAutoMovieVector3, type IAutoMovieHemisphereDirections, type IAutoMovieRayObstruction, type IAutoMovieReferenceGround, type IAutoMovieSolidBlockQuery, type IAutoMovieSunDirection, type IAutoMovieSunPosition, type IAutoMovieSolveSunPosition } from "@automovie/interface";
+import type {
+  IAutoMovieAnalysisSolid,
+  IAutoMovieEnvironmentContext,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieVector3,
+  IAutoMovieHemisphereDirections,
+  IAutoMovieRayObstruction,
+  IAutoMovieReferenceGround,
+  IAutoMovieSolidBlockQuery,
+  IAutoMovieSunDirection,
+  IAutoMovieSunPosition,
+  IAutoMovieSolveSunPosition,
+  IAutoMovieValidateEnvironmentContext,
+  IAutoMovieValidation,
+} from "@automovie/interface";ovieAnalysisSolid, type IAutoMovieEnvironmentContext, type IAutoMovieEnvironmentInstant, type IAutoMovieVector3, type IAutoMovieHemisphereDirections, type IAutoMovieRayObstruction, type IAutoMovieReferenceGround, type IAutoMovieSolidBlockQuery, type IAutoMovieSunDirection, type IAutoMovieSunPosition, type IAutoMovieSolveSunPosition } from "@automovie/interface";
+import type { IAutoMovieValidateEnvironmentContext, IAutoMovieValidation } from "@automovie/interface";
+import { validateAutoMovieEnvironmentContext as validateAutoMovieEnvironmentContextImplementation } from "./internal/validateAutoMovieEnvironmentContext";
 import { autoMovieContextSolids as autoMovieContextSolidsImplementation } from "./internal/autoMovieContextSolids";
 import { autoMovieDewPoint as autoMovieDewPointImplementation } from "./internal/autoMovieDewPoint";
 import { autoMovieEnvironmentInstant as autoMovieEnvironmentInstantImplementation } from "./internal/autoMovieEnvironmentInstant";
@@ -11,6 +27,11 @@ import { solveAutoMovieSunPosition as solveAutoMovieSunPositionImplementation } 
 
 /** Public operations for Auto Movie Engine Environment. */
 export namespace AutoMovieEngineEnvironment {
+  /** Validate a read-only environment context before an analysis uses it. */
+  export function validateContext(props: IAutoMovieValidateEnvironmentContext.IProps): IAutoMovieValidation {
+    return validateAutoMovieEnvironmentContextImplementation(props);
+  }
+
   /**
    * Every context occluder as an analysis solid.
    *

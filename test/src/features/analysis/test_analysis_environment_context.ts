@@ -1,4 +1,4 @@
-import type { validateAutoMovieEnvironmentContext } from "@automovie/engine";
+import type { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
@@ -40,7 +40,7 @@ export function test_analysis_environment_context(): void {
     occluded: IAutoMovieEnvironmentContext;
     broken: (
       overrides: Partial<IAutoMovieEnvironmentContext>,
-    ) => ReturnType<typeof validateAutoMovieEnvironmentContext>;
+    ) => ReturnType<typeof AutoMovieEngineEnvironment.validateContext>;
     instantOf: (
       index: number,
       patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,

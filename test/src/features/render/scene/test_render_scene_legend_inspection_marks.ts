@@ -1,8 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import {
-  AUTO_MOVIE_INSPECTION_PALETTE,
-  legendAutoMovieInspectionMarks,
-} from "@automovie/render";
+import { AUTO_MOVIE_INSPECTION_PALETTE, AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -29,7 +26,7 @@ export function test_render_scene_legend_inspection_marks(): void {
   ]);
   TestValidator.equals(
     "legend",
-    legendAutoMovieInspectionMarks(
+    AutoMovieRenderInspectionMarks.legend(
       [mark(false), mark(true), mark(false)],
       kinds,
     ),
@@ -42,5 +39,5 @@ export function test_render_scene_legend_inspection_marks(): void {
       },
     ],
   );
-  TestValidator.equals("none", legendAutoMovieInspectionMarks([], kinds), []);
+  TestValidator.equals("none", AutoMovieRenderInspectionMarks.legend([], kinds), []);
 }

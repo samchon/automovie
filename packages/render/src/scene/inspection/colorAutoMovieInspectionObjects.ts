@@ -12,7 +12,7 @@ import {
   applyFormationCycleMaterial,
   formationCycleOf,
 } from "../formationCycle/index.js";
-import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
+import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectionPath.js";
 
 /**
  * Shade each mesh a request's colour patterns match in that colour for one

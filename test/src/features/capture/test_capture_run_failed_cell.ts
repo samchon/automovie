@@ -6,13 +6,7 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  AutoMovieRenderPicture,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -43,8 +37,8 @@ import { createCaptureMemory } from "./createCaptureMemory";
  */
 export async function test_capture_run_failed_cell(): Promise<void> {
   const memory: createCaptureMemory.IMemory = createCaptureMemory();
-  const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-    request: parseAutoMovieCapturePlanRequest(
+  const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+    request: AutoMovieRenderCapture.parsePlanRequest(
       new URLSearchParams("at=0.5,1,1.5"),
     ),
     subject: {
@@ -82,7 +76,7 @@ export async function test_capture_run_failed_cell(): Promise<void> {
 
   // 1. The run continues past both failures.
   const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
-    await runAutoMovieCapture({
+    await AutoMovieRenderCapture.run({
       plan,
       draw,
       folder: await AutoMovieCaptureFolder.open({

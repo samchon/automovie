@@ -1,4 +1,4 @@
-import { validateAutoMovieEnvironmentContext, AutoMovieEngineEnvironment } from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisSolid,
   IAutoMovieEnvironmentContext,
@@ -27,7 +27,7 @@ export function assertAnalysisEnvironmentContextPart1(): {
   occluded: IAutoMovieEnvironmentContext;
   broken: (
     overrides: Partial<IAutoMovieEnvironmentContext>,
-  ) => ReturnType<typeof validateAutoMovieEnvironmentContext>;
+  ) => ReturnType<typeof AutoMovieEngineEnvironment.validateContext>;
   instantOf: (
     index: number,
     patch: Partial<IAutoMovieEnvironmentContext["instants"][number]>,
@@ -36,7 +36,7 @@ export function assertAnalysisEnvironmentContextPart1(): {
   const context: IAutoMovieEnvironmentContext = analysisContext();
   TestValidator.equals(
     "the declared site validates clean",
-    validateAutoMovieEnvironmentContext({ context }),
+    AutoMovieEngineEnvironment.validateContext({ context }),
     { success: true },
   );
   TestValidator.equals(
@@ -76,10 +76,10 @@ export function assertAnalysisEnvironmentContextPart1(): {
 
   const broken: (
     overrides: Partial<IAutoMovieEnvironmentContext>,
-  ) => ReturnType<typeof validateAutoMovieEnvironmentContext> = (
+  ) => ReturnType<typeof AutoMovieEngineEnvironment.validateContext> = (
     overrides: Partial<IAutoMovieEnvironmentContext>,
-  ): ReturnType<typeof validateAutoMovieEnvironmentContext> =>
-    validateAutoMovieEnvironmentContext({
+  ): ReturnType<typeof AutoMovieEngineEnvironment.validateContext> =>
+    AutoMovieEngineEnvironment.validateContext({
       context: analysisContext(overrides),
     });
   const instantOf: (

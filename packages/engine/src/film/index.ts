@@ -5,8 +5,6 @@ export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 
 export * from "./autoMovieSectionPlaneDistance";
 export * from "./autoMovieSectionPlanesKeepPoint";
-export * from "./autoMovieStoryInterval";
-export * from "./autoMovieStoryTime";
 
 
 
@@ -95,7 +93,6 @@ export * from "./flame";
 
 
 
-export * from "./propBoxAxisIsSound";
 
 
 

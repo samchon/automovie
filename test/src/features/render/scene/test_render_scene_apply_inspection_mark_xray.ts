@@ -1,8 +1,4 @@
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -26,7 +22,7 @@ export function test_render_scene_apply_inspection_mark_xray(): void {
     const stage: THREE.Scene = InspectionScene.scene(
       InspectionScene.quad("panel"),
     );
-    const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+    const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask({ marks: ["probe"], xray }),
       marks: [

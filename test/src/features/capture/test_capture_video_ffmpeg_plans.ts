@@ -1,8 +1,4 @@
-import {
-  planAutoMovieVideoFrames,
-  planAutoMovieVideoSceneCuts,
-  readAutoMovieVideoSceneCuts,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -29,7 +25,7 @@ export function test_capture_video_ffmpeg_plans(): void {
   // 1. Exactly the planned frames.
   TestValidator.equals(
     "one select names exactly the frames",
-    planAutoMovieVideoFrames({
+    AutoMovieRenderCapture.planVideoFrames({
       file: "in.mp4",
       frames: [92, 60, 57, 58, 59, 61, 62, 63, 90, 60],
       directory: "out/file",
@@ -58,14 +54,14 @@ export function test_capture_video_ffmpeg_plans(): void {
     TestValidator.predicate(
       `frames ${JSON.stringify(frames)} are refused`,
       throwsError((): unknown =>
-        planAutoMovieVideoFrames({ file: "in.mp4", frames, directory: "o" }),
+        AutoMovieRenderCapture.planVideoFrames({ file: "in.mp4", frames, directory: "o" }),
       ),
     );
 
   // 3. Scene cuts.
   TestValidator.equals(
     "scdet prints cuts to the report",
-    planAutoMovieVideoSceneCuts({
+    AutoMovieRenderCapture.planVideoSceneCuts({
       file: "in.mp4",
       report: "out/scenecut.txt",
       threshold: 10,
@@ -85,7 +81,7 @@ export function test_capture_video_ffmpeg_plans(): void {
   );
   TestValidator.equals(
     "a drive colon and a comma are escaped twice",
-    planAutoMovieVideoSceneCuts({
+    AutoMovieRenderCapture.planVideoSceneCuts({
       file: "in.mp4",
       report: "D:/a,b/cut.txt",
       threshold: 10,
@@ -98,7 +94,7 @@ export function test_capture_video_ffmpeg_plans(): void {
     "a threshold above 100 is refused",
     throwsError(
       (): unknown =>
-        planAutoMovieVideoSceneCuts({ file: "a", report: "b", threshold: 101 }),
+        AutoMovieRenderCapture.planVideoSceneCuts({ file: "a", report: "b", threshold: 101 }),
       "101",
     ),
   );
@@ -106,7 +102,7 @@ export function test_capture_video_ffmpeg_plans(): void {
   // 5. A report with two cuts.
   TestValidator.equals(
     "two cuts read back",
-    readAutoMovieVideoSceneCuts(
+    AutoMovieRenderCapture.readVideoSceneCuts(
       [
         "frame:59   pts:60060   pts_time:2.002",
         "lavfi.scd.mafd=31.2",
@@ -126,14 +122,14 @@ export function test_capture_video_ffmpeg_plans(): void {
   // 6. Empty and malformed reports.
   TestValidator.equals(
     "an empty report is no cut",
-    readAutoMovieVideoSceneCuts(""),
+    AutoMovieRenderCapture.readVideoSceneCuts(""),
     [],
   );
   TestValidator.predicate(
     "a frame without a score is refused",
     throwsError(
       (): unknown =>
-        readAutoMovieVideoSceneCuts(
+        AutoMovieRenderCapture.readVideoSceneCuts(
           "frame:3 pts:3 pts_time:0.1\nlavfi.scd.time=0.1\n",
         ),
       "frame:3",

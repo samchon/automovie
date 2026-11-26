@@ -9,12 +9,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
 import { HumanVerdicts } from "@automovie/motions";
-import {
-  type IAutoMovieDrawScene,
-  observeAutoMoviePlacedInspection,
-  reduceAutoMovieInspectionEpisodes,
-  selectAutoMoviePlacedChecks,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, observeAutoMoviePlacedInspection, selectAutoMoviePlacedChecks, AutoMovieRenderInspectionMarks } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -250,7 +245,7 @@ export async function test_inspect_film_production(): Promise<void> {
       await observe(4, "capture"),
     ];
     const capture: IAutoMovieInspectionDiagnostics.IAudit =
-      reduceAutoMovieInspectionEpisodes(sampled);
+      AutoMovieRenderInspectionMarks.reduceEpisodes(sampled);
     const support: IAutoMovieInspectionDiagnostics.IEpisode | undefined =
       capture.episodes.find(
         (episode: IAutoMovieInspectionDiagnostics.IEpisode): boolean =>
@@ -309,7 +304,7 @@ export async function test_inspect_film_production(): Promise<void> {
     for (let frame: number = 0; frame < FRAMES; ++frame)
       delivery.push(await observe(frame, "delivery"));
     const audit: IAutoMovieInspectionDiagnostics.IAudit =
-      reduceAutoMovieInspectionEpisodes(delivery, FRAMES);
+      AutoMovieRenderInspectionMarks.reduceEpisodes(delivery, FRAMES);
     TestValidator.predicate(
       "a delivery pass observes every frame and is blocked",
       audit.observedOutputFrames === FRAMES && audit.hasBlockingFinding,

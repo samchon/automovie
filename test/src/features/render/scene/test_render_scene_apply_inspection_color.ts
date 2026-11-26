@@ -1,8 +1,4 @@
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -52,7 +48,7 @@ export function test_render_scene_apply_inspection_color(): void {
   };
 
   // 1. Beauty.
-  const beauty: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const beauty: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       marks: ["joint", "contact"],
@@ -90,7 +86,7 @@ export function test_render_scene_apply_inspection_color(): void {
   beauty.restore();
 
   // 2. Clay.
-  const clay: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const clay: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       shade: "clay",
@@ -105,7 +101,7 @@ export function test_render_scene_apply_inspection_color(): void {
   clay.restore();
 
   // 3. A later entry wins.
-  const later: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const later: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       color: [
@@ -121,7 +117,7 @@ export function test_render_scene_apply_inspection_color(): void {
   TestValidator.error(
     "a kind colour that clashes with another kind is refused",
     (): void => {
-      applyAutoMovieInspection({
+      AutoMovieRenderInspection.apply({
         scene: stage,
         request: InspectionScene.ask({
           marks: ["joint", "contact"],
@@ -134,7 +130,7 @@ export function test_render_scene_apply_inspection_color(): void {
   TestValidator.error(
     "an object colour under a guide pass is refused",
     (): void => {
-      applyAutoMovieInspection({
+      AutoMovieRenderInspection.apply({
         scene: stage,
         request: InspectionScene.ask({
           shade: "depth",

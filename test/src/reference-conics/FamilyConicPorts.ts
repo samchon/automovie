@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewLoft,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -185,7 +181,7 @@ namespace FamilyConicPorts {
     process.stdout.write(JSON.stringify({ tip: limb.tips![1], loops }) + "\n");
     const started: number = performance.now();
     const real: IAutoMovieConstructionRealization.IRealization =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         { name: "f1.ports", root },
         { chord: 0.0005, sources },
       );

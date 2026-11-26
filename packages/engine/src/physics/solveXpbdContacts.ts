@@ -1,5 +1,6 @@
 import type {
   IAutoMoviePhysicalShapeBounds,
+  IAutoMoviePhysicalShapePairContact,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -162,7 +163,7 @@ export namespace solveXpbdContacts {
           !filter(a, b)
         )
           continue;
-        const measured: physicalShapePairContact.IResult | null = measure(a, b);
+        const measured: IAutoMoviePhysicalShapePairContact | null = measure(a, b);
         if (measured === null || !(measured.distance <= 0)) continue;
         const patch: physicalShapeContactManifold.IPoint[] =
           a.sensor || b.sensor
@@ -389,7 +390,7 @@ export namespace solveXpbdContacts {
   function measure(
     a: AutoMovieXpbdCollider,
     b: AutoMovieXpbdCollider,
-  ): physicalShapePairContact.IResult | null {
+  ): IAutoMoviePhysicalShapePairContact | null {
     const round = (collider: AutoMovieXpbdCollider): boolean =>
       collider.shape.kind === "sphere" || collider.shape.kind === "capsule";
     if (round(a) || round(b))

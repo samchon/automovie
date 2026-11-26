@@ -6,6 +6,7 @@ import type {
   IAutoMoviePhysicalHullMass,
   IAutoMoviePhysicalProfile,
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalShapePairContact,
   IAutoMoviePrimitiveShape,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -71,7 +72,7 @@ export namespace AutoMovieEnginePhysics {
     shapeA: IAutoMoviePhysicalShape,
     poseB: IAutoMovieRigidTransform,
     shapeB: IAutoMoviePhysicalShape,
-  ): IShapePairContactResult {
+  ): IAutoMoviePhysicalShapePairContact {
     return physicalShapePairContact(poseA, shapeA, poseB, shapeB);
   }
 
@@ -85,17 +86,5 @@ export namespace AutoMovieEnginePhysics {
     floor: number,
   ): IAutoMovieVector3[] {
     return physicalSupportFootprint(profile, poses, limb, floor);
-  }
-
-  /** Contact between two convex colliders, in world metres. */
-  export interface IShapePairContactResult {
-    /** Signed distance, metres; negative when they overlap. */
-    distance: number;
-    /** Unit normal from the first shape toward the second. */
-    normal: IAutoMovieVector3;
-    /** The first shape's witness. */
-    pointA: IAutoMovieVector3;
-    /** The second shape's witness. */
-    pointB: IAutoMovieVector3;
   }
 }

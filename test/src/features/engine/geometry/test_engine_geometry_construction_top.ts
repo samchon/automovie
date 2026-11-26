@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionKnot,
   IAutoMovieConstructionOutline,
@@ -60,7 +60,7 @@ export function test_engine_geometry_construction_top(): void {
       shoulders: [flat(), flat(), flat(), flat()],
     };
     const real: IAutoMovieConstructionRealization.IWithoutSkin =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         { name: "made", root: tube },
         { chord: 1e-4, skin: false },
       );

@@ -1,9 +1,5 @@
 import type { IAutoMovieMark } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 import type { LineMaterial } from "three/examples/jsm/lines/LineMaterial.js";
@@ -65,7 +61,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   const stage: THREE.Scene = InspectionScene.scene(
     InspectionScene.quad("panel"),
   );
-  const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       marks: ["trace", "ring", "pieces", "push", "places"],
@@ -144,7 +140,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   for (const [title, shape] of malformed) {
     const before: number = stage.children.length;
     try {
-      applyAutoMovieInspection({
+      AutoMovieRenderInspection.apply({
         scene: stage,
         request: InspectionScene.ask({ marks: ["bad"] }),
         marks: [InspectionScene.mark(`odd/${title}`, "bad", 0x123456, shape)],
@@ -166,7 +162,7 @@ export function test_render_scene_apply_inspection_mark_shapes(): void {
   // 3. Depth lead.
   const compiled: (xray: boolean) => string[] = (xray: boolean): string[] => {
     const scene: THREE.Scene = InspectionScene.scene();
-    const applied: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+    const applied: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
       scene,
       request: InspectionScene.ask({ marks: ["**"], xray }),
       marks: [marks[0]!, marks[4]!],

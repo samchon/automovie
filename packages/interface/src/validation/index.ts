@@ -13,6 +13,7 @@ export type { IAutoMovieClipChannelGate } from "./IAutoMovieClipChannelGate";
 export type { IAutoMovieClipShapeFault } from "./IAutoMovieClipShapeFault";
 export type { IAutoMovieClipTrackShapeFaults } from "./IAutoMovieClipTrackShapeFaults";
 export type { IAutoMovieCollisionActor } from "./IAutoMovieCollisionActor";
+export type { IAutoMovieCollisionComparisonCounts } from "./IAutoMovieCollisionComparisonCounts";
 export type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
 export type { IAutoMovieContinuityTolerances } from "./IAutoMovieContinuityTolerances";
 export type { IAutoMovieDetectBodyCollision } from "./IAutoMovieDetectBodyCollision";
@@ -26,6 +27,7 @@ export type { IAutoMovieMeshTopologyValidationProps } from "./IAutoMovieMeshTopo
 export type { IAutoMovieModelColumn } from "./IAutoMovieModelColumn";
 export type { IAutoMoviePlacedContact } from "./IAutoMoviePlacedContact";
 export type { IAutoMoviePlacedContinuity } from "./IAutoMoviePlacedContinuity";
+export type { IAutoMoviePlacedContinuityMotionDelta } from "./IAutoMoviePlacedContinuityMotionDelta";
 export type { IAutoMovieSceneCollision } from "./IAutoMovieSceneCollision";
 export type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 export type { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
@@ -34,6 +36,7 @@ export type { IAutoMovieSweptCapsuleCollision } from "./IAutoMovieSweptCapsuleCo
 export type { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 export type { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
 export type { IAutoMovieToppling } from "./IAutoMovieToppling";
+export type { IAutoMovieUnavailableCollisionPair } from "./IAutoMovieUnavailableCollisionPair";
 export type { IAutoMovieValidateBalanceSupport } from "./IAutoMovieValidateBalanceSupport";
 export type { IAutoMovieValidateContinuity } from "./IAutoMovieValidateContinuity";
 export type { IAutoMovieValidateExpression } from "./IAutoMovieValidateExpression";

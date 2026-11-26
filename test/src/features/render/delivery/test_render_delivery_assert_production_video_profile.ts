@@ -1,10 +1,10 @@
-import { assertProductionVideoProfile, resolveProductionVideoProfile } from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createProductionVideoProbe } from "../../internal/createProductionVideoProbe";
 
 /**
- * `assertProductionVideoProfile` accepts a probed MP4 that has the profile.
+ * `AutoMovieRenderDelivery.assertVideoProfile` accepts a probed MP4 that has the profile.
  *
  * Scenarios:
  *
@@ -15,7 +15,7 @@ import { createProductionVideoProbe } from "../../internal/createProductionVideo
  *    first mismatching field.
  */
 export function test_render_delivery_assert_production_video_profile(): void {
-  const expected = resolveProductionVideoProfile({
+  const expected = AutoMovieRenderDelivery.resolveVideoProfile({
     width: 64,
     height: 32,
     frameRate: { numerator: 24, denominator: 1 },
@@ -24,7 +24,7 @@ export function test_render_delivery_assert_production_video_profile(): void {
     const actual = createProductionVideoProbe({ profile: expected, frameCount: 24 });
     edit(actual);
     try {
-      assertProductionVideoProfile({ expected, actual });
+      AutoMovieRenderDelivery.assertVideoProfile({ expected, actual });
     } catch (error) {
       return error instanceof Error ? error.message : "";
     }

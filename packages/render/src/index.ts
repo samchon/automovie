@@ -5,7 +5,7 @@ export * from "./AutoMovieFrameGrid.js";
 export * from "./draw/index.js";
 export * from "./film/index.js";
 export * from "./ffmpegArgs.js";
-export * from "./frameTimes.js";
+
 export * from "./planPoseKeypointSidecar.js";
 export * from "./renderAndSee.js";
 export * from "./renderBudgetPreflight/index.js";
@@ -17,7 +17,7 @@ export * from "./scene/index.js";
 export * from "./screenplay/index.js";
 export * from "./typography/index.js";
 export * from "./planSequenceRender.js";
-export * from "./planViewerFrameTimes.js";
+
 export * from "./renderSequenceVideo.js";
 export * from "./renderSequenceAndSee.js";
 export * from "./planChunkedSequenceRender.js";
@@ -31,12 +31,12 @@ export * from "./audio/index.js";
 export * from "./film/equalOrderedScalarRows.js";
 export * from "./film/equalOrderedScalars.js";
 export * from "./guidePasses.js";
-export * from "./delivery/assertProductionVideoProfile.js";
-export * from "./delivery/resolveProductionVideoProfile.js";
+
+
 export * from "./film/productionVisualDeliveryOccurrence.js";
 export * from "./delivery/auditAutoMovieDecodedFrames.js";
 export * from "./delivery/auditAutoMovieEncodedPresentation.js";
-export * from "./delivery/assertProductionAacProfile.js";
+
 export * from "./delivery/AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
 export * from "./delivery/AUTOMOVIE_MP4_SRGB_COLOUR.js";
 export * from "./delivery/AUTOMOVIE_MP4_UNITY_MATRIX.js";
@@ -44,3 +44,5 @@ export * from "./delivery/AUTOMOVIE_MP4_UNITY_MATRIX.js";
 // and reaches it through the production's render.
 export { createAutoMovieLoudnessMeter } from "@automovie/engine";
 export * from "./AutoMovieRenderMedia.js";
+
+export { AutoMovieRenderScrub } from "./AutoMovieRenderScrub.js";

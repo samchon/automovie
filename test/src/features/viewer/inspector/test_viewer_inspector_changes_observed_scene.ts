@@ -1,4 +1,4 @@
-import { parseAutoMovieInspectionRequest } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { changesAutoMovieObservedScene } from "@automovie/viewer/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -15,9 +15,9 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_changes_observed_scene(): void {
   const inspection = (
     entries: [string, string][],
-  ): ReturnType<typeof parseAutoMovieInspectionRequest> => {
+  ): ReturnType<typeof AutoMovieRenderInspectionRequest.parseRequest> => {
     const values: Map<string, string> = new Map<string, string>(entries);
-    return parseAutoMovieInspectionRequest((key: string): string | undefined =>
+    return AutoMovieRenderInspectionRequest.parseRequest((key: string): string | undefined =>
       values.get(key),
     );
   };

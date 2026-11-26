@@ -6,7 +6,7 @@ import type {
 
 import { ffmpegArgs } from "./ffmpegArgs.js";
 import { framePattern } from "./framePattern.js";
-import { frameTimes } from "./frameTimes.js";
+import { frameTimes } from "./internal/frameTimes.js";
 
 /**
  * Render a clip of `durationSeconds` into a video, deterministically: compute

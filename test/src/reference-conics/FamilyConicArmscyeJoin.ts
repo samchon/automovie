@@ -3,11 +3,7 @@ import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import {
-  AutoMovieLoftViewFullSource as Full,
-  AutoMovieViewChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftViewFullSource as Full, AutoMovieViewChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -519,7 +515,7 @@ namespace FamilyConicArmscyeJoin {
       grazing: option("grazing", 0.2),
     };
     const started: number = performance.now();
-    const real: IAutoMovieConstructionRealization.IRealization = realizeAutoMovieConstruction({ name: "f1.armscye", root }, { chord: 0.0005, sources });
+    const real: IAutoMovieConstructionRealization.IRealization = AutoMovieEngineConstruction.realize({ name: "f1.armscye", root }, { chord: 0.0005, sources });
     process.stdout.write(JSON.stringify({ milliseconds: Math.round(performance.now() - started), diagnostics: real.diagnostics, joins: real.joins.length, triangles: real.mesh.indices.length / 3 }).slice(0, 6000) + "\n");
     if (real.mesh.positions.length === 0) return;
     await fs.mkdir(out, { recursive: true });

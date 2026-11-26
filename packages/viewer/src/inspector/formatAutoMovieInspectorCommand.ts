@@ -1,5 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import { formatAutoMovieCapturePlanRequest } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 
 /** An argument a POSIX shell passes through unquoted. */
 const PLAIN: RegExp = /^[\w%+,./:=@-]+$/u;
@@ -43,7 +43,7 @@ export function formatAutoMovieInspectorCommand(
   /** The command with the host and request arguments quoted for the shell. */
   text: string;
 } {
-  const options: string[] = formatAutoMovieCapturePlanRequest(request).map(
+  const options: string[] = AutoMovieRenderCapture.formatPlanRequest(request).map(
     ([key, value]: [key: string, value: string]): string => `--${key}=${value}`,
   );
   const powershell: boolean = props.shell === "powershell";

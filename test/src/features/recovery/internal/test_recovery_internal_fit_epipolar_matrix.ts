@@ -1,4 +1,5 @@
-import { fitRecoveryEpipolarMatrix } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
+import type { IAutoMovieRecoveryEpipolarMatrixFittingOperation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -32,8 +33,8 @@ export function test_recovery_internal_fit_epipolar_matrix(): void {
       point[1],
     ],
   );
-  const fitted: ReturnType<typeof fitRecoveryEpipolarMatrix> =
-    fitRecoveryEpipolarMatrix(first, second, 1e-9, 64);
+  const fitted: ReturnType<IAutoMovieRecoveryEpipolarMatrixFittingOperation.Operation> =
+    AutoMovieRecoveryCameraGeometry.fitEpipolarMatrix(first, second, 1e-9, 64);
   const m: number[] = fitted.matrix;
   TestValidator.predicate(
     "unit norm",
@@ -51,6 +52,6 @@ export function test_recovery_internal_fit_epipolar_matrix(): void {
       nclose(m[5]! + m[7]!, 0, 1e-6),
   );
   TestValidator.error("seven pairs", (): unknown =>
-    fitRecoveryEpipolarMatrix(first.slice(0, 7), second.slice(0, 7), 1e-9, 64),
+    AutoMovieRecoveryCameraGeometry.fitEpipolarMatrix(first.slice(0, 7), second.slice(0, 7), 1e-9, 64),
   );
 }

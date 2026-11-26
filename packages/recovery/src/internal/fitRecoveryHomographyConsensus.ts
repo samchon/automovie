@@ -4,12 +4,12 @@ import type {
   IAutoMovieRecoveryHomographyFittingOperation,
 } from "@automovie/interface";
 
-import { fitRecoveryHomography } from "./fitRecoveryHomography";
+import { fitRecoveryHomography } from "../geometry/internal/fitRecoveryHomography";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
-import { measureRecoveryHomographyErrors } from "./measureRecoveryHomographyErrors";
+import { measureRecoveryHomographyErrors } from "../geometry/internal/measureRecoveryHomographyErrors";
 import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";
 import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
-import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
+import { scoreRecoveryCameraResiduals } from "../geometry/internal/scoreRecoveryCameraResiduals";
 
 /**
  * Search a planar explanation of the final fixed epipolar-inlier population.

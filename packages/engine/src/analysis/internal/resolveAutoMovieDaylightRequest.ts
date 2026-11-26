@@ -13,7 +13,7 @@ import { assertAutoMovieAnalysisSolids } from "./assertAutoMovieAnalysisSolids";
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { validateAutoMovieEnvironmentContext } from "../validateAutoMovieEnvironmentContext";
+import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
 /** Directions this short or shorter are degenerate. */
 const EPSILON: number = 1e-12;

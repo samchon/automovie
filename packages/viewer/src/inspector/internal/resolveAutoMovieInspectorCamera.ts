@@ -1,10 +1,5 @@
 import type { IAutoMovieInspectionView } from "@automovie/interface";
-import {
-  type IAutoMovieDrawScene,
-  type IAutoMovieInspectionHandle,
-  parseAutoMovieInspectionView,
-  resolveAutoMovieInspectionView,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, resolveAutoMovieInspectionView, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -36,7 +31,7 @@ export function resolveAutoMovieInspectorCamera(props: {
     instance.camera.aspect = aspect;
     instance.camera.updateProjectionMatrix();
   }
-  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(text);
+  const view: IAutoMovieInspectionView = AutoMovieRenderInspectionRequest.parseView(text);
   return resolveAutoMovieInspectionView({
     view,
     text,

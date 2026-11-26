@@ -1,6 +1,6 @@
 import {
   AUTOMOVIE_ANALYSIS_MAX_SAMPLES,
-  autoMovieAnalysisMetric,
+  AutoMovieEngineAnalysis,
 } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
@@ -38,8 +38,8 @@ export function assertAnalysisRunContractPart4(
   warnings: IAutoMovieAnalysisWarning[];
   build: (
     value: number | null,
-    targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
-    extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+    targets: Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]["targets"],
+    extra?: Partial<Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]>,
   ) => IAutoMovieAnalysisMetric;
 } {
   TestValidator.equals(
@@ -194,14 +194,14 @@ export function assertAnalysisRunContractPart4(
   const warnings: IAutoMovieAnalysisWarning[] = [];
   const build: (
     value: number | null,
-    targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
-    extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+    targets: Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]["targets"],
+    extra?: Partial<Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]>,
   ) => IAutoMovieAnalysisMetric = (
     value: number | null,
-    targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
-    extra: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]> = {},
+    targets: Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]["targets"],
+    extra: Partial<Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]> = {},
   ): IAutoMovieAnalysisMetric =>
-    autoMovieAnalysisMetric({
+    AutoMovieEngineAnalysis.analysisMetric({
       key: "room.reverberationTime",
       unit: "s",
       value,

@@ -2,6 +2,7 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalShapeBounds,
   IAutoMoviePhysicalShapeNearest,
+  IAutoMoviePhysicalShapePairContact,
   IAutoMoviePreparePhysicalGeometry,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -47,7 +48,7 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
         )
       )
         return null;
-      const measured: physicalShapePairContact.IResult =
+      const measured: IAutoMoviePhysicalShapePairContact =
         physicalShapePairContact(a.pose, a.shape, b.pose, b.shape);
 
       if (measured.distance > prediction) return null;

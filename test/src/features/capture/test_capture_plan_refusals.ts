@@ -2,10 +2,7 @@ import type {
   IAutoMovieCapturePlan,
   IAutoMovieCaptureSubject,
 } from "@automovie/interface";
-import {
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../internal/throwsError";
@@ -50,8 +47,8 @@ export function test_capture_plan_refusals(): void {
     text: string,
     subject: IAutoMovieCaptureSubject = SUBJECT,
   ): IAutoMovieCapturePlan =>
-    planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+    AutoMovieRenderCapture.plan({
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       subject,
       cuts: [],
     });

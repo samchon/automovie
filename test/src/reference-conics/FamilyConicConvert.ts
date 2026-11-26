@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewChain as Q,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewChain as Q, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -1636,7 +1632,7 @@ export namespace FamilyConicConvert {
       | undefined;
     if (root !== null && shown.length > 1) {
       try {
-        const real = realizeAutoMovieConstruction(
+        const real = AutoMovieEngineConstruction.realize(
           { name: "convert." + name, root },
           { chord: 0.001, sources },
         );

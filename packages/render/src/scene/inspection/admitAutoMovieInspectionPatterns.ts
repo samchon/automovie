@@ -6,8 +6,8 @@ import type {
 
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-import { listAutoMovieInspectionKindOptions } from "./listAutoMovieInspectionKindOptions.js";
-import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
+import { listAutoMovieInspectionKindOptions } from "./internal/listAutoMovieInspectionKindOptions.js";
+import { matchAutoMovieInspectionPath } from "./internal/matchAutoMovieInspectionPath.js";
 
 /**
  * Check kind patterns before measuring scene geometry. Return the remaining

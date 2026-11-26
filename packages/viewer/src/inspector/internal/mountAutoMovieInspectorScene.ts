@@ -2,12 +2,7 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieInspectionDiagnostics,
 } from "@automovie/interface";
-import {
-  type IAutoMovieDrawScene,
-  type IAutoMovieInspectionHandle,
-  createAutoMovieInspectionDiagnosticOverlay,
-  observeAutoMoviePlacedInspection,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, observeAutoMoviePlacedInspection, AutoMovieRenderInspectionOverlay } from "@automovie/render";
 import type * as THREE from "three";
 
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
@@ -97,8 +92,8 @@ export function mountAutoMovieInspectorScene(
   const diagnosticLog: AutoMovieInspectorDiagnosticLog =
     new AutoMovieInspectorDiagnosticLog(report);
   const witnessCubes: ReturnType<
-    typeof createAutoMovieInspectionDiagnosticOverlay
-  > = createAutoMovieInspectionDiagnosticOverlay();
+    typeof AutoMovieRenderInspectionOverlay.createDiagnosticOverlay
+  > = AutoMovieRenderInspectionOverlay.createDiagnosticOverlay();
   let disposed: boolean = false;
   let witnesses: boolean = true;
   let wanted: IAutoMovieCapturePlanRequest = props.request;

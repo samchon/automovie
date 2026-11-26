@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import { diffAutoMovieCaptureFindings } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 type Audit = IAutoMovieInspectionDiagnostics.IAudit;
@@ -86,7 +86,7 @@ const audit = (props: {
 export function test_render_capture_diff_capture_findings(): void {
   TestValidator.equals(
     "omitted",
-    diffAutoMovieCaptureFindings({
+    AutoMovieRenderCapture.diffFindings({
       earlier: undefined,
       current: audit({ episode: false, checked: false }),
     }),
@@ -94,14 +94,14 @@ export function test_render_capture_diff_capture_findings(): void {
   );
   TestValidator.equals(
     "clean",
-    diffAutoMovieCaptureFindings({
+    AutoMovieRenderCapture.diffFindings({
       earlier: audit({ episode: false, checked: false }),
       current: audit({ episode: false, checked: false }),
     }),
     { state: "compared", outcome: "same", entries: [] },
   );
 
-  const added = diffAutoMovieCaptureFindings({
+  const added = AutoMovieRenderCapture.diffFindings({
     earlier: audit({ episode: false, checked: true }),
     current: audit({ episode: true, checked: false }),
   });
@@ -112,7 +112,7 @@ export function test_render_capture_diff_capture_findings(): void {
       : null,
     ["worse", ["new"]],
   );
-  const removed = diffAutoMovieCaptureFindings({
+  const removed = AutoMovieRenderCapture.diffFindings({
     earlier: audit({ episode: true, checked: false }),
     current: audit({ episode: false, checked: true }),
   });
@@ -123,7 +123,7 @@ export function test_render_capture_diff_capture_findings(): void {
       : null,
     ["better", ["fixed"]],
   );
-  const unsampled = diffAutoMovieCaptureFindings({
+  const unsampled = AutoMovieRenderCapture.diffFindings({
     earlier: audit({ episode: false, checked: false }),
     current: audit({ episode: true, checked: false }),
   });
@@ -140,7 +140,7 @@ export function test_render_capture_diff_capture_findings(): void {
     ["same", ["not-sampled"]],
   );
 
-  const slower = diffAutoMovieCaptureFindings({
+  const slower = AutoMovieRenderCapture.diffFindings({
     earlier: audit({ episode: false, checked: true, slow: true }),
     current: audit({ episode: true, checked: false }),
   });

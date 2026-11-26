@@ -6,13 +6,7 @@ import type {
   IAutoMovieCaptureRecord,
   IAutoMovieProductionCheck,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  AutoMovieRenderPicture,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { runAutoMovieProductionCheck } from "automovie";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
@@ -255,8 +249,8 @@ export async function test_cli_production_check_records(): Promise<void> {
       hasFinding: (seconds: number) => boolean = (): boolean => false,
       retimed: boolean = false,
     ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
-      const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-        request: parseAutoMovieCapturePlanRequest(new URLSearchParams(query)),
+      const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+        request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(query)),
         subject: {
           ...picture,
           name: "walk",
@@ -268,7 +262,7 @@ export async function test_cli_production_check_records(): Promise<void> {
         },
         cuts: [],
       });
-      return runAutoMovieCapture({
+      return AutoMovieRenderCapture.run({
         plan,
         draw: async (
           cell: IAutoMovieCaptureCell,

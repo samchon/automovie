@@ -11,7 +11,7 @@ import type {
 } from "@automovie/interface";
 
 import { beatCaptions } from "../beatCaptions.js";
-import { frameTimes } from "../../frameTimes.js";
+import { frameTimes } from "../../internal/frameTimes.js";
 import { shotBeat } from "../../shotBeat.js";
 
 /**

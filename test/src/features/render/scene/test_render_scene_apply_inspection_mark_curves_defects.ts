@@ -3,11 +3,7 @@ import type {
   IAutoMovieConstructionCurve,
   IAutoMovieMark,
 } from "@automovie/interface";
-import {
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-  readAutoMovieBufferAttribute,
-} from "@automovie/render";
+import { type IAutoMovieInspectionHandle, readAutoMovieBufferAttribute, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -137,7 +133,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   // 2. Drawn curves.
   const panel: THREE.Mesh = InspectionScene.quad("panel", 3);
   const form: THREE.Scene = InspectionScene.scene(panel);
-  const curves: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const curves: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: form,
     request: InspectionScene.ask({ marks: ["curve"] }),
     marks,
@@ -167,7 +163,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   // 3. Measured open edges.
   const open: THREE.Mesh = InspectionScene.quad("open");
   const torn: THREE.Scene = InspectionScene.scene(open);
-  const edges: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const edges: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: torn,
     request: InspectionScene.ask({ marks: ["defect/open"] }),
   });
@@ -232,7 +228,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   edges.restore();
 
   // 5. Only asked kinds.
-  const absent: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const absent: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: torn,
     request: InspectionScene.ask({ marks: ["defect/degenerate"] }),
   });

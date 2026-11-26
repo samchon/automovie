@@ -1,10 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import {
-  type IApplyAutoMovieInspectionProps,
-  type IAutoMovieDrawScene,
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { type IApplyAutoMovieInspectionProps, type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 
 import type { IAutoMovieInspectorSceneHost } from "../IAutoMovieInspectorSceneHost.js";
 
@@ -27,7 +22,7 @@ export function inspectAutoMovieInspectorRequest(props: {
   /** The marks of the placed second; absent applies none. */
   marks: IApplyAutoMovieInspectionProps["marks"] | undefined;
 }): IAutoMovieInspectionHandle {
-  return applyAutoMovieInspection({
+  return AutoMovieRenderInspection.apply({
     scene: props.instance.scene,
     request: props.request.inspection,
     renderer: props.renderer,

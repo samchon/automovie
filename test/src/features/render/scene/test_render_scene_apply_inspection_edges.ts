@@ -1,9 +1,5 @@
 import type { IAutoMovieInspectionRequest } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -63,7 +59,7 @@ export function test_render_scene_apply_inspection_edges(): void {
     stage: THREE.Scene,
     changes: Partial<IAutoMovieInspectionRequest>,
   ): IAutoMovieInspectionHandle =>
-    applyAutoMovieInspection({
+    AutoMovieRenderInspection.apply({
       scene: stage,
       request: InspectionScene.ask(changes),
     });

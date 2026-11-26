@@ -8,7 +8,7 @@ import {
 import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieEnvironmentInstant } from "./autoMovieEnvironmentInstant";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { validateAutoMovieEnvironmentContext } from "../validateAutoMovieEnvironmentContext";
+import { validateAutoMovieEnvironmentContext } from "./validateAutoMovieEnvironmentContext";
 
 /**
  * Refuse an envelope request no honest study can be made from, and resolve the

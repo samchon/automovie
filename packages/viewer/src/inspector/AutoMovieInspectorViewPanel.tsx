@@ -1,5 +1,5 @@
 import type { IAutoMovieCapturePlanRequest, IAutoMovieInspectionView } from "@automovie/interface";
-import { formatAutoMovieInspectionView, parseAutoMovieInspectionView } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { type ChangeEvent, type JSX, useState } from "react";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
@@ -23,12 +23,12 @@ export function AutoMovieInspectorViewPanel(props: {
   dispatch: (action: IAutoMovieInspectorAction) => void;
 }): JSX.Element {
   const text: string = props.request.views[0]!;
-  const view: IAutoMovieInspectionView = parseAutoMovieInspectionView(text);
+  const view: IAutoMovieInspectionView = AutoMovieRenderInspectionRequest.parseView(text);
   const [typed, setTyped] = useState<string | null>(null);
   const send: (next: IAutoMovieInspectionView) => void = (
     next: IAutoMovieInspectionView,
   ): void =>
-    props.dispatch({ type: "view", view: formatAutoMovieInspectionView(next) });
+    props.dispatch({ type: "view", view: AutoMovieRenderInspectionRequest.formatView(next) });
   const form: string = view.type === "named" ? view.name : view.type;
   const focus: string =
     view.type === "named" && view.focus?.type === "pattern"

@@ -8,7 +8,7 @@ import type {
   IAutoMovieRandom,
 } from "@automovie/interface";
 
-import { HumanBreath } from "../everyday/HumanBreath";
+import { HumanBreath } from "./expression/HumanBreath";
 import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";

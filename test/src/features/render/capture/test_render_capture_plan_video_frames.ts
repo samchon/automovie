@@ -1,4 +1,4 @@
-import { planAutoMovieVideoFrames } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
  * 2. No frames and a negative frame are refused.
  */
 export function test_render_capture_plan_video_frames(): void {
-  const args: string[] = planAutoMovieVideoFrames({
+  const args: string[] = AutoMovieRenderCapture.planVideoFrames({
     file: "in.mp4",
     frames: [5, 1, 2, 3, 5],
     directory: "out",
@@ -24,9 +24,9 @@ export function test_render_capture_plan_video_frames(): void {
   TestValidator.equals("input", args[args.indexOf("-i") + 1], "in.mp4");
   TestValidator.equals("pattern", args[args.length - 1], "out/s%05d.png");
   TestValidator.error("none", (): void => {
-    planAutoMovieVideoFrames({ file: "in.mp4", frames: [], directory: "out" });
+    AutoMovieRenderCapture.planVideoFrames({ file: "in.mp4", frames: [], directory: "out" });
   });
   TestValidator.error("negative", (): void => {
-    planAutoMovieVideoFrames({ file: "in.mp4", frames: [-1], directory: "out" });
+    AutoMovieRenderCapture.planVideoFrames({ file: "in.mp4", frames: [-1], directory: "out" });
   });
 }

@@ -1,4 +1,27 @@
-import { assertAutoMovieAnalysisSolids as assertAutoMovieAnalysisSolidsImplementation } from "./internal/assertAutoMovieAnalysisSolids";
+import type {
+  IAutoMovieAnalysisMetric,
+  IAutoMovieAnalysisMetricInput,
+  IAutoMovieAnalysisRun,
+  IAutoMovieAnalyzeAcoustics,
+  IAutoMovieAnalyzeDaylight,
+  IAutoMovieAnalyzeEnvelope,
+  IAutoMovieAnalyzeSpaceAir,
+  IAutoMovieAnalysisSolid,
+  IAutoMovieAnalysisTarget,
+  AutoMovieAnalysisComparison,
+  IAutoMovieResolveDaylightRequest,
+  IAutoMovieDaylightRequest,
+  IAutoMovieEnvironmentInstant,
+  IAutoMovieEnvelopeRequest,
+  IAutoMovieSealAnalysisRun,
+  IAutoMovieAnalysisReport,
+  IAutoMovieSummarizeAnalysis,
+  IAutoMovieValidation,
+  IAutoMovieValidateAnalysisRun,
+  IAutoMovieViolationCollector,
+  IAutoMovieHalfSpacePlane,
+  IAutoMovieWarnAnalysisTargetKeys,
+} from "@automovie/interface";Solids as assertAutoMovieAnalysisSolidsImplementation } from "./internal/assertAutoMovieAnalysisSolids";
 import { assertAutoMovieAnalysisTargets as assertAutoMovieAnalysisTargetsImplementation } from "./internal/assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisRunDigest as autoMovieAnalysisRunDigestImplementation } from "./internal/autoMovieAnalysisRunDigest";
 import { autoMovieAnalysisSettingsTargets as autoMovieAnalysisSettingsTargetsImplementation } from "./internal/autoMovieAnalysisSettingsTargets";
@@ -11,6 +34,8 @@ import { validateAutoMovieAnalysisRun as validateAutoMovieAnalysisRunImplementat
 import { validateAutoMovieAnalysisRunContents as validateAutoMovieAnalysisRunContentsImplementation } from "./internal/validateAutoMovieAnalysisRunContents";
 import { validateSolidPlanes as validateSolidPlanesImplementation } from "./internal/validateSolidPlanes";
 import { warnAutoMovieAnalysisTargetKeys as warnAutoMovieAnalysisTargetKeysImplementation } from "./internal/warnAutoMovieAnalysisTargetKeys";
+import { autoMovieAnalysisMetric as autoMovieAnalysisMetricImplementation } from "./internal/autoMovieAnalysisMetric";
+import type { IAutoMovieAnalysisMetric, IAutoMovieAnalysisMetricInput } from "@automovie/interface";
 
 import { type IAutoMovieAnalysisRun, type IAutoMovieAnalyzeAcoustics, type IAutoMovieAnalyzeDaylight, type IAutoMovieAnalyzeEnvelope, type IAutoMovieAnalyzeSpaceAir, type IAutoMovieAnalysisSolid, type IAutoMovieAnalysisTarget, type AutoMovieAnalysisComparison, type IAutoMovieResolveDaylightRequest, type IAutoMovieDaylightRequest, type IAutoMovieEnvironmentInstant, type IAutoMovieEnvelopeRequest, type IAutoMovieSealAnalysisRun, type IAutoMovieAnalysisReport, type IAutoMovieSummarizeAnalysis, type IAutoMovieValidation, type IAutoMovieValidateAnalysisRun, type IAutoMovieViolationCollector, type IAutoMovieHalfSpacePlane, type IAutoMovieWarnAnalysisTargetKeys } from "@automovie/interface";
 
@@ -21,6 +46,11 @@ import { analyzeAutoMovieSpaceAir } from "./internal/analyzeAutoMovieSpaceAir";
 
 /** Deterministic analyses for declared acoustic, daylight, envelope and air studies. */
 export namespace AutoMovieEngineAnalysis {
+  /** Build one metric, resolving its authored target or recording its absence. */
+  export function analysisMetric(props: IAutoMovieAnalysisMetricInput.IProps): IAutoMovieAnalysisMetric {
+    return autoMovieAnalysisMetricImplementation(props);
+  }
+
   /** Solve one acoustic request and return its sealed analysis run. */
   export function acoustics(
     props: IAutoMovieAnalyzeAcoustics.IProps,

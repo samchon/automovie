@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -120,7 +120,7 @@ export function test_engine_geometry_construction_split(): void {
   const realize = (
     root: IAutoMovieConstructionNode,
   ): IAutoMovieConstructionRealization.IRealization =>
-    realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root }, { chord: 1e-4 });
   const sub = (a: readonly number[], b: readonly number[]): V3 => [
     a[0]! - b[0]!,
     a[1]! - b[1]!,

@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -66,7 +66,7 @@ export function test_engine_geometry_construction_rollback(): void {
   const realize = (
     root: IAutoMovieConstructionNode,
   ): IAutoMovieConstructionRealization.IRealization =>
-    realizeAutoMovieConstruction({ name: "made", root }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root }, { chord: 1e-4 });
   const alone: IAutoMovieConstructionRealization.IRealization = realize(beam());
 
   // 1.

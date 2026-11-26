@@ -9,13 +9,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  AutoMovieRenderPicture,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as fs from "node:fs/promises";
 
@@ -87,8 +81,8 @@ export async function test_capture_run_order(): Promise<void> {
   const plan: (text: string) => IAutoMovieCapturePlan = (
     text: string,
   ): IAutoMovieCapturePlan =>
-    planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+    AutoMovieRenderCapture.plan({
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       subject: SUBJECT,
       cuts: [],
     });
@@ -124,7 +118,7 @@ export async function test_capture_run_order(): Promise<void> {
     drawCell: typeof draw = draw,
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
     const planned: IAutoMovieCapturePlan = plan(text);
-    return runAutoMovieCapture({
+    return AutoMovieRenderCapture.run({
       plan: planned,
       draw: drawCell,
       folder: await AutoMovieCaptureFolder.open({
@@ -279,7 +273,7 @@ export async function test_capture_run_order(): Promise<void> {
   const before: number = memory.log.length;
   let refused: boolean = false;
   try {
-    await runAutoMovieCapture({
+    await AutoMovieRenderCapture.run({
       plan: plan("at=1&round=r2"),
       draw,
       folder: await AutoMovieCaptureFolder.open({

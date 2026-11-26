@@ -1,4 +1,4 @@
-import { autoMovieAnalysisMetric, AutoMovieEngineAnalysis } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisReport,
@@ -31,8 +31,8 @@ export function assertAnalysisRunContractPart5(
   warnings: IAutoMovieAnalysisWarning[],
   build: (
     value: number | null,
-    targets: Parameters<typeof autoMovieAnalysisMetric>[0]["targets"],
-    extra?: Partial<Parameters<typeof autoMovieAnalysisMetric>[0]>,
+    targets: Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]["targets"],
+    extra?: Partial<Parameters<typeof AutoMovieEngineAnalysis.analysisMetric>[0]>,
   ) => IAutoMovieAnalysisMetric,
 ): {
   run: (

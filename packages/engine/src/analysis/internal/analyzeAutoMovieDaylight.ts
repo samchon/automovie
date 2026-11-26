@@ -14,7 +14,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
+import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieArtificialIlluminance } from "../autoMovieArtificialIlluminance";
 import { autoMovieContextSolids } from "./autoMovieContextSolids";
 import { autoMovieDaylightSettings } from "../autoMovieDaylightSettings";

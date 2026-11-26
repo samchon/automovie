@@ -12,7 +12,7 @@ import {
   IAutoMovieEnvironmentInstant,
 } from "@automovie/interface";
 
-import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
+import { autoMovieAnalysisMetric } from "./autoMovieAnalysisMetric";
 import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 import { autoMovieDewPoint } from "./autoMovieDewPoint";
 import { resolveAutoMovieEnvelopeRequest } from "./resolveAutoMovieEnvelopeRequest";

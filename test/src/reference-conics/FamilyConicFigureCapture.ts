@@ -4,7 +4,7 @@ import { FamilyConicCaptureViews as Views } from "./FamilyConicCaptureViews";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import { AutoMovieHumanF1 } from "@automovie/human";
 import type { IAutoMovieHumanF1 } from "@automovie/interface";
 import fs from "node:fs/promises";
@@ -92,7 +92,7 @@ export namespace FamilyConicFigureCapture {
             context === null ? AutoMovieHumanF1.construction() : null;
           const mesh =
             context?.mesh ??
-            realizeAutoMovieConstruction(
+            AutoMovieEngineConstruction.realize(
               { name: "f1.body", root: declared!.root, fills: declared!.fills },
               { chord: 0.001, sources: declared!.sources },
             ).mesh;

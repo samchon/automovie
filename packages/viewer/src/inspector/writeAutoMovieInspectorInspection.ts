@@ -1,5 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import { formatAutoMovieInspectionRequest } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 
 /**
  * A request's inspection as the text it writes: the identity by which the
@@ -8,5 +8,5 @@ import { formatAutoMovieInspectionRequest } from "@automovie/render";
 export function writeAutoMovieInspectorInspection(
   request: Pick<IAutoMovieCapturePlanRequest, "inspection">,
 ): string {
-  return JSON.stringify(formatAutoMovieInspectionRequest(request.inspection));
+  return JSON.stringify(AutoMovieRenderInspectionRequest.formatRequest(request.inspection));
 }

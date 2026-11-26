@@ -1,4 +1,5 @@
-import { fitRecoveryHomography } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
+import type { IAutoMovieRecoveryHomographyFittingOperation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -25,8 +26,8 @@ export function test_recovery_internal_fit_homography(): void {
   const second: [number, number][] = first.map(
     (point: [number, number]): [number, number] => [point[0] + 5, point[1] + 3],
   );
-  const fitted: ReturnType<typeof fitRecoveryHomography> =
-    fitRecoveryHomography(first, second, 1e-8, 64);
+  const fitted: ReturnType<IAutoMovieRecoveryHomographyFittingOperation.Operation> =
+    AutoMovieRecoveryCameraGeometry.fitHomography(first, second, 1e-8, 64);
   const m: number[] = fitted.matrix;
   const eps: number = 1e-9;
   TestValidator.predicate(
@@ -49,6 +50,6 @@ export function test_recovery_internal_fit_homography(): void {
       nclose(v[0]! * m[0]!, 1, eps),
   );
   TestValidator.error("three pairs", (): unknown =>
-    fitRecoveryHomography(first.slice(0, 3), second.slice(0, 3), 1e-8, 64),
+    AutoMovieRecoveryCameraGeometry.fitHomography(first.slice(0, 3), second.slice(0, 3), 1e-8, 64),
   );
 }

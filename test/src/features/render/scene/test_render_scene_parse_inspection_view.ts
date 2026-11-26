@@ -1,4 +1,4 @@
-import { parseAutoMovieInspectionView } from "@automovie/render";
+import { AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,12 +19,12 @@ import { TestValidator } from "@nestia/e2e";
  *    switch on a name and "film@ortho".
  */
 export function test_render_scene_parse_inspection_view(): void {
-  TestValidator.equals("film", parseAutoMovieInspectionView("film"), {
+  TestValidator.equals("film", AutoMovieRenderInspectionRequest.parseView("film"), {
     type: "film",
   });
   TestValidator.equals(
     "a fixed camera",
-    parseAutoMovieInspectionView("0,5,0:0,0,0@up=0,0,-1@ortho=0.004"),
+    AutoMovieRenderInspectionRequest.parseView("0,5,0:0,0,0@up=0,0,-1@ortho=0.004"),
     {
       type: "fixed",
       position: { x: 0, y: 5, z: 0 },
@@ -35,7 +35,7 @@ export function test_render_scene_parse_inspection_view(): void {
   );
   TestValidator.equals(
     "a named view",
-    parseAutoMovieInspectionView("front@flagged@ortho"),
+    AutoMovieRenderInspectionRequest.parseView("front@flagged@ortho"),
     {
       type: "named",
       name: "front",
@@ -46,7 +46,7 @@ export function test_render_scene_parse_inspection_view(): void {
   );
   TestValidator.equals(
     "a focus pattern",
-    parseAutoMovieInspectionView("right@follow@focus=hero/arm/*"),
+    AutoMovieRenderInspectionRequest.parseView("right@follow@focus=hero/arm/*"),
     {
       type: "named",
       name: "right",
@@ -71,6 +71,6 @@ export function test_render_scene_parse_inspection_view(): void {
     "film@ortho",
   ])
     TestValidator.error(`"${text}" is refused`, (): unknown =>
-      parseAutoMovieInspectionView(text),
+      AutoMovieRenderInspectionRequest.parseView(text),
     );
 }

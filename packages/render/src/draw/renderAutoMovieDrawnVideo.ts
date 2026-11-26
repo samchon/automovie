@@ -17,9 +17,9 @@ import { planAutoMovieAlphaWrap } from "../delivery/planAutoMovieAlphaWrap.js";
 import { planAutoMovieDeliveredCut } from "../delivery/planAutoMovieDeliveredCut.js";
 import { planAutoMovieVideoEncoding } from "../delivery/planAutoMovieVideoEncoding.js";
 import { frameName } from "../frameName.js";
-import { frameTimes } from "../frameTimes.js";
+import { frameTimes } from "../internal/frameTimes.js";
 import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
-import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
+import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/internal/reduceAutoMovieInspectionEpisodes.js";
 import type { AutoMovieDrawSession } from "./AutoMovieDrawSession.js";
 
 /** The admitted lines and the mouth track handed to the subject. */

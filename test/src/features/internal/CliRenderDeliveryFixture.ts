@@ -4,12 +4,13 @@ import type {
 } from "@automovie/interface";
 import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
-  assertProductionAacProfile,
-  assertProductionVideoProfile,
+  AutoMovieRenderDelivery,
+
+
   auditAutoMovieDeliveryContent,
   createAutoMovieLoudnessMeter,
   renderAutoMovieDrawnVideo,
-  resolveProductionVideoProfile,
+
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { renderAutoMovieVideo } from "automovie";
@@ -82,9 +83,7 @@ export class CliRenderDeliveryFixture {
           auditAutoMovieDeliveryContent,
           createAutoMovieLoudnessMeter,
           AUTOMOVIE_MP4_SRGB_COLOUR,
-          assertProductionAacProfile,
-          assertProductionVideoProfile,
-          resolveProductionVideoProfile,
+          AutoMovieRenderDelivery,
         },
         session: async () => ({
           backend: "fixture",

@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -64,7 +64,7 @@ export function test_engine_geometry_construction_join_arc(): void {
     { type: "arc" },
   );
   const real: IAutoMovieConstructionRealization.IRealization =
-    realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root: tree }, { chord: 1e-4 });
   TestValidator.equals("diagnostics", real.diagnostics.length, 0);
   const joined: IAutoMovieConstructionRealization.IJoin | undefined =
     real.joins.find(

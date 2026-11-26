@@ -2,7 +2,7 @@ import type {
   IAutoMovieInspectionTrail,
   IAutoMovieMark,
 } from "@automovie/interface";
-import { markAutoMovieInspectionTrails } from "@automovie/render";
+import { AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -36,7 +36,7 @@ export function test_render_scene_mark_inspection_trails(): void {
       stationary: true,
     },
   ];
-  const marks: IAutoMovieMark[] = markAutoMovieInspectionTrails(trails, 0.5);
+  const marks: IAutoMovieMark[] = AutoMovieRenderInspection.markTrails(trails, 0.5);
   TestValidator.equals(
     "ordered shapes and paths",
     marks.map((mark: IAutoMovieMark) => [

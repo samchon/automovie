@@ -1,5 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import { formatAutoMovieCapturePlanRequest } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 
 /**
  * Characters the grammar writes that a query keeps readable: list, view, path,
@@ -31,7 +31,7 @@ const READABLE: ReadonlyMap<string, string> = new Map<string, string>([
 export function formatAutoMovieInspectorAddress(
   request: IAutoMovieCapturePlanRequest,
 ): string {
-  return formatAutoMovieCapturePlanRequest(request)
+  return AutoMovieRenderCapture.formatPlanRequest(request)
     .map(([key, value]: [key: string, value: string]): string =>
       value === "" ? escape(key) : `${escape(key)}=${escape(value)}`,
     )

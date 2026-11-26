@@ -1,12 +1,6 @@
 import { AutoMovieArchetypeMarks } from "@automovie/archetypes";
 import type { IAutoMovieMark } from "@automovie/interface";
-import {
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieModelObject,
-  applyAutoMovieInspection,
-  buildModel,
-  parseAutoMovieInspectionRequest,
-} from "@automovie/render";
+import { type IAutoMovieInspectionHandle, type IAutoMovieModelObject, buildModel, AutoMovieRenderInspection, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import {
   AutoMovieViewer,
   type IAutoMovieViewerHandle,
@@ -315,9 +309,9 @@ export namespace GalleryStage {
         if (reframe || grid === null) frame(content.object);
 
         if (request.affordances && content.marks.length !== 0) {
-          inspection = applyAutoMovieInspection({
+          inspection = AutoMovieRenderInspection.apply({
             scene,
-            request: parseAutoMovieInspectionRequest(
+            request: AutoMovieRenderInspectionRequest.parseRequest(
               (name: string): string | null =>
                 name === "marks" ? "affordance/*" : null,
             ),

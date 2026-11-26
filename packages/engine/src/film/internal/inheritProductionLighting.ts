@@ -3,7 +3,7 @@ import {
   IAutoMovieLight,
 } from "@automovie/interface";
 
-import { autoMovieStoryTime } from "../autoMovieStoryTime";
+import { autoMovieStoryTime } from "./autoMovieStoryTime";
 import { resolveProductionLighting } from "./resolveProductionLighting";
 
 /**

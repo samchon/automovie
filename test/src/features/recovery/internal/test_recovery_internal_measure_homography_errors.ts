@@ -1,4 +1,4 @@
-import { measureRecoveryHomographyErrors } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -17,7 +17,7 @@ export function test_recovery_internal_measure_homography_errors(): void {
   const identity: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
   TestValidator.equals(
     "identity transfers",
-    measureRecoveryHomographyErrors(
+    AutoMovieRecoveryCameraGeometry.measureHomographyErrors(
       { matrix: identity, inverse: identity },
       [
         [0, 0],
@@ -32,7 +32,7 @@ export function test_recovery_internal_measure_homography_errors(): void {
   );
   TestValidator.equals(
     "a transfer to infinity",
-    measureRecoveryHomographyErrors(
+    AutoMovieRecoveryCameraGeometry.measureHomographyErrors(
       { matrix: [1, 0, 0, 0, 1, 0, 0, 0, 0], inverse: identity },
       [[1, 2]],
       [[1, 2]],
@@ -40,7 +40,7 @@ export function test_recovery_internal_measure_homography_errors(): void {
     [null],
   );
   TestValidator.error("unpaired points", (): unknown =>
-    measureRecoveryHomographyErrors(
+    AutoMovieRecoveryCameraGeometry.measureHomographyErrors(
       { matrix: identity, inverse: identity },
       [[0, 0]],
       [],

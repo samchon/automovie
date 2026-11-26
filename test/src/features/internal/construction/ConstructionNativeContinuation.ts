@@ -1,12 +1,4 @@
-import {
-  AutoMovieConstructionContinuation,
-  AutoMovieLoftJet,
-  AutoMovieLoftSectionConnect,
-  AutoMovieLoftSectionSource,
-  AutoMovieViewAxis,
-  AutoMovieViewLoft,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieConstructionContinuation, AutoMovieLoftJet, AutoMovieLoftSectionConnect, AutoMovieLoftSectionSource, AutoMovieViewAxis, AutoMovieViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionContinuation,
   IAutoMovieConstructionDiagnostic,
@@ -375,7 +367,7 @@ export namespace ConstructionNativeContinuation {
         partEnd: "bottom",
       };
       const real: IAutoMovieConstructionRealization.IRealization =
-        realizeAutoMovieConstruction(
+        AutoMovieEngineConstruction.realize(
           { name: "nested", root },
           {
             chord: 0.00005,

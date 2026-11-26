@@ -9,13 +9,7 @@ import type {
   IAutoMovieInspectionCamera,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  AutoMovieRenderPicture,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -79,12 +73,12 @@ export async function test_capture_round_comparison(): Promise<void> {
     draw: (cell: IAutoMovieCaptureCell) => IAutoMovieCaptureDrawing,
     match: "cell" | "time" = "cell",
   ): Promise<Extract<IAutoMovieCaptureRecord, { state: "complete" }>> => {
-    const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-      request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
+    const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+      request: AutoMovieRenderCapture.parsePlanRequest(new URLSearchParams(text)),
       subject: SUBJECT,
       cuts: [],
     });
-    return runAutoMovieCapture({
+    return AutoMovieRenderCapture.run({
       plan,
       draw: async (
         cell: IAutoMovieCaptureCell,

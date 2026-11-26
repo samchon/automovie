@@ -1,9 +1,4 @@
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieInspectionHandle,
-  type IAutoMovieSectionRenderer,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieInspectionHandle, type IAutoMovieSectionRenderer, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -79,7 +74,7 @@ export function test_render_scene_apply_inspection_restore(): void {
     });
 
   // 1. Applied.
-  const handle: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const handle: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({
       parts: ["left"],

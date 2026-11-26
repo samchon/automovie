@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewJointedCourse,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewJointedCourse, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanF1,
@@ -828,11 +824,11 @@ namespace FamilyConicNeutral {
     const message = (error: unknown): string =>
       error instanceof Error ? (error.stack ?? error.message) : String(error);
     const started: number = performance.now();
-    let real: ReturnType<typeof realizeAutoMovieConstruction>;
+    let real: ReturnType<typeof AutoMovieEngineConstruction.realize>;
     try {
       const declared: IAutoMovieHumanF1.IConstruction =
         AutoMovieHumanF1.construction(undefined, P.NEUTRAL);
-      real = realizeAutoMovieConstruction(
+      real = AutoMovieEngineConstruction.realize(
         { name: "f1.neutral", root: declared.root, fills: declared.fills },
         { chord: 0.001, sources: declared.sources },
       );

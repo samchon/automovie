@@ -1,8 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewLoft,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import { AutoMovieHumanConicLoft, AutoMovieHumanF1 } from "@automovie/human";
 import type {
   IAutoMovieConstructionNode,
@@ -210,7 +206,7 @@ namespace FamilyConicMerge {
         const trial: Pick<
           IAutoMovieConstructionRealization.IRealization,
           "diagnostics"
-        > = realizeAutoMovieConstruction(
+        > = AutoMovieEngineConstruction.realize(
           { name: "f1.merge", root: candidate },
           { chord: 0.002, sources, skin: false },
         );
@@ -244,7 +240,7 @@ namespace FamilyConicMerge {
     );
     const started: number = performance.now();
     const real: IAutoMovieConstructionRealization.IRealization =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         { name: "f1.merge", root },
         { chord: 0.0005, sources },
       );

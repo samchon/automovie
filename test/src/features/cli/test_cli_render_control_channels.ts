@@ -5,13 +5,14 @@ import type {
 } from "@automovie/interface";
 import {
   AUTOMOVIE_MP4_SRGB_COLOUR,
+  AutoMovieRenderDelivery,
   admitAutoMovieControlPasses,
-  assertProductionAacProfile,
-  assertProductionVideoProfile,
+
+
   auditAutoMovieDeliveryContent,
   createAutoMovieLoudnessMeter,
   renderAutoMovieDrawnVideo,
-  resolveProductionVideoProfile,
+
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { renderAutoMovieVideo } from "automovie";
@@ -93,9 +94,7 @@ export async function test_cli_render_control_channels(): Promise<void> {
         auditAutoMovieDeliveryContent,
         createAutoMovieLoudnessMeter,
         AUTOMOVIE_MP4_SRGB_COLOUR,
-        assertProductionAacProfile,
-        assertProductionVideoProfile,
-        resolveProductionVideoProfile,
+        AutoMovieRenderDelivery,
       },
       session: async () => ({
         backend: "fixture",

@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -131,7 +131,7 @@ export namespace ConstructionSplitSeam {
     root: IAutoMovieConstructionNode,
     skin: boolean = false,
   ): IAutoMovieConstructionRealization.IRealization {
-    const result = realizeAutoMovieConstruction(
+    const result = AutoMovieEngineConstruction.realize(
       { name: "made", root },
       { chord: skin ? 1e-4 : 1e-2, skin },
     );

@@ -11,11 +11,11 @@ import type {
 } from "@automovie/interface";
 
 import { fitRecoveryEpipolarConsensus } from "./fitRecoveryEpipolarConsensus";
-import { fitRecoveryEpipolarMatrix } from "./fitRecoveryEpipolarMatrix";
+import { fitRecoveryEpipolarMatrix } from "../geometry/internal/fitRecoveryEpipolarMatrix";
 import { fitRecoveryHomographyConsensus } from "./fitRecoveryHomographyConsensus";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
-import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
-import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
+import { measureRecoveryEpipolarErrors } from "../geometry/internal/measureRecoveryEpipolarErrors";
+import { scoreRecoveryCameraResiduals } from "../geometry/internal/scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "./selectRecoveryCameraPose";
 
 /**

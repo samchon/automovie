@@ -1,4 +1,4 @@
-import { boundAutoMovieCameraSubject } from "@automovie/render";
+import { AutoMovieRenderInspectionCamera } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -18,11 +18,11 @@ export function test_render_scene_bound_camera_subject(): void {
     mesh.updateMatrixWorld();
     return mesh;
   };
-  const box: THREE.Box3 | undefined = boundAutoMovieCameraSubject([
+  const box: THREE.Box3 | undefined = AutoMovieRenderInspectionCamera.boundSubject([
     cube(1),
     cube(-3),
   ]);
   TestValidator.equals("min", box?.min.toArray(), [-4, -1, -1]);
   TestValidator.equals("max", box?.max.toArray(), [2, 1, 1]);
-  TestValidator.equals("empty", boundAutoMovieCameraSubject([]), undefined);
+  TestValidator.equals("empty", AutoMovieRenderInspectionCamera.boundSubject([]), undefined);
 }

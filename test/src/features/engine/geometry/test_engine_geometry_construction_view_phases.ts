@@ -1,9 +1,4 @@
-import {
-  AutoMovieViewAxis,
-  AutoMovieViewSection,
-  realizeAutoMovieConstruction,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { AutoMovieViewAxis, AutoMovieViewSection, AutoMovieEngineText, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
   IAutoMovieViewPart,
@@ -57,7 +52,7 @@ export function test_engine_geometry_construction_view_phases(): void {
       samples: 16,
       ...(phases === undefined ? {} : { phases }),
     };
-    return realizeAutoMovieConstruction(
+    return AutoMovieEngineConstruction.realize(
       {
         name: "phase-tree",
         root: { type: "source", name: part.name, source: part.name },

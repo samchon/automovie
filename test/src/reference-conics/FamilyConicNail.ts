@@ -2,7 +2,7 @@ import type { FamilyConicSection as C } from "./FamilyConicSection";
 import { FamilyConicSource as R } from "./FamilyConicSource";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import { AutoMovieLoftChain, realizeAutoMovieConstruction } from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft,
   AutoMovieHumanConicSection,
@@ -329,10 +329,10 @@ namespace FamilyConicNail {
               hostWidth: { type: "fold", radius: AutoMovieHumanF1Nails.CHORD_MM / 1000, cap: (2 * AutoMovieHumanF1Nails.CHORD_MM) / 1000, reach: AutoMovieHumanF1Nails.CHORD_MM / 2000 },
               tolerance: 5e-6,
             };
-      let realized: ReturnType<typeof realizeAutoMovieConstruction>;
+      let realized: ReturnType<typeof AutoMovieEngineConstruction.realize>;
       try {
         // `--relief`: the digit with its relief alone, no plate joined.
-        realized = realizeAutoMovieConstruction({ name: "nail." + family.name, root: process.argv.includes("--relief") ? base.host : join, fills: [] }, { chord: 0.001, sources });
+        realized = AutoMovieEngineConstruction.realize({ name: "nail." + family.name, root: process.argv.includes("--relief") ? base.host : join, fills: [] }, { chord: 0.001, sources });
       } catch (error: unknown) {
         row.thrown = error instanceof Error ? error.message : String(error);
         continue;
@@ -365,9 +365,9 @@ namespace FamilyConicNail {
       const plainStations: number[] = [];
       for (let s: number = family.knots[0]!; s < lastKnot; s += s >= bed.stations[0] - 2 ? cell : 2) plainStations.push(s);
       plainStations.push(lastKnot);
-      let figured: ReturnType<typeof realizeAutoMovieConstruction>["mesh"] = null;
+      let figured: ReturnType<typeof AutoMovieEngineConstruction.realize>["mesh"] = null;
       try {
-        figured = realizeAutoMovieConstruction({ name: "nail.figure." + family.name, root: base.host, fills: [] }, { chord: 0.001, sources: new Map([[plain.name, AutoMovieHumanConicLoft.part(plain, plainStations)]]) }).mesh;
+        figured = AutoMovieEngineConstruction.realize({ name: "nail.figure." + family.name, root: base.host, fills: [] }, { chord: 0.001, sources: new Map([[plain.name, AutoMovieHumanConicLoft.part(plain, plainStations)]]) }).mesh;
       } catch (error: unknown) {
         row.figureThrown = error instanceof Error ? error.message : String(error);
       }
@@ -442,7 +442,7 @@ namespace FamilyConicNail {
     const lawMilliseconds: number = Math.round(performance.now() - started);
     const sources: Map<string, IAutoMovieViewPart> = new Map(declared.sources);
     const tree: IAutoMovieConstructionNode = declared.root;
-    const realized: ReturnType<typeof realizeAutoMovieConstruction> = realizeAutoMovieConstruction({ name: "f1.body", root: tree, fills: declared.fills }, { chord: 0.001, sources });
+    const realized: ReturnType<typeof AutoMovieEngineConstruction.realize> = AutoMovieEngineConstruction.realize({ name: "f1.body", root: tree, fills: declared.fills }, { chord: 0.001, sources });
     const report: Record<string, unknown> = {
       lawAndDeclarationMilliseconds: lawMilliseconds,
       milliseconds: Math.round(performance.now() - started),

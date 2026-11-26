@@ -1,5 +1,5 @@
 import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface";
-import { planViewerFrameTimes } from "@automovie/render";
+import { AutoMovieRenderScrub } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
@@ -26,32 +26,32 @@ export function test_render_root_plan_frame_times(): void {
   };
   TestValidator.equals(
     "every 20 frames over one second",
-    planViewerFrameTimes({ ...film, from: 120, to: 121, every: 20 }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, from: 120, to: 121, every: 20 }),
     [3600 / 30, 3620 / 30],
   );
   TestValidator.equals(
     "every 10 frames reaches the range end",
-    planViewerFrameTimes({ ...film, from: 120, to: 121, every: 10 }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, from: 120, to: 121, every: 10 }),
     [3600 / 30, 3610 / 30, 3620 / 30, 3630 / 30],
   );
   TestValidator.equals(
     "step equals the frame interval",
-    planViewerFrameTimes({ ...film, from: 120, to: 121, step: 10 / 30 }),
-    planViewerFrameTimes({ ...film, from: 120, to: 121, every: 10 }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, from: 120, to: 121, step: 10 / 30 }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, from: 120, to: 121, every: 10 }),
   );
   TestValidator.equals(
     "off-grid start begins at the next frame",
-    planViewerFrameTimes({ ...film, from: 0.01, to: 0.1, every: 1 }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, from: 0.01, to: 0.1, every: 1 }),
     [1 / 30, 2 / 30, 3 / 30],
   );
   TestValidator.equals(
     "single-frame range",
-    planViewerFrameTimes({ ...film, from: 150, to: 150, every: 5 }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, from: 150, to: 150, every: 5 }),
     [150],
   );
   TestValidator.equals(
     "explicit seconds sorted and deduplicated",
-    planViewerFrameTimes({ ...film, at: [150.4, 12, 150.4, 0] }),
+    AutoMovieRenderScrub.planViewerFrameTimes({ ...film, at: [150.4, 12, 150.4, 0] }),
     [0, 12, 150.4],
   );
   const finalRange: IAutoMoviePlanViewerFrameTimesRequest = {
@@ -63,8 +63,8 @@ export function test_render_root_plan_frame_times(): void {
   const expected: readonly number[] = [0, 0.25, 0.5, 0.75];
   const issues: string[] = [];
   for (const [label, frames] of [
-    ["frame interval", planViewerFrameTimes({ ...finalRange, every: 1 })],
-    ["seconds interval", planViewerFrameTimes({ ...finalRange, step: 0.25 })],
+    ["frame interval", AutoMovieRenderScrub.planViewerFrameTimes({ ...finalRange, every: 1 })],
+    ["seconds interval", AutoMovieRenderScrub.planViewerFrameTimes({ ...finalRange, step: 0.25 })],
   ] as const)
     if (
       frames.length !== expected.length ||
@@ -76,7 +76,7 @@ export function test_render_root_plan_frame_times(): void {
       issues.push(label);
   if (
     !throwsError(
-      (): number[] => planViewerFrameTimes({ ...finalRange, every: 0.5 }),
+      (): number[] => AutoMovieRenderScrub.planViewerFrameTimes({ ...finalRange, every: 0.5 }),
       "positive whole number",
     )
   )
@@ -87,7 +87,7 @@ export function test_render_root_plan_frame_times(): void {
     [],
   );
 
-  const explicit: number[] = planViewerFrameTimes({
+  const explicit: number[] = AutoMovieRenderScrub.planViewerFrameTimes({
     fps: 4,
     durationSeconds: 1,
     at: [1, 0.13],
@@ -111,5 +111,5 @@ export function test_render_root_plan_frame_times(): void {
     ["explicit beyond the film", { ...film, at: [180.5] }],
     ["empty explicit list", { ...film, at: [] }],
   ] as const)
-    TestValidator.error(label, (): number[] => planViewerFrameTimes(request));
+    TestValidator.error(label, (): number[] => AutoMovieRenderScrub.planViewerFrameTimes(request));
 }

@@ -1,4 +1,4 @@
-import { readAutoMovieCaptureArguments } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -22,7 +22,7 @@ const ROOT: string = path.join(__dirname, "..", "..");
  * case's whole clock, and `automovie inspect` shows it.
  */
 export async function motionProps(): Promise<void> {
-  const options: Map<string, string> = readAutoMovieCaptureArguments(
+  const options: Map<string, string> = AutoMovieRenderCapture.readArguments(
     process.argv
       .slice(2)
       .filter((argument: string): boolean => argument !== "--"),

@@ -1,4 +1,4 @@
-import { planAutoMovieVideoSceneCuts } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,7 +15,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_capture_plan_video_scene_cuts(): void {
   TestValidator.equals(
     "arguments",
-    planAutoMovieVideoSceneCuts({
+    AutoMovieRenderCapture.planVideoSceneCuts({
       file: "film.mp4",
       report: "a:b,c.txt",
       threshold: 10,
@@ -35,13 +35,13 @@ export function test_render_capture_plan_video_scene_cuts(): void {
   );
   for (const threshold of [-1, 101])
     TestValidator.error(`threshold ${threshold}`, (): unknown =>
-      planAutoMovieVideoSceneCuts({ file: "f", report: "r", threshold }),
+      AutoMovieRenderCapture.planVideoSceneCuts({ file: "f", report: "r", threshold }),
     );
   TestValidator.equals(
     "the bounds",
     [0, 100].map(
       (threshold: number): number =>
-        planAutoMovieVideoSceneCuts({ file: "f", report: "r", threshold })
+        AutoMovieRenderCapture.planVideoSceneCuts({ file: "f", report: "r", threshold })
           .length,
     ),
     [10, 10],

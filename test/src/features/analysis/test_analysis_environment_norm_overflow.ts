@@ -1,4 +1,4 @@
-import { validateAutoMovieEnvironmentContext } from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieVector3,
@@ -41,7 +41,7 @@ export function test_analysis_environment_norm_overflow(): void {
     TestValidator.predicate(
       `overflowing ${field} is refused`,
       hasViolation(
-        validateAutoMovieEnvironmentContext({ context }),
+        AutoMovieEngineEnvironment.validateContext({ context }),
         "range",
         location,
       ),
@@ -52,13 +52,13 @@ export function test_analysis_environment_norm_overflow(): void {
   finite.instants[0]!.sun = { x: 0, y: 1e300, z: 0 };
   TestValidator.predicate(
     "large finite norms remain valid",
-    validateAutoMovieEnvironmentContext({ context: finite }).success,
+    AutoMovieEngineEnvironment.validateContext({ context: finite }).success,
   );
   finite.instants[0]!.sun.y = -1e300;
   TestValidator.predicate(
     "finite negative elevation still forbids a beam",
     hasViolation(
-      validateAutoMovieEnvironmentContext({ context: finite }),
+      AutoMovieEngineEnvironment.validateContext({ context: finite }),
       "range",
       "$input.instants[0].directNormalIlluminance",
     ),

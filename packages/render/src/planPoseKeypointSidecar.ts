@@ -17,7 +17,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { frameTimes } from "./frameTimes.js";
+import { frameTimes } from "./internal/frameTimes.js";
 import { shotBeat } from "./shotBeat.js";
 
 /**

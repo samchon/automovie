@@ -1,5 +1,5 @@
 import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
-import { parseAutoMovieCapturePlanRequest } from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 
 /**
  * Read the request an address names: its query text, with or without the
@@ -20,7 +20,7 @@ import { parseAutoMovieCapturePlanRequest } from "@automovie/render";
 export function readAutoMovieInspectorAddress(
   text: string,
 ): IAutoMovieCapturePlanRequest {
-  return parseAutoMovieCapturePlanRequest(
+  return AutoMovieRenderCapture.parsePlanRequest(
     new URLSearchParams(text.startsWith("?") ? text.slice(1) : text),
   );
 }

@@ -3,11 +3,7 @@ import { FamilyConicLoft as K } from "./FamilyConicLoft";
 import { NodeCanvasCamera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
-import {
-  AutoMovieLoftChain,
-  AutoMovieViewChain,
-  realizeAutoMovieConstruction,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieViewChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicSection as S,
@@ -2192,7 +2188,7 @@ namespace FamilyConicLimbLaw {
       // continuation onto the hand (its band).
       if (engine)
         for (const [label, node] of [["the hand's fan", declaration.fan("arm", true)], ["the foot's fan", declaration.fan("leg", true)], ["the thumb's merge", declaration.merge()], ["the wrist's band", declaration.wrist(true)]] as [string, IAutoMovieConstructionNode][]) {
-          const real = realizeAutoMovieConstruction({ name: `f1.${label}`, root: node, fills: [] }, { chord: 0.001, sources: declaration.sources });
+          const real = AutoMovieEngineConstruction.realize({ name: `f1.${label}`, root: node, fills: [] }, { chord: 0.001, sources: declaration.sources });
           if (real.diagnostics.length > 0) fail(`${label} through the engine: ${real.diagnostics.map((d): string => `${d.node} (${d.contract}): ${d.detail.slice(0, 200)}`).join("; ")}`);
         }
       lines.push(`  ${c.name}: ${notes.join("; ")}`);
@@ -2522,7 +2518,7 @@ namespace FamilyConicLimbLaw {
     const realize = (x: ReturnType<typeof extremityAt>, node: IAutoMovieConstructionNode, which: "arm" | "leg") => {
       const declaration = extremityDeclaration(x, f1x, x.fields, extremityFlags(source));
       const root: IAutoMovieConstructionNode = node.name === "wrist.arm" ? declaration.wrist(false) : declaration.fan(which, false);
-      return realizeAutoMovieConstruction({ name: `f1.${which}`, root, fills: [] }, { chord: 0.001, sources: declaration.sources });
+      return AutoMovieEngineConstruction.realize({ name: `f1.${which}`, root, fills: [] }, { chord: 0.001, sources: declaration.sources });
     };
     NodeCanvasRaster.initialize();
     const shown: string[] = ["every field at its 5th", "every field at its 95th", "hand length alone -", "hand length alone +", "foot length alone -", "foot length alone +", "thumb's bones -", "thumb's bones +", "index's bones -", "index's bones +", "pinky's bones -", "pinky's bones +"];
@@ -2547,7 +2543,7 @@ namespace FamilyConicLimbLaw {
       const along: V3 = square3([ball[0] - foot[0], ball[1] - foot[1], ball[2] - foot[2]], down);
       return { focus: ball, radius: 190, up: along, views: [["top", [-down[0], -down[1], -down[2]]], ["medial", square3([big[0] - little[0], big[1] - little[1], big[2] - little[2]], down)], ["sole", down]] };
     };
-    const meshes = (real: ReturnType<typeof realizeAutoMovieConstruction>, focus: V3, radius: number): { clay: N.Mesh[]; owned: N.Mesh[] } => {
+    const meshes = (real: ReturnType<typeof AutoMovieEngineConstruction.realize>, focus: V3, radius: number): { clay: N.Mesh[]; owned: N.Mesh[] } => {
       const mesh = real.mesh;
       if (mesh === null) return { clay: [], owned: [] };
       const ownerOf = (v: number): string => mesh.owners[mesh.coordinates[v * 3]!]!;

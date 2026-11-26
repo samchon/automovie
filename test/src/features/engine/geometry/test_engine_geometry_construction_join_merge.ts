@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
@@ -86,7 +86,7 @@ export function test_engine_geometry_construction_join_merge(): void {
     { part: { type: "chord", value: w }, host: { type: "chord", value: w } },
   );
   const real: IAutoMovieConstructionRealization.IRealization =
-    realizeAutoMovieConstruction({ name: "made", root: tree }, { chord: 1e-4 });
+    AutoMovieEngineConstruction.realize({ name: "made", root: tree }, { chord: 1e-4 });
   TestValidator.equals("diagnostics", real.diagnostics.length, 0);
   const joined: IAutoMovieConstructionRealization.IJoin = ConstructionRead.join(
     real,
@@ -157,7 +157,7 @@ export function test_engine_geometry_construction_join_merge(): void {
 
   if (tree.type !== "join") throw new Error("the fixture node is a join");
   const found: IAutoMovieConstructionRealization.IRealization =
-    realizeAutoMovieConstruction(
+    AutoMovieEngineConstruction.realize(
       {
         name: "made",
         root: {

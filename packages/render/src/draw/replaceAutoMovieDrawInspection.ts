@@ -2,7 +2,7 @@ import type { IAutoMovieMark } from "@automovie/interface";
 
 import type { IApplyAutoMovieInspectionProps } from "../scene/inspection/IApplyAutoMovieInspectionProps.js";
 import type { IAutoMovieInspectionHandle } from "../scene/inspection/IAutoMovieInspectionHandle.js";
-import { applyAutoMovieInspection } from "../scene/inspection/applyAutoMovieInspection.js";
+import { applyAutoMovieInspection } from "../scene/inspection/internal/applyAutoMovieInspection.js";
 
 /**
  * End the old inspection before placement and bind a new one to its actual

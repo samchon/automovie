@@ -1,4 +1,4 @@
-import { realizeAutoMovieConstruction } from "@automovie/engine";
+
 import type {
   IAutoMovieConstructionDiagnostic,
   IAutoMovieConstructionJoin,
@@ -239,7 +239,7 @@ export namespace AutoMovieHumanBodyTree {
     sources?: ReadonlyMap<string, IAutoMovieViewPart>,
   ): IAutoMovieHumanBodyTree.IOutput {
     const result: IAutoMovieConstructionRealization.IWithoutSkin =
-      realizeAutoMovieConstruction(
+      AutoMovieEngineConstruction.realize(
         { name, root },
         {
           chord: limits.gap * AutoMovieHumanConstructionView.METRES,

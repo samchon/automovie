@@ -1,4 +1,6 @@
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieCollisionComparisonCounts } from "./IAutoMovieCollisionComparisonCounts";
+import type { IAutoMovieUnavailableCollisionPair } from "./IAutoMovieUnavailableCollisionPair";
 import type { IAutoMoviePreparePhysicalGeometry } from "../physics/IAutoMoviePreparePhysicalGeometry";
 import type { IAutoMovieSubjectBox } from "../production/IAutoMovieSubjectBox";
 
@@ -154,7 +156,7 @@ export namespace IAutoMovieSceneCollision {
      * Candidate pairs whose supported shape query refused to return a
      * measurement.
      */
-    unavailablePairs: readonly Readonly<{ first: string; second: string }>[];
+    unavailablePairs: readonly IAutoMovieUnavailableCollisionPair[];
     /**
      * Groups whose internal pairs follow their declared source-owned exclusion
      * policy.
@@ -166,11 +168,6 @@ export namespace IAutoMovieSceneCollision {
      * Completed comparisons at each resolution, including cheap rejection
      * checks.
      */
-    compared: Readonly<{
-      groups: number;
-      regions: number;
-      parts: number;
-      shapes: number;
-    }>;
+    compared: IAutoMovieCollisionComparisonCounts;
   }
 }

@@ -383,9 +383,7 @@ interface IDeliveryHost {
     | "auditAutoMovieDeliveryContent"
     | "createAutoMovieLoudnessMeter"
     | "AUTOMOVIE_MP4_SRGB_COLOUR"
-    | "assertProductionAacProfile"
-    | "assertProductionVideoProfile"
-    | "resolveProductionVideoProfile"
+    | "AutoMovieRenderDelivery"
   >;
   session(
     props: Parameters<AutoMovieCliCaptureHost["session"]>[0],

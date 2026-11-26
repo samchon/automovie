@@ -8,7 +8,7 @@ import type {
 
 import { createRecoveryPoseModel } from "./createRecoveryPoseModel";
 import { linearizeRecoveryPoseResiduals } from "./linearizeRecoveryPoseResiduals";
-import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
+import { measureRecoveryEpipolarErrors } from "../geometry/internal/measureRecoveryEpipolarErrors";
 import { stepRecoveryRelativePose } from "./stepRecoveryRelativePose";
 
 /**

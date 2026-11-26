@@ -5,14 +5,7 @@ import type {
   IAutoMovieGuidePassOutput,
   IAutoMovieRasterImage,
 } from "@automovie/interface";
-import {
-  AutoMovieCaptureFolder,
-  AutoMovieRenderPicture,
-  parseAutoMovieCapturePlanRequest,
-  planAutoMovieCapture,
-  planGuidePassOutputs,
-  runAutoMovieCapture,
-} from "@automovie/render";
+import { AutoMovieCaptureFolder, AutoMovieRenderPicture, planGuidePassOutputs, AutoMovieRenderCapture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { createCaptureMemory } from "./createCaptureMemory";
@@ -83,14 +76,14 @@ export async function test_capture_graphics_plate_png(): Promise<void> {
     drawables: [],
     marks: [],
   };
-  const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
-    request: parseAutoMovieCapturePlanRequest(
+  const plan: IAutoMovieCapturePlan = AutoMovieRenderCapture.plan({
+    request: AutoMovieRenderCapture.parsePlanRequest(
       new URLSearchParams("at=0&passes=beauty,graphics"),
     ),
     subject,
     cuts: [],
   });
-  await runAutoMovieCapture({
+  await AutoMovieRenderCapture.run({
     plan,
     draw: async (): Promise<IAutoMovieCaptureDrawing> => ({
       picture: { ...plate, pixels: plate.pixels.slice() },

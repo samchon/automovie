@@ -1,8 +1,4 @@
-import {
-  AutoMovieThreeKind,
-  parseAutoMovieInspectionView,
-  resolveAutoMovieInspectionView,
-} from "@automovie/render";
+import { AutoMovieThreeKind, resolveAutoMovieInspectionView, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -31,7 +27,7 @@ export function test_render_scene_resolve_inspection_view(): void {
     patch: Partial<Parameters<typeof resolveAutoMovieInspectionView>[0]> = {},
   ): ReturnType<typeof resolveAutoMovieInspectionView> =>
     resolveAutoMovieInspectionView({
-      view: parseAutoMovieInspectionView(text),
+      view: AutoMovieRenderInspectionRequest.parseView(text),
       text,
       bounds: null,
       camera: film,

@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieInspectionHandle,
-  applyAutoMovieInspection,
-} from "@automovie/render";
+import { type IAutoMovieInspectionHandle, AutoMovieRenderInspection } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -35,7 +32,7 @@ export function test_render_scene_apply_inspection_mark_flag(): void {
     );
 
   // 1. Mixed.
-  const mixed: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const mixed: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({ marks: ["curve"] }),
     marks: [
@@ -56,7 +53,7 @@ export function test_render_scene_apply_inspection_mark_flag(): void {
   mixed.restore();
 
   // 2. Only flagged.
-  const only: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const only: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({ marks: ["curve"] }),
     marks: [axis("panel/b", true)],
@@ -69,7 +66,7 @@ export function test_render_scene_apply_inspection_mark_flag(): void {
   only.restore();
 
   // 3. None flagged.
-  const plain: IAutoMovieInspectionHandle = applyAutoMovieInspection({
+  const plain: IAutoMovieInspectionHandle = AutoMovieRenderInspection.apply({
     scene: stage,
     request: InspectionScene.ask({ marks: ["curve"] }),
     marks: [axis("panel/a", false)],

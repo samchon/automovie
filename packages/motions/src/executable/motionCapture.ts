@@ -3,10 +3,7 @@ import type {
   IAutoMovieCapturePlanRequest,
   IAutoMovieCaptureRecord,
 } from "@automovie/interface";
-import {
-  parseAutoMovieCapturePlanRequest,
-  readAutoMovieCaptureArguments,
-} from "@automovie/render";
+import { AutoMovieRenderCapture } from "@automovie/render";
 import {
   AutoMovieCliCaptureHost,
   loadAutoMovieProductionModule,
@@ -78,7 +75,7 @@ type IMotionCaptureRequestInstant = { seconds: number };
  * `at` are the case's. Without `--marks`, every mark of the case is drawn.
  */
 export async function motionCapture(): Promise<void> {
-  const options: Map<string, string> = readAutoMovieCaptureArguments(
+  const options: Map<string, string> = AutoMovieRenderCapture.readArguments(
     process.argv
       .slice(2)
       .filter((argument: string): boolean => argument !== "--"),
@@ -149,7 +146,7 @@ export async function motionCapture(): Promise<void> {
       const marked: boolean = markMotionCaptureCase(props).length !== 0;
 
       const request: IAutoMovieCapturePlanRequest =
-        parseAutoMovieCapturePlanRequest(
+        AutoMovieRenderCapture.parsePlanRequest(
           new Map<string, string>([
             ...options,
             ["subject", capture.name],

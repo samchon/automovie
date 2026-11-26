@@ -7,13 +7,13 @@ import type {
 } from "@automovie/interface";
 
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
-import { fitRecoveryEpipolarMatrix } from "./fitRecoveryEpipolarMatrix";
+import { fitRecoveryEpipolarMatrix } from "../geometry/internal/fitRecoveryEpipolarMatrix";
 import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
-import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
+import { measureRecoveryEpipolarErrors } from "../geometry/internal/measureRecoveryEpipolarErrors";
 import { refineRecoveryEpipolarModel } from "./refineRecoveryEpipolarModel";
 import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";
 import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";
-import { scoreRecoveryCameraResiduals } from "./scoreRecoveryCameraResiduals";
+import { scoreRecoveryCameraResiduals } from "../geometry/internal/scoreRecoveryCameraResiduals";
 
 /**
  * Estimate a calibrated pixel epipolar consensus with bounded local refinement.

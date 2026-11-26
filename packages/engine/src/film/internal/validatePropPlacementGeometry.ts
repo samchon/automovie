@@ -20,7 +20,7 @@ import { builtElementRestMatrices } from "../../architecture/builtElementRestMat
 import { builtPlacedPartBoxes } from "../../architecture/internal/builtPlacedPartBoxes";
 import { createPropPassageBlocker } from "./createPropPassageBlocker";
 import { propBoundsOverlap } from "./propBoundsOverlap";
-import { propBoxAxisIsSound } from "../propBoxAxisIsSound";
+import { propBoxAxisIsSound } from "./propBoxAxisIsSound";
 import { propClearanceBounds } from "./propClearanceBounds";
 import { propOccupancyBounds } from "./propOccupancyBounds";
 import { propSpaceContainsBounds } from "./propSpaceContainsBounds";
