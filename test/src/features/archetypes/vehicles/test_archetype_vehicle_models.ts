@@ -1,8 +1,8 @@
 import {
   AutoMovieArchetypeCar,
+  AutoMovieArchetypeMotorcycle,
   AutoMovieArchetypeRefusal,
   createBoat,
-  createMotorcycle,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -62,9 +62,9 @@ export function test_archetype_vehicle_models(): void {
     (seed: number): number[] =>
       figures(AutoMovieArchetypeCar.create({ kind }, seed).dimensions, names);
   const machine =
-    (kind: createMotorcycle.Kind): ((seed: number) => number[]) =>
+    (kind: AutoMovieArchetypeMotorcycle.Kind): ((seed: number) => number[]) =>
     (seed: number): number[] =>
-      figures(createMotorcycle({ kind }, seed).dimensions, [
+      figures(AutoMovieArchetypeMotorcycle.create({ kind }, seed).dimensions, [
         "seatHeight",
         "wheelbase",
         "width",

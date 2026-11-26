@@ -1,7 +1,9 @@
 import {
   AutoMovieArchetype,
+  AutoMovieArchetypeBicycle,
   AutoMovieArchetypeCar,
   AutoMovieArchetypeFrame,
+  AutoMovieArchetypeMotorcycle,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
@@ -46,15 +48,27 @@ export function checkArchetypeAliases(): void {
   assert.equal(aliases.length, 34, "the gallery preserves dispatcher aliases");
   assert.equal(listed.length + aliases.length, 389);
   assert.equal(listed.filter((id) => id === "createCar").length, 1);
+  assert.equal(listed.filter((id) => id === "createBicycle").length, 1);
+  assert.equal(listed.filter((id) => id === "createMotorcycle").length, 1);
   assert(
     catalogue.groups
       .find((group) => group.name === "vehicles")!
       .subjects.some((subject) => subject.id === "createCar"),
   );
+  const vehicleSubjects: readonly string[] = catalogue.groups
+    .find((group) => group.name === "vehicles")!
+    .subjects.map((subject) => subject.id);
+  assert(vehicleSubjects.includes("createBicycle"));
+  assert(vehicleSubjects.includes("createMotorcycle"));
   const factories: string[] = ArchetypeRegistry.factoryIds();
   assert.equal(factories.length, 583);
   assert.equal(new Set(factories).size, 583);
+  const roots: string[] = ArchetypeRegistry.rootIds();
+  assert.equal(roots.length, 389);
+  assert.equal(new Set(roots).size, 389);
   assert.equal(Object.hasOwn(archetypes, "createCar"), false);
+  assert.equal(Object.hasOwn(archetypes, "createBicycle"), false);
+  assert.equal(Object.hasOwn(archetypes, "createMotorcycle"), false);
   assert.equal(
     ArchetypeRegistry.get("createCar")?.call,
     AutoMovieArchetypeCar.create,
@@ -66,6 +80,30 @@ export function checkArchetypeAliases(): void {
   assert.deepEqual(ArchetypeRegistry.get("createCar")?.variant, {
     key: "kind",
     values: AutoMovieArchetypeCar.KINDS,
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createBicycle")?.call,
+    AutoMovieArchetypeBicycle.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createBicycle")?.expression,
+    "archetypes.AutoMovieArchetypeBicycle.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createBicycle")?.variant, {
+    key: "",
+    values: [],
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createMotorcycle")?.call,
+    AutoMovieArchetypeMotorcycle.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createMotorcycle")?.expression,
+    "archetypes.AutoMovieArchetypeMotorcycle.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createMotorcycle")?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeMotorcycle.KINDS,
   });
   assert.equal(
     new Set(listed).size,
@@ -100,6 +138,52 @@ export function checkArchetypeAliases(): void {
   );
   assert.match(savedCarCode, /archetypes\.AutoMovieArchetypeCar\.create\(/);
   assert.doesNotMatch(savedCarCode, /archetypes\.createCar\(/);
+  const savedVehicles: IPlaygroundComposition = {
+    version: 3,
+    seed: "saved-vehicles",
+    performers: [],
+    mutuals: [],
+    objects: [
+      {
+        subject: "bicycle",
+        producer: "createBicycle",
+        seed: 3,
+        x: -1,
+        z: 0,
+        yaw: 0,
+      },
+      {
+        subject: "motorcycle",
+        producer: "createMotorcycle",
+        kind: "motorcycle",
+        seed: 5,
+        x: 1,
+        z: 0,
+        yaw: 0,
+      },
+    ],
+  };
+  assert.deepEqual(SceneStatus.lacks(savedVehicles), []);
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![0]!),
+    AutoMovieArchetypeBicycle.create({}, 3),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![1]!),
+    AutoMovieArchetypeMotorcycle.create({ kind: "motorcycle" }, 5),
+  );
+  const savedVehiclesCode: string = formatSceneChain(
+    savedVehicles,
+    SceneChainNames.read(savedVehicles),
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeBicycle\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeMotorcycle\.create\(/,
+  );
   const aliased = new Set(aliases.map((alias) => alias.id));
   assert(
     listed.every((id) => !aliased.has(id)),

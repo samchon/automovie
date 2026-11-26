@@ -11,7 +11,7 @@ import {
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
 } from "../core";
-import type { createBicycle } from "./createBicycle";
+import type { AutoMovieArchetypeBicycle } from "./AutoMovieArchetypeBicycle";
 
 /**
  * A bicycle ridden along a course: its root on the path, leaned into each turn,
@@ -44,8 +44,8 @@ import type { createBicycle } from "./createBicycle";
  */
 export function rideBicycle(
   bicycle: AutoMovieArchetype<
-    createBicycle.Affordance,
-    createBicycle.Dimension
+    AutoMovieArchetypeBicycle.Affordance,
+    AutoMovieArchetypeBicycle.Dimension
   >,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
   gear: rideBicycle.IGear = {
@@ -53,8 +53,8 @@ export function rideBicycle(
     sprocket: 17,
   },
 ): AutoMovieArchetypeRide.IRide<
-  createBicycle.Affordance,
-  createBicycle.Dimension
+  AutoMovieArchetypeBicycle.Affordance,
+  AutoMovieArchetypeBicycle.Dimension
 > {
   for (const [name, teeth] of [
     ["chainring", gear.chainring],
@@ -160,9 +160,11 @@ export function rideBicycle(
     (
       state: AutoMovieArchetypeCourse.IState,
       _seconds: number,
-      id?: createBicycle.Affordance,
-    ): Partial<Record<createBicycle.Affordance, number>> => {
-      const travels: Partial<Record<createBicycle.Affordance, number>> = {};
+      id?: AutoMovieArchetypeBicycle.Affordance,
+    ): Partial<Record<AutoMovieArchetypeBicycle.Affordance, number>> => {
+      const travels: Partial<
+        Record<AutoMovieArchetypeBicycle.Affordance, number>
+      > = {};
       if (
         id === undefined ||
         id === "crank" ||
@@ -389,7 +391,7 @@ export namespace rideBicycle {
           : { ...sample, placement };
       },
       frame: (
-        id: createBicycle.Affordance,
+        id: AutoMovieArchetypeBicycle.Affordance,
         film: number,
       ): IAutoMovieTransform => lift(ride.frame(id, film), film),
     };

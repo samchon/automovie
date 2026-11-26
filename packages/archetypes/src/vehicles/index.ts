@@ -1,4 +1,4 @@
-export * from "./createBicycle";
+export * from "./AutoMovieArchetypeBicycle";
 export * from "./createBoat";
 export * from "./createCanoePaddle";
 export * from "./AutoMovieArchetypeCar";
@@ -9,7 +9,7 @@ export * from "./createDinghy";
 export * from "./createDoubleScull";
 export * from "./createKayak";
 export * from "./createKayakPaddle";
-export * from "./createMotorcycle";
+export * from "./AutoMovieArchetypeMotorcycle";
 export * from "./createPram";
 export * from "./createRailCarriage";
 export * from "./createRailPlatform";

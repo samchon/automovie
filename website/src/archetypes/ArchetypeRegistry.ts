@@ -1,5 +1,12 @@
 import * as archetypes from "@automovie/archetypes";
 
+/** Stable authored IDs whose package owners are namespaces with `.create`. */
+const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
+  AutoMovieArchetypeCar: "createCar",
+  AutoMovieArchetypeBicycle: "createBicycle",
+  AutoMovieArchetypeMotorcycle: "createMotorcycle",
+};
+
 /** The website's local resolver for the installed archetype package. */
 export namespace ArchetypeRegistry {
   /** A model the website can display or place. */
@@ -63,13 +70,14 @@ export namespace ArchetypeRegistry {
         id,
         factories: Object.entries(exports).flatMap(
           ([name, value]: [string, unknown]): IFactory[] => {
-            if (name === "AutoMovieArchetypeCar" && isRecord(value)) {
+            const stableId: string | undefined = STABLE_PRODUCER_IDS[name];
+            if (stableId !== undefined && isRecord(value)) {
               const create: unknown = Reflect.get(value, "create");
               if (isFactory(create))
                 return [
                   record(
-                    "createCar",
-                    "archetypes.AutoMovieArchetypeCar.create",
+                    stableId,
+                    `archetypes.${name}.create`,
                     create,
                     factoryMetadata(value),
                   ),

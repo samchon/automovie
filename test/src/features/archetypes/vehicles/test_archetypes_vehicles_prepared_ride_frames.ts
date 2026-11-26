@@ -1,10 +1,10 @@
 import {
+  AutoMovieArchetypeBicycle,
   AutoMovieArchetypeCar,
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
-  createBicycle,
   createWheelchair,
   driveCar,
   rideBicycle,
@@ -43,7 +43,8 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     AutoMovieArchetypeCar.create({
       kind: "hatchback",
     });
-  const bike: ReturnType<typeof createBicycle> = createBicycle();
+  const bike: ReturnType<typeof AutoMovieArchetypeBicycle.create> =
+    AutoMovieArchetypeBicycle.create();
   const chair: ReturnType<typeof createWheelchair> = createWheelchair({
     kind: "selfPropelled",
   });

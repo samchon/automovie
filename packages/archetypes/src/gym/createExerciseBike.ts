@@ -234,7 +234,7 @@ export namespace createExerciseBike {
   /** The pedals' stance, metres: an estimate. */
   export const STANCE: number = 0.16;
 
-  /** Each pedal's plate, metres: as `createBicycle`'s. */
+  /** Each pedal's plate, metres: as `AutoMovieArchetypeBicycle`'s. */
   export const PEDAL: Readonly<{ width: number; depth: number }> = {
     width: 0.09,
     depth: 0.08,

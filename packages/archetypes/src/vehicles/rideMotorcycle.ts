@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
 } from "../core";
-import type { createMotorcycle } from "./createMotorcycle";
+import type { AutoMovieArchetypeMotorcycle } from "./AutoMovieArchetypeMotorcycle";
 
 /**
  * A motorcycle or a scooter ridden along a course: its root on the path, leaned
@@ -19,13 +19,13 @@ import type { createMotorcycle } from "./createMotorcycle";
  */
 export function rideMotorcycle(
   machine: AutoMovieArchetype<
-    createMotorcycle.Affordance,
-    createMotorcycle.Dimension
+    AutoMovieArchetypeMotorcycle.Affordance,
+    AutoMovieArchetypeMotorcycle.Dimension
   >,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
 ): AutoMovieArchetypeRide.IRide<
-  createMotorcycle.Affordance,
-  createMotorcycle.Dimension
+  AutoMovieArchetypeMotorcycle.Affordance,
+  AutoMovieArchetypeMotorcycle.Dimension
 > {
   const plan: AutoMovieArchetypeCourse.IPlan =
     course.kind === "plan"
@@ -38,8 +38,8 @@ export function rideMotorcycle(
     (
       state: AutoMovieArchetypeCourse.IState,
     ): AutoMovieArchetypeRide.IPose<
-      createMotorcycle.Affordance,
-      createMotorcycle.Dimension
+      AutoMovieArchetypeMotorcycle.Affordance,
+      AutoMovieArchetypeMotorcycle.Dimension
     > => ({
       archetype: machine,
       placement: AutoMovieArchetypeCourse.banked(
