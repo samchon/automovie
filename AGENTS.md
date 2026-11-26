@@ -1,17 +1,17 @@
 # AGENTS.md
 
-`automovie` lets an LLM write a film screenplay and author deterministic staging and motion as hints for video diffusion. The [project skill](.agents/skills/project/SKILL.md) owns the product contract.
+`automovie` lets an LLM write a screenplay and author deterministic staging and motion hints for video diffusion. See the [product contract](.agents/skills/project/SKILL.md).
 
 ## Principles
 
 Work from evidence and fix by cause.
 
-- Research uncertain details the task depends on. Ask the user if the answer remains unclear or sources still conflict.
-- Let the run, review or inspection finish. Fix all findings together by cause.
+- Research uncertainties that affect the task. Ask the user if the answer remains unclear or sources conflict.
+- Finish each run, review or inspection before fixing its findings together by cause.
 
-Compute values only when and where the result needs them. Prefer closed forms and simulate only physical phases.
+Compute values where and when needed. Prefer closed forms and simulate only physical phases.
 
-Keep the deliverables and the checkout clean.
+Keep deliverables and the checkout clean.
 
 - Write code, comments, documents, commits, issues and pull requests in English.
 - Ship one pull request per topic.
@@ -19,40 +19,42 @@ Keep the deliverables and the checkout clean.
 
 Carry the work to completion.
 
-- Fix a broken viewer at its owner before other work. Reconnect and verify the consumer.
+- Fix a broken viewer at its owner first. Reconnect and verify the consumer.
 - Give progress updates with the next tool call.
-- Continue until the task is complete or a user decision, protected target or required approval blocks further work.
+- Finish the task unless a user decision, protected target or required approval blocks progress.
 - Get approval for destructive or outward-facing actions.
 
 ## Attitude
 
 Work with the user.
 
-- Do the literal request, widening it only when the user hands that over.
-- Follow the user's instruction over any skill.
-- Answer a question from the user before continuing any work.
-- Write every message to the user in the user's language.
-- Work as a single agent unless the user explicitly orders subagents.
+- Follow the request as given. Widen it only when the user delegates that choice.
+- Give the user's instructions precedence over skills.
+- Answer the user's questions before resuming work.
+- Write to the user in their language.
+- Work alone unless the user explicitly orders subagents.
+
+Directors, writers, reviewers and Evidence answerers pursue perfection. Each inspects the work firsthand and rejects every defect or unnatural detail, however small.
 
 ## Skills
 
-Open the skill and routed pages for the task at hand.
+Open the applicable skill and only the pages it routes you to for this task.
 
 | Skill | Use when |
 | --- | --- |
-| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Change geometry, rigs, assets, materials or lights |
+| [3d-modeling](.agents/skills/3d-modeling/SKILL.md) | Change geometry, rigs, assets, materials or lighting |
 | [benchmark-campaign](.agents/skills/benchmark-campaign/SKILL.md) | Measure AutoMovie on real productions |
-| [contracts](.agents/skills/contracts/SKILL.md) | Write or review source and tests, or change Evidence selection |
+| [contracts](.agents/skills/contracts/SKILL.md) | Write or review maintained source or tests, or change Evidence selection |
 | [development](.agents/skills/development/SKILL.md) | Change code, tests or workflows |
-| [documentation](.agents/skills/documentation/SKILL.md) | Write a document or comment |
-| [human](.agents/skills/human/SKILL.md) | Build, inspect or supervise the Human figure and viewer |
-| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Audit broadly or run repeated issue-to-PR cycles |
-| [motion](.agents/skills/motion/SKILL.md) | Develop motion, its grammar, primitives or retargeting |
-| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Brief or supervise user-authorized workers |
-| [project](.agents/skills/project/SKILL.md) | Decide product scope, ownership or commands |
-| [prompting](.agents/skills/prompting/SKILL.md) | Change agent instructions or skills |
-| [pull-request](.agents/skills/pull-request/SKILL.md) | Open, update or merge an authorized pull request |
-| [review](.agents/skills/review/SKILL.md) | Review changes |
-| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Change scaffold code or skills, or work on production content |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Inspect pictures or change the viewer or capture |
-| [website](.agents/skills/website/SKILL.md) | Change the website, its docs or its takes |
+| [documentation](.agents/skills/documentation/SKILL.md) | Write a document or doc comment |
+| [human](.agents/skills/human/SKILL.md) | Work on or oversee `packages/human`, human figures or the Human viewer |
+| [issue-campaign](.agents/skills/issue-campaign/SKILL.md) | Run a broad audit or repeated issue-to-PR rounds |
+| [motion](.agents/skills/motion/SKILL.md) | Author or verify body motion, vocabulary, grammar, laws, primitives or retargeting |
+| [multi-agent](.agents/skills/multi-agent/SKILL.md) | Start, brief or supervise authorized subagents |
+| [project](.agents/skills/project/SKILL.md) | Decide scope, package ownership or commands |
+| [prompting](.agents/skills/prompting/SKILL.md) | Change `AGENTS.md`, `CLAUDE.md` or a skill |
+| [pull-request](.agents/skills/pull-request/SKILL.md) | Push, open, update or merge a PR on request or under a delivery mandate |
+| [review](.agents/skills/review/SKILL.md) | Review or self-review |
+| [scaffold-prompting](.agents/skills/scaffold-prompting/SKILL.md) | Change `packages/template` or shipped skills, or work on production content |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Inspect pictures, verify visual changes or change a viewer or capture |
+| [website](.agents/skills/website/SKILL.md) | Change public website pages, design, docs or baked takes |

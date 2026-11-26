@@ -3,11 +3,11 @@ import type {
   IAutoMovieCaptureFindingDiff,
   IAutoMovieCaptureRecord,
   IAutoMovieInspectionDiagnostics,
+  IAutoMovieProductionCheck,
 } from "@automovie/interface";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 
@@ -24,13 +24,13 @@ import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
  * @param root The production directory resolving the record and its stills.
  * @returns The supported verdict with the exact record to reopen.
  */
-export async function inspectAutoMovieVerificationCapture(
-  check: IAutoMovieVerification.ICapture,
+export async function inspectAutoMovieProductionCheckCapture(
+  check: IAutoMovieProductionCheck.ICapture,
   record: unknown,
   root: string,
   hashFile: (file: string) => Promise<string> = hashAutoMovieFile,
 ): Promise<
-  Pick<IAutoMovieVerification.IResult, "state" | "message" | "evidence">
+  Pick<IAutoMovieProductionCheck.IResult, "state" | "message" | "evidence">
 > {
   const evidence: string = check.record;
   const absent = (message: string) => ({
@@ -52,7 +52,7 @@ export async function inspectAutoMovieVerificationCapture(
   )
     return absent("Capture the selected subject with its diagnostic enabled.");
 
-  const at: IAutoMovieVerification.ICapture["at"] = check.at;
+  const at: IAutoMovieProductionCheck.ICapture["at"] = check.at;
   if (!validSelection(at))
     throw new Error(
       "A capture check needs a finite second or a nonempty frame interval.",
@@ -189,7 +189,7 @@ export async function inspectAutoMovieVerificationCapture(
 }
 
 /** Admit a nonnegative subject second or an ordered zero-based frame range. */
-function validSelection(at: IAutoMovieVerification.ICapture["at"]): boolean {
+function validSelection(at: IAutoMovieProductionCheck.ICapture["at"]): boolean {
   return "second" in at
     ? Number.isFinite(at.second) && at.second >= 0
     : Number.isSafeInteger(at.fromFrame) &&

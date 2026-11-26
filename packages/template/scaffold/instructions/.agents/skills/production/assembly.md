@@ -4,19 +4,19 @@ Assemble the delivered video to the scope in [project context](project-context.m
 
 ## Film assembly
 
-Build one film per screenplay folder. Check the [scenes](../contracts/development/composition.md#screenplay-realization) and the film's [scene order](../contracts/development/films.md#scene-order) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions and titles. Use [frame evaluation](../motion/frame-evaluation.md) for scheduling and cut boundaries. Preserve the meaning of each [control channel](../motion/control-channels.md).
+Build one film per screenplay folder. Check [scene realization](../contracts/development/composition.md#screenplay-realization) and [order](../contracts/development/films.md#scene-order) for missing or unintended repeated beats. Preserve scene order, cuts, pauses, transitions, titles and [control channels](../motion/control-channels.md). Schedule cuts with [frame evaluation](../motion/frame-evaluation.md).
 
-The render, captures and the inspector draw the transitions of the film's `playback` sequence: a `crossDissolve` mixes the two shots across its overlap, and a `fade` dips through black. A film with a transition needs the `seekShot` member [modules](../development/modules.md#shots-and-films) sets.
+The render, capture and inspector use the film's `playback` transitions. `crossDissolve` mixes overlapping shots. `fade` dips through black. Both require [`seekShot`](../development/modules.md#shots-and-films).
 
 ## Render
 
 <!-- @source The [FFmpeg codec options](https://github.com/FFmpeg/FFmpeg/blob/master/doc/codecs.texi) define color_range. -->
 
-Before scaling a new host or a changed export path, take a shot through a join and decode the result. Compare matched frames with the delivery renderer's output or the graded take supplied for assembly. If a conversion or lossy intermediate intervenes, compare on both sides of it. Check that decoded darks, highlights and colors reproduce the intended picture under the declared color range.
+For a new host or changed export, decode a shot through a join before scaling. Compare matched frames with the delivery renderer or graded take and on both sides of any conversion or lossy intermediate. Verify darks, highlights and colors under the declared color range.
 
-After [segment review](../motion/segment-review.md), use the README render command for the complete motion hint or direct 3D film. For a generated film, assemble the accepted finished takes. Then composite clean renders under [compositing](../video/finishing.md#compositing).
+After [segment review](../motion/segment-review.md), render the whole hint or direct 3D film with the README command. For generated film, assemble accepted finished takes. [Composite](../video/finishing.md#compositing) clean renders.
 
-Keep only the commissioned [sound](../audio/film-sound.md) and [caption tracks](captions.md). The README render command encodes the picture and, as the README describes, the film's soundtrack, but no other stream. To add caption tracks or any other stream, use a documented assembly command that supports them or an approved production tool. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
+Include only commissioned [sound](../audio/film-sound.md) and [captions](captions.md). The README render command encodes picture and the film's soundtrack. Use a supporting documented assembly command or approved tool for additional streams. [Measure](../review/delivery-review.md#measurement-and-comparison) the assembled file against the [profile](project-context.md#the-delivery-profile).
 
 ## Repair and delivery
 

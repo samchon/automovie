@@ -23,6 +23,7 @@
     "lib",
     "src",
     "vendor/clarabel",
+    "vendor/ihmc",
     "vendor/quadratic",
     "package.json",
     "LICENSE",

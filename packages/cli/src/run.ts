@@ -9,6 +9,7 @@ import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { captureAutoMovie } from "./captureAutoMovie";
+import { checkAutoMovie } from "./checkAutoMovie";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { inspectAutoMovie } from "./inspectAutoMovie";
 import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
@@ -17,7 +18,6 @@ import { renderAutoMovie } from "./renderAutoMovie";
 import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
 import { reviewAutoMovie } from "./reviewAutoMovie";
 import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
-import { verifyAutoMovie } from "./verifyAutoMovie";
 
 const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
 
@@ -27,7 +27,7 @@ Usage:
   automovie capture --module <file> [--props <json>] [--backend software|gpu] [--out <dir>] [<request>]
   automovie capture --file <video> [--out <dir>] [<request>]
   automovie inspect --module <file> [--props <json>] [--port <n>] [<request>]
-  automovie verify [--module <file>] [--subject <id>] [--only <check>] [--run] [--require <stage>] [--json]
+  automovie check [--module <file>] [--subject <id>] [--only <check>] [--run] [--require <stage>] [--json]
   automovie render --module <file> [--subject <name>] [--props <json>] [--out <dir>] [--backend software|gpu]
   automovie review --url <inspector address> --seconds <s> [--out <dir>]
   automovie review --file <video> (--at <s> | --from <s> --to <s>) --note <text> [--out <dir>]
@@ -46,7 +46,7 @@ Commands:
                   subjects a module offers and print its address, whose query
                   is the request. Needs @automovie/render, @automovie/viewer,
                   react, react-dom and vite there; Ctrl+C stops it.
-  verify          Read selected production observations or run their declared
+  check           Read selected production observations or run their declared
                   checks. --require gates an adopted stage.
   render          In a production, draw every frame of one subject through the
                   draw page in headless Chromium and encode film.mp4 with
@@ -151,8 +151,8 @@ export async function run(argv: readonly string[]): Promise<number> {
         args: command.args,
         root: process.cwd(),
       });
-    if (command.command === "verify")
-      return await verifyAutoMovie({
+    if (command.command === "check")
+      return await checkAutoMovie({
         args: command.args,
         root: process.cwd(),
         env: process.env,

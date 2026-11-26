@@ -11,7 +11,8 @@
 // zulu/.../ZuluICPControllerParameters.java l.9-114, ICPControllerParameters.java
 // l.38-41, l.61-64, l.118-129 and l.145-148, ICPControlGains.java l.10-13,
 // IntegratorGains.java (ihmc-robotics-toolkit) l.7-9 and
-// WalkingControllerParameters.java l.616-619. See NOTICE.
+// WalkingControllerParameters.java l.616-619.
+// See vendor/ihmc/NOTICE.
 import { physicalAngularMomentumIntegrator as Integrator } from "./physicalAngularMomentumIntegrator";
 import { physicalIcpControllerQp as Qp } from "./physicalIcpControllerQp";
 import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";

@@ -22,11 +22,11 @@ Commit images and generation requests where redistribution is allowed. Keep audi
 
 Keep requests, their shared descriptions and generation receipts together.
 
-Save generated references in `media/diffusion/images/<domain>/`. Take the domain from the settings or brief record. When [instructions own the appearance](../story/document-layout.md#canon-records), name the domain there before generation. Use `cast` for portraits.
+Save generated references in `media/diffusion/images/<domain>/`. Take the domain from the settings or brief record. When instructions own an appearance, name the domain there before generation. Use `cast` for portraits.
 
 ### Acquired media
 
-Keep third-party production assets and study footage here. Other study originals follow [research](../story/planning/research.md).
+Keep third-party assets and study footage in the acquired folders above. Research owns other study originals.
 
 ### Pipeline files
 
@@ -40,27 +40,27 @@ The pipeline keeps one film's files in these folders of `media/automovie/<film>/
 | `transparent/` | The straight-alpha `film.mov` of a transparent-background render, with its report |
 | `audios/` | Audio made for the user to hear |
 
-Use the film's [acceptance record](../review/delivery-review.md#acceptance-record) to establish the current verdict on a revision.
+The film's acceptance record holds its current verdict.
 
 ### Render reports
 
-Every render attempt installs its `render-report.json` in its output folder, but a blocked or failed attempt keeps the previous video there. Trust a report and the files in its folder only when its `status` is `published` and its `source.sha256` equals the SHA-256 of the video file there. Trust `controls/record.json` only when its `filmSha256` equals the same digest too. When a check fails, render again before using the files.
+Each attempt writes `render-report.json`. A blocked or failed attempt leaves the previous video in place. Before using the files, verify `status: published` and match `source.sha256` to the video's SHA-256. Match `filmSha256` in `controls/record.json` to the same digest. Render again if a check fails.
 
-A trusted report's `cut` lists each sequence entry with the output frames it is live in, `liveFrames` as `[first, endExclusive)`. An entry that opens with a transition is live from the transition's first frame, so its first frames still show mostly the previous shot, or only the previous shot fading out in the first half of a fade.
+The trusted report's `cut` lists each entry's output `liveFrames` as `[first, endExclusive)`. An entry starts at its transition's first frame, while the picture still shows mostly the previous shot in a dissolve or only the shot fading out in a fade's first half.
 
 ## Records
 
 Record the following in `media/manifest.json` or the generation request:
 
-- where the file came from: the source URL and creator, or the generation request;
-- its license, attribution and usage terms;
-- its content digest.
+- Source URL and creator, or the generation request
+- License, attribution and usage terms
+- Content digest
 
-For guide passes, record the SHA-256 of `videos/controls/record.json`. That digest seals every frame digest the record lists, so a request conditioned on hundreds of frames lists one file.
+For guide passes, record the SHA-256 of `videos/controls/record.json`. It seals every frame digest in that record.
 
 Record the license terms for code, weights, body models, data, territory and service plan. Record provider, model, version, settings, prompt, input digests, job ID and seed if exposed.
 
-Preserve the original bytes. Use their record to identify them. Add fields the generating skill requires and keep secrets out.
+Preserve the original bytes and identify them by their record. Add fields the generating skill requires and omit secrets.
 
 ### Fonts and stills
 

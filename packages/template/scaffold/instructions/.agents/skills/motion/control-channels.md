@@ -1,6 +1,6 @@
 # Control channels
 
-A motion hint reaches its receiver through control channels rendered from the performance. [Video](../video/SKILL.md) decides which channels the chosen model takes.
+Render control channels from the performance. Use the chosen model's documentation to identify the channels it accepts.
 
 ## Channels to render
 
@@ -36,4 +36,4 @@ Compare each rendered channel with the adapter's annotator on the same hint fram
 
 Render the channels as guide passes with the README render command's `--passes` option. Use them only under the [render report check](../production/media-records.md#render-reports), and render again on a mismatch. Keep mappings, palettes and sidecars under [media records](../production/media-records.md). Keep viewing encodes separate to preserve numeric depth and mask colors.
 
-Inspect matched frames across the whole sequence under [capture times](../visual-debugging/capture.md#times). Check the receiver's input path. Report observed limits to [assembly](../production/assembly.md) or [generation](../video/generation.md). Without a commissioned generator, report compatibility as unverified.
+Inspect matched frames across the whole sequence under [capture times](../visual-debugging/capture.md#times). Check the receiver's input path. Report observed limits at assembly or generation. Without a commissioned generator, report compatibility as unverified.

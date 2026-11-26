@@ -30,7 +30,7 @@ Identify other subjects with the simplest [coarse form](../3d-modeling/coarse-fo
 
 ### What stays out
 
-Send unsupported appearance facts through [canon references](../image/SKILL.md) and [generation prompts](../video/SKILL.md), or a direct 3D detail option. Use images for reference or conditioning. Author motion in code.
+Carry appearance beyond the coarse form in [canon references](../image/canon-references.md) and the [shared generation prompt](../video/diffusion/prompts.md#shared-description), or a direct 3D detail option. Use images for reference or conditioning. Author motion in code.
 
 ## Flames, screens and lettering
 
@@ -56,4 +56,4 @@ The 3D modeling skill makes, rigs and verifies a detailed form, and the video sk
 
 ## Inspection and handoff
 
-Inspect the entity in its [catalog cases](../motion/catalog-cases.md) against the facts it realizes under the [entity contract](../contracts/development/entities.md#settings-realization). For a standalone asset, test the views and controls in its commission under [asset review](../review/delivery-review.md#assets). For a scene, inspect its states with the actual cameras, neighboring subjects and motion under [segment review](../motion/segment-review.md).
+Inspect the entity against its cited facts in its [catalog cases](../motion/catalog-cases.md). For a standalone asset, test the commissioned views and controls. For a scene, inspect its states with the actual cameras, neighboring subjects and motion.

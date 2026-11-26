@@ -28,9 +28,9 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  * @evidence contracts/development/testing.md#distinguishing-cases Exercises an imported target with both ordinary status and explicit stage enforcement.
  * @evidence contracts/development/testing.md#execution-ownership Builds only the CLI into an owned temporary directory and waits for two local Node subprocesses; the fixture's production files are loaded by the command.
  */
-export async function test_cli_verification_module(): Promise<void> {
+export async function test_cli_production_check_module(): Promise<void> {
   const workspace: string = await fs.mkdtemp(
-    path.join(os.tmpdir(), "automovie-verify-module-"),
+    path.join(os.tmpdir(), "automovie-check-module-"),
   );
   const root: string = path.join(workspace, "production");
   const link: string = path.join(root, "node_modules", "linked-sdk");
@@ -56,7 +56,7 @@ export async function test_cli_verification_module(): Promise<void> {
       "export const draft =",
     );
     await fs.writeFile(
-      path.join(executable, "verify.ts"),
+      path.join(executable, "check.ts"),
       'import chair from "./chair.ts";\nexport default [chair];\n',
     );
     await fs.writeFile(
@@ -73,15 +73,7 @@ export async function test_cli_verification_module(): Promise<void> {
     ): SpawnSyncReturns<string> =>
       spawnSync(
         process.execPath,
-        [
-          ...nodeOptions,
-          cli,
-          "verify",
-          "--subject",
-          "chair",
-          "--json",
-          ...args,
-        ],
+        [...nodeOptions, cli, "check", "--subject", "chair", "--json", ...args],
         {
           cwd: root,
           encoding: "utf8",
@@ -227,7 +219,7 @@ export async function test_cli_verification_module(): Promise<void> {
     expect(verify("--run", "--require", "handoff"), 1, "failed");
 
     await fs.writeFile(
-      path.join(executable, "verify.ts"),
+      path.join(executable, "check.ts"),
       'import chair from "./chair";\nimport other from "#other-target";\nexport default [chair, other];\n',
     );
     const other: string = path.join(executable, "other.ts");

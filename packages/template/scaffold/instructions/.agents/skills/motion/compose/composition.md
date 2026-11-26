@@ -4,18 +4,18 @@ Compose the behavior the beat calls for. Use the installed JSDoc to match suppor
 
 ## Choosing movement
 
-Read the person's intent, skill, circumstances and practiced style from the beat and subject record. Use the [performance study](../../story/planning/research.md#performance-study) to identify visible cues, posture, timing, weight transfers and reactions.
+Read the performer's intent, skill, circumstances and style in the beat and subject record. Take visible cues, posture, timing, weight transfers and reactions from the [performance study](../../story/planning/research.md#performance-study).
 
 Choose the smallest implementation that performs those details.
 
 1. Use a shipped action or row when its mechanics and defaults fit the beat.
 2. Set supported parameters or compose actions when the changes are already expressible.
 3. Register a row to reuse a fitted set of parameters with a name.
-4. Register a [law](../laws/SKILL.md) for the interval or channels that need new mechanics.
+4. Register a law with [effector goals](../laws/authoring.md) for the interval or channels needing new mechanics.
 
 For example, a startled retreat needs the abrupt reactions and steps observed for that person. A kickboxing backstep carries its own stance and rhythm. A wuxia scene's style comes from the studied performance, including how its cast moves before and after contact. Use a shipped action only where its displayed movement fits that style.
 
-Keep fitted phases around a custom interval. Join them at admitted events or cuts. Use an overlay when the carrier yields all required channels and keeps its root motion and held contacts.
+Keep fitted phases around a custom interval and join at admitted events or cuts. Overlay when the carrier yields the required channels and retains root motion and held contacts.
 
 Create a row with `HumanActionRow(name, law, fixed)`. Pass rows and custom laws in the `laws` input to `HumanPerformance`. Use `HumanChain.extend` for typed calls under their own names.
 
@@ -25,7 +25,7 @@ Create a row with `HumanActionRow(name, law, fixed)`. Pass rows and custom laws 
 
 <!-- @source [FIBA Level 1 coaching manual](https://assets.fiba.basketball/image/upload/documents-corporate-wabc-coaching-level-manuals-level-1-eng.pdf), §2.1.1, illustrates an off-ball cut that opens space for a teammate. -->
 
-For each [beat element](../staging.md#reading-the-scene), settle these axes from the beat and study in order.
+Settle each beat element's axes in order from the beat and study.
 
 | Axis | Settle |
 | --- | --- |
@@ -41,7 +41,7 @@ For each [beat element](../staging.md#reading-the-scene), settle these axes from
 | Layer | What runs under everything the person does, such as gaze, breathing, listening or a mood |
 | Timing | When it happens against other actions, partners, hits, commands, dialogue and beats |
 
-Author those axes through the installed operators. Set each parameter that carries a settled axis, and omit it only when its default performs that setting. Leave joint fitting and contact response to their package owners. Resolve a missing story choice in the screenplay under [concretization](../../story/correction/repair.md#concretization).
+Set each axis through installed operators. Omit a parameter only if its default performs the choice. Leave joint fitting and contact response to the package owners. Return missing story choices to [concretization](../../story/correction/repair.md#concretization).
 
 Use layers for ongoing breathing and listener gaze unless the beat changes them. When one person's move changes another's options, compose the cue and the other person's choice together. Sync reactions to their cause using the law's studied reaction time where available.
 
@@ -72,7 +72,7 @@ A cut uses an admitted share, event or proximity. Cut or add overlays before syn
 
 Carry the displayed pose, speed, active support and held objects through each join. Bind contact to the material frame that moves it, such as the actual rung or backrest. Keep a grasp until the authored release or transfer. Use the resolved boundary state under [declared cuts](../laws/transitions.md#declared-cuts).
 
-Verify contact onset, bearing, release and ownership at the event and on both sides. Check the supported surface, clearance and any preserved gait phase. Keep intended discontinuities such as impact. Inspect the composed passage at speed in its camera under [motion judgment](../judgment.md).
+Verify contact onset, bearing, release and ownership at the event and on both sides. Check the supported surface, clearance and any preserved gait phase. Keep intended discontinuities such as impact. Inspect the composed passage at speed in its camera.
 
 ## Crowds and variation
 
@@ -82,8 +82,8 @@ Use the vocabulary's group capability. The screenplay gives the group action and
 
 ### Seed
 
-Set proficiency and behavior through supported parameters. Use the film's [seed](../../development/modules.md#how-the-parts-work-together) for bounded variation across takes. Check that different takes preserve the beat's timing constraints, contacts and outcome.
+Set proficiency and behavior through supported parameters. Use the film seed for bounded variation across takes. Check that different takes preserve the beat's timing constraints, contacts and outcome.
 
 ## Handoff
 
-A cast or crowd entity's capability returns the composition, as [modules](../../development/modules.md#how-the-parts-work-together) sets.
+A cast or crowd capability returns the composition.

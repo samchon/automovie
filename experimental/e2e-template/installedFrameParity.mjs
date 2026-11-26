@@ -467,7 +467,7 @@ function verification(root, { capture, published, blocked }) {
     [
       "--silent",
       "run",
-      "verify",
+      "check",
       "--subject",
       subject,
       "--require",
@@ -564,7 +564,7 @@ async function verifyRejectsWrongCaptureRound(root) {
     [
       "--silent",
       "run",
-      "verify",
+      "check",
       "--module",
       module,
       "--run",

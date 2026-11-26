@@ -1,6 +1,6 @@
 # Composition
 
-Each exported function and method of a screenplay scene in `src/composition/scenes/<film>/<scene>/` answers these items in its doc comment, beside [implementation](implementation.md). It realizes a screenplay rather than serving callers, so it documents that realization here instead of under [common](common.md). A screenplay film answers [films](films.md) and the catalog answers [catalog](catalog.md) instead.
+Each exported function and method in `src/composition/scenes/<film>/<scene>/` answers these items and [implementation](implementation.md) in its doc comment. Use these realization items in place of [common](common.md). Screenplay films answer [films](films.md). Catalogs answer [catalog](catalog.md).
 
 A scene cites its screenplay scene file, or each section and beat of it, as `@evidence docs/body/screenplay/<film folder>/<scene file>#<anchor> <what it realizes>`. Omit the anchor for a whole file.
 
@@ -12,7 +12,11 @@ Every section and beat is realized. An `OMITTED` one is covered by an `@evidence
 
 Does each scene realize every cited beat as written?
 
-Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. For a direct 3D film, the film's [sound list](films.md#sound-list) carries the beat's lines and cues. For other films, compose the beat's outcome sound cues from `src/consequences/sound/`, as [source layout](../../development/source-layout.md#laws-interactions-and-consequences) places them. For commissioned generation, carry reactions beyond the representation in the prompt.
+Open the scene comment with the screenplay citation, action and staging choices. Bind instances to standing-state subjects and preserve their identity through movement, handovers, cuts and time out of view. Realize camera changes.
+
+- Direct 3D films carry lines and cues in the film's [sound list](films.md#sound-list).
+- Other films compose outcome cues from `src/consequences/sound/`.
+- For commissioned generation, prompt for reactions beyond the representation.
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
@@ -20,7 +24,7 @@ If staging a passage requires inventing an exchange, response or pause, return t
 
 <!-- @source The beat elements in motion/staging.md and the screenplay records in story/layers/notation.md. -->
 
-Trace each cited [beat element](../../motion/staging.md#reading-the-scene) to at least one [commented value](../../development/modules.md#documenting-source). Include the beat anchor and, for skilled practice, the study section.
+Trace each cited beat element to at least one [commented value](../../development/modules.md#documenting-source). Include the beat anchor and, for skilled practice, the study section.
 
 ```ts
 import { HumanChain } from "@automovie/motions";
@@ -49,7 +53,7 @@ const composition = HumanChain.subject("mara")
 
 Does the scene compose only accepted module capabilities using installed operators and the screenplay's decisions?
 
-Place absolute time only at screenplay anchors and follow the [composition rules](../../development/modules.md#how-the-parts-work-together). [Retarget](../../motion/retargeting.md) supplied clips to their performers. Fix [refusals](../../motion/compose/refusals.md) at the named axis.
+Use absolute time only at screenplay anchors. Follow the [composition rules](../../development/modules.md#how-the-parts-work-together). [Retarget clips](../../motion/retargeting.md) to their performers and fix [refusals](../../motion/compose/refusals.md) at the named axis.
 
 Verify the module in an interval that exhibits the scene's body, load, support and partner conditions. Use a [separate case](../../motion/catalog-cases.md) when those conditions need an independent check. Recheck affected capabilities after a repair or change of conditions.
 

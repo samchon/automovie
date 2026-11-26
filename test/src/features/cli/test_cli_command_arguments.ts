@@ -17,8 +17,8 @@ import { throwsError } from "../internal/predicates";
  *    `--force` and `--name <name>` in any order.
  * 3. `add` splits `shorts/<name>` or `series/<name>` into its family and one
  *    directory segment, with optional single `--force` and `--name`.
- * 4. `capture`, `render`, `review` and `verify` keep their option tokens in order.
- *    `capture` and `verify` also accept an empty token list.
+ * 4. `capture`, `render`, `review` and `check` keep their option tokens in order.
+ *    `capture` and `check` also accept an empty token list.
  * 5. Unknown and removed commands (`start` and `sync` among them), unknown or
  *    repeated options, a missing `--name` value, missing, extra or blank
  *    directories, an unknown family, an unportable or padded segment, and a
@@ -120,9 +120,9 @@ export function test_cli_command_arguments(): void {
     ],
   );
   TestValidator.equals(
-    "verify keeps the selected subjects and stage in order",
+    "check keeps the selected subjects and stage in order",
     read(
-      "verify",
+      "check",
       "--subject",
       "walk",
       "--subject",
@@ -132,7 +132,7 @@ export function test_cli_command_arguments(): void {
       "--json",
     ),
     {
-      command: "verify",
+      command: "check",
       args: [
         "--subject",
         "walk",
@@ -144,14 +144,14 @@ export function test_cli_command_arguments(): void {
       ],
     },
   );
-  TestValidator.equals("verify without tokens", read("verify"), {
-    command: "verify",
+  TestValidator.equals("check without tokens", read("check"), {
+    command: "check",
     args: [],
   });
   // Each refusal names its correction: the one command, the one option, the
   // directory count, a non-blank directory, or a standalone flag.
   const commandCorrection: string =
-    "the commands are create, add, capture, inspect, render, review and verify";
+    "the commands are create, add, capture, inspect, render, review and check";
   const invalid: readonly (readonly [readonly string[], string])[] = [
     [["unknown"], commandCorrection],
     [["start", "project"], commandCorrection],

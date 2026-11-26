@@ -1,11 +1,19 @@
 # Segment review
 
-After [testing the central passage](judgment.md#before-widening), the film author plays each segment through the registered film as soon as it runs. Before handing off the draft, watch the sequence in order at its intended speed, including the joins.
+As film author, inspect each segment as soon as it plays. Clear its windows before widening and watch the assembled draft continuously at 1× before handoff.
+
+## Review windows
+
+Inspect the exact cut in order under the [capture timing rules](../visual-debugging/capture.md#times). Check both sides of each join.
+
+Keep the render and captures. Record the revision, hash, scene, frame range, actor and prop entry and exit states, findings and decisions in the [acceptance record](../review/delivery-review.md#acceptance-record).
+
+Resume from the saved render or the same registered subject. Use `pnpm run motion:take save` and `open` to recover a supported take's entry recipe and bindings.
 
 ## What to look at
 
-Does the exchange work on screen even when every scripted action is present? Compare what unfolds in the film camera with the beat and, for skilled practice, the study. Use [captured frames](../visual-debugging/capture.md#times) and [motion judgment](judgment.md) to inspect the full segment, including action outside the viewer's immediate focus. At each join, check support, direction, speed and possession on both sides.
+Check every actor in the [delivery camera](staging.md#the-view) against the beat and its study. At joins, check support, direction, speed and possession.
 
 ## Review rounds
 
-Group findings by cause and follow [film repairs](../review/delivery-review.md#repairs). Recheck a failed module in its affected interval or in its [separate case](catalog-cases.md). Replay and recapture affected intervals and joins, including the central passage if its lead-in or consequence changed. Review the assembled film under [delivery review](../review/delivery-review.md#video).
+Recheck repaired windows and adjacent joins. Isolate module defects in a catalog case. Finish with [whole-cut review](../review/delivery-review.md#video).

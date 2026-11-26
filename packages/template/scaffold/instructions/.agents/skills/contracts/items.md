@@ -18,4 +18,4 @@ Source reviewers verify declaration answers. The Evidence answerer verifies stor
 
 Check only what a respondent can establish from its content and references. Review generation requests, prompts, control channels and delivered media outside the contract graph.
 
-Record the observations for the commissioned output under [delivery review](../review/delivery-review.md#acceptance-record).
+Record observations in the commissioned output's acceptance record.

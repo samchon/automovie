@@ -1,7 +1,8 @@
 // Ported from IHMC Robotics, Euclid (Apache-2.0):
 // src/geometry/java/us/ihmc/euclid/geometry/tools/EuclidGeometryPolygonTools.java
 // (lineOfSightStartIndex, lineOfSightEndIndex, canObserverSeeEdge and
-// orthogonal projection). See NOTICE.
+// orthogonal projection).
+// See vendor/ihmc/NOTICE.
 import type { physicalPlanarPolygon } from "./physicalPlanarPolygon";
 
 /**

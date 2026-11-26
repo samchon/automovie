@@ -120,11 +120,8 @@ export type AutoMovieCommand =
     }
   | {
       /** Verify scoped production checks and observations. */
-      command: "verify";
+      command: "check";
 
-      /**
-       * The tokens after `verify`, as typed; the verification command reads
-       * them.
-       */
+      /** The tokens after `check`, as typed; the check command reads them. */
       args: string[];
     };

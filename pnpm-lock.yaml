@@ -458,6 +458,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../interface
       '@automovie/template':
         specifier: workspace:^
         version: link:../template

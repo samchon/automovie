@@ -1,24 +1,24 @@
 # Project context
 
-Keep current production choices in `PROJECT.md` for the user and the next agent. Use Git for earlier decisions.
+Keep current production choices in `PROJECT.md` and earlier decisions in Git.
 
 ## Intake
 
-Read the request, existing context, instructions and work. Record the outputs and where the commission ends. For a screenplay, confirm the [writing route](../story/workflow/routes.md#who-writes-the-screenplay) and [creative requirements](../story/planning/requirements.md#asking-the-user). For an asset, determine its use and required views, movement or controls.
+Read the request, context, instructions and work. Record the outputs and their limits. For a screenplay, confirm its [writing route](../story/workflow/routes.md#who-writes-the-screenplay) and [creative requirements](../story/planning/requirements.md#asking-the-user). For an asset, confirm its use and required views, movement or controls.
 
-Reuse decisions already given. Ask about a user-reserved choice when the work first depends on it.
+Reuse existing decisions. Ask about reserved choices when they first affect the work.
 
 ## What to record
 
 Record only topics the commission needs.
 
-Keep every other fact with its owner and link to it: creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under the development skill's source layout.
+Link to facts where they belong. Keep creative instructions in `docs/instructions`, canon and text in their layers, findings and reviews in their records, and setup and secrets under the source layout.
 
 ### Overview and look
 
-State in a sentence or two what is made, its audience and the intended experience. Record the look only for a generated or direct 3D film, by the facets settings [cinematography](../story/layers/settings.md#records) lists.
+Briefly state the output, audience and intended experience. Record the look only for a generated or direct 3D film, using the [cinematography facets](../story/layers/settings.md#records).
 
-On long work a settings record owns both, and a link to it may replace them.
+On long work, link to settings where it defines the overview and look.
 
 ### Commissioned scope
 
@@ -28,7 +28,7 @@ Check required inputs. Fill gaps within the delegation and refer a change in del
 
 ### Representation
 
-Record that people are polygon men and other subjects coarse forms, and which delivery, if any, selects which entity's detail option.
+Record the polygon men, coarse forms and any detail option selected for delivery.
 
 ### Adopted approach
 
@@ -57,7 +57,7 @@ Record what the work runs on and within:
 
 ### Authority and open choices
 
-Record what the user fixed, what the director decided within delegation and why, and what remains open. Record the scope of an authorized exception.
+Record fixed user decisions, delegated decisions and reasons, open choices, and the scope of any authorized exception.
 
 ### The delivery profile
 
@@ -75,12 +75,12 @@ For a film with sound, it also records the audio tracks and sample rate, the lou
 
 For standalone audio, record the promised format, sample rate and any required loudness targets.
 
-This file owns the profile, and the delivered render implements it. A [channel render](../video/requests.md#inputs) departs from it. Long-form settings state matching runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
+The delivered render follows this profile. Channel renders for generation may use the model's format. Match long-form settings to the profile's runtime and frame conditions. Resolve conflicts from the user's commission through the profile.
 
 ## When to read and update it
 
-Read project context when starting or resuming. Record adopted changes before consumers use them. Update affected owners together and follow [repair](../story/correction/repair.md) for closed narrative work.
+Read `PROJECT.md` on start or resumption. Record changes before use. Update affected owners together and follow [repair](../story/correction/repair.md) for closed narrative work.
 
 ## How it controls the work
 
-Use the recorded scope for acceptance. Respect fixed decisions and exclusions. Record routine delegated decisions as you make them. Mark choices still open and continue independent work.
+Judge acceptance by the recorded scope. Honor fixed decisions and exclusions. Record delegated decisions as you make them. Mark open choices and continue independent work.

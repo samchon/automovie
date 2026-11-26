@@ -6,7 +6,7 @@ Put facts in settings or within the [brief's boundary](../layers/brief.md#what-i
 
 ## Checkpoints
 
-On the long route, repeat discovery at each applicable checkpoint. Inspect the materials already available that fall within its scope.
+On the long route, repeat discovery at each applicable checkpoint. Inspect available material within its scope.
 
 | Checkpoint, in order | What it looks for |
 | --- | --- |
@@ -14,7 +14,7 @@ On the long route, repeat discovery at each applicable checkpoint. Inspect the m
 | Before composition, when commissioned | What no source folder, research or contract covers yet |
 | After output review | What the output or handoff shows the work still needs |
 
-Before composition, that is an element kind no source folder owns, a behavior, camera or staging choice no research supports, and a failure no contract asks about.
+Before composition, look for unowned element kinds, unsupported behavior, camera or staging choices, and failures no contract covers.
 
 Update the discovery result at each applicable checkpoint. Leave an applicable checkpoint open if it has not run. Mark checkpoints outside the commission as inapplicable.
 

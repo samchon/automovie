@@ -6,19 +6,19 @@ Identify the earliest owner, its consumers, the current pass and closed boundari
 
 ### Upstream defects
 
-Trace a story finding to the first decision that must change. On a short, check whether the [brief](../layers/brief.md#what-it-holds) fixed that decision or left it to the screenplay. On the long route, follow the [actual parents](../workflow/long.md#parents). Scripts organize scenes, treatments establish event causes and reveals, and settings establish world and character facts. If the decision depends on a disputed fact, check its study. Use the selected [upstream questions](../../contracts/story/SKILL.md#testing-the-parents).
+Trace a story finding to the first decision that must change. On a short, check whether the brief fixed the decision or left it to the screenplay. On the long route, follow the actual parents. Scripts organize scenes, treatments establish event causes and reveals, and settings establish world and character facts. If the decision depends on a disputed fact, check its study. Use the selected [upstream questions](../../contracts/story/SKILL.md#testing-the-parents).
 
-Repair that decision before its dependents. Follow a shared change into every affected scene or film in the commission. Refer changes to [user-fixed requirements](../planning/requirements.md#requirements) to the user.
+Repair that decision before its dependents. Follow a shared change into every affected scene or film in the commission. Refer changes to user-fixed requirements to the user.
 
 ### Cause rounds
 
-Finish any inspection required by [the adopted route](../workflow/SKILL.md) before editing. Group all findings by cause. Repair each cause at its owner. Rewrite passages whose meaning would be lost by cutting.
+Finish the adopted route's required inspection before editing. Group all findings by cause. Repair each cause at its owner. Rewrite passages whose meaning would be lost by cutting.
 
 Update dependent text, quotations and values together. Update answers for open Evidence passes. Before the next round, reread passages and the whole progression for uniformity, fidelity and continuity.
 
 ### Concretization
 
-If staging requires deciding who acts or responds, what changes hands, what fills an interval or when the audience learns the result, return the beat to the writer. Put the decision in the beat or its standing state. On a short, send newly identified subjects and facts through [brief growth](../layers/brief.md#growth). On long work, add the baseline facts to their settings records.
+If staging requires deciding who acts or responds, what changes hands, what fills an interval or when the audience learns the result, return the beat to the writer. Put the decision in the beat or its standing state. On a short, add new subjects and facts within the brief's scope to their brief records. On long work, add the baseline facts to their settings records.
 
 Keep derived coordinates, joint fitting and interpolation in the implementing module. For a user-fixed screenplay, put delegated staging decisions in the instructions and refer a missing story decision to the user.
 

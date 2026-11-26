@@ -12,7 +12,7 @@ A pass specifies what a still draws.
 | An overlay on the picture | Where joints, contacts, targets and paths are |
 | The guide channel itself, read through the receiver's input path | What a receiver is given |
 
-Verify the structural quantity's range and convention. Inspect optional fields only for required uses under [form inspection](../3d-modeling/inspection.md#fields-judged-only-where-needed).
+Verify the structural quantity's range and convention. Inspect optional fields only for their required uses.
 
 ## Matched passes
 

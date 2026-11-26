@@ -2,12 +2,11 @@ import type {
   IAutoMovieControlRecord,
   IAutoMovieDeliveryContentAudit,
   IAutoMovieDrawnVideoResult,
+  IAutoMovieProductionCheck,
 } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-
-import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 
 type AutoMovieAuditedClock = Pick<
   IAutoMovieDeliveryContentAudit.IResult["expected"],
@@ -20,7 +19,7 @@ type AutoMovieReportedFrame = Pick<
 >;
 
 type AutoMovieDeliveryOutcome = Pick<
-  IAutoMovieVerification.IResult,
+  IAutoMovieProductionCheck.IResult,
   "state" | "message" | "evidence"
 >;
 
@@ -44,8 +43,8 @@ interface IRenderReport {
  * @param root The directory holding the production and its outputs.
  * @returns The file-binding verdict and its owning report.
  */
-export async function inspectAutoMovieVerificationDelivery(
-  check: IAutoMovieVerification.IDelivery,
+export async function inspectAutoMovieProductionCheckDelivery(
+  check: IAutoMovieProductionCheck.IDelivery,
   root: string,
   hashFile: (file: string) => Promise<string>,
 ): Promise<AutoMovieDeliveryOutcome> {

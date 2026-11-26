@@ -10,6 +10,6 @@ Of the feasible repairs, choose the one that realizes the beat. Keep the refusal
 
 ## When no repair holds
 
-Use [Choosing movement](composition.md#choosing-movement) for a feasible beat that needs a custom interval. Return a physically infeasible beat to the screenplay under [upstream defects](../../story/correction/repair.md#upstream-defects).
+For a feasible beat, fit a custom interval using the composition rules. Return an infeasible beat to the [screenplay owner](../../story/correction/repair.md#upstream-defects).
 
 Report a package defect when documented use fails or its refusal gives no repairable axis. Include the composition and refusal or observed failure. Keep the case visible for repair at the package owner and continue independent work.

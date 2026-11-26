@@ -4,6 +4,7 @@ import type {
   IAutoMovieCaptureDrawing,
   IAutoMovieCapturePlan,
   IAutoMovieCaptureRecord,
+  IAutoMovieProductionCheck,
 } from "@automovie/interface";
 import {
   AutoMovieCaptureFolder,
@@ -13,10 +14,7 @@ import {
   planAutoMovieCapture,
   runAutoMovieCapture,
 } from "@automovie/render";
-import {
-  type IAutoMovieVerification,
-  runAutoMovieVerification,
-} from "automovie";
+import { runAutoMovieProductionCheck } from "automovie";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -48,7 +46,7 @@ import * as path from "node:path";
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts root and nested legacy captures, sealed shared and external files, one sample and two, matched and mixed views or passes, and current, stale and blocked delivery.
  * @evidence contracts/development/testing.md#execution-ownership The CLI test owns a temporary Git fixture and launches no graphics, encoding or browser process.
  */
-export async function test_cli_verification_records(): Promise<void> {
+export async function test_cli_production_check_records(): Promise<void> {
   const scratch: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-verify-records-"),
   );
@@ -81,10 +79,10 @@ export async function test_cli_verification_records(): Promise<void> {
 
     const assess = async (
       project: string,
-      check: IAutoMovieVerification.Check,
+      check: IAutoMovieProductionCheck.Check,
       run: boolean = false,
-    ): Promise<IAutoMovieVerification.IReport> =>
-      runAutoMovieVerification({
+    ): Promise<IAutoMovieProductionCheck.IReport> =>
+      runAutoMovieProductionCheck({
         root: project,
         env: {},
         targets: [
@@ -93,13 +91,13 @@ export async function test_cli_verification_records(): Promise<void> {
         options: { subjects: ["walk"], only: [], require: "handoff", run },
       });
     const verify = async (
-      check: IAutoMovieVerification.Check,
-    ): Promise<IAutoMovieVerification.IResult> =>
+      check: IAutoMovieProductionCheck.Check,
+    ): Promise<IAutoMovieProductionCheck.IResult> =>
       (await assess(root, check)).items[0]!;
     const verifyCapture = async (
-      check: IAutoMovieVerification.ICapture,
+      check: IAutoMovieProductionCheck.ICapture,
       record: unknown,
-    ): Promise<IAutoMovieVerification.IResult> => {
+    ): Promise<IAutoMovieProductionCheck.IResult> => {
       await fs.writeFile(path.join(root, check.record), JSON.stringify(record));
       return verify(check);
     };
@@ -111,7 +109,7 @@ export async function test_cli_verification_records(): Promise<void> {
     const png: Uint8Array = await encodeAutoMovieRasterPng(picture);
     await fs.writeFile(path.join(root, "one.png"), png);
     await fs.writeFile(path.join(root, "two.png"), png);
-    const still: IAutoMovieVerification.ICapture = {
+    const still: IAutoMovieProductionCheck.ICapture = {
       id: "support",
       title: "Foot rests on its support",
       scope: "front view at zero seconds",
@@ -124,7 +122,7 @@ export async function test_cli_verification_records(): Promise<void> {
       diagnostic: { check: "support", key: "foot" },
       at: { second: 0 },
     };
-    const interval: IAutoMovieVerification.ICapture = {
+    const interval: IAutoMovieProductionCheck.ICapture = {
       ...still,
       at: { fromFrame: 0, endFrame: 2 },
     };
@@ -288,7 +286,7 @@ export async function test_cli_verification_records(): Promise<void> {
     await drawRound(
       "views=front&passes=graphics&at=0,1&round=after&compare=before",
     );
-    const correctedCheck: IAutoMovieVerification.ICapture = {
+    const correctedCheck: IAutoMovieProductionCheck.ICapture = {
       ...still,
       record: "captures/rounds/after/record.json",
       pass: "graphics",
@@ -317,7 +315,7 @@ export async function test_cli_verification_records(): Promise<void> {
       "views=front&passes=graphics&at=1,3.25&round=off-grid",
       (seconds: number): boolean => seconds === 3.25,
     );
-    const offGridCheck: IAutoMovieVerification.ICapture = {
+    const offGridCheck: IAutoMovieProductionCheck.ICapture = {
       ...correctedCheck,
       record: "captures/rounds/off-grid/record.json",
       at: { fromFrame: 2, endFrame: 3 },
@@ -329,7 +327,7 @@ export async function test_cli_verification_records(): Promise<void> {
     const alpha = await drawRound(
       "views=front&passes=graphics&at=1&round=alpha",
     );
-    const alphaCheck: IAutoMovieVerification.ICapture = {
+    const alphaCheck: IAutoMovieProductionCheck.ICapture = {
       ...correctedCheck,
       record: "captures/rounds/alpha/record.json",
     };
@@ -386,7 +384,7 @@ export async function test_cli_verification_records(): Promise<void> {
     await fs.writeFile(path.join(nested, still.record), JSON.stringify(single));
     assert.equal(git("status", "--porcelain", "--", "movies/episode"), "");
     assert.match(git("status", "--porcelain"), /\?\? shared\//u);
-    const dirtySibling: IAutoMovieVerification.IReport = await assess(
+    const dirtySibling: IAutoMovieProductionCheck.IReport = await assess(
       nested,
       still,
     );
@@ -398,7 +396,7 @@ export async function test_cli_verification_records(): Promise<void> {
 
     await fs.writeFile(shared, "3");
     const sharedInput: string = "../../shared/model.txt";
-    const measurement: IAutoMovieVerification.IMeasurement = {
+    const measurement: IAutoMovieProductionCheck.IMeasurement = {
       id: "shared-model",
       kind: "measure",
       title: "The model clears its support",
@@ -421,7 +419,7 @@ export async function test_cli_verification_records(): Promise<void> {
       [nested, "../../../outside.txt"],
       [nonGit, "../outside.txt"],
     ] as const) {
-      const external: IAutoMovieVerification.IReport = await assess(
+      const external: IAutoMovieProductionCheck.IReport = await assess(
         project,
         {
           ...measurement,
@@ -437,7 +435,7 @@ export async function test_cli_verification_records(): Promise<void> {
       );
     }
 
-    const delivery: IAutoMovieVerification.IDelivery = {
+    const delivery: IAutoMovieProductionCheck.IDelivery = {
       id: "delivery",
       title: "The delivery's file and depth guide match",
       scope: "whole movie and recorded control",
@@ -490,7 +488,7 @@ export async function test_cli_verification_records(): Promise<void> {
       channels: [channel],
     };
     await fs.writeFile(report, JSON.stringify(published));
-    const missingControls: IAutoMovieVerification.IResult =
+    const missingControls: IAutoMovieProductionCheck.IResult =
       await verify(delivery);
     assert.equal(missingControls.state, "unobserved");
     assert.equal(
@@ -498,7 +496,7 @@ export async function test_cli_verification_records(): Promise<void> {
       path.join("controls", "record.json"),
     );
     await fs.writeFile(controls, JSON.stringify(validControls));
-    const delivered: IAutoMovieVerification.IResult = await verify(delivery);
+    const delivered: IAutoMovieProductionCheck.IResult = await verify(delivery);
     assert.equal(delivered.state, "passed");
 
     for (const malformed of [
@@ -526,7 +524,7 @@ export async function test_cli_verification_records(): Promise<void> {
       },
     ]) {
       await fs.writeFile(controls, JSON.stringify(malformed));
-      const invalid: IAutoMovieVerification.IResult = await verify(delivery);
+      const invalid: IAutoMovieProductionCheck.IResult = await verify(delivery);
       assert.equal(invalid.state, "unobserved");
       assert.equal(invalid.evidence, path.join("controls", "record.json"));
     }
@@ -534,14 +532,15 @@ export async function test_cli_verification_records(): Promise<void> {
     assert.match(delivered.message, /control record.*depth/u);
 
     await fs.writeFile(report, "{");
-    const malformedReport: IAutoMovieVerification.IResult =
+    const malformedReport: IAutoMovieProductionCheck.IResult =
       await verify(delivery);
     assert.equal(malformedReport.state, "unobserved");
     assert.equal(malformedReport.evidence, delivery.report);
     assert.match(malformedReport.message, /render.*malformed render report/iu);
 
     await fs.writeFile(report, JSON.stringify({ ...published, frames: [] }));
-    const missingTimes: IAutoMovieVerification.IResult = await verify(delivery);
+    const missingTimes: IAutoMovieProductionCheck.IResult =
+      await verify(delivery);
     assert.equal(missingTimes.state, "unobserved");
     assert.equal(missingTimes.evidence, delivery.report);
 
@@ -580,7 +579,7 @@ export async function test_cli_verification_records(): Promise<void> {
         failure: { message: "audit failed" },
       }),
     );
-    const blocked: IAutoMovieVerification.IResult = await verify(delivery);
+    const blocked: IAutoMovieProductionCheck.IResult = await verify(delivery);
     assert.equal(blocked.state, "failed");
     assert.match(blocked.message, /Previous output: film\.mp4/u);
   } finally {

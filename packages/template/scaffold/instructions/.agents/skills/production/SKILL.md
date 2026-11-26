@@ -7,11 +7,12 @@ description: Keeps a production's scope, workflow, media and assembly.
 
 | Read | For |
 | --- | --- |
-| [Project context](project-context.md) | Taking the commission and recording its scope, decisions and delivery profile |
-| [Director](director.md) | Assigning work and deciding whether to accept it or return it for revision |
-| [Production workflow](workflow.md) | Following the stages for the commissioned output |
-| [Sustained runs](sustained-runs.md) | Running, observing or resuming sustained work |
-| [Media records](media-records.md) | Saving media and generation requests with their records |
-| [Captions](captions.md) | Writing and timing a film's caption tracks |
-| [Assembly and handoff](assembly.md) | Assembling the film, rendering it once and handing it off |
-| [Reorganization](reorganization.md) | Reorganizing the production |
+| [Project context](project-context.md) | Record scope, decisions and the delivery profile |
+| [Director](director.md) | Assign work, inspect handoffs and decide acceptance |
+| [Production workflow](workflow.md) | Follow the commissioned route |
+| [Production checks](checks.md) | Register and run required checks |
+| [Sustained runs](sustained-runs.md) | Run, observe or resume sustained work |
+| [Media records](media-records.md) | Save media and generation requests with their records |
+| [Captions](captions.md) | Write and time caption tracks |
+| [Assembly and handoff](assembly.md) | Assemble, render and hand off a film |
+| [Reorganization](reorganization.md) | Reorganize a production |

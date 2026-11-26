@@ -1,4 +1,4 @@
-# src/runAutoMovieVerification.ts#runAutoMovieVerification
+# src/runAutoMovieProductionCheck.ts#runAutoMovieProductionCheck
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

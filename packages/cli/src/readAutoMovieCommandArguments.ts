@@ -31,9 +31,9 @@ export function readAutoMovieCommandArguments(
   if (command === "inspect") return { command: "inspect", args: [...rest] };
   if (command === "render") return { command: "render", args: [...rest] };
   if (command === "review") return { command: "review", args: [...rest] };
-  if (command === "verify") return { command: "verify", args: [...rest] };
+  if (command === "check") return { command: "check", args: [...rest] };
   throw new Error(
-    `Unknown command ${JSON.stringify(command)}; the commands are create, add, capture, inspect, render, review and verify (see --help).`,
+    `Unknown command ${JSON.stringify(command)}; the commands are create, add, capture, inspect, render, review and check (see --help).`,
   );
 }
 

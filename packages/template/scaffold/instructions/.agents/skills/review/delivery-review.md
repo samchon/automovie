@@ -1,6 +1,6 @@
 # Delivery review
 
-Identify the commissioned output, revision and recipient from [project context](../production/project-context.md). Inspect the complete output. Use a [separate context](../story/workflow/routes.md#separate-contexts) for required narrative review and media acceptance. Label self-review and any checks that could not be performed.
+Inspect the complete current output against the [commission](../production/project-context.md). Assign [independent review](../story/workflow/routes.md#separate-contexts) when required. Label self-review and unavailable checks.
 
 ## Output reviews
 
@@ -8,33 +8,39 @@ Identify the commissioned output, revision and recipient from [project context](
 
 For [direct writing or fixed text](../story/workflow/routes.md#who-writes-the-screenplay), check completeness and compare fixed text verbatim with the supplied revision. Record the handoff without a narrative verdict.
 
-Where narrative passes apply, lock the recipient's first reading before consulting plans or Evidence. Check setups, consequences, ending, promises and duration, then verify the [narrative records](#narrative-records). Review commissioned references under [assets](#assets).
+Where narrative passes apply, lock the recipient's first reading before consulting plans or Evidence. Check setups, consequences, ending, promises, duration, narrative records and commissioned references.
 
 ### Video
 
-Give the independent viewer the commission and complete candidate at its intended speed. Before disclosing plans or repairs, record where movement, stillness, simultaneous action or a cut sustained or broke the performance. For a disputed beat, identify the picture, sound or words that conveyed its cause. A score or caption can reveal the result while the action remains unreadable.
+As the independent viewer, watch the exact complete cut continuously at 1×. Record audience cues and losses before reading plans or repair notes. For a disputed beat, identify what conveyed its cause and whether the picture made the action readable.
 
-For a narrative, record what the opening led the viewer to expect, what they knew when a choice or reveal landed, and what the ending delivered. A sequence of convincing beats can still leave a payoff without its setup.
+For a narrative, record what the opening promises, what the audience knows at each choice or reveal, and what the ending delivers. Check each payoff against its setup.
 
-If the reviewer cannot watch continuous playback, obtain that observation from the user or their delegated viewer. For commissioned sound, follow [user listening](../audio/listening.md#user-listening). Keep the cut a candidate while a required observation or material defect remains open.
+Ask the user or their delegate for unavailable playback observations. Use [user listening](../audio/listening.md#user-listening) for sound. Keep the cut pending until required observations and repairs are complete.
 
-Check a motion hint's [control channels](../motion/control-channels.md), a [direct film's finish](../video/direct-film.md#what-to-look-for) or the [generated takes](../video/generation.md) as commissioned. Check [narrative records](#narrative-records) after the independent viewing when those passes apply.
+Check the commissioned [hint channels](../motion/control-channels.md), [direct film finish](../video/direct-film.md#what-to-look-for) or generated takes. On routes with narrative passes, check their records after the independent viewing.
+
+#### Decoded frame review
+
+Decode the exact candidate under the [capture timing rules](../visual-debugging/capture.md#times). Follow every visible actor in presentation order on frames or labeled sheets. Open full-size frames for unclear details.
+
+Record frame indices, times, observations and every defect in each window, including slight unnatural motion or reactions. Acceptance requires these findings and separate continuous 1× viewing.
 
 ### Measurement and comparison
 
-Read the production diagnostics the README describes in every inspection round and render, and repair their findings with the round's other findings. The cut stays a candidate while the render blocks publication. Use the README's capture commands to compare source and delivered frames across every scene and join. Label sheets in elapsed film time. Map generated takes by their request intervals, trims and conform. Inspect [consecutive output frames](../visual-debugging/capture.md#times) when the event falls between samples.
+Compare source and delivery across scenes and joins with README diagnostics and captures. Label sheets in film time. Map takes by request interval, trim and conform.
 
-Follow participants, props and contacts through the edit under [motion judgment](../motion/judgment.md). For a pace finding, time the interval from cue to outcome in the staging and the delivered cut. For skilled practice, compare it with the observed exchange. Account for holds, cuts and replays.
+Open cited studies after first viewing. Check the exported beats, actors, props and contacts in the [delivery camera](../motion/staging.md#the-view). For pace findings, time cue to outcome in source and delivery.
 
 Compare each release unit and the assembled running time with the commission. Trace a shortfall to the performed action, recorded speech or edit. Locate any promised event missing from the cut.
 
-Verify the [delivery profile](../production/project-context.md#the-delivery-profile) on the assembled file, including raster, frame count, presentation times and commissioned audio levels. Measure picture targets on output frames and sound targets on decoded audio. Compare revisions at [matching times](../visual-debugging/comparison.md). Keep accepted sheets and measurements under [media records](../production/media-records.md#files). Repair regressions or obtain the owner's acceptance.
+Verify the assembled file's [delivery profile](../production/project-context.md#the-delivery-profile), including raster, frame count, presentation times and commissioned audio levels. Measure picture on output frames and sound on decoded audio. Compare revisions at [matching times](../visual-debugging/comparison.md). Keep accepted sheets and measurements under [media records](../production/media-records.md#files). Repair regressions or obtain the owner's acceptance.
 
 ### Assets
 
 Open each commissioned [appearance reference](../image/canon-references.md) from its subject record, compare it with the description and record which views the user accepted.
 
-Test visual assets in their [commissioned use](../development/entities.md#inspection-and-handoff), including promised views and controls. Inspect shape, contact, deformation and movement under [form inspection](../3d-modeling/inspection.md) where applicable. For audio, follow [listening](../audio/listening.md).
+Test visual assets in the commissioned use, including promised views and controls. Inspect shape, contact, deformation and movement under [form inspection](../3d-modeling/inspection.md) where applicable. For audio, follow [listening](../audio/listening.md).
 
 ## Narrative records
 
@@ -44,20 +50,23 @@ For open passes, check current bodies, contracts and answers under [route comple
 
 For text or a standalone asset, include the revision, checks, observations and remaining limits in the handoff. For a film or whole motion hint, keep one `docs/acceptance/<film>.md` across revisions. Record:
 
-- the exact candidate and the scenes, beats, subjects, contacts, views and joins examined;
-- who examined frames, who watched or listened at normal speed, and what each observed;
-- the measurements, technical result and separate judgment on the depicted practice;
-- disputed findings and their times, the evidence resolving them, and any open repairs or user-approved exclusions;
-- the director's decision on that cut.
+- Candidate revision, scenes, beats, actors, views, contacts and joins reviewed
+- Frame reviewer, cadence, sheets and findings
+- 1× viewer or listener and observations
+- Technical results and judgment of depicted practice
+- Disputed findings, times, resolutions and open repairs or approved exclusions
+- The director's decision on that cut
 
-At an adopted handoff, read the required evidence with `pnpm run verify --subject <id> --require <stage>` and record the director's decision for the candidate and scope they reviewed.
+At handoff, run and record the [required production checks](../production/checks.md).
 
-A retake verdict covers the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep these observations [outside the contract graph](../contracts/items.md#outside-the-graph).
+Limit retake verdicts to the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep observations [outside the contract graph](../contracts/items.md#outside-the-graph).
 
 ## Repairs
 
-From the first playable draft through delivery, give the director the affected passage, its film time and what the viewer saw or heard. On a published file, use `automovie review --file <video> --at <seconds> --note <text>` to mark that version. Reopen its frame and adjacent stills with `automovie review --mark <review.json>`. Keep the needed original file or clip with the accepted observations. If a retake moved or removed the passage, use the current file and an explicit new time to rebind only when the affected passage is known. Compare the performance, framing and edit with the current screenplay. Where the production obscures or changes the intended action, correct it and replay the passage.
+Send the repair owner the exact passage, time or frame, failed criterion and observed loss.
 
-If the passage plays as written and the story still fails, the director gives the writer the observed loss to trace to its [earliest story decision](../story/correction/repair.md#upstream-defects). Changes to [user-fixed text](../story/workflow/routes.md#fixed-screenplay) go to the user. If a missing story decision prevents staging, follow [concretization](../story/correction/repair.md#concretization).
+Mark a published version with `automovie review --file <video> --at <seconds> --note <text>`. Preserve the marked artifact and reopen with `automovie review --mark <review.json>`. Rebind only to a known time in the current file.
 
-Stage the affected passages and recheck their joins. Review the rebuilt candidate in order to verify the original loss is resolved before approval.
+If the passage plays as written, route story defects to the [earliest decision](../story/correction/repair.md#upstream-defects). Refer [user-fixed text](../story/workflow/routes.md#fixed-screenplay) to the user. Return missing staging decisions under [concretization](../story/correction/repair.md#concretization).
+
+Replay the repair and its joins against the screenplay. Inspect the rebuilt cut before approval.

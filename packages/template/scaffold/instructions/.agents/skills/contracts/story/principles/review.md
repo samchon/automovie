@@ -18,4 +18,4 @@ Did the review find every member of each finding class? A finding repaired alone
 
 Record the inspected scope, reproducible search or comparison, all members, affected relations and earliest owner of each finding class. Cross-reference members in other units or explain isolation. Match quotes and locators to the revision. Similar wording triggers inspection.
 
-After [independent reading](../../../review/independent-reading.md), compare decisions with requirements and parents. Where classification applies, verify its coverage for the layer and recheck [changed work](../../../story/correction/inspection.md#changed-work).
+After locking the independent reading, compare decisions with requirements and parents. Where classification applies, verify its coverage for the layer and recheck [changed work](../../../story/correction/inspection.md#changed-work).

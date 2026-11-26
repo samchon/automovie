@@ -8,7 +8,8 @@
 // l.522-544, computeEntryCMPForSupportFoot l.546-554, computeEntryCMP
 // l.578-610, computeExitCMPForSupportFoot l.612-627, computeExitCMP
 // l.658-718, constrainCMPAccordingToSupportPolygonAndUserOffsets l.735-760
-// and computeFinalCMPBetweenSupportFeet l.766-797. See NOTICE.
+// and computeFinalCMPBetweenSupportFeet l.766-797.
+// See vendor/ihmc/NOTICE.
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 

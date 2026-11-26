@@ -4,9 +4,9 @@ Estimation is a read-only quality assessment, made only on request. Do not edit 
 
 ## Scope
 
-Fix the requested scope and artifact role; without a narrower request, assess every selected layer body where the [document layout](../story/document-layout.md#documents) keeps it.
+Set the requested scope and artifact role. Unless narrowed, assess every selected layer body in the [document layout](../story/document-layout.md#documents).
 
-Assess a motion hint for its action, staging and conditioning information. Sample [stills across the file](../visual-debugging/capture.md#times) for spatial detail. Score pace and rhythm only from [continuous viewing](delivery-review.md#video).
+Use [diagnostic stills](../visual-debugging/capture.md#times) for action, staging and conditioning. Score pace and rhythm from [continuous viewing](delivery-review.md#video).
 
 Before judging the screenplay or video, choose at most two central experience axes from the intended experience [project context](../production/project-context.md) records or links, or state that none was declared.
 
@@ -56,12 +56,12 @@ Score each fitting axis against these anchors:
 | 40 | Weakness dominates | Over three tenths through half |
 | 20 | The experience or handoff fails | Over half |
 
-An 80 or 100 needs two supported effects and a 20 or 40 two supported losses; otherwise score 60. Count one cause once.
+An 80 or 100 needs two supported effects. A 20 or 40 needs two supported losses. Otherwise score 60. Count each cause once.
 
 ## Comparison and report
 
-Compare a previous edition with the current one in both presentation orders; an order-dependent result is similar, and more edits or length do not establish improvement.
+Compare editions in both orders. Treat an order-dependent result as similar. Judge improvement by the experienced effect.
 
-Average judgments per axis, then axes per card, keep a separate final-experience figure, and report each judge's range as disagreement. Unassessed and not-applicable entries never become zeros.
+Average judgments by axis, then axes by card. Keep a separate final-experience figure and report judges' ranges as disagreement. Leave unassessed and inapplicable entries unscored.
 
 Report scope, editions, intended experience, axes, models, judge counts, reading inventory, unavailable checks and human judgment status. Per card, report reactions, score inputs and results, effects, losses and comparisons. Compare only matching models, scope, editions, axes and method.

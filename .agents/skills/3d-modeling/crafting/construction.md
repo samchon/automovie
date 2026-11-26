@@ -60,7 +60,7 @@ Give a crafted or lofted curved section of radius `r` the fewest segments `n` wh
 
 For example, with `H` 1080, `θ` 50 degrees and `r` 0.25 m, the budget is 17 segments at 5 m and 9 at 20 m.
 
-This budget is the default before any cost is measured. Reduce further only by measured cost, as [conditioning](../conditioning.md#reduction) sets.
+Use this budget before measuring cost. Reduce further only when measurements justify it.
 
 ## Evaluation
 

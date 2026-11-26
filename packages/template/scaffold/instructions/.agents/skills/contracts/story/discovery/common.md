@@ -18,7 +18,7 @@ Assign language to the language contract, form to the work, and facts to setting
 
 For language requirements, identify the speakers, passages, audience cues and owners affected by the medium, variety, period, social register or translation. Check address, honorifics, names, titles and how people express numbers, dates, ages, colors, materials, dimensions and units. Verify period claims under the declared [factual basis](../../../story/planning/requirements.md#factual-basis) and record departures.
 
-At each [checkpoint](../../../story/planning/discovery.md#checkpoints), account for what the team inspected.
+At each discovery checkpoint, account for what the team inspected.
 
 - Assign a local gap to a work contract or folder.
 - Research a proposed shared criterion and keep it local until corroborated elsewhere.

@@ -1,6 +1,6 @@
 # Creative requirements
 
-Creative requirements are what the user fixed or delegated about the work itself; operating scope belongs to [project context](../../production/project-context.md).
+Creative requirements record the user's fixed or delegated choices about the work. Keep operating scope in `PROJECT.md`.
 
 ## Requirements
 
@@ -16,7 +16,7 @@ Cite instruction sections from the settings and treatments that adopt or realize
 
 Before assigning the writer, ask about unresolved creative choices such as events, characters, ending, tone, form, runtime and frame. Record the user's answers. The user may delegate the remaining choices together for the director to settle under [direction](direction.md).
 
-Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. Record a question the user leaves unanswered as unresolved under [project context](../../production/project-context.md#what-to-record).
+Afterwards, ask only when a [discovery](discovery.md) checkpoint finds a new such element or two fixed conditions conflict. Record unanswered questions as open choices in `PROJECT.md`.
 
 ## Factual basis
 

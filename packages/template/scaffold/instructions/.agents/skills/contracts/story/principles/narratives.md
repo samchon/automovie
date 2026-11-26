@@ -16,7 +16,7 @@ Identify what the exit earns and what carries the audience onward. A recurrence,
 
 Does the unit do the work its parent leaves to it? In long work, treatments decide events and reveal order, scripts shape them into first-draft scenes and exchanges, and the screenplay writes the finished dialogue, action, sound and cuts. On a short, the screenplay develops the brief directly.
 
-Compare the unit with the decisions it inherits. Where the route requires [independent classification](../../../story/correction/inspection.md#independent-classification), record for each paragraph whether its wording, imagery, explanatory labels, opening or execution comes from the parent. A change of vocabulary can leave the execution copied.
+Compare the unit with the decisions it inherits. Where the route requires independent classification, record for each paragraph whether its wording, imagery, explanatory labels, opening or execution comes from the parent. A change of vocabulary can leave the execution copied.
 
 Check inherited names, address, quantities, times, places and consequential states. Shared event order, a concise connection or an already complete artifact may carry over. Preserve needed values. A paragraph may do its work without adding a sensation or decision.
 
