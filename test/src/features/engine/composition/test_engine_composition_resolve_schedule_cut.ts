@@ -40,6 +40,9 @@ import { TestValidator } from "@nestia/e2e";
  *    0.5 s before a's kick contact (1.0 s), plays 0.5 to 1.5 s and the stand
  *    after it starts at 1.5 s, not at the guard's uncut 2 s; a part of another
  *    subject synced the same way leaves the cursor at 2 s.
+ * 9. A saved proximity cut is tagged for the timing, cut, alignment, outcome
+ *    and state laws. Repeated references share the same normalized intent,
+ *    preserving synced resume and interruption.
  */
 export function test_engine_composition_resolve_schedule_cut(): void {
   const laws: IAutoMovieScheduleLaws = {
@@ -261,23 +264,70 @@ export function test_engine_composition_resolve_schedule_cut(): void {
         entry.cut?.event === "k.impact",
     ),
   );
-  const legacyNear: IAutoMovieSchedule = both(
-    legacy({
-      proximity: {
-        effector: "palmLeft",
-        target: { kind: "none" },
-        distance: 0.1,
+  const savedCut: string =
+    '{"proximity":{"effector":"palmLeft","target":{"kind":"none"},"distance":0.1}}';
+  const savedStep: IAutoMovieIntent = {
+    ...step,
+    until: legacy(JSON.parse(savedCut) as unknown),
+  };
+  const anchor: IAutoMovieIntent = { ...kick(), anchor: "saved-kick" };
+  const stand: IAutoMovieIntent = {
+    subject: "a",
+    capability: "stand",
+    until: { type: "share", share: 1 },
+  };
+  const seen: IAutoMovieIntent[] = [];
+  const record = (intent: IAutoMovieIntent): void => {
+    if (intent.capability === "step") seen.push(intent);
+  };
+  const restored: IAutoMovieSchedule = resolveAutoMovieSchedule(
+    AutoMovieComposition.sequence(
+      anchor,
+      AutoMovieComposition.at("saved-kick", savedStep, -0.5, {
+        align: "start",
+      }),
+      savedStep,
+      stand,
+    ),
+    {
+      timing: (intent, context): IAutoMovieIntentTiming => {
+        record(intent);
+        return laws.timing(intent, context);
       },
-    }),
-    { ...laws, until: (): number => 0.25 },
+      align: (intent, _instant, target): number => {
+        record(intent);
+        return target;
+      },
+      until: (intent): number | undefined => {
+        record(intent);
+        return intent.until?.type === "proximity" ? 0.25 : undefined;
+      },
+      outcome: (entry): undefined => {
+        record(entry.intent);
+        return undefined;
+      },
+      state: (entry): void => record(entry.intent),
+    },
+  );
+  const [placedAnchor, alignedStep, nextStep, placedStand] = restored.entries;
+  TestValidator.predicate(
+    "saved cut has one tagged intent across laws and entries",
+    seen.length === 9 &&
+      seen.every((intent) => intent === alignedStep!.intent) &&
+      alignedStep!.intent === nextStep!.intent &&
+      alignedStep!.intent.until?.type === "proximity" &&
+      JSON.stringify(savedStep.until) === savedCut &&
+      placedAnchor!.intent === anchor &&
+      placedStand!.intent === stand,
   );
   TestValidator.predicate(
-    "legacy exact proximity shape is normalized",
-    close(
-      legacyNear.entries.find((entry) => entry.intent.capability === "guard")!
-        .end,
-      0.5,
-    ),
+    "saved cut preserves aligned resume and the next interruption",
+    close(alignedStep!.start, 0.5) &&
+      close(alignedStep!.end, 0.75) &&
+      close(nextStep!.start, 0.75) &&
+      close(nextStep!.end, 1) &&
+      close(placedStand!.start, 1) &&
+      nextStep!.interruptedBy === placedStand!.index,
   );
   const undefinedTargetOptions: IAutoMovieSchedule = both(
     legacy({

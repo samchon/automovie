@@ -32,14 +32,14 @@ import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
  * records it as `interruptedBy`. For each intent the production's `timing`
  * gives its duration and optional contact offset, then `outcome` and `state`
  * read the entries placed so far, so an outcome may depend on earlier state.
- * The result is frozen at the schedule, entries array and individual entry
- * levels. Nested intent, state, cut and event records remain shared and
- * unfrozen; callers keep them stable. Pure laws and unchanged inputs give the
- * same schedule.
+ * Legacy untagged cuts are normalized before the walk. Canonical intents are
+ * retained by reference, and legacy intents are copied once for the walk.
+ * Callers keep shared intent and state records stable. Pure laws and unchanged
+ * inputs give the same schedule.
  *
  * @param composition The composition.
  * @param laws The production's pure timing, outcome and state functions.
- * @returns The frozen schedule.
+ * @returns The placed entries ordered by start time and the total duration.
  */
 export function resolveAutoMovieSchedule(
   composition: IAutoMovieComposition,
@@ -264,7 +264,7 @@ export function resolveAutoMovieSchedule(
     }
     return AutoMovieSchedulePlace.at(walk, node, start, place);
   };
-  const end: number = place(composition, 0);
+  const end: number = place(normalizeCuts(composition, new WeakMap()), 0);
   const sorted: IAutoMovieScheduleEntry[] = [...walk.entries].sort(
     (a: IAutoMovieScheduleEntry, b: IAutoMovieScheduleEntry): number =>
       a.start - b.start || a.index - b.index,
@@ -280,6 +280,39 @@ export function resolveAutoMovieSchedule(
     ),
     duration,
   };
+}
+
+/** Share authored nodes and intents wherever their cuts are already tagged. */
+function normalizeCuts(
+  node: IAutoMovieComposition,
+  normalized: WeakMap<IAutoMovieIntent, IAutoMovieIntent>,
+): IAutoMovieComposition {
+  if (node.type === "intent") {
+    const intent: IAutoMovieIntent = node.intent;
+    const authored: IAutoMovieIntent.IUntil | undefined = intent.until;
+    if (authored === undefined) return node;
+    const known: IAutoMovieIntent | undefined = normalized.get(intent);
+    if (known !== undefined) return { ...node, intent: known };
+    const until: IAutoMovieIntent.IUntil =
+      AutoMovieEngineScheduleCut.normalize(authored);
+    if (until === authored) return node;
+    const canonical: IAutoMovieIntent = { ...intent, until };
+    normalized.set(intent, canonical);
+    return { ...node, intent: canonical };
+  }
+  if (node.type === "at") {
+    const part: IAutoMovieComposition = normalizeCuts(node.part, normalized);
+    return part === node.part ? node : { ...node, part };
+  }
+  let parts: IAutoMovieComposition[] | undefined;
+  for (const [index, part] of node.parts.entries()) {
+    const canonical: IAutoMovieComposition = normalizeCuts(part, normalized);
+    if (canonical !== part) {
+      parts ??= [...node.parts];
+      parts[index] = canonical;
+    }
+  }
+  return parts === undefined ? node : { ...node, parts };
 }
 
 /**
@@ -374,11 +407,7 @@ function references(node: IAutoMovieComposition): Set<string> {
   const visit = (n: IAutoMovieComposition): void => {
     if (n.type === "intent") {
       strings(n.intent.parameters);
-      if (n.intent.until !== undefined) {
-        const until: IAutoMovieIntent.IUntil =
-          AutoMovieEngineScheduleCut.normalize(n.intent.until);
-        if (until.type === "anchor-event") out.add(until.of);
-      }
+      if (n.intent.until?.type === "anchor-event") out.add(n.intent.until.of);
     } else if (n.type === "at") {
       out.add(n.anchor);
       visit(n.part);

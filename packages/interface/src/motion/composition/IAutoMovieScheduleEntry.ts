@@ -10,8 +10,8 @@ export interface IAutoMovieScheduleEntry {
   readonly subject: string;
 
   /**
-   * Original authored intent retained by reference; the resolver neither clones
-   * nor freezes it.
+   * Authored intent retained by reference when its cut is already tagged or
+   * absent. The resolver copies an intent with a legacy cut to carry the tag.
    */
   readonly intent: IAutoMovieIntent;
 

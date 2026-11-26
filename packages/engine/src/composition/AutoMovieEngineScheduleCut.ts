@@ -198,7 +198,7 @@ export namespace AutoMovieEngineScheduleCut {
             { ...who, code: "law", value: "until" },
           );
         const share: number | undefined = walk.laws.until(
-          intent,
+          until === intent.until ? intent : { ...intent, until },
           { start, duration: timing.duration },
           context,
         );
