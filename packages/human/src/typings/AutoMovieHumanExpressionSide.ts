@@ -1,8 +1,5 @@
 import type { AutoMovieHumanExpressionSide as AutoMovieHumanExpressionSideContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanExpressionSide literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanExpressionSide = AutoMovieHumanExpressionSideContract;
-
 /** Closed expression side choices; serialized values are unchanged. */
 export const AutoMovieHumanExpressionSide = {
   /** Apply this action unit to both anatomical sides. */

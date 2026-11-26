@@ -1,5 +1,6 @@
 import { decodeAutoMoviePpmImage } from "@automovie/ingest";
 import type {
+  IAutoMovieRecoveryImageFiles,
   IAutoMovieRecoveryImageInput,
   IAutoMovieRecoveryImageObservation,
   IAutoMovieRecoveryImageRecipe,
@@ -15,7 +16,6 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryImageFiles } from "../index";
 import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 
 /**

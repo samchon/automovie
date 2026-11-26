@@ -1,4 +1,4 @@
-import { IAutoMovieMesh } from "@automovie/interface";
+import type { IAutoMovieMesh } from "@automovie/interface";
 
 /**
  * The triangle index run a mesh carries, refused rather than read past its end.
@@ -19,10 +19,10 @@ import { IAutoMovieMesh } from "@automovie/interface";
  * @throws Error when positions are not whole xyz triples, indices are not whole
  *   triangles, or an index is not a safe integer inside the vertex range.
  */
-export const triangleIndicesOf: (
+export function triangleIndicesOf(
   mesh: IAutoMovieMesh,
   label: string,
-) => number[] = (mesh: IAutoMovieMesh, label: string): number[] => {
+): number[] {
   if (mesh.positions.length % 3 !== 0)
     throw new Error(`${label} needs positions in whole xyz triples`);
   const vertices: number = mesh.positions.length / 3;
@@ -37,8 +37,13 @@ export const triangleIndicesOf: (
   // An indexed loop, unlike `some`, also visits the holes of a sparse array.
   for (let at: number = 0; at < indices.length; ++at) {
     const index: number | undefined = indices[at];
-    if (index === undefined || index < 0 || index >= vertices)
+    if (
+      index === undefined ||
+      !Number.isSafeInteger(index) ||
+      index < 0 ||
+      index >= vertices
+    )
       throw new Error(`${label} indexes a vertex the mesh does not carry`);
   }
   return indices;
-};
+}

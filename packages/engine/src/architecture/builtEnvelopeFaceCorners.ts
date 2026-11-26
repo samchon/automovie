@@ -6,7 +6,7 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
+import { ObservationGeometry } from "./internal/ObservationGeometry";
 
 /**
  * Proximity-based corner records among already placed envelope facades.
@@ -24,11 +24,9 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  * the building census passes the faces it already placed so they are not placed
  * twice.
  */
-export const builtEnvelopeFaceCorners: (
+export function builtEnvelopeFaceCorners(
   faces: readonly IAutoMovieBuiltEnvelopeFace[],
-) => IAutoMovieBuiltEnvelopeCorner[] = (
-  faces: readonly IAutoMovieBuiltEnvelopeFace[],
-): IAutoMovieBuiltEnvelopeCorner[] => {
+): IAutoMovieBuiltEnvelopeCorner[] {
   const facades: IAutoMovieBuiltEnvelopeFace[] = faces.filter(
     (face: IAutoMovieBuiltEnvelopeFace): boolean => face.aspect === "facade",
   );
@@ -47,11 +45,11 @@ export const builtEnvelopeFaceCorners: (
       if (a.building !== b.building) continue;
       if (
         Vector3.length(Vector3.cross(a.normal, b.normal)) <=
-        AUTOMOVIE_OBSERVATION_EPSILON
+        ObservationGeometry.Epsilon
       )
         continue;
       const tolerance: number =
-        Math.max(a.thickness, b.thickness) + AUTOMOVIE_OBSERVATION_EPSILON;
+        Math.max(a.thickness, b.thickness) + ObservationGeometry.Epsilon;
       // Average approximately nearest vertex-pair midpoints as the corner proxy.
       // Proximity alone does not establish a shared geometric edge.
       let best: number = Number.POSITIVE_INFINITY;
@@ -59,9 +57,9 @@ export const builtEnvelopeFaceCorners: (
       for (const left of a.vertices)
         for (const right of b.vertices) {
           const gap: number = Vector3.length(Vector3.subtract(left, right));
-          if (gap > Math.min(tolerance, best + AUTOMOVIE_OBSERVATION_EPSILON))
+          if (gap > Math.min(tolerance, best + ObservationGeometry.Epsilon))
             continue;
-          if (gap < best - AUTOMOVIE_OBSERVATION_EPSILON) {
+          if (gap < best - ObservationGeometry.Epsilon) {
             best = gap;
             meetings.length = 0;
           }
@@ -79,9 +77,9 @@ export const builtEnvelopeFaceCorners: (
         1 / meetings.length,
       );
       const toB: IAutoMovieVector3 = Vector3.subtract(b.centroid, meeting);
-      if (Vector3.length(toB) <= AUTOMOVIE_OBSERVATION_EPSILON) continue;
+      if (Vector3.length(toB) <= ObservationGeometry.Epsilon) continue;
       const turn: number = Vector3.dot(a.normal, Vector3.normalize(toB));
-      if (Math.abs(turn) <= AUTOMOVIE_OBSERVATION_EPSILON) continue;
+      if (Math.abs(turn) <= ObservationGeometry.Epsilon) continue;
       corners.push({
         id: `${a.boundary}+${b.boundary}`,
         building: a.building,
@@ -97,4 +95,4 @@ export const builtEnvelopeFaceCorners: (
       right: IAutoMovieBuiltEnvelopeCorner,
     ): number => compareAutoMovieRenderIds(left.id, right.id),
   );
-};
+}

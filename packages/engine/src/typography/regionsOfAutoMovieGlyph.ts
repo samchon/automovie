@@ -2,8 +2,8 @@ import type {
   AutoMovieVector2Tuple,
   IAutoMovieFontGlyph,
   IAutoMovieFontSegment,
+  IAutoMoviePlanarRegion,
   IAutoMovieProfilePoint,
-  IAutoMovieTriangulateRegion,
 } from "@automovie/interface";
 
 import { flattenAutoMovieQuadratic } from "./flattenAutoMovieQuadratic";
@@ -37,7 +37,7 @@ export function regionsOfAutoMovieGlyph(
   glyph: IAutoMovieFontGlyph,
   scale: number,
   tolerance: number,
-): IAutoMovieTriangulateRegion.IProps[] {
+): IAutoMoviePlanarRegion[] {
   const label: string = `U+${glyph.codePoint.toString(16).toUpperCase().padStart(4, "0")} "${String.fromCodePoint(glyph.codePoint)}"`;
   const rings: AutoMovieVector2Tuple[][] = glyph.contours.map(
     (contour: IAutoMovieFontSegment[]): AutoMovieVector2Tuple[] => {

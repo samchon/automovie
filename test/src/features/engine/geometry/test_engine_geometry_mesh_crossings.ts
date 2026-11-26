@@ -1,4 +1,4 @@
-import { measureAutoMovieMeshCrossings } from "@automovie/engine";
+import { AutoMovieEngineMeshCrossingQuery } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshCrossing,
@@ -8,10 +8,10 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../internal/predicates";
 
 /**
- * `measureAutoMovieMeshCrossings` lists the triangles of one mesh pierced by
- * the other, decided by a piercing edge (not nearness or a plane); coplanar
- * overlap is reported with `coplanar`, the complete-pair option keeps every
- * pair and the default a single witness.
+ * `AutoMovieEngineMeshCrossingQuery.measure` lists the triangles of one mesh
+ * pierced by the other, decided by a piercing edge (not nearness or a plane);
+ * coplanar overlap is reported with `coplanar`, the complete-pair option keeps
+ * every pair and the default a single witness.
  *
  * Reference: the unit right triangle F = (0,0,0), (1,0,0), (0,1,0). Every
  * expectation follows from the coordinates.
@@ -38,6 +38,11 @@ import { throwsError } from "../../internal/predicates";
  * 8. Interior tolerance 1e-9 in both modes: a 1e-13 endpoint or edge perturbation
  *    is contact, a 1e-6 one crosses; tolerance 0 is the default; -1 and 0.5
  *    refuse ("a finite [0, 0.5) value").
+ * 9. Preparation, querying and refitting reject nonfinite coordinates, including
+ *    an unreferenced vertex. A refit rejects sparse positions. Triangle indices
+ *    must be integers and the interior tolerance finite.
+ * 10. Lifting the target above the subject in a refit clears the crossing while the
+ *     original query keeps reporting the same witness.
  */
 export function test_engine_geometry_mesh_crossings(): void {
   const mesh = (
@@ -67,7 +72,7 @@ export function test_engine_geometry_mesh_crossings(): void {
   ): void =>
     TestValidator.equals(
       label,
-      measureAutoMovieMeshCrossings(flat, blade(corners)),
+      AutoMovieEngineMeshCrossingQuery.measure(flat, blade(corners)),
       expected,
     );
   const through: IAutoMovieMesh = blade([
@@ -79,12 +84,12 @@ export function test_engine_geometry_mesh_crossings(): void {
   // 1.
   TestValidator.equals(
     "through",
-    measureAutoMovieMeshCrossings(flat, through),
+    AutoMovieEngineMeshCrossingQuery.measure(flat, through),
     one,
   );
   TestValidator.equals(
     "swapped",
-    measureAutoMovieMeshCrossings(through, flat),
+    AutoMovieEngineMeshCrossingQuery.measure(through, flat),
     one,
   );
   crossing(
@@ -176,7 +181,10 @@ export function test_engine_geometry_mesh_crossings(): void {
   // 4.
   TestValidator.equals(
     "no index buffer",
-    measureAutoMovieMeshCrossings(flat, { ...through, indices: null }),
+    AutoMovieEngineMeshCrossingQuery.measure(flat, {
+      ...through,
+      indices: null,
+    }),
     one,
   );
   const broken: IAutoMovieMesh[] = [
@@ -189,7 +197,7 @@ export function test_engine_geometry_mesh_crossings(): void {
       `malformed ${i}`,
       throwsError(
         (): IAutoMovieMeshCrossing[] =>
-          measureAutoMovieMeshCrossings(bad, through),
+          AutoMovieEngineMeshCrossingQuery.measure(bad, through),
         "complete triangle buffers",
       ),
     ),
@@ -198,8 +206,8 @@ export function test_engine_geometry_mesh_crossings(): void {
   TestValidator.equals(
     "empty either side",
     [
-      measureAutoMovieMeshCrossings(empty, through),
-      measureAutoMovieMeshCrossings(flat, empty),
+      AutoMovieEngineMeshCrossingQuery.measure(empty, through),
+      AutoMovieEngineMeshCrossingQuery.measure(flat, empty),
     ],
     [[], []],
   );
@@ -212,7 +220,7 @@ export function test_engine_geometry_mesh_crossings(): void {
   const before: string = JSON.stringify(pair);
   TestValidator.equals(
     "ordinal",
-    measureAutoMovieMeshCrossings(pair, through),
+    AutoMovieEngineMeshCrossingQuery.measure(pair, through),
     [{ triangle: 1, other: 0, coplanar: false }],
   );
   TestValidator.equals("first mesh kept", JSON.stringify(pair), before);
@@ -231,7 +239,7 @@ export function test_engine_geometry_mesh_crossings(): void {
     );
   TestValidator.equals(
     "skin neighbours",
-    measureAutoMovieMeshCrossings(
+    AutoMovieEngineMeshCrossingQuery.measure(
       blade([
         [-0.07281415909528732, -0.5830061435699463, -0.06736848503351212],
         [-0.08017368614673615, -0.5966654419898987, -0.07248512655496599],
@@ -265,7 +273,9 @@ export function test_engine_geometry_mesh_crossings(): void {
   );
   TestValidator.equals(
     "complete",
-    measureAutoMovieMeshCrossings(flat, blades, { allPairs: true }).sort(
+    AutoMovieEngineMeshCrossingQuery.measure(flat, blades, {
+      allPairs: true,
+    }).sort(
       (a: IAutoMovieMeshCrossing, b: IAutoMovieMeshCrossing): number =>
         a.other - b.other,
     ),
@@ -277,17 +287,18 @@ export function test_engine_geometry_mesh_crossings(): void {
   );
   TestValidator.equals(
     "default",
-    measureAutoMovieMeshCrossings(flat, blades).length,
+    AutoMovieEngineMeshCrossingQuery.measure(flat, blades).length,
     1,
   );
   TestValidator.equals(
     "explicit false",
-    measureAutoMovieMeshCrossings(flat, blades, { allPairs: false }).length,
+    AutoMovieEngineMeshCrossingQuery.measure(flat, blades, { allPairs: false })
+      .length,
     1,
   );
   TestValidator.equals(
     "complete lifted",
-    measureAutoMovieMeshCrossings(
+    AutoMovieEngineMeshCrossingQuery.measure(
       flat,
       {
         ...blades,
@@ -305,7 +316,7 @@ export function test_engine_geometry_mesh_crossings(): void {
     mesh([0.25, y, low, 0.25, y, 1, 0.75, y, 1], [0, 1, 2]);
   for (const allPairs of [false, true]) {
     const read = (y: number, low: number): IAutoMovieMeshCrossing[] =>
-      measureAutoMovieMeshCrossings(flat, vertical(y, low), {
+      AutoMovieEngineMeshCrossingQuery.measure(flat, vertical(y, low), {
         allPairs,
         interiorTolerance: 1e-9,
       });
@@ -316,20 +327,97 @@ export function test_engine_geometry_mesh_crossings(): void {
   }
   TestValidator.equals(
     "tolerance 0 is the default",
-    measureAutoMovieMeshCrossings(flat, vertical(0.25, -1e-13), {
+    AutoMovieEngineMeshCrossingQuery.measure(flat, vertical(0.25, -1e-13), {
       interiorTolerance: 0,
     }),
-    measureAutoMovieMeshCrossings(flat, vertical(0.25, -1e-13)),
+    AutoMovieEngineMeshCrossingQuery.measure(flat, vertical(0.25, -1e-13)),
   );
   for (const tolerance of [-1, 0.5])
     TestValidator.predicate(
       `tolerance ${tolerance} refused`,
       throwsError(
         (): IAutoMovieMeshCrossing[] =>
-          measureAutoMovieMeshCrossings(flat, vertical(0.25, -1), {
+          AutoMovieEngineMeshCrossingQuery.measure(flat, vertical(0.25, -1), {
             interiorTolerance: tolerance,
           }),
         "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
       ),
     );
+
+  // 9.
+  const positions: number[] = [...through.positions, 2, 3, 4];
+  const prepared: AutoMovieEngineMeshCrossingQuery =
+    AutoMovieEngineMeshCrossingQuery.prepare({
+      ...through,
+      positions,
+    });
+  const nonfinite: number[] = [...positions.slice(0, -1), Infinity];
+  const sparse: number[] = positions.slice(0, -1);
+  sparse.length = positions.length;
+  TestValidator.equals(
+    "prepared query numeric admission",
+    {
+      tolerance: throwsError(
+        (): IAutoMovieMeshCrossing[] =>
+          prepared.measure(flat, { interiorTolerance: NaN }),
+        "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
+      ),
+      targetCoordinates: throwsError(
+        (): AutoMovieEngineMeshCrossingQuery =>
+          AutoMovieEngineMeshCrossingQuery.prepare({
+            ...through,
+            positions: nonfinite,
+          }),
+        "finite",
+      ),
+      subjectCoordinates: throwsError(
+        (): IAutoMovieMeshCrossing[] =>
+          prepared.measure({ ...through, positions: nonfinite }),
+        "finite",
+      ),
+      refitCoordinates: throwsError(
+        (): AutoMovieEngineMeshCrossingQuery =>
+          prepared.withPositions(nonfinite),
+        "finite",
+      ),
+      refitHole: throwsError(
+        (): AutoMovieEngineMeshCrossingQuery => prepared.withPositions(sparse),
+        "finite",
+      ),
+      targetFractionalIndex: throwsError(
+        (): AutoMovieEngineMeshCrossingQuery =>
+          AutoMovieEngineMeshCrossingQuery.prepare({
+            ...through,
+            indices: [0, 1, 1.5],
+          }),
+        "complete triangle buffers",
+      ),
+      subjectNaNIndex: throwsError(
+        (): IAutoMovieMeshCrossing[] =>
+          prepared.measure({ ...flat, indices: [0, 1, NaN] }),
+        "complete triangle buffers",
+      ),
+    },
+    {
+      tolerance: true,
+      targetCoordinates: true,
+      subjectCoordinates: true,
+      refitCoordinates: true,
+      refitHole: true,
+      targetFractionalIndex: true,
+      subjectNaNIndex: true,
+    },
+  );
+
+  // 10.
+  const lifted: AutoMovieEngineMeshCrossingQuery = prepared.withPositions(
+    positions.map((coordinate: number, index: number): number =>
+      index % 3 === 2 ? coordinate + 3 : coordinate,
+    ),
+  );
+  TestValidator.equals(
+    "independent refit",
+    [prepared.crosses(flat), lifted.crosses(flat), prepared.measure(flat)],
+    [true, false, one],
+  );
 }

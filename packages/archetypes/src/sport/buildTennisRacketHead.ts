@@ -1,4 +1,4 @@
-import { extrudeAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieProfilePoint,
@@ -112,7 +112,7 @@ export function buildTennisRacketHead(
         positions[vertex + 2] = positions[vertex + 2]! - STRING_SEAT_DEPTH;
   }
   return {
-    rim: extrudeAutoMovieRegion({
+    rim: AutoMovieEnginePlanarRegion.extrude({
       outer,
       holes: [inner, throat],
       depth: thickness,

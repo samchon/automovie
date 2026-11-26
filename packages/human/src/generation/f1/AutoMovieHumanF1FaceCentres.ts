@@ -15,16 +15,14 @@ import type {
  * each definition.
  */
 export namespace AutoMovieHumanF1FaceCentres {
-  /** A point or a direction, mm. */
-  export type V3 = AutoMovieVector3Tuple;
 
   /** A plane: a point on it and its unit normal. */
   export interface IPlane {
     /** A point of the plane, mm. */
-    point: V3;
+    point: AutoMovieVector3Tuple;
 
     /** The unit normal. */
-    normal: V3;
+    normal: AutoMovieVector3Tuple;
 
     /** The plane's station along the course it is square to, from the course's reference point, mm. */
     station: number;
@@ -39,19 +37,19 @@ export namespace AutoMovieHumanF1FaceCentres {
     half: number;
   }
 
-  const sub = (a: V3, b: V3): V3 => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const dot = (a: V3, b: V3): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const cross = (a: V3, b: V3): V3 => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const along = (o: V3, d: V3, t: number): V3 => [o[0] + t * d[0], o[1] + t * d[1], o[2] + t * d[2]];
-  const unit = (a: V3): V3 => {
+  const sub = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const dot = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): number => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a: AutoMovieVector3Tuple, b: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const along = (o: AutoMovieVector3Tuple, d: AutoMovieVector3Tuple, t: number): AutoMovieVector3Tuple => [o[0] + t * d[0], o[1] + t * d[1], o[2] + t * d[2]];
+  const unit = (a: AutoMovieVector3Tuple): AutoMovieVector3Tuple => {
     const l: number = Math.hypot(a[0], a[1], a[2]);
     return [a[0] / l, a[1] / l, a[2] / l];
   };
 
   /** A frame from an exact Z and a hint for X: X is the hint made square to Z, Y = Z x X. */
-  function fromZX(origin: V3, z: V3, x: V3): IAutoMovieHumanSegmentFrame {
-    const Z: V3 = unit(z);
-    const X: V3 = unit(along(x, Z, -dot(x, Z)));
+  function fromZX(origin: AutoMovieVector3Tuple, z: AutoMovieVector3Tuple, x: AutoMovieVector3Tuple): IAutoMovieHumanSegmentFrame {
+    const Z: AutoMovieVector3Tuple = unit(z);
+    const X: AutoMovieVector3Tuple = unit(along(x, Z, -dot(x, Z)));
     return { origin, axes: [X, cross(Z, X), Z] };
   }
 
@@ -59,7 +57,7 @@ export namespace AutoMovieHumanF1FaceCentres {
    * An eye's frame: origin the globe's centre, Z the canthal line from endocanthion to exocanthion, X the forward direction made square
    * to it, Y = Z x X. The lids' skin is star-shaped about the line through the origin along Z, and a lid's margin is a phase about it.
    */
-  export function eye(globe: V3, endocanthion: V3, exocanthion: V3, forward: V3): IAutoMovieHumanSegmentFrame {
+  export function eye(globe: AutoMovieVector3Tuple, endocanthion: AutoMovieVector3Tuple, exocanthion: AutoMovieVector3Tuple, forward: AutoMovieVector3Tuple): IAutoMovieHumanSegmentFrame {
     return fromZX(globe, sub(exocanthion, endocanthion), forward);
   }
 
@@ -70,8 +68,8 @@ export namespace AutoMovieHumanF1FaceCentres {
    * the mouth's corner, must end with its family: carried on to the modiolus, 14.4 mm farther, its remainder would be drawn across the
    * cheek.
    */
-  export function muzzle(stomion: V3, cheilion: V3, forward: V3, lateral: V3): IMuzzle {
-    const X: V3 = unit(forward);
+  export function muzzle(stomion: AutoMovieVector3Tuple, cheilion: AutoMovieVector3Tuple, forward: AutoMovieVector3Tuple, lateral: AutoMovieVector3Tuple): IMuzzle {
+    const X: AutoMovieVector3Tuple = unit(forward);
     const frame: IAutoMovieHumanSegmentFrame = fromZX(along(stomion, X, -P.LIP_MARGIN_TISSUE_MM), along(lateral, X, -dot(lateral, X)), X);
     return { frame, half: dot(sub(cheilion, stomion), frame.axes[2]) };
   }
@@ -81,8 +79,8 @@ export namespace AutoMovieHumanF1FaceCentres {
    * the cervical point, the corner between the floor under the jaw and the neck's front. Its station is counted from the head's origin
    * along the course, negative below it.
    */
-  export function ring(neckBase: V3, headOrigin: V3, cervical: V3): IPlane {
-    const normal: V3 = unit(sub(headOrigin, neckBase));
+  export function ring(neckBase: AutoMovieVector3Tuple, headOrigin: AutoMovieVector3Tuple, cervical: AutoMovieVector3Tuple): IPlane {
+    const normal: AutoMovieVector3Tuple = unit(sub(headOrigin, neckBase));
     const station: number = dot(sub(cervical, headOrigin), normal);
     return { point: along(headOrigin, normal, station), normal, station };
   }
@@ -93,11 +91,11 @@ export namespace AutoMovieHumanF1FaceCentres {
    * plane is never the eye's. The measure is the greater of `(rho - 1) sqrt(a b)`, `rho` the point's elliptic radius, and the distance
    * behind that plane: negative inside, where the skin is the eye's.
    */
-  export function orbit(frame: IAutoMovieHumanSegmentFrame, breadth: number = P.ORBIT_BREADTH_MM, height: number = P.ORBIT_HEIGHT_MM): (p: V3) => number {
+  export function orbit(frame: IAutoMovieHumanSegmentFrame, breadth: number = P.ORBIT_BREADTH_MM, height: number = P.ORBIT_HEIGHT_MM): (p: AutoMovieVector3Tuple) => number {
     const a: number = breadth / 2;
     const b: number = height / 2;
-    return (p: V3): number => {
-      const q: V3 = F.toLocal(frame, p);
+    return (p: AutoMovieVector3Tuple): number => {
+      const q: AutoMovieVector3Tuple = F.toLocal(frame, p);
       return Math.max((Math.hypot(q[2] / a, q[1] / b) - 1) * Math.sqrt(a * b), -q[0]);
     };
   }
@@ -107,14 +105,14 @@ export namespace AutoMovieHumanF1FaceCentres {
    * closed by the planes at the line's two ends. The measure is the greatest of the arc past either half plane at the point's own radius
    * and the distance past an end: negative inside, where the skin is the lips'.
    */
-  export function wedge(mouth: IMuzzle, sublabiale: V3, subnasale: V3): (p: V3) => number {
-    const phase = (p: V3): [number, number, number] => {
-      const q: V3 = F.toLocal(mouth.frame, p);
+  export function wedge(mouth: IMuzzle, sublabiale: AutoMovieVector3Tuple, subnasale: AutoMovieVector3Tuple): (p: AutoMovieVector3Tuple) => number {
+    const phase = (p: AutoMovieVector3Tuple): [number, number, number] => {
+      const q: AutoMovieVector3Tuple = F.toLocal(mouth.frame, p);
       return [Math.atan2(q[1], q[0]), Math.hypot(q[0], q[1]), q[2]];
     };
     const low: number = phase(sublabiale)[0];
     const high: number = phase(subnasale)[0];
-    return (p: V3): number => {
+    return (p: AutoMovieVector3Tuple): number => {
       const [phi, r, z]: [number, number, number] = phase(p);
       return Math.max(r * (phi - high), r * (low - phi), Math.abs(z) - mouth.half);
     };
@@ -127,14 +125,14 @@ export namespace AutoMovieHumanF1FaceCentres {
    * nasion and subnasale, one through each alar base, were read on a reference first and kept the cheek and the lower lid in front of
    * them, 578 vertices of the eye's own.
    */
-  export function nasal(nasion: V3, subnasale: V3, alarBase: V3): (p: V3) => number {
-    const axis: V3 = unit(sub(nasion, subnasale));
+  export function nasal(nasion: AutoMovieVector3Tuple, subnasale: AutoMovieVector3Tuple, alarBase: AutoMovieVector3Tuple): (p: AutoMovieVector3Tuple) => number {
+    const axis: AutoMovieVector3Tuple = unit(sub(nasion, subnasale));
     const length: number = dot(sub(nasion, subnasale), axis);
-    const raw: V3 = unit(cross(axis, [0, 0, 1]));
+    const raw: AutoMovieVector3Tuple = unit(cross(axis, [0, 0, 1]));
 
     // The plane's normal faces subnasale, which stands ahead of the alar bases.
-    const front: V3 = dot(sub(subnasale, alarBase), raw) > 0 ? raw : [-raw[0], -raw[1], -raw[2]];
-    return (p: V3): number => {
+    const front: AutoMovieVector3Tuple = dot(sub(subnasale, alarBase), raw) > 0 ? raw : [-raw[0], -raw[1], -raw[2]];
+    return (p: AutoMovieVector3Tuple): number => {
       const t: number = dot(sub(p, subnasale), axis);
       return Math.max(-dot(sub(p, alarBase), front), t - length, -t);
     };

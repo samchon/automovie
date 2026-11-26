@@ -1,8 +1,5 @@
 import type { AutoMovieHumanUpperUnderwear as AutoMovieHumanUpperUnderwearContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanUpperUnderwear literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanUpperUnderwear = AutoMovieHumanUpperUnderwearContract;
-
 /** Closed upper underwear choices; serialized values are unchanged. */
 export const AutoMovieHumanUpperUnderwear = {
   /** No upper undergarment requested. */

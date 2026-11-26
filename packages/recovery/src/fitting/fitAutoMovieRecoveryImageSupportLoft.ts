@@ -1,9 +1,10 @@
 import {
+  AutoMovieEngineConvexSupportLoft,
   createAutoMovieSupportSectionQuery,
-  realizeAutoMovieConvexSupportLoft,
 } from "@automovie/engine";
 import type {
   IAutoMovieConvexSupportLoft,
+  IAutoMovieRealizeConvexSupportLoft,
   IAutoMovieRecoveryImageObservation,
   IAutoMovieRecoveryImageProfileSample,
   IAutoMovieRecoveryImageSource,
@@ -212,8 +213,8 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         last = `Implied support residual at least ${residual} px`;
         continue;
       }
-      const generated: ReturnType<typeof realizeAutoMovieConvexSupportLoft> =
-        realizeAutoMovieConvexSupportLoft({
+      const generated: IAutoMovieRealizeConvexSupportLoft.IResult =
+        AutoMovieEngineConvexSupportLoft.realize({
           ...policy.generation,
           loft,
           topologyDomain: `support-fit:${observation.objectId}`,

@@ -3,10 +3,10 @@ import type {
   IAutoMovieFontGlyph,
   IAutoMovieLayoutText,
   IAutoMovieMesh,
-  IAutoMovieTriangulateRegion,
+  IAutoMoviePlanarRegion,
 } from "@automovie/interface";
 
-import { extrudeAutoMovieRegion } from "../geometry/extrudeAutoMovieRegion";
+import { AutoMovieEnginePlanarRegion } from "../geometry/planar-region/AutoMovieEnginePlanarRegion";
 import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 
@@ -22,13 +22,13 @@ const TOLERANCE: number = 0.00005;
  *
  * The run is laid out by {@link layoutAutoMovieText}; each distinct code point's
  * regions from {@link regionsOfAutoMovieGlyph} are extruded once by
- * `extrudeAutoMovieRegion` and translated to every place the code point is set,
- * lifted so each letter rises from `z = 0` to `z = depth`. Coordinates are the
- * layout's box frame in metres, origin at the box's bottom-left corner, `+x`
- * right, `+y` up, `+z` toward the reader. Each letter is a closed 2-manifold
- * whose volume is its ink area times the depth; the mesh carries flat normals
- * and the extrusion's metric texture coordinates, no skin, and no index shared
- * across letters.
+ * `AutoMovieEnginePlanarRegion.extrude` and translated to every place the code
+ * point is set, lifted so each letter rises from `z = 0` to `z = depth`.
+ * Coordinates are the layout's box frame in metres, origin at the box's
+ * bottom-left corner, `+x` right, `+y` up, `+z` toward the reader. Each letter
+ * is a closed 2-manifold whose volume is its ink area times the depth; the mesh
+ * carries flat normals and the extrusion's metric texture coordinates, no skin,
+ * and no index shared across letters.
  *
  * The font is the decoded record: a production decodes its font with the
  * `ingest` decoder in its own code, then places this mesh as an ordinary model
@@ -68,9 +68,9 @@ export function buildAutoMovieRaisedLettering(
     if (solid === undefined) {
       const glyph: IAutoMovieFontGlyph = glyphs.get(placed.codePoint)!;
       solid = regionsOfAutoMovieGlyph(glyph, layout.scale, tolerance).map(
-        (region: IAutoMovieTriangulateRegion.IProps): IAutoMovieMesh => {
+        (region: IAutoMoviePlanarRegion): IAutoMovieMesh => {
           try {
-            return extrudeAutoMovieRegion({
+            return AutoMovieEnginePlanarRegion.extrude({
               outer: region.outer,
               ...(region.holes === undefined ? {} : { holes: region.holes }),
               depth: props.depth,

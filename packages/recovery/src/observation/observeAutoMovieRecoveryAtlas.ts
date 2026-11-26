@@ -18,8 +18,6 @@ import { RecoveryAtlasObservationPublish } from "../internal/RecoveryAtlasObserv
 import { RecoveryAtlasObservationSource } from "../internal/RecoveryAtlasObservationSource";
 import { RecoveryChartBoundary } from "../internal/RecoveryChartBoundary";
 
-type Pending = IAutoMovieRecoveryPendingChartObservation;
-
 /**
  * Observe orientable genus-zero source components through private disk charts.
  * Supplied automatic levels are immutable observations, not manually authored
@@ -63,7 +61,7 @@ export function observeAutoMovieRecoveryAtlas(
     });
   const fittedCharts: Parameters<IAutoMovieRecoveryChartAssembly.Operation>[0][number][] =
     [];
-  const pending: Pending[] = [],
+  const pending: IAutoMovieRecoveryPendingChartObservation[] = [],
     failedSelectedComponents: Set<string> = new Set();
   const inventory: {
     chart: string;

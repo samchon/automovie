@@ -2,12 +2,12 @@ import type {
   IAutoMovieBuildTextGeometry,
   IAutoMovieFontGlyph,
   IAutoMovieLayoutText,
+  IAutoMoviePlanarRegion,
   IAutoMovieRegionTriangulation,
   IAutoMovieTessellation,
-  IAutoMovieTriangulateRegion,
 } from "@automovie/interface";
 
-import { triangulateAutoMovieRegion } from "../geometry/triangulateAutoMovieRegion";
+import { AutoMovieEnginePlanarRegion } from "../geometry/planar-region/AutoMovieEnginePlanarRegion";
 import { layoutAutoMovieText } from "./layoutAutoMovieText";
 import { regionsOfAutoMovieGlyph } from "./regionsOfAutoMovieGlyph";
 
@@ -23,11 +23,12 @@ const TOLERANCE: number = 0.00005;
  *
  * The run is laid out by {@link layoutAutoMovieText}; each distinct code point's
  * contours are flattened and grouped by {@link regionsOfAutoMovieGlyph} and
- * triangulated once by `triangulateAutoMovieRegion`, then translated to every
- * place the code point is set. The result lies in the layout's box frame in
- * metres, origin at the box's bottom-left corner, `+x` right, `+y` up, `z = 0`,
- * with counter-clockwise triangles and `+z` normals facing the reader.
- * Triangles cover exactly each glyph's ink: outer rings less their holes.
+ * triangulated once by `AutoMovieEnginePlanarRegion.triangulate`, then
+ * translated to every place the code point is set. The result lies in the
+ * layout's box frame in metres, origin at the box's bottom-left corner, `+x`
+ * right, `+y` up, `z = 0`, with counter-clockwise triangles and `+z` normals
+ * facing the reader. Triangles cover exactly each glyph's ink: outer rings less
+ * their holes.
  *
  * The same inputs always give identical buffers.
  *
@@ -60,11 +61,9 @@ export function buildAutoMovieTextGeometry(
     if (shape === undefined) {
       const glyph: IAutoMovieFontGlyph = glyphs.get(placed.codePoint)!;
       shape = regionsOfAutoMovieGlyph(glyph, layout.scale, tolerance).map(
-        (
-          region: IAutoMovieTriangulateRegion.IProps,
-        ): IAutoMovieRegionTriangulation => {
+        (region: IAutoMoviePlanarRegion): IAutoMovieRegionTriangulation => {
           try {
-            return triangulateAutoMovieRegion(region);
+            return AutoMovieEnginePlanarRegion.triangulate(region);
           } catch (error) {
             throw new Error(
               `Glyph U+${glyph.codePoint.toString(16).toUpperCase().padStart(4, "0")} "${String.fromCodePoint(glyph.codePoint)}" cannot be triangulated: ${(error as Error).message}`,

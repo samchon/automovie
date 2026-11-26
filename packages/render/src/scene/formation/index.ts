@@ -8,10 +8,6 @@ export {
   sampleFormationSlotMotion,
   selectFormationLod,
 } from "@automovie/engine";
-export type {
-  IAutoMovieFormationLodInput,
-  IAutoMovieFormationLodSelection,
-} from "@automovie/interface";
 export type { IAutoMovieFormationViewerStats } from "../IAutoMovieFormationViewerStats.js";
 export type { IAutoMovieFormationViewerObject } from "../IAutoMovieFormationViewerObject.js";
 export { buildInstancedFormation } from "../buildInstancedFormation.js";

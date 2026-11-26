@@ -13,12 +13,12 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { canonicalRegion } from "../canonicalRegion";
 import { emptyMeshTarget } from "../emptyMeshTarget";
 import { meshOf } from "../meshOf";
+import { canonicalRegion } from "../planar-region/internal/canonicalRegion";
+import { trianglesOf } from "../planar-region/internal/trianglesOf";
 import { pushFlatTriangle } from "../pushFlatTriangle";
 import { signedArea } from "../signedArea";
-import { trianglesOf } from "../trianglesOf";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 
 /** Points per loop of a curved section when the caller gives no count. */
@@ -158,7 +158,7 @@ export const meshAutoMovieSweep: (
     [1, rings[rings.length - 1]!],
   ];
   for (const [outward, ring] of ends) {
-    const triangles: number[] = trianglesOf(ring.plan);
+    const triangles: number[] = trianglesOf(ring.plan.points, ring.plan.rings);
     const base: number = target.positions.length / 3;
     ring.points.forEach((p: IAutoMovieVector3, k: number): void => {
       target.positions.push(p.x, p.y, p.z);

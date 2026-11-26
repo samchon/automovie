@@ -1,6 +1,7 @@
-import { realizeAutoMovieConvexSupportLoft } from "@automovie/engine";
+import { AutoMovieEngineConvexSupportLoft } from "@automovie/engine";
 import type {
   IAutoMovieConvexSupportLoft,
+  IAutoMovieRealizeConvexSupportLoft,
   IAutoMovieRecoveryResult,
   IAutoMovieRecoverySupportLoft,
   IAutoMovieRecoverySupportLoftBudget,
@@ -100,8 +101,8 @@ export function compileAutoMovieRecoverySupportLoft(
         }),
       ),
     };
-    const generated: ReturnType<typeof realizeAutoMovieConvexSupportLoft> =
-      realizeAutoMovieConvexSupportLoft({
+    const generated: IAutoMovieRealizeConvexSupportLoft.IResult =
+      AutoMovieEngineConvexSupportLoft.realize({
         ...budget,
         loft,
         topologyDomain: `support-loft:${recipe.objectId}`,

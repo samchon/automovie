@@ -1,8 +1,5 @@
 import type { AutoMovieHumanIrisColor as AutoMovieHumanIrisColorContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanIrisColor literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanIrisColor = AutoMovieHumanIrisColorContract;
-
 /**
  * Iris colour, as a closed choice ordered from the lightest to the darkest iris.
  *

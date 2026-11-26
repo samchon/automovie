@@ -1,8 +1,5 @@
 import type { AutoMovieHumanHairColor as AutoMovieHumanHairColorContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanHairColor literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanHairColor = AutoMovieHumanHairColorContract;
-
 /**
  * Colour of scalp hair, brows or lashes, as a closed choice.
  *

@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
+import { ObservationGeometry } from "./internal/ObservationGeometry";
 
 /**
  * The area-weighted centroid of a closed planar outline, or the mean of its
@@ -8,15 +8,13 @@ import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION
  *
  * The outline is read as a simple polygon closing from its last point back to
  * its first, in either winding. When the absolute doubled signed area is at
- * most `AUTOMOVIE_OBSERVATION_EPSILON`, including a sufficiently small nonzero
- * area, the vertex mean is returned instead. An empty outline answers `NaN`
- * coordinates.
+ * most {@link ObservationGeometry.Epsilon}, including a sufficiently small
+ * nonzero area, the vertex mean is returned instead. An empty outline answers
+ * `NaN` coordinates.
  */
-export const outlineCentroid: (
+export function outlineCentroid(
   outline: readonly IAutoMoviePlanarPoint[],
-) => IAutoMoviePlanarPoint = (
-  outline: readonly IAutoMoviePlanarPoint[],
-): IAutoMoviePlanarPoint => {
+): IAutoMoviePlanarPoint {
   let doubleArea: number = 0;
   let x: number = 0;
   let y: number = 0;
@@ -28,7 +26,7 @@ export const outlineCentroid: (
     x += (from.x + to.x) * cross;
     y += (from.y + to.y) * cross;
   }
-  if (Math.abs(doubleArea) > AUTOMOVIE_OBSERVATION_EPSILON)
+  if (Math.abs(doubleArea) > ObservationGeometry.Epsilon)
     return { x: x / (3 * doubleArea), y: y / (3 * doubleArea) };
   let sumX: number = 0;
   let sumY: number = 0;
@@ -37,4 +35,4 @@ export const outlineCentroid: (
     sumY += point.y;
   }
   return { x: sumX / outline.length, y: sumY / outline.length };
-};
+}

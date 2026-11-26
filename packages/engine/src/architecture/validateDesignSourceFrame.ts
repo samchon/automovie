@@ -7,13 +7,6 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
-import { AUTO_MOVIE_DESIGN_FRAME_VIEWS } from "./constants/AUTO_MOVIE_DESIGN_FRAME_VIEWS";
-
-/**
- * Below this, a direction carries no direction; above `1 - it`, two are
- * parallel.
- */
-const AXIS_EPSILON: number = 1e-12;
 
 /**
  * Validate how one source frame of an observed design reference is read.
@@ -33,23 +26,18 @@ const AXIS_EPSILON: number = 1e-12;
  * @param path Violation path of the frame, such as `$input.frames[0]`.
  * @param collector Sink that receives the violations.
  */
-export const validateDesignSourceFrame: (
+export function validateDesignSourceFrame(
   frame: IAutoMovieDesignSourceFrame,
   path: string,
   collector: IAutoMovieViolationCollector,
-) => void = (
-  frame: IAutoMovieDesignSourceFrame,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-  if (
-    !(AUTO_MOVIE_DESIGN_FRAME_VIEWS as readonly string[]).includes(frame.view)
-  )
+): void {
+  const view: unknown = frame.view;
+  if (typeof view !== "string" || !Object.hasOwn(DESIGN_FRAME_VIEWS, view))
     collector.push(
       "type",
       `${path}.view`,
-      `unknown source frame view "${String(frame.view)}"`,
-      frame.view,
+      `unknown source frame view "${String(view)}"`,
+      view,
     );
   if (frame.page < 1)
     collector.push(
@@ -161,4 +149,18 @@ export const validateDesignSourceFrame: (
       label: "source frame transform",
       collector,
     });
+}
+
+/** Drawing families recognized in raw frame data. */
+const DESIGN_FRAME_VIEWS: Readonly<
+  Record<IAutoMovieDesignSourceFrame["view"], true>
+> = {
+  plan: true,
+  section: true,
+  elevation: true,
+  detail: true,
+  perspective: true,
 };
+
+/** Direction length floor and unit-dot slack from parallel. */
+const AXIS_EPSILON: number = 1e-12;

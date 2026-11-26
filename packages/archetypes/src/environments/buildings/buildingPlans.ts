@@ -1,4 +1,4 @@
-import { triangulateAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type {
   IAutoMovieProfilePoint,
   IAutoMovieRegionTriangulation,
@@ -320,7 +320,7 @@ function draftRegion(
   }
   let region: IAutoMovieRegionTriangulation;
   try {
-    region = triangulateAutoMovieRegion({
+    region = AutoMovieEnginePlanarRegion.triangulate({
       outer: outer.map(planPoint),
       holes: holes.map((ring): IAutoMovieProfilePoint[] => ring.map(planPoint)),
     });

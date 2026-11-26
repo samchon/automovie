@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanParameters } from "@automovie/human";
+import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
 import { PLAYGROUND_BODY_F1 } from "./PLAYGROUND_BODY_F1";
 import { PLAYGROUND_BODY_F2 } from "./PLAYGROUND_BODY_F2";

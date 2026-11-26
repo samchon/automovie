@@ -47,9 +47,6 @@ declare module "three" {
     readonly isMeshToonMaterial?: boolean;
     readonly isShaderMaterial?: boolean;
     readonly isRawShaderMaterial?: boolean;
-
-    /** The displacement texture of a material that has one, else absent. */
-    readonly displacementMap?: Texture | null;
   }
 
   interface Texture {

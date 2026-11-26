@@ -1,33 +1,35 @@
-import type { IAutoMovieHumanLipExpression } from "@automovie/interface";
+import type {
+  IAutoMovieHumanLipExpression,
+  IAutoMovieHumanPair,
+} from "@automovie/interface";
 import type { tags } from "typia";
 
-import type { IAutoMovieHumanPairSchema } from "./IAutoMovieHumanPairSchema";
 
 /** Typia admission/schema metadata for IAutoMovieHumanLipExpression. The canonical shape belongs to interface; this refinement adds its existing ranges and nested schema metadata. Import this schema type when generating validators or schemas: the plain canonical type intentionally carries no typia dependency. */
 export type IAutoMovieHumanLipExpressionSchema =
   IAutoMovieHumanLipExpression & {
     /** AU10, levator labii superioris: the upper lip rises. */
-    upperLipRaiser?: IAutoMovieHumanPairSchema<
+    upperLipRaiser?: IAutoMovieHumanPair<
       number & tags.Minimum<0> & tags.Maximum<1>
     >;
 
     /** AU12, zygomaticus major: the mouth corner pulls up and back. */
-    lipCornerPuller?: IAutoMovieHumanPairSchema<
+    lipCornerPuller?: IAutoMovieHumanPair<
       number & tags.Minimum<0> & tags.Maximum<1>
     >;
 
     /** AU15, depressor anguli oris: the mouth corner lowers. */
-    lipCornerDepressor?: IAutoMovieHumanPairSchema<
+    lipCornerDepressor?: IAutoMovieHumanPair<
       number & tags.Minimum<0> & tags.Maximum<1>
     >;
 
     /** AU20, risorius with platysma: the mouth corner stretches sideways. */
-    lipStretcher?: IAutoMovieHumanPairSchema<
+    lipStretcher?: IAutoMovieHumanPair<
       number & tags.Minimum<0> & tags.Maximum<1>
     >;
 
     /** AU16, depressor labii inferioris: the lower lip lowers. */
-    lowerLipDepressor?: IAutoMovieHumanPairSchema<
+    lowerLipDepressor?: IAutoMovieHumanPair<
       number & tags.Minimum<0> & tags.Maximum<1>
     >;
 

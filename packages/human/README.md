@@ -10,7 +10,7 @@ Use Node.js 22.23.2 or later.
 npm install @automovie/human @automovie/interface
 ```
 
-Pass `IAutoMovieHumanParameters` to `AutoMovieHumanCanonicalBody.prepare`. Use `place` to read joint placements for a pose. The parameter types describe the required body and head measurements. For typia, use the [schema types](https://github.com/samchon/automovie/blob/master/packages/human/src/schema/README.md).
+Import Human input and vocabulary types from `@automovie/interface`. Pass `IAutoMovieHumanParameters` to `AutoMovieHumanCanonicalBody.prepare`. Use `place` to read joint placements for a pose. The parameter types describe the required body and head measurements. For typia, use the [schema types](https://github.com/samchon/automovie/blob/master/packages/human/src/schema/README.md).
 
 ## Polygon man
 

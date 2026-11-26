@@ -1,8 +1,5 @@
 import type { AutoMovieHumanHairCurl as AutoMovieHumanHairCurlContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanHairCurl literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanHairCurl = AutoMovieHumanHairCurlContract;
-
 /** L'Oreal's eight fibre-shape classes, as recorded in Human's docs/anatomy/hair.md. Class labels do not define helix radius/pitch; the source record does not supply numerical class thresholds. Serialized labels remain I through VIII. */
 export const AutoMovieHumanHairCurl = {
   /** L'Oreal curl class I; one of the curve-diameter-defined classes I-IV. */

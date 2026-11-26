@@ -58,7 +58,6 @@
     "three": "catalog:three",
     "vite": "catalog:vite",
     "rimraf": "catalog:utils",
-    "tstl": "catalog:samchon",
     "ttsc": "catalog:samchon",
     "typescript": "catalog:typescript",
     "@ttsc/lint": "catalog:samchon",
@@ -68,6 +67,7 @@
   "dependencies": {
     "@automovie/engine": "workspace:^",
     "@automovie/interface": "workspace:^",
+    "tstl": "catalog:samchon",
     "typia": "catalog:samchon"
   }
 }

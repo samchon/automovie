@@ -3,7 +3,6 @@ export type { IAutoMovieHumanParametersSchema } from "./IAutoMovieHumanParameter
 export type { IAutoMovieHumanBodyParametersSchema } from "./IAutoMovieHumanBodyParametersSchema";
 export type { IAutoMovieHumanHeadIdentitySchema } from "./IAutoMovieHumanHeadIdentitySchema";
 export type { IAutoMovieHumanFaceSchema } from "./IAutoMovieHumanFaceSchema";
-export type { IAutoMovieHumanPairSchema } from "./IAutoMovieHumanPairSchema";
 export type { IAutoMovieHumanEyeSchema } from "./IAutoMovieHumanEyeSchema";
 export type { IAutoMovieHumanNoseSchema } from "./IAutoMovieHumanNoseSchema";
 export type { IAutoMovieHumanMouthSchema } from "./IAutoMovieHumanMouthSchema";

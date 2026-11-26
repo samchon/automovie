@@ -7,22 +7,15 @@ import type {
 
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
 
-/** Private source admission record shared structurally with the public observer. */
-type Source = IAutoMovieRecoveryOpenSlabGraph.Source;
-/** Private query record; original face ownership stays observation-only. */
-type Query = IAutoMovieRecoveryOpenSlabGraph.Query;
-/** Local saved-arc continuation result. */
-type Result = IAutoMovieRecoveryOpenSlabGraph.Result;
-/** One private saved-arc support. */
-type Arc = IAutoMovieRecoveryOpenArcIncidence;
-
 /**
  * Prepare ordinary open-slab observations without exposing original mesh
  * addresses.
  */
 export function prepareRecoveryOpenSlabGraph(
-  source: Source,
-): (input: Query) => Result {
+  source: IAutoMovieRecoveryOpenSlabGraph.Source,
+): (
+  input: IAutoMovieRecoveryOpenSlabGraph.Query,
+) => IAutoMovieRecoveryOpenSlabGraph.Result {
   const size: number = source.vertices.length;
   if (source.canon.length !== size || source.heights.length !== size)
     throw new Error("Open slab source arrays must align");
@@ -145,7 +138,9 @@ export function prepareRecoveryOpenSlabGraph(
       byFace.get(face)!.push(boundary.length);
       boundary.push({ a: edge.a, b: edge.b, face, key });
     }
-  return (input: Query): Result => {
+  return (
+    input: IAutoMovieRecoveryOpenSlabGraph.Query,
+  ): IAutoMovieRecoveryOpenSlabGraph.Result => {
     if (!(input.beforeMm < input.afterMm))
       throw new Error("Open slab bounds must be finite and increasing");
     const active: number[] = [];
@@ -296,10 +291,10 @@ export function prepareRecoveryOpenSlabGraph(
         ).length === 2,
     );
     const endpoint: (
-      end: Arc["ends"][number],
+      end: IAutoMovieRecoveryOpenArcIncidence["ends"][number],
       side: "before" | "after",
     ) => number | undefined = (
-      end: Arc["ends"][number],
+      end: IAutoMovieRecoveryOpenArcIncidence["ends"][number],
       side: "before" | "after",
     ): number | undefined => {
       if (
@@ -321,8 +316,14 @@ export function prepareRecoveryOpenSlabGraph(
     const groups: IAutoMovieRecoverySlabConnectivityGroup[] = sheet({
       beforeMm: input.beforeMm,
       afterMm: input.afterMm,
-      before: input.before.map((arc: Arc): ReadonlySet<number> => arc.faces),
-      after: input.after.map((arc: Arc): ReadonlySet<number> => arc.faces),
+      before: input.before.map(
+        (arc: IAutoMovieRecoveryOpenArcIncidence): ReadonlySet<number> =>
+          arc.faces,
+      ),
+      after: input.after.map(
+        (arc: IAutoMovieRecoveryOpenArcIncidence): ReadonlySet<number> =>
+          arc.faces,
+      ),
       defects: [...input.defects, localInvalid],
       candidates: input.candidates,
       probes: components.map(
@@ -330,7 +331,7 @@ export function prepareRecoveryOpenSlabGraph(
           component.faces,
       ),
     });
-    const result: Result = {
+    const result: IAutoMovieRecoveryOpenSlabGraph.Result = {
       pairs: [],
       unresolved: [],
       diagnostics: orientationWarnings
@@ -358,8 +359,10 @@ export function prepareRecoveryOpenSlabGraph(
         reason =
           "Ordinary open transport requires exactly two simple boundary paths across the slab";
       if (reason === null) {
-        const before: Arc = input.before[group.before[0]!]!,
-          after: Arc = input.after[group.after[0]!]!;
+        const before: IAutoMovieRecoveryOpenArcIncidence =
+            input.before[group.before[0]!]!,
+          after: IAutoMovieRecoveryOpenArcIncidence =
+            input.after[group.after[0]!]!;
         const a: number | undefined = endpoint(before.ends[0], "before"),
           b: number | undefined = endpoint(before.ends[1], "before");
         const c: number | undefined = endpoint(after.ends[0], "after"),
@@ -400,8 +403,10 @@ export function prepareRecoveryOpenSlabGraph(
         });
     }
     result.pairs.sort(
-      (a: Result["pairs"][number], b: Result["pairs"][number]): number =>
-        a.before - b.before || a.after - b.after,
+      (
+        a: IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number],
+        b: IAutoMovieRecoveryOpenSlabGraph.Result["pairs"][number],
+      ): number => a.before - b.before || a.after - b.after,
     );
     return result;
   };

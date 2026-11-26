@@ -64,12 +64,13 @@ import { meshOf } from "./meshOf";
  * anisotropy over a full turn is therefore `(sqrt(k * k + 4) + k) / (sqrt(k *
  * k
  *
- * - 4) - k)`at`k = 2 * pi * |dr / ds|`: 1.0 on a cylinder, 2.0 at 6.5 degrees off
- *   the axis, 4.0 at 13.8 degrees, 21.5 on a 45-degree cone, and 41 where the
- *   meridian runs level, which is what a dome's pole and a cone's tip approach.
- *   A tile that reads square beside the seam is drawn into a ribbon a quarter
- *   turn away, and the curve of constant `u` spirals instead of following a
- *   meridian.
+ * - 4. - K)`at`k = 2 * pi * |dr / ds|`: 1.0 on a cylinder, 2.0 at 6.5 degrees off the
+ *                 axis, 4.0 at 13.8 degrees, 21.5 on a 45-degree cone, and 41
+ *                 where the meridian runs level, which is what a dome's pole
+ *                 and a cone's tip approach. A tile that reads square beside
+ *                 the seam is drawn into a ribbon a quarter turn away, and the
+ *                 curve of constant `u` spirals instead of following a
+ *                 meridian.
  *
  * That is the price of the metric statement rather than a defect awaiting
  * repair. Measuring true arc around forces `u` to be `theta * r` plus some
@@ -85,14 +86,14 @@ import { meshOf } from "./meshOf";
  * axis, which is a drum, a shaft, a turret barrel. A sloped or domed form that
  * must carry one is authored as flat faces through
  * {@link buildAutoMoviePolyhedron}, whose per-face frame is isometric, or as a
- * flat cap through {@link extrudeAutoMovieRegion}, and a spire built as facets
- * is how a spire is built anyway. {@link meshAutoMovieSweep} is not the escape
- * here that it is for the coordinate-less builders. It measures this same pair,
- * a tapered loft shears the same way, and it gives up something this one keeps:
- * the map here is exactly equiareal, while a loft's `v` is path distance rather
- * than surface distance, so a taper or a bend costs it texel density on top of
- * the angle. Where the form has to stay a true surface of revolution, the
- * finish on it stays non-directional.
+ * flat cap through {@link AutoMovieEnginePlanarRegion.extrude}, and a spire
+ * built as facets is how a spire is built anyway. {@link meshAutoMovieSweep} is
+ * not the escape here that it is for the coordinate-less builders. It measures
+ * this same pair, a tapered loft shears the same way, and it gives up something
+ * this one keeps: the map here is exactly equiareal, while a loft's `v` is path
+ * distance rather than surface distance, so a taper or a bend costs it texel
+ * density on top of the angle. Where the form has to stay a true surface of
+ * revolution, the finish on it stays non-directional.
  *
  * @param props.profile Meridian points from one end to the other, at least two,
  *   with finite coordinates and `x >= 0`.

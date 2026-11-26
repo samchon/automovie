@@ -1,5 +1,5 @@
 import {
-  autoMoviePlanarRegionFailure,
+  AutoMovieEnginePlanarRegion,
   footprintArea,
   footprintContains,
   footprintConvexPieces,
@@ -195,9 +195,12 @@ const pieceArea: (piece: readonly IAutoMovieVector3[]) => number = (
  *     the slab, a patch with no area is no face at all, and the take-off
  *     subtracts the void from the floor area somebody orders against.
  * 14. An admitted positive thin band survives decomposition. An independently
- *     specified dyadic L has normalized area three in its authored winding, so a hull
- *     replacement or dropped band cannot hide behind a broad absolute tolerance.
- * 15. Validation refuses a crossing ring; its decomposition contains only finite points and its containment query returns a boolean. These assertions do not require an empty decomposition or compare repeated readings.
+ *     specified dyadic L has normalized area three in its authored winding, so
+ *     a hull replacement or dropped band cannot hide behind a broad absolute
+ *     tolerance.
+ * 15. Validation refuses a crossing ring; its decomposition contains only finite
+ *     points and its containment query returns a boolean. These assertions do
+ *     not require an empty decomposition or compare repeated readings.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Footprint membership, support/ground outputs, convex-piece area and emitted surface triangles exercise actual region readers and consumers; the dyadic thin L catches both hull-filled notches and dropped positive slabs.
  * @evidence contracts/development/testing.md#independent-expectations Authored rectangles give plate area 64-16=48 and thin L area three times its binary-exact width. Shoelace sums check the actual decomposition, while downstream membership and emitted triangle probes establish the asserted local void cases rather than universal polygon exactness.
@@ -222,7 +225,7 @@ export function test_space_footprint_voids(): void {
   });
   TestValidator.equals(
     "thin positive L is admitted by canonical region hygiene",
-    autoMoviePlanarRegionFailure({ outer: thin.outer.plan }),
+    AutoMovieEnginePlanarRegion.failure({ outer: thin.outer.plan }),
     null,
   );
   const thinArea: number = footprintConvexPieces(thin).reduce(

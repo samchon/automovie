@@ -9,8 +9,8 @@ import type {
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
-import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
 import { measureAutoMovieMeshGap } from "./measureAutoMovieMeshGap";
+import { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 import { triangleIndicesOf } from "./triangleIndicesOf";
@@ -25,18 +25,18 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * with its `autoMovieModelPartMatrices` entry, as
  * `measureAutoMovieModelCrossings` places its parts. One record follows for
  * every unordered pair, in model part order. A pair crosses when
- * `measureAutoMovieMeshCrossings` finds a transverse or coplanar crossing in
- * either direction, which it can only where the two placed boxes overlap. The
- * gap is 0 for a crossing pair and otherwise the least distance between the
- * surfaces by `measureAutoMovieMeshGap`, for every pair however far apart. Each
- * share is the area of one part's triangles whose centroids the other part's
- * winding query, `createAutoMovieMeshWindingQuery`, finds `inside`, divided by
- * the part's whole area; one centroid stands for each triangle, so a share
- * resolves at the triangle size. A centroid too far from the other part for its
- * winding number to reach 0.5, by an exact solid-angle bound, is decided
- * without a query. The relation is the first that applies: `crossing`;
- * `contained` when either share is exactly 1; `touching` when the gap is at
- * most `options.contact`; `apart` otherwise.
+ * `AutoMovieEngineMeshCrossingQuery.measure` finds a transverse or coplanar
+ * crossing in either direction, which it can only where the two placed boxes
+ * overlap. The gap is 0 for a crossing pair and otherwise the least distance
+ * between the surfaces by `measureAutoMovieMeshGap`, for every pair however far
+ * apart. Each share is the area of one part's triangles whose centroids the
+ * other part's winding query, `createAutoMovieMeshWindingQuery`, finds
+ * `inside`, divided by the part's whole area; one centroid stands for each
+ * triangle, so a share resolves at the triangle size. A centroid too far from
+ * the other part for its winding number to reach 0.5, by an exact solid-angle
+ * bound, is decided without a query. The relation is the first that applies:
+ * `crossing`; `contained` when either share is exactly 1; `touching` when the
+ * gap is at most `options.contact`; `apart` otherwise.
  *
  * A gap below the contact distance keeps two faces from being coplanar, which
  * the strict crossing test may otherwise count as a coplanar crossing where the
@@ -90,8 +90,10 @@ export const measureAutoMovieModelContacts: (
       );
       const crossing: boolean =
         overlap &&
-        (measureAutoMovieMeshCrossings(here.mesh, there.mesh).length > 0 ||
-          measureAutoMovieMeshCrossings(there.mesh, here.mesh).length > 0);
+        (AutoMovieEngineMeshCrossingQuery.measure(here.mesh, there.mesh)
+          .length > 0 ||
+          AutoMovieEngineMeshCrossingQuery.measure(there.mesh, here.mesh)
+            .length > 0);
       const gap: number = crossing
         ? 0
         : measureAutoMovieMeshGap(here.surface, there.surface);

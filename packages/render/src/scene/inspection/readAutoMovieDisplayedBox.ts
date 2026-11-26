@@ -10,6 +10,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
 import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
 import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
+import { hasMaterialDisplacement } from "./internal/hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 
 /** Program identity from the owned dual-quaternion shader builder. */
@@ -189,7 +190,7 @@ export namespace readAutoMovieDisplayedBox {
       !material.alphaHash &&
       material.alphaTest === 0 &&
       !material.clippingPlanes?.length &&
-      (material.displacementMap ?? null) === null &&
+      !hasMaterialDisplacement(material) &&
       material.side !== THREE.BackSide &&
       material.onBeforeRender === THREE.Material.prototype.onBeforeRender
     );

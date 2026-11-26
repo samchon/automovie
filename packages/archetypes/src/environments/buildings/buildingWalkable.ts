@@ -1,7 +1,7 @@
 import {
+  AutoMovieEnginePlanarRegion,
   pointInPolygon,
   polygonInside,
-  triangulateAutoMovieRegion,
 } from "@automovie/engine";
 import type {
   IAutoMovieProfilePoint,
@@ -43,7 +43,7 @@ export function buildingWalkable(
     throw new Error(`${path} cannot retain a usable floor between its walls`);
   let region: IAutoMovieRegionTriangulation;
   try {
-    region = triangulateAutoMovieRegion({ outer, holes });
+    region = AutoMovieEnginePlanarRegion.triangulate({ outer, holes });
   } catch (error) {
     throw new Error(
       `${path} has no usable wall setback: ${error instanceof Error ? error.message : String(error)}`,

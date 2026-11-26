@@ -9,6 +9,7 @@ import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 import { autoMovieSemanticMaskOf } from "../semanticMask/autoMovieSemanticMaskOf.js";
 import { maskRoots } from "../semanticMask/maskRoots.js";
 import { nearest } from "../semanticMask/nearest.js";
+import { hasMaterialDisplacement } from "./internal/hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
 
@@ -366,7 +367,7 @@ function nativeOpaqueMaterial(material: THREE.Material): boolean {
     material.depthFunc === THREE.LessEqualDepth &&
     material.colorWrite &&
     !material.clippingPlanes?.length &&
-    (material.displacementMap ?? null) === null
+    !hasMaterialDisplacement(material)
   );
 }
 

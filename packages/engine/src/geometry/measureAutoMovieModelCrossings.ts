@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
-import { measureAutoMovieMeshCrossings } from "./measureAutoMovieMeshCrossings";
+import { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
 
@@ -25,8 +25,8 @@ import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
  * appears once, in model part order, only when at least one triangle on either
  * side is crossed, with each side's crossed triangle count and their combined
  * coplanar count. Touching is not crossing: the underlying
- * `measureAutoMovieMeshCrossings` test is strict, so shells meeting along a
- * seam do not report.
+ * `AutoMovieEngineMeshCrossingQuery.measure` test is strict, so shells meeting
+ * along a seam do not report.
  *
  * An empty result does not mean a healthy model, nor a full one a broken one. A
  * layered character rests with shells inside each other on purpose: the eyeball
@@ -71,10 +71,8 @@ export function measureAutoMovieModelCrossings(
   for (let first: number = 0; first < parts.length; first++) {
     const here: IPlacedPart = parts[first]!;
     if (options.withinParts === true) {
-      const own: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(
-        here.mesh,
-        here.mesh,
-      );
+      const own: IAutoMovieMeshCrossing[] =
+        AutoMovieEngineMeshCrossingQuery.measure(here.mesh, here.mesh);
       if (own.length > 0)
         contacts.push({
           part: here.id,
@@ -96,14 +94,10 @@ export function measureAutoMovieModelCrossings(
         )
       )
         continue;
-      const ours: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(
-        here.mesh,
-        there.mesh,
-      );
-      const theirs: IAutoMovieMeshCrossing[] = measureAutoMovieMeshCrossings(
-        there.mesh,
-        here.mesh,
-      );
+      const ours: IAutoMovieMeshCrossing[] =
+        AutoMovieEngineMeshCrossingQuery.measure(here.mesh, there.mesh);
+      const theirs: IAutoMovieMeshCrossing[] =
+        AutoMovieEngineMeshCrossingQuery.measure(there.mesh, here.mesh);
       if (ours.length === 0 && theirs.length === 0) continue;
       contacts.push({
         part: here.id,

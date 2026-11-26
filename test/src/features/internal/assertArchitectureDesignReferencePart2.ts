@@ -48,6 +48,13 @@ export function assertArchitectureDesignReferencePart2(): {
         (value.digest = "sha1:abcd" as string),
       "$input.digest",
     ],
+    [
+      "unsupported reference media",
+      (value: IAutoMovieDesignReference): void => {
+        value.media = "image/gif" as IAutoMovieDesignReference["media"];
+      },
+      "$input.media",
+    ],
 
     [
       "no frame at all",

@@ -9,6 +9,3 @@ export * from "./AutoMovieHumanSeam";
 export * from "./AutoMovieHumanSeamCarve";
 export * from "./AutoMovieHumanSeamKnot";
 export * from "./AutoMovieHumanSeamUnion";
-export * from "./IAutoMovieHumanHermiteCurve";
-export * from "./IAutoMovieHumanLoftAperture";
-export * from "./IAutoMovieHumanSeam";

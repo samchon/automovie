@@ -1,11 +1,11 @@
-import { trianglesOf } from "@automovie/engine";
+import { trianglesOf } from "@automovie/engine/internal";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `trianglesOf(region)` ear-clips a canonical region (outer ring
+ * `trianglesOf(points, rings)` ear-clips a canonical region (outer ring
  * counter-clockwise, holes clockwise) into counter-clockwise triangles over its
  * own point indices, bridging holes first.
  *
@@ -39,10 +39,7 @@ export function test_engine_geometry_triangles_of(): void {
   // 1.
   TestValidator.equals(
     "square",
-    trianglesOf({
-      points: ring(0, 0, 1, 0, 1, 1, 0, 1),
-      rings: [{ start: 0, count: 4 }],
-    }),
+    trianglesOf(ring(0, 0, 1, 0, 1, 1, 0, 1), [{ start: 0, count: 4 }]),
     [3, 0, 1, 1, 2, 3],
   );
 
@@ -51,13 +48,10 @@ export function test_engine_geometry_triangles_of(): void {
     ...ring(0, 0, 4, 0, 4, 4, 0, 4),
     ...ring(1, 1, 1, 3, 3, 3, 3, 1),
   ];
-  const holed: number[] = trianglesOf({
-    points,
-    rings: [
-      { start: 0, count: 4 },
-      { start: 4, count: 4 },
-    ],
-  });
+  const holed: number[] = trianglesOf(points, [
+    { start: 0, count: 4 },
+    { start: 4, count: 4 },
+  ]);
   TestValidator.equals("triangles", holed.length, 24);
   const areas: number[] = Array.from(
     { length: 8 },
@@ -81,10 +75,7 @@ export function test_engine_geometry_triangles_of(): void {
   );
 
   const split: IAutoMovieProfilePoint[] = ring(1, 0, 2, 0, 2, 2, 0, 2, 0, 0);
-  const fan: number[] = trianglesOf({
-    points: split,
-    rings: [{ start: 0, count: 5 }],
-  });
+  const fan: number[] = trianglesOf(split, [{ start: 0, count: 5 }]);
   const fanAreas: number[] = [0, 1, 2].map((t: number): number =>
     twice(split, fan[3 * t]!, fan[3 * t + 1]!, fan[3 * t + 2]!),
   );
@@ -102,10 +93,7 @@ export function test_engine_geometry_triangles_of(): void {
     "clockwise",
     throwsError(
       (): unknown =>
-        trianglesOf({
-          points: ring(0, 0, 0, 1, 1, 1, 1, 0),
-          rings: [{ start: 0, count: 4 }],
-        }),
+        trianglesOf(ring(0, 0, 0, 1, 1, 1, 1, 0), [{ start: 0, count: 4 }]),
       "could not find a valid ear",
     ),
   );
@@ -113,16 +101,16 @@ export function test_engine_geometry_triangles_of(): void {
     "hole outside",
     throwsError(
       (): unknown =>
-        trianglesOf({
-          points: [
+        trianglesOf(
+          [
             ...ring(0, 0, 4, 0, 4, 4, 0, 4),
             ...ring(10, 10, 10, 11, 11, 11, 11, 10),
           ],
-          rings: [
+          [
             { start: 0, count: 4 },
             { start: 4, count: 4 },
           ],
-        }),
+        ),
       "could not find a visible hole bridge",
     ),
   );

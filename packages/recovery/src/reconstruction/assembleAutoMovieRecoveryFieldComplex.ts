@@ -42,11 +42,9 @@ export function assembleAutoMovieRecoveryFieldComplex(
       "A named complex and positive physical tolerance are required",
     );
   type Point = IAutoMovieBicubicAtlasGeometry["controls"][number];
-  type Diagnostic = IAutoMovieRecoveryUnsupportedDomain;
-  type Compiled = IAutoMovieRecoveryNativeChartCompilation;
   type Candidate = {
     chart: IAutoMovieRecoveryEventChartInput;
-    result: Compiled;
+    result: IAutoMovieRecoveryNativeChartCompilation;
   };
   type Owner = {
     net: readonly Readonly<AutoMovieVector3Tuple>[];
@@ -58,7 +56,9 @@ export function assembleAutoMovieRecoveryFieldComplex(
     }[];
     conflict: boolean;
   };
-  const unsupported: Diagnostic[] = [...(input.unsupported ?? [])];
+  const unsupported: IAutoMovieRecoveryUnsupportedDomain[] = [
+    ...(input.unsupported ?? []),
+  ];
   for (const row of unsupported)
     if (!row.id.trim() || !row.reason.trim())
       throw new Error(
@@ -361,7 +361,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
     sourcePieces.push(
       ...candidate.result.sourcePieces.map(
         (
-          piece: Compiled["sourcePieces"][number],
+          piece: IAutoMovieRecoveryNativeChartCompilation["sourcePieces"][number],
         ): IAutoMovieRecoveryFieldComplexPiece => ({
           ...piece,
           owningChart: candidate.chart.id,

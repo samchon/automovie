@@ -1,8 +1,5 @@
 import type { AutoMovieHumanHairline as AutoMovieHumanHairlineContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanHairline literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanHairline = AutoMovieHumanHairlineContract;
-
 /** Closed hairline choices; serialized values are unchanged. */
 export const AutoMovieHumanHairline = {
   /** Smooth concave frontal contour without a distinct frontotemporal recession. */

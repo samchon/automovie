@@ -563,6 +563,9 @@ importers:
       '@automovie/interface':
         specifier: workspace:^
         version: link:../interface
+      tstl:
+        specifier: catalog:samchon
+        version: 3.0.0
       typia:
         specifier: catalog:samchon
         version: 15.5.0(ttsc@0.38.1(typescript@7.0.2))
@@ -609,9 +612,6 @@ importers:
       three:
         specifier: catalog:three
         version: 0.187.0
-      tstl:
-        specifier: catalog:samchon
-        version: 3.0.0
       ttsc:
         specifier: catalog:samchon
         version: 0.38.1(typescript@7.0.2)

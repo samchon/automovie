@@ -89,14 +89,14 @@ export namespace IAutoMovieRevolveProfile {
    * axis, which is a drum, a shaft, a turret barrel. A sloped or domed form
    * that must carry one is authored as flat faces through
    * `buildAutoMoviePolyhedron`, whose per-face frame is isometric, or as a flat
-   * cap through `extrudeAutoMovieRegion`, and a spire built as facets is how a
-   * spire is built anyway. `meshAutoMovieSweep` is not the escape here that it
-   * is for the coordinate-less builders. It measures this same pair, a tapered
-   * loft shears the same way, and it gives up something this one keeps: the map
-   * here is exactly equiareal, while a loft's `v` is path distance rather than
-   * surface distance, so a taper or a bend costs it texel density on top of the
-   * angle. Where the form has to stay a true surface of revolution, the finish
-   * on it stays non-directional.
+   * cap through `AutoMovieEnginePlanarRegion.extrude`, and a spire built as
+   * facets is how a spire is built anyway. `meshAutoMovieSweep` is not the
+   * escape here that it is for the coordinate-less builders. It measures this
+   * same pair, a tapered loft shears the same way, and it gives up something
+   * this one keeps: the map here is exactly equiareal, while a loft's `v` is
+   * path distance rather than surface distance, so a taper or a bend costs it
+   * texel density on top of the angle. Where the form has to stay a true
+   * surface of revolution, the finish on it stays non-directional.
    */
   export type IProps = {
     /**

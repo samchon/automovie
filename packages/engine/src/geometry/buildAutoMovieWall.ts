@@ -26,8 +26,9 @@ import { positive } from "./positive";
  * `+depth / 2`; it carries flat per-face normals and no texture coordinates,
  * because which cell a point belongs to depends on the opening list, and an
  * atlas laid on that lattice would shift whenever an opening moves.
- * `extrudeAutoMovieRegion`, with the panel as its outer ring and the openings
- * as holes, is the atlas-bearing form that also cuts arbitrary outlines.
+ * `AutoMovieEnginePlanarRegion.extrude`, with the panel as its outer ring and
+ * the openings as holes, is the atlas-bearing form that also cuts arbitrary
+ * outlines.
  *
  * All openings are admitted before the lattice is built, so a refusal never
  * leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an

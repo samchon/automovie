@@ -13,9 +13,10 @@ import type {
  * published bony breadth exists, then the tissue reach at each measurement site. Girths, tapes and stature are derived checks of the
  * generated source, never inputs, and are listed apart (`CHECKS`). The typed records the fields live in are declared by their owners and
  * only referenced here: `IPrimary` joins the segment lengths (`AutoMovieHumanF1SegmentLengths.IFields`) and the native path's tissue
- * inputs with the hip support (`AutoMovieHumanF1NativeFieldTypes.IFields`); `IChecks` is the tape reading
- * (`AutoMovieHumanF1Engineering.IReading`). Each catalogue row names the members of those records it documents, so a renamed member
- * fails here at compile time. This module holds no law and is read by documentation and audits, not by generation.
+ * inputs with the hip support (`AutoMovieHumanF1NativeFieldTypes.IFields`). The
+ * tape reading is `IAutoMovieHumanF1Engineering.IReading`. Each catalogue row
+ * names the members it documents so a renamed member fails at compile time.
+ * Documentation and audits read this model.
  */
 export namespace AutoMovieHumanF1FieldModel {
   /**
@@ -33,16 +34,6 @@ export namespace AutoMovieHumanF1FieldModel {
     /** The hip joint centre breadth and the directional tissue calipers at the measurement sites, mm. */
     tissue: IAutoMovieHumanF1NativeLaw.IFields;
   }
-
-  /**
-   * The derived surface checks: tapes read on the generated source, mm.
-   *
-   * @evidence contracts/development/design.md#principled-representation The tape owner's own reading type, so checks and inputs cannot be confused by type.
-   * @evidence contracts/development/design.md#minimal-and-owned-surface An alias; the tape owner declares the members.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts No check is writable as an input through this model.
-   * @evidence contracts/development/common.md#meaningful-documentation States the generated-source scope.
-   */
-  export type IChecks = IAutoMovieHumanF1Engineering.IReading;
 
   /** A field's layer, from the skeleton outward. */
   export type Layer = "joint" | "length" | "frame" | "rest" | "bone" | "tissue" | "check";
@@ -69,7 +60,10 @@ export namespace AutoMovieHumanF1FieldModel {
     name: string;
     /** Its layer. */
     layer: Layer;
-    /** The members of `IPrimary` or `IChecks` that hold it; absent or empty while no typed record holds it. */
+    /**
+     * The members of `IPrimary` or `IAutoMovieHumanF1Engineering.IReading` this
+     * row documents. An empty or absent list marks a row without a typed member.
+     */
     members?: readonly Member[];
     /** Its unit. */
     unit: string;

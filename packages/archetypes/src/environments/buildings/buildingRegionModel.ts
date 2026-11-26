@@ -1,4 +1,4 @@
-import { extrudeAutoMovieRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieProfilePoint,
@@ -19,7 +19,7 @@ export function buildingRegionModel(
     name,
     {
       type: "mesh",
-      mesh: extrudeAutoMovieRegion({
+      mesh: AutoMovieEnginePlanarRegion.extrude({
         outer: rings[0]!,
         holes: rings.slice(1),
         depth,

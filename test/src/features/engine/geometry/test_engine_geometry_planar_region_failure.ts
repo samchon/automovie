@@ -1,12 +1,12 @@
-import { autoMoviePlanarRegionFailure } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `autoMoviePlanarRegionFailure({ outer, holes?, label? })` returns the first
- * hygiene failure of a planar region, or null when it bounds one unambiguous
- * region. Rings are named "<label> outer ring" and "<label> hole[i]", label
- * "polygon" by default.
+ * `AutoMovieEnginePlanarRegion.failure({ outer, holes? }, label?)` returns the
+ * first hygiene failure of a planar region, or null when it bounds one
+ * unambiguous region. Rings are named "<label> outer ring" and "<label>
+ * hole[i]", label "polygon" by default.
  *
  * Scenarios:
  *
@@ -28,10 +28,14 @@ export function test_engine_geometry_planar_region_failure(): void {
   const outer: IAutoMoviePlanarPoint[] = ring(0, 0, 4, 0, 4, 4, 0, 4);
 
   // 1.
-  TestValidator.equals("square", autoMoviePlanarRegionFailure({ outer }), null);
+  TestValidator.equals(
+    "square",
+    AutoMovieEnginePlanarRegion.failure({ outer }),
+    null,
+  );
   TestValidator.equals(
     "holed",
-    autoMoviePlanarRegionFailure({
+    AutoMovieEnginePlanarRegion.failure({
       outer,
       holes: [ring(1, 1, 2, 1, 2, 2, 1, 2)],
     }),
@@ -64,12 +68,12 @@ export function test_engine_geometry_planar_region_failure(): void {
   ] satisfies [string, IAutoMoviePlanarPoint[], string][])
     TestValidator.equals(
       label,
-      autoMoviePlanarRegionFailure({ outer: r }),
+      AutoMovieEnginePlanarRegion.failure({ outer: r }),
       message,
     );
   TestValidator.equals(
     "label",
-    autoMoviePlanarRegionFailure({ outer: ring(0, 0, 1, 0), label: "section" }),
+    AutoMovieEnginePlanarRegion.failure({ outer: ring(0, 0, 1, 0) }, "section"),
     "section outer ring needs at least three points",
   );
 
@@ -93,7 +97,7 @@ export function test_engine_geometry_planar_region_failure(): void {
   ] satisfies [string, IAutoMoviePlanarPoint[][], string][])
     TestValidator.equals(
       label,
-      autoMoviePlanarRegionFailure({ outer, holes }),
+      AutoMovieEnginePlanarRegion.failure({ outer, holes }),
       message,
     );
 
@@ -107,7 +111,7 @@ export function test_engine_geometry_planar_region_failure(): void {
   ];
   TestValidator.equals(
     "translated square admitted",
-    autoMoviePlanarRegionFailure({ outer: translated }),
+    AutoMovieEnginePlanarRegion.failure({ outer: translated }),
     null,
   );
 }

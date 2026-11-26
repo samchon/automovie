@@ -6,8 +6,8 @@ import {
   AutoMovieHumanLowerUnderwear,
   AutoMovieHumanSex,
   AutoMovieHumanUpperUnderwear,
-  type IAutoMovieHumanParameters,
 } from "@automovie/human";
+import type { IAutoMovieHumanParameters } from "@automovie/interface";
 
 /**
  * The parameters of one man, 1.84 m tall, in the Human parameter units; an

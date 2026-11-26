@@ -1,8 +1,8 @@
 import {
+  AutoMovieEnginePlanarRegion,
   buildAutoMoviePolyhedron,
   buildAutoMovieWall,
   extrudeAutoMovieProfile,
-  extrudeAutoMovieRegion,
   revolveAutoMovieProfile,
   tessellateToMesh,
 } from "@automovie/engine";
@@ -44,7 +44,7 @@ export function test_engine_geometry_uv_coordinate_source(): void {
       { x: 0, y: 2, z: 0 },
     ],
   ]);
-  const region: IAutoMovieMesh = extrudeAutoMovieRegion({
+  const region: IAutoMovieMesh = AutoMovieEnginePlanarRegion.extrude({
     outer: [
       { x: 0, y: 0 },
       { x: 3, y: 0 },

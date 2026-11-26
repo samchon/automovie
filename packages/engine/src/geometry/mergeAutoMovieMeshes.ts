@@ -16,11 +16,11 @@ import { triangleIndicesOf } from "./triangleIndicesOf";
  * surfaces, including the parts now inside the other, and a contact edge welded
  * by position belongs to four triangles rather than two, which
  * `validateMeshTopology` reads as non-manifold. The region replaces a boolean
- * here: `extrudeAutoMovieRegion` takes an outline and its voids together, so a
- * wall less its openings or a plate less its cut-outs is one solid from one
- * description. A subtraction along a direction the section does not run in,
- * such as a niche stopping partway into a wall, is not offered at all, and
- * `buildAutoMovieWall` refuses the pinched case by name.
+ * here: `AutoMovieEnginePlanarRegion.extrude` takes an outline and its voids
+ * together, so a wall less its openings or a plate less its cut-outs is one
+ * solid from one description. A subtraction along a direction the section does
+ * not run in, such as a niche stopping partway into a wall, is not offered at
+ * all, and `buildAutoMovieWall` refuses the pinched case by name.
  *
  * Normals and texture coordinates survive only when every member carries them.
  * A merged buffer is read by vertex index, so a member without coordinates has

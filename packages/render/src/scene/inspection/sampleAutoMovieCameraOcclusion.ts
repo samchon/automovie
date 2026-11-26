@@ -23,6 +23,7 @@ import {
 } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { hasMaterialDisplacement } from "./internal/hasMaterialDisplacement.js";
 
 /** A fixed projection-space sample grid inside the admitted bounds rectangle. */
 const SAMPLE_OFFSETS: readonly number[] = [0.2, 0.5, 0.8];
@@ -223,7 +224,7 @@ function supportsRay(mesh: Mesh): boolean {
     material.depthFunc === LessEqualDepth &&
     material.colorWrite &&
     !material.clippingPlanes?.length &&
-    (material.displacementMap ?? null) === null
+    !hasMaterialDisplacement(material)
   );
 }
 

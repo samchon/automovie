@@ -1,4 +1,3 @@
-export * from "./IAutoMovieBeatCaption.js";
 export * from "./autoMovieCaptionLanguageComparisonKey.js";
 export * from "./beatCaptions.js";
 export * from "./canonicalProductionWebVtt.js";

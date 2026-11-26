@@ -13,7 +13,7 @@ import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { builtEnvironmentBuildingOfSpace } from "./builtEnvironmentBuildingOfSpace";
 import { builtSpaceContainsPoint } from "./builtSpaceContainsPoint";
 import { AUTOMOVIE_ENVELOPE_FACADE_LIMIT } from "./constants/AUTOMOVIE_ENVELOPE_FACADE_LIMIT";
-import { AUTOMOVIE_OBSERVATION_PROBE } from "./constants/AUTOMOVIE_OBSERVATION_PROBE";
+import { ObservationGeometry } from "./internal/ObservationGeometry";
 import { outlineCentroid } from "./outlineCentroid";
 
 /**
@@ -30,11 +30,9 @@ import { outlineCentroid } from "./outlineCentroid";
  * Throws when an exposed face's space belongs to no building unit, which
  * validation refuses.
  */
-export const builtEnvironmentEnvelopeFaces: (
+export function builtEnvironmentEnvelopeFaces(
   environment: IAutoMovieBuiltEnvironment,
-) => IAutoMovieBuiltEnvelopeFace[] = (
-  environment: IAutoMovieBuiltEnvironment,
-): IAutoMovieBuiltEnvelopeFace[] => {
+): IAutoMovieBuiltEnvelopeFace[] {
   const spaces: Map<string, IAutoMovieBuiltSpace> = new Map(
     environment.spaces.map(
       (space: IAutoMovieBuiltSpace): [string, IAutoMovieBuiltSpace] => [
@@ -52,9 +50,7 @@ export const builtEnvironmentEnvelopeFaces: (
       boundary.spaces[0]!,
     );
     if (space === undefined) continue;
-    const place: (point: IAutoMoviePlanarPoint) => IAutoMovieVector3 = (
-      point: IAutoMoviePlanarPoint,
-    ): IAutoMovieVector3 =>
+    const place = (point: IAutoMoviePlanarPoint): IAutoMovieVector3 =>
       Vector3.add(
         face.origin,
         Quaternion.rotateVector(face.rotation, {
@@ -71,7 +67,7 @@ export const builtEnvironmentEnvelopeFaces: (
       space,
       Vector3.add(
         centroid,
-        Vector3.scale(authored, AUTOMOVIE_OBSERVATION_PROBE),
+        Vector3.scale(authored, ObservationGeometry.ProbeMeters),
       ),
     )
       ? Vector3.scale(authored, -1)
@@ -106,4 +102,4 @@ export const builtEnvironmentEnvelopeFaces: (
       right: IAutoMovieBuiltEnvelopeFace,
     ): number => compareAutoMovieRenderIds(left.boundary, right.boundary),
   );
-};
+}

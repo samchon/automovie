@@ -15,25 +15,7 @@ import { ViolationCollector } from "../validation/ViolationCollector";
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
-import { AUTO_MOVIE_DESIGN_ISSUE_KINDS } from "./constants/AUTO_MOVIE_DESIGN_ISSUE_KINDS";
 import { validateDesignSourceFrame } from "./validateDesignSourceFrame";
-
-/**
- * Every raw mark family an observation may record, and the point count each one
- * carries. This table is the only list of the families: a second exported array
- * would be a copy that drifts the first time a family is added. A `Map` rather
- * than an object literal, so a kind spelled like an inherited property such as
- * `toString` finds no entry.
- */
-const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
-  new Map([
-    ["line", { min: 2, max: 2 }],
-    ["arc", { min: 3, max: 3 }],
-    ["polyline", { min: 2, max: Infinity }],
-    ["region", { min: 3, max: Infinity }],
-    ["text", { min: 1, max: 1 }],
-    ["level-marker", { min: 1, max: 1 }],
-  ]);
 
 /**
  * Validate one observed design reference as evidence.
@@ -70,11 +52,9 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * @param props.reference Observed design reference to validate.
  * @returns Success, or every violation found.
  */
-export const validateDesignReference: (
+export function validateDesignReference(
   props: IAutoMovieValidateDesignReference.IProps,
-) => IAutoMovieValidation = (
-  props: IAutoMovieValidateDesignReference.IProps,
-): IAutoMovieValidation => {
+): IAutoMovieValidation {
   const reference: IAutoMovieDesignReference = props.reference;
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
@@ -93,6 +73,17 @@ export const validateDesignReference: (
       `${root}.digest`,
       `design reference digest must be a lowercase "sha256:" hex digest, but was ${String(reference.digest)}`,
       reference.digest,
+    );
+  const media: unknown = reference.media;
+  if (
+    typeof media !== "string" ||
+    !Object.hasOwn(DESIGN_REFERENCE_MEDIA, media)
+  )
+    out.push(
+      "type",
+      `${root}.media`,
+      "design reference media must be a supported media string",
+      media,
     );
 
   if (reference.frames.length === 0)
@@ -345,20 +336,63 @@ export const validateDesignReference: (
   );
 
   return out.toValidation();
+}
+
+/** Media declared by an observation, without inspecting the asset bytes. */
+const DESIGN_REFERENCE_MEDIA: Readonly<
+  Record<IAutoMovieDesignReference["media"], true>
+> = {
+  "image/png": true,
+  "image/jpeg": true,
+  "image/svg+xml": true,
+  "application/pdf": true,
+  "image/vnd.dxf": true,
+};
+
+/** Inclusive point-count bounds for an observed primitive. */
+interface IPointCountRange {
+  /** Fewest points the primitive can carry. */
+  readonly min: number;
+
+  /** Most points the primitive can carry, or Infinity without an upper bound. */
+  readonly max: number;
+}
+
+/**
+ * Every raw mark family an observation may record, and the point count each one
+ * carries. A Map excludes inherited names such as `toString` from lookup.
+ */
+const PRIMITIVE_POINTS: ReadonlyMap<string, IPointCountRange> = new Map([
+  ["line", { min: 2, max: 2 }],
+  ["arc", { min: 3, max: 3 }],
+  ["polyline", { min: 2, max: Infinity }],
+  ["region", { min: 3, max: Infinity }],
+  ["text", { min: 1, max: 1 }],
+  ["level-marker", { min: 1, max: 1 }],
+]);
+
+/**
+ * Issue kinds recognized in raw observations, checked against the authoring
+ * contract.
+ */
+const DESIGN_ISSUE_KINDS: Readonly<
+  Record<IAutoMovieDesignIssue["kind"], true>
+> = {
+  "unknown-scale": true,
+  "ambiguous-geometry": true,
+  occluded: true,
+  illegible: true,
+  "conflicting-dimension": true,
+  other: true,
 };
 
 /** One primitive: its frame, family, point count, points and literal text. */
-const validatePrimitive: (
+function validatePrimitive(
   primitive: IAutoMovieObservedPrimitive,
   owner: IAutoMovieDesignSourceFrame | undefined,
   path: string,
   out: IAutoMovieViolationCollector,
-) => void = (
-  primitive: IAutoMovieObservedPrimitive,
-  owner: IAutoMovieDesignSourceFrame | undefined,
-  path: string,
-  out: IAutoMovieViolationCollector,
-): void => {
+): void {
   if (owner === undefined)
     out.push(
       "type",
@@ -366,7 +400,7 @@ const validatePrimitive: (
       `observed primitive frame "${primitive.frame}" does not resolve`,
       primitive.frame,
     );
-  const shape: { min: number; max: number } | undefined = PRIMITIVE_POINTS.get(
+  const shape: IPointCountRange | undefined = PRIMITIVE_POINTS.get(
     primitive.kind,
   );
   if (shape === undefined)
@@ -421,30 +455,23 @@ const validatePrimitive: (
       `a "${String(primitive.kind)}" primitive carries no literal text`,
       primitive.text,
     );
-};
+}
 
 /** One issue: a known kind, a detail, and subjects that resolve once each. */
-const validateIssue: (
+function validateIssue(
   issue: IAutoMovieDesignIssue,
   primitiveIds: ReadonlySet<string>,
   candidateIds: ReadonlySet<string>,
   path: string,
   out: IAutoMovieViolationCollector,
-) => void = (
-  issue: IAutoMovieDesignIssue,
-  primitiveIds: ReadonlySet<string>,
-  candidateIds: ReadonlySet<string>,
-  path: string,
-  out: IAutoMovieViolationCollector,
-): void => {
-  if (
-    !(AUTO_MOVIE_DESIGN_ISSUE_KINDS as readonly string[]).includes(issue.kind)
-  )
+): void {
+  const kind: unknown = issue.kind;
+  if (typeof kind !== "string" || !Object.hasOwn(DESIGN_ISSUE_KINDS, kind))
     out.push(
       "type",
       `${path}.kind`,
-      `unknown design issue kind "${String(issue.kind)}"`,
-      issue.kind,
+      `unknown design issue kind "${String(kind)}"`,
+      kind,
     );
   out.nonEmpty(`${path}.detail`, issue.detail, "design issue detail");
   if (issue.subjects.length === 0)
@@ -473,4 +500,4 @@ const validateIssue: (
       );
     subjectsSeen.add(subject);
   });
-};
+}

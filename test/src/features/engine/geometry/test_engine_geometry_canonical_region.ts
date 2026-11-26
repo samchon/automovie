@@ -1,4 +1,4 @@
-import { canonicalRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -6,10 +6,10 @@ import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `canonicalRegion(outer, holes, label)` validates a planar region and lays it
- * out canonically: copied points, outer ring counter-clockwise, holes
- * clockwise, outer first; `sourceIndices` maps each point back to the flattened
- * input; `area` is the enclosed area.
+ * `AutoMovieEnginePlanarRegion.triangulate` lays out admitted planar regions
+ * canonically: copied points, outer ring counter-clockwise, holes clockwise,
+ * outer first; `sourceIndices` maps each point back to the flattened input;
+ * `area` is the enclosed area.
  *
  * Scenarios:
  *
@@ -32,19 +32,30 @@ export function test_engine_geometry_canonical_region(): void {
     }));
 
   // 1.
-  const cw = canonicalRegion(ring(0, 0, 0, 1, 1, 1, 1, 0), [], "square");
-  TestValidator.equals("reversed", cw, {
-    points: ring(1, 0, 1, 1, 0, 1, 0, 0),
-    sourceIndices: [3, 2, 1, 0],
-    rings: [{ start: 0, count: 4 }],
-    area: 1,
-  });
+  const { points, sourceIndices, rings, area } =
+    AutoMovieEnginePlanarRegion.triangulate(
+      { outer: ring(0, 0, 0, 1, 1, 1, 1, 0) },
+      "square",
+    );
+  TestValidator.equals(
+    "reversed",
+    { points, sourceIndices, rings, area },
+    {
+      points: ring(1, 0, 1, 1, 0, 1, 0, 0),
+      sourceIndices: [3, 2, 1, 0],
+      rings: [{ start: 0, count: 4 }],
+      area: 1,
+    },
+  );
 
   // 2.
   const outer: IAutoMovieProfilePoint[] = ring(0, 0, 4, 0, 4, 4, 0, 4);
   const hole: IAutoMovieProfilePoint[] = ring(1, 1, 2, 1, 2, 2, 1, 2);
   const before: string = JSON.stringify([outer, hole]);
-  const holed = canonicalRegion(outer, [hole], "holed");
+  const holed = AutoMovieEnginePlanarRegion.triangulate(
+    { outer, holes: [hole] },
+    "holed",
+  );
   TestValidator.equals("points", holed.points, [
     ...outer,
     ...ring(1, 2, 2, 2, 2, 1, 1, 1),
@@ -62,27 +73,36 @@ export function test_engine_geometry_canonical_region(): void {
   TestValidator.predicate(
     "refused",
     throwsError(
-      (): unknown => canonicalRegion(ring(0, 0, 1, 0), [], "section"),
+      (): unknown =>
+        AutoMovieEnginePlanarRegion.triangulate(
+          { outer: ring(0, 0, 1, 0) },
+          "section",
+        ),
       "section outer ring needs at least three points",
     ),
   );
 
   // 4.
   const offset: number = 1e12;
-  const { area, sourceIndices } = canonicalRegion(
-    ring(
-      offset,
-      offset,
-      offset,
-      offset + 1,
-      offset + 1,
-      offset + 1,
-      offset + 1,
-      offset,
-    ),
-    [],
+  const distant = AutoMovieEnginePlanarRegion.triangulate(
+    {
+      outer: ring(
+        offset,
+        offset,
+        offset,
+        offset + 1,
+        offset + 1,
+        offset + 1,
+        offset + 1,
+        offset,
+      ),
+    },
     "distant square",
   );
-  TestValidator.predicate("translated area", nclose(area, 1, 0));
-  TestValidator.equals("translated winding", sourceIndices, [3, 2, 1, 0]);
+  TestValidator.predicate("translated area", nclose(distant.area, 1, 0));
+  TestValidator.equals(
+    "translated winding",
+    distant.sourceIndices,
+    [3, 2, 1, 0],
+  );
 }

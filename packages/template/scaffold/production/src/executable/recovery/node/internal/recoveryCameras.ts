@@ -1,11 +1,13 @@
 import { decodeAutoMoviePpmImage } from "@automovie/ingest";
-import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraFiles,
+  IAutoMovieRecoveryCameraPairInput,
+} from "@automovie/interface";
 import { estimateAutoMovieRecoveryCameraPair } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryCameraFiles } from "../index";
 import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 import { recoveryCameraMap } from "./recoveryCameraMap";
 import { recoveryCameraScene } from "./recoveryCameraScene";

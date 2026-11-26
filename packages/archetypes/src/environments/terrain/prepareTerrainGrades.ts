@@ -1,6 +1,6 @@
 import {
+  AutoMovieEnginePlanarRegion,
   Quaternion,
-  autoMoviePlanarRegionFailure,
   pointInPolygon,
   polygonsOverlap,
 } from "@automovie/engine";
@@ -266,10 +266,12 @@ function preparePad(
       };
     },
   );
-  const failure: string | null = autoMoviePlanarRegionFailure({
-    outer: outline,
-    label: id,
-  });
+  const failure: string | null = AutoMovieEnginePlanarRegion.failure(
+    {
+      outer: outline,
+    },
+    id,
+  );
   if (failure !== null) throw new Error(failure);
   const origin: IAutoMovieVector3 = context.frame.translation;
   if (

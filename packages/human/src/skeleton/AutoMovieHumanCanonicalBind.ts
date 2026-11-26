@@ -1,11 +1,14 @@
 import type {
+  AutoMovieHumanSex,
   AutoMovieVector3Tuple,
   IAutoMovieHumanBodySources,
   IAutoMovieHumanCalibrationBone,
   IAutoMovieHumanEyeSeat,
+  IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadPrior,
   IAutoMovieHumanLimbRest,
   IAutoMovieHumanNeckSource,
+  IAutoMovieHumanParameters,
   IAutoMovieHumanSkeletonLaw,
 } from "@automovie/interface";
 
@@ -20,10 +23,7 @@ import { AutoMovieHumanNeckSource } from "../generation/AutoMovieHumanNeckSource
 import { AutoMovieHumanShoulderDatum } from "../generation/AutoMovieHumanShoulderDatum";
 import { AutoMovieHumanSkeletonChain } from "../generation/AutoMovieHumanSkeletonChain";
 import { AutoMovieHumanSkeletonLaw } from "../generation/AutoMovieHumanSkeletonLaw";
-import type { IAutoMovieHumanHeadLayout } from "../generation/IAutoMovieHumanHeadLayout";
 import { AutoMovieHumanHeadNeckScalars } from "../generation/head/AutoMovieHumanHeadNeckScalars";
-import type { IAutoMovieHumanParameters } from "../structures/IAutoMovieHumanParameters";
-import type { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
  * The polygon man's bind joints, placed from the person's parameters by

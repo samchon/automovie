@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
+import { AutoMovieEnginePlanarRegion } from "../geometry/planar-region/AutoMovieEnginePlanarRegion";
 import { planarCross } from "../geometry/planarCross";
 import { convexHull2D } from "../math/convexHull2D";
 
@@ -15,14 +15,16 @@ export const footprintConvexPieces: (
 ) => IAutoMovieVector3[][] = (
   footprint: IAutoMovieFootprint,
 ): IAutoMovieVector3[][] => {
-  const failure: string | null = autoMoviePlanarRegionFailure({
-    outer: footprint.outer.plan,
-    holes: footprint.holes.map(
-      (hole: IAutoMovieFootprintRing): readonly IAutoMoviePlanarPoint[] =>
-        hole.plan,
-    ),
-    label: "footprint",
-  });
+  const failure: string | null = AutoMovieEnginePlanarRegion.failure(
+    {
+      outer: footprint.outer.plan,
+      holes: footprint.holes.map(
+        (hole: IAutoMovieFootprintRing): readonly IAutoMoviePlanarPoint[] =>
+          hole.plan,
+      ),
+    },
+    "footprint",
+  );
   if (failure !== null) return [];
   if (footprint.outer.doubleArea === 0) return [];
   if (footprint.holes.length === 0 && isConvexRing(footprint.outer)) {

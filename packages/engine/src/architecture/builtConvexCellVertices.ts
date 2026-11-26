@@ -4,28 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { AUTOMOVIE_OBSERVATION_EPSILON } from "./constants/AUTOMOVIE_OBSERVATION_EPSILON";
-
-/** A half-space `dot(normal, point) <= offset`. */
-interface IPlane {
-  /** Outward normal; unit length once read through {@link unitPlane}. */
-  normal: IAutoMovieVector3;
-
-  /** Offset along the normal, scaled with it. */
-  offset: number;
-}
-
-/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
-const unitPlane: (plane: IPlane) => IPlane | null = (
-  plane: IPlane,
-): IPlane | null => {
-  const length: number = Vector3.length(plane.normal);
-  if (length <= AUTOMOVIE_OBSERVATION_EPSILON) return null;
-  return {
-    normal: Vector3.scale(plane.normal, 1 / length),
-    offset: plane.offset / length,
-  };
-};
+import { ObservationGeometry } from "./internal/ObservationGeometry";
 
 /**
  * The corner points of one convex cell's own half-space intersection.
@@ -38,17 +17,15 @@ const unitPlane: (plane: IPlane) => IPlane | null = (
  * for a half-space that closes nothing.
  *
  * Planes are normalized first, a plane whose normal is shorter than
- * `AUTOMOVIE_OBSERVATION_EPSILON` is ignored, a triple whose normals'
+ * {@link ObservationGeometry.Epsilon} is ignored, a triple whose normals'
  * determinant is within that tolerance of zero yields no point, a point outside
  * any plane by more than it is dropped, and corners closer than it are merged.
  * Points are world-space in metres, in the order their first plane triple was
  * found.
  */
-export const builtConvexCellVertices: (
+export function builtConvexCellVertices(
   cell: IAutoMovieConvexSpaceCell,
-) => IAutoMovieVector3[] = (
-  cell: IAutoMovieConvexSpaceCell,
-): IAutoMovieVector3[] => {
+): IAutoMovieVector3[] {
   const planes: IPlane[] = [];
   for (const plane of cell.planes) {
     const unit: IPlane | null = unitPlane(plane);
@@ -63,7 +40,7 @@ export const builtConvexCellVertices: (
         const c: IPlane = planes[k]!;
         const bc: IAutoMovieVector3 = Vector3.cross(b.normal, c.normal);
         const determinant: number = Vector3.dot(a.normal, bc);
-        if (Math.abs(determinant) <= AUTOMOVIE_OBSERVATION_EPSILON) continue;
+        if (Math.abs(determinant) <= ObservationGeometry.Epsilon) continue;
         const point: IAutoMovieVector3 = Vector3.scale(
           Vector3.add(
             Vector3.add(
@@ -78,7 +55,7 @@ export const builtConvexCellVertices: (
           planes.some(
             (plane: IPlane): boolean =>
               Vector3.dot(plane.normal, point) >
-              plane.offset + AUTOMOVIE_OBSERVATION_EPSILON,
+              plane.offset + ObservationGeometry.Epsilon,
           )
         )
           continue;
@@ -86,11 +63,30 @@ export const builtConvexCellVertices: (
           vertices.some(
             (known: IAutoMovieVector3): boolean =>
               Vector3.length(Vector3.subtract(known, point)) <=
-              AUTOMOVIE_OBSERVATION_EPSILON,
+              ObservationGeometry.Epsilon,
           )
         )
           continue;
         vertices.push(point);
       }
   return vertices;
-};
+}
+
+/** A half-space `dot(normal, point) <= offset`. */
+interface IPlane {
+  /** Outward normal; unit length once read through {@link unitPlane}. */
+  normal: IAutoMovieVector3;
+
+  /** Offset along the normal, scaled with it. */
+  offset: number;
+}
+
+/** Read a plane as a unit normal and its matching offset, or null if degenerate. */
+function unitPlane(plane: IPlane): IPlane | null {
+  const length: number = Vector3.length(plane.normal);
+  if (length <= ObservationGeometry.Epsilon) return null;
+  return {
+    normal: Vector3.scale(plane.normal, 1 / length),
+    offset: plane.offset / length,
+  };
+}

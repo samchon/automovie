@@ -24,8 +24,3 @@ export * from "./AutoMovieHumanSkeleton";
 export * from "./AutoMovieHumanSkeletonMath";
 export * from "./AutoMovieHumanSkinStep";
 export * from "./fitHumanPhysicalStandingPose";
-export * from "./IAutoMovieHumanBindingLimb";
-export * from "./IAutoMovieHumanBindingLips";
-export * from "./IAutoMovieHumanBindingPlane";
-export * from "./IAutoMovieHumanChainRings";
-export * from "./IAutoMovieHumanNeutralBody";

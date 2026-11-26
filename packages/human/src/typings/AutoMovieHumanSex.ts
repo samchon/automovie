@@ -1,8 +1,5 @@
 import type { AutoMovieHumanSex as AutoMovieHumanSexContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanSex literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanSex = AutoMovieHumanSexContract;
-
 /**
  * Sex category associated with requested reference statistics.
  *

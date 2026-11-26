@@ -6,7 +6,6 @@ export * from "../IBakeFormationCycleProps.js";
 export * from "../AUTOMOVIE_FORMATION_CYCLE_SAMPLES.js";
 export * from "../IAutoMovieFormationCycleUniforms.js";
 export * from "../IAutoMovieFormationCycleTake.js";
-export * from "../IAutoMovieFormationPoseTake.js";
 export * from "../IAutoMovieFormationCycle.js";
 export * from "../instancedModelParts.js";
 export * from "../formationCycleGait.js";

@@ -1,9 +1,11 @@
-import type { IAutoMovieRecoveryCameraMapInput } from "@automovie/interface";
+import type {
+  IAutoMovieRecoveryCameraMapFiles,
+  IAutoMovieRecoveryCameraMapInput,
+} from "@automovie/interface";
 import { estimateAutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
-import { type IAutoMovieRecoveryCameraMapFiles } from "../index";
 import { readAutoMovieRecoveryBoundedFile } from "./readAutoMovieRecoveryBoundedFile";
 import { readRecoveryCameraImages } from "./readRecoveryCameraImages";
 

@@ -1,12 +1,13 @@
-import { triangulateRegion } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * `triangulateRegion(outer, holes, label)` lays a planar region out canonically
- * and ear-clips it, naming the region `label` in diagnostics.
+ * `AutoMovieEnginePlanarRegion.triangulate({ outer, holes }, label)` lays a
+ * planar region out canonically and ear-clips it, naming the region `label` in
+ * diagnostics.
  *
  * Scenarios:
  *
@@ -25,7 +26,10 @@ export function test_engine_geometry_triangulate_region(): void {
   // 1.
   TestValidator.equals(
     "square",
-    triangulateRegion(ring(0, 0, 0, 1, 1, 1, 1, 0), [], "square"),
+    AutoMovieEnginePlanarRegion.triangulate(
+      { outer: ring(0, 0, 0, 1, 1, 1, 1, 0) },
+      "square",
+    ),
     {
       points: ring(1, 0, 1, 1, 0, 1, 0, 0),
       sourceIndices: [3, 2, 1, 0],
@@ -39,7 +43,11 @@ export function test_engine_geometry_triangulate_region(): void {
   TestValidator.predicate(
     "label",
     throwsError(
-      (): unknown => triangulateRegion(ring(0, 0, 1, 0), [], "wall"),
+      (): unknown =>
+        AutoMovieEnginePlanarRegion.triangulate(
+          { outer: ring(0, 0, 1, 0) },
+          "wall",
+        ),
       "wall outer ring needs at least three points",
     ),
   );

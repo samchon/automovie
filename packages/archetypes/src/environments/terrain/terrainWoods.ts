@@ -1,5 +1,5 @@
 import {
-  autoMoviePlanarRegionFailure,
+  AutoMovieEnginePlanarRegion,
   createAutoMovieRandom,
   deriveAutoMovieSeed,
   pointInPolygon,
@@ -113,10 +113,12 @@ export function terrainWoods(
         y: z,
       }),
     );
-    const failure: string | null = autoMoviePlanarRegionFailure({
-      outer: outline,
-      label: id,
-    });
+    const failure: string | null = AutoMovieEnginePlanarRegion.failure(
+      {
+        outer: outline,
+      },
+      id,
+    );
     if (failure !== null) throw new Error(failure);
     if (
       outline.some(

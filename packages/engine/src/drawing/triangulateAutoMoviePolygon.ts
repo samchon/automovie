@@ -1,7 +1,7 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
 import { polygonDoubleArea } from "../architecture/polygonDoubleArea";
-import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionFailure";
+import { AutoMovieEnginePlanarRegion } from "../geometry/planar-region/AutoMovieEnginePlanarRegion";
 
 /**
  * Ear-clip one simple planar polygon into triangle index triples.
@@ -14,7 +14,7 @@ import { autoMoviePlanarRegionFailure } from "../geometry/autoMoviePlanarRegionF
  * always best, so every pass makes progress.
  *
  * Throws an `Error` for fewer than three corners, and with the
- * {@link autoMoviePlanarRegionFailure} message for a ring that is not one
+ * {@link AutoMovieEnginePlanarRegion.failure} message for a ring that is not one
  * unambiguous region, because a triangle of undefined or crossing corners would
  * put a face of nothing into a drawing.
  *
@@ -33,7 +33,7 @@ export const triangulateAutoMoviePolygon = (
     throw new Error(
       `a polygon needs at least 3 corners to triangulate, but had ${polygon.length}`,
     );
-  const failure: string | null = autoMoviePlanarRegionFailure({
+  const failure: string | null = AutoMovieEnginePlanarRegion.failure({
     outer: polygon,
   });
   if (failure !== null) throw new Error(failure);

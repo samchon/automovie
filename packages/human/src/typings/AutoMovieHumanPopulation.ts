@@ -1,8 +1,5 @@
 import type { AutoMovieHumanPopulation as AutoMovieHumanPopulationContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanPopulation literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanPopulation = AutoMovieHumanPopulationContract;
-
 /**
  * Reference population associated with the requested survey statistics.
  *

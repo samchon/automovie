@@ -4,7 +4,7 @@
 
 - Use f1, f2, m1 and m2 as reference names in project records and commits.
 - Keep private reference data in its existing location.
-- Keep acquisition tools in [tracked paths](../development/SKILL.md#scripts-and-shared-checkouts).
+- Keep acquisition tools in tracked files.
 
 ## Ignored paths
 

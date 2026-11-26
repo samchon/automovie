@@ -1,6 +1,7 @@
 import { Camera, Material, Mesh, Object3D } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { hasMaterialDisplacement } from "./internal/hasMaterialDisplacement.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 
 /**
@@ -74,6 +75,6 @@ function keepsVertices(input: Material | Material[]): boolean {
       !AutoMovieThreeKind.isShaderMaterial(material) &&
       material.onBeforeCompile === Material.prototype.onBeforeCompile &&
       material.onBeforeRender === Material.prototype.onBeforeRender &&
-      (material.displacementMap ?? null) === null,
+      !hasMaterialDisplacement(material),
   );
 }

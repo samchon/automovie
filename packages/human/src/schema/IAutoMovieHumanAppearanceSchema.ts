@@ -1,8 +1,10 @@
-import type { IAutoMovieHumanAppearance } from "@automovie/interface";
+import type {
+  IAutoMovieHumanAppearance,
+  IAutoMovieHumanPair,
+} from "@automovie/interface";
 
 import type { IAutoMovieHumanBrowAppearanceSchema } from "./IAutoMovieHumanBrowAppearanceSchema";
 import type { IAutoMovieHumanEyelashSchema } from "./IAutoMovieHumanEyelashSchema";
-import type { IAutoMovieHumanPairSchema } from "./IAutoMovieHumanPairSchema";
 import type { IAutoMovieHumanScalpHairSchema } from "./IAutoMovieHumanScalpHairSchema";
 import type { IAutoMovieHumanSkinAppearanceSchema } from "./IAutoMovieHumanSkinAppearanceSchema";
 import type { IAutoMovieHumanUnderwearSchema } from "./IAutoMovieHumanUnderwearSchema";
@@ -16,10 +18,10 @@ export type IAutoMovieHumanAppearanceSchema = IAutoMovieHumanAppearance & {
   hair: IAutoMovieHumanScalpHairSchema;
 
   /** Eyebrows. */
-  browPair: IAutoMovieHumanPairSchema<IAutoMovieHumanBrowAppearanceSchema>;
+  browPair: IAutoMovieHumanPair<IAutoMovieHumanBrowAppearanceSchema>;
 
   /** Eyelashes. */
-  lashPair: IAutoMovieHumanPairSchema<IAutoMovieHumanEyelashSchema>;
+  lashPair: IAutoMovieHumanPair<IAutoMovieHumanEyelashSchema>;
 
   /** Underwear. */
   underwear: IAutoMovieHumanUnderwearSchema;

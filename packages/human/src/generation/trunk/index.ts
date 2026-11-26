@@ -14,4 +14,3 @@ export * from "./AutoMovieHumanTrunkSectionFamily";
 export * from "./AutoMovieHumanTrunkTape";
 export * from "./AutoMovieHumanTrunkViewPart";
 export * from "./AutoMovieHumanTrunkViews";
-export * from "./IAutoMovieHumanTrunkViews";

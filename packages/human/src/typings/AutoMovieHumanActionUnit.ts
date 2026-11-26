@@ -1,8 +1,5 @@
 import type { AutoMovieHumanActionUnit as AutoMovieHumanActionUnitContract } from "@automovie/interface";
 
-/** The canonical AutoMovieHumanActionUnit literal vocabulary; runtime named members below preserve value access. */
-export type AutoMovieHumanActionUnit = AutoMovieHumanActionUnitContract;
-
 /**
  * A facial action unit of the Facial Action Coding System (FACS; Ekman and Friesen 1978), named by its action.
  *

@@ -13,8 +13,8 @@ export namespace IAutoMovieMeasureModelCrossings {
    * query. A pair appears once, in model part order, only when at least one
    * triangle on either side is crossed, with each side's crossed triangle count
    * and their combined coplanar count. Touching is not crossing: the underlying
-   * `measureAutoMovieMeshCrossings` test is strict, so shells meeting along a
-   * seam do not report.
+   * `AutoMovieEngineMeshCrossingQuery.measure` test is strict, so shells
+   * meeting along a seam do not report.
    *
    * An empty result does not mean a healthy model, nor a full one a broken one.
    * A layered character rests with shells inside each other on purpose: the
