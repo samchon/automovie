@@ -1,3 +1,4 @@
+import { AutoMovieEngineScheduleCut } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntent,
@@ -123,8 +124,11 @@ export namespace HumanPerformanceAhead {
     intent: IAutoMovieIntent,
     ordinal: number,
   ): IAutoMovieMotionHumanActionContext.ICut | undefined {
-    const until: IAutoMovieIntent["until"] = intent.until;
-    if (until === undefined || "of" in until || "proximity" in until)
+    const until =
+      intent.until === undefined
+        ? undefined
+        : AutoMovieEngineScheduleCut.normalize(intent.until);
+    if (until === undefined || (until.type !== "share" && until.type !== "event"))
       return undefined;
     const next: IAutoMovieIntent | undefined = (self.intended.get(
       intent.subject,
@@ -135,7 +139,9 @@ export namespace HumanPerformanceAhead {
     const plant: IAutoMovieMotionHumanActionLaw.IPlant | undefined =
       law?.plants?.(law.resolve?.(given) ?? given);
     return {
-      ...("event" in until ? { event: until.event } : { share: until.share }),
+      ...(until.type === "event"
+        ? { event: until.event }
+        : { share: until.share }),
       ...(plant === undefined ? {} : { plant }),
     };
   }

@@ -207,7 +207,9 @@ async function flightCutPlayback(): Promise<void> {
   const share: number = (before + next!.from) / 2;
   const performance: HumanPerformance = new HumanPerformance({
     ...input,
-    composition: sprint.until({ share }).walk({ to: { x: 0, y: 0, z: 8 } })
+    composition: sprint
+      .until({ type: "share", share })
+      .walk({ to: { x: 0, y: 0, z: 8 } })
       .node,
   });
   const incoming: IAutoMovieMotionHumanSegment =

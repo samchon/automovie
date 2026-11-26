@@ -16,6 +16,7 @@ import { checkDrivingScrew } from "./checkDrivingScrew";
 import { checkEverydayScenes } from "./checkEverydayScenes";
 import { checkFarewellScene } from "./checkFarewellScene";
 import { checkPlaygroundCues } from "./checkPlaygroundCues";
+import { checkPlaygroundScheduleCuts } from "./checkPlaygroundScheduleCuts";
 import { checkSceneTakes } from "./checkSceneTakes";
 import { checkTourists } from "./checkTourists";
 import { checkVehicleScenes } from "./checkVehicleScenes";
@@ -62,6 +63,7 @@ const CHECKS: readonly ISceneCheck[] = [
   { name: "Victory lap with a low five", run: checkVictoryLap },
   { name: "vehicles", run: checkVehicleScenes },
   { name: "playground cue tracks", run: checkPlaygroundCues },
+  { name: "playground schedule cuts", run: checkPlaygroundScheduleCuts },
 ];
 
 let failed: number = 0;

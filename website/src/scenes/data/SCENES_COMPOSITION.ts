@@ -53,14 +53,18 @@ export const SCENES_COMPOSITION: readonly IScene[] = [
     "change-of-mind",
     [
       person("max", "m2", -3, 0, 90, [
-        act("walk", { to: to(3, 0) }, { until: { share: 0.5 } }),
+        act("walk", { to: to(3, 0) }, {
+          until: { type: "share", share: 0.5 },
+        }),
         act("run", { to: to(-3, -1), pace: "jog" }),
         act("look", { target: at("noa", "face"), cue: "seen" }),
         act("checkWatch"),
         act("walk", { to: to(-3, -4.2) }),
       ]),
       person("noa", "f2", 3, 2, 270, [
-        act("run", { to: to(-3, 2), pace: "jog" }, { until: { share: 0.4 } }),
+        act("run", { to: to(-3, 2), pace: "jog" }, {
+          until: { type: "share", share: 0.4 },
+        }),
         act("walk", { to: to(0, 4) }),
         act("handsOnHips", { hold: 1.6 }),
         act("neckRoll", { count: 1 }),

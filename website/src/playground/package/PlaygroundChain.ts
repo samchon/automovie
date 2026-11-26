@@ -1,3 +1,4 @@
+import { AutoMovieEngineScheduleCut } from "@automovie/engine";
 import type {
   AutoMovieHumanSex,
   IAutoMovieComposition,
@@ -34,7 +35,7 @@ export namespace PlaygroundChain {
     registered?(name: string, params: object, anchor?: string): ILoose;
 
     /** Cut the last action. */
-    until(until: object): ILoose;
+    until(until: IPlaygroundComposition.IAction["until"]): ILoose;
 
     /** Time the last action to an instant. */
     sync?(sync: object): ILoose;
@@ -241,7 +242,8 @@ export namespace PlaygroundChain {
         next = chain.registered(action.name, params, action.anchor);
       } else next = chain.act(action.name, params, action.anchor);
 
-      if (action.until !== undefined) next = next.until(action.until);
+      if (action.until !== undefined)
+        next = next.until(AutoMovieEngineScheduleCut.normalize(action.until));
 
       if (action.over !== undefined && action.over.length !== 0) {
         if (next.over === undefined)

@@ -1,6 +1,6 @@
 export * from "./AutoMovieChain";
 export * from "./AutoMovieComposition";
-export * from "./AutoMovieScheduleCut";
+export * from "./AutoMovieEngineScheduleCut";
 export * from "./AutoMovieScheduleError";
 export * from "./AutoMovieSchedulePlace";
 export * from "./AutoMovieScheduleWalk";

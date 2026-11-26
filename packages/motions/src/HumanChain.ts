@@ -37,7 +37,7 @@ type IPairResult = {
  * ```ts
  * const a = HumanChain.subject("a")
  *   .stand({ hold: 1 })
- *   .until({ share: 0.5 })
+ *   .until({ type: "share", share: 0.5 })
  *   .stand();
  * new HumanPerformance({ seed: "film", performers, composition: a.node });
  * ```

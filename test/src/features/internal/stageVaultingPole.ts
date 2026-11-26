@@ -109,7 +109,7 @@ export function stageVaultingPole(
       })
       .stand({ hold: 0.3 })
       .run({ to: { x: 0, y: 0, z: 10 }, pace: "sprint" })
-      .until({ event: "leftHeelStrike3" })
+      .until({ type: "event", event: "leftHeelStrike3" })
       .registered("vaultOnPole", { pole: "pole", rating }).node,
   });
   return { film, pole };

@@ -36,66 +36,74 @@ export interface IAutoMovieIntent {
    * Cut the action short, as an interrupt (a cancel window in fighting-game
    * terms):
    *
-   * - `{ share }`: at a share of its duration in [0, 1];
-   * - `{ event }`: at one of its own named events
+   * - `{ type: "share", share }`: at a share of its duration in [0, 1];
+   * - `{ type: "event", event }`: at one of its own named events
    *   (`resolveAutoMovieSchedule.ITiming.events`);
-   * - `{ of, event }`: when an event of the intent anchored `of`, usually another
-   *   subject's action, or of a cue track named `of`, happens; `index` picks
-   *   which occurrence where the name repeats;
-   * - `{ proximity }`: when the subject's `effector` region first comes within
-   *   `distance` metres of `target` (zero is contact), which the production's
-   *   `until` law finds from its motion; a proximity the motion never reaches
-   *   cuts nothing, and the action runs to its end.
+   * - `{ type: "anchor-event", of, event }`: when an event of the intent anchored
+   *   `of`, usually another subject's action, or of a cue track named `of`,
+   *   happens; `index` picks which occurrence where the name repeats;
+   * - `{ type: "proximity", proximity }`: when the subject's `effector` region
+   *   first comes within `distance` metres of `target` (zero is contact), which
+   *   the production's `until` law finds from its motion; a proximity the
+   *   motion never reaches cuts nothing, and the action runs to its end.
+   *
+   * The scheduler also accepts the exact untagged shapes above from persisted
+   * older payloads and normalizes them before scheduling.
    *
    * The entry then ends at the cut and the next part of a sequence starts
    * there. The production's legality rules decide whether the cut is declared;
    * the resolver only places it. Absent, the action runs to its end.
    */
-  until?:
-    | {
-        /**
-         * Fraction of the full, uncut duration in [0, 1], checked by
-         * AutoMovieScheduleCut.
-         */
-        share: number;
-      }
-    | {
-        /**
-         * First matching event from this intent's timing; missing names are
-         * rejected.
-         */
-        event: string;
-      }
-    | {
-        /**
-         * Earlier placed intent's anchor, fixed cue track, or dynamically
-         * supplied cue track.
-         */
-        of: string;
-        /**
-         * Event name within that anchor or track; matching preserves the source
-         * event order.
-         */
-        event: string;
-        /**
-         * Zero-based occurrence among that name's events; defaults to zero and
-         * is rejected when no occurrence exists.
-         */
-        index?: number;
-      }
-    | {
-        /**
-         * Geometric stopping request interpreted by the production's until law;
-         * the scheduler validates only the returned share, not the distance or
-         * target.
-         */
-        proximity: {
-          /** The subject's own region that approaches. */
-          effector: AutoMovieHumanoidRegion;
-          /** What it approaches. */
-          target: IAutoMovieMotionTarget;
-          /** Distance at which the cut happens, metres; zero is contact. */
-          distance: number;
-        };
-      };
+  until?: IAutoMovieIntent.IUntil;
+}
+
+export namespace IAutoMovieIntent {
+  /** A tagged cut request accepted by a composition intent. */
+  export type IUntil =
+    | IUntilShare
+    | IUntilEvent
+    | IUntilAnchorEvent
+    | IUntilProximity;
+
+  /** Cut at a share of the intent's duration. */
+  export interface IUntilShare {
+    type: "share";
+    /** Fraction of the full, uncut duration in [0, 1]. */
+    share: number;
+  }
+
+  /** Cut at one of the intent's own named events. */
+  export interface IUntilEvent {
+    type: "event";
+    /** Event name in this intent's timing. */
+    event: string;
+  }
+
+  /** Cut at a named event of an earlier anchor or cue track. */
+  export interface IUntilAnchorEvent {
+    type: "anchor-event";
+    /** Earlier placed intent's anchor or cue track id. */
+    of: string;
+    /** Event name in that anchor or track. */
+    event: string;
+    /** Zero-based occurrence among events with this name; defaults to zero. */
+    index?: number;
+  }
+
+  /** Cut when the until law reports the requested proximity. */
+  export interface IUntilProximity {
+    type: "proximity";
+    /** Geometric stopping request interpreted by the production's until law. */
+    proximity: IProximity;
+  }
+
+  /** Geometric request interpreted by a production's until law. */
+  export interface IProximity {
+    /** The subject's own region that approaches. */
+    effector: AutoMovieHumanoidRegion;
+    /** What it approaches. */
+    target: IAutoMovieMotionTarget;
+    /** Distance at which the cut happens, metres; zero is contact. */
+    distance: number;
+  }
 }

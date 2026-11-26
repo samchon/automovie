@@ -8,6 +8,7 @@ import type {
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
 
+import { AutoMovieEngineScheduleCut } from "./AutoMovieEngineScheduleCut";
 import { AutoMovieSchedulePlace } from "./AutoMovieSchedulePlace";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
 
@@ -373,8 +374,11 @@ function references(node: IAutoMovieComposition): Set<string> {
   const visit = (n: IAutoMovieComposition): void => {
     if (n.type === "intent") {
       strings(n.intent.parameters);
-      if (n.intent.until !== undefined && "of" in n.intent.until)
-        out.add(n.intent.until.of);
+      if (n.intent.until !== undefined) {
+        const until: IAutoMovieIntent.IUntil =
+          AutoMovieEngineScheduleCut.normalize(n.intent.until);
+        if (until.type === "anchor-event") out.add(until.of);
+      }
     } else if (n.type === "at") {
       out.add(n.anchor);
       visit(n.part);

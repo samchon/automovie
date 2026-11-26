@@ -503,7 +503,7 @@ export const SCENES_GAMES: readonly IScene[] = [
             via: [to(-3.2, -1.25), to(-2.1, -0.86), to(-1.35, -0.28)],
             pace: "run",
           },
-          { until: { event: "rightHeelStrike2" } },
+          { until: { type: "event", event: "rightHeelStrike2" } },
         ),
         act(
           "fosburyFlop",

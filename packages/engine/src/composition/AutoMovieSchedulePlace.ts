@@ -11,7 +11,7 @@ import type {
   IAutoMovieScheduleWalk,
 } from "@automovie/interface";
 
-import { AutoMovieScheduleCut } from "./AutoMovieScheduleCut";
+import { AutoMovieEngineScheduleCut } from "./AutoMovieEngineScheduleCut";
 import { AutoMovieScheduleError } from "./AutoMovieScheduleError";
 import { AutoMovieScheduleWalk } from "./AutoMovieScheduleWalk";
 
@@ -68,13 +68,8 @@ export namespace AutoMovieSchedulePlace {
       );
     // A cut ends the entry early at a share or a named event; a contact
     // after the cut never happens.
-    const cut: IAutoMovieScheduleCut.ICut | undefined = AutoMovieScheduleCut.of(
-      walk,
-      intent,
-      timing,
-      start,
-      context,
-    );
+    const cut: IAutoMovieScheduleCut.ICut | undefined =
+      AutoMovieEngineScheduleCut.of(walk, intent, timing, start, context);
     const length: number =
       cut === undefined ? timing.duration : cut.share * timing.duration;
     // The index is read after the timing, since a law's demand may have

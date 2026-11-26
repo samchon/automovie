@@ -1,4 +1,5 @@
 import {
+  AutoMovieEngineScheduleCut,
   AutoMovieScheduleError,
   Vector3,
   bracketedRoot,
@@ -372,8 +373,11 @@ export namespace HumanPerformanceSchedule {
     intent: IAutoMovieIntent,
     placed: IProximityPlaced,
   ): number | undefined {
-    const until = intent.until;
-    if (until === undefined || !("proximity" in until)) return undefined;
+    const until =
+      intent.until === undefined
+        ? undefined
+        : AutoMovieEngineScheduleCut.normalize(intent.until);
+    if (until?.type !== "proximity") return undefined;
     const person: IAutoMovieMotionHumanSegment.IPerson =
       HumanPerformanceRead.person(self, intent.subject);
 

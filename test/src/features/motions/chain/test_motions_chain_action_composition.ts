@@ -23,7 +23,10 @@ export function test_motions_chain_action_composition(): void {
     { hold: 2 },
     "base",
   );
-  const cut: IAutoMovieMotionHumanChain = original.until({ share: 0.5 });
+  const cut: IAutoMovieMotionHumanChain = original.until({
+    type: "share",
+    share: 0.5,
+  });
   const composed: IAutoMovieMotionHumanChain = cut
     .over(
       (overlay: IAutoMovieMotionHumanChain): IAutoMovieMotionHumanChain =>
@@ -63,7 +66,7 @@ export function test_motions_chain_action_composition(): void {
       carrier.intent.parameters?.latency === "reaction" &&
       carrier.intent.parameters.over === undefined &&
       until !== undefined &&
-      "share" in until &&
+      until.type === "share" &&
       until.share === 0.5 &&
       gesture?.type === "intent" &&
       gesture.intent.anchor === "gesture" &&
@@ -83,7 +86,7 @@ export function test_motions_chain_action_composition(): void {
         "already synced",
       ) &&
       throwsError(
-        (): unknown => composed.until({ share: 0.75 }),
+        (): unknown => composed.until({ type: "share", share: 0.75 }),
         "cut it first",
       ),
   );

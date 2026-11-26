@@ -58,7 +58,7 @@ export async function test_motions_striking_punch_impact_cut(): Promise<void> {
     composition: HumanChain.subject("a")
       .guard({ style: "boxing", duration: 0.5 })
       .registered("jab", { at: target }, "lead")
-      .until({ event: "impact" })
+      .until({ type: "event", event: "impact" })
       .registered("cross", { at: target }, "rear").node,
   });
   const [, lead, rear]: readonly IAutoMovieMotionHumanSegment[] =

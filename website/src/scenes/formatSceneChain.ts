@@ -1,3 +1,4 @@
+import { AutoMovieEngineScheduleCut } from "@automovie/engine";
 import { ArchetypeRegistry } from "../archetypes/ArchetypeRegistry";
 import { playgroundActionParams } from "../playground/data/playgroundActionParams";
 import { playgroundAidWalkAction } from "../playground/package/playgroundAidWalkAction";
@@ -72,7 +73,12 @@ export function formatSceneChain(
         `${by}.${method}(${JSON.stringify(action.name)}, ${indent(value(params), by)}${action.anchor === undefined ? "" : `, ${JSON.stringify(action.anchor)}`})`,
       ];
       if (action.until !== undefined)
-        out.push(`${by}.until(${indent(value(action.until), by)})`);
+        out.push(
+          `${by}.until(${indent(
+            value(AutoMovieEngineScheduleCut.normalize(action.until)),
+            by,
+          )})`,
+        );
       if (action.over !== undefined && action.over.length !== 0)
         out.push(
           `${by}.over((overlay) =>`,

@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieIntent,
   IAutoMovieMotionHumanActionParams,
   IAutoMovieMotionHumanLexiconParams,
   IAutoMovieMotionHumanSeated,
@@ -149,8 +150,11 @@ export namespace SceneBuildTypes {
   /** Chain operators applied to an authored action. */
   export interface IActionOptions extends Pick<
     IPlaygroundComposition.IAction,
-    "anchor" | "until" | "sync"
+    "anchor" | "sync"
   > {
+    /** Where the action is interrupted, in the schedule's tagged form. */
+    until?: IAutoMovieIntent.IUntil;
+
     /** Actions layered over this one after their own inputs have been checked. */
     over?: AuthoredAction[];
   }

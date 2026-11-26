@@ -80,12 +80,13 @@ export class HumanChainCore extends AutoMovieChain {
    * Cut the last appended action: at a share, at one of its events, at another
    * action's event, or when a region comes near a target.
    *
-   * @param until The cut.
+   * @param until The tagged cut: `share`, `event`, `anchor-event` or
+   *   `proximity`.
    * @returns The chain.
    * @throws {Error} When the chain ends in no action, or in one already synced
    *   (cut it before syncing it).
    */
-  public until(until: NonNullable<IAutoMovieIntent["until"]>): this {
+  public until(until: IAutoMovieIntent.IUntil): this {
     const parts: readonly IAutoMovieComposition[] =
       this.node.type === "sequence" ? this.node.parts : [this.node];
     const last: IAutoMovieComposition | undefined = parts.at(-1);

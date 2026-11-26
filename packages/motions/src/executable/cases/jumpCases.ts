@@ -143,7 +143,7 @@ export function jumpCases(who: string): IMotionCaptureCase[] {
       performance = perform(
         HumanChain.subject("a")
           .walk({ to: goal })
-          .until({ share: cut })
+          .until({ type: "share", share: cut })
           .jump({ to: { x: hips.x, y: 0, z: hips.z + 0.9 } }),
       );
     } catch (error) {

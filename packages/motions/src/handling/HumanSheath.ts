@@ -372,11 +372,11 @@ export namespace HumanSheath {
                 lift: 0,
                 hand: other,
               } satisfies IAutoMovieMotionHumanPickUp.IParams)
-              .until({ event: "gripClosed" }),
+              .until({ type: "event", event: "gripClosed" }),
           );
     const gripped: Chain = held
       .registered(HumanCarrierCustody.name, grip)
-      .until({ event: "gripClosed" });
+      .until({ type: "event", event: "gripClosed" });
     return (pull === undefined ? timed(gripped) : gripped).registered(
       drawFromCarrier.name,
       out,

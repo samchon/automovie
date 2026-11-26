@@ -79,7 +79,7 @@ export function strikingScenarios(
     );
   const redirect = (share: number): IAutoMovieMotionHumanChain =>
     middle()
-      .until({ share })
+      .until({ type: "share", share })
       .act(
         "kick",
         {

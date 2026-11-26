@@ -1,5 +1,8 @@
 import type { AutoMovieArchetypeCourse } from "@automovie/archetypes";
-import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
+import type {
+  IAutoMovieIntent,
+  IAutoMovieMotionHumanImpulse,
+} from "@automovie/interface";
 
 /**
  * A composition as the playground holds it: plain data that the editor changes,
@@ -238,9 +241,9 @@ export namespace IPlaygroundComposition {
 
     /**
      * Where the action is cut, as `HumanChain.until` takes it; uncut when
-     * absent.
+     * absent. Saved legacy shapes are normalized when the address is read.
      */
-    until?: Record<string, unknown>;
+    until?: IAutoMovieIntent.IUntil;
 
     /**
      * The instant the action is timed to, as `HumanChain.sync` takes it;

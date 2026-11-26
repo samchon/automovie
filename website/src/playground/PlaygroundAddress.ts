@@ -1,4 +1,5 @@
 import LZString from "lz-string";
+import { AutoMovieEngineScheduleCut } from "@automovie/engine";
 
 import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition";
 
@@ -24,11 +25,13 @@ export namespace PlaygroundAddress {
    *
    * @param composition The composition.
    * @returns The fragment, with its leading `#`.
-   * @throws {Error} When authored forces are damaged or need version 3.
+   * @throws {Error} When a cut is malformed, authored forces are damaged or
+   *   need version 3.
    */
   export function encode(composition: IPlaygroundComposition): string {
     admitForces(composition);
-    return `#${KEY}=${LZString.compressToEncodedURIComponent(JSON.stringify(composition))}`;
+    const canonical: IPlaygroundComposition = normalizeCuts(composition);
+    return `#${KEY}=${LZString.compressToEncodedURIComponent(JSON.stringify(canonical))}`;
   }
 
   /**
@@ -38,8 +41,8 @@ export namespace PlaygroundAddress {
    * @returns The composition with numeric object seeds, or null when the
    *   fragment carries none. A saved text seed is read as the same number that
    *   the former model producer received.
-   * @throws {Error} When the fragment's composition cannot be read, or is of
-   *   another version, naming the version it needs.
+   * @throws {Error} When the fragment's composition or a cut cannot be read,
+   *   or is of another version, naming the version it needs.
    */
   export function decode(hash: string): IPlaygroundComposition | null {
     const text: string | null = new URLSearchParams(
@@ -82,7 +85,40 @@ export namespace PlaygroundAddress {
     )
       throw new Error("The address carries a composition that cannot be read");
     admitForces(composition);
-    return objects === undefined ? composition : { ...composition, objects };
+    return normalizeCuts({
+      ...composition,
+      ...(objects === undefined ? {} : { objects }),
+    });
+  }
+
+  /** Canonicalize cuts without changing a saved composition's other data. */
+  function normalizeCuts(
+    composition: IPlaygroundComposition,
+  ): IPlaygroundComposition {
+    return {
+      ...composition,
+      performers: composition.performers.map(
+        (person: IPlaygroundComposition.IPerformer) => ({
+          ...person,
+          actions: person.actions.map(normalizeAction),
+        }),
+      ),
+    };
+  }
+
+  /** Normalize one action and every action nested in its overlays. */
+  function normalizeAction(
+    action: IPlaygroundComposition.IAction,
+  ): IPlaygroundComposition.IAction {
+    return {
+      ...action,
+      ...(action.until === undefined
+        ? {}
+        : { until: AutoMovieEngineScheduleCut.normalize(action.until) }),
+      ...(action.over === undefined
+        ? {}
+        : { over: action.over.map(normalizeAction) }),
+    };
   }
 
   /**
