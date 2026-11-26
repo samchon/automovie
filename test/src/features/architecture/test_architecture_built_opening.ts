@@ -44,7 +44,8 @@ import { sameProductData } from "../internal/sameProductData";
  *    whole.
  * 2. Wall-cut ids and selected dimensions join the graph to the mesh kernel; the
  *    cut mesh has more triangles, less measured volume and no nonfinite
- *    topology entries than the solid wall.
+ *    topology entries than the solid wall. The kernel refuses non-finite wall
+ *    dimensions and opening origins and admits openings at zero origins.
  * 3. A round void is handed to the rectangular kernel as the rectangle that
  *    exactly bounds it, which for a 0.4 m circle is 0.8 m square.
  * 4. Panel placement answers where a leaf stands at the record's own state and at
@@ -203,6 +204,57 @@ export function test_architecture_built_opening(): void {
         cutTopology.volume < solidTopology.volume
       );
     })(),
+  );
+  for (const width of [
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+    0,
+  ])
+    TestValidator.predicate(
+      `wall width ${width} is refused`,
+      throwsError(
+        (): unknown =>
+          buildAutoMovieWall({ width, height: 2, depth: 0.2, openings: [] }),
+        "wall width must be a finite number > 0",
+      ),
+    );
+  for (const [axis, x, y] of [
+    ["x", Number.NaN, 0],
+    ["y", 0, Number.NaN],
+    ["x", Number.POSITIVE_INFINITY, 0],
+    ["y", 0, Number.NEGATIVE_INFINITY],
+  ] satisfies [string, number, number][]) {
+    const opening: IAutoMovieWallOpening = {
+      id: `bad-${axis}`,
+      x,
+      y,
+      width: 1,
+      height: 1,
+    };
+    TestValidator.predicate(
+      `non-finite opening origin ${axis} is refused`,
+      throwsError(
+        (): unknown =>
+          buildAutoMovieWall({
+            width: 2,
+            height: 2,
+            depth: 0.2,
+            openings: [opening],
+          }),
+        `wall opening "${opening.id}" must stay inside the wall`,
+      ),
+    );
+  }
+  const zeroOriginWall: IAutoMovieMesh = buildAutoMovieWall({
+    width: 2,
+    height: 2,
+    depth: 0.2,
+    openings: [{ id: "zero-origin", x: 0, y: 0, width: 1, height: 1 }],
+  });
+  TestValidator.predicate(
+    "a zero opening origin remains valid",
+    zeroOriginWall.positions.every(Number.isFinite),
   );
 
   TestValidator.predicate(

@@ -197,6 +197,59 @@ export class AutoMovieViewerTransport {
 }
 /** Companion types of {@link AutoMovieViewerTransport}. */
 export namespace AutoMovieViewerTransport {
+  /** Review interval and speed selected from an address. */
+  export interface IInterval {
+    /** First film second included in review. */
+    start: number;
+    /** End film second, after start and within the available range. */
+    end: number;
+    /** Film seconds per wall second. */
+    speed: number;
+  }
+
+  /**
+   * Read the review interval and speed a URL requests after the source's
+   * available range is known. Missing bounds select that range and speed 1;
+   * empty, non-decimal and out-of-range values are refused rather than clamped.
+   *
+   * @param params URL search parameters `start`, `end` and `speed`.
+   * @param available Available source range, seconds.
+   * @param speeds Supported speeds; 0.25, 0.5 and 1 by default.
+   * @returns The selected interval and speed.
+   */
+  export function readInterval(
+    params: URLSearchParams,
+    available: readonly [number, number],
+    speeds: readonly number[] = [0.25, 0.5, 1],
+  ): IInterval {
+    const read: (name: string, fallback: number) => number = (
+      name: string,
+      fallback: number,
+    ): number => {
+      const text: string | null = params.get(name);
+      if (text === null) return fallback;
+      if (!DECIMAL.test(text))
+        throw new Error(`URL ${name} must contain a decimal number`);
+      return Number(text);
+    };
+    const start: number = read("start", available[0]);
+    const end: number = read("end", available[1]);
+    const speed: number = read("speed", 1);
+    if (
+      !speeds.includes(speed) ||
+      start < available[0] ||
+      end > available[1] ||
+      start >= end
+    )
+      throw new Error(
+        `URL requires ${available[0]} <= start < end <= ${available[1]} and a speed of ${speeds.join(", ")}`,
+      );
+    return { start, end, speed };
+  }
+
+  /** A decimal number, optionally signed, with an optional exponent. */
+  const DECIMAL: RegExp = /^\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?\s*$/iu;
+
   /** A synchronized sound source. */
   export interface IAudio {
     /** Start from a film second at a speed; resolves once sounding. */

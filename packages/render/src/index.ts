@@ -42,8 +42,6 @@ export * from "./delivery/resolveProductionVideoProfile.js";
 export * from "./film/productionVisualDeliveryOccurrence.js";
 export * from "./delivery/auditAutoMovieDecodedFrames.js";
 export * from "./delivery/auditAutoMovieEncodedPresentation.js";
-export * from "./audio/encodeAutoMovieWavPcm16.js";
-export * from "./audio/mixAutoMovieFilmSound.js";
 export * from "./delivery/assertProductionAacProfile.js";
 export * from "./delivery/AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
 export * from "./delivery/AUTOMOVIE_MP4_SRGB_COLOUR.js";

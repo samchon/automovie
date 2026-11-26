@@ -1,8 +1,8 @@
-import { readAutoMovieReviewInterval } from "@automovie/viewer";
+import { AutoMovieViewerTransport } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `readAutoMovieReviewInterval` reads `start`, `end` and `speed` from a URL,
+ * `AutoMovieViewerTransport.readInterval` reads `start`, `end` and `speed` from a URL,
  * defaulting to the available range at speed 1, and refuses rather than clamps
  * a value outside it.
  *
@@ -19,7 +19,7 @@ export function test_viewer_transport_read_review_interval(): void {
     end: number;
     speed: number;
   } = (query: string): { start: number; end: number; speed: number } =>
-    readAutoMovieReviewInterval(new URLSearchParams(query), [0, 10]);
+    AutoMovieViewerTransport.readInterval(new URLSearchParams(query), [0, 10]);
   TestValidator.equals("the defaults", read(""), {
     start: 0,
     end: 10,

@@ -3,10 +3,8 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCrossing";
 
 /**
- * Bathing composed from shipped actions: getting into and out of a bathtub,
- * washing under a shower and drying with a towel. Each method appends shipped
- * step-over, sit, rise, operate, touch and pickup actions, so they are fitted,
- * refused and checked as those actions are.
+ * Authoring parameters for bathing compositions: getting into and out of a
+ * bathtub, washing under a shower and drying with a towel.
  *
  * - Into the tub: step over its apron onto its floor, turn along the tub and sit
  *   on its floor with the legs long; out by stepping over the apron from inside
@@ -18,63 +16,8 @@ import type { IAutoMovieMotionHumanCrossing } from "./IAutoMovieMotionHumanCross
  * Each region is rubbed in 4 strokes, the tap knob turns a quarter turn (90
  * degrees) and the bather soaks 3 s in the tub (all provisional); the owning
  * constants are `AutoMovieMotionHumanBathing.SCRUBS`, `TAP_TURN` and `SOAK`.
- *
- * Each method is a helper over a chain: it takes the chain first and returns it
- * with the actions appended, as the runtime namespace takes it.
- *
- * @template Chain The chain every method takes and returns.
  */
-export interface IAutoMovieMotionHumanBathing<Chain> {
-  /**
-   * Step over the tub's apron onto its floor, turn along the tub with a few
-   * steps on that floor, and sit down on it with the legs long, as one sits in
-   * a bath.
-   *
-   * @param chain The chain the helper appends to; it is returned with the
-   *   actions added.
-   * @param params The `tub`, `floor`, `at` and `face` of
-   *   `IAutoMovieMotionHumanBathing.IIntoTub`; the bather stands before the
-   *   tub's apron.
-   * @returns The chain with the entry appended.
-   */
-  intoTub(chain: Chain, params: IAutoMovieMotionHumanBathing.IIntoTub): Chain;
-
-  /**
-   * Step out of the tub over its apron, from standing on its floor facing the
-   * apron, onto the floor outside, such as a bath mat.
-   *
-   * @param chain The chain the helper appends to; it is returned with the
-   *   actions added.
-   * @param params The `tub` and `onto` of
-   *   `IAutoMovieMotionHumanBathing.IOutOfTub`.
-   * @returns The chain with the exit appended.
-   */
-  outOfTub(chain: Chain, params: IAutoMovieMotionHumanBathing.IOutOfTub): Chain;
-
-  /**
-   * Shower: open the tap, wash the scalp, the face and both forearms, close the
-   * tap.
-   *
-   * @param chain The chain the helper appends to; it is returned with the
-   *   actions added.
-   * @param params The `tap` of `IAutoMovieMotionHumanBathing.IShower`.
-   * @returns The chain with the wash appended.
-   */
-  shower(chain: Chain, params: IAutoMovieMotionHumanBathing.IShower): Chain;
-
-  /**
-   * Take the towel and dry the scalp with it in both hands.
-   *
-   * @param chain The chain the helper appends to; it is returned with the
-   *   actions added.
-   * @param params The `towel` and `handle` of
-   *   `IAutoMovieMotionHumanBathing.ITowelDry`.
-   * @returns The chain with the drying appended.
-   */
-  towelDry(chain: Chain, params: IAutoMovieMotionHumanBathing.ITowelDry): Chain;
-}
-
-/** The parameter types of the Bathing methods. */
+/** The authorable input types for bathing operations. */
 export namespace IAutoMovieMotionHumanBathing {
   /** A region one hand scrubs with the other. */
   export type IWashed = "face" | "forearmLeft" | "forearmRight";
