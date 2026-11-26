@@ -90,7 +90,7 @@ export * from "./readAutoMovieCubeShadowDepth.js";
 export * from "./retireAutoMovieCubeShadowDepth.js";
 export * from "./captureAutoMovieFramebufferRestore.js";
 export * from "./readAutoMovieMaterialTextureSources.js";
-export * from "./AutoMoviePlayer.js";
+export * from "./AutoMovieRenderPlayer.js";
 export * from "./IAutoMovieSpringConfig.js";
 export * from "./IAutoMovieSpringAxisSettlement.js";
 export * from "./releaseViewerRenderer.js";

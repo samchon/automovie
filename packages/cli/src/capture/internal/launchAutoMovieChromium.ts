@@ -1,5 +1,6 @@
-import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
-import type { IAutoMovieChromium } from "./IAutoMovieChromium";
+import type { AutoMovieCaptureBackend } from "../AutoMovieCaptureBackend";
+import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
+import type { IAutoMovieChromium } from "../IAutoMovieChromium";
 import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
 
 /**
@@ -17,25 +18,9 @@ const INSTALL: string = "npx playwright-core install chromium-headless-shell";
  * an error naming `npx playwright-core install chromium-headless-shell` and
  * `CHROME_PATH`; any other failure is rethrown with the backend named.
  */
-export async function launchAutoMovieChromium(props: {
-  /** Playwright's `chromium`, loaded from the production. */
-  chromium: IAutoMovieChromium;
-
-  /** How the browser draws. */
-  backend: AutoMovieCaptureBackend;
-
-  /** The environment, read for `CHROME_PATH`. */
-  env: Readonly<Record<string, string | undefined>>;
-}): Promise<{
-  /** The launched browser. */
-  browser: IAutoMovieChromium.IBrowser;
-
-  /**
-   * The backend and Chromium version, such as `swiftshader; Chromium
-   * 131.0.6778.33`.
-   */
-  backend: string;
-}> {
+export async function launchAutoMovieChromium(
+  props: AutoMovieCliCaptureTypes.LaunchChromiumProps,
+): Promise<AutoMovieCliCaptureTypes.ChromiumLaunch> {
   const plan: ReturnType<typeof planAutoMovieChromiumLaunch> =
     planAutoMovieChromiumLaunch(props.backend, props.env);
   let browser: IAutoMovieChromium.IBrowser;

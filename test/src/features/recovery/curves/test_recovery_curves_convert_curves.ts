@@ -4,11 +4,11 @@ import type {
   IAutoMoviePolylineFit,
   IAutoMovieRecoveryCurveBundle,
 } from "@automovie/interface";
-import { convertAutoMovieRecoveryCurves } from "@automovie/recovery";
+import { AutoMovieRecoveryCurveConversion } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `convertAutoMovieRecoveryCurves` rewrites every cubic at a record's declared
+ * `AutoMovieRecoveryCurveConversion.convertBundle` rewrites every cubic at a record's declared
  * curve places in the requested basis and returns a copy; the other fields are
  * kept and the input is left as it was.
  *
@@ -46,7 +46,7 @@ export function test_recovery_curves_convert_curves(): void {
   const converted: AutoMovieRecoveryCurveData<
     IAutoMoviePolylineFit,
     "hermite"
-  > = convertAutoMovieRecoveryCurves(fit, "hermite");
+  > = AutoMovieRecoveryCurveConversion.convertBundle(fit, "hermite");
   TestValidator.predicate(
     "the fit's curve",
     converted.curve.type === "cubicHermite" &&
@@ -60,7 +60,7 @@ export function test_recovery_curves_convert_curves(): void {
   const both: AutoMovieRecoveryCurveData<
     IAutoMovieRecoveryCurveBundle,
     "hermite"
-  > = convertAutoMovieRecoveryCurves(record, "hermite");
+  > = AutoMovieRecoveryCurveConversion.convertBundle(record, "hermite");
   TestValidator.equals(
     "the loop and the arc",
     [

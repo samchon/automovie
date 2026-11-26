@@ -48,7 +48,7 @@ import { applyMaterialWear } from "./wearShading/index.js";
  * the mesh for {@link applyPose}.
  *
  * The returned `bones` map is what {@link applyPose} drives, and the model's
- * `lookAt` rides along so {@link AutoMoviePlayer} can turn its eye bones.
+ * `lookAt` rides along so {@link AutoMovieRenderPlayer} can turn its eye bones.
  *
  * `resolveTexture` is how a declared PBR finish gets its pixels, and it is the
  * host's to supply because this package performs no I/O: the caller decodes the

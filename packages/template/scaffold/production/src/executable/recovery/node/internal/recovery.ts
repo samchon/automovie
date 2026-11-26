@@ -6,7 +6,7 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 import {
-  convertAutoMovieRecoveryCurves,
+  AutoMovieRecoveryCurveConversion,
   observeAutoMovieRecovery,
   prepareAutoMovieRecoveryInput,
   AutoMovieRecoveryReconstruction,
@@ -258,7 +258,7 @@ export function recovery(
     writeAutoMovieRecoveryArtifact(
       outputPath,
       curveFormat === "hermite"
-        ? convertAutoMovieRecoveryCurves(artifact, curveFormat)
+        ? AutoMovieRecoveryCurveConversion.convertBundle(artifact, curveFormat)
         : artifact,
     );
   console.log(

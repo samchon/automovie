@@ -31,8 +31,8 @@ export interface IAutoMovieModelObject {
 
   /**
    * The model's gaze declaration, {@link IAutoMovieModel.lookAt}; `buildModel`
-   * copies it. When it is `"bone"`, `AutoMoviePlayer` turns the eye bones for
-   * the gaze channels instead of writing them to morphs and sinks; omitted,
+   * copies it. When it is `"bone"`, `AutoMovieRenderPlayer` turns the eye bones
+   * for the gaze channels instead of writing them to morphs and sinks; omitted,
    * gaze stays on morphs and sinks.
    */
   lookAt?: IAutoMovieLookAt;

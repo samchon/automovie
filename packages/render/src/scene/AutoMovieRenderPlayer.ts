@@ -40,9 +40,10 @@ interface IAxisSprings {
  * clip (via the engine's interpolation) and applies the resulting pose to the
  * model's bones.
  *
- * Call {@link update} with elapsed seconds; the host owns rendering and the
- * animation loop (see {@link mountViewer}). Without springs, the pose depends
- * only on clip time. Springs retain velocity and depend on the update sequence;
+ * Call {@link AutoMovieRenderPlayer.update} with elapsed seconds. The host owns
+ * rendering and the animation loop (see {@link mountViewer}). Without springs,
+ * the pose depends only on clip time. Springs retain velocity and depend on the
+ * update sequence;
  * equal or backward times hold the last spring state.
  *
  * Expression output is sampled on the same frame clock and applied to morph
@@ -50,7 +51,7 @@ interface IAxisSprings {
  * when the target's `lookAt` is `"bone"`, its gaze channels turn the eye bones
  * instead (`resolveLookAt`).
  */
-export class AutoMoviePlayer {
+export class AutoMovieRenderPlayer {
   private lastSample: IAutoMovieMotionSample | null = null;
   private readonly springs: Map<AutoMovieHumanoidBone, IAxisSprings> = new Map<
     AutoMovieHumanoidBone,

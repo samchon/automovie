@@ -3,8 +3,8 @@ import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
 import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
+import { AutoMovieCaptureHost } from "./capture/AutoMovieCaptureHost";
 import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "./renderAutoMovieVideo";

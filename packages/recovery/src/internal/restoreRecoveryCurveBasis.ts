@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryCurveBundle,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
+import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
 
 /**
  * Restore saved Hermite curves for the Bernstein reconstruction operators: the

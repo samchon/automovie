@@ -24,8 +24,8 @@ import { releaseMountedViewer } from "./releaseMountedViewer.js";
  * `camera`.
  *
  * This is the one browser-only entry point. `onFrame` is where a
- * {@link AutoMoviePlayer} advances: the viewer stays a thin shell around the
- * deterministic engine. `elapsedSeconds` is measured from the first frame. If
+ * {@link AutoMovieRenderPlayer} advances: the viewer stays a thin shell around
+ * the deterministic engine. `elapsedSeconds` is measured from the first frame. If
  * `onFrame` returns `true` it has **already drawn** the frame itself (e.g. a
  * multi-pass cross-dissolve composite), so the loop skips its own default
  * `render`; returning `undefined`/`false` keeps the plain single-pass render.

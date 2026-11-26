@@ -1,13 +1,19 @@
 import { TestValidator } from "@nestia/e2e";
-import { type IAutoMovieChromium, launchAutoMovieChromium } from "automovie";
+import { AutoMovieCliCapture, type IAutoMovieChromium } from "automovie";
 
 /**
- * A capture on a machine without the Chromium build Playwright pins fails with an error naming the command that installs it, while another launch failure keeps its own cause.
+ * A capture on a machine without the Chromium build Playwright pins fails with
+ * an error naming the command that installs it, while another launch failure
+ * keeps its own cause.
  *
  * Scenarios:
  *
- * 1. A Chromium whose launch rejects with Playwright's "Executable doesn't exist at …" message makes the launch reject naming `npx playwright-core install chromium-headless-shell` and `CHROME_PATH`, keeping the original error as its cause.
- * 2. A launch rejecting for another reason rejects naming the backend, without the install instruction, and keeps its cause.
+ * 1. A Chromium whose launch rejects with Playwright's "Executable doesn't exist
+ *    at …" message makes the launch reject naming `npx playwright-core install
+ *    chromium-headless-shell` and `CHROME_PATH`, keeping the original error as
+ *    its cause.
+ * 2. A launch rejecting for another reason rejects naming the backend, without the
+ *    install instruction, and keeps its cause.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the launcher with Chromium doubles that reject and reads the error; a launcher that hid the install command, named it for an unrelated failure, or dropped the cause fails.
  * @evidence contracts/development/testing.md#independent-expectations The missing-browser message is the one Playwright prints for an absent executable, and the install command is `playwright-core`'s own for the headless shell, the package the production declares, so the browser revision is the one it launches, which the issue's case matrix requires the error to name.
@@ -26,7 +32,11 @@ export async function test_cli_capture_chromium_missing(): Promise<void> {
   const failure: (chromium: IAutoMovieChromium) => Promise<Error | null> = (
     chromium: IAutoMovieChromium,
   ): Promise<Error | null> =>
-    launchAutoMovieChromium({ chromium, backend: "software", env: {} })
+    AutoMovieCliCapture.launchChromium({
+      chromium,
+      backend: "software",
+      env: {},
+    })
       .then((): null => null)
       .catch((error: unknown): Error | null =>
         error instanceof Error ? error : null,

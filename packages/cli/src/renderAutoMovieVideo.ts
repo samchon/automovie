@@ -10,15 +10,15 @@ import { createReadStream } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
 import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
 import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
 import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
 import { auditAutoMovieDeliveryProfile } from "./auditAutoMovieDeliveryProfile";
+import type { AutoMovieCaptureHost } from "./capture/AutoMovieCaptureHost";
+import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
-import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 
 type DeliveryAudit = IAutoMovieDeliveryContentAudit.IResult;

@@ -1,6 +1,6 @@
 import * as fs from "node:fs/promises";
 
-import { planAutoMovieChromiumLaunch } from "./planAutoMovieChromiumLaunch";
+import { planAutoMovieChromiumLaunch } from "./capture/internal/planAutoMovieChromiumLaunch";
 
 /**
  * Milliseconds the page may take to load and show its controls: ten minutes,

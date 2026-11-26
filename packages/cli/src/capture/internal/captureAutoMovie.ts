@@ -10,14 +10,15 @@ import type * as Render from "@automovie/render";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { AutoMovieCaptureHost } from "./AutoMovieCaptureHost";
-import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
-import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
+import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
+import { readAutoMovieRevision } from "../../readAutoMovieRevision";
+import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { AutoMovieCaptureHost } from "../AutoMovieCaptureHost";
+import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { readAutoMovieCaptureHostOptions } from "./readAutoMovieCaptureHostOptions";
-import { readAutoMovieRevision } from "./readAutoMovieRevision";
 import { readAutoMovieVideoProbe } from "./readAutoMovieVideoProbe";
-import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
-import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 
 /**
  * Run `automovie capture` in a production: read the options through the request
@@ -40,25 +41,9 @@ import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
  * is 1 when any cell was not drawn, because an undrawn cell is unverified
  * evidence, and 0 otherwise; a refusal throws to `run`, which prints it.
  */
-export async function captureAutoMovie(props: {
-  /** The tokens after `capture`. */
-  args: readonly string[];
-
-  /** The production's root folder, the working directory. */
-  root: string;
-
-  /** The environment, read for `CHROME_PATH` and `FFMPEG_PATH`. */
-  env: Readonly<Record<string, string | undefined>>;
-
-  /** The caller's output sink, default standard output. */
-  write?: (text: string) => void;
-
-  /** The absolute record path verification expects this capture to write. */
-  expectedRecord?: string;
-
-  /** Receives the absolute path of this attempt's completed capture record. */
-  recorded?: (file: string, text: string) => void;
-}): Promise<number> {
+export async function captureAutoMovie(
+  props: AutoMovieCliCaptureTypes.Props,
+): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,

@@ -1,6 +1,7 @@
+import { readAutoMoviePageTimeout } from "../../readAutoMoviePageTimeout";
+import type { AutoMovieCaptureBackend } from "../AutoMovieCaptureBackend";
+import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 import { AUTOMOVIE_CAPTURE_OPTIONS } from "./AUTOMOVIE_CAPTURE_OPTIONS";
-import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
-import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
 
 /**
  * Split the options of `automovie capture` into the host's own,
@@ -22,31 +23,7 @@ import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
  */
 export function readAutoMovieCaptureHostOptions(
   values: ReadonlyMap<string, string>,
-): {
-  /** Subject module path, or null for a video file. */
-  module: string | null;
-
-  /** Video file path, or null for a drawn subject. */
-  file: string | null;
-
-  /** Path of the props JSON file, or null for none. */
-  props: string | null;
-
-  /** Root folder, or null for the default. */
-  out: string | null;
-
-  /** How the browser draws. */
-  backend: AutoMovieCaptureBackend;
-
-  /**
-   * Per-call milliseconds for draw-function readiness, subject
-   * description/creation and drawing, not a total build or render deadline.
-   */
-  timeout: number;
-
-  /** The request's own options, for the request reader. */
-  request: Map<string, string>;
-} {
+): AutoMovieCliCaptureTypes.HostOptions {
   const request: Map<string, string> = new Map(values);
   const taken: Map<string, string> = new Map();
   for (const key of AUTOMOVIE_CAPTURE_OPTIONS) {

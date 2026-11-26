@@ -3,10 +3,7 @@ import {
   type IAutoMovieDrawPage,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import {
-  readAutoMovieCaptureHostOptions,
-  readAutoMovieRenderOptions,
-} from "automovie";
+import { AutoMovieCliCapture, readAutoMovieRenderOptions } from "automovie";
 import assert from "node:assert/strict";
 
 /**
@@ -30,7 +27,7 @@ import assert from "node:assert/strict";
 export async function test_cli_capture_timeout(): Promise<void> {
   // 1. A slow subject's host budget must not reach the picture grammar.
   for (const read of [
-    readAutoMovieCaptureHostOptions,
+    AutoMovieCliCapture.readHostOptions,
     readAutoMovieRenderOptions,
   ]) {
     const options: ReturnType<typeof read> = read(

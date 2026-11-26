@@ -11,13 +11,13 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type * as Playwright from "playwright-core";
 
+import { loadAutoMovieProductionModule } from "../loadAutoMovieProductionModule";
+import { readAutoMoviePageTimeout } from "../readAutoMoviePageTimeout";
+import { readAutoMovieRevision } from "../readAutoMovieRevision";
+import { serveAutoMovieDrawPage } from "../serveAutoMovieDrawPage";
 import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 import type { IAutoMovieChromium } from "./IAutoMovieChromium";
-import { launchAutoMovieChromium } from "./launchAutoMovieChromium";
-import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
-import { readAutoMoviePageTimeout } from "./readAutoMoviePageTimeout";
-import { readAutoMovieRevision } from "./readAutoMovieRevision";
-import { serveAutoMovieDrawPage } from "./serveAutoMovieDrawPage";
+import { launchAutoMovieChromium } from "./internal/launchAutoMovieChromium";
 
 /**
  * The Node host that draws a production's subjects in headless Chromium: one
@@ -230,12 +230,11 @@ export class AutoMovieCaptureHost {
    * are read from the production root, admitted on the clock
    * `autoMovieVideoFrameRate` gives its frame rate, and planned by
    * `AutoMovieRenderAudio.planDialogueMouths`, as the delivery render plans
-   * them, so a
-   * still shows the mouth the delivered frame at the same second shows. A line
-   * the admission refuses fails the capture. The revision recorded is the
-   * production's git commit. It rejects what the planner or the folder refuses
-   * before anything is drawn, and a page that installs no draw function; the
-   * page is closed on every outcome.
+   * them, so a still shows the mouth the delivered frame at the same second
+   * shows. A line the admission refuses fails the capture. The revision
+   * recorded is the production's git commit. It rejects what the planner or the
+   * folder refuses before anything is drawn, and a page that installs no draw
+   * function; the page is closed on every outcome.
    */
   public async capture(props: {
     /** The request, as `parseAutoMovieCapturePlanRequest` read it. */

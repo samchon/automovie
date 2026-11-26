@@ -1,4 +1,5 @@
-import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
+import type { AutoMovieCaptureBackend } from "../AutoMovieCaptureBackend";
+import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
 
 /**
  * The Chromium switches and executable for a capture backend.
@@ -15,16 +16,7 @@ import type { AutoMovieCaptureBackend } from "./AutoMovieCaptureBackend";
 export function planAutoMovieChromiumLaunch(
   backend: AutoMovieCaptureBackend,
   env: Readonly<Record<string, string | undefined>>,
-): {
-  /** Switches passed to Chromium. */
-  args: string[];
-
-  /** Executable to launch, or absent for Playwright's own build. */
-  executablePath?: string;
-
-  /** The backend's name as the record states it. */
-  name: string;
-} {
+): AutoMovieCliCaptureTypes.ChromiumLaunchPlan {
   const chrome: string | undefined = env.CHROME_PATH?.trim();
   return {
     args:

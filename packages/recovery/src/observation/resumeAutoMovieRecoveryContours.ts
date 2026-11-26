@@ -16,7 +16,7 @@ import type {
   IAutoMovieRecoverySectionObservationOperation,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
+import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
 import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../internal/bindRecoverySavedSectionCuts";
 import { cutExact } from "../internal/mesh-observations/cutExact";

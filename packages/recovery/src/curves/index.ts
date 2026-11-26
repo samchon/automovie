@@ -1,5 +1,4 @@
-export * from "./convertAutoMovieRecoveryCurve";
-export * from "./convertAutoMovieRecoveryCurves";
+export * from "./AutoMovieRecoveryCurveConversion";
 export * from "./AutoMovieRecoveryCompactApproximation";
 export * from "./AutoMovieRecoveryConicApproximation";
 export * from "./approximateAutoMovieRecoveryCompactCurves";

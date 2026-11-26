@@ -17,8 +17,8 @@ type BoneMapInput = Partial<
  *
  * The loader stays with the host application. The viewer only needs a root
  * object, a normalized humanoid bone map, and optional expression/frame hooks
- * so {@link AutoMoviePlayer} can drive imported assets through the same path as
- * generated automovie models.
+ * so {@link AutoMovieRenderPlayer} can drive imported assets through the same
+ * path as generated automovie models.
  */
 export interface IAutoMovieImportedModelOptions {
   /**

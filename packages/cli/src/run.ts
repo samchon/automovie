@@ -7,7 +7,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
-import { captureAutoMovie } from "./captureAutoMovie";
+import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
 import { checkAutoMovie } from "./checkAutoMovie";
 import { inspectAutoMovie } from "./inspectAutoMovie";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
@@ -98,8 +98,8 @@ Options:
  *   `pnpm-workspace.yaml` and writes a production into
  *   `movies/<family>/<directory>`. Its name is `--name` or the npm-safe name
  *   derived from the directory segment.
- * - `capture` runs `captureAutoMovie` in the working directory as the production,
- *   resolving to its status: 1 when a cell was not drawn.
+ * - `capture` runs `AutoMovieCliCapture.capture` in the working directory as the
+ *   production, resolving to its status: 1 when a cell was not drawn.
  * - `inspect` runs `inspectAutoMovie` in the working directory, serving the
  *   inspector page until the process is interrupted.
  * - `render` runs `renderAutoMovie` in the working directory as the production,
@@ -137,7 +137,7 @@ export async function run(argv: readonly string[]): Promise<number> {
       return 0;
     }
     if (command.command === "capture")
-      return await captureAutoMovie({
+      return await AutoMovieCliCapture.capture({
         args: command.args,
         root: process.cwd(),
         env: process.env,

@@ -10,7 +10,7 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/convertAutoMovieRecoveryCurves";
+import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
 import { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
 
 /**

@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoverySectionObservationOperation,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurve } from "../curves/convertAutoMovieRecoveryCurve";
+import { convertAutoMovieRecoveryCurve } from "../curves/internal/convertAutoMovieRecoveryCurve";
 import { planeFrame } from "./mesh-observations/planeFrame";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
 import { observeRecoverySection } from "./observeRecoverySection";

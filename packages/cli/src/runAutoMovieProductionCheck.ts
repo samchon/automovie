@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { captureAutoMovie } from "./captureAutoMovie";
+import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
 import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
 import { createAutoMovieProductionCheckMediaHash } from "./createAutoMovieProductionCheckMediaHash";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
@@ -329,7 +329,7 @@ async function evaluate(props: {
     const signature: string = await props.inputScope.identify(check);
     let serializedRecord: string | undefined;
     try {
-      await captureAutoMovie({
+      await AutoMovieCliCapture.capture({
         root,
         env: props.env,
         args: check.capture,

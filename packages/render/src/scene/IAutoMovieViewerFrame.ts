@@ -3,7 +3,7 @@ import type {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-/** The deterministic state an {@link AutoMoviePlayer} just wrote this frame. */
+/** The deterministic state the {@link AutoMovieRenderPlayer} wrote this frame. */
 export interface IAutoMovieViewerFrame {
   /** Absolute clip time, in seconds. */
   seconds: number;

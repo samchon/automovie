@@ -1,3 +1,5 @@
+import type { AutoMovieCliCaptureTypes } from "../AutoMovieCliCaptureTypes";
+
 /**
  * Read a video file's clock and raster from the log FFmpeg writes when it opens
  * the file: the `Duration:` of the input and the size and rate of its first
@@ -7,19 +9,9 @@
  * `fps`. It throws naming what is missing when the log holds no duration, no
  * video stream, or a stream without a size or a rate.
  */
-export function readAutoMovieVideoProbe(log: string): {
-  /** Running time in seconds. */
-  durationSeconds: number;
-
-  /** Frames per second. */
-  fps: number;
-
-  /** Width in pixels. */
-  width: number;
-
-  /** Height in pixels. */
-  height: number;
-} {
+export function readAutoMovieVideoProbe(
+  log: string,
+): AutoMovieCliCaptureTypes.VideoProbe {
   const duration: RegExpMatchArray | null = log.match(
     /Duration:\s*(\d+):(\d{2}):(\d{2}(?:\.\d+)?)/u,
   );
