@@ -17,6 +17,7 @@ export type { IAutoMoviePointLight } from "./IAutoMoviePointLight";
 export type { IAutoMovieProductionLighting } from "./IAutoMovieProductionLighting";
 export type { IAutoMovieScene } from "./IAutoMovieScene";
 export type { IAutoMovieSceneEnvironment } from "./IAutoMovieSceneEnvironment";
+export type { IAutoMovieSceneShadows } from "./IAutoMovieSceneShadows";
 export type { IAutoMovieSceneNode } from "./IAutoMovieSceneNode";
 export type { IAutoMovieSpace } from "./IAutoMovieSpace";
 export type { IAutoMovieSpotLight } from "./IAutoMovieSpotLight";

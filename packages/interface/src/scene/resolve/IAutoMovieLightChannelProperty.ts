@@ -1,4 +1,5 @@
 import type { AutoMovieChannelValueType } from "../../core/AutoMovieChannelValueType";
+import type { IAutoMovieLightChannelBounds } from "./IAutoMovieLightChannelBounds";
 import type { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 
 /**
@@ -18,16 +19,7 @@ export interface IAutoMovieLightChannelProperty {
    * Per-component keyframe bounds shared by scene admission and playback
    * semantics; positive-only axes use exclusive min.
    */
-  bounds: {
-    /** Lower bound. */
-    min: number;
-
-    /** Upper bound, `Infinity` for none. */
-    max: number;
-
-    /** Whether {@link min} itself is allowed (`false` for the spot cone). */
-    inclusiveMin: boolean;
-  };
+  bounds: IAutoMovieLightChannelBounds;
 
   /**
    * Whether the admitted light kind carries this axis; the gate checks it

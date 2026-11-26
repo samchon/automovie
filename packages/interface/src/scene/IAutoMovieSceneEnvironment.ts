@@ -1,4 +1,5 @@
 import type { IAutoMovieColor } from "../color/IAutoMovieColor";
+import type { IAutoMovieSceneShadows } from "./IAutoMovieSceneShadows";
 
 /** Image-based lighting, background, exposure, tone mapping, and shadows. */
 export interface IAutoMovieSceneEnvironment {
@@ -58,15 +59,5 @@ export interface IAutoMovieSceneEnvironment {
    * cast; this states whether the scene pays for any of it, which is what lets
    * a draft drop the whole cost without editing every light in the set.
    */
-  shadows: {
-    /** Whether shadow maps are rendered in beauty passes. */
-    enabled: boolean;
-
-    /**
-     * Effective filters are PCF and VSM. The legacy pcfSoft spelling is a PCF
-     * alias. VSM is supported for directional and spot shadows; enabled
-     * shadow-casting point lights with VSM are refused before rendering.
-     */
-    type: "pcf" | "pcfSoft" | "vsm";
-  };
+  shadows: IAutoMovieSceneShadows;
 }

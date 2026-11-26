@@ -2,6 +2,7 @@ export type { AutoMovieLightProperty } from "./AutoMovieLightProperty";
 export type { IAutoMovieBoundProfile } from "./IAutoMovieBoundProfile";
 export type { IAutoMovieClampOutcome } from "./IAutoMovieClampOutcome";
 export type { IAutoMovieClampViolation } from "./IAutoMovieClampViolation";
+export type { IAutoMovieLightChannelBounds } from "./IAutoMovieLightChannelBounds";
 export type { IAutoMovieLightChannelProperty } from "./IAutoMovieLightChannelProperty";
 export type { IAutoMovieLightOverride } from "./IAutoMovieLightOverride";
 export type { IAutoMovieLightPointer } from "./IAutoMovieLightPointer";
