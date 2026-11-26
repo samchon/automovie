@@ -1,6 +1,6 @@
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 
 type FilmEffectCue = IAutoMovieFilmTimeline["tracks"]["effects"][number];
 
@@ -19,5 +19,6 @@ export const sortProductionFilmEffectCues = (
 ): IAutoMovieFilmTimeline["tracks"]["effects"] =>
   [...cues].sort(
     (left: FilmEffectCue, right: FilmEffectCue): number =>
-      left.startFrame - right.startFrame || compareCodeUnits(left.id, right.id),
+      left.startFrame - right.startFrame ||
+      AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   );

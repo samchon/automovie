@@ -7,8 +7,8 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { admitEffectTransport } from "./admitEffectTransport";
 
 /**
@@ -52,7 +52,7 @@ export function materializeCompiledEffects(
   return [...props.cues]
     .sort(
       (left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
-        compareCodeUnits(left.id, right.id),
+        AutoMovieEngineText.compareCodeUnits(left.id, right.id),
     )
     .flatMap((cue: IAutoMovieShotEffectCue): IAutoMovieCompiledEffect[] => {
       const zone: IAutoMovieWorldEffectZone | undefined = zones.get(cue.zone);
@@ -61,7 +61,7 @@ export function materializeCompiledEffects(
       if (zone === undefined || recipe === undefined) return [];
       admitEffectTransport(recipe);
       const seedDigest: string = autoMovieRenderDigest(
-        canonicalizeAutoMovieJson(
+        AutoMovieEngineCanonicalJson.canonicalize(
           props.seedOwner === undefined
             ? {
                 protocol: "automovie.effect-stream.v1",
@@ -96,7 +96,9 @@ export function materializeCompiledEffects(
       return [
         {
           ...core,
-          digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(core)),
+          digest: autoMovieRenderDigest(
+            AutoMovieEngineCanonicalJson.canonicalize(core),
+          ),
         },
       ];
     });

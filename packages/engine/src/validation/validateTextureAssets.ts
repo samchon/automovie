@@ -15,7 +15,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { materialTextureSlots } from "./materialTextureSlots";
@@ -46,7 +46,8 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 export function validateTextureAssets(
   props: IAutoMovieTextureClosureInput,
 ): IAutoMovieValidation {
-  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const out: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const records: Map<string, IAutoMovieAssetProvenance> = new Map(
     props.assets.map(
       (
@@ -187,7 +188,7 @@ export function validateTextureAssets(
       out.push(
         "type",
         path,
-        `${subject} is bound with contradictory color-space intent (${[...distinct].sort(compareCodeUnits).join(" and ")}); register one image per decoding`,
+        `${subject} is bound with contradictory color-space intent (${[...distinct].sort(AutoMovieEngineText.compareCodeUnits).join(" and ")}); register one image per decoding`,
         intent,
       );
   }
@@ -349,7 +350,7 @@ const checkAsset: (props: {
     props.out.push(
       "type",
       props.path,
-      `asset "${props.asset}" is ${facts.mediaType}, which this slot cannot sample; expected one of ${[...props.media].sort(compareCodeUnits).join(", ")}`,
+      `asset "${props.asset}" is ${facts.mediaType}, which this slot cannot sample; expected one of ${[...props.media].sort(AutoMovieEngineText.compareCodeUnits).join(", ")}`,
       facts.mediaType,
     );
     return;

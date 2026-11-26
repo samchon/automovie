@@ -12,7 +12,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieModelGaits } from "../autoMovieModelGaits";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
@@ -83,9 +83,9 @@ export function validateAutoMovieFormationMotions(
       left: IAutoMovieFormationMotion,
       right: IAutoMovieFormationMotion,
     ): number =>
-      compareCodeUnits(left.formation, right.formation) ||
+      AutoMovieEngineText.compareCodeUnits(left.formation, right.formation) ||
       left.start - right.start ||
-      compareCodeUnits(left.id, right.id),
+      AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   )) {
     if (ids.has(cue.id))
       fail(
@@ -140,7 +140,7 @@ export function validateAutoMovieFormationMotions(
       fail(
         `formationMotion:${cue.id}.gait`,
         `must name one of the gaits this unit's figures declare (${[...declared]
-          .sort(compareCodeUnits)
+          .sort(AutoMovieEngineText.compareCodeUnits)
           .join(", ")}) rather than "${cue.gait}"`,
       );
     if (

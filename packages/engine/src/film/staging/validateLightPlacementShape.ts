@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { withArticle } from "../../text/withArticle";
+import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { validateColor } from "../../validation/validateColor";
 import { lightTypeOf } from "./lightTypeOf";
@@ -62,7 +62,7 @@ export function validateLightPlacementShape(
       out.push(
         "type",
         `${path}.direction`,
-        `${withArticle(type)} light is aimed and needs a direction`,
+        `${AutoMovieEngineText.withArticle(type)} light is aimed and needs a direction`,
         light.direction,
       );
   } else if (!aimed)
@@ -85,7 +85,7 @@ export function validateLightPlacementShape(
       out.push(
         "type",
         `${path}.position`,
-        `${withArticle(type)} light stands somewhere in the world and needs a position`,
+        `${AutoMovieEngineText.withArticle(type)} light stands somewhere in the world and needs a position`,
         light.position,
       );
   } else if (!positioned)
@@ -101,7 +101,7 @@ export function validateLightPlacementShape(
       out.push(
         "type",
         `${path}.range`,
-        `${withArticle(type)} light has no distance falloff and takes no range`,
+        `${AutoMovieEngineText.withArticle(type)} light has no distance falloff and takes no range`,
         light.range,
       );
     else if (light.range < 0)
@@ -118,7 +118,7 @@ export function validateLightPlacementShape(
       out.push(
         "type",
         `${path}.coneAngle`,
-        `only a spot light has a cone; ${withArticle(type)} light takes no coneAngle`,
+        `only a spot light has a cone; ${AutoMovieEngineText.withArticle(type)} light takes no coneAngle`,
         light.coneAngle,
       );
     else if (light.coneAngle <= 0 || light.coneAngle > 90)

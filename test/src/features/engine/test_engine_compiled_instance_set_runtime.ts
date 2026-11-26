@@ -1,8 +1,8 @@
 import {
   AUTOMOVIE_INSTANCE_CHUNK_SIZE,
-  canonicalizeAutoMovieJson,
   materializeCompiledInstanceSet,
   summarizeCompiledSlotChunks,
+  AutoMovieEngineCanonicalJson,
 } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormationLod,
@@ -75,7 +75,7 @@ const models: Map<string, IAutoMovieModel> = new Map<string, IAutoMovieModel>([
 ]);
 
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
-  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
+  `sha256:${createHash("sha256").update(AutoMovieEngineCanonicalJson.canonicalize(value), "utf8").digest("hex")}`;
 
 /**
  * An instance set compiles to a compact record that keeps its laws, its route

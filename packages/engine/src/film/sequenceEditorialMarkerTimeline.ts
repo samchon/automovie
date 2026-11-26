@@ -7,7 +7,7 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 
 /** The authored marker source and the shot clock it belongs to. */
 type EditorialMarkerShot = Pick<
@@ -127,6 +127,6 @@ export function sequenceEditorialMarkerTimeline(
     ): number =>
       a.outputStartSeconds - b.outputStartSeconds ||
       a.entry - b.entry ||
-      compareCodeUnits(a.id, b.id),
+      AutoMovieEngineText.compareCodeUnits(a.id, b.id),
   );
 }

@@ -1,6 +1,6 @@
 import {
-  canonicalizeAutoMovieJson,
   productionFilmEffectEditFingerprint,
+  AutoMovieEngineCanonicalJson,
 } from "@automovie/engine";
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -27,7 +27,7 @@ export function test_engine_film_effect_edit_fingerprint(): void {
   ): string =>
     `sha256:${createHash("sha256")
       .update(
-        canonicalizeAutoMovieJson({
+        AutoMovieEngineCanonicalJson.canonicalize({
           protocol: "automovie.production-render-edit.v2",
           id: timeline.id,
           fps: timeline.fps,

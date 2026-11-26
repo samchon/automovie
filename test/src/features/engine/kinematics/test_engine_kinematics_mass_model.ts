@@ -1,9 +1,9 @@
 import {
-  compareCodeUnits,
   prepareAutoMovieMassModel,
   resolveAutoMovieCenterOfMass,
   resolveAutoMovieMomentum,
   resolvePose,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -47,7 +47,9 @@ export async function test_engine_kinematics_mass_model(): Promise<void> {
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
       resolvePose(pose, body.skeleton).map(
-        (b: IAutoMovieResolvedBone): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
+        (
+          b: IAutoMovieResolvedBone,
+        ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],
       ),
     );
   const A = posed({
@@ -106,8 +108,12 @@ export async function test_engine_kinematics_mass_model(): Promise<void> {
   try {
     TestValidator.equals(
       "bones",
-      [...prepareAutoMovieMassModel.bones(prepared)].sort(compareCodeUnits),
-      [...new Set(model.segments.map((s) => s.bone))].sort(compareCodeUnits),
+      [...prepareAutoMovieMassModel.bones(prepared)].sort(
+        AutoMovieEngineText.compareCodeUnits,
+      ),
+      [...new Set(model.segments.map((s) => s.bone))].sort(
+        AutoMovieEngineText.compareCodeUnits,
+      ),
     );
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
       model,

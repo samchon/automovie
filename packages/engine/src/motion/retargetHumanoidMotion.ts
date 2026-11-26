@@ -21,7 +21,7 @@ import { resolvePose } from "../kinematics/resolvePose";
 import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
 import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateMotion } from "../validation/validateMotion";
 import { validateTransformScalars } from "../validation/validateTransformScalars";
@@ -42,7 +42,8 @@ const EPSILON: number = 1e-6;
 export function retargetHumanoidMotion(
   props: IAutoMovieHumanoidRetargetProps,
 ): IAutoMovieHumanoidRetargetResult {
-  const collector: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const collector: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const requiredBones: AutoMovieHumanoidBone[] = collectRequiredBones(props);
 
   const sourceValidation: IAutoMovieValidation = validateMotion({
@@ -251,7 +252,7 @@ const collectRequiredBones: (
   for (const kf of props.motion.keyframes)
     for (const joint of kf.pose.joints) bones.add(joint.bone);
   for (const bone of props.requiredBones ?? []) bones.add(bone);
-  return [...bones].sort(compareCodeUnits);
+  return [...bones].sort(AutoMovieEngineText.compareCodeUnits);
 };
 
 const validateSkeleton: (

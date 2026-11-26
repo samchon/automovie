@@ -14,7 +14,7 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleTimes } from "../motion/sampleTimes";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 
 /** Reject an inverted box. */
 function assertBox(
@@ -249,7 +249,9 @@ export function evaluateCameraClearance(
         `$input.samples[${index}].obstacles must preserve the current resolved identity set`,
       );
   }
-  const nodes: string[] = [...obstacleMaps[0]!.keys()].sort(compareCodeUnits);
+  const nodes: string[] = [...obstacleMaps[0]!.keys()].sort(
+    AutoMovieEngineText.compareCodeUnits,
+  );
   const parts: Array<
     readonly [
       IAutoMovieCameraClearanceFinding["part"],

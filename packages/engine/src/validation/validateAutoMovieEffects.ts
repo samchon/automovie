@@ -7,7 +7,7 @@ import {
   IAutoMovieShotEventContract,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
@@ -59,9 +59,9 @@ export function validateAutoMovieEffects(
   );
   for (const cue of [...cues].sort(
     (left: IAutoMovieShotEffectCue, right: IAutoMovieShotEffectCue): number =>
-      compareCodeUnits(left.zone, right.zone) ||
+      AutoMovieEngineText.compareCodeUnits(left.zone, right.zone) ||
       left.start - right.start ||
-      compareCodeUnits(left.id, right.id),
+      AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   )) {
     const field: string = `effectCue:${cue.id || "(blank)"}`;
     if (ids.has(cue.id)) fail(field, "must have one id unique inside the shot");

@@ -34,7 +34,7 @@ import { compilePerformance } from "../perform/compilePerformance";
 import { scenePlacements } from "../perform/scenePlacements";
 import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { admitShotEditorialMarkers } from "../validation/admitShotEditorialMarkers";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
@@ -123,7 +123,8 @@ export function performShot(
   const staged: IAutoMovieStagedSet.ISuccess = props.staged;
   const performance: IAutoMoviePerformance = props.performance;
   const skeleton: (node: string) => IAutoMovieSkeleton | null = props.skeleton;
-  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const out: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const failure: () => IAutoMoviePerformedShot.IFailure =
     (): IAutoMoviePerformedShot.IFailure => ({
       success: false,
@@ -402,7 +403,7 @@ export function performShot(
       (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
         a.time - b.time ||
         EVENT_KIND_ORDER[a.kind] - EVENT_KIND_ORDER[b.kind] ||
-        compareCodeUnits(a.id, b.id),
+        AutoMovieEngineText.compareCodeUnits(a.id, b.id),
     ),
     ...(editorialMarkers === undefined ? {} : { editorialMarkers }),
     cameraIntent: camera.cameraIntent,

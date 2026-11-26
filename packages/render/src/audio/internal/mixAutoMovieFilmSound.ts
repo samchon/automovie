@@ -1,7 +1,7 @@
 import {
   AutoMovieEngineSound,
   autoMovieRenderDigest,
-  canonicalizeAutoMovieJson,
+  AutoMovieEngineCanonicalJson,
   digestAutoMovieBytes,
   hashAutoMovieFnv1a64,
   utf8Bytes,
@@ -86,7 +86,7 @@ export async function mixAutoMovieFilmSound(
   }
 
   const fingerprint: string = autoMovieRenderDigest(
-    canonicalizeAutoMovieJson({
+    AutoMovieEngineCanonicalJson.canonicalize({
       sound,
       lines: lines.map(
         (entry: IAutoMovieMixFilmSound.ILine): string =>

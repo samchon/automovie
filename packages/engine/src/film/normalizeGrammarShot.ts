@@ -6,7 +6,7 @@ import {
   type IAutoMovieNormalizedGrammarShot,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { assertGrammarPositive } from "./assertGrammarPositive";
 
 /**
@@ -45,7 +45,7 @@ export function normalizeGrammarShot(
     (
       a: IAutoMovieGrammarSubjectObservation,
       b: IAutoMovieGrammarSubjectObservation,
-    ): number => compareCodeUnits(a.id, b.id),
+    ): number => AutoMovieEngineText.compareCodeUnits(a.id, b.id),
   );
   const subjectById: Map<string, IAutoMovieGrammarSubjectObservation> =
     new Map();
@@ -79,7 +79,9 @@ export function normalizeGrammarShot(
         `Action axis in "${input.id}" must reference two observed subjects.`,
       );
     actionAxis =
-      compareCodeUnits(first, second) <= 0 ? [first, second] : [second, first];
+      AutoMovieEngineText.compareCodeUnits(first, second) <= 0
+        ? [first, second]
+        : [second, first];
   }
   const styleIntent: AutoMovieGrammarStyleIntent[] = [
     ...(input.styleIntent ?? []),

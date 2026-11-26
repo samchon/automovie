@@ -1,8 +1,8 @@
 import {
   AUTOMOVIE_FORMATION_CHUNK_SIZE,
   AutoMovieEngineWorld,
-  canonicalizeAutoMovieJson,
   materializeCompiledFormation,
+  AutoMovieEngineCanonicalJson,
 } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormation,
@@ -88,7 +88,7 @@ const groups: () => Map<string, IAutoMovieModel> = (): Map<
 
 /** The Node builder's digest of one value's canonical JSON. */
 const nodeDigest: (value: unknown) => string = (value: unknown): string =>
-  `sha256:${createHash("sha256").update(canonicalizeAutoMovieJson(value), "utf8").digest("hex")}`;
+  `sha256:${createHash("sha256").update(AutoMovieEngineCanonicalJson.canonicalize(value), "utf8").digest("hex")}`;
 
 /** A flat rectangle from one ground-plan point to another, `width` across. */
 const strip: (

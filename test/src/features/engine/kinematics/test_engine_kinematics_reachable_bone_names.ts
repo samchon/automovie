@@ -1,4 +1,8 @@
-import { compareCodeUnits, indexSkeletonTopology, reachableBoneNames } from "@automovie/engine";
+import {
+  indexSkeletonTopology,
+  reachableBoneNames,
+  AutoMovieEngineText,
+} from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -28,7 +32,8 @@ const bone: (
 /** The reachable names, sorted. */
 const names: (skeleton: IAutoMovieSkeleton) => string[] = (
   skeleton: IAutoMovieSkeleton,
-): string[] => [...reachableBoneNames(skeleton)].sort(compareCodeUnits);
+): string[] =>
+  [...reachableBoneNames(skeleton)].sort(AutoMovieEngineText.compareCodeUnits);
 
 /**
  * `reachableBoneNames` is the set of bones a walk from the null-parent roots

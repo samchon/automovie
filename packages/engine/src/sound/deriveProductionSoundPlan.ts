@@ -29,7 +29,7 @@ import { sampleFormationMotion } from "../populationRuntime/formation/sampleForm
 import { transformFormationBounds } from "../populationRuntime/formation/transformFormationBounds";
 import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 import { deriveAutoMovieSoundPropagation } from "./deriveAutoMovieSoundPropagation";
 import { productionCaptionDialogueLine } from "./productionCaptionDialogueLine";
@@ -154,7 +154,8 @@ export function deriveProductionSoundPlan(
       left: IAutoMovieProductionSoundEvent,
       right: IAutoMovieProductionSoundEvent,
     ): number =>
-      left.frame - right.frame || compareCodeUnits(left.id, right.id),
+      left.frame - right.frame ||
+      AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   );
 
   const placements: IAutoMovieFilmTimeline["tracks"]["audio"] = [

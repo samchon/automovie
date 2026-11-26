@@ -12,7 +12,7 @@ import {
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
 import { materializeCompiledEffects } from "./materializeCompiledEffects";
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
@@ -147,7 +147,9 @@ export const materializeProductionFilmEffects = (
     };
     return {
       ...core,
-      digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(core)),
+      digest: autoMovieRenderDigest(
+        AutoMovieEngineCanonicalJson.canonicalize(core),
+      ),
     };
   });
 };

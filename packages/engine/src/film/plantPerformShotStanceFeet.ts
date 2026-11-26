@@ -26,7 +26,7 @@ import { plantStanceFeet } from "../motion/plantStanceFeet";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleStanceTimes } from "../motion/sampleStanceTimes";
 import { spaceGround } from "../space/spaceGround";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import type { IStageGround } from "./staging/IStageGround";
 import { prepareStageSupport } from "./staging/prepareStageSupport";
 
@@ -89,7 +89,7 @@ export function plantPerformShotStanceFeet(
     admission === undefined ? new Map() : prepareStageSupport(props.staged);
   const actors: string[] = [
     ...new Set([...Object.keys(props.motions), ...scopes.keys()]),
-  ].sort(compareCodeUnits);
+  ].sort(AutoMovieEngineText.compareCodeUnits);
   for (const actor of actors) {
     const motion: IAutoMovieMotion | undefined = props.motions[actor];
     let prior: IAutoMovieBeatEndActorState["footPlants"] =

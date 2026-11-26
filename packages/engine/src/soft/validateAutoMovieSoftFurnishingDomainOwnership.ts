@@ -4,7 +4,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /**
@@ -31,8 +31,11 @@ export function validateAutoMovieSoftFurnishingDomainOwnership(
       byDomain.set(furnishing.domain, owners);
     },
   );
-  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
-  for (const domain of [...byDomain.keys()].sort(compareCodeUnits)) {
+  const out: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
+  for (const domain of [...byDomain.keys()].sort(
+    AutoMovieEngineText.compareCodeUnits,
+  )) {
     const owners: { furnishing: IAutoMovieSoftFurnishing; index: number }[] =
       byDomain
         .get(domain)!
@@ -41,7 +44,7 @@ export function validateAutoMovieSoftFurnishingDomainOwnership(
             left: { furnishing: IAutoMovieSoftFurnishing; index: number },
             right: { furnishing: IAutoMovieSoftFurnishing; index: number },
           ): number => {
-            const compared: number = compareCodeUnits(
+            const compared: number = AutoMovieEngineText.compareCodeUnits(
               left.furnishing.id,
               right.furnishing.id,
             );

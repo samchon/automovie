@@ -4,7 +4,7 @@ import {
   type IAutoMovieMaterializeCompiledFormationInventory,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { materializeCompiledFormation } from "./materializeCompiledFormation";
 
 /**
@@ -25,7 +25,7 @@ export function materializeCompiledFormationInventory(
         (
           [left]: [string, IAutoMovieFormationDesign],
           [right]: [string, IAutoMovieFormationDesign],
-        ): number => compareCodeUnits(left, right),
+        ): number => AutoMovieEngineText.compareCodeUnits(left, right),
       )
       .map(
         ([id, formation]: [string, IAutoMovieFormationDesign]): [

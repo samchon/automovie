@@ -5,7 +5,7 @@ import {
   IAutoMovieDesignSubject,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
 /**
@@ -66,12 +66,12 @@ export function designLineageImpact(
       }
   const invalidated: string[] = queue
     .filter((id: string): boolean => derivedIds.has(id))
-    .sort(compareCodeUnits);
+    .sort(AutoMovieEngineText.compareCodeUnits);
   return {
-    changed: [...new Set(changed)].sort(compareCodeUnits),
+    changed: [...new Set(changed)].sort(AutoMovieEngineText.compareCodeUnits),
     invalidated,
     unaffected: [...derivedIds]
       .filter((id: string): boolean => !visited.has(id))
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
   };
 }

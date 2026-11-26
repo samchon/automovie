@@ -1,8 +1,8 @@
 import {
   AutoMovieViewAxis,
   AutoMovieViewSection,
-  compareCodeUnits,
   realizeAutoMovieConstruction,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   IAutoMovieConstructionRealization,
@@ -83,8 +83,10 @@ export function test_engine_geometry_construction_view_phases(): void {
       seen.add(turn(real.mesh.coordinates[v]!));
     TestValidator.equals(
       `${label} phases`,
-      [...seen].sort(compareCodeUnits),
-      [...new Set(expected.map(turn))].sort(compareCodeUnits),
+      [...seen].sort(AutoMovieEngineText.compareCodeUnits),
+      [...new Set(expected.map(turn))].sort(
+        AutoMovieEngineText.compareCodeUnits,
+      ),
     );
   };
   const clustered: number[] = [

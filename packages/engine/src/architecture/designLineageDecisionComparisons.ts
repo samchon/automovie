@@ -4,7 +4,7 @@ import {
   IAutoMovieDesignLineage,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { compareDesignVariants } from "./compareDesignVariants";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
@@ -37,7 +37,9 @@ export function designLineageDecisionComparisons(
     throw new Error(
       `design lineage "${lineage.id}" has no decision "${decision}"`,
     );
-  const options: string[] = [...found.options].sort(compareCodeUnits);
+  const options: string[] = [...found.options].sort(
+    AutoMovieEngineText.compareCodeUnits,
+  );
   const comparisons: IAutoMovieDesignComparison[] = [];
   for (let index: number = 0; index < options.length; ++index)
     for (let other: number = index + 1; other < options.length; ++other)

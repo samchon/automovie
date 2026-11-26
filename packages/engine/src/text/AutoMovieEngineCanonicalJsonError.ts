@@ -4,7 +4,7 @@ import type { AutoMovieCanonicalJsonErrorCategory } from "@automovie/interface";
  * Carry a closed canonical-JSON domain refusal without publishing partial
  * identity text.
  */
-export class AutoMovieCanonicalJsonError extends TypeError {
+export class AutoMovieEngineCanonicalJsonError extends TypeError {
   /** Stable machine-readable diagnostic code. */
   public readonly code = "automovie-canonical-json-invalid" as const;
 

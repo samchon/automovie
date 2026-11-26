@@ -1,4 +1,4 @@
-import { compareCodeUnits } from "@automovie/engine";
+import { AutoMovieEngineText } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
@@ -34,24 +34,24 @@ export function test_text_compare_code_units(): void {
   // 1. the three outcomes
   TestValidator.equals(
     "a lesser string yields -1",
-    compareCodeUnits("a", "b"),
+    AutoMovieEngineText.compareCodeUnits("a", "b"),
     -1,
   );
   TestValidator.equals(
     "a greater string yields +1",
-    compareCodeUnits("b", "a"),
+    AutoMovieEngineText.compareCodeUnits("b", "a"),
     1,
   );
   TestValidator.equals(
     "an equal string yields 0",
-    compareCodeUnits("x", "x"),
+    AutoMovieEngineText.compareCodeUnits("x", "x"),
     0,
   );
 
   // 2. uppercase before lowercase (code-unit, not locale, order)
   TestValidator.equals(
     "uppercase sorts before lowercase",
-    compareCodeUnits("A", "a"),
+    AutoMovieEngineText.compareCodeUnits("A", "a"),
     -1,
   );
 
@@ -67,7 +67,8 @@ export function test_text_compare_code_units(): void {
       [
         "compareCodeUnitsNfcCafeNfdCafe",
         (): boolean =>
-          nfcCafe !== nfdCafe && compareCodeUnits(nfcCafe, nfdCafe) !== 0,
+          nfcCafe !== nfdCafe &&
+          AutoMovieEngineText.compareCodeUnits(nfcCafe, nfdCafe) !== 0,
       ],
     ]),
     { nfcCafeNfdCafe: true, compareCodeUnitsNfcCafeNfdCafe: true },
@@ -85,7 +86,7 @@ export function test_text_compare_code_units(): void {
   ];
   TestValidator.equals(
     "a mixed-case sort follows code-unit order",
-    [...names].sort(compareCodeUnits),
+    [...names].sort(AutoMovieEngineText.compareCodeUnits),
     [
       "AShot.json",
       "BEAT1.json",

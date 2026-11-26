@@ -22,7 +22,7 @@ import { channelKey } from "../resolve/channelKey";
 import { sampleClip } from "../resolve/sampleClip";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 
 /**
  * Lower admitted imported node tracks into clinical keyframes at the sorted
@@ -125,7 +125,7 @@ export function importedNodeClipToAutoMovieMotion(
     (
       left: IAutoMovieImportedNodeBoneMapping,
       right: IAutoMovieImportedNodeBoneMapping,
-    ): number => compareCodeUnits(left.bone, right.bone),
+    ): number => AutoMovieEngineText.compareCodeUnits(left.bone, right.bone),
   );
   for (const entry of orderedMapping) {
     const rotationKey: string = channelKey({

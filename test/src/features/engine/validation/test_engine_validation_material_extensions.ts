@@ -1,8 +1,8 @@
 import {
   AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS,
-  compareCodeUnits,
   isAutoMovieMaterialExtension,
   unsupportedAutoMovieMaterialExtensions,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,9 @@ export function test_engine_validation_material_extensions(): void {
   // 1.
   TestValidator.equals(
     "supported",
-    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(compareCodeUnits),
+    [...AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS].sort(
+      AutoMovieEngineText.compareCodeUnits,
+    ),
     [
       "KHR_materials_clearcoat",
       "KHR_materials_ior",

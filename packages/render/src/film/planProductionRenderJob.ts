@@ -1,14 +1,14 @@
 import {
   AutoMovieFilmEffectRuntimeError,
   autoMovieRenderDigest,
-  canonicalizeAutoMovieJson,
-  compareCodeUnits,
   equalProductionFrameRates,
   productionFilmEffectEditFingerprint,
   productionFrameBoundaryToGridTick,
   resolveProductionFrameRate,
   sampleProductionRenderFrame,
   verifyProductionFilmEffectPopulation,
+  AutoMovieEngineCanonicalJson,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   AutoMovieGuidePass,
@@ -202,7 +202,7 @@ export const planProductionRenderJob: (
       chunks.push({
         slot: `${props.production.id}:${tier.kind}:${deliverable.id}:${pass}:${index}`,
         id: autoMovieRenderDigest(
-          canonicalizeAutoMovieJson({
+          AutoMovieEngineCanonicalJson.canonicalize({
             protocol: "automovie.production-render-chunk.v4",
             production: props.production.id,
             tier,
@@ -292,7 +292,7 @@ const partition: (
       frameEndExclusive,
       frames: range,
       sources: [...shots]
-        .sort(compareCodeUnits)
+        .sort(AutoMovieEngineText.compareCodeUnits)
         .map((shot: string): { shot: string; digest: string } => {
           const digest: string | undefined = props.sourceFingerprints[shot];
           if (digest === undefined || validDigest(digest) === false)

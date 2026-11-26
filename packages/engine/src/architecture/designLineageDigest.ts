@@ -11,7 +11,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
@@ -75,7 +75,7 @@ export function designLineageDigest(lineage: IAutoMovieDesignLineage): string {
         "phase",
         phase.id,
         phase.label,
-        ...[...phase.requires].sort(compareCodeUnits),
+        ...[...phase.requires].sort(AutoMovieEngineText.compareCodeUnits),
       ),
     ),
     ...sortedBy(
@@ -118,7 +118,7 @@ export function designLineageDigest(lineage: IAutoMovieDesignLineage): string {
         decision.id,
         decision.question,
         decision.selected ?? "",
-        ...[...decision.options].sort(compareCodeUnits),
+        ...[...decision.options].sort(AutoMovieEngineText.compareCodeUnits),
       ),
     ),
     ...sortedBy(
@@ -134,7 +134,7 @@ export function designLineageDigest(lineage: IAutoMovieDesignLineage): string {
         artifact.stamp.variant ?? "",
         artifact.stamp.phase ?? "",
         artifact.stamp.configuration,
-        ...[...artifact.inputs].sort(compareCodeUnits),
+        ...[...artifact.inputs].sort(AutoMovieEngineText.compareCodeUnits),
       ),
     ),
   ];
@@ -147,5 +147,5 @@ const sortedBy: <T>(items: readonly T[], key: (item: T) => string) => T[] = <T>(
   key: (item: T) => string,
 ): T[] =>
   [...items].sort((left: T, right: T): number =>
-    compareCodeUnits(key(left), key(right)),
+    AutoMovieEngineText.compareCodeUnits(key(left), key(right)),
   );

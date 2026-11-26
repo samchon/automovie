@@ -7,7 +7,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { SHA256_DIGEST_PATTERN } from "../../validation/constants/SHA256_DIGEST_PATTERN";
 
 /**
@@ -99,7 +99,7 @@ export const foldAutoMovieSubjectReviewCoverage = (
     observed,
     missing,
     stale,
-    unplanned: [...unplannedSet].sort(compareCodeUnits),
+    unplanned: [...unplannedSet].sort(AutoMovieEngineText.compareCodeUnits),
     foreign,
     duplicates,
   };

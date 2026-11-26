@@ -8,7 +8,7 @@ import {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { exactPlaybackHardCut } from "./exactPlaybackHardCut";
 import { preparePlaybackTimeline } from "./preparePlaybackTimeline";
 
@@ -135,7 +135,7 @@ export function sequenceEventTimeline(
     (a: IAutoMoviePlaybackEvent, b: IAutoMoviePlaybackEvent): number =>
       a.globalTime - b.globalTime ||
       a.entry - b.entry ||
-      compareCodeUnits(a.id, b.id),
+      AutoMovieEngineText.compareCodeUnits(a.id, b.id),
   );
 
   /** Rates and symbolic anchors introduced strict source membership. */

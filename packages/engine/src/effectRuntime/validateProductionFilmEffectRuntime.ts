@@ -5,8 +5,8 @@ import {
 
 import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { AutoMovieCanonicalJsonError } from "../text/AutoMovieCanonicalJsonError";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJsonError } from "../text/AutoMovieEngineCanonicalJsonError";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
 import { productionFilmEffectFrameRate } from "./productionFilmEffectFrameRate";
 
@@ -95,9 +95,11 @@ function recomputedDigest(
   value: object,
 ): string {
   try {
-    return autoMovieRenderDigest(canonicalizeAutoMovieJson(value));
+    return autoMovieRenderDigest(
+      AutoMovieEngineCanonicalJson.canonicalize(value),
+    );
   } catch (error) {
-    if (error instanceof AutoMovieCanonicalJsonError)
+    if (error instanceof AutoMovieEngineCanonicalJsonError)
       throw new AutoMovieFilmEffectRuntimeError(
         "film-effect-runtime-invalid",
         `Film effect runtime "${runtime.effect.id}" holds a value canonical JSON cannot encode: ${error.message}`,

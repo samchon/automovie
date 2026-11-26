@@ -9,7 +9,7 @@ import {
   IAutoMovieDesignSubject,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
 /**
@@ -89,7 +89,7 @@ export function designLineagePhaseSnapshot(
     })
     .sort(
       (a: IAutoMovieDesignPhaseState, b: IAutoMovieDesignPhaseState): number =>
-        compareCodeUnits(a.subject, b.subject),
+        AutoMovieEngineText.compareCodeUnits(a.subject, b.subject),
     );
   return { phase, states };
 }

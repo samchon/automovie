@@ -29,7 +29,7 @@ import { builtEnvironmentSpaceNodes } from "../architecture/builtEnvironmentSpac
 import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironment";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSpaceBox } from "./autoMovieDrawingSpaceBox";
 import { autoMovieOpeningFillExtent } from "./autoMovieOpeningFillExtent";
@@ -172,7 +172,9 @@ export function deriveAutoMovieDrawingSchedule(
   };
   return {
     ...schedule,
-    digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(schedule)),
+    digest: autoMovieRenderDigest(
+      AutoMovieEngineCanonicalJson.canonicalize(schedule),
+    ),
   };
 }
 

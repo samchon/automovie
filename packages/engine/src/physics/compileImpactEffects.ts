@@ -7,7 +7,7 @@ import type {
 
 import { materializeCompiledEffects } from "../effectRuntime/materializeCompiledEffects";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
 
 /**
@@ -74,7 +74,7 @@ export function compileImpactEffects(
         z: -receipt.normal.z * speed,
       };
       const seedDigest: string = autoMovieRenderDigest(
-        canonicalizeAutoMovieJson({
+        AutoMovieEngineCanonicalJson.canonicalize({
           protocol: "automovie.contact-effect.v1",
           id: receipt.id,
           source: receipt.source,

@@ -1,5 +1,5 @@
-import { AutoMovieCanonicalJsonError } from "./AutoMovieCanonicalJsonError";
-import { compareCodeUnits } from "./compareCodeUnits";
+import { AutoMovieEngineCanonicalJsonError } from "../AutoMovieEngineCanonicalJsonError";
+import { AutoMovieEngineText } from "../AutoMovieEngineText";
 
 /**
  * Encode a supplied value under automovie.canonical-json.v2 for shared identity
@@ -27,7 +27,7 @@ export function canonicalizeAutoMovieJson(value: unknown): string {
       return JSON.stringify(current);
     }
     if (typeof current === "bigint")
-      throw new AutoMovieCanonicalJsonError(
+      throw new AutoMovieEngineCanonicalJsonError(
         "unsupported-value",
         "bigint has no JSON representation",
       );
@@ -43,7 +43,7 @@ export function canonicalizeAutoMovieJson(value: unknown): string {
           const descriptor: PropertyDescriptor =
             Object.getOwnPropertyDescriptor(current, index)!;
           if ("value" in descriptor === false)
-            throw new AutoMovieCanonicalJsonError(
+            throw new AutoMovieEngineCanonicalJsonError(
               "accessor-property",
               "array slots must be data properties",
             );
@@ -59,7 +59,7 @@ export function canonicalizeAutoMovieJson(value: unknown): string {
     const container: object = current as object;
     const prototype: unknown = Object.getPrototypeOf(container);
     if (prototype !== Object.prototype && prototype !== null)
-      throw new AutoMovieCanonicalJsonError(
+      throw new AutoMovieEngineCanonicalJsonError(
         "non-plain-container",
         "only plain objects and arrays are admitted",
       );
@@ -70,13 +70,13 @@ export function canonicalizeAutoMovieJson(value: unknown): string {
     >;
     try {
       const entries: string[] = Object.keys(record)
-        .sort(compareCodeUnits)
+        .sort(AutoMovieEngineText.compareCodeUnits)
         .flatMap((key: string): string[] => {
           assertScalarString(key, "member name");
           const descriptor: PropertyDescriptor =
             Object.getOwnPropertyDescriptor(record, key)!;
           if ("value" in descriptor === false)
-            throw new AutoMovieCanonicalJsonError(
+            throw new AutoMovieEngineCanonicalJsonError(
               "accessor-property",
               "object members must be data properties",
             );
@@ -92,7 +92,7 @@ export function canonicalizeAutoMovieJson(value: unknown): string {
   };
   const encoded: string | undefined = encode(value, false);
   if (encoded === undefined)
-    throw new AutoMovieCanonicalJsonError(
+    throw new AutoMovieEngineCanonicalJsonError(
       "unsupported-value",
       "the root must have a JSON representation",
     );
@@ -105,7 +105,7 @@ const enterCanonicalContainer: (active: Set<object>, value: object) => void = (
   value: object,
 ): void => {
   if (active.has(value))
-    throw new AutoMovieCanonicalJsonError(
+    throw new AutoMovieEngineCanonicalJsonError(
       "cyclic-value",
       "a container refers to itself through its active ancestry",
     );
@@ -121,19 +121,19 @@ const assertScalarString: (value: string, role: string) => void = (
     const unit: number = value.charCodeAt(index);
     if (unit >= 0xd800 && unit <= 0xdbff) {
       if (index + 1 >= value.length)
-        throw new AutoMovieCanonicalJsonError(
+        throw new AutoMovieEngineCanonicalJsonError(
           "invalid-unicode",
           `${role} ends with a lone high surrogate`,
         );
       const trail: number = value.charCodeAt(index + 1);
       if (trail < 0xdc00 || trail > 0xdfff)
-        throw new AutoMovieCanonicalJsonError(
+        throw new AutoMovieEngineCanonicalJsonError(
           "invalid-unicode",
           `a lone surrogate occurs in ${role}`,
         );
       index += 1;
     } else if (unit >= 0xdc00 && unit <= 0xdfff)
-      throw new AutoMovieCanonicalJsonError(
+      throw new AutoMovieEngineCanonicalJsonError(
         "invalid-unicode",
         `a lone surrogate occurs in ${role}`,
       );

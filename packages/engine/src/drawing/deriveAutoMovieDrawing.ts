@@ -25,7 +25,7 @@ import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironme
 import { Vector3 } from "../math/Vector3";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingExtent } from "./autoMovieDrawingExtent";
 import { autoMovieDrawingFrame } from "./autoMovieDrawingFrame";
 import { autoMovieDrawingHasCut } from "./autoMovieDrawingHasCut";
@@ -227,7 +227,9 @@ export function deriveAutoMovieDrawing(
   };
   return {
     ...drawing,
-    digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(drawing)),
+    digest: autoMovieRenderDigest(
+      AutoMovieEngineCanonicalJson.canonicalize(drawing),
+    ),
   };
 }
 

@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { designLineagePhaseSnapshot } from "./designLineagePhaseSnapshot";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireDesignVariant } from "./requireDesignVariant";
@@ -63,8 +63,8 @@ export function designLineageViewDigest(
       ? []
       : [...variant.changes].sort(
           (a: IAutoMovieDesignChange, b: IAutoMovieDesignChange): number =>
-            compareCodeUnits(a.subject, b.subject) ||
-            compareCodeUnits(a.aspect, b.aspect),
+            AutoMovieEngineText.compareCodeUnits(a.subject, b.subject) ||
+            AutoMovieEngineText.compareCodeUnits(a.aspect, b.aspect),
         );
   const lines: string[] = [
     designLineageRecord(

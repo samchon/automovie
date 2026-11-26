@@ -1,4 +1,4 @@
-import { compareCodeUnits } from "@automovie/engine";
+import { AutoMovieEngineText } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,14 +14,15 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_text_compare_code_units(): void {
   TestValidator.predicate(
     "an uppercase letter precedes a lowercase one",
-    compareCodeUnits("B", "a") === -1 && compareCodeUnits("a", "B") === 1,
+    AutoMovieEngineText.compareCodeUnits("B", "a") === -1 &&
+      AutoMovieEngineText.compareCodeUnits("a", "B") === 1,
   );
   TestValidator.predicate(
     "equal strings compare as zero",
-    compareCodeUnits("key", "key") === 0,
+    AutoMovieEngineText.compareCodeUnits("key", "key") === 0,
   );
   TestValidator.predicate(
     "a prefix precedes its extension",
-    compareCodeUnits("a", "ab") === -1,
+    AutoMovieEngineText.compareCodeUnits("a", "ab") === -1,
   );
 }

@@ -1,8 +1,8 @@
 import {
   Quaternion,
   autoMoviePatternInstanceTransforms,
-  compareCodeUnits,
   generateAutoMovieSurfacePattern,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
@@ -242,9 +242,11 @@ export function test_architecture_surface_pattern_herringbone(): void {
     "every cross-grain rectangle contact is reported exactly once",
     turning.findings
       .map((finding: IAutoMoviePatternFinding): string =>
-        [...finding.occurrences].sort(compareCodeUnits).join("|"),
+        [...finding.occurrences]
+          .sort(AutoMovieEngineText.compareCodeUnits)
+          .join("|"),
       )
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     [
       ["wood/v2@0,-1", "wood/h0@0,0"],
       ["wood/v2@0,-1", "wood/h1@0,0"],
@@ -259,8 +261,10 @@ export function test_architecture_surface_pattern_herringbone(): void {
       ["wood/h2@0,0", "wood/v2@0,0"],
       ["wood/v2@0,0", "wood/h3@0,0"],
     ]
-      .map((pair: string[]): string => pair.sort(compareCodeUnits).join("|"))
-      .sort(compareCodeUnits),
+      .map((pair: string[]): string =>
+        pair.sort(AutoMovieEngineText.compareCodeUnits).join("|"),
+      )
+      .sort(AutoMovieEngineText.compareCodeUnits),
   );
   TestValidator.equals(
     "the grain turns where a flat board meets one on end, and nowhere else",

@@ -6,7 +6,7 @@ import {
   IAutoMovieDesignSubject,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireDesignVariant } from "./requireDesignVariant";
 
@@ -69,8 +69,8 @@ export function compareDesignVariants(
   }
   differences.sort(
     (a: IAutoMovieDesignDifference, b: IAutoMovieDesignDifference): number =>
-      compareCodeUnits(a.subject, b.subject) ||
-      compareCodeUnits(a.aspect, b.aspect),
+      AutoMovieEngineText.compareCodeUnits(a.subject, b.subject) ||
+      AutoMovieEngineText.compareCodeUnits(a.aspect, b.aspect),
   );
   const touched: Set<string> = new Set(
     [...first.changes, ...second.changes].map(
@@ -84,7 +84,7 @@ export function compareDesignVariants(
     common: lineage.subjects
       .map((subject: IAutoMovieDesignSubject): string => subject.id)
       .filter((id: string): boolean => !touched.has(id))
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     differences,
   };
 }

@@ -8,7 +8,7 @@ import type {
 
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
-import { withArticle } from "../text/withArticle";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { pushViolation } from "./pushViolation";
 
 /**
@@ -71,7 +71,7 @@ export function lightClipChannelGate(
         violations,
         "type",
         `${path}.pointer`,
-        `light clip track addresses "${target.property}", which ${withArticle(String(kind))} light does not carry`,
+        `light clip track addresses "${target.property}", which ${AutoMovieEngineText.withArticle(String(kind))} light does not carry`,
         channel.pointer,
       );
   };

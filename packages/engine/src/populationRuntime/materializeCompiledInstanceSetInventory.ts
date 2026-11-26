@@ -4,7 +4,7 @@ import type {
   IAutoMovieMaterializeCompiledInstanceSetInventory,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { materializeCompiledInstanceSet } from "./materializeCompiledInstanceSet";
 
 /**
@@ -23,7 +23,7 @@ export function materializeCompiledInstanceSetInventory(
         (
           left: IAutoMovieInstanceSetDesign,
           right: IAutoMovieInstanceSetDesign,
-        ): number => compareCodeUnits(left.id, right.id),
+        ): number => AutoMovieEngineText.compareCodeUnits(left.id, right.id),
       )
       .map(
         (

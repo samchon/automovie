@@ -1,4 +1,4 @@
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS } from "./constants/AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS";
 import { isAutoMovieMaterialExtension } from "./isAutoMovieMaterialExtension";
 
@@ -18,5 +18,5 @@ export function unsupportedAutoMovieMaterialExtensions(
           !AUTO_MOVIE_SUPPORTED_MATERIAL_EXTENSIONS.has(name),
       ),
     ),
-  ].sort(compareCodeUnits);
+  ].sort(AutoMovieEngineText.compareCodeUnits);
 }

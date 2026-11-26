@@ -1,6 +1,6 @@
 import { IAutoMovieDesignLineage } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";
 
 /**
@@ -35,7 +35,7 @@ export function designLineagePhaseOrder(
       else list.push(phase.id);
     }
   }
-  ready.sort(compareCodeUnits);
+  ready.sort(AutoMovieEngineText.compareCodeUnits);
   const order: string[] = [];
   while (ready.length !== 0) {
     const next: string = ready.shift()!;
@@ -58,7 +58,8 @@ const insertSorted: (sorted: string[], id: string) => void = (
   let high: number = sorted.length;
   while (low < high) {
     const middle: number = (low + high) >>> 1;
-    if (compareCodeUnits(sorted[middle]!, id) < 0) low = middle + 1;
+    if (AutoMovieEngineText.compareCodeUnits(sorted[middle]!, id) < 0)
+      low = middle + 1;
     else high = middle;
   }
   sorted.splice(low, 0, id);

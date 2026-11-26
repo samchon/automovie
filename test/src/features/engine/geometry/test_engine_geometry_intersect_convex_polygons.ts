@@ -1,4 +1,7 @@
-import { compareCodeUnits, intersectAutoMovieConvexPolygons } from "@automovie/engine";
+import {
+  intersectAutoMovieConvexPolygons,
+  AutoMovieEngineText,
+} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 type P = [number, number];
@@ -30,7 +33,9 @@ export function test_engine_geometry_intersect_convex_polygons(): void {
       return s + a[0] * b[1] - a[1] * b[0];
     }, 0) / 2;
   const sorted = (polygon: P[]): string[] =>
-    polygon.map((p: P): string => p.join(",")).sort(compareCodeUnits);
+    polygon
+      .map((p: P): string => p.join(","))
+      .sort(AutoMovieEngineText.compareCodeUnits);
 
   // 1.
   TestValidator.equals(

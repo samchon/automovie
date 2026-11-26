@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { withArticle } from "../text/withArticle";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { AUTOMOVIE_ANALYSIS_DOMAINS } from "./constants/AUTOMOVIE_ANALYSIS_DOMAINS";
 import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "./constants/AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";
 import { validateAutoMovieAnalysisRun } from "./validateAutoMovieAnalysisRun";
@@ -168,8 +168,8 @@ export function summarizeAutoMovieAnalysis(
         domain,
         metric: null,
         status: "not-run",
-        reason: `the production requires ${withArticle(domain)} answer and no run was submitted`,
-        remedy: `run ${withArticle(domain)} analysis against revision "${props.revision}", or stop requiring the domain`,
+        reason: `the production requires ${AutoMovieEngineText.withArticle(domain)} answer and no run was submitted`,
+        remedy: `run ${AutoMovieEngineText.withArticle(domain)} analysis against revision "${props.revision}", or stop requiring the domain`,
       });
   }
 

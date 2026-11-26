@@ -1,7 +1,7 @@
 import {
-  compareCodeUnits,
   productionFrameIntervalToGridTicks,
   resolveProductionFrameRate,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   IAutoMovieFilmTimeline,
@@ -40,7 +40,7 @@ export const canonicalProductionWebVtt: (
     (left: ICaptionCue, right: ICaptionCue): number =>
       left.startFrame - right.startFrame ||
       left.endFrame - right.endFrame ||
-      compareCodeUnits(left.id, right.id),
+      AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   );
   return [
     `WEBVTT ${serializeAutoMovieWebVttIdentifier(timeline.id)}`,

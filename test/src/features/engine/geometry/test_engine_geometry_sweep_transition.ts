@@ -1,8 +1,8 @@
 import {
-  compareCodeUnits,
   layoutAutoMovieSurfaceTransition,
   mapAutoMovieSurfaceTier,
   sampleAutoMovieSurfaceNetwork,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
@@ -63,16 +63,30 @@ export function test_engine_geometry_sweep_transition(): void {
     const degree: number = ringed.has(v) ? n + 2 : n;
     if (degree !== 4) irregular[degree] = (irregular[degree] ?? 0) + 1;
   });
-  TestValidator.equals("extraordinary vertices", irregular, { 3: 12, 5: 4, 6: 4 });
+  TestValidator.equals("extraordinary vertices", irregular, {
+    3: 12,
+    5: 4,
+    6: 4,
+  });
   const counts: number[] = [...edges.values()];
-  TestValidator.equals("boundary edges", counts.filter((n: number) => n === 1).length, 20);
-  TestValidator.predicate("manifold", counts.every((n: number): boolean => n === 1 || n === 2));
+  TestValidator.equals(
+    "boundary edges",
+    counts.filter((n: number) => n === 1).length,
+    20,
+  );
+  TestValidator.predicate(
+    "manifold",
+    counts.every((n: number): boolean => n === 1 || n === 2),
+  );
 
   // 2.
   const key = (q: Corner[]): string =>
     q
-      .map((c: Corner): string => `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`)
-      .sort(compareCodeUnits)
+      .map(
+        (c: Corner): string =>
+          `${Math.round(c.s * 1e9)},${Math.round(c.t * 1e9)}`,
+      )
+      .sort(AutoMovieEngineText.compareCodeUnits)
       .join(";");
   for (const [start, end] of [
     [8, 16],
@@ -126,7 +140,10 @@ export function test_engine_geometry_sweep_transition(): void {
     ["high", 0.003, 2.5],
   ] satisfies [AutoMovieSurfaceTier, number, number][]) {
     const [r, n]: [number, number] = sweepTransitionDeviation(tier);
-    TestValidator.predicate(`${tier}: ${r} radial, ${n} degrees`, r <= radial && n <= normal);
+    TestValidator.predicate(
+      `${tier}: ${r} radial, ${n} degrees`,
+      r <= radial && n <= normal,
+    );
   }
 
   // 5.
@@ -137,6 +154,9 @@ export function test_engine_geometry_sweep_transition(): void {
   ] satisfies [string, number, number, number, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => layoutAutoMovieSurfaceTransition(start, end, rows), message),
+      throwsError(
+        (): unknown => layoutAutoMovieSurfaceTransition(start, end, rows),
+        message,
+      ),
     );
 }

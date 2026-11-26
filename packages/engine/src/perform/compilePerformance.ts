@@ -20,7 +20,7 @@ import type {
 import { arrangeMotion } from "../motion/arrangeMotion";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sequenceMotion } from "../motion/sequenceMotion";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { actionRegion } from "./actionRegion";
 import { blendPoses } from "./blendPoses";
 import { bodyRegionBones } from "./bodyRegionBones";
@@ -124,7 +124,7 @@ function maskMotionToRegion(
     // Sorted so the reported list is stable whatever order the keyframes
     // happened to name the bones in (the engine is deterministic, and its
     // diagnostics are part of that).
-    bones: [...dropped].sort(compareCodeUnits),
+    bones: [...dropped].sort(AutoMovieEngineText.compareCodeUnits),
     root: droppedRoot,
     expression: droppedExpression,
   };
@@ -408,7 +408,8 @@ export function compilePerformance(
   // wrote the shot rather than in Map-insertion order.
   masked.sort(
     (a: IAutoMovieMaskedContent, b: IAutoMovieMaskedContent): number =>
-      a.action - b.action || compareCodeUnits(a.actor, b.actor),
+      a.action - b.action ||
+      AutoMovieEngineText.compareCodeUnits(a.actor, b.actor),
   );
   return { performances, masked };
 }

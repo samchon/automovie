@@ -3,7 +3,7 @@ import type {
   IAutoMovieShotPhysicsAdvice,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 
 /**
  * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages
@@ -75,7 +75,7 @@ function canonicalAdviceValue(value: unknown): unknown {
   const record: Record<string, unknown> = value as Record<string, unknown>;
   return Object.fromEntries(
     Object.keys(record)
-      .sort(compareCodeUnits)
+      .sort(AutoMovieEngineText.compareCodeUnits)
       .map((key: string): [string, unknown] => [
         key,
         canonicalAdviceValue(record[key]),

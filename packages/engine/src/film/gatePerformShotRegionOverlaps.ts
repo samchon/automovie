@@ -9,7 +9,7 @@ import {
 
 import { actionRegion } from "../perform/actionRegion";
 import { bodyRegionBones } from "../perform/bodyRegionBones";
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";
 
@@ -121,7 +121,7 @@ export function gatePerformShotRegionOverlaps(
             .filter((bone: AutoMovieHumanoidBone): boolean =>
               bContent.bones.has(bone),
             )
-            .sort(compareCodeUnits),
+            .sort(AutoMovieEngineText.compareCodeUnits),
           ...(aContent.expression && bContent.expression ? ["expression"] : []),
         ];
         if (shared.length > 0 && b1 > a0 + 1e-9)

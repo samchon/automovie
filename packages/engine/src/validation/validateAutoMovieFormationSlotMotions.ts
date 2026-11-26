@@ -8,7 +8,7 @@ import {
   type IAutoMovieValidateFormationSlotMotions,
 } from "@automovie/interface";
 
-import { compareCodeUnits } from "../text/compareCodeUnits";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**
@@ -93,9 +93,9 @@ export function validateAutoMovieFormationSlotMotions(
       left: IAutoMovieFormationSlotMotion,
       right: IAutoMovieFormationSlotMotion,
     ): number =>
-      compareCodeUnits(left.formation, right.formation) ||
+      AutoMovieEngineText.compareCodeUnits(left.formation, right.formation) ||
       left.start - right.start ||
-      compareCodeUnits(left.id, right.id),
+      AutoMovieEngineText.compareCodeUnits(left.id, right.id),
   )) {
     if (ids.has(cue.id))
       fail(

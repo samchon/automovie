@@ -18,7 +18,7 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
 import { footprintArea } from "../space/footprintArea";
 import { surfaceFootprint } from "../space/surfaceFootprint";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
 import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
 import { AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION } from "./constants/AUTOMOVIE_QUANTITY_CELL_UNION_APPROXIMATION";
@@ -243,7 +243,9 @@ export function measureAutoMovieQuantities(
   };
   return {
     ...report,
-    digest: autoMovieRenderDigest(canonicalizeAutoMovieJson(report)),
+    digest: autoMovieRenderDigest(
+      AutoMovieEngineCanonicalJson.canonicalize(report),
+    ),
   };
 }
 

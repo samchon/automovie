@@ -1,7 +1,7 @@
 import { IAutoMovieFilmTimeline } from "@automovie/interface";
 
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
-import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
+import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 
 /**
  * Identify the normalized edit state shared by planning and film effects.
@@ -19,7 +19,7 @@ export function productionFilmEffectEditFingerprint(
   timeline: IAutoMovieFilmTimeline,
 ): string {
   return autoMovieRenderDigest(
-    canonicalizeAutoMovieJson({
+    AutoMovieEngineCanonicalJson.canonicalize({
       protocol: "automovie.production-render-edit.v2",
       id: timeline.id,
       fps: timeline.fps,

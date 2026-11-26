@@ -6,7 +6,7 @@ import {
   type IAutoMovieShotLightingInput,
 } from "@automovie/interface";
 
-import { withArticle } from "../text/withArticle";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { applyLightOverride } from "./applyLightOverride";
 import { LIGHT_CHANNEL_PROPERTIES } from "./constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "./parseLightPointer";
@@ -50,7 +50,7 @@ export function resolveShotLighting(
         LIGHT_CHANNEL_PROPERTIES[target.property];
       if (!property.carries(light.type))
         throw new Error(
-          `light clip "${clip.id}" addresses "${target.property}", which ${withArticle(light.type)} light does not carry`,
+          `light clip "${clip.id}" addresses "${target.property}", which ${AutoMovieEngineText.withArticle(light.type)} light does not carry`,
         );
       const carried: IAutoMovieLightOverride | undefined = overrides.get(
         target.light,

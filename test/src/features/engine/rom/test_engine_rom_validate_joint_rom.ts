@@ -1,8 +1,8 @@
 import {
   AutoMovieEngineViolationCollector,
-  compareCodeUnits,
   getConstraint,
   validateJointRom,
+  AutoMovieEngineText,
 } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
@@ -46,7 +46,8 @@ const faults: (
   joint: IAutoMovieJointPose,
   constraint: IAutoMovieJointConstraint,
 ): IAutoMovieConstraintViolation[] => {
-  const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
+  const collector: AutoMovieEngineViolationCollector =
+    new AutoMovieEngineViolationCollector();
   validateJointRom({ joint, constraint, path: "$input", collector });
   return collector.items;
 };
@@ -124,7 +125,7 @@ export function test_engine_rom_validate_joint_rom(): void {
     "two bad axes",
     faults(pose({ flexion: 999, twist: 999 }), ELBOW)
       .map((item: IAutoMovieConstraintViolation): string => item.path)
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     ["$input.flexion", "$input.twist"],
   );
   const cone: IAutoMovieJointConstraint = {
@@ -183,7 +184,7 @@ export function test_engine_rom_validate_joint_rom(): void {
       swingTwist: null,
     })
       .map((item: IAutoMovieConstraintViolation): string => item.path)
-      .sort(compareCodeUnits),
+      .sort(AutoMovieEngineText.compareCodeUnits),
     ["$input.flexion", "$input.swing", "$input.twist"],
   );
   TestValidator.equals(

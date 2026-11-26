@@ -1,4 +1,4 @@
-import { compareCodeUnits } from "@automovie/engine";
+import { AutoMovieEngineText } from "@automovie/engine";
 import type {
   IAutoMovieProductionAudioAssetIdentity,
   IAutoMovieProductionSoundPlan,
@@ -35,7 +35,7 @@ export const normalizeAudioAssets: (
       (
         left: IAutoMovieProductionAudioAssetIdentity,
         right: IAutoMovieProductionAudioAssetIdentity,
-      ): number => compareCodeUnits(left.path, right.path),
+      ): number => AutoMovieEngineText.compareCodeUnits(left.path, right.path),
     )
     .map(
       (

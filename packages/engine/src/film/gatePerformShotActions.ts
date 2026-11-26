@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { withArticle } from "../text/withArticle";
+import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
 import { performShotActors } from "./performShotActors";
@@ -182,7 +182,7 @@ function gateActors(
       context.out.push(
         "type",
         `${path}.actor`,
-        `${withArticle(action.verb)} action's actor must be a staged scene node, but "${describeInvalidValue(actor)}" is a camera`,
+        `${AutoMovieEngineText.withArticle(action.verb)} action's actor must be a staged scene node, but "${describeInvalidValue(actor)}" is a camera`,
         actor,
       );
   }
