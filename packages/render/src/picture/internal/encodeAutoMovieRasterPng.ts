@@ -1,6 +1,6 @@
 import type { IAutoMovieRasterImage } from "@automovie/interface";
 
-import { crcAutoMoviePngChunk } from "./crcAutoMoviePngChunk.js";
+import { crcAutoMoviePngChunk } from "../crcAutoMoviePngChunk.js";
 
 /** The eight bytes every PNG file starts with. */
 const SIGNATURE: readonly number[] = [

@@ -4,11 +4,11 @@ import type {
   IAutoMovieRasterPoint,
 } from "@automovie/interface";
 
-import { compareAutoMovieRasters } from "./compareAutoMovieRasters.js";
-import { decodeAutoMovieRasterPng } from "./decodeAutoMovieRasterPng.js";
-import { encodeAutoMovieRasterPng } from "./encodeAutoMovieRasterPng.js";
-import { hashAutoMovieRasterImage } from "./hashAutoMovieRasterImage.js";
-import { stampAutoMovieRasterLabel } from "./stampAutoMovieRasterLabel.js";
+import { compareAutoMovieRasters } from "./internal/compareAutoMovieRasters.js";
+import { decodeAutoMovieRasterPng } from "./internal/decodeAutoMovieRasterPng.js";
+import { encodeAutoMovieRasterPng } from "./internal/encodeAutoMovieRasterPng.js";
+import { hashAutoMovieRasterImage } from "./internal/hashAutoMovieRasterImage.js";
+import { stampAutoMovieRasterLabel } from "./internal/stampAutoMovieRasterLabel.js";
 
 /** Operations on the canonical picture and raster records. */
 export namespace AutoMovieRenderPicture {
