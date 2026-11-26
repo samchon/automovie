@@ -4,7 +4,7 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
  * A review mark bound to the published file and the inspection its reviewer
  * explicitly reports.
  */
-export interface IAutoMovieReviewObservation {
+export interface IAutoMovieCliReviewObservation {
   /** The receipt format. */
   version: 1;
   /** The delivered subject named by its published render report. */

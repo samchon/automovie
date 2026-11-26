@@ -1,30 +1,9 @@
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./AUTOMOVIE_REVIEW_OPTIONS";
-import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
+import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
+import type { IAutoMovieCliReviewObservation } from "../IAutoMovieCliReviewObservation";
 
 /** The longest Inspector recording in wall-clock seconds, one day. */
 const LONGEST: number = 86_400;
-
-/** An Inspector recording with its existing address, duration and output. */
-interface IAutoMovieInspectorReviewOptions {
-  url: string;
-  seconds: number;
-  out: string | null;
-}
-
-/**
- * One file mark or replay, with the selected range and any explicit reviewer
- * decision.
- */
-interface IAutoMovieFileReviewOptions {
-  file: string | null;
-  mark: string | null;
-  requested: IAutoMovieReviewObservation["requested"] | null;
-  note: string | null;
-  reviewer: IAutoMovieReviewObservation["reviewer"];
-  decision: IAutoMovieReviewObservation["decision"];
-  viewed: IAutoMovieReviewObservation["viewed"];
-  out: string | null;
-}
 
 /**
  * Admit one `automovie review` operation.
@@ -40,7 +19,7 @@ interface IAutoMovieFileReviewOptions {
  */
 export function readAutoMovieReviewOptions(
   values: ReadonlyMap<string, string>,
-): IAutoMovieInspectorReviewOptions | IAutoMovieFileReviewOptions {
+): AutoMovieCliReviewTypes.Options {
   for (const [key, value] of values) {
     if (!AUTOMOVIE_REVIEW_OPTIONS.includes(key))
       throw new Error(
@@ -57,7 +36,7 @@ export function readAutoMovieReviewOptions(
 /** Record only a loopback HTTP Inspector for a finite wall-clock duration. */
 function inspectorOptions(
   values: ReadonlyMap<string, string>,
-): IAutoMovieInspectorReviewOptions {
+): AutoMovieCliReviewTypes.InspectorOptions {
   const url: string | undefined = values.get("url");
   const text: string | undefined = values.get("seconds");
   if (url === undefined || text === undefined)
@@ -93,7 +72,7 @@ function inspectorOptions(
 /** Admits a new mark, an explicit rebind, or replay of an existing mark. */
 function fileOptions(
   values: ReadonlyMap<string, string>,
-): IAutoMovieFileReviewOptions {
+): AutoMovieCliReviewTypes.FileOptions {
   if (values.has("url") || values.has("seconds"))
     throw new Error(
       "Review --url and --seconds apply only to Inspector recording",
@@ -108,7 +87,7 @@ function fileOptions(
     throw new Error("Review --at excludes --from and --to");
   if ((from === null) !== (to === null) || (from !== null && to! <= from))
     throw new Error("Review needs both --from and --to with --from below --to");
-  const requested: IAutoMovieFileReviewOptions["requested"] =
+  const requested: AutoMovieCliReviewTypes.FileOptions["requested"] =
     at !== null ? { from: at, to: null } : from !== null ? { from, to } : null;
   if (requested !== null && file === null)
     throw new Error("Review a new position with --file");

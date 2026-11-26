@@ -1,9 +1,8 @@
 import { TestValidator } from "@nestia/e2e";
 import {
+  AutoMovieCliReview,
   AUTOMOVIE_RENDER_OPTIONS,
-  AUTOMOVIE_REVIEW_OPTIONS,
   readAutoMovieRenderOptions,
-  readAutoMovieReviewOptions,
 } from "automovie";
 
 import { throwsError } from "../internal/predicates";
@@ -129,7 +128,7 @@ export function test_cli_render_review_options(): void {
   // 3. Review's options.
   TestValidator.equals(
     "review of the inspector",
-    readAutoMovieReviewOptions(
+    AutoMovieCliReview.readOptions(
       new Map([
         ["url", "http://127.0.0.1:5173/?subject=starter"],
         ["seconds", "12.5"],
@@ -139,7 +138,7 @@ export function test_cli_render_review_options(): void {
   );
   TestValidator.equals(
     "review into a folder",
-    readAutoMovieReviewOptions(
+    AutoMovieCliReview.readOptions(
       new Map([
         ["url", "http://localhost:5173/"],
         ["seconds", "86400"],
@@ -208,7 +207,7 @@ export function test_cli_render_review_options(): void {
       `review refuses ${JSON.stringify(values)}`,
       throwsError(
         (): unknown =>
-          readAutoMovieReviewOptions(new Map(values as [string, string][])),
+          AutoMovieCliReview.readOptions(new Map(values as [string, string][])),
         fragment,
       ),
     );
@@ -278,7 +277,7 @@ export function test_cli_render_review_options(): void {
   const admitted: string[] = [
     ...new Set(
       examples.flatMap((pairs): string[] => {
-        readAutoMovieReviewOptions(new Map(pairs));
+        AutoMovieCliReview.readOptions(new Map(pairs));
         return pairs.map(([key]): string => key);
       }),
     ),
@@ -288,7 +287,7 @@ export function test_cli_render_review_options(): void {
   TestValidator.equals(
     "review examples cover every option",
     admitted.sort(byKey),
-    [...AUTOMOVIE_REVIEW_OPTIONS].sort(byKey),
+    [...AutoMovieCliReview.OPTIONS].sort(byKey),
   );
   for (const [values, fragment] of [
     [
@@ -351,7 +350,7 @@ export function test_cli_render_review_options(): void {
       `review refuses ${JSON.stringify(values)}`,
       throwsError(
         (): unknown =>
-          readAutoMovieReviewOptions(new Map(values as [string, string][])),
+          AutoMovieCliReview.readOptions(new Map(values as [string, string][])),
         fragment,
       ),
     );

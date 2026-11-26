@@ -2,8 +2,8 @@ import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
-import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
+import { AutoMovieCliReview } from "./review/AutoMovieCliReview";
+import type { IAutoMovieCliReviewObservation } from "./review/IAutoMovieCliReviewObservation";
 import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
 
 /**
@@ -47,9 +47,9 @@ export async function inspectAutoMovieProductionCheckReview(
       `Record ${check.viewed} review of frames ${from}–${end - 1}.`,
     );
   }
-  let value: IAutoMovieReviewObservation;
+  let value: IAutoMovieCliReviewObservation;
   try {
-    value = readAutoMovieReviewObservation(JSON.parse(source) as unknown);
+    value = AutoMovieCliReview.readObservation(JSON.parse(source) as unknown);
   } catch (error) {
     const reason: string =
       error instanceof SyntaxError
@@ -99,7 +99,7 @@ export async function inspectAutoMovieProductionCheckReview(
     return pending(
       `Record ${check.viewed} and a named decision for the current video over frames ${from}–${end - 1}.`,
     );
-  const observation: NonNullable<IAutoMovieReviewObservation["observed"]> =
+  const observation: NonNullable<IAutoMovieCliReviewObservation["observed"]> =
     value.observed;
   if (check.viewed === "still" && end - from !== 1)
     return pending("A still decision can cover only one frame.");

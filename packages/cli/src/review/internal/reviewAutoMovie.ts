@@ -3,7 +3,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type * as Playwright from "playwright-core";
 
-import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
+import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
+import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
 import { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
 import { recordAutoMoviePlayback } from "./recordAutoMoviePlayback";
 import { reviewAutoMovieFile } from "./reviewAutoMovieFile";
@@ -13,7 +14,8 @@ import { reviewAutoMovieFile } from "./reviewAutoMovieFile";
  * marking and reopening a file-bound observation.
  *
  * Options are read by `readAutoMovieCaptureArguments` and admitted by
- * `readAutoMovieReviewOptions`. The recording is `recordAutoMoviePlayback` with
+ * `AutoMovieCliReview.readOptions`. The recording is
+ * `AutoMovieCliReview.recordPlayback` with
  * the production's `playwright-core`; it and `playback.json`, holding the time
  * readings and the page's script errors, go into `--out` or
  * `media/automovie/review`. It prints the video and the number of errors and
@@ -21,16 +23,9 @@ import { reviewAutoMovieFile } from "./reviewAutoMovieFile";
  * the published-file review host and resolves to 0 after the mark or replay
  * succeeds.
  */
-export async function reviewAutoMovie(props: {
-  /** The tokens after `review`. */
-  args: readonly string[];
-
-  /** The production's root folder, the working directory. */
-  root: string;
-
-  /** The environment, read for `CHROME_PATH`. */
-  env: Readonly<Record<string, string | undefined>>;
-}): Promise<number> {
+export async function reviewAutoMovie(
+  props: AutoMovieCliReviewTypes.ReviewProps,
+): Promise<number> {
   const { root } = props;
   const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
     root,

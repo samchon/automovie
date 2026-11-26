@@ -1,6 +1,6 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
-import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
+import type { IAutoMovieCliReviewObservation } from "../IAutoMovieCliReviewObservation";
 
 /**
  * Admits one stored review receipt with matching requested and observed scope.
@@ -8,7 +8,7 @@ import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation"
  */
 export function readAutoMovieReviewObservation(
   value: unknown,
-): IAutoMovieReviewObservation {
+): IAutoMovieCliReviewObservation {
   if (!record(value) || !admitted(value))
     throw new Error("Invalid file review receipt");
   if (
@@ -59,7 +59,7 @@ function observed(
   value: unknown,
   from: number,
   to: number | null,
-): value is NonNullable<IAutoMovieReviewObservation["observed"]> {
+): value is NonNullable<IAutoMovieCliReviewObservation["observed"]> {
   if (
     !record(value) ||
     !index(value.firstFrame) ||
@@ -95,7 +95,7 @@ function observed(
 }
 
 /** An assigned occurrence or an explicit limit on assignment. */
-function cut(value: unknown): value is IAutoMovieReviewObservation["cut"] {
+function cut(value: unknown): value is IAutoMovieCliReviewObservation["cut"] {
   return (
     record(value) &&
     (value.state === "resolved"
@@ -108,7 +108,7 @@ function cut(value: unknown): value is IAutoMovieReviewObservation["cut"] {
 /** The input shape and cross-field admission of a stored mark. */
 function admitted(
   value: Record<string, unknown>,
-): value is Record<string, unknown> & IAutoMovieReviewObservation {
+): value is Record<string, unknown> & IAutoMovieCliReviewObservation {
   if (
     value.version !== 1 ||
     !text(value.subject) ||

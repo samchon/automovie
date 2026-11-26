@@ -11,7 +11,7 @@ import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
 import { checkAutoMovie } from "./checkAutoMovie";
 import { inspectAutoMovie } from "./inspectAutoMovie";
 import { renderAutoMovie } from "./renderAutoMovie";
-import { reviewAutoMovie } from "./reviewAutoMovie";
+import { AutoMovieCliReview } from "./review/AutoMovieCliReview";
 import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
 
 const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
@@ -103,7 +103,7 @@ Options:
  *   inspector page until the process is interrupted.
  * - `render` runs `renderAutoMovie` in the working directory as the production,
  *   resolving to 0 once the video is written.
- * - `review` runs `reviewAutoMovie`, resolving to 1 when the recorded page
+ * - `review` runs `AutoMovieCliReview.review`, resolving to 1 when the recorded page
  *   reported a script error.
  *
  * `create` and `add` take their files from `AutoMovieTemplateScaffold.create`
@@ -159,7 +159,7 @@ export async function run(argv: readonly string[]): Promise<number> {
         env: process.env,
       });
     if (command.command === "review")
-      return await reviewAutoMovie({
+      return await AutoMovieCliReview.review({
         args: command.args,
         root: process.cwd(),
         env: process.env,

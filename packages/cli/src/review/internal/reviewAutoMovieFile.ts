@@ -4,22 +4,16 @@ import { randomUUID } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { AutoMovieFfmpegStaticPath } from "./AutoMovieFfmpegStaticPath";
-import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
-import { hashAutoMovieFile } from "./hashAutoMovieFile";
-import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
+import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
+import type { IAutoMovieCliReviewObservation } from "../IAutoMovieCliReviewObservation";
+import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
+import { hashAutoMovieFile } from "../../hashAutoMovieFile";
+import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
+import { readAutoMovieErrorCode } from "../../readAutoMovieErrorCode";
 import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
-import type { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
-import { resolveAutoMovieFfmpeg } from "./resolveAutoMovieFfmpeg";
-import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
-import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
-
-/** The admitted file form of the review command. */
-type FileOptions = Exclude<
-  ReturnType<typeof readAutoMovieReviewOptions>,
-  { url: string }
->;
+import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
+import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
+import { sameAutoMovieReviewFile } from "../../sameAutoMovieReviewFile";
 
 /** Native clock terms verified by the successful delivery's continuous decode. */
 interface IAutoMovieReviewClock {
@@ -34,16 +28,11 @@ interface IAutoMovieReviewClock {
  * adjacent context, after checking the current video bytes against the saved
  * digest. Returns the receipt and writes an actionable address.
  */
-export async function reviewAutoMovieFile(props: {
-  /** Admitted file review options. */
-  options: FileOptions;
-  /** The production root for user paths and project-installed packages. */
-  root: string;
-  /** Process environment used to resolve FFmpeg on replay. */
-  env: Readonly<Record<string, string | undefined>>;
-}): Promise<IAutoMovieReviewObservation> {
+export async function reviewAutoMovieFile(
+  props: AutoMovieCliReviewTypes.ReviewFileProps,
+): Promise<IAutoMovieCliReviewObservation> {
   const { options, root } = props;
-  const previous: IAutoMovieReviewObservation | null =
+  const previous: IAutoMovieCliReviewObservation | null =
     options.mark === null
       ? null
       : readAutoMovieReviewObservation(
@@ -91,9 +80,9 @@ export async function reviewAutoMovieFile(props: {
     report.delivery,
     sha256,
   );
-  const observed: IAutoMovieReviewObservation["observed"] =
+  const observed: IAutoMovieCliReviewObservation["observed"] =
     clock === null ? null : windowAt(clock, options.requested);
-  const mark: IAutoMovieReviewObservation = {
+  const mark: IAutoMovieCliReviewObservation = {
     version: 1,
     subject: report.subject,
     file: relative(root, file),
@@ -218,8 +207,8 @@ async function readClock(
 /** Resolves a point or interval to the decoded frames intersecting its scope. */
 function windowAt(
   clock: IAutoMovieReviewClock,
-  requested: IAutoMovieReviewObservation["requested"],
-): NonNullable<IAutoMovieReviewObservation["observed"]> {
+  requested: IAutoMovieCliReviewObservation["requested"],
+): NonNullable<IAutoMovieCliReviewObservation["observed"]> {
   const end: number = seconds(clock, clock.frameCount);
   if (requested.from >= end || (requested.to !== null && requested.to > end))
     throw new Error(
@@ -283,8 +272,8 @@ function timestampSeconds(
 function resolveCut(
   cut: unknown,
   clock: IAutoMovieReviewClock | null,
-  observed: IAutoMovieReviewObservation["observed"],
-): IAutoMovieReviewObservation["cut"] {
+  observed: IAutoMovieCliReviewObservation["observed"],
+): IAutoMovieCliReviewObservation["cut"] {
   if (
     !Array.isArray(cut) ||
     cut.length === 0 ||
@@ -349,7 +338,7 @@ async function replay(props: {
   env: Readonly<Record<string, string | undefined>>;
   out: string;
   file: string;
-  mark: IAutoMovieReviewObservation;
+  mark: IAutoMovieCliReviewObservation;
 }): Promise<void> {
   const { mark, root, out, file } = props;
   process.stdout.write(`review source: ${file}\n${address(mark)}\n`);
@@ -405,7 +394,7 @@ async function replay(props: {
  * A short display address keeps the request distinct from native frame
  * coverage.
  */
-function address(mark: IAutoMovieReviewObservation): string {
+function address(mark: IAutoMovieCliReviewObservation): string {
   const { requested, observed } = mark;
   const position: string =
     requested.to === null
@@ -418,7 +407,7 @@ function address(mark: IAutoMovieReviewObservation): string {
 
 /** Reports the old address and any verified absence from a replacement cut. */
 function originalAddress(
-  old: IAutoMovieReviewObservation,
+  old: IAutoMovieCliReviewObservation,
   replacement: { subject: string; cut: unknown } | null,
 ): string {
   const description = `Original ${old.file}. ${address(old)}.`;

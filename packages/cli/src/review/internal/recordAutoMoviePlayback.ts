@@ -1,6 +1,7 @@
 import * as fs from "node:fs/promises";
 
-import { planAutoMovieChromiumLaunch } from "./capture/internal/planAutoMovieChromiumLaunch";
+import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
+import { planAutoMovieChromiumLaunch } from "../../capture/internal/planAutoMovieChromiumLaunch";
 
 /**
  * Milliseconds the page may take to load and show its controls: ten minutes,
@@ -87,31 +88,9 @@ interface IRecordingLocator {
  * video. Errors during playback remain in the returned report. The browser is
  * closed on every outcome.
  */
-export async function recordAutoMoviePlayback(props: {
-  /** Playwright's `chromium`, loaded from the production. */
-  chromium: unknown;
-
-  /** The inspector page's address. */
-  url: string;
-
-  /** Wall-clock seconds observed after Play is pressed. */
-  seconds: number;
-
-  /** Folder the video is written into. */
-  out: string;
-
-  /** The environment, read for `CHROME_PATH`. */
-  env: Readonly<Record<string, string | undefined>>;
-}): Promise<{
-  /** The recording. */
-  video: string;
-
-  /** Each reading of the time readout, with wall seconds since Play was pressed. */
-  readings: { elapsedSeconds: number; text: string }[];
-
-  /** The page's script errors. */
-  errors: string[];
-}> {
+export async function recordAutoMoviePlayback(
+  props: AutoMovieCliReviewTypes.PlaybackProps,
+): Promise<AutoMovieCliReviewTypes.PlaybackRecord> {
   const chromium: IRecordingChromium = props.chromium as IRecordingChromium;
   const plan: ReturnType<typeof planAutoMovieChromiumLaunch> =
     planAutoMovieChromiumLaunch("gpu", props.env);
