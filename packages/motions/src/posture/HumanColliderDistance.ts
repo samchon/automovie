@@ -1,7 +1,4 @@
-import {
-  closestPointsBetweenSegments,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { physicalShapeSegmentDistance, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
   IAutoMovieVector3,
@@ -33,7 +30,7 @@ export function HumanColliderDistance(
         const ball: IWorldBall =
           reading?.bound ?? HumanShapeFraming.sphere(pose, shape);
         if (
-          closestPointsBetweenSegments(a, b, ball.centre, ball.centre)
+          AutoMovieEngineMath.closestPointsBetweenSegments(a, b, ball.centre, ball.centre)
             .distance -
             ball.radius -
             widest >=

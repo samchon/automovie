@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { polynomialUnitRoots } from "../math/polynomialUnitRoots";
+import { polynomialUnitRoots } from "../math/internal/polynomialUnitRoots";
 import { rotationVectorJacobian } from "../math/rotationVectorJacobian";
 import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";

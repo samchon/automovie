@@ -1,4 +1,4 @@
-import { clampAutoMovieUnitInterval } from "../math/clampAutoMovieUnitInterval";
+import { clampAutoMovieUnitInterval } from "../math/internal/clampAutoMovieUnitInterval";
 import { lerp as scalarLerp } from "../math/internal/lerp";
 
 /** Stateless scalar envelopes in seconds, normalized progress and radians. */

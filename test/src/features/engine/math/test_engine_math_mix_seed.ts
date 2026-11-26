@@ -1,4 +1,4 @@
-import { mixSeed } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,10 +12,10 @@ import { TestValidator } from "@nestia/e2e";
  *    different state, since both words of the seed take part.
  */
 export function test_engine_math_mix_seed(): void {
-  const base: number = mixSeed(12345, 7);
-  TestValidator.equals("pure", mixSeed(12345, 7), base);
+  const base: number = AutoMovieEngineMath.mixSeed(12345, 7);
+  TestValidator.equals("pure", AutoMovieEngineMath.mixSeed(12345, 7), base);
   TestValidator.equals("value", base, 2856422185);
-  TestValidator.predicate("salt", mixSeed(12345, 8) !== base);
-  TestValidator.predicate("seed", mixSeed(12346, 7) !== base);
-  TestValidator.predicate("high word", mixSeed(12345 + 2 ** 32, 7) !== base);
+  TestValidator.predicate("salt", AutoMovieEngineMath.mixSeed(12345, 8) !== base);
+  TestValidator.predicate("seed", AutoMovieEngineMath.mixSeed(12346, 7) !== base);
+  TestValidator.predicate("high word", AutoMovieEngineMath.mixSeed(12345 + 2 ** 32, 7) !== base);
 }

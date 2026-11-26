@@ -1,4 +1,4 @@
-import { Quaternion, computeModelRestExtent, convexHull2D } from "@automovie/engine";
+import { Quaternion, computeModelRestExtent, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieComputeModelRestExtent, IAutoMovieCrowdAgent, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
@@ -353,7 +353,7 @@ export namespace AutoMovieArchetypePassage {
       });
     return {
       footprint: mitre(
-        convexHull2D(
+        AutoMovieEngineMath.convexHull2D(
           participant.footprint.outline.map(
             (p: IAutoMovieVector3): IAutoMovieVector3 => ({
               x: p.x,

@@ -9,7 +9,7 @@ import {
   type IAutoMovieNormalizedGrammarShot,
 } from "@automovie/interface";
 
-import { roundToThousandths } from "../math/roundToThousandths";
+import { roundToThousandths } from "../math/internal/roundToThousandths";
 import { assertGrammarPositive } from "./assertGrammarPositive";
 import { GRAMMAR_STYLE_SUPPRESSION } from "./constants/GRAMMAR_STYLE_SUPPRESSION";
 import { inspectGrammarCut } from "./inspectGrammarCut";

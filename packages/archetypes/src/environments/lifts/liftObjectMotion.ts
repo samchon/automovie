@@ -1,4 +1,4 @@
-import { Vector3, builtConnectorCarriagePlacements } from "@automovie/engine";
+import { Vector3, AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieClip,
@@ -27,7 +27,7 @@ export function liftObjectMotion(
   gap: number,
 ): IAutoMovieClip {
   const firstState: createLift.IKey = schedule[0]!;
-  const firstPlacement = builtConnectorCarriagePlacements(
+  const firstPlacement = AutoMovieEngineBuiltEnvironment.connectorCarriagePlacements(
     environment,
     "travel",
   )[0]!;

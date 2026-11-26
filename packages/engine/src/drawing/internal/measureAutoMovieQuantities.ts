@@ -11,8 +11,8 @@ import {
   type IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { builtSpaceShellVolume } from "../../architecture/builtSpaceShellVolume";
-import { validateBuiltEnvironment } from "../../architecture/validateBuiltEnvironment";
+import { builtSpaceShellVolume } from "../../architecture/internal/builtSpaceShellVolume";
+import { validateBuiltEnvironment } from "../../architecture/internal/validateBuiltEnvironment";
 import { Vector3 } from "../../math/Vector3";
 import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";

@@ -1,10 +1,5 @@
 import { AutoMovieHumanF1NativeCalibration } from "./AutoMovieHumanF1NativeCalibration";
-import {
-  AutoMovieConstructionNativeProfile,
-  AutoMovieLoftViewFullSource as Full,
-  bracketedRoot,
-  convexHull2D,
-} from "@automovie/engine";
+import { AutoMovieConstructionNativeProfile, AutoMovieLoftViewFullSource as Full, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieHumanF1Engineering,
   IAutoMovieLoftViewFullSource,
@@ -103,7 +98,7 @@ export namespace AutoMovieHumanF1NativeTape {
           trunk(s, (2 * Math.PI * k) / phases),
         );
       const perimeter = (points: IAutoMovieVector3[]): number => {
-        const hull = convexHull2D(points);
+        const hull = AutoMovieEngineMath.convexHull2D(points);
         if (hull.length < 3) throw new Error("bare tape hull is not a loop");
         return hull.reduce(
           (sum: number, p: IAutoMovieVector3, k: number): number => {
@@ -160,7 +155,7 @@ export namespace AutoMovieHumanF1NativeTape {
               ? a
               : fb === 0
                 ? b
-                : bracketedRoot(
+                : AutoMovieEngineMath.bracketedRoot(
                     (x: number): number => breast(x, t).y - apex.y,
                     a,
                     b,

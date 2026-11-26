@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  windowSampleTimes,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -680,7 +675,7 @@ export namespace HumanMountOff {
       lastLanding < duration ? Math.max(standing, lastLanding) : standing;
     const phases: readonly number[] = [
       ...new Set([
-        ...windowSampleTimes(
+        ...AutoMovieEngineMotionSampling.windowSampleTimes(
           firstRelease,
           lastLanding,
           HumanArmSwing.PHASES / (lastLanding - firstRelease),

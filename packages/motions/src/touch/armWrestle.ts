@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  bracketedBisection,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -273,7 +268,7 @@ export namespace armWrestle {
         reason: `No lean from the hips puts the shoulder an upper arm from the elbow's place on the table: it stays ${(below * 1000).toFixed(0)} mm off leaning 20 degrees back and ${(above * 1000).toFixed(0)} mm off leaning 70 degrees forward`,
         fix: "sit the performer at the table, or give a table point nearer the shoulder",
       });
-    const lean: number = bracketedBisection(
+    const lean: number = AutoMovieEngineMath.bracketedBisection(
       (pitch: number): boolean => below * short(pitch) > 0,
       low,
       high,
@@ -426,7 +421,7 @@ export namespace armWrestle {
     const bend: number =
       resisted > 0 && lifts(1)
         ? resisted *
-          bracketedBisection(
+          AutoMovieEngineMath.bracketedBisection(
             (share: number): boolean => !lifts(share),
             0,
             1,

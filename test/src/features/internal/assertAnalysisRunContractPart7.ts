@@ -1,4 +1,4 @@
-import { summarizeAutoMovieAnalysis } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisReport,
   IAutoMovieAnalysisRun,
@@ -34,7 +34,7 @@ export function assertAnalysisRunContractPart7(
         (): boolean =>
           throwsError(
             (): IAutoMovieAnalysisReport =>
-              summarizeAutoMovieAnalysis({
+              AutoMovieEngineAnalysis.summarizeAnalysis({
                 runs: [],
                 revision: " ",
                 required: ["acoustic"],
@@ -47,7 +47,7 @@ export function assertAnalysisRunContractPart7(
         (): boolean =>
           throwsError(
             (): IAutoMovieAnalysisReport =>
-              summarizeAutoMovieAnalysis({
+              AutoMovieEngineAnalysis.summarizeAnalysis({
                 runs: [],
                 revision: "r7",
                 required: [],
@@ -61,7 +61,7 @@ export function assertAnalysisRunContractPart7(
         (): boolean =>
           throwsError(
             (): IAutoMovieAnalysisReport =>
-              summarizeAutoMovieAnalysis({
+              AutoMovieEngineAnalysis.summarizeAnalysis({
                 runs: [],
                 revision: "r7",
                 required: ["acoustic"],
@@ -75,7 +75,7 @@ export function assertAnalysisRunContractPart7(
         (): boolean =>
           throwsError(
             (): IAutoMovieAnalysisReport =>
-              summarizeAutoMovieAnalysis({
+              AutoMovieEngineAnalysis.summarizeAnalysis({
                 runs: [],
                 revision: "r7",
                 required: ["acoustic"],
@@ -89,7 +89,7 @@ export function assertAnalysisRunContractPart7(
         (): boolean =>
           throwsError(
             (): IAutoMovieAnalysisReport =>
-              summarizeAutoMovieAnalysis({
+              AutoMovieEngineAnalysis.summarizeAnalysis({
                 runs: [clean, clean],
                 revision: "r7",
                 required: ["acoustic"],
@@ -102,7 +102,7 @@ export function assertAnalysisRunContractPart7(
         (): boolean =>
           throwsError(
             (): IAutoMovieAnalysisReport =>
-              summarizeAutoMovieAnalysis({
+              AutoMovieEngineAnalysis.summarizeAnalysis({
                 runs: [{ ...clean, digest: digest("b") }],
                 revision: "r7",
                 required: ["acoustic"],

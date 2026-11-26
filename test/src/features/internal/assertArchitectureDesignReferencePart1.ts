@@ -1,8 +1,4 @@
-import {
-  validateDesignEvidence,
-  validateDesignReference,
-  validateGeneratedAcquisition,
-} from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieDesignEvidence,
@@ -59,14 +55,14 @@ export function assertArchitectureDesignReferencePart1(
   const source: IAutoMovieDesignReference = observation();
   TestValidator.equals(
     "an observed pavilion sheet validates as evidence",
-    validateDesignReference({ reference: source }).success,
+    AutoMovieEngineArchitecture.validateDesignReference({ reference: source }).success,
     true,
   );
 
   // 5-8. The generated acquisition ledger.
   TestValidator.equals(
     "a generated study with no source URL and no seed is complete provenance",
-    validateGeneratedAcquisition({
+    AutoMovieEngineArchitecture.validateGeneratedAcquisition({
       acquisition: generated(),
       digest: STUDY_DIGEST,
     }).success,
@@ -74,7 +70,7 @@ export function assertArchitectureDesignReferencePart1(
   );
   TestValidator.equals(
     "a text-only generation with no prompt text and no request id is accepted",
-    validateGeneratedAcquisition({
+    AutoMovieEngineArchitecture.validateGeneratedAcquisition({
       acquisition: {
         ...generated(),
         request: null,
@@ -88,7 +84,7 @@ export function assertArchitectureDesignReferencePart1(
   TestValidator.predicate(
     "a reproducible claim with no seed is refused",
     hasViolation(
-      validateGeneratedAcquisition({
+      AutoMovieEngineArchitecture.validateGeneratedAcquisition({
         acquisition: { ...generated(), reproducible: true },
         digest: STUDY_DIGEST,
       }),
@@ -98,13 +94,13 @@ export function assertArchitectureDesignReferencePart1(
   );
   TestValidator.equals(
     "a reproducible claim carrying its seed is accepted",
-    validateGeneratedAcquisition({
+    AutoMovieEngineArchitecture.validateGeneratedAcquisition({
       acquisition: { ...generated(), reproducible: true, seed: 4211 },
       digest: STUDY_DIGEST,
     }).success,
     true,
   );
-  const decorated: IAutoMovieValidation = validateGeneratedAcquisition({
+  const decorated: IAutoMovieValidation = AutoMovieEngineArchitecture.validateGeneratedAcquisition({
     acquisition: { ...generated(), seed: 4211 },
     digest: STUDY_DIGEST,
   });
@@ -141,7 +137,7 @@ export function assertArchitectureDesignReferencePart1(
     TestValidator.predicate(
       `${name} is refused rather than accepted as a replay handle`,
       hasViolation(
-        validateGeneratedAcquisition({
+        AutoMovieEngineArchitecture.validateGeneratedAcquisition({
           acquisition: { ...generated(), reproducible: true, seed },
           digest: STUDY_DIGEST,
         }),
@@ -149,7 +145,7 @@ export function assertArchitectureDesignReferencePart1(
         "$input.seed",
       ),
     );
-    const irreproducible: IAutoMovieValidation = validateGeneratedAcquisition({
+    const irreproducible: IAutoMovieValidation = AutoMovieEngineArchitecture.validateGeneratedAcquisition({
       acquisition: { ...generated(), seed },
       digest: STUDY_DIGEST,
     });
@@ -167,7 +163,7 @@ export function assertArchitectureDesignReferencePart1(
   });
   TestValidator.equals(
     "a negative provider seed is a whole number and is accepted",
-    validateGeneratedAcquisition({
+    AutoMovieEngineArchitecture.validateGeneratedAcquisition({
       acquisition: { ...generated(), reproducible: true, seed: -1 },
       digest: STUDY_DIGEST,
     }).success,
@@ -177,7 +173,7 @@ export function assertArchitectureDesignReferencePart1(
   TestValidator.predicate(
     "a generated output digest that is not the current bytes is refused",
     hasViolation(
-      validateGeneratedAcquisition({
+      AutoMovieEngineArchitecture.validateGeneratedAcquisition({
         acquisition: generated(),
         digest: PLAN_DIGEST,
       }),
@@ -187,7 +183,7 @@ export function assertArchitectureDesignReferencePart1(
   );
   TestValidator.equals(
     "processed bytes skip the output-digest comparison rather than fail it",
-    validateGeneratedAcquisition({
+    AutoMovieEngineArchitecture.validateGeneratedAcquisition({
       acquisition: generated(),
       digest: null,
     }).success,
@@ -247,7 +243,7 @@ export function assertArchitectureDesignReferencePart1(
       TestValidator.predicate(
         `${name} is refused at ${path}`,
         hasViolation(
-          validateGeneratedAcquisition({ acquisition: value, digest: null }),
+          AutoMovieEngineArchitecture.validateGeneratedAcquisition({ acquisition: value, digest: null }),
           "type",
           path,
         ),
@@ -258,7 +254,7 @@ export function assertArchitectureDesignReferencePart1(
   // 9. Citations.
   TestValidator.equals(
     "citations that resolve, including one deliberately citing both readings",
-    validateDesignEvidence({
+    AutoMovieEngineArchitecture.validateDesignEvidence({
       references: [source],
       evidence: evidence(),
     }).success,
@@ -266,7 +262,7 @@ export function assertArchitectureDesignReferencePart1(
   );
   TestValidator.equals(
     "an empty citation ledger is a clean success rather than a silent gap",
-    validateDesignEvidence({ references: [source], evidence: [] }).success,
+    AutoMovieEngineArchitecture.validateDesignEvidence({ references: [source], evidence: [] }).success,
     true,
   );
   const evidenceRefusals: ReadonlyArray<
@@ -310,7 +306,7 @@ export function assertArchitectureDesignReferencePart1(
     ]): void => {
       const value: IAutoMovieDesignEvidence[] = evidence();
       mutate(value);
-      const validation: IAutoMovieValidation = validateDesignEvidence({
+      const validation: IAutoMovieValidation = AutoMovieEngineArchitecture.validateDesignEvidence({
         references: [source],
         evidence: value,
       });
@@ -336,7 +332,7 @@ export function assertArchitectureDesignReferencePart1(
   );
   TestValidator.equals(
     "two documents sharing one id pool their candidates for citation",
-    validateDesignEvidence({
+    AutoMovieEngineArchitecture.validateDesignEvidence({
       references: [
         { ...source, candidates: [source.candidates[0]!] },
         { ...source, candidates: [source.candidates[2]!] },

@@ -1,7 +1,7 @@
 import type { IAutoMovieCreateSupportSectionQuery } from "@automovie/interface";
 
-import { determinantAutoMovieMatrix3 } from "../math/determinantAutoMovieMatrix3";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { determinantAutoMovieMatrix3 } from "../math/internal/determinantAutoMovieMatrix3";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Prepare fixed half-plane directions for independent changing-offset queries.

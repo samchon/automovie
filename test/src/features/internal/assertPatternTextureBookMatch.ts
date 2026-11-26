@@ -1,7 +1,4 @@
-import {
-  autoMoviePatternTextureTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMoviePatternPlacement,
   IAutoMoviePatternPoint,
@@ -79,12 +76,12 @@ export function assertPatternTextureBookMatch(
         adjacency: 0.01,
       }),
     });
-  const book: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
+  const book: IAutoMoviePatternTexturing = AutoMovieEngineArchitecture.patternTextureTransforms({
     result: matched,
     tile: { u: 0.6, v: 1 },
     sheet: { kind: "module" },
   });
-  const plain: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms({
+  const plain: IAutoMoviePatternTexturing = AutoMovieEngineArchitecture.patternTextureTransforms({
     result: generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "unmatched",

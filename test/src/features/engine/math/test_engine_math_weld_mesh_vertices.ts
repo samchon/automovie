@@ -1,4 +1,4 @@
-import { weldMeshVertices } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -14,21 +14,21 @@ import { throwsError } from "../../internal/predicates";
  * 3. A position list that is not whole tuples is refused.
  */
 export function test_engine_math_weld_mesh_vertices(): void {
-  const same = weldMeshVertices([0, 0, 0, 0, 0, 0, 1, 0, 0]);
+  const same = AutoMovieEngineMath.weldMeshVertices([0, 0, 0, 0, 0, 0, 1, 0, 0]);
   TestValidator.equals("ids", same.vertices, [0, 0, 1]);
   TestValidator.equals("labels", same.labels.length, 2);
   TestValidator.equals(
     "within a nanometre",
-    weldMeshVertices([0, 0, 0, 1e-10, 0, 0]).vertices,
+    AutoMovieEngineMath.weldMeshVertices([0, 0, 0, 1e-10, 0, 0]).vertices,
     [0, 0],
   );
   TestValidator.equals(
     "beyond a nanometre",
-    weldMeshVertices([0, 0, 0, 1e-6, 0, 0]).vertices,
+    AutoMovieEngineMath.weldMeshVertices([0, 0, 0, 1e-6, 0, 0]).vertices,
     [0, 1],
   );
   TestValidator.predicate(
     "incomplete",
-    throwsError(() => weldMeshVertices([0, 0, 0, 1])),
+    throwsError(() => AutoMovieEngineMath.weldMeshVertices([0, 0, 0, 1])),
   );
 }

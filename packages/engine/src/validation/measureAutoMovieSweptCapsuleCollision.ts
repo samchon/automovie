@@ -4,7 +4,7 @@ import type {
   IAutoMovieSweptCapsuleCollision as Sweep,
 } from "@automovie/interface";
 
-import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
+import { closestPointsBetweenSegments } from "../math/internal/closestPointsBetweenSegments";
 
 /** A closed, outward-rounded binary64 interval. */
 interface IRange {

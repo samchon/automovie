@@ -1,11 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Transform,
-  Vector3,
-  closestPointsBetweenSegments,
-  jointRomOvershoot,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Quaternion, Transform, Vector3, jointRomOvershoot, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -259,7 +252,7 @@ export function handlingCases(
                   },
                 );
                 return (
-                  closestPointsBetweenSegments(
+                  AutoMovieEngineMath.closestPointsBetweenSegments(
                     Vector3.subtract(middle, along),
                     Vector3.add(middle, along),
                     Vector3.subtract(centre(closed), axis),

@@ -8,7 +8,7 @@ import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
 import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Compile the volume-settled joint-scale update of a sealed sweep rig.

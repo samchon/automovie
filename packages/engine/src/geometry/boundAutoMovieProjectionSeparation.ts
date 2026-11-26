@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
+import { adjacentAutoMovieFloat64 as outward } from "../math/internal/adjacentAutoMovieFloat64";
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
 
 /**

@@ -1,12 +1,5 @@
 import type { createArmour } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  intersectAutoMovieConvexPolygons,
-  physicalHullFaces,
-  signedArea,
-} from "@automovie/engine";
+import { Quaternion, Vector3, intersectAutoMovieConvexPolygons, physicalHullFaces, signedArea, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -163,7 +156,7 @@ export namespace armourJointObservation {
 
     /** Observed coplanar corners supply the section; no expected course is sampled. */
     function section(points: readonly IAutoMovieVector3[]): [number, number][] {
-      return convexHull2D(
+      return AutoMovieEngineMath.convexHull2D(
         points.filter(
           (point: IAutoMovieVector3): boolean =>
             Math.abs(point.y - level) <= epsilon,

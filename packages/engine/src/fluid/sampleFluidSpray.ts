@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { seededValue } from "../math/seededValue";
+import { seededValue } from "../math/internal/seededValue";
 
 /**
  * Domain salts separate the three seeded component samples without retaining a

@@ -1,8 +1,8 @@
 import { IAutoMovieGaitLimb } from "@automovie/interface";
 
-import { positiveModulo } from "../math/positiveModulo";
-import { cubicBezierEasing } from "./cubicBezierEasing";
-import { ease } from "./ease";
+import { positiveModulo } from "../math/internal/positiveModulo";
+import { cubicBezierEasing } from "./internal/cubicBezierEasing";
+import { ease } from "./internal/ease";
 
 /** Wrap a cycle position into `[0, 1)`. */
 function wrap01(x: number): number {

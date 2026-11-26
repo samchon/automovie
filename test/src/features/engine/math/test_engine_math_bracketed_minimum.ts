@@ -1,4 +1,4 @@
-import { bracketedMinimum } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, throwsError } from "../../internal/predicates";
@@ -15,14 +15,14 @@ import { nclose, throwsError } from "../../internal/predicates";
  * 3. A zero tolerance is refused.
  */
 export function test_engine_math_bracketed_minimum(): void {
-  const a = bracketedMinimum((x: number): number => (x - 0.3) ** 2, 0, 1, 1e-9);
+  const a = AutoMovieEngineMath.bracketedMinimum((x: number): number => (x - 0.3) ** 2, 0, 1, 1e-9);
   TestValidator.predicate(
     "parabola",
     nclose(a.at, 0.3, 1e-4) && nclose(a.value, 0, 1e-8),
   );
-  const b = bracketedMinimum((x: number): number => (x - 0.3) ** 2, 1, 0, 1e-9);
+  const b = AutoMovieEngineMath.bracketedMinimum((x: number): number => (x - 0.3) ** 2, 1, 0, 1e-9);
   TestValidator.predicate("reversed ends", nclose(b.at, 0.3, 1e-4));
-  const kink = bracketedMinimum(
+  const kink = AutoMovieEngineMath.bracketedMinimum(
     (x: number): number => Math.abs(x - 0.7),
     0,
     1,
@@ -31,6 +31,6 @@ export function test_engine_math_bracketed_minimum(): void {
   TestValidator.predicate("kink", nclose(kink.at, 0.7, 1e-4));
   TestValidator.predicate(
     "tolerance",
-    throwsError(() => bracketedMinimum((x: number): number => x, 0, 1, 0)),
+    throwsError(() => AutoMovieEngineMath.bracketedMinimum((x: number): number => x, 0, 1, 0)),
   );
 }

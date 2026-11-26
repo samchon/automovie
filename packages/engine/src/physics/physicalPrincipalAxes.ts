@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { quaternionFromAutoMovieBasis } from "../math/quaternionFromAutoMovieBasis";
+import { quaternionFromAutoMovieBasis } from "../math/internal/quaternionFromAutoMovieBasis";
 
 /**
  * The principal moments and axes of a symmetric 3x3 inertia tensor, by a Jacobi

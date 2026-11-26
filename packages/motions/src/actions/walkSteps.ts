@@ -1,4 +1,4 @@
-import { wrapDegrees } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -214,7 +214,7 @@ export namespace walkSteps {
     const unwrap: (angle: number, near: number) => number = (
       angle: number,
       near: number,
-    ): number => near + wrapDegrees(angle - near);
+    ): number => near + AutoMovieEngineMath.wrapDegrees(angle - near);
     const heading: number =
       D < 1e-6 ? yaw0 : unwrap(path.heading(0, delta / 2), yaw0);
     const along$: (s: number) => number = (s: number): number =>

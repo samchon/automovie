@@ -13,7 +13,7 @@ import {
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 import { AutoMovieEngineRandom } from "../random";
 
 

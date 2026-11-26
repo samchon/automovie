@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**

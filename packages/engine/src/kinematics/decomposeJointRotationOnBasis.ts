@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
 import { alternateRigJointAngles } from "./alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";

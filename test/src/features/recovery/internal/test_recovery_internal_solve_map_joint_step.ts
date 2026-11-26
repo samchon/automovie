@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { solveRecoveryMapJointStep } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
@@ -76,8 +76,8 @@ export function test_recovery_internal_solve_map_joint_step(): void {
         );
         right.push(0);
       }
-    const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-      decomposeAutoMovieSingularMatrix(normalized, {
+    const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+      AutoMovieEngineMath.decomposeSingularMatrix(normalized, {
         maxEntries: budget.maxLinearEntries,
         maxSweeps: 128,
         orthogonalityTolerance: 1e-12,

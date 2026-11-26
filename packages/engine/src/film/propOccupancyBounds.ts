@@ -3,7 +3,7 @@ import {
   type IAutoMoviePropOccupancyBounds,
 } from "@automovie/interface";
 
-import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
+import { builtPlacedPartBoxes } from "../architecture/internal/builtPlacedPartBoxes";
 import { transformedBoxBounds } from "../math/transformedBoxBounds";
 import { setPieceMatrix } from "./staging/setPieceMatrix";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";

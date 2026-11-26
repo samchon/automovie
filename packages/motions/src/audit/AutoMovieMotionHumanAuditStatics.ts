@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  convexHull2D,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Quaternion, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanAuditMeasure,
@@ -237,7 +233,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
             y: s.y + share * c.y,
             z: s.z + share * c.z,
           });
-      sum = next.length >= 3 ? convexHull2D(next) : next;
+      sum = next.length >= 3 ? AutoMovieEngineMath.convexHull2D(next) : next;
     }
     return sum;
   }

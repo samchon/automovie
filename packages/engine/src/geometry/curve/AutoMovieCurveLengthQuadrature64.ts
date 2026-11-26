@@ -2,7 +2,7 @@ import type {
   IAutoMovieCurveLengthQuadrature64,
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Internal shared GL8 computation for original curve derivatives, with numeric

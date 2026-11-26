@@ -3,7 +3,7 @@ import {
   type IAutoMovieWeldMeshVertices,
 } from "@automovie/interface";
 
-import { weldMeshVertices } from "../math/weldMeshVertices";
+import { weldMeshVertices } from "../math/internal/weldMeshVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**

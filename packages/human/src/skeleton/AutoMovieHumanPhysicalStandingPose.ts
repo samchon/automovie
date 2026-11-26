@@ -1,13 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  measurePhysicalJointLimits,
-  physicalShapeBounds,
-  physicalSupportPoint,
-  resolveAutoMovieCenterOfMass,
-  solvePhysicalArticulationTargets,
-} from "@automovie/engine";
+import { Quaternion, Vector3, measurePhysicalJointLimits, physicalShapeBounds, physicalSupportPoint, resolveAutoMovieCenterOfMass, solvePhysicalArticulationTargets, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -354,7 +345,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
       { x: 0, y: 0, z: 0 },
     );
     if (
-      convexHull2D(base).length < 3 ||
+      AutoMovieEngineMath.convexHull2D(base).length < 3 ||
       resolveAutoMovieCenterOfMass.margin(center, base) < 0
     )
       return { kind: "unresolved", reason: "balance", residual };

@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanActionContext,
@@ -80,7 +76,7 @@ export function prepareGlideSlope(
     Vector3.cross(normal, heading),
   );
   const ahead: IAutoMovieVector3 = Vector3.cross(right, normal);
-  const rotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+  const rotation: IAutoMovieQuaternion = AutoMovieEngineMath.quaternionFromBasis(
     right,
     normal,
     ahead,

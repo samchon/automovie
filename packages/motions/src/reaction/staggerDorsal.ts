@@ -1,4 +1,4 @@
-import { Vector3, convexHull2D } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -47,7 +47,7 @@ export function staggerDorsal(
   const away: (side: AutoMovieHumanSide) => number = (
     side: AutoMovieHumanSide,
   ): number => {
-    const outline: IAutoMovieVector3[] = convexHull2D(
+    const outline: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(
       HumanFoot.sole(body, side, feet[side].placement).map(
         (q: IAutoMovieVector3): IAutoMovieVector3 => ({ x: q.x, y: 0, z: q.z }),
       ),

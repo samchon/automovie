@@ -1,4 +1,4 @@
-import { reduceAutoMovieQrDesign } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryMapMetric,
@@ -20,7 +20,7 @@ export function createRecoveryMapMetric(
   budget: IAutoMovieRecoveryCameraMapBudget,
 ): IAutoMovieRecoveryMapMetric {
   const cameraWidth: number = cameraScales.length;
-  const camera: number[][] = reduceAutoMovieQrDesign(
+  const camera: number[][] = AutoMovieEngineMath.reduceQrDesign(
     reduced,
     new Array<number>(reduced.length).fill(0),
     {

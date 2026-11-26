@@ -1,4 +1,4 @@
-import { overflowsBinary64 } from "./overflowsBinary64";
+import { overflowsBinary64 } from "./internal/overflowsBinary64";
 
 /**
  * Finite row-major 3-by-3 algebra for original-design numerical consumers.

@@ -1,11 +1,4 @@
-import {
-  builtEnvironmentAdjacentSpaces,
-  builtEnvironmentBuildingOfSpace,
-  builtEnvironmentContainsPoint,
-  builtEnvironmentSpaceNodes,
-  lowerBuiltEnvironment,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -45,15 +38,15 @@ export function test_architecture_built_environment_topology(): void {
   const citadel: IAutoMovieBuiltEnvironment = work();
   TestValidator.equals(
     "a two-unit work with a sky-bridge validates",
-    validateBuiltEnvironment({ environment: citadel }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: citadel }).success,
     true,
   );
   TestValidator.equals(
     "every logical space names its owning building unit",
     {
-      hall: builtEnvironmentBuildingOfSpace(citadel, "hall"),
-      duplex: builtEnvironmentBuildingOfSpace(citadel, "duplex"),
-      annexUpper: builtEnvironmentBuildingOfSpace(citadel, "annex-storey-1"),
+      hall: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(citadel, "hall"),
+      duplex: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(citadel, "duplex"),
+      annexUpper: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(citadel, "annex-storey-1"),
     },
     { hall: "keep", duplex: "keep", annexUpper: "annex" },
   );
@@ -64,14 +57,14 @@ export function test_architecture_built_environment_topology(): void {
   TestValidator.equals(
     "the sky-bridge is a work-owned relation between two units at two heights",
     {
-      from: builtEnvironmentBuildingOfSpace(citadel, bridge.from),
-      to: builtEnvironmentBuildingOfSpace(citadel, bridge.to),
+      from: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(citadel, bridge.from),
+      to: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(citadel, bridge.to),
     },
     { from: "keep", to: "annex" },
   );
   TestValidator.equals(
     "one duplex logical space owns two slabs",
-    builtEnvironmentSpaceNodes(citadel, "duplex"),
+    AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(citadel, "duplex"),
     ["citadel/keep-duplex-lower-slab", "citadel/keep-duplex-upper-slab"],
   );
   TestValidator.equals(
@@ -80,12 +73,12 @@ export function test_architecture_built_environment_topology(): void {
       [
         "mezzanineInHallAir",
         (): boolean =>
-          builtEnvironmentContainsPoint(citadel, "hall", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "hall", {
             x: 0,
             y: 5,
             z: 3,
           }) &&
-          builtEnvironmentContainsPoint(citadel, "mezzanine", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "mezzanine", {
             x: 0,
             y: 5,
             z: 3,
@@ -94,12 +87,12 @@ export function test_architecture_built_environment_topology(): void {
       [
         "voidIsNotStorey",
         (): boolean =>
-          builtEnvironmentContainsPoint(citadel, "atrium", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "atrium", {
             x: 0,
             y: 10,
             z: 0,
           }) &&
-          !builtEnvironmentContainsPoint(citadel, "storey-2", {
+          !AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "storey-2", {
             x: 0,
             y: 10,
             z: 0,
@@ -108,12 +101,12 @@ export function test_architecture_built_environment_topology(): void {
       [
         "storeyIsWrittenAroundTheVoid",
         (): boolean =>
-          builtEnvironmentContainsPoint(citadel, "storey-2", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "storey-2", {
             x: -4,
             y: 10,
             z: 0,
           }) &&
-          !builtEnvironmentContainsPoint(citadel, "atrium", {
+          !AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "atrium", {
             x: -4,
             y: 10,
             z: 0,
@@ -122,7 +115,7 @@ export function test_architecture_built_environment_topology(): void {
       [
         "unitRootSeesItsWholeSubtree",
         (): boolean =>
-          builtEnvironmentContainsPoint(citadel, "keep-whole", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "keep-whole", {
             x: 0,
             y: 10,
             z: 0,
@@ -131,12 +124,12 @@ export function test_architecture_built_environment_topology(): void {
       [
         "domeVolumeIsOnlyItsBoundingCell",
         (): boolean =>
-          builtEnvironmentContainsPoint(citadel, "rotunda", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "rotunda", {
             x: 0,
             y: 19,
             z: 0,
           }) &&
-          !builtEnvironmentContainsPoint(citadel, "rotunda", {
+          !AutoMovieEngineBuiltEnvironment.environmentContainsPoint(citadel, "rotunda", {
             x: 0,
             y: 21.5,
             z: 0,
@@ -154,10 +147,10 @@ export function test_architecture_built_environment_topology(): void {
   TestValidator.equals(
     "the sky-bridge is reported from both of its ends",
     {
-      keep: builtEnvironmentAdjacentSpaces(citadel, "storey-2").includes(
+      keep: AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(citadel, "storey-2").includes(
         "annex-storey-1",
       ),
-      annex: builtEnvironmentAdjacentSpaces(citadel, "annex-storey-1").includes(
+      annex: AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(citadel, "annex-storey-1").includes(
         "storey-2",
       ),
     },
@@ -165,7 +158,7 @@ export function test_architecture_built_environment_topology(): void {
   );
 
   const pieces: readonly IAutoMovieStageSetPiece[] =
-    lowerBuiltEnvironment(citadel).set ?? [];
+    AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(citadel).set ?? [];
   const wing: IAutoMovieStageSetPiece = pieces.find(
     (piece: IAutoMovieStageSetPiece): boolean =>
       piece.node === "citadel/keep-wing-slab",

@@ -14,11 +14,7 @@ import {
   createFurnishedRoom,
   createTerrain,
 } from "@automovie/archetypes/environments";
-import {
-  builtEnvironmentSupportSweep,
-  computeModelRestExtent,
-  environmentSupportReport,
-} from "@automovie/engine";
+import { computeModelRestExtent, AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -207,7 +203,7 @@ export function test_environment_support_report(): void {
 
   // Scenario 7: the building's own sweep at its placement height.
   const building: IAutoMovieBuiltEnvironment = set.builtEnvironments[0]!;
-  const sweep: IAutoMovieBuiltSupportSweepReport = builtEnvironmentSupportSweep(
+  const sweep: IAutoMovieBuiltSupportSweepReport = AutoMovieEngineBuiltEnvironment.environmentSupportSweep(
     { environment: building, groundY: 0 },
   );
   const floatingIds: Set<string> = new Set(
@@ -438,7 +434,7 @@ export function test_environment_support_report(): void {
           },
         });
         const recomputed: IAutoMovieSetPieceSupport[] =
-          environmentSupportReport({
+          AutoMovieEngineBuiltEnvironmentWorkflow.environmentSupportReport({
             set: set.stage.set,
             models: set.runtime.models,
             props: set.runtime.props,

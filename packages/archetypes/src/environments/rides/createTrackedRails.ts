@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, srgbHexToLinearColor } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -108,7 +108,7 @@ export function createTrackedRails(
       {
         id: "steel",
         name: "Scenic rail steel",
-        baseColor: srgbHexToLinearColor("#696f7d"),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor("#696f7d"),
         metallic: 0.55,
         roughness: 0.52,
         opacity: 1,

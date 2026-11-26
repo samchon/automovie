@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { positiveModulo } from "../math/positiveModulo";
+import { positiveModulo } from "../math/internal/positiveModulo";
 import { sampleMotion } from "../motion/sampleMotion";
 import { VELOCITY_DT } from "./constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";

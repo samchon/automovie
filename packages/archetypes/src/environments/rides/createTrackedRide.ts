@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, srgbHexToLinearColor } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -352,6 +352,6 @@ function createPlatform(
     kind: "platform",
     polygon,
     height: { kind: "constant", value: threshold.translation.y },
-    color: srgbHexToLinearColor("#b9b4a9"),
+    color: AutoMovieEngineMath.srgbHexToLinearColor("#b9b4a9"),
   };
 }

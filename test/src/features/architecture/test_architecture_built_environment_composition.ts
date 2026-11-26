@@ -1,8 +1,4 @@
-import {
-  AutoMovieEngineSubject,
-  AutoMovieEngineSubjectGroup,
-  lowerBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineSubject, AutoMovieEngineSubjectGroup, AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -173,7 +169,7 @@ class LoopedWing extends AutoMovieEngineSubject<IAutoMovieBuiltEnvironment> {
   public render(
     _context: IAutoMovieShotBuildContext,
   ): IAutoMovieSubjectContribution {
-    return lowerBuiltEnvironment(this.design());
+    return AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(this.design());
   }
 }
 

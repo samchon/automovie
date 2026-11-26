@@ -3,7 +3,7 @@ import {
   type IAutoMovieFormationSlotRecord,
 } from "@automovie/interface";
 
-import { seededValue } from "../../math/seededValue";
+import { seededValue } from "../../math/internal/seededValue";
 
 /**
  * The member record one formation slot regenerates to.

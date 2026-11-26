@@ -1,7 +1,4 @@
-import {
-  resolveAutoMovieMeshPhysicalVertices,
-  validateMeshTopology,
-} from "@automovie/engine";
+import { validateMeshTopology, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMesh,
@@ -36,7 +33,7 @@ export function test_engine_geometry_physical_vertices_refusals(): void {
     createPhysicalMesh([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2], [0, 1, 2]);
   const refused = (mesh: IAutoMovieMesh): boolean => {
     try {
-      resolveAutoMovieMeshPhysicalVertices(mesh);
+      AutoMovieEngineMath.resolveMeshPhysicalVertices(mesh);
       return false;
     } catch (error: unknown) {
       return error instanceof Error && error.message.includes("physicalVertices");
@@ -95,7 +92,7 @@ export function test_engine_geometry_physical_vertices_refusals(): void {
 
   // 4.
   const cell: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 0.49e-9, 0, 0], [], [0, 0]);
-  TestValidator.equals("one cell", resolveAutoMovieMeshPhysicalVertices(cell).vertices, [0, 0]);
+  TestValidator.equals("one cell", AutoMovieEngineMath.resolveMeshPhysicalVertices(cell).vertices, [0, 0]);
   cell.positions[3] = 0.51e-9;
   TestValidator.predicate("across the grid", refused(cell));
 }

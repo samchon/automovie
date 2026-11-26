@@ -1,4 +1,4 @@
-import { autoMovieAnalysisTargetMet } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,16 +14,16 @@ export function test_engine_analysis_target_met(): void {
   TestValidator.equals(
     "at least",
     [
-      autoMovieAnalysisTargetMet(300, 300, "at-least"),
-      autoMovieAnalysisTargetMet(299, 300, "at-least"),
+      AutoMovieEngineAnalysis.analysisTargetMet(300, 300, "at-least"),
+      AutoMovieEngineAnalysis.analysisTargetMet(299, 300, "at-least"),
     ],
     [true, false],
   );
   TestValidator.equals(
     "at most",
     [
-      autoMovieAnalysisTargetMet(0.6, 0.6, "at-most"),
-      autoMovieAnalysisTargetMet(0.61, 0.6, "at-most"),
+      AutoMovieEngineAnalysis.analysisTargetMet(0.6, 0.6, "at-most"),
+      AutoMovieEngineAnalysis.analysisTargetMet(0.61, 0.6, "at-most"),
     ],
     [true, false],
   );

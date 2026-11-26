@@ -1,7 +1,7 @@
 import { IAutoMovieGaitCycle, IAutoMovieMotion } from "@automovie/interface";
 
-import { addPositiveModulo } from "../math/addPositiveModulo";
-import { positiveModulo } from "../math/positiveModulo";
+import { addPositiveModulo } from "../math/internal/addPositiveModulo";
+import { positiveModulo } from "../math/internal/positiveModulo";
 
 /**
  * Seconds into a clip's stride cycle at `localTime`, or `null` when the clip

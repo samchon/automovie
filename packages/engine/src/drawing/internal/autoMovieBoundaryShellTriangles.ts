@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { polygonDoubleArea } from "../../architecture/polygonDoubleArea";
+import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea";
 import { autoMovieBoundaryFacePoint } from "./autoMovieBoundaryFacePoint";
 import { triangulateAutoMoviePolygon } from "./triangulateAutoMoviePolygon";
 

@@ -7,7 +7,7 @@ import {
 
 import { AutoMovieEnginePlanarRegion } from "../../geometry/planar-region/AutoMovieEnginePlanarRegion";
 import { planarCross } from "../../geometry/planarCross";
-import { convexHull2D } from "../../math/convexHull2D";
+import { convexHull2D } from "../../math/internal/convexHull2D";
 
 /** Produce convex pieces for the footprint's exact-region contract. */
 export const footprintConvexPieces: (

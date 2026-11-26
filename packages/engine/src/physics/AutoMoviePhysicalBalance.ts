@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { convexHull2D } from "../math/convexHull2D";
+import { convexHull2D } from "../math/internal/convexHull2D";
 import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 import { physicalBalanceCandidate as Candidate } from "./physicalBalanceCandidate";
 import { physicalBalancePair as Pair } from "./physicalBalancePair";

@@ -1,10 +1,4 @@
-import {
-  createAutoMovieMeshDeformer,
-  createMeshPhysicalPartitionMatcher,
-  mergeAutoMovieMeshes,
-  resolveAutoMovieMeshPhysicalVertices,
-  transformAutoMovieMesh,
-} from "@automovie/engine";
+import { createAutoMovieMeshDeformer, mergeAutoMovieMeshes, transformAutoMovieMesh, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -41,7 +35,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
     [0, 1, 2, 0],
   );
   const vertices = (m: IAutoMovieMesh): number[] =>
-    resolveAutoMovieMeshPhysicalVertices(m).vertices;
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(m).vertices;
   const deform = createAutoMovieMeshDeformer([
     {
       center: { x: 0, y: 0, z: 0 },
@@ -106,7 +100,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   TestValidator.equals("common field", vertices(deformed), [0, 1, 2, 0]);
   TestValidator.equals(
     "partition kept",
-    createMeshPhysicalPartitionMatcher(mesh)(deformed),
+    AutoMovieEngineMath.createMeshPhysicalPartitionMatcher(mesh)(deformed),
     true,
   );
   owned("deformation", deformed);
@@ -136,7 +130,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   );
   TestValidator.equals(
     "partition changed",
-    createMeshPhysicalPartitionMatcher(mixed)(changed),
+    AutoMovieEngineMath.createMeshPhysicalPartitionMatcher(mixed)(changed),
     false,
   );
 

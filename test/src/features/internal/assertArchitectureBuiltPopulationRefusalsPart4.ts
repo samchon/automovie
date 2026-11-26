@@ -1,7 +1,4 @@
-import {
-  builtEnvironmentSpacePopulations,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
@@ -123,13 +120,13 @@ export function assertArchitectureBuiltPopulationRefusalsPart4(
       [
         "validates",
         (): boolean =>
-          validateBuiltEnvironment({ environment: work([population()]) })
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: work([population()]) })
             .success === true,
       ],
       [
         "owned",
         (): boolean =>
-          builtEnvironmentSpacePopulations(work([population()]), "place")
+          AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work([population()]), "place")
             .length === 1,
       ],
       [
@@ -137,7 +134,7 @@ export function assertArchitectureBuiltPopulationRefusalsPart4(
         (): boolean =>
           throwsError(
             (): IAutoMovieBuiltPopulation[] =>
-              builtEnvironmentSpacePopulations(work([population()]), "cellar"),
+              AutoMovieEngineBuiltEnvironment.environmentSpacePopulations(work([population()]), "cellar"),
             ['has no logical space "cellar"'],
           ),
       ],

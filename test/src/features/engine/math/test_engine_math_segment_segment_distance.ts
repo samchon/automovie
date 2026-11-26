@@ -1,4 +1,4 @@
-import { segmentSegmentDistance } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +28,7 @@ export function test_engine_math_segment_segment_distance(): void {
     c: IAutoMovieVector3,
     d: IAutoMovieVector3,
     expected: number,
-  ): boolean => nclose(segmentSegmentDistance(a, b, c, d), expected, 1e-12);
+  ): boolean => nclose(AutoMovieEngineMath.segmentSegmentDistance(a, b, c, d), expected, 1e-12);
   TestValidator.predicate(
     "parallel",
     near(p(0, 0, 0), p(1, 0, 0), p(0, 1, 0), p(1, 1, 0), 1),

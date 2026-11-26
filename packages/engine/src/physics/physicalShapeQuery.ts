@@ -8,8 +8,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { bracketedMinimum } from "../math/bracketedMinimum";
-import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
+import { bracketedMinimum } from "../math/internal/bracketedMinimum";
+import { closestPointsBetweenSegments } from "../math/internal/closestPointsBetweenSegments";
 import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";

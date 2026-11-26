@@ -8,7 +8,7 @@ import type {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
-import { cubicHermiteValue } from "../math/cubicHermiteValue";
+import { cubicHermiteValue } from "../math/internal/cubicHermiteValue";
 import { LIGHT_CHANNEL_PROPERTIES } from "../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { parseLightPointer } from "../resolve/parseLightPointer";
 import { channelValueWidth } from "./channelValueWidth";

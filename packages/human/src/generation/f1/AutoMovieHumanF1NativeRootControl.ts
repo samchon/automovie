@@ -1,7 +1,4 @@
-import {
-  AutoMovieViewAxisJet as AxisJet,
-  addAutoMovieQuadraticProduct,
-} from "@automovie/engine";
+import { AutoMovieViewAxisJet as AxisJet, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
@@ -291,7 +288,7 @@ export namespace AutoMovieHumanF1NativeRootControl {
     for (const value of values) {
       if (!Number.isFinite(value))
         throw new Error("native root target accumulation has a nonfinite term");
-      addAutoMovieQuadraticProduct(accumulator, 0, value, 1);
+      AutoMovieEngineMath.addQuadraticProduct(accumulator, 0, value, 1);
       if (!(Number.isFinite(accumulator[0]) && Number.isFinite(accumulator[1])))
         throw new Error("native root target twofold accumulation overflowed");
     }

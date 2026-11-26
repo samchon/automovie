@@ -1,12 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  buildAutoMovieWall,
-  builtBoundaryWallCut,
-  convexHull2D,
-  lowerBuiltEnvironment,
-  placeTransformedPoint,
-} from "@automovie/engine";
+import { Quaternion, Vector3, buildAutoMovieWall, placeTransformedPoint, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -136,7 +128,7 @@ export function assembleBuilding(
     }
   }
   return {
-    ...lowerBuiltEnvironment(assembly.environment),
+    ...AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(assembly.environment),
     anchors: assembly.anchors,
     ...(assembly.props.length === 0 ? {} : { props: assembly.props }),
     ...(assembly.clips.length === 0 ? {} : { objectMotions: assembly.clips }),
@@ -188,7 +180,7 @@ function addWall(
   });
   for (const binding of wall.openings)
     addOpening(assembly, level, id, width, thickness, binding, local, context);
-  const cut: ReturnType<typeof builtBoundaryWallCut> = builtBoundaryWallCut(
+  const cut: ReturnType<typeof AutoMovieEngineBuiltEnvironment.boundaryWallCut> = AutoMovieEngineBuiltEnvironment.boundaryWallCut(
     assembly.environment,
     id,
   );
@@ -414,7 +406,7 @@ function addWallJoints(
     }
   }
   for (const [key, ends] of points) {
-    const hull: IAutoMovieVector3[] = convexHull2D(ends);
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(ends);
     if (hull.length < 3) continue;
     const id: string = `${level.id}/joint/${key}`;
     addElement(

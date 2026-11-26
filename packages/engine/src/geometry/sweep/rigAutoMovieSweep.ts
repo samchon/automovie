@@ -12,14 +12,14 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
+import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
 import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Compile one sweep of a surface rig: its rest surface, and, when it rides

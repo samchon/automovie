@@ -1,8 +1,4 @@
-import {
-  AutoMovieEngineMaterial,
-  autoMoviePatternTextureTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieColor,
@@ -191,7 +187,7 @@ function transforms(
   kind: "face" | "module",
 ): IAutoMovieTransformsById {
   return new Map(
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: field,
       tile: { u: 1, v: 1 },
       sheet: kind === "face" ? { kind, origin: { u: 0, v: 0 } } : { kind },

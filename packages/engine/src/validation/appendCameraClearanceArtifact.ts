@@ -3,7 +3,7 @@ import type {
   IAutoMovieConstraintViolation,
 } from "@automovie/interface";
 
-import { sampleTimes } from "../motion/sampleTimes";
+import { sampleTimes } from "../motion/internal/sampleTimes";
 import { pushViolation } from "./pushViolation";
 import { validateRange } from "./validateRange";
 import { validateUniqueBy } from "./validateUniqueBy";

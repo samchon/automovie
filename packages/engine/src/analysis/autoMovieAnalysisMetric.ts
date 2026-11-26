@@ -5,7 +5,7 @@ import {
   IAutoMovieAnalysisTarget,
 } from "@automovie/interface";
 
-import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
+import { autoMovieAnalysisTargetMet } from "./internal/autoMovieAnalysisTargetMet";
 
 /**
  * Build one metric, resolving whatever target the production declared for it.

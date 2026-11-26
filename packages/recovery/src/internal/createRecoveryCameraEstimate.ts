@@ -1,4 +1,4 @@
-import { convexHull2D } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraEstimateCreationOperation,
   IAutoMovieRecoveryCameraPairEstimate,
@@ -250,7 +250,7 @@ export function createRecoveryCameraEstimate(
     const fractions: number[] = [];
     for (const [at, points] of [inlierFirst, inlierSecond].entries()) {
       const view: (typeof input.views)[number] = input.views[at]!;
-      const hull: IAutoMovieVector3[] = convexHull2D(
+      const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(
         points.map(
           (point: [number, number]): IAutoMovieVector3 => ({
             x: point[0] / view.width,

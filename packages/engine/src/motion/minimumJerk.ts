@@ -1,6 +1,6 @@
 import type { IAutoMovieMinimumJerk } from "@automovie/interface";
 
-import { bracketedBisection } from "../math/bracketedBisection";
+import { bracketedBisection } from "../math/internal/bracketedBisection";
 
 /**
  * The minimum-jerk normalized profile and its first two derivatives: the share

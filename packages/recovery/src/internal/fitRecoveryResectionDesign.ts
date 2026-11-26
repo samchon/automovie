@@ -1,7 +1,4 @@
-import {
-  AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryCameraMapPolicy,
@@ -39,7 +36,7 @@ export function fitRecoveryResectionDesign(
     throw new Error(
       "camera-resection: paired nonplanar points and admitted linear entries required",
     );
-  const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
+  const options: Parameters<typeof AutoMovieEngineMath.decomposeSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
     orthogonalityTolerance: 1e-12,
@@ -92,8 +89,8 @@ export function fitRecoveryResectionDesign(
     point.map((value: number): number => value * scale3),
   );
   if (trace) trace.stage = "span-factorization";
-  const span: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(normalized, options);
+  const span: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(normalized, options);
   if (trace) {
     trace.stage = "span";
     trace.spanRatio = span.singularValues[2]! / span.singularValues[0]!;
@@ -130,8 +127,8 @@ export function fitRecoveryResectionDesign(
     ]);
   }
   if (trace) trace.stage = "design-factorization";
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(rows, options);
+  const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(rows, options);
   const designRatio: number =
       factors.singularValues[10]! / factors.singularValues[0]!,
     nullRatio: number =
@@ -195,8 +192,8 @@ export function fitRecoveryResectionDesign(
     trace.stage = "rotation-factorization";
     trace.projectiveSign = sign;
   }
-  const rotationFactors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(
+  const rotationFactors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [block.slice(0, 3), block.slice(3, 6), block.slice(6, 9)],
       options,
     );

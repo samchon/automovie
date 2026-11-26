@@ -1,4 +1,4 @@
-import { validateServiceNetwork } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import {
   AutoMovieServiceDiscipline,
   AutoMovieServiceMedium,
@@ -36,7 +36,7 @@ import {
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
 const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
   network: IAutoMovieServiceNetwork = serviceNetwork(),
-): IAutoMovieValidation => validateServiceNetwork({ network, environment });
+): IAutoMovieValidation => AutoMovieEngineService.validateServiceNetwork({ network, environment });
 
 /**
  * Selected header, identity, load and spatial defects report their

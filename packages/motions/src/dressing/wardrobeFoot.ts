@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -383,7 +378,7 @@ function footFrame(
   const up: IAutoMovieVector3 = Vector3.cross(forward, across);
   return {
     position: heel!.point,
-    rotation: quaternionFromAutoMovieBasis(across, up, forward),
+    rotation: AutoMovieEngineMath.quaternionFromBasis(across, up, forward),
   };
 }
 

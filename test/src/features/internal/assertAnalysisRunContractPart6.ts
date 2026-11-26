@@ -1,4 +1,4 @@
-import { summarizeAutoMovieAnalysis } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import {
   AutoMovieAnalysisDomain,
   type IAutoMovieAnalysisDomainRollup,
@@ -77,14 +77,14 @@ export function assertAnalysisRunContractPart6(
         ).length,
         stable:
           report.digest ===
-          summarizeAutoMovieAnalysis({
+          AutoMovieEngineAnalysis.summarizeAnalysis({
             runs: [clean],
             revision: "r7",
             required: ["acoustic"],
           }).digest,
         different:
           report.digest !==
-          summarizeAutoMovieAnalysis({
+          AutoMovieEngineAnalysis.summarizeAnalysis({
             runs: [clean],
             revision: "r7",
             required: ["acoustic", "thermal"],
@@ -159,17 +159,17 @@ export function assertAnalysisRunContractPart6(
     })(),
   );
 
-  const missing: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const missing: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: [clean],
     revision: "r7",
     required: ["acoustic", "air"],
   });
-  const stale: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const stale: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: [run("stale", { inputRevision: "r6" })],
     revision: "r7",
     required: ["acoustic"],
   });
-  const refused: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const refused: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: [
       run("unsupported", {
         outcome: {
@@ -190,7 +190,7 @@ export function assertAnalysisRunContractPart6(
     revision: "r7",
     required: ["acoustic", "air"],
   });
-  const gapped: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const gapped: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: [
       run("gapped", {
         outcome: {
@@ -208,7 +208,7 @@ export function assertAnalysisRunContractPart6(
     revision: "r7",
     required: ["acoustic"],
   });
-  const failing: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const failing: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: [
       run("failing", {
         outcome: {
@@ -363,7 +363,7 @@ export function assertAnalysisRunContractPart6(
     })(),
   );
 
-  const crowded: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const crowded: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: Array.from(
       { length: 5 },
       (_: unknown, index: number): IAutoMovieAnalysisRun =>
@@ -416,7 +416,7 @@ export function assertAnalysisRunContractPart6(
     reason: string,
     remedy: string,
   ): string =>
-    summarizeAutoMovieAnalysis({
+    AutoMovieEngineAnalysis.summarizeAnalysis({
       runs: [run("skip", { outcome: { status: "not-run", reason, remedy } })],
       revision: "r7",
       required: ["acoustic"],

@@ -1,7 +1,4 @@
-import {
-  adjacentAutoMovieFloat64,
-  minimizeAutoMovieSimplexQuadratic,
-} from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryFeasibleArithmetic,
   IAutoMovieRecoveryFeasibleDirection,
@@ -51,8 +48,8 @@ export function solveRecoveryFeasibleDirection(
     width + 128 >= budget.maxEntries
   )
     throw new Error("camera-feasible: complete certificate work required");
-  const solution: ReturnType<typeof minimizeAutoMovieSimplexQuadratic> =
-    minimizeAutoMovieSimplexQuadratic(
+  const solution: ReturnType<typeof AutoMovieEngineMath.minimizeSimplexQuadratic> =
+    AutoMovieEngineMath.minimizeSimplexQuadratic(
       width,
       rows,
       tolerance,
@@ -100,13 +97,13 @@ export function solveRecoveryFeasibleDirection(
       64 * Number.EPSILON * (row.indices.length + 1) * absoluteTerms;
     const rowNorm: number = row.values.reduce(
       (total: number, value: number): number =>
-        adjacentAutoMovieFloat64(total + Math.abs(value), true),
+        AutoMovieEngineMath.adjacentFloat64(total + Math.abs(value), true),
       0,
     );
-    const reconstructionAllowance: number = adjacentAutoMovieFloat64(
+    const reconstructionAllowance: number = AutoMovieEngineMath.adjacentFloat64(
       allowance +
-        adjacentAutoMovieFloat64(
-          adjacentAutoMovieFloat64(rowNorm * reconstruction.aggregate, true) +
+        AutoMovieEngineMath.adjacentFloat64(
+          AutoMovieEngineMath.adjacentFloat64(rowNorm * reconstruction.aggregate, true) +
             reconstruction.minimumPrice,
           true,
         ),
@@ -123,7 +120,7 @@ export function solveRecoveryFeasibleDirection(
       slack <= tolerance + reconstructionAllowance &&
       Math.abs(solution.weights[at]! * slack) <=
         tolerance +
-          adjacentAutoMovieFloat64(
+          AutoMovieEngineMath.adjacentFloat64(
             Math.max(1, solution.weights[at]!) * reconstructionAllowance,
             true,
           );
@@ -167,7 +164,7 @@ export function solveRecoveryFeasibleDirection(
     stationarityAllowance !== Infinity &&
     stationarityResidual <= tolerance + stationarityAllowance &&
     solution.weights.every((value: number): boolean => value >= 0);
-  const gapUpperBound: number = adjacentAutoMovieFloat64(
+  const gapUpperBound: number = AutoMovieEngineMath.adjacentFloat64(
     solution.gap + reconstruction.gap,
     true,
   );

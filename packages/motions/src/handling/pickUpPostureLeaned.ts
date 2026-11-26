@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, bracketedBisection } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -261,7 +261,7 @@ export function pickUpPostureLeaned(
   const pitch: number =
     far(0) <= limit
       ? 0
-      : bracketedBisection(
+      : AutoMovieEngineMath.bracketedBisection(
           (lean: number): boolean => far(lean) > limit,
           0,
           pickUpPosture.SEATED_LEAN,

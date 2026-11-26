@@ -1,11 +1,11 @@
-import { solveAutoMovieBoundedDisplacement } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieQuadraticRow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
-type Input = Parameters<typeof solveAutoMovieBoundedDisplacement>[0];
-type Result = ReturnType<typeof solveAutoMovieBoundedDisplacement>;
+type Input = Parameters<typeof AutoMovieEngineMath.solveBoundedDisplacement>[0];
+type Result = ReturnType<typeof AutoMovieEngineMath.solveBoundedDisplacement>;
 type Condition = { row: IAutoMovieQuadraticRow; group: number };
 
 /**
@@ -34,7 +34,7 @@ type Condition = { row: IAutoMovieQuadraticRow; group: number };
  *    a negative cap and index 2 refuse.
  */
 export function test_engine_geometry_bounded_displacement(): void {
-  const solve = solveAutoMovieBoundedDisplacement;
+  const solve = AutoMovieEngineMath.solveBoundedDisplacement;
   const base: Input = { mass: [1, 1], upper: [3, 3], constraints: [], tolerance: 1e-7, maximumRounds: 40 };
   const condition = (
     indices: number[],

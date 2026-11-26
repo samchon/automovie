@@ -16,7 +16,7 @@ import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { wrapDegrees } from "../math/wrapDegrees";
+import { wrapDegrees } from "../math/internal/wrapDegrees";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import type { IAutoMovieChainContinuationObserver } from "./IAutoMovieChainContinuationObserver";
 import { PLANT_RESIDUAL_EPSILON } from "./constants/PLANT_RESIDUAL_EPSILON";

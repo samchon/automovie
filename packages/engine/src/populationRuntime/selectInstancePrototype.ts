@@ -3,7 +3,7 @@ import {
   type IAutoMovieSelectInstancePrototype,
 } from "@automovie/interface";
 
-import { seededValue } from "../math/seededValue";
+import { seededValue } from "../math/internal/seededValue";
 import { instancePrototypeChoices } from "./instancePrototypeChoices";
 
 /**

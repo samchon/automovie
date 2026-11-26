@@ -11,7 +11,7 @@ import type {
 
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
-import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 

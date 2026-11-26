@@ -5,8 +5,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtPointBounds } from "../architecture/builtPointBounds";
-import { seededValue } from "../math/seededValue";
+import { builtPointBounds } from "../architecture/internal/builtPointBounds";
+import { seededValue } from "../math/internal/seededValue";
 import { plantingYaw } from "./plantingYaw";
 
 const SALT_PLACE_X: number = 0x706c6378;

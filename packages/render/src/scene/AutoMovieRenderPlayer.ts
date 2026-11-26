@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, clampPose, dampedSpring, sampleMotion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, clampPose, sampleMotion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieExpression,
@@ -144,7 +144,7 @@ export class AutoMovieRenderPlayer {
         : Math.min(Math.max(seconds - this.lastSeconds, 0), 1 / 15);
     this.lastSeconds = seconds;
     const targets: Set<AutoMovieHumanoidBone> = new Set(cfg.joints);
-    const params: Parameters<typeof dampedSpring>[3] = {
+    const params: Parameters<typeof AutoMovieEngineMotionSampling.dampedSpring>[3] = {
       stiffness: cfg.stiffness,
       damping: cfg.damping,
     };
@@ -170,7 +170,7 @@ export class AutoMovieRenderPlayer {
         if (state === undefined)
           return { angle: null, next: { value: 0, velocity: 0 } };
         if (dt === 0) return { angle: state.value, next: state };
-        const r: IAutoMovieSpringStep = dampedSpring(
+        const r: IAutoMovieSpringStep = AutoMovieEngineMotionSampling.dampedSpring(
           state.value,
           state.velocity,
           0,
@@ -182,7 +182,7 @@ export class AutoMovieRenderPlayer {
       if (state === undefined)
         return { angle: target, next: { value: target, velocity: 0 } };
       if (dt === 0) return { angle: state.value, next: state };
-      const r: IAutoMovieSpringStep = dampedSpring(
+      const r: IAutoMovieSpringStep = AutoMovieEngineMotionSampling.dampedSpring(
         state.value,
         state.velocity,
         target,

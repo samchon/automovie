@@ -1,4 +1,4 @@
-import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieResolvedPhysicalVertices,
@@ -32,7 +32,7 @@ export function test_engine_geometry_physical_vertices(): void {
   const legacy: IAutoMovieMesh = createPhysicalMesh(positions, [0, 1, 3]);
   TestValidator.equals(
     "legacy grid",
-    resolveAutoMovieMeshPhysicalVertices(legacy),
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(legacy),
     {
       labels: ["0,0,0", "1000000000,0,0"],
       vertices: [0, 0, 0, 1],
@@ -45,18 +45,18 @@ export function test_engine_geometry_physical_vertices(): void {
   );
   mesh.physicalVertices!.sources[3]!.domain = "another-instance";
   const first: IAutoMovieResolvedPhysicalVertices =
-    resolveAutoMovieMeshPhysicalVertices(mesh);
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(mesh);
   TestValidator.equals("alias and contact", first.vertices, [0, 0, 1, 2]);
   first.vertices.fill(42);
   TestValidator.equals(
     "owned output",
-    resolveAutoMovieMeshPhysicalVertices(mesh).vertices,
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(mesh).vertices,
     [0, 0, 1, 2],
   );
   mesh.physicalVertices!.vertices = [0, null, null, null];
   TestValidator.equals(
     "null cohort",
-    resolveAutoMovieMeshPhysicalVertices(mesh).vertices,
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(mesh).vertices,
     [0, 1, 1, 2],
   );
   const pairs: IAutoMovieMesh = createPhysicalMesh(
@@ -68,12 +68,12 @@ export function test_engine_geometry_physical_vertices(): void {
   pairs.physicalVertices!.sources[1]!.domain = "instance/12";
   TestValidator.equals(
     "pair boundaries",
-    resolveAutoMovieMeshPhysicalVertices(pairs).vertices,
+    AutoMovieEngineMath.resolveMeshPhysicalVertices(pairs).vertices,
     [0, 1],
   );
   TestValidator.equals(
     "empty",
-    resolveAutoMovieMeshPhysicalVertices({
+    AutoMovieEngineMath.resolveMeshPhysicalVertices({
       positions: [],
       physicalVertices: { sources: [], vertices: [] },
     }),

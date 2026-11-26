@@ -1,5 +1,5 @@
 import { EllipticFunctions } from "./EllipticFunctions";
-import { bracketedRoot } from "./bracketedRoot";
+import { bracketedRoot } from "./internal/bracketedRoot";
 
 /**
  * The buckled shape of a slender rod pinned at both ends and pressed along its

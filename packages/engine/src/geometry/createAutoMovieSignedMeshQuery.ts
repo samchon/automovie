@@ -5,11 +5,11 @@ import type {
   IAutoMovieSignedMeshQueryOptions,
 } from "@automovie/interface";
 
-import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { createMeshEdgeKey } from "../math/internal/createMeshEdgeKey";
 import { boundAutoMovieMeshQueryPoint as bound } from "./boundAutoMovieMeshQueryPoint";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Compile a closed oriented surface, or an open oriented sheet, into a

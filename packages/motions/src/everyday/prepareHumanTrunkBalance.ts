@@ -1,10 +1,4 @@
-import {
-  Vector3,
-  convexHull2D,
-  pointInHull,
-  resolveAutoMovieCenterOfMass,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -114,7 +108,7 @@ export function prepareHumanTrunkBalance(
       ).pose,
       read(),
     );
-    const hull: IAutoMovieVector3[] = convexHull2D(
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(
       support === undefined
         ? HumanFoot.base(body, bones, sides)
         : support.points(bones, share),
@@ -146,7 +140,7 @@ export function prepareHumanTrunkBalance(
         return point;
       },
     );
-    if (pointInHull(centre, hull)) return posture;
+    if (AutoMovieEngineMath.pointInHull(centre, hull)) return posture;
     const angular: number = Vector3.length(motion.angular);
     if (angular === 0) return posture;
     const axis: IAutoMovieVector3 = Vector3.scale(motion.angular, 1 / angular);
@@ -183,7 +177,7 @@ export function prepareHumanTrunkBalance(
         arc.tangent,
         Math.sin(radians),
       );
-      if (pointInHull(place, hull)) nearest = degrees;
+      if (AutoMovieEngineMath.pointInHull(place, hull)) nearest = degrees;
     }
     if (nearest === Infinity) return posture;
     return {
@@ -222,7 +216,7 @@ function* crossings(
     const phase: number = Math.atan2(b, a);
     const angle: number = Math.acos(c / radius);
     for (const solution of [phase - angle, phase + angle])
-      yield (wrapDegrees((solution * 180) / Math.PI) * Math.PI) / 180;
+      yield (AutoMovieEngineMath.wrapDegrees((solution * 180) / Math.PI) * Math.PI) / 180;
   }
 }
 

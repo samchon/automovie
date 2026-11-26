@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -350,7 +345,7 @@ export namespace stuntFallPose {
       ...shape,
       ...(fingers === undefined ? {} : { digits: fingers }),
       root: Vector3.lerp(from.root, to.root, w),
-      yaw: from.yaw + wrapDegrees(to.yaw - from.yaw) * w,
+      yaw: from.yaw + AutoMovieEngineMath.wrapDegrees(to.yaw - from.yaw) * w,
       pitch: from.pitch + (to.pitch - from.pitch) * w,
       roll: from.roll + (to.roll - from.roll) * w,
       joints,

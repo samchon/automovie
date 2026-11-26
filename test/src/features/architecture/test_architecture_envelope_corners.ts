@@ -1,7 +1,4 @@
-import {
-  builtEnvironmentEnvelopeCorners,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvelopeCorner,
@@ -40,7 +37,7 @@ import { namedFacts, vclose } from "../internal/predicates";
  */
 export function test_architecture_envelope_corners(): void {
   const rectangle: IAutoMovieBuiltEnvelopeCorner[] =
-    builtEnvironmentEnvelopeCorners(rectangularBuilding());
+    AutoMovieEngineBuiltEnvironment.environmentEnvelopeCorners(rectangularBuilding());
 
   TestValidator.equals(
     "the rectangle owes one corner per pair of meeting walls",
@@ -91,12 +88,12 @@ export function test_architecture_envelope_corners(): void {
 
   TestValidator.equals(
     "the L-shaped wing is a legal building",
-    validateBuiltEnvironment({ environment: wing }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: wing }).success,
     true,
   );
 
   const notched: IAutoMovieBuiltEnvelopeCorner[] =
-    builtEnvironmentEnvelopeCorners(wing);
+    AutoMovieEngineBuiltEnvironment.environmentEnvelopeCorners(wing);
 
   TestValidator.equals(
     "its notch is the one corner an observer walks into",
@@ -136,16 +133,16 @@ export function test_architecture_envelope_corners(): void {
       [
         "two units touching at a point share no corner",
         (): boolean =>
-          builtEnvironmentEnvelopeCorners(differentUnits()).length === 0,
+          AutoMovieEngineBuiltEnvironment.environmentEnvelopeCorners(differentUnits()).length === 0,
       ],
       [
         "a facade standing on its own meeting point contributes none",
         (): boolean =>
-          builtEnvironmentEnvelopeCorners(pointlessFacade()).length === 0,
+          AutoMovieEngineBuiltEnvironment.environmentEnvelopeCorners(pointlessFacade()).length === 0,
       ],
       [
         "and a meeting that turns neither way contributes none",
-        (): boolean => builtEnvironmentEnvelopeCorners(flatTurn()).length === 0,
+        (): boolean => AutoMovieEngineBuiltEnvironment.environmentEnvelopeCorners(flatTurn()).length === 0,
       ],
     ]),
     {

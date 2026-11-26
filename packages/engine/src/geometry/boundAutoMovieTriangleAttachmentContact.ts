@@ -5,9 +5,9 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { adjacentAutoMovieFloat64 as outward } from "../math/adjacentAutoMovieFloat64";
+import { adjacentAutoMovieFloat64 as outward } from "../math/internal/adjacentAutoMovieFloat64";
 import { measureAutoMovieProjectionIntervals } from "./measureAutoMovieProjectionIntervals";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Bound how far from its root any contact of an anchored fan with one support

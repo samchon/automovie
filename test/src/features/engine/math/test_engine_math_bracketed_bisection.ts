@@ -1,4 +1,4 @@
-import { bracketedBisection } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -22,14 +22,14 @@ import { throwsError } from "../../internal/predicates";
  *    returns high with no reading.
  */
 export function test_engine_math_bracketed_bisection(): void {
-  const up: number = bracketedBisection(
+  const up: number = AutoMovieEngineMath.bracketedBisection(
     (x: number): boolean => x < 2,
     0,
     5,
     1e-6,
   );
   TestValidator.predicate("upward", up >= 2 && up <= 2 + 1e-6);
-  const down: number = bracketedBisection(
+  const down: number = AutoMovieEngineMath.bracketedBisection(
     (x: number): boolean => x > 2,
     5,
     0,
@@ -38,15 +38,15 @@ export function test_engine_math_bracketed_bisection(): void {
   TestValidator.predicate("downward", down <= 2 && down >= 2 - 1e-6);
   TestValidator.equals(
     "narrow",
-    bracketedBisection((x: number): boolean => x < 1, 0.99, 1.0, 0.5),
+    AutoMovieEngineMath.bracketedBisection((x: number): boolean => x < 1, 0.99, 1.0, 0.5),
     1.0,
   );
   TestValidator.predicate(
     "tolerance",
-    throwsError(() => bracketedBisection((): boolean => true, 0, 1, 0)),
+    throwsError(() => AutoMovieEngineMath.bracketedBisection((): boolean => true, 0, 1, 0)),
   );
   const read: number[] = [];
-  const root: number = bracketedBisection(
+  const root: number = AutoMovieEngineMath.bracketedBisection(
     (x: number): boolean => {
       read.push(x);
       return x * x < 2;
@@ -64,7 +64,7 @@ export function test_engine_math_bracketed_bisection(): void {
     "no end read",
     read.every((x: number): boolean => x !== 0 && x !== 2),
   );
-  const mirrored: number = bracketedBisection(
+  const mirrored: number = AutoMovieEngineMath.bracketedBisection(
     (x: number): boolean => x * x < 2,
     0,
     -2,
@@ -74,7 +74,7 @@ export function test_engine_math_bracketed_bisection(): void {
     "backward",
     mirrored <= -Math.SQRT2 && -Math.SQRT2 - mirrored <= 1e-12,
   );
-  const step: number = bracketedBisection(
+  const step: number = AutoMovieEngineMath.bracketedBisection(
     (x: number): boolean => x < 0.3,
     0,
     1,
@@ -84,7 +84,7 @@ export function test_engine_math_bracketed_bisection(): void {
   let calls: number = 0;
   TestValidator.equals(
     "narrow bracket",
-    bracketedBisection(
+    AutoMovieEngineMath.bracketedBisection(
       (): boolean => {
         calls++;
         return true;

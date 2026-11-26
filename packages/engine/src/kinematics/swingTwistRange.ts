@@ -16,11 +16,11 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { nearestAngleAlias } from "../math/nearestAngleAlias";
-import { positiveModulo } from "../math/positiveModulo";
+import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
+import { positiveModulo } from "../math/internal/positiveModulo";
 import { rotationBetween } from "../math/rotationBetween";
 import { swingTwist } from "../math/swingTwist";
-import { wrapDegrees } from "../math/wrapDegrees";
+import { wrapDegrees } from "../math/internal/wrapDegrees";
 import { DEFAULT_HUMANOID_ROM } from "../rom/constants/DEFAULT_HUMANOID_ROM";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { toClinicalAngle } from "../rom/toClinicalAngle";

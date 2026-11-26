@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, closestPointOnSegmentXZ, intersectAutoMovieConvexPolygons, signedArea, surfaceHeightAt } from "@automovie/engine";
+import { AutoMovieEngineSpace, intersectAutoMovieConvexPolygons, signedArea, surfaceHeightAt, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieFootprint,
   IAutoMovieFootprintRing,
@@ -136,7 +136,7 @@ function distanceToRim(
 ): number {
   let distance: number = Infinity;
   for (let edge: number = 0; edge < ring.points.length; edge += 1) {
-    const closest: IAutoMovieVector3 = closestPointOnSegmentXZ(
+    const closest: IAutoMovieVector3 = AutoMovieEngineMath.closestPointOnSegmentXZ(
       point,
       ring.points[edge]!,
       ring.points[(edge + 1) % ring.points.length]!,

@@ -1,7 +1,4 @@
-import {
-  propBlockedPassages,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { propBlockedPassages, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -224,7 +221,7 @@ export function test_engine_film_prop_passage_section(): void {
   TestValidator.equals(
     "the undeclared section is refused by validation, not guessed at here",
     ((): string[] => {
-      const validation: IAutoMovieValidation = validateBuiltEnvironment({
+      const validation: IAutoMovieValidation = AutoMovieEngineArchitecture.validateBuiltEnvironment({
         environment: corridors(),
       });
       return validation.success === true

@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
+import { autoMovieRayObstructed } from "./internal/autoMovieRayObstructed";
 
 /** Distances this short or shorter put a fitting on the sample point. */
 const EPSILON: number = 1e-12;

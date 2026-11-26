@@ -1,5 +1,5 @@
 import { binary64SumProductsSign } from "./binary64SumProductsSign";
-import { wrapDegrees } from "./wrapDegrees";
+import { wrapDegrees } from "./internal/wrapDegrees";
 
 /**
  * Propose the isolated swivels where a quaternion circle has two-axis rank one.

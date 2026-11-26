@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  carriedRate,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Vector3, carriedRate, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -147,7 +142,7 @@ export namespace walkFoot {
     const toAngles: ReturnType<typeof HumanFoot.headingPitch> =
       HumanFoot.headingPitch(props.to.rotation);
     const leaving: number = fromAngles.heading;
-    const headingDelta: number = wrapDegrees(toAngles.heading - leaving);
+    const headingDelta: number = AutoMovieEngineMath.wrapDegrees(toAngles.heading - leaving);
     const left: number = fromAngles.pitch;
     const pitchDelta: number = toAngles.pitch - left;
     const rolled: number = HumanFoot.roll(props.from.rotation);

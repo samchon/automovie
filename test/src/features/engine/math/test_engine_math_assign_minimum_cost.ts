@@ -1,4 +1,4 @@
-import { assignAutoMovieMinimumCost } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -21,16 +21,16 @@ export function test_engine_math_assign_minimum_cost(): void {
   TestValidator.equals(
     "the least-cost assignments",
     [
-      assignAutoMovieMinimumCost([
+      AutoMovieEngineMath.assignMinimumCost([
         [4, 1, 3],
         [2, 0, 5],
         [3, 2, 2],
       ]),
-      assignAutoMovieMinimumCost([
+      AutoMovieEngineMath.assignMinimumCost([
         [1, 2, 3],
         [2, 4, 6],
       ]),
-      assignAutoMovieMinimumCost([]),
+      AutoMovieEngineMath.assignMinimumCost([]),
     ],
     [[1, 0, 2], [1, 0], []],
   );
@@ -38,7 +38,7 @@ export function test_engine_math_assign_minimum_cost(): void {
     "impossible assignments are refused",
     throwsError(
       (): number[] =>
-        assignAutoMovieMinimumCost([
+        AutoMovieEngineMath.assignMinimumCost([
           [1, 2],
           [3, 4],
           [5, 6],
@@ -47,7 +47,7 @@ export function test_engine_math_assign_minimum_cost(): void {
     ) &&
       throwsError(
         (): number[] =>
-          assignAutoMovieMinimumCost([
+          AutoMovieEngineMath.assignMinimumCost([
             [1, 2, 3],
             [4, 5],
           ]),

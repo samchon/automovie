@@ -1,6 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { determinantAutoMovieMatrix3 } from "./determinantAutoMovieMatrix3";
+import { determinantAutoMovieMatrix3 } from "./internal/determinantAutoMovieMatrix3";
 
 /**
  * The SO(3) right Jacobian and its inverse for body rotation vectors.

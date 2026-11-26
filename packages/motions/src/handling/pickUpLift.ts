@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -134,7 +134,7 @@ export namespace pickUpLift {
       if (!short(floor))
         return {
           trunk: null,
-          share: bracketedBisection(
+          share: AutoMovieEngineMath.bracketedBisection(
             short,
             1,
             floor,
@@ -170,7 +170,7 @@ export namespace pickUpLift {
       if (reached === null) continue;
       return {
         trunk: null,
-        share: bracketedBisection(
+        share: AutoMovieEngineMath.bracketedBisection(
           (share: number): boolean => far(stance.at(share)) > reach,
           before,
           reached,

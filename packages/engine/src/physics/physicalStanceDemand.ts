@@ -8,7 +8,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { convexHull2D } from "../math/convexHull2D";
+import { convexHull2D } from "../math/internal/convexHull2D";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { physicalBipedPressure } from "./physicalBipedPressure";

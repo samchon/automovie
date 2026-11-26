@@ -1,10 +1,4 @@
-import {
-  AutoMovieHumanoidSurfaceRays,
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { AutoMovieHumanoidSurfaceRays, Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanoidSurfaces,
@@ -66,7 +60,7 @@ export function HumanFootOutline(
           }),
         ),
     );
-    for (const corner of convexHull2D(points))
+    for (const corner of AutoMovieEngineMath.convexHull2D(points))
       out.push(
         tools.local(bone, corner, { x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: 1 }),
       );

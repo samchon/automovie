@@ -6,7 +6,7 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
-import { sampleTimes } from "../motion/sampleTimes";
+import { sampleTimes } from "../motion/internal/sampleTimes";
 
 /**
  * Build the clearance sample clock of one shot: a function from a take's camera

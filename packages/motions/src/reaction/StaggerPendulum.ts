@@ -1,4 +1,4 @@
-import { Vector3, convexHull2D, pointInHull } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -205,7 +205,7 @@ export class StaggerPendulum {
 
   /** The bearing feet's convex outline from the entry's centre of mass. */
   public bearing(sides: readonly AutoMovieHumanSide[]): IAutoMovieVector3[] {
-    return convexHull2D(
+    return AutoMovieEngineMath.convexHull2D(
       sides.flatMap(
         (side: AutoMovieHumanSide): IAutoMovieVector3[] =>
           this.footprint(side, this.feet[side]).relative,
@@ -216,7 +216,7 @@ export class StaggerPendulum {
   /** Whether xi lies inside both feet's base, Koolen's zero-step capture region. */
   public captured(): boolean {
     const base: IAutoMovieVector3[] = this.bearing(["left", "right"]);
-    return base.length >= 3 && pointInHull(this.xi(), base);
+    return base.length >= 3 && AutoMovieEngineMath.pointInHull(this.xi(), base);
   }
 
   /**

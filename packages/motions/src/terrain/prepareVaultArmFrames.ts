@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -100,7 +96,7 @@ export function prepareVaultArmFrames(
       return {
         wrist: at(sample, index),
         elbow: at(sample, index + 3),
-        rotation: quaternionFromAutoMovieBasis(x, y, z),
+        rotation: AutoMovieEngineMath.quaternionFromBasis(x, y, z),
       };
     };
   };

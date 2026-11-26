@@ -1,4 +1,4 @@
-import { adjacentAutoMovieFloat64 } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryFeasibleSqpStepMixingOperation,
   IAutoMovieRecoverySqpMix,
@@ -59,18 +59,18 @@ export function mixRecoveryFeasibleSqpStep(
       const b: number = row.values[entry]! * tilted[row.indices[entry]!]!;
       first += a;
       second += b;
-      magnitude = adjacentAutoMovieFloat64(
+      magnitude = AutoMovieEngineMath.adjacentFloat64(
         magnitude + Math.abs(a) + Math.abs(b),
         true,
       );
     }
     const operations: number = 4 * row.indices.length + 16;
     const product: number = operations * (Number.EPSILON / 2);
-    const gamma: number = adjacentAutoMovieFloat64(
-      product / adjacentAutoMovieFloat64(1 - product, false),
+    const gamma: number = AutoMovieEngineMath.adjacentFloat64(
+      product / AutoMovieEngineMath.adjacentFloat64(1 - product, false),
       true,
     );
-    const margin: number = adjacentAutoMovieFloat64(
+    const margin: number = AutoMovieEngineMath.adjacentFloat64(
       gamma * magnitude + operations * Number.MIN_VALUE,
       true,
     );
@@ -81,12 +81,12 @@ export function mixRecoveryFeasibleSqpStep(
       if (first > -margin)
         lower = Math.max(
           lower,
-          adjacentAutoMovieFloat64((first + margin) / -difference, true),
+          AutoMovieEngineMath.adjacentFloat64((first + margin) / -difference, true),
         );
     } else if (difference > 0)
       upper = Math.min(
         upper,
-        adjacentAutoMovieFloat64((-margin - first) / difference, false),
+        AutoMovieEngineMath.adjacentFloat64((-margin - first) / difference, false),
       );
     else if (first > -margin) return result;
   }

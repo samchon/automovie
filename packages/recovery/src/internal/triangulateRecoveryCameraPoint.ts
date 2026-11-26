@@ -1,8 +1,4 @@
-import {
-  AutoMovieMatrix3,
-  Vector3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieMatrix3, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraPointTriangulationOperation,
   IAutoMovieVector3,
@@ -65,8 +61,8 @@ export function triangulateRecoveryCameraPoint(
       ray2[1] * t[2]! - t[1]!,
     ],
   ];
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(rows, {
+  const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(rows, {
       maxEntries: 16,
       maxSweeps,
       orthogonalityTolerance: 1e-12,

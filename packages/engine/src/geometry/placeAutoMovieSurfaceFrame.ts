@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Place a prepared rigid triangle at a requested centroid, heading and normal.

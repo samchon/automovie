@@ -5,7 +5,7 @@ import {
 
 import { IDENTITY_FORMATION_SLOT_STATE } from "../../constants/IDENTITY_FORMATION_SLOT_STATE";
 import { lerp } from "../../math/internal/lerp";
-import { ease } from "../../motion/ease";
+import { ease } from "../../motion/internal/ease";
 
 /**
  * Sample what one named member of a unit is doing differently at one time.

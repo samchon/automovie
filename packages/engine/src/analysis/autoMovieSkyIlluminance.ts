@@ -3,9 +3,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieHemisphereDirections } from "./autoMovieHemisphereDirections";
-import { autoMovieRayObstructed } from "./autoMovieRayObstructed";
-import { autoMovieSkyward } from "./autoMovieSkyward";
+import { autoMovieHemisphereDirections } from "./internal/autoMovieHemisphereDirections";
+import { autoMovieRayObstructed } from "./internal/autoMovieRayObstructed";
+import { autoMovieSkyward } from "./internal/autoMovieSkyward";
 
 /**
  * Prepare the isotropic sky term `DHI × V` of one plane orientation, and return

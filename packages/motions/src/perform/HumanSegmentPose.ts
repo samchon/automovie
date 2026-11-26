@@ -1,9 +1,4 @@
-import {
-  hingedArmSwivel,
-  inertializePose,
-  poseJointCodec,
-  samplePoseVelocity,
-} from "@automovie/engine";
+import { hingedArmSwivel, poseJointCodec, samplePoseVelocity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
@@ -141,7 +136,7 @@ export namespace HumanSegmentPose {
       transition.blend,
       codec,
     ).state;
-    const decay = inertializePose(
+    const decay = AutoMovieEngineMotionSampling.inertializePose(
       source,
       target,
       transition.blend,

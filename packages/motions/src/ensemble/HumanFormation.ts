@@ -1,7 +1,4 @@
-import {
-  assignAutoMovieMinimumCost,
-  formationSlotPosition,
-} from "@automovie/engine";
+import { formationSlotPosition, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieFormationLayout,
   IAutoMovieMotionHumanActionContext,
@@ -418,7 +415,7 @@ export namespace HumanFormation {
       const points: IAutoMovieVector3[] = [];
       for (let s: number = 0; s < slots; ++s)
         points.push(slot(s, seconds, read).at);
-      return assignAutoMovieMinimumCost(
+      return AutoMovieEngineMath.assignMinimumCost(
         members.map((m: IAutoMovieVector3): number[] =>
           points.map((p: IAutoMovieVector3): number =>
             Math.hypot(p.x - m.x, p.z - m.z),

@@ -12,8 +12,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtEnvironmentPartBoxes } from "../architecture/builtEnvironmentPartBoxes";
-import { builtPointBounds } from "../architecture/builtPointBounds";
+import { builtEnvironmentPartBoxes } from "../architecture/internal/builtEnvironmentPartBoxes";
+import { builtPointBounds } from "../architecture/internal/builtPointBounds";
 import { autoMovieInstanceAddressSlot } from "../autoMovieInstanceAddressSlot";
 import { autoMovieModelPartPoints } from "../autoMovieModelPartPoints";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";

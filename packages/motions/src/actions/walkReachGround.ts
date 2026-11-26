@@ -1,4 +1,4 @@
-import { bracketedRoot, smoothMinimum } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -199,8 +199,8 @@ export function walkReachGround(
     return short(joints[side], placed[side].ankle);
   };
   const lowering: () => number = (): number =>
-    -smoothMinimum(
-      smoothMinimum(-claim("left"), -claim("right"), walkReach.CLAIM),
+    -AutoMovieEngineMotionSampling.smoothMinimum(
+      AutoMovieEngineMotionSampling.smoothMinimum(-claim("left"), -claim("right"), walkReach.CLAIM),
       0,
       walkReach.CLAIM,
     );
@@ -230,7 +230,7 @@ export function walkReachGround(
       over = asked(high) - high;
     }
     if (over >= 0) return high;
-    return bracketedRoot(
+    return AutoMovieEngineMath.bracketedRoot(
       (d: number): number => {
         if (d === 0) return first;
         if (d === high) return over;

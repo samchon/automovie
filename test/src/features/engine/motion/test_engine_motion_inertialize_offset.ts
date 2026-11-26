@@ -1,4 +1,4 @@
-import { inertializeOffset } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type { IAutoMovieInertializeOffset } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,7 +37,7 @@ const ROUNDING: number = 1e-12;
  */
 export function test_engine_motion_inertialize_offset(): void {
   // 1. Moving away: the whole decay time.
-  const cut: IAutoMovieInertializeOffset.IState = inertializeOffset(
+  const cut: IAutoMovieInertializeOffset.IState = AutoMovieEngineMotionSampling.inertializeOffset(
     0.3,
     1.2,
     0.5,
@@ -51,18 +51,18 @@ export function test_engine_motion_inertialize_offset(): void {
   );
   TestValidator.predicate(
     "the quintic at half the decay",
-    nclose(inertializeOffset(0.3, 1.2, 0.5, 0.25).value, 0.075, ROUNDING),
+    nclose(AutoMovieEngineMotionSampling.inertializeOffset(0.3, 1.2, 0.5, 0.25).value, 0.075, ROUNDING),
   );
   for (const elapsed of [0.5, 0.8])
     TestValidator.equals(
       `settled at ${elapsed} s`,
-      inertializeOffset(0.3, 1.2, 0.5, elapsed),
+      AutoMovieEngineMotionSampling.inertializeOffset(0.3, 1.2, 0.5, elapsed),
       { value: 0, velocity: 0, duration: 0.5 },
     );
 
   // 2. Heading to zero: clamped, never crossing.
   const clamp: number = 0.05 / 24;
-  const clamped: IAutoMovieInertializeOffset.IState = inertializeOffset(
+  const clamped: IAutoMovieInertializeOffset.IState = AutoMovieEngineMotionSampling.inertializeOffset(
     0.01,
     -24,
     0.3,
@@ -75,11 +75,11 @@ export function test_engine_motion_inertialize_offset(): void {
   for (const share of [0.1, 0.5, 0.9])
     TestValidator.predicate(
       `the clamped offset stays positive at ${share} of its decay`,
-      inertializeOffset(0.01, -24, 0.3, share * clamp).value >= 0,
+      AutoMovieEngineMotionSampling.inertializeOffset(0.01, -24, 0.3, share * clamp).value >= 0,
     );
 
   // 3. Passing through: bounded overshoot.
-  const through: IAutoMovieInertializeOffset.IState = inertializeOffset(
+  const through: IAutoMovieInertializeOffset.IState = AutoMovieEngineMotionSampling.inertializeOffset(
     0.01,
     -24,
     0.3,
@@ -96,21 +96,21 @@ export function test_engine_motion_inertialize_offset(): void {
   TestValidator.predicate(
     "the lobe of a carried rate",
     nclose(
-      inertializeOffset(0, 1, 0.3, 0.06).value,
+      AutoMovieEngineMotionSampling.inertializeOffset(0, 1, 0.3, 0.06).value,
       (256 * 0.3) / 3125,
       ROUNDING,
-    ) && inertializeOffset(0, 1, 0.3, 0.3).value === 0,
+    ) && AutoMovieEngineMotionSampling.inertializeOffset(0, 1, 0.3, 0.3).value === 0,
   );
 
   // 5. Before the cut.
   TestValidator.predicate(
     "before the cut",
-    nclose(inertializeOffset(0.3, 1.2, 0.5, -1).value, 0.3, ROUNDING),
+    nclose(AutoMovieEngineMotionSampling.inertializeOffset(0.3, 1.2, 0.5, -1).value, 0.3, ROUNDING),
   );
 
   // 6. No decay time.
   TestValidator.predicate(
     "a decay time of 0 is refused",
-    throwsError(() => inertializeOffset(1, 0, 0, 0)),
+    throwsError(() => AutoMovieEngineMotionSampling.inertializeOffset(1, 0, 0, 0)),
   );
 }

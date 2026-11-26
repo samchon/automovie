@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
+import { decomposeAutoMovieSingularMatrix } from "../math/internal/decomposeAutoMovieSingularMatrix";
 import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
 import { physicalSingularBudget } from "./physicalSingularBudget";
 import { physicalSupportPoint } from "./physicalSupportPoint";

@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -259,7 +259,7 @@ export function pickUpAdjustStepped(
       if (gap(places, longest) <= 0) {
         // The planted leg bends the shoulder path away from the horizontal
         // solution. Refine the feasible length to a tenth of a millimetre.
-        length = bracketedBisection(
+        length = AutoMovieEngineMath.bracketedBisection(
           (tried: number): boolean => gap(places, tried) > 0,
           0,
           longest,
@@ -279,7 +279,7 @@ export function pickUpAdjustStepped(
       accept !== undefined &&
       accept(step(stance.posture, longest, 1))
     )
-      length = bracketedBisection(
+      length = AutoMovieEngineMath.bracketedBisection(
         (tried: number): boolean => !accept(step(stance.posture, tried, 1)),
         0,
         longest,

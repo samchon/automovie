@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Measure original three-dimensional source derivatives by composite

@@ -10,7 +10,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { bracketedCrossing } from "../math/bracketedCrossing";
+import { bracketedCrossing } from "../math/internal/bracketedCrossing";
 import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeSegmentDistance } from "../physics/physicalShapeSegmentDistance";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";

@@ -5,7 +5,7 @@ import {
   IAutoMovieStorySyncPoint,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /** One addressed event's measurement, with why it has no story time. */
 interface IStorySyncEntry {

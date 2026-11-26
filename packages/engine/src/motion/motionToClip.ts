@@ -18,7 +18,7 @@ import { Quaternion } from "../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../resolve/constants/MOTION_ROOT_NODE_ID";
 import { lowerSkeletonNodes } from "../resolve/lowerSkeletonNodes";
 import { sampleMotion } from "./sampleMotion";
-import { sampleTimes } from "./sampleTimes";
+import { sampleTimes } from "./internal/sampleTimes";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 

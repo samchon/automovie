@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -136,7 +136,7 @@ export namespace handshakeOffer {
         left;
       if (excess(0) >= 0) return 0;
       const steepest: number = Math.PI / 2 - slope;
-      return bracketedBisection(
+      return AutoMovieEngineMath.bracketedBisection(
         (turned: number): boolean => excess(turned) < 0,
         0,
         steepest,
@@ -160,7 +160,7 @@ export namespace handshakeOffer {
       ? 0
       : !fits(offered)
         ? offered
-        : bracketedBisection(
+        : AutoMovieEngineMath.bracketedBisection(
             (angle: number): boolean => !fits(angle),
             0,
             offered,

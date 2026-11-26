@@ -1,4 +1,4 @@
-import { segmentIndex } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 // The pre-optimization behavior: the first i with times[i] <= time <=
@@ -51,7 +51,7 @@ export function test_engine_math_segment_index(): void {
       if (time > times[0]! && time < last)
         TestValidator.equals(
           `segmentIndex matches linear scan (len ${times.length}, t=${time})`,
-          segmentIndex(times.length, at(times), time),
+          AutoMovieEngineMath.segmentIndex(times.length, at(times), time),
           linearSegment(times, time),
         );
   }
@@ -59,27 +59,27 @@ export function test_engine_math_segment_index(): void {
   const t: number[] = [0, 1, 2, 3];
   TestValidator.equals(
     "length-2 array yields 0 (loop body never runs)",
-    segmentIndex(2, at([0, 5]), 3),
+    AutoMovieEngineMath.segmentIndex(2, at([0, 5]), 3),
     0,
   );
   TestValidator.equals(
     "exact interior key k=1 resolves to segment [0,1]",
-    segmentIndex(4, at(t), 1),
+    AutoMovieEngineMath.segmentIndex(4, at(t), 1),
     0,
   );
   TestValidator.equals(
     "exact interior key k=2 resolves to segment [1,2]",
-    segmentIndex(4, at(t), 2),
+    AutoMovieEngineMath.segmentIndex(4, at(t), 2),
     1,
   );
   TestValidator.equals(
     "midpoint of the first segment resolves to 0",
-    segmentIndex(4, at(t), 0.5),
+    AutoMovieEngineMath.segmentIndex(4, at(t), 0.5),
     0,
   );
   TestValidator.equals(
     "midpoint of the last segment resolves to 2",
-    segmentIndex(4, at(t), 2.5),
+    AutoMovieEngineMath.segmentIndex(4, at(t), 2.5),
     2,
   );
 }

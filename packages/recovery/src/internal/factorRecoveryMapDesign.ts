@@ -1,7 +1,4 @@
-import {
-  decomposeAutoMovieSingularMatrix,
-  reduceAutoMovieQrDesign,
-} from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryMapDesignFactor,
@@ -36,22 +33,22 @@ export function factorRecoveryMapDesign(
   const rows: number[][] = design.map((row: readonly number[]): number[] =>
     row.map((value: number, at: number): number => value / scales[at]!),
   );
-  const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
+  const options: Parameters<typeof AutoMovieEngineMath.decomposeSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
     orthogonalityTolerance: 1e-12,
   };
-  const compressed: ReturnType<typeof reduceAutoMovieQrDesign> | null =
+  const compressed: ReturnType<typeof AutoMovieEngineMath.reduceQrDesign> | null =
     rows.length >= 2 * width
-      ? reduceAutoMovieQrDesign(rows, right, {
+      ? AutoMovieEngineMath.reduceQrDesign(rows, right, {
           maxEntries: budget.maxLinearEntries,
           maxWork: rows.length * width * (width + 1),
         })
       : null;
   const solveRows: number[][] = compressed?.rows ?? rows;
   const solveRight: readonly number[] = compressed?.right ?? right;
-  const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(solveRows, options);
+  const rank: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(solveRows, options);
   const designRatio: number =
     rank.singularValues[width - 1]! / rank.singularValues[0]!;
   if (!(designRatio >= minimumRatio))

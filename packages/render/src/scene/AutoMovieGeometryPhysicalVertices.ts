@@ -1,4 +1,4 @@
-import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -83,7 +83,7 @@ export class AutoMovieGeometryPhysicalVertices {
         position.getY(vertex),
         position.getZ(vertex),
       );
-    resolveAutoMovieMeshPhysicalVertices({
+    AutoMovieEngineMath.resolveMeshPhysicalVertices({
       positions,
       physicalVertices: result,
     });

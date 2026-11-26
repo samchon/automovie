@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Measure front-minus-back depth along one axis over the complete projected

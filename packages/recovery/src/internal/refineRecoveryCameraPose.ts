@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraPoseRefinementOperation,
   IAutoMovieRecoveryEpipolarErrorsMeasurementOperation,
@@ -70,7 +70,7 @@ export function refineRecoveryCameraPose(
     scales: number[];
     gradient: number;
   } | null = null;
-  const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
+  const options: Parameters<typeof AutoMovieEngineMath.decomposeSingularMatrix>[1] = {
     maxEntries: Math.max(25, 5 * (firstPoints.length + 5)),
     maxSweeps: policy.maxSweeps,
     orthogonalityTolerance: 1e-12,
@@ -101,8 +101,8 @@ export function refineRecoveryCameraPose(
           (value: number, column: number): number => value / scales[column]!,
         ),
       );
-      const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-        decomposeAutoMovieSingularMatrix(rows, options);
+      const rank: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+        AutoMovieEngineMath.decomposeSingularMatrix(rows, options);
       const ratio: number = rank.singularValues[4]! / rank.singularValues[0]!;
       if (rank.singularValues[0] === 0 || ratio < policy.minimumDesignRatio)
         throw new Error("camera-refinement: rank-degenerate local pose design");
@@ -128,8 +128,8 @@ export function refineRecoveryCameraPose(
           row === column ? rootDamping : 0,
         ),
       );
-    const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-      decomposeAutoMovieSingularMatrix(augmented, options);
+    const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+      AutoMovieEngineMath.decomposeSingularMatrix(augmented, options);
     const scaledStep: number[] = new Array<number>(5).fill(0);
     for (let component: number = 0; component < 5; component++) {
       let projection: number = 0;

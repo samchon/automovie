@@ -1,6 +1,6 @@
 import { IAutoMoviePlanarPoint } from "@automovie/interface";
 
-import { polygonDoubleArea } from "../../architecture/polygonDoubleArea";
+import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea";
 import { AutoMovieEnginePlanarRegion } from "../../geometry/planar-region/AutoMovieEnginePlanarRegion";
 
 /**

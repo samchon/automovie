@@ -1,4 +1,4 @@
-import { Vector3, bracketedCrossing } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -124,7 +124,7 @@ export function fitJumpAbsorption(
     const shallow: number = excess(0, acceleration);
     if (!(shallow <= 0)) return undefined;
 
-    const depth: number = bracketedCrossing({
+    const depth: number = AutoMovieEngineMath.bracketedCrossing({
       f: (value: number): number => excess(value, acceleration),
       past: (value: number): boolean => !(value <= 0),
       low: 0,

@@ -1,4 +1,4 @@
-import { lowerServiceNetwork } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   IAutoMovieMesh,
@@ -82,7 +82,7 @@ const extents: (
 export function test_service_network_render(): void {
   const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
   const network: IAutoMovieServiceNetwork = serviceNetwork();
-  const lowered: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({
+  const lowered: ReturnType<typeof AutoMovieEngineService.lowerServiceNetwork> = AutoMovieEngineService.lowerServiceNetwork({
     network,
     environment,
   });
@@ -168,7 +168,7 @@ export function test_service_network_render(): void {
   const coldBranch: IAutoMovieMesh = (
     (lowered.models ?? [])[1]!.parts[0]!.geometry as IAutoMovieMeshGeometry
   ).mesh;
-  const coarse: ReturnType<typeof lowerServiceNetwork> = lowerServiceNetwork({
+  const coarse: ReturnType<typeof AutoMovieEngineService.lowerServiceNetwork> = AutoMovieEngineService.lowerServiceNetwork({
     network,
     environment,
     sides: 3,
@@ -192,8 +192,8 @@ export function test_service_network_render(): void {
         "tooCoarse",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof lowerServiceNetwork> =>
-              lowerServiceNetwork({ network, environment, sides: 2 }),
+            (): ReturnType<typeof AutoMovieEngineService.lowerServiceNetwork> =>
+              AutoMovieEngineService.lowerServiceNetwork({ network, environment, sides: 2 }),
             ["needs at least 3 sides"],
           ),
       ],
@@ -201,8 +201,8 @@ export function test_service_network_render(): void {
         "fractional",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof lowerServiceNetwork> =>
-              lowerServiceNetwork({ network, environment, sides: 4.5 }),
+            (): ReturnType<typeof AutoMovieEngineService.lowerServiceNetwork> =>
+              AutoMovieEngineService.lowerServiceNetwork({ network, environment, sides: 4.5 }),
             ["needs at least 3 sides"],
           ),
       ],
@@ -217,8 +217,8 @@ export function test_service_network_render(): void {
         "graphDefect",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof lowerServiceNetwork> =>
-              lowerServiceNetwork({
+            (): ReturnType<typeof AutoMovieEngineService.lowerServiceNetwork> =>
+              AutoMovieEngineService.lowerServiceNetwork({
                 network: withSegment(
                   network,
                   "cold-run",
@@ -238,8 +238,8 @@ export function test_service_network_render(): void {
         "zoneDefect",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof lowerServiceNetwork> =>
-              lowerServiceNetwork({
+            (): ReturnType<typeof AutoMovieEngineService.lowerServiceNetwork> =>
+              AutoMovieEngineService.lowerServiceNetwork({
                 network: withZone(
                   network,
                   "bath-zone",

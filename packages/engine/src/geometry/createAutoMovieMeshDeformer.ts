@@ -8,11 +8,11 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { cofactorAutoMovieJacobian } from "../math/cofactorAutoMovieJacobian";
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
+import { cofactorAutoMovieJacobian } from "../math/internal/cofactorAutoMovieJacobian";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { assertAutoMovieDeformedTriangles } from "./assertAutoMovieDeformedTriangles";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Compile compact deformation fields into an operation that deforms a mesh.

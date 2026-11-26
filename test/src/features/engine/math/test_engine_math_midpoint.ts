@@ -1,4 +1,4 @@
-import { midpoint } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,16 +11,16 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Two equal largest doubles give that double, positive and negative.
  */
 export function test_engine_math_midpoint(): void {
-  TestValidator.equals("ordinary", midpoint(2, 4), 3);
-  TestValidator.equals("opposite", midpoint(-6, 2), -2);
+  TestValidator.equals("ordinary", AutoMovieEngineMath.midpoint(2, 4), 3);
+  TestValidator.equals("opposite", AutoMovieEngineMath.midpoint(-6, 2), -2);
   TestValidator.equals(
     "positive overflow",
-    midpoint(Number.MAX_VALUE, Number.MAX_VALUE),
+    AutoMovieEngineMath.midpoint(Number.MAX_VALUE, Number.MAX_VALUE),
     Number.MAX_VALUE,
   );
   TestValidator.equals(
     "negative overflow",
-    midpoint(-Number.MAX_VALUE, -Number.MAX_VALUE),
+    AutoMovieEngineMath.midpoint(-Number.MAX_VALUE, -Number.MAX_VALUE),
     -Number.MAX_VALUE,
   );
 }

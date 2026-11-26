@@ -1,10 +1,4 @@
-import {
-  ROM_TOLERANCE,
-  Vector3,
-  bracketedBisection,
-  getConstraint,
-  physicalShapeSpan,
-} from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3, getConstraint, physicalShapeSpan, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -107,7 +101,7 @@ export function bendFloorThumb(
   return Math.min(lower, upper) > 0
     ? limit
     : sign *
-        bracketedBisection(
+        AutoMovieEngineMath.bracketedBisection(
           (offset: number): boolean => penetration(base[2] + sign * offset) > 0,
           0,
           Math.abs(limit),

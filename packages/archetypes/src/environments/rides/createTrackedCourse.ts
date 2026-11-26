@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  frameAutoMovieSweepSpine,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, frameAutoMovieSweepSpine, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSweepFrame,
@@ -151,7 +146,7 @@ export function createTrackedCourse(
         (1 - fraction) * sectionBanks[left]! +
         fraction * sectionBanks[right]! +
         correction * (distance / length);
-      const rotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+      const rotation: IAutoMovieQuaternion = AutoMovieEngineMath.quaternionFromBasis(
         frame.x,
         frame.y,
         frame.normal,

@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryMapDesignFactor,
   IAutoMovieRecoveryMapDesignSolutionOperation,
@@ -35,7 +35,7 @@ export function solveRecoveryMapDesign(
   const solveRight: readonly number[] = factor.solveRight;
   const rank: IAutoMovieRecoveryMapDesignFactor["rank"] = factor.rank;
   const designRatio: number = factor.designRatio;
-  const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
+  const options: Parameters<typeof AutoMovieEngineMath.decomposeSingularMatrix>[1] = {
     maxEntries: budget.maxLinearEntries,
     maxSweeps: budget.maxSingularSweeps,
     orthogonalityTolerance: 1e-12,
@@ -60,8 +60,8 @@ export function solveRecoveryMapDesign(
           at === row ? Math.sqrt(damping) : 0,
         ),
       );
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    damping === 0 ? rank : decomposeAutoMovieSingularMatrix(augmented, options);
+  const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    damping === 0 ? rank : AutoMovieEngineMath.decomposeSingularMatrix(augmented, options);
   const step: number[] = new Array<number>(width).fill(0);
   for (let component: number = 0; component < width; component++) {
     const coefficient: number =

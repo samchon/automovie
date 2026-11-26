@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -249,7 +245,7 @@ export namespace EquineHeadCourse {
     obstacle: IObstacle,
   ): number {
     return (
-      closestPointsBetweenSegments(from, to, obstacle.from, obstacle.to)
+      AutoMovieEngineMath.closestPointsBetweenSegments(from, to, obstacle.from, obstacle.to)
         .distance -
       radius -
       obstacle.radius

@@ -1,9 +1,4 @@
-import {
-  AutoMovieConstructionPortAddress,
-  AutoMovieConstructionPortRadialRange,
-  AutoMovieSolidVector as Vector,
-  bracketedRoot,
-} from "@automovie/engine";
+import { AutoMovieConstructionPortAddress, AutoMovieConstructionPortRadialRange, AutoMovieSolidVector as Vector, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
@@ -325,7 +320,7 @@ export namespace AutoMovieHumanF1NativeRootLevel {
           const hi: number = Math.max(q0, edge);
           bracket = [lo, hi];
           observation.bracket = bracket;
-          q = bracketedRoot(
+          q = AutoMovieEngineMath.bracketedRoot(
             (trial: number): number => {
               return value(trial, "trial") - reference;
             },

@@ -1,4 +1,4 @@
-import { resolveAutoMovieMaterialAssembly } from "@automovie/engine";
+import { AutoMovieEngineArchitectureAssembly } from "@automovie/engine";
 import type {
   IAutoMovieMaterialAssembly,
   IAutoMovieMaterialLayer,
@@ -49,7 +49,7 @@ export function test_architecture_material_assembly_dimension(): void {
     id: "wet-wall",
     faces: { first: "exposed", last: "exposed" },
   });
-  const resolved: IAutoMovieResolvedAssembly = resolveAutoMovieMaterialAssembly(
+  const resolved: IAutoMovieResolvedAssembly = AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly(
     { assembly: wet },
   );
 
@@ -144,7 +144,7 @@ export function test_architecture_material_assembly_dimension(): void {
     { thickness: true, collapsed: true, center: true, cursor: true },
   );
 
-  const mirrored: IAutoMovieResolvedAssembly = resolveAutoMovieMaterialAssembly(
+  const mirrored: IAutoMovieResolvedAssembly = AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly(
     {
       assembly: assembly(layers(), {
         id: "wet-wall-mirrored",
@@ -200,7 +200,7 @@ export function test_architecture_material_assembly_dimension(): void {
         "matches",
         (): boolean =>
           nclose(
-            resolveAutoMovieMaterialAssembly({
+            AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly({
               assembly: wet,
               host: { thickness: 0.1825 },
             }).total,
@@ -213,7 +213,7 @@ export function test_architecture_material_assembly_dimension(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieResolvedAssembly =>
-              resolveAutoMovieMaterialAssembly({
+              AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly({
                 assembly: wet,
                 host: { thickness: 0.1835 },
               }),
@@ -236,7 +236,7 @@ export function test_architecture_material_assembly_dimension(): void {
       [
         "resolves",
         (): boolean =>
-          resolveAutoMovieMaterialAssembly({
+          AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly({
             assembly: wet,
             substances: table,
           }).layers.length === 5,
@@ -246,7 +246,7 @@ export function test_architecture_material_assembly_dimension(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieResolvedAssembly =>
-              resolveAutoMovieMaterialAssembly({
+              AutoMovieEngineArchitectureAssembly.resolveAutoMovieMaterialAssembly({
                 assembly: wet,
                 substances: table.slice(1),
               }),

@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -140,7 +140,7 @@ export function baseballGroundBall(
       ? 0
       : outside(baseball.INCLINED)
         ? baseball.INCLINED
-        : bracketedBisection(outside, 0, baseball.INCLINED, tolerance);
+        : AutoMovieEngineMath.bracketedBisection(outside, 0, baseball.INCLINED, tolerance);
     const together: IAutoMovieMotionHumanArmPlanned.ITogether =
       AutoMovieMotionHumanArmPlanned.together(
         context.handover,

@@ -1,10 +1,4 @@
-import {
-  AutoMovieGravity,
-  Vector3,
-  bracketedBisection,
-  convexHull2D,
-  integrateMotionTrajectory,
-} from "@automovie/engine";
+import { AutoMovieGravity, Vector3, integrateMotionTrajectory, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanForceSite,
   IAutoMovieIntegrateMotionTrajectory,
@@ -70,7 +64,7 @@ export namespace HumanForceExchange {
     direction: IAutoMovieVector3,
     support: readonly IAutoMovieVector3[],
   ): number {
-    const hull: IAutoMovieVector3[] = convexHull2D(support);
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(support);
     if (hull.length < 3) return 0;
     let nearest: number = Number.POSITIVE_INFINITY;
     let inside: boolean = true;
@@ -223,7 +217,7 @@ export namespace HumanForceExchange {
     };
     const last: IAutoMovieIntegrateMotionTrajectory.ITrajectory =
       spans[spans.length - 1]!;
-    const release: number = bracketedBisection(
+    const release: number = AutoMovieEngineMath.bracketedBisection(
       (seconds: number): boolean => at(seconds)[0]! < Math.PI / 2,
       last.t0,
       last.t1,

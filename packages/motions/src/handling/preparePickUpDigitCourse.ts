@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  clampJointToSkeleton,
-  closestPointsBetweenSegments,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { Quaternion, Vector3, clampJointToSkeleton, physicalShapeSegmentDistance, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -81,7 +75,7 @@ function separation(a: readonly ICapsuleCore[], b: readonly ICapsuleCore[]): num
   let least = Infinity;
   for (const [p, q, first] of a)
     for (const [x, y, second] of b)
-      least = Math.min(least, closestPointsBetweenSegments(p, q, x, y).distance - first - second);
+      least = Math.min(least, AutoMovieEngineMath.closestPointsBetweenSegments(p, q, x, y).distance - first - second);
   return least;
 }
 

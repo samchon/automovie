@@ -1,4 +1,4 @@
-import { validateAutoMovieMaterialAssembly } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieMaterialAssembly,
   IAutoMovieMaterialLayer,
@@ -21,7 +21,7 @@ const judge: (
   one: IAutoMovieMaterialAssembly,
   host?: { thickness: number },
 ): IAutoMovieValidation =>
-  validateAutoMovieMaterialAssembly({ assembly: one, host });
+  AutoMovieEngineArchitecture.validateMaterialAssembly({ assembly: one, host });
 
 const twoLayer: (
   overrides?: Partial<IAutoMovieMaterialAssembly>,
@@ -312,7 +312,7 @@ export function test_architecture_material_assembly_defects(): void {
         "missingFromTable",
         (): boolean =>
           hasViolation(
-            validateAutoMovieMaterialAssembly({
+            AutoMovieEngineArchitecture.validateMaterialAssembly({
               assembly: twoLayer(),
               substances: [substance("skin-substance")],
             }),
@@ -323,7 +323,7 @@ export function test_architecture_material_assembly_defects(): void {
       [
         "completeTable",
         (): boolean =>
-          validateAutoMovieMaterialAssembly({
+          AutoMovieEngineArchitecture.validateMaterialAssembly({
             assembly: twoLayer(),
             substances: [
               substance("core-substance"),

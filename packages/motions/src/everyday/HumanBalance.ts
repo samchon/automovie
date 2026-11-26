@@ -1,11 +1,4 @@
-import {
-  bracketedBisection,
-  bracketedRoot,
-  convexHull2D,
-  pointInHull,
-  prepareAutoMovieMassModel,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { prepareAutoMovieMassModel, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBalance,
@@ -128,7 +121,7 @@ export namespace HumanBalance {
       const nearest: (back: number) => number = (back: number): number => {
         if (target !== undefined || at(back).margin <= 0) return back;
         let supported: number = back;
-        bracketedBisection(
+        AutoMovieEngineMath.bracketedBisection(
           (current: number): boolean => {
             if (at(current).margin < 0) return true;
             supported = current;
@@ -173,13 +166,13 @@ export namespace HumanBalance {
         return {
           found: true,
           back: smooth
-            ? bracketedRoot(
+            ? AutoMovieEngineMath.bracketedRoot(
                 (b: number): number => error(at(b)),
                 from,
                 end,
                 TOLERANCE,
               )
-            : bracketedBisection(
+            : AutoMovieEngineMath.bracketedBisection(
                 (b: number): boolean => error(at(b)) > 0,
                 from,
                 end,
@@ -375,7 +368,7 @@ export namespace HumanBalance {
     points: readonly IAutoMovieVector3[],
     direction: IAutoMovieVector3,
   ): number {
-    const hull: IAutoMovieVector3[] = convexHull2D(points);
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(points);
     const d: number = Math.hypot(direction.x, direction.z);
     const dx: number = direction.x / d;
     const dz: number = direction.z / d;
@@ -394,7 +387,7 @@ export namespace HumanBalance {
       if (u >= -1e-12 && u <= 1 + 1e-12) exit = Math.max(exit, t);
     }
     if (exit === -Infinity) return -Infinity;
-    return hull.length >= 3 && pointInHull(point, hull)
+    return hull.length >= 3 && AutoMovieEngineMath.pointInHull(point, hull)
       ? exit
       : -Math.abs(exit);
   }

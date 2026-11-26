@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 
 import { builtOpeningTestPartition as partition } from "./builtOpeningTestPartition";
@@ -9,7 +9,7 @@ export const builtOpeningTestRefusalPaths = (
 ): string[] => {
   const value = partition();
   mutate(value);
-  const validation = validateBuiltEnvironment({ environment: value });
+  const validation = AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: value });
   return validation.success === true
     ? []
     : validation.violations.map((violation) => violation.path);

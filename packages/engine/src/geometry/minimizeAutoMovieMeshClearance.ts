@@ -5,7 +5,7 @@ import type {
   IAutoMovieQuadraticRow,
 } from "@automovie/interface";
 
-import { solveAutoMovieBoundedDisplacement } from "../math/solveAutoMovieBoundedDisplacement";
+import { solveAutoMovieBoundedDisplacement } from "../math/internal/solveAutoMovieBoundedDisplacement";
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 
 /**

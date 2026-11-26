@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, bracketedBisection } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -225,7 +225,7 @@ export function braceOnThighPoint(
     const top: number = Math.max(station, Vector3.length(along) - m.hand / 2);
     if (top > station && missed(nearest) && !missed(padded(top)))
       return padded(
-        bracketedBisection(
+        AutoMovieEngineMath.bracketedBisection(
           (height: number): boolean => missed(padded(height)),
           station,
           top,

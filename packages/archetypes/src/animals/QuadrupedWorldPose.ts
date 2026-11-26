@@ -1,11 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  inertializeOffset,
-  minimumJerk,
-  prepareArticulatedRig,
-  samplePoseVelocity,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, prepareArticulatedRig, samplePoseVelocity, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieQuaternion,
@@ -417,7 +410,7 @@ function decay(
 ): IAutoMovieVector3 {
   const result: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const axis of AXES)
-    result[axis] = inertializeOffset(
+    result[axis] = AutoMovieEngineMotionSampling.inertializeOffset(
       channel.x[axis],
       channel.v[axis],
       duration,

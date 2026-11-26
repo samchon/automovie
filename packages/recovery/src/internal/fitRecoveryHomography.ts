@@ -1,7 +1,4 @@
-import {
-  AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryHomographyFittingOperation,
   IAutoMovieRecoveryImagePointsNormalizationOperation,
@@ -38,13 +35,13 @@ export function fitRecoveryHomography(
       [0, 0, 0, -x, -y, -1, v * x, v * y, v],
     );
   }
-  const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
+  const options: Parameters<typeof AutoMovieEngineMath.decomposeSingularMatrix>[1] = {
     maxEntries: Math.max(81, rows.length * 9),
     maxSweeps,
     orthogonalityTolerance: 1e-12,
   };
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(rows, options);
+  const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(rows, options);
   const ratio: number = factors.singularValues[7]! / factors.singularValues[0]!;
   if (factors.singularValues[0] === 0 || ratio < minimumRatio)
     throw new Error("camera-homography: rank-degenerate design");
@@ -69,8 +66,8 @@ export function fitRecoveryHomography(
   const norm: number = Math.hypot(...raw);
   if (!(norm > 0)) throw new Error("camera-homography: nonrepresentable map");
   const matrix: number[] = raw.map((value: number): number => value / norm);
-  const singular: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(
+  const singular: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [matrix.slice(0, 3), matrix.slice(3, 6), matrix.slice(6, 9)],
       options,
     );

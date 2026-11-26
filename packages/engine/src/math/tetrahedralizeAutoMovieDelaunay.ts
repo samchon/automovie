@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "./Vector3";
-import { seededValue } from "./seededValue";
+import { seededValue } from "./internal/seededValue";
 
 /**
  * The Delaunay tetrahedralization of points by Bowyer-Watson insertion in their

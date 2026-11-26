@@ -1,9 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  minimumJerk,
-  preparePoseResolution,
-  wrapDegrees,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, minimumJerk, preparePoseResolution, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieAngleRange,
@@ -219,10 +214,10 @@ export namespace walkReach {
       const heading: number = direction.heading;
       pivots[side] = pivot(planned, direction);
       bands.push({
-        centre: planned + wrapDegrees(heading + pivots[side] - planned),
+        centre: planned + AutoMovieEngineMath.wrapDegrees(heading + pivots[side] - planned),
         half: TWIST / w,
       });
-      const turned: number = wrapDegrees(yaw - (heading + pivots[side]));
+      const turned: number = AutoMovieEngineMath.wrapDegrees(yaw - (heading + pivots[side]));
       if (Math.abs(turned) > TWIST / w)
         yaw -= turned - (Math.sign(turned) * TWIST) / w;
     }
@@ -256,7 +251,7 @@ export namespace walkReach {
     planned: number,
     direction: ReturnType<typeof HumanFoot.headingPitch>,
   ): number {
-    const off: number = wrapDegrees(planned - direction.heading);
+    const off: number = AutoMovieEngineMath.wrapDegrees(planned - direction.heading);
     const excess: number =
       Math.abs(off) > TWIST ? off - Math.sign(off) * TWIST : 0;
     return excess * Math.min(1, Math.max(0, -direction.pitch / HEEL_UP));

@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieQuaternion,
@@ -92,7 +88,7 @@ function basis(
   if (Vector3.length(across) < 1e-9)
     throw new Error("A forward direction must not be parallel to its normal");
   const f: IAutoMovieVector3 = Vector3.normalize(across);
-  return quaternionFromAutoMovieBasis(n, f, Vector3.cross(n, f));
+  return AutoMovieEngineMath.quaternionFromBasis(n, f, Vector3.cross(n, f));
 }
 
 /** Keep normalization outside the same ordered world-times-inverse-rest product. */

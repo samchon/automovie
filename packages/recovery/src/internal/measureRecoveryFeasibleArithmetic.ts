@@ -1,4 +1,4 @@
-import { adjacentAutoMovieFloat64 } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryFeasibleArithmetic,
   IAutoMovieSimplexAtom,
@@ -16,9 +16,9 @@ export function measureRecoveryFeasibleArithmetic(
   solution: IAutoMovieSimplexMinimum,
 ): IAutoMovieRecoveryFeasibleArithmetic {
   const up: (value: number) => number = (value: number): number =>
-    adjacentAutoMovieFloat64(value, true);
+    AutoMovieEngineMath.adjacentFloat64(value, true);
   const down: (value: number) => number = (value: number): number =>
-    adjacentAutoMovieFloat64(value, false);
+    AutoMovieEngineMath.adjacentFloat64(value, false);
   const gamma: (operations: number) => number = (
     operations: number,
   ): number => {

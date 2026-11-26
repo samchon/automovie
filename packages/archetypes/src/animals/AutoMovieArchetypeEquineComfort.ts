@@ -1,4 +1,4 @@
-import { seededValue } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -167,7 +167,7 @@ export namespace AutoMovieArchetypeEquineComfort {
   ): AutoMovieArchetypeEquineComfortCue.Act[] {
     const acts: AutoMovieArchetypeEquineComfortCue.Act[] = [];
     const draw = (slot: number, domain: number): number =>
-      seededValue(seed, slot, domain);
+      AutoMovieEngineMath.seededValue(seed, slot, domain);
     const within = (bounds: Bounds, value: number): number =>
       bounds[0] + (bounds[1] - bounds[0]) * value;
     let side: AutoMovieArchetypeEquineExpressionCue.Side =

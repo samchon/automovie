@@ -21,7 +21,7 @@ import {
   type IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateBuiltEnvironment } from "../../architecture/validateBuiltEnvironment";
+import { validateBuiltEnvironment } from "../../architecture/internal/validateBuiltEnvironment";
 import { Vector3 } from "../../math/Vector3";
 import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";

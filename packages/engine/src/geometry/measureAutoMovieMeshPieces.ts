@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh, IAutoMovieMeshPiece } from "@automovie/interface";
 
-import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
+import { createMeshEdgeKey } from "../math/internal/createMeshEdgeKey";
 import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
 
 /**

@@ -1,4 +1,4 @@
-import { Vector3, cubicHermiteValue } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanArmGeometry,
@@ -338,7 +338,7 @@ function endpointCurve(
       if (k === right) return r;
       const share: number = (c.times[k]! - c.times[left]!) / span;
       return q.map((angle: number, d: number): number =>
-        cubicHermiteValue(
+        AutoMovieEngineMath.cubicHermiteValue(
           angle,
           startRate[d]!,
           r[d]!,

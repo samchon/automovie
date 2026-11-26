@@ -1,8 +1,4 @@
-import {
-  AutoMovieEnginePlanarRegion,
-  pointInPolygon,
-  polygonInside,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   IAutoMovieProfilePoint,
   IAutoMovieRegionTriangulation,
@@ -32,12 +28,12 @@ export function buildingWalkable(
     ...slab.slice(walls.length),
   ];
   if (
-    !polygonInside(outer, walls[0]!) ||
+    !AutoMovieEnginePlanarGeometry.polygonInside(outer, walls[0]!) ||
     walls
       .slice(1)
       .some(
         (hole: IAutoMovieProfilePoint[], index: number): boolean =>
-          !polygonInside(hole, physical[index + 1]!),
+          !AutoMovieEnginePlanarGeometry.polygonInside(hole, physical[index + 1]!),
       )
   )
     throw new Error(`${path} cannot retain a usable floor between its walls`);
@@ -50,9 +46,9 @@ export function buildingWalkable(
     );
   }
   if (
-    pointInPolygon(anchor, outer) &&
+    AutoMovieEnginePlanarGeometry.pointInPolygon(anchor, outer) &&
     !holes.some((hole: IAutoMovieProfilePoint[]): boolean =>
-      pointInPolygon(anchor, hole),
+      AutoMovieEnginePlanarGeometry.pointInPolygon(anchor, hole),
     )
   )
     return { rings: [outer, ...holes], anchor };

@@ -11,8 +11,8 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { mixSeed } from "../math/mixSeed";
-import { seededValue } from "../math/seededValue";
+import { mixSeed } from "../math/internal/mixSeed";
+import { seededValue } from "../math/internal/seededValue";
 import { plantingCanopyBounds } from "./plantingCanopyBounds";
 import { plantingContainsPoint } from "./plantingContainsPoint";
 import { plantingPruningDistance } from "./plantingPruningDistance";

@@ -6,7 +6,7 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";

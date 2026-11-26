@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryFeasibleModel,
   IAutoMovieRecoveryFeasibleSqpStepMixingOperation,
@@ -167,7 +167,7 @@ export function createRecoveryFeasibleSqpArc(
   )
     return fail("auxiliary-capacity-unavailable");
   if (!spend(reserve)) return fail("auxiliary-work-unavailable");
-  let factor: ReturnType<typeof decomposeAutoMovieSingularMatrix> | null = null;
+  let factor: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> | null = null;
   const z: number[] = c.map((value: number): number => -value);
   const lambda: number[] = new Array<number>(H).fill(0);
   if (H > 0) {
@@ -187,7 +187,7 @@ export function createRecoveryFeasibleSqpArc(
       right.push(value);
     }
     try {
-      factor = decomposeAutoMovieSingularMatrix(transpose, {
+      factor = AutoMovieEngineMath.decomposeSingularMatrix(transpose, {
         maxEntries: options.maxEntries,
         maxSweeps: options.maxSweeps,
         orthogonalityTolerance: 1e-12,

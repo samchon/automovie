@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  bracketedBisection,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieMutualGoal, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieVector3,
@@ -172,7 +168,7 @@ export function handshakeOfferAttempt(
       elbow(b, -1, degrees),
     ];
     if (apart(raised(90)) > forearms) return missed(far(raised(90)));
-    const high: number = bracketedBisection(
+    const high: number = AutoMovieEngineMath.bracketedBisection(
       (degrees: number): boolean => apart(raised(degrees)) > forearms,
       handshakeOffer.SHOULDER,
       90,
@@ -206,7 +202,7 @@ export function handshakeOfferAttempt(
       // and the near rule below brings both arms back together.
       const high: number = short(handshakeOffer.SHOULDER)
         ? handshakeOffer.SHOULDER
-        : bracketedBisection(
+        : AutoMovieEngineMath.bracketedBisection(
             short,
             0,
             handshakeOffer.SHOULDER,
@@ -239,7 +235,7 @@ export function handshakeOfferAttempt(
     if (!holds(handshakeOffer.RETRACT))
       return missed(deep(back(handshakeOffer.RETRACT)));
     const step: number = handshakeOffer.RETRACT / 2 ** 40;
-    const high: number = bracketedBisection(
+    const high: number = AutoMovieEngineMath.bracketedBisection(
       (degrees: number): boolean => !holds(degrees),
       0,
       handshakeOffer.RETRACT,

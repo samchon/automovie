@@ -1,4 +1,4 @@
-import { cubicBezierEasing, ease } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -22,11 +22,11 @@ const INVERSION: number = 1e-6;
  */
 export function test_engine_motion_cubic_bezier_easing(): void {
   // 1. Complementary controls.
-  const forward = (t: number): number => cubicBezierEasing([0, 0, 1, 0], t);
+  const forward = (t: number): number => AutoMovieEngineMotionSampling.cubicBezierEasing([0, 0, 1, 0], t);
   TestValidator.predicate(
     "the half-parameter ordinate and its complement",
     nclose(forward(0.5), 0.125, INVERSION) &&
-      nclose(cubicBezierEasing([0, 1, 1, 1], 0.5), 0.875, INVERSION) &&
+      nclose(AutoMovieEngineMotionSampling.cubicBezierEasing([0, 1, 1, 1], 0.5), 0.875, INVERSION) &&
       forward(0) === 0 &&
       forward(1) === 1,
   );
@@ -34,14 +34,14 @@ export function test_engine_motion_cubic_bezier_easing(): void {
   // 2. A stationary abscissa.
   TestValidator.predicate(
     "the inversion through a stationary abscissa",
-    nclose(cubicBezierEasing([1, 0, 0, 1], 9 / 16), 27 / 32, 1e-3),
+    nclose(AutoMovieEngineMotionSampling.cubicBezierEasing([1, 0, 0, 1], 9 / 16), 27 / 32, 1e-3),
   );
 
   // 3. Linear and clamped.
   TestValidator.predicate(
     "linear without controls, clamped outside",
-    ease("cubicBezier", 0.25) === 0.25 &&
-      ease("linear", -1) === 0 &&
-      cubicBezierEasing([0, 0, 1, 1], 2) === 1,
+    AutoMovieEngineMotionSampling.ease("cubicBezier", 0.25) === 0.25 &&
+      AutoMovieEngineMotionSampling.ease("linear", -1) === 0 &&
+      AutoMovieEngineMotionSampling.cubicBezierEasing([0, 0, 1, 1], 2) === 1,
   );
 }

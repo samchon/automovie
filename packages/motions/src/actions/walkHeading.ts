@@ -1,4 +1,4 @@
-import { wrapDegrees } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieVector3,
@@ -125,8 +125,8 @@ export namespace walkHeading {
   ): number {
     const limit: number = step(heading - yaw);
     const last: Record<AutoMovieHumanSide, number> = {
-      left: yaw + wrapDegrees(start.left - yaw),
-      right: yaw + wrapDegrees(start.right - yaw),
+      left: yaw + AutoMovieEngineMath.wrapDegrees(start.left - yaw),
+      right: yaw + AutoMovieEngineMath.wrapDegrees(start.right - yaw),
     };
     // A foot already within the twist of the way turns no more in place.
     const far: (s: AutoMovieHumanSide) => boolean = (
@@ -175,8 +175,8 @@ export namespace walkHeading {
     );
     const limit: number = step(amplitude);
     const last: Record<AutoMovieHumanSide, number> = {
-      left: yaw + wrapDegrees(start.left - yaw),
-      right: yaw + wrapDegrees(start.right - yaw),
+      left: yaw + AutoMovieEngineMath.wrapDegrees(start.left - yaw),
+      right: yaw + AutoMovieEngineMath.wrapDegrees(start.right - yaw),
     };
     return towards.map((toward: number, j: number): number => {
       const side: AutoMovieHumanSide =
@@ -354,11 +354,11 @@ export namespace walkHeading {
     const reach: number = Math.hypot(hip.x - point.x, hip.z - point.z);
     if (reach <= leeway) return heading;
     const band: number = (Math.asin(leeway / reach) * 180) / Math.PI;
-    const line: number = wrapDegrees(
+    const line: number = AutoMovieEngineMath.wrapDegrees(
       heading - (Math.atan2(hip.x - point.x, hip.z - point.z) * 180) / Math.PI,
     );
     const off: number =
-      behind && Math.abs(line) > 90 ? wrapDegrees(line - 180) : line;
+      behind && Math.abs(line) > 90 ? AutoMovieEngineMath.wrapDegrees(line - 180) : line;
     return heading + Math.max(-band, Math.min(band, off)) - off;
   }
 }

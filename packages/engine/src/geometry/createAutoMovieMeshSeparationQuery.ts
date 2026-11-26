@@ -11,8 +11,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieTrianglePoint";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { interpolateAutoMovieTrianglePoint } from "../math/internal/interpolateAutoMovieTrianglePoint";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";

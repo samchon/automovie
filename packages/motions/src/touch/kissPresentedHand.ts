@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  convexHull2D,
-  getConstraint,
-  pointInHull,
-} from "@automovie/engine";
+import { Vector3, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanBody,
@@ -75,7 +70,7 @@ export function kissPresentedHand(
         };
       }),
   );
-  const support: IAutoMovieVector3[] = convexHull2D(corners);
+  const support: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(corners);
   const phases: Set<number> = new Set([1]);
   const clock: IAutoMovieMotionClock = heldHand.clock;
   // Include all contact-entry and release instants of the original film grid.
@@ -128,7 +123,7 @@ export function kissPresentedHand(
     return { point: mouth(posture, resolution), depths };
   };
   const supported = (x: number, z: number): boolean =>
-    pointInHull({ x, y: 0, z }, support);
+    AutoMovieEngineMath.pointInHull({ x, y: 0, z }, support);
   // Cervical and pelvic turns share the heading of the actual presented
   // surface. The lip offset determines the remaining translation over the feet.
   const desired: IAutoMovieVector3 = Vector3.scale(heldHand.normal, -1);

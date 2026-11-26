@@ -1,4 +1,4 @@
-import { AutoMovieStationHermite, wrapDegrees } from "@automovie/engine";
+import { AutoMovieStationHermite, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieStationHermite,
   IAutoMovieVector3,
@@ -88,6 +88,6 @@ export namespace jumpPath {
    * @returns The equivalent of `angle` within half a turn of `near`.
    */
   export function unwrap(angle: number, near: number): number {
-    return near + wrapDegrees(angle - near);
+    return near + AutoMovieEngineMath.wrapDegrees(angle - near);
   }
 }

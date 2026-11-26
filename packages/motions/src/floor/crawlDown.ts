@@ -1,4 +1,4 @@
-import { Vector3, bracketedRoot, minimumJerk } from "@automovie/engine";
+import { Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -219,7 +219,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
         ) - reach;
       if (short(crawlFrame.PITCH) > 0) return crawlFrame.PITCH / props.pitch;
       return (
-        bracketedRoot(
+        AutoMovieEngineMath.bracketedRoot(
           short,
           0,
           crawlFrame.PITCH,
@@ -300,7 +300,7 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
               ? 0
               : error(leantBack) > 0
                 ? leantBack
-                : bracketedRoot(error, 0, leantBack, HumanBalance.TOLERANCE);
+                : AutoMovieEngineMath.bracketedRoot(error, 0, leantBack, HumanBalance.TOLERANCE);
           return { back, lean: leanAt(back) };
         })()
       : undefined;

@@ -3,7 +3,7 @@ import {
   IAutoMovieOpeningProfile,
 } from "@automovie/interface";
 
-import { polygonDoubleArea } from "../../architecture/polygonDoubleArea";
+import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea";
 import { autoMovieOpeningArc } from "./autoMovieOpeningArc";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 

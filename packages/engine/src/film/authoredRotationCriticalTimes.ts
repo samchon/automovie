@@ -4,8 +4,8 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 } from "../math/adjacentAutoMovieFloat64";
-import { quaternionInterpolationCriticalRatios } from "../math/quaternionInterpolationCriticalRatios";
+import { adjacentAutoMovieFloat64 } from "../math/internal/adjacentAutoMovieFloat64";
+import { quaternionInterpolationCriticalRatios } from "../math/internal/quaternionInterpolationCriticalRatios";
 
 /**
  * Add analytical rotation extrema and one-sided key samples to shot admission.

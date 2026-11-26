@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanRefusal,
@@ -124,7 +124,7 @@ export namespace handshakeReach {
     const last: number | undefined = nearest?.[1];
     // Each end of the run, bisected over its centimetre to 2^-20 of it.
     const edge = (inside: number, outside: number): number =>
-      bracketedBisection(
+      AutoMovieEngineMath.bracketedBisection(
         (gap: number): boolean => !meets(gap),
         outside,
         inside,

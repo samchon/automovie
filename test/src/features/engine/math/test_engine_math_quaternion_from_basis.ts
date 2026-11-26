@@ -1,7 +1,4 @@
-import {
-  AutoMovieSweepRotation,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { AutoMovieSweepRotation, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +27,7 @@ export function test_engine_math_quaternion_from_basis(): void {
   TestValidator.predicate(
     "identity",
     close(
-      quaternionFromAutoMovieBasis(
+      AutoMovieEngineMath.quaternionFromBasis(
         { x: 1, y: 0, z: 0 },
         { x: 0, y: 1, z: 0 },
         { x: 0, y: 0, z: 1 },
@@ -41,7 +38,7 @@ export function test_engine_math_quaternion_from_basis(): void {
   TestValidator.predicate(
     "quarter turn",
     close(
-      quaternionFromAutoMovieBasis(
+      AutoMovieEngineMath.quaternionFromBasis(
         { x: 0, y: 1, z: 0 },
         { x: -1, y: 0, z: 0 },
         { x: 0, y: 0, z: 1 },
@@ -52,7 +49,7 @@ export function test_engine_math_quaternion_from_basis(): void {
   TestValidator.predicate(
     "half turn",
     close(
-      quaternionFromAutoMovieBasis(
+      AutoMovieEngineMath.quaternionFromBasis(
         { x: 1, y: 0, z: 0 },
         { x: 0, y: -1, z: 0 },
         { x: 0, y: 0, z: -1 },

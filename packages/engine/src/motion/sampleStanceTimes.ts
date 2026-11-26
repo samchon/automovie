@@ -1,4 +1,4 @@
-import { sampleTimes } from "./sampleTimes";
+import { sampleTimes } from "./internal/sampleTimes";
 
 /** Sample a stance or its root path on the same endpoint-inclusive clock. */
 export function sampleStanceTimes(

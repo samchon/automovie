@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { pointInPolygon } from "../../architecture/pointInPolygon";
-import { closestPointOnSegmentXZ } from "../../math/closestPointOnSegmentXZ";
+import { pointInPolygon } from "../../architecture/internal/pointInPolygon";
+import { closestPointOnSegmentXZ } from "../../math/internal/closestPointOnSegmentXZ";
 import { FOOTPRINT_EPSILON } from "../constants/FOOTPRINT_EPSILON";
 
 /** Classify an XZ query against an authored ring with an explicit rim result. */

@@ -1,13 +1,4 @@
-import {
-  builtEnvironmentSpaceFidelity,
-  AutoMovieEngineSpace,
-  propSupportFace,
-  propSupportGap,
-  surfaceHeightAt,
-  tessellateSurface,
-  validateSpace,
-  AutoMovieEngineDrawing,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, propSupportFace, propSupportGap, surfaceHeightAt, tessellateSurface, validateSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
@@ -320,7 +311,7 @@ export const assertFootprintVoidGeometry: (
       [
         "aPatchIsNotAVolume",
         (): boolean =>
-          builtEnvironmentSpaceFidelity(environment, "hall") === "unstated",
+          AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(environment, "hall") === "unstated",
       ],
     ]),
     {

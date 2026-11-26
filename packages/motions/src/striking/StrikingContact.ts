@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  bracketedBisection,
-  physicalShapeNearest,
-} from "@automovie/engine";
+import { Vector3, physicalShapeNearest, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingContact,
   IAutoMovieVector3,
@@ -116,7 +112,7 @@ export namespace StrikingContact {
     for (let k: number = 1; ; k++) {
       const t: number = Math.min(to, from + k * step);
       if (gap(t) <= 0)
-        return bracketedBisection(
+        return AutoMovieEngineMath.bracketedBisection(
           (seconds: number): boolean => gap(seconds) > 0,
           previous,
           t,

@@ -1,8 +1,4 @@
-import {
-  autoMovieAnalysisRunDigest,
-  sealAutoMovieAnalysisRun,
-  validateAutoMovieAnalysisRun,
-} from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
@@ -92,7 +88,7 @@ export function assertAnalysisRunContractPart1(): {
   ) => IAutoMovieValidation = (
     overrides: Partial<Omit<IAutoMovieAnalysisRun, "digest">> = {},
   ): IAutoMovieValidation =>
-    validateAutoMovieAnalysisRun({ run: sealedAnalysisRun(draft(overrides)) });
+    AutoMovieEngineAnalysis.validateAnalysisRun({ run: sealedAnalysisRun(draft(overrides)) });
   const solved: (
     metrics: IAutoMovieAnalysisMetric[],
     samples?: IAutoMovieAnalysisSample[],
@@ -104,7 +100,7 @@ export function assertAnalysisRunContractPart1(): {
   ): IAutoMovieValidation =>
     check({ outcome: { status: "solved", metrics, samples, warnings } });
 
-  const sealed: IAutoMovieAnalysisRun = sealAutoMovieAnalysisRun({
+  const sealed: IAutoMovieAnalysisRun = AutoMovieEngineAnalysis.sealAnalysisRun({
     id: "hall-acoustics",
     domain: "acoustic",
     subject: "space:hall",
@@ -118,7 +114,7 @@ export function assertAnalysisRunContractPart1(): {
       warnings: [],
     },
   });
-  const resealed: IAutoMovieAnalysisRun = sealAutoMovieAnalysisRun({
+  const resealed: IAutoMovieAnalysisRun = AutoMovieEngineAnalysis.sealAnalysisRun({
     id: "hall-acoustics",
     domain: "acoustic",
     subject: "space:hall",
@@ -135,17 +131,17 @@ export function assertAnalysisRunContractPart1(): {
   TestValidator.equals(
     "a sealed run validates, re-seals identically, and refuses every edit",
     {
-      clean: validateAutoMovieAnalysisRun({ run: sealed }),
+      clean: AutoMovieEngineAnalysis.validateAnalysisRun({ run: sealed }),
       stable: sealed.digest === resealed.digest,
       forgedSeal: hasViolation(
-        validateAutoMovieAnalysisRun({
+        AutoMovieEngineAnalysis.validateAnalysisRun({
           run: { ...sealed, digest: digest("a") },
         }),
         "type",
         "$input.digest",
       ),
       forgedContents: hasViolation(
-        validateAutoMovieAnalysisRun({
+        AutoMovieEngineAnalysis.validateAnalysisRun({
           run: {
             ...sealed,
             outcome: {
@@ -159,16 +155,16 @@ export function assertAnalysisRunContractPart1(): {
         "type",
         "$input.digest",
       ),
-      current: validateAutoMovieAnalysisRun({ run: sealed, revision: "r7" })
+      current: AutoMovieEngineAnalysis.validateAnalysisRun({ run: sealed, revision: "r7" })
         .success,
       stale: hasViolation(
-        validateAutoMovieAnalysisRun({ run: sealed, revision: "r8" }),
+        AutoMovieEngineAnalysis.validateAnalysisRun({ run: sealed, revision: "r8" }),
         "type",
         "$input.inputRevision",
       ),
       refusesInvalid: throwsError(
         (): IAutoMovieAnalysisRun =>
-          sealAutoMovieAnalysisRun({
+          AutoMovieEngineAnalysis.sealAnalysisRun({
             id: "empty",
             domain: "acoustic",
             subject: "space:hall",
@@ -203,17 +199,17 @@ export function assertAnalysisRunContractPart1(): {
     "moving a separator across a field boundary changes the run digest",
     {
       solver:
-        autoMovieAnalysisRunDigest(
+        AutoMovieEngineAnalysis.analysisRunDigest(
           draft({ solver: { id: "a|b", version: "1", model: "m" } }),
         ) !==
-        autoMovieAnalysisRunDigest(
+        AutoMovieEngineAnalysis.analysisRunDigest(
           draft({ solver: { id: "a", version: "b|1", model: "m" } }),
         ),
       header:
-        autoMovieAnalysisRunDigest(
+        AutoMovieEngineAnalysis.analysisRunDigest(
           draft({ subject: "space:hall\nr7", inputRevision: "r8" }),
         ) !==
-        autoMovieAnalysisRunDigest(
+        AutoMovieEngineAnalysis.analysisRunDigest(
           draft({ subject: "space:hall", inputRevision: "r7\nr8" }),
         ),
     },

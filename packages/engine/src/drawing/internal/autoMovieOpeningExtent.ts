@@ -4,8 +4,8 @@ import {
   IAutoMoviePlanarPoint,
 } from "@automovie/interface";
 
-import { outlineHull } from "../../architecture/outlineHull";
-import { polygonBounds } from "../../architecture/polygonBounds";
+import { outlineHull } from "../../architecture/internal/outlineHull";
+import { polygonBounds } from "../../architecture/internal/polygonBounds";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 
 /**

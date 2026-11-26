@@ -11,9 +11,9 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { convexHull2D } from "../math/convexHull2D";
-import { nearestHullEdge } from "../math/nearestHullEdge";
-import { pointInHull } from "../math/pointInHull";
+import { convexHull2D } from "../math/internal/convexHull2D";
+import { nearestHullEdge } from "../math/internal/nearestHullEdge";
+import { pointInHull } from "../math/internal/pointInHull";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { prepareSkeletonPoseResolution } from "./prepareSkeletonPoseResolution";
 import { resolvePose } from "./resolvePose";

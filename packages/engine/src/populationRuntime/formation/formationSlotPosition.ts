@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { lerp } from "../../math/internal/lerp";
-import { seededValue } from "../../math/seededValue";
+import { seededValue } from "../../math/internal/seededValue";
 import { formationGroundRelief } from "./formationGroundRelief";
 
 /**

@@ -1,4 +1,4 @@
-import { srgbHexToLinearColor } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 import {
   AutoMovieArchetype,
@@ -74,7 +74,7 @@ export function createPoolWater(
       {
         id: "water",
         name: "Pool water",
-        baseColor: srgbHexToLinearColor("#439dc6"),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor("#439dc6"),
         metallic: 0,
         roughness: 0.42,
         emissive: null,

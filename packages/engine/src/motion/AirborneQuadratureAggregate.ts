@@ -1,4 +1,4 @@
-import { adjacentAutoMovieFloat64 } from "../math/adjacentAutoMovieFloat64";
+import { adjacentAutoMovieFloat64 } from "../math/internal/adjacentAutoMovieFloat64";
 
 /**
  * Maintain adaptive quadrature sums and a changing nonnegative error measure.

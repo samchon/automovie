@@ -1,9 +1,4 @@
-import {
-  ROM_TOLERANCE,
-  clampJointToSkeleton,
-  getConstraint,
-  nearestAngleAlias,
-} from "@automovie/engine";
+import { ROM_TOLERANCE, clampJointToSkeleton, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -107,7 +102,7 @@ export namespace AutoMovieMotionHumanArmReachJoints {
     ranges: IAxisRanges | null,
   ): IAutoMovieJointPose {
     function near(value: Angle, range: Range): number {
-      return nearestAngleAlias(value ?? 0, range ?? null);
+      return AutoMovieEngineMath.nearestAngleAlias(value ?? 0, range ?? null);
     }
     return {
       ...joint,

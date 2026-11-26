@@ -1,10 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -226,10 +220,10 @@ export namespace fieldThrow {
     // they stand.
     const facing: number = yaw - spec.turn;
     const out: Record<AutoMovieHumanSide, number> = {
-      left: wrapDegrees(
+      left: AutoMovieEngineMath.wrapDegrees(
         HumanFoot.heading(context.entry.feet.left.rotation) - facing,
       ),
-      right: wrapDegrees(
+      right: AutoMovieEngineMath.wrapDegrees(
         HumanFoot.heading(context.entry.feet.right.rotation) - facing,
       ),
     };

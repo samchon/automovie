@@ -1,4 +1,4 @@
-import { builtEnvironmentElementPartBounds } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieModel,
@@ -27,7 +27,7 @@ import { namedFacts, vclose } from "../internal/predicates";
 export function test_architecture_element_part_bounds_refusals(): void {
   const record: IAutoMovieBuiltEnvironment = pair();
   const drawn: IAutoMovieSubjectBox[] | null =
-    builtEnvironmentElementPartBounds(record, "crate");
+    AutoMovieEngineBuiltEnvironment.environmentElementPartBounds(record, "crate");
 
   TestValidator.equals(
     "a placed unit box reports the one box its own part fills",
@@ -53,8 +53,8 @@ export function test_architecture_element_part_bounds_refusals(): void {
   TestValidator.equals(
     "an undeclared element and a group that draws nothing both answer null",
     {
-      undeclared: builtEnvironmentElementPartBounds(record, "nowhere"),
-      group: builtEnvironmentElementPartBounds(record, "yard-root"),
+      undeclared: AutoMovieEngineBuiltEnvironment.environmentElementPartBounds(record, "nowhere"),
+      group: AutoMovieEngineBuiltEnvironment.environmentElementPartBounds(record, "yard-root"),
     },
     { undeclared: null, group: null },
   );

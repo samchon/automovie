@@ -1,4 +1,4 @@
-import { Vector3, pointInHull } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
@@ -73,7 +73,7 @@ function project(
   point: IAutoMovieVector3,
   edges?: readonly IEdge[],
 ): IAutoMovieVector3 {
-  if (outline.length >= 3 && pointInHull(point, outline)) return point;
+  if (outline.length >= 3 && AutoMovieEngineMath.pointInHull(point, outline)) return point;
   let best: IAutoMovieVector3 = outline[0]!;
   let gap: number = Infinity;
   for (let i: number = 0; i < outline.length; i++) {

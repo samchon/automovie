@@ -1,14 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  midpoint,
-  physicalPlanarPolygon,
-  physicalShapeBounds,
-  physicalShapeContactManifold,
-  physicalShapeGjk,
-  physicalShapePairDistance,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalPlanarPolygon, physicalShapeBounds, physicalShapeContactManifold, physicalShapeGjk, physicalShapePairDistance, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -233,7 +223,7 @@ export function prepareMountTread(
   }
 
   return open.flatMap((range: Span): prepareMountTread.ICandidate[] => {
-    const x: number = midpoint(range[0], range[1]);
+    const x: number = AutoMovieEngineMath.midpoint(range[0], range[1]);
     return range[0] < x && x < range[1]
       ? placement({ x, y: 0, z: depth }, range, x)
       : [];

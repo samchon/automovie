@@ -1,4 +1,4 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -107,7 +107,7 @@ export function stepOverSwing(
       // the planted foot's toe-out with zero angular rate at each contact.
       const turn: number = Math.sin((Math.PI * (t - from)) / (to - from)) ** 2;
       rotation = HumanFoot.rotation(
-        direction.heading + wrapDegrees(yaw - direction.heading) * turn,
+        direction.heading + AutoMovieEngineMath.wrapDegrees(yaw - direction.heading) * turn,
         direction.pitch,
       );
     }

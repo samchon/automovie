@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  boundAutoMovieProjectionSeparation,
-  bracketedBisection,
-  physicalShapeGjk,
-} from "@automovie/engine";
+import { Vector3, boundAutoMovieProjectionSeparation, physicalShapeGjk, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /** An interval of material-axis translation, metres. */
@@ -83,7 +78,7 @@ export function mountCastObstruction(
   ): number => {
     if (!clears(end)) return from;
     let certified: number = from;
-    bracketedBisection(
+    AutoMovieEngineMath.bracketedBisection(
       (at: number): boolean => {
         if (!sweep(end, placed(at))) return false;
         certified = at;

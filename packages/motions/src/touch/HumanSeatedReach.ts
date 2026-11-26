@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  bracketedBisection,
-  getConstraint,
-} from "@automovie/engine";
+import { Quaternion, Vector3, getConstraint, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -320,7 +315,7 @@ export namespace HumanSeatedReach {
     // throws the resolution's own error from the full lean.
     if (meets(0)) return at(0);
     if (!meets(1)) return at(1);
-    const share: number = bracketedBisection(
+    const share: number = AutoMovieEngineMath.bracketedBisection(
       (s: number): boolean => !meets(s),
       0,
       1,
@@ -372,7 +367,7 @@ export namespace HumanSeatedReach {
       if (distance(high) > limit) return { share: high, joints };
     }
     return {
-      share: bracketedBisection(
+      share: AutoMovieEngineMath.bracketedBisection(
         (share: number): boolean => distance(share) > limit,
         0,
         high,

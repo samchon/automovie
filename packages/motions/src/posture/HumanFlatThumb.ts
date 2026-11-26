@@ -1,10 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Vector3,
-  decomposeJointRotation,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, decomposeJointRotation, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -135,7 +129,7 @@ export namespace HumanFlatThumb {
 
     // The rotation carrying the rest frame onto the measured one: target
     // times the rest's transpose, both orthonormal and of one handedness.
-    const turn: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
+    const turn: IAutoMovieQuaternion = AutoMovieEngineMath.quaternionFromBasis(
       carry(rest, target, { x: 1, y: 0, z: 0 }),
       carry(rest, target, { x: 0, y: 1, z: 0 }),
       carry(rest, target, { x: 0, y: 0, z: 1 }),

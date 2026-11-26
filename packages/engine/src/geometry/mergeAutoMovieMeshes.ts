@@ -4,7 +4,7 @@ import {
   IAutoMovieMeshPhysicalVertices,
 } from "@automovie/interface";
 
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**

@@ -1,9 +1,4 @@
-import {
-  AutoMovieEnginePlanarRegion,
-  Quaternion,
-  pointInPolygon,
-  polygonsOverlap,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, Quaternion, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentModule,
   IAutoMoviePlanarPoint,
@@ -124,7 +119,7 @@ export function prepareTerrainGrades(
     for (let second: number = first + 1; second < grades.length; second += 1) {
       const a: IPad = grades[first]!;
       const b: IPad = grades[second]!;
-      if (a.height !== b.height && polygonsOverlap(a.outline, b.outline))
+      if (a.height !== b.height && AutoMovieEnginePlanarGeometry.polygonsOverlap(a.outline, b.outline))
         throw new Error(
           `Terrain grades "${a.id}" and "${b.id}" overlap at different heights.`,
         );
@@ -373,7 +368,7 @@ function ringDistance(
   point: IAutoMoviePlanarPoint,
   outline: readonly IAutoMoviePlanarPoint[],
 ): number {
-  if (pointInPolygon(point, outline)) return 0;
+  if (AutoMovieEnginePlanarGeometry.pointInPolygon(point, outline)) return 0;
   let distance: number = Infinity;
   for (let edge: number = 0; edge < outline.length; edge += 1) {
     const a: IAutoMoviePlanarPoint = outline[edge]!;

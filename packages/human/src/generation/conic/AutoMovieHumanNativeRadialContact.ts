@@ -1,4 +1,4 @@
-import { bracketedRoot } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 /**
  * Where a cutter's seed line enters a host whose sections are star-shaped about a straight course: the point seed of a diff join, derived
@@ -90,7 +90,7 @@ export namespace AutoMovieHumanNativeRadialContact {
       const s: number = from + ((to - from) * k) / samples;
       const now: number = inside(s);
       if (Number.isFinite(before) && Number.isFinite(now) && before * now <= 0)
-        at = before === 0 ? previous : now === 0 ? s : bracketedRoot(inside, previous, s, 1e-9 * Math.max(1, Math.abs(s)), 64);
+        at = before === 0 ? previous : now === 0 ? s : AutoMovieEngineMath.bracketedRoot(inside, previous, s, 1e-9 * Math.max(1, Math.abs(s)), 64);
       previous = s;
       before = now;
     }

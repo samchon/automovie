@@ -1,4 +1,4 @@
-import { convexHull2D, minimumJerk } from "@automovie/engine";
+import { minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieMotionHumanScheduledInstant,
   IAutoMovieMotionClock,
@@ -186,7 +186,7 @@ export namespace HumanPhysics {
     support: IAutoMovieMotionHumanBalance.ISupport,
     direction: IAutoMovieVector3,
   ): SupportOffset {
-    const hull: IAutoMovieVector3[] = convexHull2D(support.points);
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(support.points);
     if (hull.length < 3) return null;
     let from: number = -Infinity;
     let to: number = Infinity;

@@ -1,7 +1,4 @@
-import {
-  autoMoviePatternTextureTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMoviePatternPlacement,
   IAutoMoviePatternPoint,
@@ -106,7 +103,7 @@ export function test_architecture_surface_pattern_texture(): void {
     { pattern: pattern() },
   );
   const perModule: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: field,
       tile: { u: 0.5, v: 0.5 },
       sheet: { kind: "module" },
@@ -143,7 +140,7 @@ export function test_architecture_surface_pattern_texture(): void {
     { count: true, sheared: true, ids: true, identity: true },
   );
 
-  const perFace: IAutoMoviePatternTexturing = autoMoviePatternTextureTransforms(
+  const perFace: IAutoMoviePatternTexturing = AutoMovieEngineArchitecture.patternTextureTransforms(
     {
       result: field,
       tile: { u: 2, v: 1 },
@@ -221,7 +218,7 @@ export function test_architecture_surface_pattern_texture(): void {
   );
 
   const acrossSheet: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "across-grain",
@@ -271,7 +268,7 @@ export function test_architecture_surface_pattern_texture(): void {
   );
 
   const flippedField: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "flipped-field",
@@ -345,7 +342,7 @@ export function test_architecture_surface_pattern_texture(): void {
   );
 
   const narrowed: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "narrow",
@@ -373,7 +370,7 @@ export function test_architecture_surface_pattern_texture(): void {
   assertPatternTextureBookMatch(sample);
 
   const diagonal: IAutoMoviePatternTexturing =
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "diagonal-grain",
@@ -461,7 +458,7 @@ export function test_architecture_surface_pattern_texture(): void {
     u: number;
     v: number;
   }): IAutoMoviePatternTexturing =>
-    autoMoviePatternTextureTransforms({
+    AutoMovieEngineArchitecture.patternTextureTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "skewed",
@@ -542,7 +539,7 @@ export function test_architecture_surface_pattern_texture(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternTexturing =>
-              autoMoviePatternTextureTransforms({
+              AutoMovieEngineArchitecture.patternTextureTransforms({
                 result: field,
                 tile: { u: 0, v: 0.5 },
                 sheet: { kind: "module" },
@@ -557,7 +554,7 @@ export function test_architecture_surface_pattern_texture(): void {
   TestValidator.predicate(
     "the same run transformed twice preserves structure and numeric components",
     test12ValuesClose(
-      autoMoviePatternTextureTransforms({
+      AutoMovieEngineArchitecture.patternTextureTransforms({
         result: field,
         tile: { u: 2, v: 1 },
         sheet: { kind: "face", origin: { u: 0, v: 0 } },

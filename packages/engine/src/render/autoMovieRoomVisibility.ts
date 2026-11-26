@@ -8,8 +8,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
-import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
+import { builtSpaceContainsPoint } from "../architecture/internal/builtSpaceContainsPoint";
+import { builtSpaceStatesVolume } from "../architecture/internal/builtSpaceStatesVolume";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 
 /** The exterior, as a node of the portal graph rather than the absence of one. */

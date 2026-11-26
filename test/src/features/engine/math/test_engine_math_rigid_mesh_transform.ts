@@ -1,4 +1,4 @@
-import { Quaternion, fitRigidMeshTransform } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -32,8 +32,8 @@ export function test_engine_math_rigid_mesh_transform(): void {
     reference: number[],
     target: number[],
   ): number[] => {
-    const result: ReturnType<typeof fitRigidMeshTransform> =
-      fitRigidMeshTransform({
+    const result: ReturnType<typeof AutoMovieEngineMath.fitRigidMeshTransform> =
+      AutoMovieEngineMath.fitRigidMeshTransform({
         reference,
         target,
         vertices: reference
@@ -43,7 +43,7 @@ export function test_engine_math_rigid_mesh_transform(): void {
     const {
       referenceCenter: a,
       targetCenter: b,
-    }: ReturnType<typeof fitRigidMeshTransform> = result;
+    }: ReturnType<typeof AutoMovieEngineMath.fitRigidMeshTransform> = result;
     return reference.flatMap((_: number, i: number): number[] => {
       if (i % 3 !== 0) return [];
       const p: IAutoMovieVector3 = Quaternion.rotateVector(result.rotation, {
@@ -162,7 +162,7 @@ export function test_engine_math_rigid_mesh_transform(): void {
   TestValidator.predicate(
     "centering suppresses translation before covariance products",
     qclose(
-      fitRigidMeshTransform({
+      AutoMovieEngineMath.fitRigidMeshTransform({
         reference: source,
         target: far,
         vertices: [0, 1, 2, 3],

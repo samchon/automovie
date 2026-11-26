@@ -1,4 +1,4 @@
-import { validateServiceNetwork } from "@automovie/engine";
+import { AutoMovieEngineService } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -25,7 +25,7 @@ import {
 const environment: IAutoMovieBuiltEnvironment = serviceEnvironment();
 const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
   network: IAutoMovieServiceNetwork = serviceNetwork(),
-): IAutoMovieValidation => validateServiceNetwork({ network, environment });
+): IAutoMovieValidation => AutoMovieEngineService.validateServiceNetwork({ network, environment });
 
 /**
  * What a run is allowed to be: two real ports on its own system, joined the way

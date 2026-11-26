@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternFinding,
@@ -364,7 +360,7 @@ export function test_architecture_surface_pattern_coffers(): void {
     ["sliver:border-east/trim", "sliver:border-west/trim"],
   );
 
-  const hung: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
+  const hung: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms({
     result: laid,
     frame: CEILING,
     thickness: 0.08,

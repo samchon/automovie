@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { lerp } from "../../math/internal/lerp";
-import { ease } from "../../motion/ease";
+import { ease } from "../../motion/internal/ease";
 
 /**
  * Sample one formation's authored cue sequence at finite absolute seconds.

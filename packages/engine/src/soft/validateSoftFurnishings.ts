@@ -9,8 +9,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
-import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
+import { builtEnvironmentContainsPoint } from "../architecture/internal/builtEnvironmentContainsPoint";
+import { builtSpaceStatesVolume } from "../architecture/internal/builtSpaceStatesVolume";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";

@@ -8,7 +8,7 @@ import {
 
 import { AutoMovieEngineKeyframeSearch } from "../math/AutoMovieEngineKeyframeSearch";
 import { Quaternion } from "../math/Quaternion";
-import { cubicHermiteValue } from "../math/cubicHermiteValue";
+import { cubicHermiteValue } from "../math/internal/cubicHermiteValue";
 import { normalizeClipTime } from "../math/internal/normalizeClipTime";
 import { clipDurationFault } from "../validation/clipDurationFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";

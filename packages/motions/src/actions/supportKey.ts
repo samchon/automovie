@@ -1,4 +1,4 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -380,7 +380,7 @@ export namespace supportKey {
     );
     const blend: ReturnType<typeof blendHumanJoint.prepare> =
       blendHumanJoint.prepare(body, fallback);
-    const yaw: number = wrapDegrees(b.yaw - a.yaw);
+    const yaw: number = AutoMovieEngineMath.wrapDegrees(b.yaw - a.yaw);
     const pitch: number = b.pitch - a.pitch;
     const roll: number = b.roll - a.roll;
     return (w: number): IAutoMovieMotionHumanPosture => {

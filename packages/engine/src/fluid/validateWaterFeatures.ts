@@ -10,9 +10,9 @@ import {
   IAutoMovieWaterFeature,
 } from "@automovie/interface";
 
-import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
-import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
-import { builtSpaceSubtree } from "../architecture/builtSpaceSubtree";
+import { builtSpaceContainsPoint } from "../architecture/internal/builtSpaceContainsPoint";
+import { builtSpaceStatesVolume } from "../architecture/internal/builtSpaceStatesVolume";
+import { builtSpaceSubtree } from "../architecture/internal/builtSpaceSubtree";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateFluidDomain } from "./validateFluidDomain";
 

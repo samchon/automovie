@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -352,7 +347,7 @@ export function HumanMountOnPlan(
       const frame: Frame = {
         ...nominal,
         root: Vector3.lerp(captured.root, nominal.root, share),
-        yaw: captured.yaw + wrapDegrees(nominal.yaw - captured.yaw) * share,
+        yaw: captured.yaw + AutoMovieEngineMath.wrapDegrees(nominal.yaw - captured.yaw) * share,
         pitch: captured.pitch + (nominal.pitch - captured.pitch) * share,
         roll: captured.roll + (nominal.roll - captured.roll) * share,
       };
@@ -582,7 +577,7 @@ export function HumanMountOnPlan(
                 body,
                 hip,
                 goal,
-                ends[0] + wrapDegrees(ends[1] - ends[0]) * eased,
+                ends[0] + AutoMovieEngineMath.wrapDegrees(ends[1] - ends[0]) * eased,
               )
             : goal,
         ),

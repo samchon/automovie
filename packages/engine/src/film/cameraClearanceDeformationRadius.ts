@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * A pose-independent radius about a model's origin that contains its supplied

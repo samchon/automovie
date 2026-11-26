@@ -1,8 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  inertializeOffset,
-} from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanPosture,
@@ -150,7 +146,7 @@ export function test_motions_actions_jump_flight(): void {
   );
   const at = (t: number): IAutoMovieMotionHumanPosture =>
     backward.landed(STILL, t);
-  const decayed: number = inertializeOffset(60, 0, 0.4, 0.2).value;
+  const decayed: number = AutoMovieEngineMotionSampling.inertializeOffset(60, 0, 0.4, 0.2).value;
   const mid: IAutoMovieMotionHumanPosture = at(1.4);
   TestValidator.predicate(
     "the touchdown turn read once and carried away",

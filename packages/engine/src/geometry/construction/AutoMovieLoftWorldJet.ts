@@ -4,7 +4,7 @@ import type {
   IAutoMovieLoftWorldJetWorld,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Apply the existing frame product rule to a complete local total2.

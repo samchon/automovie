@@ -1,8 +1,4 @@
-import {
-  AutoMovieMatrix3,
-  Vector3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieMatrix3, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryEpipolarMatrixCalibrateOperation,
   IAutoMovieVector3,
@@ -26,8 +22,8 @@ export function calibrateRecoveryEpipolarMatrix(
     AutoMovieMatrix3.transpose(second.matrix),
     AutoMovieMatrix3.multiply(fundamental, first.matrix),
   );
-  const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(
+  const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [raw.slice(0, 3), raw.slice(3, 6), raw.slice(6, 9)],
       { maxEntries: 9, maxSweeps, orthogonalityTolerance: 1e-12 },
     );

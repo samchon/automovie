@@ -5,7 +5,7 @@ import type {
   IAutoMovieViewSectionField,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
 /** Actual or explicitly generated scalar value/physical-station derivatives. */

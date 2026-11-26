@@ -2,7 +2,7 @@ import type {
   IAutoMovieSampleParameterSweep,
   IAutoMovieSweepSurface,
 } from "@automovie/interface";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Register a fixed-cell Cartesian section average for parameter correspondence.

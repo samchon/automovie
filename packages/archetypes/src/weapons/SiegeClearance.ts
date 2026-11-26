@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  adjacentAutoMovieFloat64,
-  rotationBetween,
-} from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
@@ -196,7 +191,7 @@ export namespace SiegeClearance {
 
 /** Move arithmetic toward the lower representable bound, preserving exact zeros. */
 function down(value: number): number {
-  return value === 0 ? 0 : adjacentAutoMovieFloat64(value, false);
+  return value === 0 ? 0 : AutoMovieEngineMath.adjacentFloat64(value, false);
 }
 
 /**
@@ -204,7 +199,7 @@ function down(value: number): number {
  * zero.
  */
 function up(value: number): number {
-  return value === 0 ? 0 : adjacentAutoMovieFloat64(value, true);
+  return value === 0 ? 0 : AutoMovieEngineMath.adjacentFloat64(value, true);
 }
 
 /** Include the exact periodic stationary angle without enumerating whole turns. */
@@ -232,7 +227,7 @@ function neighbours(
   const result: Set<number> = new Set(angles);
   for (const angle of angles)
     for (const upper of [false, true]) {
-      const neighbour: number = adjacentAutoMovieFloat64(angle, upper);
+      const neighbour: number = AutoMovieEngineMath.adjacentFloat64(angle, upper);
       if (neighbour >= first && neighbour <= last) result.add(neighbour);
     }
   return [...result];

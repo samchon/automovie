@@ -1,5 +1,5 @@
 import type { IAutoMovieIntegrateRadialField } from "@automovie/interface";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Integrate a strongest-site equal-radius compact radial field over a convex

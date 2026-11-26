@@ -17,8 +17,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
 import { normalizeClipTime } from "../math/internal/normalizeClipTime";
-import { cubicBezierEasing } from "./cubicBezierEasing";
-import { ease } from "./ease";
+import { cubicBezierEasing } from "./internal/cubicBezierEasing";
+import { ease } from "./internal/ease";
 
 const IDENTITY_TRANSFORM: IAutoMovieTransform = Transform.identity();
 

@@ -1,15 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  bracketedCrossing,
-  convexHull2D,
-  physicalShapeFaceContact,
-  physicalShapeGjk,
-  physicalShapeNearest,
-  physicalShapePairDistance,
-  physicalShapeSupport,
-  physicalShapeSurfaceAnchor,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeFaceContact, physicalShapeGjk, physicalShapeNearest, physicalShapePairDistance, physicalShapeSupport, physicalShapeSurfaceAnchor, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -102,7 +91,7 @@ export namespace HumanMaterialContact {
   ): readonly IAutoMovieVector3[] | undefined {
     const points: readonly IAutoMovieVector3[] | null | undefined =
       named.outline ??
-      (named.extent === null ? null : convexHull2D(named.extent));
+      (named.extent === null ? null : AutoMovieEngineMath.convexHull2D(named.extent));
     const scale: IAutoMovieVector3 = named.frame.scale;
     if (points !== null && points !== undefined && points.length >= 3)
       return points.map(
@@ -308,7 +297,7 @@ export namespace HumanMaterialContact {
       const high: number = duration * (i / count);
       const after: number = sample(high);
       if (before > 0 && after <= 0) {
-        const seconds: number = bracketedCrossing({
+        const seconds: number = AutoMovieEngineMath.bracketedCrossing({
           f: sample,
           low,
           high,
@@ -364,7 +353,7 @@ export namespace HumanMaterialContact {
       const after: number = gap(high);
       const entering: boolean = after <= 0;
       if (before <= 0 !== entering) {
-        const at: ReturnType<typeof bracketedCrossing> = bracketedCrossing({
+        const at: ReturnType<typeof AutoMovieEngineMath.bracketedCrossing> = AutoMovieEngineMath.bracketedCrossing({
           f: gap,
           low,
           high,

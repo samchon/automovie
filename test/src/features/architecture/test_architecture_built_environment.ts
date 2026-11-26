@@ -1,14 +1,4 @@
-import {
-  builtEnvironmentAdjacentSpaces,
-  builtEnvironmentBuildingOfSpace,
-  builtEnvironmentContainsPoint,
-  builtEnvironmentSpaceConnectors,
-  builtEnvironmentSpaceNodes,
-  builtEnvironmentSpaceSurfaces,
-  lowerBuiltEnvironment,
-  mergeAutoMovieSpaces,
-  validateBuiltEnvironment,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -59,11 +49,11 @@ export function test_architecture_built_environment(): void {
   const source: IAutoMovieBuiltEnvironment = building();
   TestValidator.equals(
     "a multi-level connected building validates",
-    validateBuiltEnvironment({ environment: source }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: source }).success,
     true,
   );
   const contribution: IAutoMovieSubjectContribution =
-    lowerBuiltEnvironment(source);
+    AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(source);
   TestValidator.equals(
     "lowering preserves owned models and the structured building",
     {
@@ -187,7 +177,7 @@ export function test_architecture_built_environment(): void {
   TestValidator.predicate(
     "logical support spaces merge without restating surfaces",
     sameProductData(
-      mergeAutoMovieSpaces("tower-stage", contribution.spaces ?? []),
+      AutoMovieEngineBuiltEnvironmentWorkflow.mergeAutoMovieSpaces("tower-stage", contribution.spaces ?? []),
       {
         id: "tower-stage",
         surfaces: source.surfaces.map(
@@ -203,7 +193,7 @@ export function test_architecture_built_environment(): void {
       [
         "ground",
         (): boolean =>
-          builtEnvironmentContainsPoint(source, "ground", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(source, "ground", {
             x: 10,
             y: 2,
             z: 0,
@@ -212,7 +202,7 @@ export function test_architecture_built_environment(): void {
       [
         "whole",
         (): boolean =>
-          builtEnvironmentContainsPoint(source, "whole", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(source, "whole", {
             x: 10,
             y: 5,
             z: 0,
@@ -221,7 +211,7 @@ export function test_architecture_built_environment(): void {
       [
         "outside",
         (): boolean =>
-          !builtEnvironmentContainsPoint(source, "whole", {
+          !AutoMovieEngineBuiltEnvironment.environmentContainsPoint(source, "whole", {
             x: 100,
             y: 0,
             z: 0,
@@ -233,9 +223,9 @@ export function test_architecture_built_environment(): void {
   TestValidator.equals(
     "boundaries and directional connectors answer adjacency",
     {
-      ground: builtEnvironmentAdjacentSpaces(source, "ground"),
-      roof: builtEnvironmentAdjacentSpaces(source, "roof"),
-      upper: builtEnvironmentAdjacentSpaces(source, "upper"),
+      ground: AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(source, "ground"),
+      roof: AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(source, "roof"),
+      upper: AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(source, "upper"),
     },
     {
       ground: ["upper", "roof"],
@@ -251,7 +241,7 @@ export function test_architecture_built_environment(): void {
         from: string;
         to: string;
         route: IAutoMovieVector3[];
-      }[] = builtEnvironmentSpaceConnectors(source, "upper").map(
+      }[] = AutoMovieEngineBuiltEnvironment.environmentSpaceConnectors(source, "upper").map(
         (
           connector: IAutoMovieBuiltConnector,
         ): {
@@ -358,14 +348,14 @@ export function test_architecture_built_environment(): void {
   );
   TestValidator.equals(
     "a space with no connector at all answers with an empty list",
-    builtEnvironmentSpaceConnectors(source, "whole"),
+    AutoMovieEngineBuiltEnvironment.environmentSpaceConnectors(source, "whole"),
     [],
   );
   TestValidator.equals(
     "support and walkability are answered separately by stable surface id",
     {
-      whole: builtEnvironmentSpaceSurfaces(source, "whole"),
-      roof: builtEnvironmentSpaceSurfaces(source, "roof"),
+      whole: AutoMovieEngineBuiltEnvironment.environmentSpaceSurfaces(source, "whole"),
+      roof: AutoMovieEngineBuiltEnvironment.environmentSpaceSurfaces(source, "roof"),
     },
     {
       whole: [
@@ -379,13 +369,13 @@ export function test_architecture_built_environment(): void {
   TestValidator.equals(
     "staged nodes and logical spaces answer over the same stable ids",
     {
-      whole: builtEnvironmentSpaceNodes(source, "whole"),
-      ground: builtEnvironmentSpaceNodes(source, "ground"),
+      whole: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(source, "whole"),
+      ground: AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(source, "ground"),
       unplaced: pieces
         .map((piece: IAutoMovieStageSetPiece): string => piece.node)
         .filter(
           (node: string): boolean =>
-            !builtEnvironmentSpaceNodes(source, "whole").includes(node),
+            !AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(source, "whole").includes(node),
         ),
     },
     {
@@ -398,44 +388,44 @@ export function test_architecture_built_environment(): void {
   TestValidator.equals(
     "each logical space names the building unit that owns it",
     {
-      room: builtEnvironmentBuildingOfSpace(twoUnits, "ground"),
-      root: builtEnvironmentBuildingOfSpace(twoUnits, "whole"),
-      annex: builtEnvironmentBuildingOfSpace(twoUnits, "annex-space"),
+      room: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(twoUnits, "ground"),
+      root: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(twoUnits, "whole"),
+      annex: AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(twoUnits, "annex-space"),
     },
     { room: "tower-a", root: "tower-a", annex: "annex" },
   );
   TestValidator.predicate(
     "unknown containment space throws",
     throwsError((): boolean =>
-      builtEnvironmentContainsPoint(source, "missing", { x: 0, y: 0, z: 0 }),
+      AutoMovieEngineBuiltEnvironment.environmentContainsPoint(source, "missing", { x: 0, y: 0, z: 0 }),
     ),
   );
   TestValidator.predicate(
     "unknown adjacency space throws",
     throwsError((): string[] =>
-      builtEnvironmentAdjacentSpaces(source, "missing"),
+      AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(source, "missing"),
     ),
   );
   TestValidator.predicate(
     "unknown connector space throws",
     throwsError((): IAutoMovieBuiltConnector[] =>
-      builtEnvironmentSpaceConnectors(source, "missing"),
+      AutoMovieEngineBuiltEnvironment.environmentSpaceConnectors(source, "missing"),
     ),
   );
   TestValidator.predicate(
     "unknown surface space throws",
     throwsError((): { space: string; surface: string; walkable: boolean }[] =>
-      builtEnvironmentSpaceSurfaces(source, "missing"),
+      AutoMovieEngineBuiltEnvironment.environmentSpaceSurfaces(source, "missing"),
     ),
   );
   TestValidator.predicate(
     "unknown staged-node space throws",
-    throwsError((): string[] => builtEnvironmentSpaceNodes(source, "missing")),
+    throwsError((): string[] => AutoMovieEngineBuiltEnvironment.environmentSpaceNodes(source, "missing")),
   );
   TestValidator.predicate(
     "unknown owner space throws",
     throwsError((): string =>
-      builtEnvironmentBuildingOfSpace(source, "missing"),
+      AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(source, "missing"),
     ),
   );
   TestValidator.predicate(
@@ -448,7 +438,7 @@ export function test_architecture_built_environment(): void {
         parent: null,
         cells: [],
       });
-      builtEnvironmentBuildingOfSpace(orphan, "detached");
+      AutoMovieEngineBuiltEnvironment.environmentBuildingOfSpace(orphan, "detached");
     }),
   );
 
@@ -458,14 +448,14 @@ export function test_architecture_built_environment(): void {
     "lowering composes parents independently of declaration order",
     ((): boolean => {
       const observed: number | undefined =
-        lowerBuiltEnvironment(reversed).set?.length;
+        AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(reversed).set?.length;
       return typeof observed === "number" && nclose(observed, 4);
     })(),
   );
 
   TestValidator.equals(
     "one work may own independently placed building units",
-    validateBuiltEnvironment({ environment: twoUnits }).success,
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: twoUnits }).success,
     true,
   );
   assertBuiltEnvironmentTestRefusals();
@@ -479,7 +469,7 @@ export function test_architecture_built_environment(): void {
     throwsError((): void => {
       const value: IAutoMovieBuiltEnvironment = building();
       value.elements[0]!.parent = "missing";
-      lowerBuiltEnvironment(value);
+      AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(value);
     }),
   );
 }

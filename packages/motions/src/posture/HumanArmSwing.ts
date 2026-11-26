@@ -1,4 +1,4 @@
-import { bracketedBisection } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -191,7 +191,7 @@ function hintedAngle(
     );
     if (!short(high) && short(high - unit)) return high;
   }
-  return bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
+  return AutoMovieEngineMath.bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
 }
 
 /**
@@ -205,7 +205,7 @@ function winningAngle(
   precision: number,
 ): number {
   if (!(precision > 0))
-    return bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
+    return AutoMovieEngineMath.bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
   let lo: number = 0;
   let hi: number = HumanArmSwing.SPAN;
   while (hi - lo > precision && wins(hi)) {

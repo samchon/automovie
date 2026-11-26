@@ -1,4 +1,4 @@
-import { bracketedCrossing } from "../math/bracketedCrossing";
+import { bracketedCrossing } from "../math/internal/bracketedCrossing";
 import { swingConeAngle } from "./swingConeAngle";
 
 /**

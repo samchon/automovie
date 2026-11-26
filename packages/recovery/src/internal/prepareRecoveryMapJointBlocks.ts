@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraMapBudget,
   IAutoMovieRecoveryMapElimination,
@@ -75,8 +75,8 @@ export function prepareRecoveryMapJointBlocks(
       (row: number[]): number[] =>
         row.map((value: number, at: number): number => value / scales[at]!),
     );
-    const factors: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-      decomposeAutoMovieSingularMatrix(pointRows, {
+    const factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+      AutoMovieEngineMath.decomposeSingularMatrix(pointRows, {
         maxEntries: budget.maxLinearEntries,
         maxSweeps: budget.maxSingularSweeps,
         orthogonalityTolerance: 1e-12,

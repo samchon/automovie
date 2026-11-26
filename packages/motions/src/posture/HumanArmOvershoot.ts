@@ -1,7 +1,4 @@
-import {
-  closestPointsBetweenSegments,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { physicalShapeSegmentDistance, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -170,7 +167,7 @@ function evaluate(
       if (gap > MARGIN) continue;
       if (
         !(gap < -MARGIN) &&
-        closestPointsBetweenSegments(elbow, wrist, bound.centre, bound.centre)
+        AutoMovieEngineMath.closestPointsBetweenSegments(elbow, wrist, bound.centre, bound.centre)
           .distance -
           bound.radius >=
           radius

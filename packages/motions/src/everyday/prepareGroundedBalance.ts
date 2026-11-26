@@ -1,10 +1,4 @@
-import {
-  Vector3,
-  closestPointOnSegmentXZ,
-  convexHull2D,
-  nearestHullEdge,
-  pointInHull,
-} from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBalance,
@@ -51,13 +45,13 @@ export function prepareGroundedBalance(
       sides,
     );
     if (sides !== undefined) {
-      const hull: IAutoMovieVector3[] = convexHull2D(support.points);
-      if (hull.length < 3 || pointInHull(support.centre, hull)) return posture;
-      const edge: ReturnType<typeof nearestHullEdge> = nearestHullEdge(
+      const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(support.points);
+      if (hull.length < 3 || AutoMovieEngineMath.pointInHull(support.centre, hull)) return posture;
+      const edge: ReturnType<typeof AutoMovieEngineMath.nearestHullEdge> = AutoMovieEngineMath.nearestHullEdge(
         support.centre,
         hull,
       );
-      const nearest: IAutoMovieVector3 = closestPointOnSegmentXZ(
+      const nearest: IAutoMovieVector3 = AutoMovieEngineMath.closestPointOnSegmentXZ(
         support.centre,
         edge.start,
         edge.end,

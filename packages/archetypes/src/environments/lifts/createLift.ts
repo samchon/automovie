@@ -1,4 +1,4 @@
-import { lowerBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -54,7 +54,7 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
       landingDepth: props.landingDepth,
       first: props.schedule[0]!,
     });
-    const lowered: IAutoMovieSubjectContribution = lowerBuiltEnvironment(
+    const lowered: IAutoMovieSubjectContribution = AutoMovieEngineBuiltEnvironmentWorkflow.lowerBuiltEnvironment(
       built.environment,
     );
     return {

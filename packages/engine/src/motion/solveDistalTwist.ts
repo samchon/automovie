@@ -11,7 +11,7 @@ import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotat
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { bracketedCrossing } from "../math/bracketedCrossing";
+import { bracketedCrossing } from "../math/internal/bracketedCrossing";
 import { swingTwist } from "../math/swingTwist";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";
 import { getConstraint } from "../rom/getConstraint";

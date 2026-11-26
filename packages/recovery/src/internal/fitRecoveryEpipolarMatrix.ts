@@ -1,7 +1,4 @@
-import {
-  AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryEpipolarMatrixFittingOperation,
   IAutoMovieRecoveryImagePointsNormalizationOperation,
@@ -43,20 +40,20 @@ export function fitRecoveryEpipolarMatrix(
       ];
     },
   );
-  const options: Parameters<typeof decomposeAutoMovieSingularMatrix>[1] = {
+  const options: Parameters<typeof AutoMovieEngineMath.decomposeSingularMatrix>[1] = {
     maxEntries: Math.max(81, 9 * rows.length),
     maxSweeps,
     orthogonalityTolerance: 1e-12,
   };
-  const decomposition: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(rows, options);
+  const decomposition: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(rows, options);
   const ratio: number =
     decomposition.singularValues[7]! / decomposition.singularValues[0]!;
   if (decomposition.singularValues[0] === 0 || ratio < minimumRatio)
     throw new Error("camera-design: rank-degenerate eight-point design");
   const homogeneous: number[] = decomposition.rightColumns[8]!;
-  const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
-    decomposeAutoMovieSingularMatrix(
+  const rank: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix> =
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [
         homogeneous.slice(0, 3),
         homogeneous.slice(3, 6),

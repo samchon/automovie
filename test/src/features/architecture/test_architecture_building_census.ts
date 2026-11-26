@@ -1,4 +1,4 @@
-import { builtEnvironmentBuildingCensus } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuildingObservationCensus,
   IAutoMovieBuiltEnvelopeCorner,
@@ -31,7 +31,7 @@ import {
  */
 export function test_architecture_building_census(): void {
   const census: IAutoMovieBuildingObservationCensus[] =
-    builtEnvironmentBuildingCensus(furnished());
+    AutoMovieEngineBuiltEnvironment.environmentBuildingCensus(furnished());
 
   TestValidator.equals(
     "one unit answers for its own envelope, corners, entrances and rooms",
@@ -87,7 +87,7 @@ export function test_architecture_building_census(): void {
 
   TestValidator.equals(
     "two units answer separately, in building-id order",
-    builtEnvironmentBuildingCensus(twoUnits()).map(
+    AutoMovieEngineBuiltEnvironment.environmentBuildingCensus(twoUnits()).map(
       (unit: IAutoMovieBuildingObservationCensus): (string | string[])[] => [
         unit.building,
         unit.facades.map(

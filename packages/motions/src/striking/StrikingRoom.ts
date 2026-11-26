@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -153,7 +153,7 @@ export namespace StrikingRoom {
     for (const { point, radius } of samples) {
       if (gap(point, radius, room) > 0) continue;
       if (gap(point, radius, 0) <= 0) return 0;
-      room = bracketedBisection(
+      room = AutoMovieEngineMath.bracketedBisection(
         (distance: number): boolean => gap(point, radius, distance) <= 0,
         room,
         0,

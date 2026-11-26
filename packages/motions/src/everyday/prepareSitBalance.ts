@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  bracketedRoot,
-  minimumJerk,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3, minimumJerk, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
@@ -156,7 +151,7 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
       if (far >= 0) return free;
       const near: number = behind(0);
       if (near <= 0 || way <= 0) return 0;
-      return bracketedRoot(
+      return AutoMovieEngineMath.bracketedRoot(
         (trial: number): number =>
           trial === 0 ? near : trial === free ? far : behind(trial),
         0,

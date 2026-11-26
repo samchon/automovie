@@ -4,8 +4,8 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { convexHull2D } from "../math/convexHull2D";
-import { pointInHull } from "../math/pointInHull";
+import { convexHull2D } from "../math/internal/convexHull2D";
+import { pointInHull } from "../math/internal/pointInHull";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 

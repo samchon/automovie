@@ -1,119 +1,131 @@
-export * from "./appendBuiltRegionDefects";
-export * from "./autoMovieAssemblyOpeningReveal";
-export * from "./autoMoviePatternFindings";
-export * from "./autoMoviePatternInstanceTransforms";
-export * from "./autoMoviePatternPolygonArea";
-export * from "./autoMoviePatternTextureTransforms";
-export * from "./builtBoundaryWallCut";
-export * from "./builtConnectorCarriagePlacements";
-export * from "./builtConnectorGeometry";
-export * from "./builtConnectorSection";
-export * from "./builtConnectorSectionAt";
-export * from "./builtConnectorStops";
-export * from "./builtConvexCellVertices";
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./builtElementRestMatrices";
-export * from "./builtElementSubtree";
-export * from "./builtEnvelopeFaceCorners";
-export * from "./builtEnvironmentAdjacentSpaces";
-export * from "./builtEnvironmentBuildingCensus";
-export * from "./builtEnvironmentBuildingOfSpace";
-export * from "./builtEnvironmentContainsPoint";
-export * from "./builtEnvironmentDescendantSpaces";
-export * from "./builtEnvironmentElementBounds";
-export * from "./builtEnvironmentElementPartBounds";
-export * from "./builtEnvironmentEnvelopeCorners";
-export * from "./builtEnvironmentEnvelopeFaces";
-export * from "./builtEnvironmentPartBoxes";
-export * from "./builtEnvironmentPlacementBounds";
-export * from "./builtEnvironmentPlacementOverlap";
-export * from "./builtEnvironmentPlacementOverlapSweep";
-export * from "./builtEnvironmentSpaceBoundaries";
-export * from "./builtEnvironmentSpaceConnectors";
-export * from "./builtEnvironmentSpaceContentBounds";
-export * from "./builtEnvironmentSpaceFidelity";
-export * from "./builtEnvironmentSpaceNodes";
-export * from "./builtEnvironmentSpacePopulations";
-export * from "./builtEnvironmentSpaceSurfaces";
-export * from "./builtEnvironmentSupportStatus";
-export * from "./builtEnvironmentSupportSweep";
-export * from "./builtEnvironmentUnclaimedElements";
-export * from "./builtEnvironmentWorldMatrices";
-export * from "./builtFootprintsOverlap";
-export * from "./builtInstanceSetPlacementBounds";
-export * from "./builtOpeningPanelPlacements";
-export * from "./builtOpeningSweepEnvelope";
-export * from "./builtOutlineIsClosed";
-export * from "./builtPlacedPartBoxes";
-export * from "./builtPointBounds";
-export * from "./builtSpaceContainsPoint";
-export * from "./builtSpaceIsConvex";
-export * from "./builtSpaceObservationStations";
-export * from "./builtSpaceShellVolume";
-export * from "./builtSpaceStatesVolume";
-export * from "./builtSpaceSubtree";
-export * from "./builtSpaceVolumeBounds";
-export * from "./canonicalAutoMoviePatternPolygon";
-export * from "./clipAutoMoviePatternPolygon";
-export * from "./compareDesignVariants";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./constants";
-export * from "./designFrameScale";
-export * from "./designLineageCompare";
-export * from "./designLineageDecisionComparisons";
-export * from "./designLineageDigest";
-export * from "./designLineageImpact";
-export * from "./designLineagePhaseOrder";
-export * from "./designLineagePhaseSnapshot";
-export * from "./designLineageProject";
-export * from "./designLineageRecord";
-export * from "./designLineageViewDigest";
-export * from "./designReferenceWorldPoint";
-export * from "./environmentSupportReport";
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./generateAutoMovieSurfacePattern";
-export * from "./lowerBuiltEnvironment";
-export * from "./matchAutoMovieAssemblyJunction";
-export * from "./mergeAutoMovieSpaces";
-export * from "./outlineCentroid";
-export * from "./outlineHull";
-export * from "./planarSide";
-export * from "./pointInPolygon";
-export * from "./pointOnSegment";
-export * from "./polygonBounds";
-export * from "./polygonDoubleArea";
-export * from "./polygonInside";
-export * from "./polygonIsSimple";
-export * from "./polygonShortestEdge";
-export * from "./polygonsOverlap";
-export * from "./promoteDesignObservations";
-export * from "./requireBuiltConnector";
-export * from "./requireBuiltOpening";
-export * from "./requireBuiltSpace";
-export * from "./requireDesignVariant";
-export * from "./requireValidDesignLineage";
-export * from "./resolveAutoMovieMaterialAssembly";
-export * from "./resolveBuiltPlacementBody";
-export * from "./segmentsCross";
-export * from "./segmentsTouch";
-export * from "./validateAutoMovieMaterialAssembly";
-export * from "./validateAutoMovieMaterialSubstance";
-export * from "./validateBuiltBoundaries";
-export * from "./validateBuiltBuildings";
-export * from "./validateBuiltCarriageService";
-export * from "./validateBuiltConnectorLandings";
-export * from "./validateBuiltConnectorOperation";
-export * from "./validateBuiltConnectorShape";
-export * from "./validateBuiltEnvironment";
-export * from "./validateBuiltOpeningOperation";
-export * from "./validateBuiltOpenings";
-export * from "./validateBuiltPanelFit";
-export * from "./validateBuiltPopulation";
-export * from "./validateBuiltSpaceShell";
-export * from "./validateBuiltSpaces";
-export * from "./validateBuiltStagedConfigurations";
-export * from "./validateBuiltTravelMotion";
-export * from "./validateDesignEvidence";
-export * from "./validateDesignLineage";
-export * from "./validateDesignLineageBinding";
-export * from "./validateDesignLineageDerived";
-export * from "./validateDesignReference";
-export * from "./validateDesignSourceFrame";
-export * from "./validateGeneratedAcquisition";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export { AutoMovieEngineArchitecture } from "./AutoMovieEngineArchitecture";
+
+export { AutoMovieEngineArchitectureAssembly } from "./AutoMovieEngineArchitectureAssembly";
+
+export { AutoMovieEngineBuiltEnvironment } from "./AutoMovieEngineBuiltEnvironment";
+
+export { AutoMovieEngineBuiltEnvironmentWorkflow } from "./AutoMovieEngineBuiltEnvironmentWorkflow";
+
+export { AutoMovieEngineDesignLineage } from "./AutoMovieEngineDesignLineage";
+
+export { AutoMovieEnginePlanarGeometry } from "./AutoMovieEnginePlanarGeometry";

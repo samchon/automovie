@@ -1,4 +1,4 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -106,7 +106,7 @@ export function KickLaunch(
   // The round kick's pelvis turns until the target lies the band's azimuth
   // to the kicking side of its forward; the push kick tips back instead.
   const turn: number = round
-    ? wrapDegrees(
+    ? AutoMovieEngineMath.wrapDegrees(
         StrikingTarget.heading(line) +
           (side === "right" ? 1 : -1) * KickForm.AZIMUTH[level] -
           entry.yaw,

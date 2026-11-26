@@ -15,7 +15,7 @@ import { AutoMovieBicubicAtlasVertex64 } from "./AutoMovieBicubicAtlasVertex64";
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 type Patch = IAutoMovieBicubicAtlas64.Patch;
 

@@ -1,8 +1,4 @@
-import {
-  assertAutoMovieAnalysisSolids,
-  autoMovieSolidBlocks,
-  validateAutoMovieEnvironmentContext,
-} from "@automovie/engine";
+import { validateAutoMovieEnvironmentContext, AutoMovieEngineAnalysis, AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieEnvironmentContext,
   IAutoMovieHalfSpacePlane,
@@ -169,7 +165,7 @@ export function assertAnalysisEnvironmentContextPart2(
       [
         "assertion accepts the declared mass",
         (): true => {
-          assertAutoMovieAnalysisSolids([neighbour], "shading solid");
+          AutoMovieEngineAnalysis.assertAnalysisSolids([neighbour], "shading solid");
           return true;
         },
       ],
@@ -178,7 +174,7 @@ export function assertAnalysisEnvironmentContextPart2(
         (): boolean =>
           throwsError(
             (): void =>
-              assertAutoMovieAnalysisSolids(
+              AutoMovieEngineAnalysis.assertAnalysisSolids(
                 [neighbour, neighbour],
                 "shading solid",
               ),
@@ -190,7 +186,7 @@ export function assertAnalysisEnvironmentContextPart2(
         (): boolean =>
           throwsError(
             (): void =>
-              assertAutoMovieAnalysisSolids(
+              AutoMovieEngineAnalysis.assertAnalysisSolids(
                 [
                   {
                     id: "flat",
@@ -230,7 +226,7 @@ export function assertAnalysisEnvironmentContextPart2(
     direction: IAutoMovieVector3,
     maxDistance: number = Infinity,
   ): boolean =>
-    autoMovieSolidBlocks({
+    AutoMovieEngineEnvironment.solidBlocks({
       origin,
       direction,
       planes: cube.planes,

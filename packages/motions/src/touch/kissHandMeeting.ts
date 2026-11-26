@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  bracketedBisection,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionClock,
@@ -262,7 +258,7 @@ export namespace kissHandMeeting {
         fix: "place the participants within one another's reach",
       });
     const precision: number = (Math.sqrt(Number.EPSILON) * 180) / Math.PI;
-    const pitch: number = bracketedBisection(
+    const pitch: number = AutoMovieEngineMath.bracketedBisection(
       (angle: number): boolean =>
         Vector3.distance(shoulder, wrist(placed(angle))) > arm,
       0,

@@ -4,10 +4,10 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtSpaceContainsPoint } from "../architecture/builtSpaceContainsPoint";
-import { builtSpaceStatesVolume } from "../architecture/builtSpaceStatesVolume";
-import { builtSpaceSubtree } from "../architecture/builtSpaceSubtree";
-import { requireBuiltSpace } from "../architecture/requireBuiltSpace";
+import { builtSpaceContainsPoint } from "../architecture/internal/builtSpaceContainsPoint";
+import { builtSpaceStatesVolume } from "../architecture/internal/builtSpaceStatesVolume";
+import { builtSpaceSubtree } from "../architecture/internal/builtSpaceSubtree";
+import { requireBuiltSpace } from "../architecture/internal/requireBuiltSpace";
 
 /**
  * Whether a world volume lies inside a logical space or the spaces below it.

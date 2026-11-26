@@ -1,4 +1,4 @@
-import { validateDesignReference } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieDesignEvidence,
@@ -277,7 +277,7 @@ const refusalPaths: (
 ): string[] => {
   const value: IAutoMovieDesignReference = observation();
   mutate(value);
-  const validation: IAutoMovieValidation = validateDesignReference({
+  const validation: IAutoMovieValidation = AutoMovieEngineArchitecture.validateDesignReference({
     reference: value,
   });
   return validation.success === true

@@ -1,4 +1,4 @@
-import { srgbHexToLinearColor } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieGeometry, IAutoMovieModel } from "@automovie/interface";
 
 /**
@@ -38,7 +38,7 @@ export function buildingModel(
       {
         id: "finish",
         name: null,
-        baseColor: srgbHexToLinearColor(color),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor(color),
         metallic: 0,
         roughness: 1,
         emissive: null,

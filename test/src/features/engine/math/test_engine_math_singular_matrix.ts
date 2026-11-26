@@ -1,4 +1,4 @@
-import { decomposeAutoMovieSingularMatrix } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieSingularDecomposition,
   IAutoMovieSingularMatrixBudget,
@@ -44,7 +44,7 @@ export function test_engine_math_singular_matrix(): void {
     );
 
   const diagonal: IAutoMovieSingularDecomposition =
-    decomposeAutoMovieSingularMatrix(
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [
         [3, 0],
         [0, 4],
@@ -68,7 +68,7 @@ export function test_engine_math_singular_matrix(): void {
     [1, 1],
   ];
   const tall: IAutoMovieSingularDecomposition =
-    decomposeAutoMovieSingularMatrix(rows, budget);
+    AutoMovieEngineMath.decomposeSingularMatrix(rows, budget);
   const reconstructs: boolean = rows.every(
     (row: number[], i: number): boolean =>
       row.every((value: number, j: number): boolean =>
@@ -94,7 +94,7 @@ export function test_engine_math_singular_matrix(): void {
   );
 
   const ones: IAutoMovieSingularDecomposition =
-    decomposeAutoMovieSingularMatrix(
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [
         [1, 1],
         [1, 1],
@@ -102,7 +102,7 @@ export function test_engine_math_singular_matrix(): void {
       budget,
     );
   const zero: IAutoMovieSingularDecomposition =
-    decomposeAutoMovieSingularMatrix(
+    AutoMovieEngineMath.decomposeSingularMatrix(
       [
         [0, 0],
         [0, 0],
@@ -125,22 +125,22 @@ export function test_engine_math_singular_matrix(): void {
   TestValidator.predicate(
     "malformed input and an exhausted budget are refused",
     throwsError(
-      (): unknown => decomposeAutoMovieSingularMatrix([[1, 2], [3]], budget),
+      (): unknown => AutoMovieEngineMath.decomposeSingularMatrix([[1, 2], [3]], budget),
       "rectangular rows required",
     ) &&
       throwsError(
         (): unknown =>
-          decomposeAutoMovieSingularMatrix(skew, { ...budget, maxSweeps: 0 }),
+          AutoMovieEngineMath.decomposeSingularMatrix(skew, { ...budget, maxSweeps: 0 }),
         "finite work budgets required",
       ) &&
       throwsError(
         (): unknown =>
-          decomposeAutoMovieSingularMatrix(rows, { ...budget, maxEntries: 5 }),
+          AutoMovieEngineMath.decomposeSingularMatrix(rows, { ...budget, maxEntries: 5 }),
         "finite work budgets required",
       ) &&
       throwsError(
         (): unknown =>
-          decomposeAutoMovieSingularMatrix(skew, { ...budget, maxSweeps: 1 }),
+          AutoMovieEngineMath.decomposeSingularMatrix(skew, { ...budget, maxSweeps: 1 }),
         "sweep budget exhausted",
       ),
   );

@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieVector3,
@@ -42,7 +38,7 @@ export function EquineHeadClearance(
     for (const limb of ["leftFore", "rightFore"] as const)
       for (const bone of AutoMovieArchetypeQuadrupedBody.BONES[limb]) {
         const other: ISegment = bars.get(bone)!;
-        const bearing: number = closestPointsBetweenSegments(
+        const bearing: number = AutoMovieEngineMath.closestPointsBetweenSegments(
           point,
           point,
           other.from,
@@ -50,7 +46,7 @@ export function EquineHeadClearance(
         ).distance;
         if (bearing <= other.radius + 1e-9) continue;
         const gap: number =
-          closestPointsBetweenSegments(
+          AutoMovieEngineMath.closestPointsBetweenSegments(
             moving.from,
             moving.to,
             other.from,

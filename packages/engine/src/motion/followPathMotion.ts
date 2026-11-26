@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { segmentIndex } from "../math/segmentIndex";
+import { segmentIndex } from "../math/internal/segmentIndex";
 
 const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 

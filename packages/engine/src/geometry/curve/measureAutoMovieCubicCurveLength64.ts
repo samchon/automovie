@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
 import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Integrate a cubic curve's physical speed with composite eight-point

@@ -3,7 +3,7 @@ import type {
   IAutoMovieViolationAppendRangeItemsSink,
 } from "@automovie/interface";
 
-import { linearColorToSrgbHex } from "../math/linearColorToSrgbHex";
+import { linearColorToSrgbHex } from "../math/internal/linearColorToSrgbHex";
 
 /** The optional display label uses exactly three eight-bit sRGB channels. */
 const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;

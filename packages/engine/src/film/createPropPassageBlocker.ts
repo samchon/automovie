@@ -10,9 +10,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { builtConnectorSection } from "../architecture/builtConnectorSection";
+import { builtConnectorSection } from "../architecture/internal/builtConnectorSection";
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
-import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
+import { builtPlacedPartBoxes } from "../architecture/internal/builtPlacedPartBoxes";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { unionSubjectBoxes } from "./unionSubjectBoxes";
 

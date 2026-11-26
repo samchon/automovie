@@ -5,7 +5,7 @@ import type {
   IAutoMovieSupportSectionVertex,
 } from "@automovie/interface";
 
-import { determinantAutoMovieMatrix3 } from "../../../math/determinantAutoMovieMatrix3";
+import { determinantAutoMovieMatrix3 } from "../../../math/internal/determinantAutoMovieMatrix3";
 import { createAutoMovieSupportSectionQuery } from "../../createAutoMovieSupportSectionQuery";
 import { AutoMovieBernsteinAlgebra64 as B } from "../../curve/AutoMovieBernsteinAlgebra64";
 import { rootsAutoMovieCubicBernstein64 } from "../../curve/rootsAutoMovieCubicBernstein64";

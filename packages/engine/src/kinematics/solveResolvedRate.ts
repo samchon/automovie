@@ -1,4 +1,4 @@
-import { addAutoMovieQuadraticProduct } from "../math/addAutoMovieQuadraticProduct";
+import { addAutoMovieQuadraticProduct } from "../math/internal/addAutoMovieQuadraticProduct";
 import { prepareLinearSystem } from "../math/prepareLinearSystem";
 
 /**

@@ -1,6 +1,6 @@
 import type { IAutoMovieViewHermite } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 as adjacent } from "../../math/adjacentAutoMovieFloat64";
+import { adjacentAutoMovieFloat64 as adjacent } from "../../math/internal/adjacentAutoMovieFloat64";
 
 /** A closed outward binary64 enclosure; every endpoint must remain finite. */
 type Interval = readonly [number, number];

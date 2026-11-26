@@ -1,6 +1,6 @@
 import type { IAutoMoviePeriodicCubic } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 as adjacent } from "../../math/adjacentAutoMovieFloat64";
+import { adjacentAutoMovieFloat64 as adjacent } from "../../math/internal/adjacentAutoMovieFloat64";
 
 /** One finite closed enclosure in the scalar source's units. */
 type Interval = readonly [number, number];

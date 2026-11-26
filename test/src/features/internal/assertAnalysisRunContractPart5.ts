@@ -1,8 +1,4 @@
-import {
-  assertAutoMovieAnalysisTargets,
-  autoMovieAnalysisMetric,
-  summarizeAutoMovieAnalysis,
-} from "@automovie/engine";
+import { autoMovieAnalysisMetric, AutoMovieEngineAnalysis } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisReport,
@@ -164,7 +160,7 @@ export function assertAnalysisRunContractPart5(
         (): boolean =>
           throwsError(
             (): void =>
-              assertAutoMovieAnalysisTargets([
+              AutoMovieEngineAnalysis.assertAnalysisTargets([
                 { key: " ", unit: "s", value: 1, comparison: "at-most" },
               ]),
             "non-blank metric key",
@@ -175,7 +171,7 @@ export function assertAnalysisRunContractPart5(
         (): boolean =>
           throwsError(
             (): void =>
-              assertAutoMovieAnalysisTargets([
+              AutoMovieEngineAnalysis.assertAnalysisTargets([
                 { key: "k", unit: "", value: 1, comparison: "at-most" },
               ]),
             "must state the unit",
@@ -186,7 +182,7 @@ export function assertAnalysisRunContractPart5(
         (): boolean =>
           throwsError(
             (): void =>
-              assertAutoMovieAnalysisTargets([
+              AutoMovieEngineAnalysis.assertAnalysisTargets([
                 { key: "k", unit: "s", value: 1, comparison: "at-most" },
                 { key: "k", unit: "s", value: 2, comparison: "at-most" },
               ]),
@@ -220,7 +216,7 @@ export function assertAnalysisRunContractPart5(
       warnings: [],
     },
   });
-  const report: IAutoMovieAnalysisReport = summarizeAutoMovieAnalysis({
+  const report: IAutoMovieAnalysisReport = AutoMovieEngineAnalysis.summarizeAnalysis({
     runs: [clean],
     revision: "r7",
     required: ["acoustic"],

@@ -1,4 +1,4 @@
-import { bracketedRoot } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 /** Solve a bounded F1 projection constraint. */
 export namespace AutoMovieHumanF1ProjectionConstraint {
@@ -114,7 +114,7 @@ export namespace AutoMovieHumanF1ProjectionConstraint {
         ),
       };
     const bracket = brackets[0]!;
-    const projection: number = bracketedRoot(
+    const projection: number = AutoMovieEngineMath.bracketedRoot(
       (p: number): number => evaluate(p) - target,
       bracket[0]!.p,
       bracket[1]!.p,

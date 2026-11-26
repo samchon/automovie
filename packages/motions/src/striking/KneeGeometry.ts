@@ -1,4 +1,4 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -172,7 +172,7 @@ export namespace KneeGeometry {
     // until that hip moves within the limb solver's place tolerance. A pass
     // that does not shrink the move cannot converge, and the knee is refused
     // rather than solved from a hip the figure does not show.
-    const turn: number = wrapDegrees(
+    const turn: number = AutoMovieEngineMath.wrapDegrees(
       StrikingTarget.heading(reach(start).heading) - entry.yaw,
     );
     const { hip, solved }: KneeGeometry.ISettled = KneeGeometry.settle(

@@ -3,8 +3,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { pointSegmentDistance } from "../math/pointSegmentDistance";
-import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
+import { pointSegmentDistance } from "../math/internal/pointSegmentDistance";
+import { segmentSegmentDistance } from "../math/internal/segmentSegmentDistance";
 
 /**
  * Feature edges bend the surface by more than this angle between face normals,

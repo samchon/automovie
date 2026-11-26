@@ -12,9 +12,9 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { roundToThousandths } from "../math/roundToThousandths";
+import { roundToThousandths } from "../math/internal/roundToThousandths";
 import { sampleMotion } from "../motion/sampleMotion";
-import { sampleTimes } from "../motion/sampleTimes";
+import { sampleTimes } from "../motion/internal/sampleTimes";
 import { foldRoot } from "./foldRoot";
 import { grammarDiagnosticsToReviewNotes } from "./grammarDiagnosticsToReviewNotes";
 import { projectToNdc } from "./projectToNdc";

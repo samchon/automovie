@@ -6,7 +6,7 @@ import type {
   IAutoMovieSubdivisionStencil,
 } from "@automovie/interface";
 
-import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticProgram } from "../math/internal/solveAutoMovieQuadraticProgram";
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 import { refineSubdivisionStencils } from "./refineSubdivisionStencils";

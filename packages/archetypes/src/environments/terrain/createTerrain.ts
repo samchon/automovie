@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, srgbHexToLinearColor, surfaceHeightAt, validateSpace } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, surfaceHeightAt, validateSpace, AutoMovieEngineMath } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -151,7 +151,7 @@ export function createTerrain(
         kind: "floor",
         polygon: ring(feature.outline),
         height: { kind: "constant", value: origin.y + feature.height },
-        color: feature.color ?? srgbHexToLinearColor(WATER),
+        color: feature.color ?? AutoMovieEngineMath.srgbHexToLinearColor(WATER),
       }),
     );
     landHoles.push(
@@ -170,7 +170,7 @@ export function createTerrain(
         ),
       ],
       height: rule,
-      color: recipe.color ?? srgbHexToLinearColor(EARTH),
+      color: recipe.color ?? AutoMovieEngineMath.srgbHexToLinearColor(EARTH),
     };
     const space: IAutoMovieSpace = {
       id: context.id,

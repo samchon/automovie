@@ -1,4 +1,4 @@
-import { Vector3, wrapDegrees } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -104,7 +104,7 @@ export namespace climbLadderHolds {
     bounds: IBounds,
   ): IAdmitted {
     const frame: IAutoMovieMotionHumanLadder.ILadder["frame"] = ladder.frame;
-    const turned: number = Math.abs(wrapDegrees(yaw - frame.yaw));
+    const turned: number = Math.abs(AutoMovieEngineMath.wrapDegrees(yaw - frame.yaw));
     HumanBound.within("facing", turned, 0, bounds.facing, "degrees");
     const toe: number = Math.max(
       ...(["left", "right"] as const).map(

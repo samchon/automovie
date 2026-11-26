@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { quaternionFromAutoMovieBasis } from "../../math/quaternionFromAutoMovieBasis";
+import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFromAutoMovieBasis";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { createAutoMovieBoneMotion } from "./createAutoMovieBoneMotion";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";

@@ -1,7 +1,4 @@
-import {
-  AutoMovieBernstein64 as B,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieBernstein64 as B, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieCompactCurveApproximation,
@@ -220,7 +217,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
     }
     let decomposition: IAutoMovieSingularDecomposition;
     try {
-      decomposition = decomposeAutoMovieSingularMatrix(rows, {
+      decomposition = AutoMovieEngineMath.decomposeSingularMatrix(rows, {
         maxEntries: Math.max(rows.length * width, width * width),
         maxSweeps: 40,
         orthogonalityTolerance: 128 * Number.EPSILON,

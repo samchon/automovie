@@ -1,9 +1,4 @@
-import {
-  mergeAutoMovieMeshes,
-  resolveAutoMovieMeshPhysicalVertices,
-  transformAutoMovieMesh,
-  validateMeshTopology,
-} from "@automovie/engine";
+import { mergeAutoMovieMeshes, transformAutoMovieMesh, validateMeshTopology, AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +29,7 @@ import { throwsError } from "../../internal/throwsError";
 export function test_engine_geometry_physical_vertices_merge(): void {
   const a: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 1, 0, 0, 0, 1, 0], [0, 1, 2], [11, 12, 13], "actual-instance");
   const b: IAutoMovieMesh = createPhysicalMesh([1, 0, 0, 0, 0, 0, 0, -1, 0], [0, 1, 2], [12, 11, 14], "actual-instance");
-  const vertices = (mesh: IAutoMovieMesh): number[] => resolveAutoMovieMeshPhysicalVertices(mesh).vertices;
+  const vertices = (mesh: IAutoMovieMesh): number[] => AutoMovieEngineMath.resolveMeshPhysicalVertices(mesh).vertices;
 
   // 1.
   const combined: IAutoMovieMesh = mergeAutoMovieMeshes([a, b]);

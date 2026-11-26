@@ -1,6 +1,6 @@
 import type { IAutoMovieAngleRange } from "@automovie/interface";
 
-import { nearestAngleAlias } from "./nearestAngleAlias";
+import { nearestAngleAlias } from "./internal/nearestAngleAlias";
 
 /** Raw tuple adapters keep their original delayed live component reads. */
 interface IRawInputs {

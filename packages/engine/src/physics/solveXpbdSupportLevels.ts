@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolveQuadraticProgram,
 } from "@automovie/interface";
 
-import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticProgram } from "../math/internal/solveAutoMovieQuadraticProgram";
 import { AutoMovieXpbdSupportRows as Rows } from "./AutoMovieXpbdSupportRows";
 import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";

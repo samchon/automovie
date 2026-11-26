@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { solveAutoMovieHalfPlaneProgram } from "../math/solveAutoMovieHalfPlaneProgram";
+import { solveAutoMovieHalfPlaneProgram } from "../math/internal/solveAutoMovieHalfPlaneProgram";
 import { integrateMotionTrajectory } from "./integrateMotionTrajectory";
 import { steerAutoMovieCrowdContacts } from "./steerAutoMovieCrowdContacts";
 import { steerAutoMovieCrowdGeometry } from "./steerAutoMovieCrowdGeometry";

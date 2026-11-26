@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, wrapDegrees } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -146,7 +146,7 @@ export function planLadderAccess(
     planLadderAccessBounds.HEEL_ROOM * body.measure.footLength;
   if (
     context.entry.base.kind !== "standing" ||
-    Math.abs(wrapDegrees(context.entry.posture.yaw - yaw)) > 15 ||
+    Math.abs(AutoMovieEngineMath.wrapDegrees(context.entry.posture.yaw - yaw)) > 15 ||
     Math.abs(trace.x) > 0.15 ||
     (down
       ? trace.z < near + heelRoom || trace.z > near + surface.depth - 0.08

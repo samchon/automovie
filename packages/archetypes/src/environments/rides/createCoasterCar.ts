@@ -1,4 +1,4 @@
-import { srgbHexToLinearColor } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -53,7 +53,7 @@ export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
       {
         id: "shell",
         name: "Red shell",
-        baseColor: srgbHexToLinearColor("#a52026"),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor("#a52026"),
         metallic: 0.2,
         roughness: 0.45,
         opacity: 1,
@@ -63,7 +63,7 @@ export function createCoasterCar(id: string = "coaster-car"): IAutoMovieModel {
       {
         id: "upholstery",
         name: "Charcoal upholstery",
-        baseColor: srgbHexToLinearColor("#393b43"),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor("#393b43"),
         metallic: 0,
         roughness: 0.87,
         opacity: 1,

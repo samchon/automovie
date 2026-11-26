@@ -4,9 +4,9 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import { weldMeshVertices } from "../math/weldMeshVertices";
+import { createMeshEdgeKey } from "../math/internal/createMeshEdgeKey";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
+import { weldMeshVertices } from "../math/internal/weldMeshVertices";
 
 /** Append shared welded edge-incidence, winding and optional boundary findings. */
 export function appendMeshTopology(

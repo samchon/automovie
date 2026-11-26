@@ -1,7 +1,4 @@
-import {
-  AutoMovieSplineCurve as Spline,
-  bracketedRoot,
-} from "@automovie/engine";
+import { AutoMovieSplineCurve as Spline, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
@@ -129,7 +126,7 @@ export namespace AutoMovieHumanF1NativeRootClock {
       const target: number =
         base + sense * ((((sense * (phase - base)) % turn) + turn) % turn);
       if (target === base) return 0;
-      const c: number = bracketedRoot(
+      const c: number = AutoMovieEngineMath.bracketedRoot(
         (value: number): number => at(value)[1] - target,
         0,
         turn,

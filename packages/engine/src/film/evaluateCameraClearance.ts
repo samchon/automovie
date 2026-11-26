@@ -13,7 +13,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { sampleTimes } from "../motion/sampleTimes";
+import { sampleTimes } from "../motion/internal/sampleTimes";
 import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 
 /** Reject an inverted box. */

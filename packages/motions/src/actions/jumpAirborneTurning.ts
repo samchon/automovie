@@ -1,4 +1,4 @@
-import { Quaternion, inertializeOffset } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMotionSampling } from "@automovie/engine";
 import type {
   IAutoMovieHumanPostureRotation,
   IAutoMovieMotionHumanActionPlan,
@@ -157,7 +157,7 @@ export function jumpAirborneTurning(
       )
         return posture;
       const touch: ITouchdown = offset;
-      const decayed: number = inertializeOffset(
+      const decayed: number = AutoMovieEngineMotionSampling.inertializeOffset(
         touch.angle,
         0,
         settled - to,

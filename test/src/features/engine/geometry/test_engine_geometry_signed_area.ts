@@ -1,4 +1,4 @@
-import { polygonDoubleArea, signedArea } from "@automovie/engine";
+import { signedArea, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,8 +30,8 @@ export function test_engine_geometry_signed_area(): void {
     );
     TestValidator.predicate(
       `twice the signed area at ${offset}`,
-      nclose(polygonDoubleArea(square), 2, 0) &&
-        nclose(polygonDoubleArea(clockwise), -2, 0),
+      nclose(AutoMovieEnginePlanarGeometry.polygonDoubleArea(square), 2, 0) &&
+        nclose(AutoMovieEnginePlanarGeometry.polygonDoubleArea(clockwise), -2, 0),
     );
   }
 
@@ -43,7 +43,7 @@ export function test_engine_geometry_signed_area(): void {
   for (const ring of [[], line.slice(0, 1), line.slice(0, 2), line])
     TestValidator.predicate(
       `zero area with ${ring.length} corners`,
-      nclose(signedArea(ring), 0, 0) && nclose(polygonDoubleArea(ring), 0, 0),
+      nclose(signedArea(ring), 0, 0) && nclose(AutoMovieEnginePlanarGeometry.polygonDoubleArea(ring), 0, 0),
     );
 
   const thin: IAutoMoviePlanarPoint[] = [
@@ -55,6 +55,6 @@ export function test_engine_geometry_signed_area(): void {
   TestValidator.predicate(
     "opposite extremes retain a finite signed and doubled area",
     nclose(signedArea(thin), 4, 1e-12) &&
-      nclose(polygonDoubleArea(thin), 8, 1e-12),
+      nclose(AutoMovieEnginePlanarGeometry.polygonDoubleArea(thin), 8, 1e-12),
   );
 }

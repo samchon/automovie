@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  closestPointsBetweenSegments,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -157,7 +153,7 @@ export function gymnasticsCases(
           const a: IAutoMovieVector3 = { ...palmAt(t, "left"), y: 0 };
           const b: IAutoMovieVector3 = { ...palmAt(t, "right"), y: 0 };
           const floor: IAutoMovieVector3 = { ...com, y: 0 };
-          return closestPointsBetweenSegments(a, b, floor, floor).distance;
+          return AutoMovieEngineMath.closestPointsBetweenSegments(a, b, floor, floor).distance;
         },
         hold,
         body.measure.hand / 2,

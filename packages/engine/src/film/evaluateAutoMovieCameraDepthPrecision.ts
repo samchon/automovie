@@ -3,7 +3,7 @@ import {
   type IAutoMovieEvaluateCameraDepthPrecision,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Measure the largest gap between adjacent representable depths that a camera's

@@ -8,8 +8,8 @@ import type {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-import { segmentsCross } from "../../../architecture/segmentsCross";
-import { closestPointOnSegmentXZ } from "../../../math/closestPointOnSegmentXZ";
+import { segmentsCross } from "../../../architecture/internal/segmentsCross";
+import { closestPointOnSegmentXZ } from "../../../math/internal/closestPointOnSegmentXZ";
 import { readSurfaceHeight } from "./readSurfaceHeight";
 import { surfaceContainsPoint } from "./surfaceContainsPoint";
 

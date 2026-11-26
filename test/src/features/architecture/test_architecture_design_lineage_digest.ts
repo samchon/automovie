@@ -1,7 +1,4 @@
-import {
-  designLineageDigest,
-  designLineageViewDigest,
-} from "@automovie/engine";
+import { AutoMovieEngineDesignLineage } from "@automovie/engine";
 import type {
   IAutoMovieDesignLineage,
   IAutoMovieDesignSubject,
@@ -39,8 +36,8 @@ export function test_architecture_design_lineage_digest(): void {
   const lineage: IAutoMovieDesignLineage = renovationLineage();
   TestValidator.equals(
     "the same authored lineage digests to the same value twice",
-    designLineageDigest(lineage),
-    designLineageDigest(renovationLineage()),
+    AutoMovieEngineDesignLineage.designLineageDigest(lineage),
+    AutoMovieEngineDesignLineage.designLineageDigest(renovationLineage()),
   );
 
   const shuffled: IAutoMovieDesignLineage = brokenLineage(
@@ -59,35 +56,35 @@ export function test_architecture_design_lineage_digest(): void {
   );
   TestValidator.equals(
     "reshuffling every authored array leaves the digest unchanged",
-    designLineageDigest(shuffled),
-    designLineageDigest(lineage),
+    AutoMovieEngineDesignLineage.designLineageDigest(shuffled),
+    AutoMovieEngineDesignLineage.designLineageDigest(lineage),
   );
   TestValidator.predicate(
     "editing one authored value moves the digest",
-    designLineageDigest(
+    AutoMovieEngineDesignLineage.designLineageDigest(
       brokenLineage((draft: IAutoMovieDesignLineage): void => {
         draft.variants[0]!.changes[0]!.value = "oak-plain-sawn";
       }),
-    ) !== designLineageDigest(lineage),
+    ) !== AutoMovieEngineDesignLineage.designLineageDigest(lineage),
   );
 
-  const warm: string = designLineageViewDigest(lineage, {
+  const warm: string = AutoMovieEngineDesignLineage.designLineageViewDigest(lineage, {
     variant: "warm-oak",
     phase: "finishes",
   });
   TestValidator.equals(
     "replaying one alternative at one phase yields the same view digest",
-    designLineageViewDigest(renovationLineage(), {
+    AutoMovieEngineDesignLineage.designLineageViewDigest(renovationLineage(), {
       variant: "warm-oak",
       phase: "finishes",
     }),
     warm,
   );
-  const cool: string = designLineageViewDigest(lineage, {
+  const cool: string = AutoMovieEngineDesignLineage.designLineageViewDigest(lineage, {
     variant: "cool-stone",
     phase: "finishes",
   });
-  const base: string = designLineageViewDigest(lineage, {
+  const base: string = AutoMovieEngineDesignLineage.designLineageViewDigest(lineage, {
     variant: null,
     phase: "finishes",
   });
@@ -100,7 +97,7 @@ export function test_architecture_design_lineage_digest(): void {
   );
   TestValidator.predicate(
     "the same alternative at an earlier phase is a different view",
-    designLineageViewDigest(lineage, {
+    AutoMovieEngineDesignLineage.designLineageViewDigest(lineage, {
       variant: "warm-oak",
       phase: "structure",
     }) !== warm,
@@ -108,7 +105,7 @@ export function test_architecture_design_lineage_digest(): void {
 
   TestValidator.predicate(
     "an imported texture's bytes move the view although the design did not",
-    designLineageViewDigest(
+    AutoMovieEngineDesignLineage.designLineageViewDigest(
       brokenLineage((draft: IAutoMovieDesignLineage): void => {
         // Update the declared asset digest and all matching citation metadata
         // together. This test does not replace a file or rebake an output;
@@ -163,11 +160,11 @@ export function test_architecture_design_lineage_digest(): void {
   });
   TestValidator.predicate(
     "authored text cannot forge a field boundary in the digest",
-    designLineageViewDigest(collidable("ab", "c"), {
+    AutoMovieEngineDesignLineage.designLineageViewDigest(collidable("ab", "c"), {
       variant: "v1",
       phase: null,
     }) !==
-      designLineageViewDigest(collidable("a", "bc"), {
+      AutoMovieEngineDesignLineage.designLineageViewDigest(collidable("a", "bc"), {
         variant: "v1",
         phase: null,
       }),
@@ -177,7 +174,7 @@ export function test_architecture_design_lineage_digest(): void {
     "an unknown alternative is refused rather than digested",
     throwsError(
       (): string =>
-        designLineageViewDigest(lineage, { variant: "brutalist", phase: null }),
+        AutoMovieEngineDesignLineage.designLineageViewDigest(lineage, { variant: "brutalist", phase: null }),
       'has no design variant "brutalist"',
     ),
   );
@@ -185,7 +182,7 @@ export function test_architecture_design_lineage_digest(): void {
     "an unknown phase is refused rather than digested",
     throwsError(
       (): string =>
-        designLineageViewDigest(lineage, {
+        AutoMovieEngineDesignLineage.designLineageViewDigest(lineage, {
           variant: "warm-oak",
           phase: "topping-out",
         }),

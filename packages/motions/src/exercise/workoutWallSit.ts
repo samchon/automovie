@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  minimumJerk,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionContext,
@@ -208,7 +202,7 @@ function pressureRange(
     HumanMaterialContact.NORMAL,
     normal,
   );
-  const ring: IAutoMovieVector3[] = convexHull2D([...floor]);
+  const ring: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D([...floor]);
   const projected: IAutoMovieVector3[] = ring.map(
     (point: IAutoMovieVector3): IAutoMovieVector3 => {
       const delta: IAutoMovieVector3 = Vector3.subtract(point, center);

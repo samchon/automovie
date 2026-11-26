@@ -12,7 +12,7 @@ import {
 
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
-import { sampleTimes } from "../motion/sampleTimes";
+import { sampleTimes } from "../motion/internal/sampleTimes";
 import { groundFunction } from "../space/groundFunction";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";

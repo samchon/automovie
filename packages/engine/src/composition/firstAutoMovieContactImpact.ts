@@ -1,6 +1,6 @@
 import type { IAutoMovieResolveContactEvents } from "@automovie/interface";
 
-import { bracketedRoot } from "../math/bracketedRoot";
+import { bracketedRoot } from "../math/internal/bracketedRoot";
 import { sampleAutoMovieContactWeapon } from "./sampleAutoMovieContactWeapon";
 
 /**

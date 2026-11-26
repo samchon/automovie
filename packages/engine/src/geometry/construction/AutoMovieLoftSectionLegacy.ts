@@ -8,7 +8,7 @@ import type {
   IAutoMovieStationHermite,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";

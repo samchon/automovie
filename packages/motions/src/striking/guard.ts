@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -248,7 +243,7 @@ export namespace guard {
     const head: readonly [number, number, number] = joints.head ?? [0, 0, 0];
     const faced: number = -Math.max(
       -StrikingStance.FACING,
-      Math.min(StrikingStance.FACING, 0.5 * wrapDegrees(heading - line)),
+      Math.min(StrikingStance.FACING, 0.5 * AutoMovieEngineMath.wrapDegrees(heading - line)),
     );
     // The pelvis over the stance centre, the feet being symmetric about it on
     // the line.
@@ -385,7 +380,7 @@ export namespace guard {
             y: entry.root.y + (sunk - entry.root.y) * s - hop,
             z: entry.root.z + (rootAt.z - entry.root.z) * s,
           },
-          yaw: entry.yaw + wrapDegrees(heading - entry.yaw) * s,
+          yaw: entry.yaw + AutoMovieEngineMath.wrapDegrees(heading - entry.yaw) * s,
           pitch: entry.pitch * (1 - s),
           roll: entry.roll * (1 - s),
           joints: {

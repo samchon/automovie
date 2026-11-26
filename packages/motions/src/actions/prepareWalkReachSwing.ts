@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -166,7 +161,7 @@ export function prepareWalkReachSwing(
     };
     let ankle: IAutoMovieVector3 = reachOf(foot.placement.ankle);
     let rotation: IAutoMovieQuaternion = foot.placement.rotation;
-    const off: number = wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
+    const off: number = AutoMovieEngineMath.wrapDegrees(HumanFoot.heading(rotation) - settled.yaw);
     if (Math.abs(off) > bounds.twist)
       rotation = HumanFoot.rotation(
         settled.yaw + Math.sign(off) * bounds.twist,

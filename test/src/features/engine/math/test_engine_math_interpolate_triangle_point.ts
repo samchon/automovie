@@ -1,4 +1,4 @@
-import { interpolateAutoMovieTrianglePoint } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +23,7 @@ export function test_engine_math_interpolate_triangle_point(): void {
   ];
   TestValidator.predicate(
     "the barycentric seat",
-    vclose(interpolateAutoMovieTrianglePoint(points, [0.5, 0.25, 0.25]), {
+    vclose(AutoMovieEngineMath.interpolateTrianglePoint(points, [0.5, 0.25, 0.25]), {
       x: 0.5,
       y: 0.5,
       z: 1,
@@ -40,7 +40,7 @@ export function test_engine_math_interpolate_triangle_point(): void {
       `weights ${weights.join(", ")} are refused`,
       throwsError(
         (): IAutoMovieVector3 =>
-          interpolateAutoMovieTrianglePoint(points, weights),
+          AutoMovieEngineMath.interpolateTrianglePoint(points, weights),
         "seating",
       ),
     );
@@ -52,6 +52,6 @@ export function test_engine_math_interpolate_triangle_point(): void {
   );
   TestValidator.predicate(
     "the largest finite seat",
-    vclose(interpolateAutoMovieTrianglePoint(largest, [1, 0, 0]), largest[0]!),
+    vclose(AutoMovieEngineMath.interpolateTrianglePoint(largest, [1, 0, 0]), largest[0]!),
   );
 }

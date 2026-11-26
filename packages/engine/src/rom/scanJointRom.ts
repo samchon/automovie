@@ -12,7 +12,7 @@ import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
-import { nearestAngleAlias } from "../math/nearestAngleAlias";
+import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { abductionRange } from "./abductionRange";
 import { swingConeAngle } from "./swingConeAngle";
 

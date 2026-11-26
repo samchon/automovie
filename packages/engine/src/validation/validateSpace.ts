@@ -8,9 +8,9 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { polygonInside } from "../architecture/polygonInside";
-import { polygonIsSimple } from "../architecture/polygonIsSimple";
-import { polygonsOverlap } from "../architecture/polygonsOverlap";
+import { polygonInside } from "../architecture/internal/polygonInside";
+import { polygonIsSimple } from "../architecture/internal/polygonIsSimple";
+import { polygonsOverlap } from "../architecture/internal/polygonsOverlap";
 import { AutoMovieEngineSpace } from "../space/";
 
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";

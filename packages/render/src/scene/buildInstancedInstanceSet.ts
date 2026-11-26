@@ -1,4 +1,4 @@
-import { selectFormationLod, srgbHexToLinearColor } from "@automovie/engine";
+import { selectFormationLod, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieCompiledFormationLod,
@@ -306,7 +306,7 @@ export const buildInstancedInstanceSet: (
                         slot.palette,
                       );
                       if (paint === undefined) {
-                        const linear: IAutoMovieColor = srgbHexToLinearColor(
+                        const linear: IAutoMovieColor = AutoMovieEngineMath.srgbHexToLinearColor(
                           slot.palette,
                         );
                         paint = new THREE.Color(linear.r, linear.g, linear.b);

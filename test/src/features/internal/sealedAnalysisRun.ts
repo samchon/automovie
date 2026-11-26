@@ -1,4 +1,4 @@
-import { autoMovieAnalysisRunDigest } from "@automovie/engine";
+import { AutoMovieEngineAnalysis } from "@automovie/engine";
 import type { IAutoMovieAnalysisRun } from "@automovie/interface";
 
 /**
@@ -14,5 +14,5 @@ export const sealedAnalysisRun: (
   draft: Omit<IAutoMovieAnalysisRun, "digest">,
 ): IAutoMovieAnalysisRun => ({
   ...draft,
-  digest: autoMovieAnalysisRunDigest(draft),
+  digest: AutoMovieEngineAnalysis.analysisRunDigest(draft),
 });

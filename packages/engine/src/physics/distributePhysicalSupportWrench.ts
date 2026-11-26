@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { solveAutoMovieQuadraticProgram } from "../math/solveAutoMovieQuadraticProgram";
+import { solveAutoMovieQuadraticProgram } from "../math/internal/solveAutoMovieQuadraticProgram";
 
 /**
  * Allocate a requested floating-base wrench at actual floor points. Unilateral

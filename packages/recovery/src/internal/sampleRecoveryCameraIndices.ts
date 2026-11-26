@@ -1,4 +1,4 @@
-import { seededValue } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 /**
  * Draw a reproducible ordered subset without replacement for one proposal. The
@@ -29,7 +29,7 @@ export function sampleRecoveryCameraIndices(
   );
   for (let at: number = 0; at < sampleSize; at++) {
     const selected: number =
-      at + Math.floor(seededValue(seed, domain, trial, at) * (population - at));
+      at + Math.floor(AutoMovieEngineMath.seededValue(seed, domain, trial, at) * (population - at));
     const previous: number = indices[at]!;
     indices[at] = indices[selected]!;
     indices[selected] = previous;

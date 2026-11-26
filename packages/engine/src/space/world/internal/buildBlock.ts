@@ -5,7 +5,7 @@ import type {
 
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "../../../architecture/constants/AUTOMOVIE_SUPPORT_TOLERANCE";
 import { Transform } from "../../../math/Transform";
-import { srgbHexToLinearColor } from "../../../math/srgbHexToLinearColor";
+import { srgbHexToLinearColor } from "../../../math/internal/srgbHexToLinearColor";
 import { productionRuntimeModelId } from "../../../model/internal/productionRuntimeModelId";
 
 /**

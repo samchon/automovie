@@ -13,11 +13,11 @@ import type {
 
 import { positive } from "../geometry/positive";
 import { Quaternion } from "../math/Quaternion";
-import { seededValue } from "../math/seededValue";
-import { autoMoviePatternFindings } from "./autoMoviePatternFindings";
-import { autoMoviePatternPolygonArea } from "./autoMoviePatternPolygonArea";
-import { canonicalAutoMoviePatternPolygon } from "./canonicalAutoMoviePatternPolygon";
-import { clipAutoMoviePatternPolygon } from "./clipAutoMoviePatternPolygon";
+import { seededValue } from "../math/internal/seededValue";
+import { autoMoviePatternFindings } from "./internal/autoMoviePatternFindings";
+import { autoMoviePatternPolygonArea } from "./internal/autoMoviePatternPolygonArea";
+import { canonicalAutoMoviePatternPolygon } from "./internal/canonicalAutoMoviePatternPolygon";
+import { clipAutoMoviePatternPolygon } from "./internal/clipAutoMoviePatternPolygon";
 import { AUTOMOVIE_MAX_PATTERN_CELLS } from "./constants/AUTOMOVIE_MAX_PATTERN_CELLS";
 
 /** Domain constant separating variant draws from every other seeded decision. */

@@ -1,4 +1,4 @@
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Admit every emitted triangle of a deformed mesh by area and orientation.

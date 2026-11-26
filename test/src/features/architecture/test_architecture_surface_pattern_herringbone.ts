@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineText, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -348,7 +343,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
   );
 
   const instanced: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: laid,
       frame: FLOOR,
       thickness: 0.018,

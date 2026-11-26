@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  hingedArmSwivel,
-  windowSampleTimes,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, hingedArmSwivel, AutoMovieEngineMotionSampling, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -68,7 +62,7 @@ export function prepareMountOffFloor(
     new Set<AutoMovieHumanoidBone>([foot]),
   );
   const step: number = AutoMovieMotionHumanArmCourse.STEP;
-  const times: readonly number[] = windowSampleTimes(start, end, 1 / step);
+  const times: readonly number[] = AutoMovieEngineMotionSampling.windowSampleTimes(start, end, 1 / step);
   const knots: IKnot[] = [];
   for (const t of times) {
     const at: IAutoMovieMotionHumanPosture = posture(t);
@@ -131,7 +125,7 @@ export function prepareMountOffFloor(
       }
       const from: IAutoMovieSwivelSeed = a.seed;
       const to: IAutoMovieSwivelSeed = b.seed;
-      const swivel: number = wrapDegrees(to.swivel - from.swivel);
+      const swivel: number = AutoMovieEngineMath.wrapDegrees(to.swivel - from.swivel);
       const toe: JointRead | undefined = blends([toes], a, b)[0]?.[1];
       return (share: number): prepareMountOffFloor.IPlaced => {
         const rotation: IAutoMovieQuaternion = Quaternion.slerp(

@@ -1,4 +1,4 @@
-import { srgbHexToLinearColor } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieGeometry,
   IAutoMovieMaterial,
@@ -71,7 +71,7 @@ export class ArchetypeBuilderParts {
       this.materials.set(material, {
         id: material,
         name: null,
-        baseColor: srgbHexToLinearColor(hex),
+        baseColor: AutoMovieEngineMath.srgbHexToLinearColor(hex),
         metallic: 0,
         roughness: 0.8,
         emissive: null,

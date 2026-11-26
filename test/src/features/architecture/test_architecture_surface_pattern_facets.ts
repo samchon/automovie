@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -280,14 +276,14 @@ export function test_architecture_surface_pattern_facets(): void {
     },
   ];
   const folded: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: laid,
       frame: FLAT,
       facets: returned,
       thickness: 0.1,
     });
   const unfolded: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: laid,
       frame: FLAT,
       thickness: 0.1,
@@ -418,7 +414,7 @@ export function test_architecture_surface_pattern_facets(): void {
   );
 
   const curved: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: facade,
       frame: FLAT,
       facets: panels,
@@ -538,7 +534,7 @@ export function test_architecture_surface_pattern_facets(): void {
   ): boolean =>
     throwsError(
       (): IAutoMoviePatternInstancing =>
-        autoMoviePatternInstanceTransforms({
+        AutoMovieEngineArchitecture.patternInstanceTransforms({
           result: laid,
           frame: FLAT,
           facets: [...returned, facet],

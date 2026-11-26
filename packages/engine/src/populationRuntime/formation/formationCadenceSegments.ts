@@ -3,7 +3,7 @@ import {
   IAutoMovieFormationMotion,
 } from "@automovie/interface";
 
-import { ease } from "../../motion/ease";
+import { ease } from "../../motion/internal/ease";
 
 /**
  * Cut one unit's cue sequence over `[0, time]` into the intervals its cadence

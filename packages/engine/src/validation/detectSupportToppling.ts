@@ -8,10 +8,10 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { closestPointOnSegmentXZ } from "../math/closestPointOnSegmentXZ";
-import { convexHull2D } from "../math/convexHull2D";
-import { nearestHullEdge } from "../math/nearestHullEdge";
-import { pointHullDistance } from "../math/pointHullDistance";
+import { closestPointOnSegmentXZ } from "../math/internal/closestPointOnSegmentXZ";
+import { convexHull2D } from "../math/internal/convexHull2D";
+import { nearestHullEdge } from "../math/internal/nearestHullEdge";
+import { pointHullDistance } from "../math/internal/pointHullDistance";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 const DEFAULT_MARGIN: number = 0.02;

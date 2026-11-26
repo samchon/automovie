@@ -1,13 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  midpoint,
-  physicalShapeBounds,
-  physicalShapeContactManifold,
-  physicalShapeGjk,
-  pointInPolygon,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, physicalShapeContactManifold, physicalShapeGjk, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePlanarPoint,
@@ -122,7 +113,7 @@ export function prepareMountSeat(
     (a: Span, b: Span): number => b[1] - b[0] - (a[1] - a[0]),
   );
   for (const range of clear) {
-    const z: number = midpoint(range[0], range[1]);
+    const z: number = AutoMovieEngineMath.midpoint(range[0], range[1]);
     const shift: IAutoMovieVector3 = { x: 0, y: rise, z };
     if (bearsPatch(deck, pelvis, shift, support.max.y, tolerance))
       return { point: shift, range };
@@ -170,11 +161,11 @@ function bearsPatch(
         Vector3.distance(witness.pointA, witness.pointB) <= tolerance
       )
         patch.push(witness.pointA);
-  const polygon: IAutoMoviePlanarPoint[] = convexHull2D(patch).map(
+  const polygon: IAutoMoviePlanarPoint[] = AutoMovieEngineMath.convexHull2D(patch).map(
     (p: IAutoMovieVector3): IAutoMoviePlanarPoint => ({ x: p.x, y: p.z }),
   );
   return (
-    polygon.length >= 3 && pointInPolygon({ x: point.x, y: point.z }, polygon)
+    polygon.length >= 3 && AutoMovieEnginePlanarGeometry.pointInPolygon({ x: point.x, y: point.z }, polygon)
   );
 }
 

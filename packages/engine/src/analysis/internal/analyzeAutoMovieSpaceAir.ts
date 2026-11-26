@@ -7,11 +7,11 @@ import {
   type IAutoMovieSpaceAirRequest,
 } from "@automovie/interface";
 
-import { assertAutoMovieAnalysisTargets } from "../assertAutoMovieAnalysisTargets";
+import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
-import { autoMovieAnalysisSettingsTargets } from "../autoMovieAnalysisSettingsTargets";
-import { sealAutoMovieAnalysisRun } from "../sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "../warnAutoMovieAnalysisTargetKeys";
+import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
+import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
+import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
 /**
  * Solve one space for ventilation, and refuse to pretend it solved the air.

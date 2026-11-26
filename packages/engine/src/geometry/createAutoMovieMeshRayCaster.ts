@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Index a resident mesh for repeated ray queries.

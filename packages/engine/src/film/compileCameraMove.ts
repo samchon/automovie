@@ -9,7 +9,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { ease } from "../motion/ease";
+import { ease } from "../motion/internal/ease";
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 import { FRAMING_AIM_FRACTION } from "./constants/FRAMING_AIM_FRACTION";
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";

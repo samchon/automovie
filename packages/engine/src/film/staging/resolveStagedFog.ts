@@ -4,7 +4,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { validateColor } from "../../validation/validateColor";
 import { validateFogPlacement } from "./validateFogPlacement";
 

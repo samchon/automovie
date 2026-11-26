@@ -1,6 +1,6 @@
 import type { IAutoMovieConstructionPortLoop } from "@automovie/interface";
 
-import { adjacentAutoMovieFloat64 } from "../../math/adjacentAutoMovieFloat64";
+import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
 import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
 
 /**

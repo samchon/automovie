@@ -5,7 +5,7 @@ import type {
   IAutoMovieEnvironmentInstant,
 } from "@automovie/interface";
 
-import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
+import { autoMovieAnalysisSettingsTargets } from "./internal/autoMovieAnalysisSettingsTargets";
 
 /**
  * Serialize the settings a daylight study's run records: the context id, ground

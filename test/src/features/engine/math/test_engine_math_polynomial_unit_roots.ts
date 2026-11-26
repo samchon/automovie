@@ -1,4 +1,4 @@
-import { polynomialUnitRoots } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -21,20 +21,20 @@ export function test_engine_math_polynomial_unit_roots(): void {
     roots.every((r: number, i: number): boolean =>
       nclose(r, expected[i]!, 1e-12),
     );
-  TestValidator.equals("constant", polynomialUnitRoots([5]), []);
-  TestValidator.equals("zero", polynomialUnitRoots([0, 0, 0]), []);
-  TestValidator.predicate("linear", near(polynomialUnitRoots([-1, 2]), [0.5]));
+  TestValidator.equals("constant", AutoMovieEngineMath.polynomialUnitRoots([5]), []);
+  TestValidator.equals("zero", AutoMovieEngineMath.polynomialUnitRoots([0, 0, 0]), []);
+  TestValidator.predicate("linear", near(AutoMovieEngineMath.polynomialUnitRoots([-1, 2]), [0.5]));
   TestValidator.predicate(
     "one inside",
-    near(polynomialUnitRoots([-0.25, 0, 1]), [0.5]),
+    near(AutoMovieEngineMath.polynomialUnitRoots([-0.25, 0, 1]), [0.5]),
   );
   TestValidator.predicate(
     "two",
-    near(polynomialUnitRoots([0.1875, -1, 1]), [0.25, 0.75]),
+    near(AutoMovieEngineMath.polynomialUnitRoots([0.1875, -1, 1]), [0.25, 0.75]),
   );
   TestValidator.predicate(
     "ends",
-    near(polynomialUnitRoots([0, -1, 1]), [0, 1]),
+    near(AutoMovieEngineMath.polynomialUnitRoots([0, -1, 1]), [0, 1]),
   );
-  TestValidator.equals("none inside", polynomialUnitRoots([1, 0, 1]), []);
+  TestValidator.equals("none inside", AutoMovieEngineMath.polynomialUnitRoots([1, 0, 1]), []);
 }

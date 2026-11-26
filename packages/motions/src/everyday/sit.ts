@@ -1,4 +1,4 @@
-import { bracketedCrossing, minimumJerk } from "@automovie/engine";
+import { minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -364,7 +364,7 @@ export namespace sit {
             seat.point,
             `seat height correction is out of reach (${a.toFixed(3)} to ${b.toFixed(3)} m clearance)`,
           );
-        const y: number = bracketedCrossing({
+        const y: number = AutoMovieEngineMath.bracketedCrossing({
           f: clearance,
           low: lo,
           high: hi,
@@ -398,7 +398,7 @@ export namespace sit {
           Math.abs(upright) <= HumanFoot.BEARING / 4
             ? 0
             : upright > 0 && reach <= 0
-              ? bracketedCrossing({
+              ? AutoMovieEngineMath.bracketedCrossing({
                   f: gap,
                   low: 0,
                   high: maximum,

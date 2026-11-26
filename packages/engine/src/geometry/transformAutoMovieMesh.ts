@@ -8,7 +8,7 @@ import {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
+import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /** Largest admitted distance of a placement rotation's norm from one. */

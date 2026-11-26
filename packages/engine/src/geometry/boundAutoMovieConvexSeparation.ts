@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
+import { closestPointsBetweenSegments } from "../math/internal/closestPointsBetweenSegments";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * A conservative separation of the convex hulls of nonempty finite XYZ vertex

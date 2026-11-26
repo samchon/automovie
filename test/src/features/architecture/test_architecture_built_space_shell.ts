@@ -1,13 +1,4 @@
-import {
-  builtEnvironmentContainsPoint,
-  builtEnvironmentSpaceFidelity,
-  builtSpaceContainsPoint,
-  builtSpaceIsConvex,
-  builtSpaceShellVolume,
-  builtSpaceStatesVolume,
-  validateBuiltEnvironment,
-  AutoMovieEngineDrawing,
-} from "@automovie/engine";
+import { AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltSpace,
@@ -55,17 +46,17 @@ export function test_architecture_built_space_shell(): void {
       [
         "valid",
         (): boolean =>
-          validateBuiltEnvironment({ environment: shelled }).success,
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: shelled }).success,
       ],
       [
         "inTheRoom",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", { x: 1, y: 2, z: 1 }),
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", { x: 1, y: 2, z: 1 }),
       ],
       [
         "inTheAtrium",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", {
             x: 5,
             y: 2,
             z: 5,
@@ -74,7 +65,7 @@ export function test_architecture_built_space_shell(): void {
       [
         "beyondTheHall",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", {
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", {
             x: 12,
             y: 2,
             z: 5,
@@ -83,27 +74,27 @@ export function test_architecture_built_space_shell(): void {
       [
         "onAFace",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", { x: 0, y: 2, z: 5 }),
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", { x: 0, y: 2, z: 5 }),
       ],
       [
         "onAnEdge",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", { x: 0, y: 0, z: 5 }),
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", { x: 0, y: 0, z: 5 }),
       ],
       [
         "inACorner",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", { x: 0, y: 0, z: 0 }),
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", { x: 0, y: 0, z: 0 }),
       ],
       [
         "onTheAtriumWall",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "hall", { x: 3, y: 2, z: 5 }),
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "hall", { x: 3, y: 2, z: 5 }),
       ],
       [
         "throughTheParent",
         (): boolean =>
-          builtEnvironmentContainsPoint(shelled, "whole", { x: 1, y: 2, z: 1 }),
+          AutoMovieEngineBuiltEnvironment.environmentContainsPoint(shelled, "whole", { x: 1, y: 2, z: 1 }),
       ],
     ]),
     {
@@ -121,7 +112,7 @@ export function test_architecture_built_space_shell(): void {
 
   TestValidator.predicate(
     "the shell encloses the hall less its atrium, exactly",
-    nclose(builtSpaceShellVolume(HALL), 10 * 4 * 10 - 4 * 4 * 4, 1e-9),
+    nclose(AutoMovieEngineBuiltEnvironment.spaceShellVolume(HALL), 10 * 4 * 10 - 4 * 4 * 4, 1e-9),
   );
 
   const cube: IAutoMovieSpaceShell = boxShell(
@@ -137,19 +128,19 @@ export function test_architecture_built_space_shell(): void {
       [
         "facetedValidates",
         (): boolean =>
-          validateBuiltEnvironment({ environment: faceted }).success,
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: faceted }).success,
       ],
       [
         "exactValidates",
         (): boolean =>
-          validateBuiltEnvironment({ environment: work({ fidelity: "exact" }) })
+          AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: work({ fidelity: "exact" }) })
             .success,
       ],
       [
         "junkWordRefused",
         (): boolean =>
           hasViolation(
-            validateBuiltEnvironment({
+            AutoMovieEngineArchitecture.validateBuiltEnvironment({
               environment: work({
                 fidelity: "approximate" as IAutoMovieBuiltSpace["fidelity"],
               }),
@@ -164,7 +155,7 @@ export function test_architecture_built_space_shell(): void {
           const environment: IAutoMovieBuiltEnvironment = work({});
           spaceOf(environment, "whole").fidelity = "faceted";
           return hasViolation(
-            validateBuiltEnvironment({ environment }),
+            AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment }),
             "type",
             ".fidelity",
           );
@@ -173,17 +164,17 @@ export function test_architecture_built_space_shell(): void {
       [
         "theHallIsExactByDefault",
         (): boolean =>
-          builtEnvironmentSpaceFidelity(shelled, "hall") === "exact",
+          AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(shelled, "hall") === "exact",
       ],
       [
         "theFacetedHallIsFaceted",
         (): boolean =>
-          builtEnvironmentSpaceFidelity(faceted, "hall") === "faceted",
+          AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(faceted, "hall") === "faceted",
       ],
       [
         "andSoIsTheBuildingOverIt",
         (): boolean =>
-          builtEnvironmentSpaceFidelity(faceted, "whole") === "faceted",
+          AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(faceted, "whole") === "faceted",
       ],
       [
         "aVolumelessSubtreeIsUnstated",
@@ -191,7 +182,7 @@ export function test_architecture_built_space_shell(): void {
           const environment: IAutoMovieBuiltEnvironment = work({});
           delete spaceOf(environment, "hall").shell;
           return (
-            builtEnvironmentSpaceFidelity(environment, "whole") === "unstated"
+            AutoMovieEngineBuiltEnvironment.environmentSpaceFidelity(environment, "whole") === "unstated"
           );
         },
       ],
@@ -372,32 +363,32 @@ export function test_architecture_built_space_shell(): void {
     namedFacts([
       [
         "aShellIsAVolume",
-        (): boolean => builtSpaceStatesVolume(spaceOf(shelled, "hall")),
+        (): boolean => AutoMovieEngineBuiltEnvironment.spaceStatesVolume(spaceOf(shelled, "hall")),
       ],
       [
         "aCellIsAVolume",
-        (): boolean => builtSpaceStatesVolume(spaceOf(celled, "hall")),
+        (): boolean => AutoMovieEngineBuiltEnvironment.spaceStatesVolume(spaceOf(celled, "hall")),
       ],
       [
         "aNameIsNot",
         (): boolean =>
-          builtSpaceStatesVolume(spaceOf(shelled, "whole")) === false,
+          AutoMovieEngineBuiltEnvironment.spaceStatesVolume(spaceOf(shelled, "whole")) === false,
       ],
       [
         "oneCellIsConvex",
-        (): boolean => builtSpaceIsConvex(spaceOf(celled, "hall")),
+        (): boolean => AutoMovieEngineBuiltEnvironment.spaceIsConvex(spaceOf(celled, "hall")),
       ],
       [
         "twoCellsAreNot",
-        (): boolean => builtSpaceIsConvex(spaceOf(twoCells, "hall")) === false,
+        (): boolean => AutoMovieEngineBuiltEnvironment.spaceIsConvex(spaceOf(twoCells, "hall")) === false,
       ],
       [
         "aShellIsNot",
-        (): boolean => builtSpaceIsConvex(spaceOf(shelled, "hall")) === false,
+        (): boolean => AutoMovieEngineBuiltEnvironment.spaceIsConvex(spaceOf(shelled, "hall")) === false,
       ],
       [
         "andNeitherIsANameWithNoCells",
-        (): boolean => builtSpaceIsConvex(spaceOf(shelled, "whole")) === false,
+        (): boolean => AutoMovieEngineBuiltEnvironment.spaceIsConvex(spaceOf(shelled, "whole")) === false,
       ],
     ]),
     {
@@ -426,12 +417,12 @@ export function test_architecture_built_space_shell(): void {
     namedFacts([
       [
         "danglingEnclosesNothing",
-        (): boolean => nclose(builtSpaceShellVolume(dangling), 0, 0),
+        (): boolean => nclose(AutoMovieEngineBuiltEnvironment.spaceShellVolume(dangling), 0, 0),
       ],
       [
         "danglingHoldsNothing",
         (): boolean =>
-          builtSpaceContainsPoint(
+          AutoMovieEngineBuiltEnvironment.spaceContainsPoint(
             { id: "x", kind: "room", parent: null, cells: [], shell: dangling },
             { x: 1, y: 1, z: 1 },
           ) === false,
@@ -439,7 +430,7 @@ export function test_architecture_built_space_shell(): void {
       [
         "aFlatFacetIsSkippedRatherThanSummed",
         (): boolean =>
-          builtSpaceContainsPoint(
+          AutoMovieEngineBuiltEnvironment.spaceContainsPoint(
             { id: "x", kind: "room", parent: null, cells: [], shell: flat },
             { x: 1, y: 1, z: 1 },
           ),
@@ -447,7 +438,7 @@ export function test_architecture_built_space_shell(): void {
       [
         "andWhatItLeavesOpenStaysOutside",
         (): boolean =>
-          builtSpaceContainsPoint(
+          AutoMovieEngineBuiltEnvironment.spaceContainsPoint(
             { id: "x", kind: "room", parent: null, cells: [], shell: flat },
             { x: 9, y: 9, z: 9 },
           ) === false,

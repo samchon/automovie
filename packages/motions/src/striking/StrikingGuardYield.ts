@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  bracketedBisection,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -188,7 +183,7 @@ export namespace StrikingGuardYield {
     if (inside >= 0) return null;
     let clear: number = -inside;
     while (gap(clear) < 0 && clear < apart) clear *= 2;
-    const step: number = bracketedBisection(
+    const step: number = AutoMovieEngineMath.bracketedBisection(
       (s: number): boolean => gap(s) < 0,
       0,
       clear,

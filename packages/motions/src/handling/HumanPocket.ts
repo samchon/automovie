@@ -1,4 +1,4 @@
-import { Vector3, quaternionFromAutoMovieBasis } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidRegion,
@@ -80,7 +80,7 @@ export namespace HumanPocket {
       bone: region.bone,
       offset: {
         position: region.point,
-        rotation: quaternionFromAutoMovieBasis(
+        rotation: AutoMovieEngineMath.quaternionFromBasis(
           Vector3.cross(up, inward),
           up,
           inward,

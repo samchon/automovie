@@ -2,7 +2,7 @@ import { IAutoMovieMesh } from "@automovie/interface";
 
 import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**
  * Separate an ordered mesh sequence along one positive local axis, retaining

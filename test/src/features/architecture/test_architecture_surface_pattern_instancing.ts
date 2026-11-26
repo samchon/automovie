@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  autoMoviePatternInstanceTransforms,
-  generateAutoMovieSurfacePattern,
-} from "@automovie/engine";
+import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternInstancing,
@@ -77,7 +73,7 @@ export function test_architecture_surface_pattern_instancing(): void {
   const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
     pattern: pattern({ variants: 3, seed: 20260810 }),
   });
-  const wall: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms({
+  const wall: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms({
     result: laid,
     frame: WALL,
     thickness: 0.012,
@@ -157,7 +153,7 @@ export function test_architecture_surface_pattern_instancing(): void {
     },
   );
 
-  const floor: IAutoMoviePatternInstancing = autoMoviePatternInstanceTransforms(
+  const floor: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms(
     {
       result: laid,
       frame: FLOOR,
@@ -212,7 +208,7 @@ export function test_architecture_surface_pattern_instancing(): void {
   );
 
   const turned: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: generateAutoMovieSurfacePattern({
         pattern: pattern({
           zones: [
@@ -298,7 +294,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       }),
     });
   const partial: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: narrow,
       frame: WALL,
       thickness: 0.012,
@@ -314,7 +310,7 @@ export function test_architecture_surface_pattern_instancing(): void {
 
   const prototypes: string[] = ["worn", "clean", "chipped"];
   const varied: IAutoMoviePatternInstancing =
-    autoMoviePatternInstanceTransforms({
+    AutoMovieEngineArchitecture.patternInstanceTransforms({
       result: laid,
       frame: WALL,
       thickness: 0.012,
@@ -416,7 +412,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: WALL,
                 thickness: 0,
@@ -429,7 +425,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, u: { x: 2, y: 0, z: 0 } },
                 thickness: 0.01,
@@ -442,7 +438,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: { ...WALL, v: { x: 0, y: 0.5, z: 0 } },
                 thickness: 0.01,
@@ -455,7 +451,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: {
                   ...WALL,
@@ -471,7 +467,7 @@ export function test_architecture_surface_pattern_instancing(): void {
         (): boolean =>
           throwsError(
             (): IAutoMoviePatternInstancing =>
-              autoMoviePatternInstanceTransforms({
+              AutoMovieEngineArchitecture.patternInstanceTransforms({
                 result: laid,
                 frame: WALL,
                 thickness: 0.01,

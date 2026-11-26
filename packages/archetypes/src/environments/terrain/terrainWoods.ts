@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, AutoMovieEnginePlanarRegion, pointInPolygon, surfaceHeightAt } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEnginePlanarRegion, surfaceHeightAt, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -207,7 +207,7 @@ export function terrainWoods(
         const z: number =
           minZ + (row + 0.5) * cell + (jz / 4294967296 - 0.5) * 0.5 * spacing;
         if (
-          !pointInPolygon({ x, y: z }, outline) ||
+          !AutoMovieEnginePlanarGeometry.pointInPolygon({ x, y: z }, outline) ||
           x - trunk < 0 ||
           z - trunk < 0 ||
           x + trunk > width ||

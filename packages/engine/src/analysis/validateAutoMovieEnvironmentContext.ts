@@ -11,7 +11,7 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { directionLength } from "../validation/directionLength";
-import { validateSolidPlanes } from "./validateSolidPlanes";
+import { validateSolidPlanes } from "./internal/validateSolidPlanes";
 
 /**
  * Validate the read-only world a building is analysed against.

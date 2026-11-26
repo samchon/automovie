@@ -16,7 +16,7 @@ import {
 
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
-import { windowSampleTimes } from "../motion/windowSampleTimes";
+import { windowSampleTimes } from "../motion/internal/windowSampleTimes";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";

@@ -1,7 +1,4 @@
-import {
-  AutoMovieMatrix3,
-  decomposeAutoMovieSingularMatrix,
-} from "@automovie/engine";
+import { AutoMovieMatrix3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieRecoveryCameraChartCreationOperation,
   IAutoMovieRecoveryMapObservation,
@@ -63,9 +60,9 @@ export function triangulateRecoverySceneTrack(
         (ray[axis]! / ray[2]) * pose.translation[2] - pose.translation[axis]!,
       ]);
   }
-  let factors: ReturnType<typeof decomposeAutoMovieSingularMatrix>;
+  let factors: ReturnType<typeof AutoMovieEngineMath.decomposeSingularMatrix>;
   try {
-    factors = decomposeAutoMovieSingularMatrix(rows, {
+    factors = AutoMovieEngineMath.decomposeSingularMatrix(rows, {
       maxEntries: budget.maxLinearEntries,
       maxSweeps: budget.maxSingularSweeps,
       orthogonalityTolerance: 1e-12,

@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  wrapDegrees,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -168,7 +163,7 @@ export namespace walkStepFoot {
     for (const side of ["left", "right"] as const) {
       let leaving: number = HumanFoot.heading(start[side].rotation);
       for (const step of steps.filter((x: IStep): boolean => x.side === side)) {
-        const turned: number = wrapDegrees(
+        const turned: number = AutoMovieEngineMath.wrapDegrees(
           leaving -
             (yaw(step.toeOff) +
               (side === "left" ? stand.TOE_OUT : -stand.TOE_OUT)),

@@ -8,7 +8,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";

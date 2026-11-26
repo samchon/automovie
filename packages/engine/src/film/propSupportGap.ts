@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { midpoint } from "../math/midpoint";
+import { midpoint } from "../math/internal/midpoint";
 import { AutoMovieEngineSpace } from "../space/";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 

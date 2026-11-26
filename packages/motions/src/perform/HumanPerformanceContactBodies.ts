@@ -1,4 +1,4 @@
-import { segmentSegmentDistance } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanSegment,
@@ -120,7 +120,7 @@ export function HumanPerformanceContactBodies(
       );
       for (const [key, weapon] of eligible) {
         const [p, q]: StrikingWeapon.IAxis = sampled.get(weapon)!;
-        const distance: number = segmentSegmentDistance(a, b, p, q ?? p);
+        const distance: number = AutoMovieEngineMath.segmentSegmentDistance(a, b, p, q ?? p);
         if (best === undefined || distance < best.distance)
           best = { key, distance };
       }

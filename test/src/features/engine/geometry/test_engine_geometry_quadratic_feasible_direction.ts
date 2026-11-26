@@ -1,9 +1,9 @@
-import { solveAutoMovieQuadraticProgram } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieQuadraticRow } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-type Problem = Parameters<typeof solveAutoMovieQuadraticProgram>[0];
-type Result = ReturnType<typeof solveAutoMovieQuadraticProgram>;
+type Problem = Parameters<typeof AutoMovieEngineMath.solveQuadraticProgram>[0];
+type Result = ReturnType<typeof AutoMovieEngineMath.solveQuadraticProgram>;
 
 /**
  * `solveAutoMovieQuadraticProgram` on semidefinite feasible-direction problems
@@ -51,7 +51,7 @@ export function test_engine_geometry_quadratic_feasible_direction(): void {
   const near = (x: number, y: number, e: number): boolean =>
     Math.abs(x - y) <= e;
   const solve = (label: string, problem: Problem): Result => {
-    const result: Result = solveAutoMovieQuadraticProgram(problem);
+    const result: Result = AutoMovieEngineMath.solveQuadraticProgram(problem);
     const gradient: number[] = result.primal.map(
       (x: number, i: number): number =>
         problem.diagonal[i]! * x + problem.linear[i]!,

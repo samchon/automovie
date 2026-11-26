@@ -1,4 +1,4 @@
-import { autoMovieSkyward } from "@automovie/engine";
+import { AutoMovieEngineEnvironment } from "@automovie/engine";
 import type { IAutoMovieReferenceGround } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,14 +17,14 @@ export function test_engine_analysis_skyward(): void {
   };
   TestValidator.predicate(
     "above the horizon",
-    autoMovieSkyward({ x: 1, y: 0.1, z: 0 }, ground),
+    AutoMovieEngineEnvironment.skyward({ x: 1, y: 0.1, z: 0 }, ground),
   );
   TestValidator.predicate(
     "on the horizon",
-    !autoMovieSkyward({ x: 1, y: 0, z: 0 }, ground),
+    !AutoMovieEngineEnvironment.skyward({ x: 1, y: 0, z: 0 }, ground),
   );
   TestValidator.predicate(
     "below the horizon",
-    !autoMovieSkyward({ x: 0, y: -1, z: 0 }, ground),
+    !AutoMovieEngineEnvironment.skyward({ x: 0, y: -1, z: 0 }, ground),
   );
 }

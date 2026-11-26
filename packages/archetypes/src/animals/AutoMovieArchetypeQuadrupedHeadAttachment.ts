@@ -1,4 +1,4 @@
-import { closestPointsBetweenSegments } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
@@ -56,8 +56,8 @@ export function AutoMovieArchetypeQuadrupedHeadAttachment(
       "The actual head axis and positive appendage inset must be representable",
     );
 
-  const nearest: ReturnType<typeof closestPointsBetweenSegments> =
-    closestPointsBetweenSegments(hint, hint, head.poll, head.nose);
+  const nearest: ReturnType<typeof AutoMovieEngineMath.closestPointsBetweenSegments> =
+    AutoMovieEngineMath.closestPointsBetweenSegments(hint, hint, head.poll, head.nose);
   if (nearest.distance <= inner) return { ...hint };
   if (inner === 0) return { ...nearest.pointB };
 

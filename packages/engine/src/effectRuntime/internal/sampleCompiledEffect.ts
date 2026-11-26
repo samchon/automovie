@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { lerp } from "../../math/internal/lerp";
-import { mixSeed } from "../../math/mixSeed";
+import { mixSeed } from "../../math/internal/mixSeed";
 
 /**
  * Compute the fixed-step particle state for an admitted compiled cue.

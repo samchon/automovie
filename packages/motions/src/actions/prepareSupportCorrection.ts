@@ -1,11 +1,4 @@
-import {
-  Vector3,
-  closestPointOnSegmentXZ,
-  convexHull2D,
-  nearestHullEdge,
-  pointInHull,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanActionPlan,
@@ -85,7 +78,7 @@ export function prepareSupportCorrection(
         projection,
       );
     const bones: ReturnType<typeof poseBones> = frames(solved.pose, read());
-    const hull: IAutoMovieVector3[] = convexHull2D(
+    const hull: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D(
       bearing.flatMap((c) => HumanSupportPatch(body, bones, c)),
     );
     if (hull.length === 0) return posture;
@@ -93,12 +86,12 @@ export function prepareSupportCorrection(
       model,
       bones,
     );
-    if (hull.length >= 3 && pointInHull(centre, hull)) return posture;
-    const edge: ReturnType<typeof nearestHullEdge> = nearestHullEdge(
+    if (hull.length >= 3 && AutoMovieEngineMath.pointInHull(centre, hull)) return posture;
+    const edge: ReturnType<typeof AutoMovieEngineMath.nearestHullEdge> = AutoMovieEngineMath.nearestHullEdge(
       centre,
       hull,
     );
-    const target: IAutoMovieVector3 = closestPointOnSegmentXZ(
+    const target: IAutoMovieVector3 = AutoMovieEngineMath.closestPointOnSegmentXZ(
       centre,
       edge.start,
       edge.end,

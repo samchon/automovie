@@ -1,4 +1,4 @@
-import { fitRigidMeshTransform } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../../internal/equalGeometryTestValues";
@@ -15,16 +15,16 @@ import { throwsError } from "../../internal/predicates";
  *    the fit.
  */
 export function test_engine_math_rigid_mesh_transform_admission(): void {
-  const valid: Parameters<typeof fitRigidMeshTransform>[0] = {
+  const valid: Parameters<typeof AutoMovieEngineMath.fitRigidMeshTransform>[0] = {
     reference: [0, 0, 0, 1, 0, 0],
     target: [0, 1, 0, 1, 1, 0],
     vertices: [0, 1],
   };
-  const invalid: Parameters<typeof fitRigidMeshTransform>[0][] = [
+  const invalid: Parameters<typeof AutoMovieEngineMath.fitRigidMeshTransform>[0][] = [
     { ...valid, target: [0, 0, 0] },
     { ...valid, reference: [0], target: [0] },
     ...[[], [0, 0], [-1], [2]].map(
-      (vertices: number[]): Parameters<typeof fitRigidMeshTransform>[0] => ({
+      (vertices: number[]): Parameters<typeof AutoMovieEngineMath.fitRigidMeshTransform>[0] => ({
         ...valid,
         vertices,
       }),
@@ -50,14 +50,14 @@ export function test_engine_math_rigid_mesh_transform_admission(): void {
     TestValidator.predicate(
       "invalid rigid fit refuses",
       throwsError(
-        (): ReturnType<typeof fitRigidMeshTransform> =>
-          fitRigidMeshTransform(input),
+        (): ReturnType<typeof AutoMovieEngineMath.fitRigidMeshTransform> =>
+          AutoMovieEngineMath.fitRigidMeshTransform(input),
         "Rigid fitting",
       ),
     );
   TestValidator.predicate(
     "recovery centroid",
-    equalGeometryTestValues(fitRigidMeshTransform(valid).targetCenter, {
+    equalGeometryTestValues(AutoMovieEngineMath.fitRigidMeshTransform(valid).targetCenter, {
       x: 0.5,
       y: 1,
       z: 0,
@@ -66,7 +66,7 @@ export function test_engine_math_rigid_mesh_transform_admission(): void {
   TestValidator.predicate(
     "unused data is outside the correspondence",
     equalGeometryTestValues(
-      fitRigidMeshTransform({
+      AutoMovieEngineMath.fitRigidMeshTransform({
         reference: [1, 2, 3, NaN, NaN, NaN],
         target: [4, 5, 6, NaN, NaN, NaN],
         vertices: [0],

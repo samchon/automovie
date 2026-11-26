@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolvePhysicalTargetStep,
 } from "@automovie/interface";
 
-import { decomposeAutoMovieSingularMatrix } from "../math/decomposeAutoMovieSingularMatrix";
+import { decomposeAutoMovieSingularMatrix } from "../math/internal/decomposeAutoMovieSingularMatrix";
 import { physicalSingularBudget } from "./physicalSingularBudget";
 
 /**

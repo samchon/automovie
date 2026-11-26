@@ -1,4 +1,4 @@
-import { nearestAngleAlias } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -22,19 +22,19 @@ export function test_engine_math_nearest_angle_alias(): void {
   TestValidator.equals(
     "the alias each range takes",
     [
-      nearestAngleAlias(45, { min: -90, max: 90 }),
-      nearestAngleAlias(300, { min: -90, max: 90 }),
-      nearestAngleAlias(10, { min: -400, max: 400 }),
-      nearestAngleAlias(500, { min: -400, max: 400 }),
-      nearestAngleAlias(200, { min: 10, max: 20 }),
-      nearestAngleAlias(195, { min: 10, max: 20 }),
-      nearestAngleAlias(-190, { min: 10, max: 20 }),
-      nearestAngleAlias(359, null),
+      AutoMovieEngineMath.nearestAngleAlias(45, { min: -90, max: 90 }),
+      AutoMovieEngineMath.nearestAngleAlias(300, { min: -90, max: 90 }),
+      AutoMovieEngineMath.nearestAngleAlias(10, { min: -400, max: 400 }),
+      AutoMovieEngineMath.nearestAngleAlias(500, { min: -400, max: 400 }),
+      AutoMovieEngineMath.nearestAngleAlias(200, { min: 10, max: 20 }),
+      AutoMovieEngineMath.nearestAngleAlias(195, { min: 10, max: 20 }),
+      AutoMovieEngineMath.nearestAngleAlias(-190, { min: 10, max: 20 }),
+      AutoMovieEngineMath.nearestAngleAlias(359, null),
     ],
     [45, -60, 10, 140, -160, -165, 170, -1],
   );
   TestValidator.predicate(
     "an admitted endpoint returns the input angle unchanged",
-    Object.is(nearestAngleAlias(-0, null), -0),
+    Object.is(AutoMovieEngineMath.nearestAngleAlias(-0, null), -0),
   );
 }

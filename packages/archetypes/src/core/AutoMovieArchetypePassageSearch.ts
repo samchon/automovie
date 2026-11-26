@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  convexHull2D,
-  segmentSegmentDistance,
-} from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieCrowdAgent,
   IAutoMovieVector3,
@@ -149,7 +145,7 @@ export namespace AutoMovieArchetypePassageSearch {
         "an outline has at least one finite point",
       );
     return {
-      points: convexHull2D(
+      points: AutoMovieEngineMath.convexHull2D(
         body.footprint.outline.map(
           (point: IAutoMovieVector3): IAutoMovieVector3 => ({
             x: point.x,
@@ -194,7 +190,7 @@ export namespace AutoMovieArchetypePassageSearch {
       for (let j: number = 0; j < sides(b); ++j)
         least = Math.min(
           least,
-          segmentSegmentDistance(
+          AutoMovieEngineMath.segmentSegmentDistance(
             a[i]!,
             a[(i + 1) % a.length]!,
             b[j]!,

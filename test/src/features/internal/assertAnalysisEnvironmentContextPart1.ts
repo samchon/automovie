@@ -1,8 +1,4 @@
-import {
-  autoMovieContextSolids,
-  autoMovieEnvironmentInstant,
-  validateAutoMovieEnvironmentContext,
-} from "@automovie/engine";
+import { validateAutoMovieEnvironmentContext, AutoMovieEngineEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisSolid,
   IAutoMovieEnvironmentContext,
@@ -46,8 +42,8 @@ export function assertAnalysisEnvironmentContextPart1(): {
   TestValidator.equals(
     "an instant is found by id and absent ids read as null",
     [
-      autoMovieEnvironmentInstant(context, "noon")?.label,
-      autoMovieEnvironmentInstant(context, "dawn"),
+      AutoMovieEngineEnvironment.instant(context, "noon")?.label,
+      AutoMovieEngineEnvironment.instant(context, "dawn"),
     ],
     ["equinox-1200", null],
   );
@@ -60,7 +56,7 @@ export function assertAnalysisEnvironmentContextPart1(): {
   TestValidator.predicate(
     "context occluders convert to analysis solids without gaining ownership",
     ((): boolean => {
-      const observed: (string | number)[][] = autoMovieContextSolids(
+      const observed: (string | number)[][] = AutoMovieEngineEnvironment.contextSolids(
         occluded,
       ).map((solid: IAutoMovieAnalysisSolid): (string | number)[] => [
         solid.id,

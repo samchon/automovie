@@ -1,4 +1,4 @@
-import { minimumJerk, smoothMinimum } from "@automovie/engine";
+import { minimumJerk, AutoMovieEngineMotionSampling } from "@automovie/engine";
 
 import { walkLegLow } from "./walkLegLow";
 
@@ -74,7 +74,7 @@ export function walkLegRise(
   }
   if (asked >= width || pitch <= -STEEPEST) return pitch;
   const kept: number =
-    width > 0 ? -smoothMinimum(-asked, 0, width) : Math.max(asked, 0);
+    width > 0 ? -AutoMovieEngineMotionSampling.smoothMinimum(-asked, 0, width) : Math.max(asked, 0);
   // The dip is the first low of the room as the heel rises from the asked
   // pitch: walked down in `SCAN` steps until the room grows again, so it is
   // the one the rise meets first. It is wanted only as an end of the kept

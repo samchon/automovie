@@ -17,7 +17,7 @@ import {
 } from "@automovie/interface";
 
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
-import { builtPlacedPartBoxes } from "../architecture/builtPlacedPartBoxes";
+import { builtPlacedPartBoxes } from "../architecture/internal/builtPlacedPartBoxes";
 import { createPropPassageBlocker } from "./createPropPassageBlocker";
 import { propBoundsOverlap } from "./propBoundsOverlap";
 import { propBoxAxisIsSound } from "./propBoxAxisIsSound";

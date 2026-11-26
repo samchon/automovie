@@ -1,4 +1,4 @@
-import { Vector3, closestPointsBetweenSegments } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -131,8 +131,8 @@ export namespace HumanFitPairs {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     pair: IPair,
   ): IGap {
-    const w: ReturnType<typeof closestPointsBetweenSegments> =
-      closestPointsBetweenSegments(
+    const w: ReturnType<typeof AutoMovieEngineMath.closestPointsBetweenSegments> =
+      AutoMovieEngineMath.closestPointsBetweenSegments(
         bones.get(pair.a.bone)!.worldPosition,
         bones.get(pair.a.end)!.worldPosition,
         bones.get(pair.b.bone)!.worldPosition,

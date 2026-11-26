@@ -1,4 +1,4 @@
-import { pointOnSegment } from "@automovie/engine";
+import { AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
 import type { buildingPlans } from "./buildingPlans";
@@ -28,7 +28,7 @@ export function buildingWalls(
         const forward: boolean = compare(a, b) < 0;
         const cuts: IAutoMovieProfilePoint[] = [...points.values()]
           .filter((point: IAutoMovieProfilePoint): boolean =>
-            pointOnSegment(point, a, b),
+            AutoMovieEnginePlanarGeometry.pointOnSegment(point, a, b),
           )
           .sort(compare);
         for (let cut: number = 1; cut < cuts.length; ++cut) {

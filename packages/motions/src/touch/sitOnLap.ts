@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  bracketedCrossing,
-  minimumJerk,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -225,7 +220,7 @@ function planSitOnLap(
       const low: number = gap(-range);
       const high: number = gap(range);
       if (low <= 0 && high > 0)
-        lift = bracketedCrossing({
+        lift = AutoMovieEngineMath.bracketedCrossing({
           f: gap,
           low: -range,
           high: range,

@@ -24,7 +24,7 @@ import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 import { pathAutoMovieSweepTransport } from "./pathAutoMovieSweepTransport";
 import { sampleAutoMovieSweepSection } from "./sampleAutoMovieSweepSection";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /**
  * Directions each section is sampled in; the radius between two is linear in

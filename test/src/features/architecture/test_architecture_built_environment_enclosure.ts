@@ -1,7 +1,4 @@
-import {
-  builtEnvironmentAdjacentSpaces,
-  builtEnvironmentSpaceBoundaries,
-} from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
@@ -32,7 +29,7 @@ export function test_architecture_built_environment_enclosure(): void {
   const enclosureOf: (space: string) => IAutoMovieBuiltBoundary[] = (
     space: string,
   ): IAutoMovieBuiltBoundary[] =>
-    builtEnvironmentSpaceBoundaries(environment, space);
+    AutoMovieEngineBuiltEnvironment.environmentSpaceBoundaries(environment, space);
 
   const hall: IAutoMovieBuiltBoundary[] = enclosureOf("hall");
   const deck: IAutoMovieBuiltBoundary[] = enclosureOf("roof-deck");
@@ -98,13 +95,13 @@ export function test_architecture_built_environment_enclosure(): void {
       [
         "adjacency answers with the far space",
         (): boolean =>
-          builtEnvironmentAdjacentSpaces(environment, "hall").join() ===
+          AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(environment, "hall").join() ===
           "roof-deck",
       ],
       [
         "and never with the boundary enclosing it",
         (): boolean =>
-          builtEnvironmentAdjacentSpaces(environment, "hall").includes(
+          AutoMovieEngineBuiltEnvironment.environmentAdjacentSpaces(environment, "hall").includes(
             "north",
           ) === false,
       ],
@@ -125,7 +122,7 @@ export function test_architecture_built_environment_enclosure(): void {
     "an unknown space is refused by name",
     throwsError(
       (): IAutoMovieBuiltBoundary[] =>
-        builtEnvironmentSpaceBoundaries(environment, "cellar"),
+        AutoMovieEngineBuiltEnvironment.environmentSpaceBoundaries(environment, "cellar"),
       ["cellar", "no logical space"],
     ),
   );

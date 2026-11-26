@@ -1,4 +1,4 @@
-import { positiveModulo } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 
 import {
   type AutoMovieArchetype,
@@ -129,7 +129,7 @@ function rolling(
   cart: ReturnType<typeof createCart>,
   distance: number,
 ): ReturnType<typeof createCart> {
-  const angle: number = positiveModulo(
+  const angle: number = AutoMovieEngineMath.positiveModulo(
     (360 * distance) / (Math.PI * cart.dimensions.wheelDiameter!),
     360,
   );
@@ -157,7 +157,7 @@ function limberedGun(
     pose: (
       state: AutoMovieArchetypeCourse.IState,
     ): ReturnType<typeof createCannon> => {
-      const angle: number = positiveModulo(
+      const angle: number = AutoMovieEngineMath.positiveModulo(
         (-360 * state.progress) / (Math.PI * gun.dimensions.wheelDiameter!),
         360,
       );
@@ -220,12 +220,12 @@ function limberedWagon(
     pose: (
       state: AutoMovieArchetypeCourse.IState,
     ): ReturnType<typeof createCart> => {
-      const front: number = positiveModulo(
+      const front: number = AutoMovieEngineMath.positiveModulo(
         (360 * state.progress) /
           (Math.PI * wagon.dimensions.frontWheelDiameter!),
         360,
       );
-      const rear: number = positiveModulo(
+      const rear: number = AutoMovieEngineMath.positiveModulo(
         (360 * state.progress) / (Math.PI * wagon.dimensions.wheelDiameter!),
         360,
       );

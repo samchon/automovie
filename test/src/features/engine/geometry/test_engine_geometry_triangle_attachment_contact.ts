@@ -1,8 +1,4 @@
-import {
-  boundAutoMovieTriangleAttachmentContact,
-  createAutoMovieMeshSeparationQuery,
-  interpolateAutoMovieTrianglePoint,
-} from "@automovie/engine";
+import { boundAutoMovieTriangleAttachmentContact, createAutoMovieMeshSeparationQuery, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshSeparationQuery,
@@ -48,7 +44,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
   });
 
   // 1.
-  const seat: IAutoMovieVector3 = interpolateAutoMovieTrianglePoint(
+  const seat: IAutoMovieVector3 = AutoMovieEngineMath.interpolateTrianglePoint(
     support,
     weights,
   );

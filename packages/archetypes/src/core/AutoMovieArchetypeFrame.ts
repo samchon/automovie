@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  normalizeAutoMovieSurfaceFrame,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, normalizeAutoMovieSurfaceFrame, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSweepFrame,
@@ -90,7 +85,7 @@ export namespace AutoMovieArchetypeFrame {
     // Archetype +Y is the normal, so the surface side points along -Z.
     return {
       translation: basis.origin,
-      rotation: quaternionFromAutoMovieBasis(
+      rotation: AutoMovieEngineMath.quaternionFromBasis(
         basis.x,
         basis.normal,
         Vector3.scale(basis.y, -1),

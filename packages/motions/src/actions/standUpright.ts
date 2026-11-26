@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  bracketedCrossing,
-  bracketedMinimum,
-} from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -232,7 +228,7 @@ export namespace standUpright {
     lo: number,
     hi: number,
   ): number {
-    return bracketedMinimum(cost, lo, hi, LOW / 3).at;
+    return AutoMovieEngineMath.bracketedMinimum(cost, lo, hi, LOW / 3).at;
   }
 
   /**
@@ -251,7 +247,7 @@ export namespace standUpright {
     const a: number = residual(-range);
     const b: number = residual(range);
     if (a * b > 0) return Math.abs(a) < Math.abs(b) ? -range : range;
-    const closed: IBisectClosed = bracketedCrossing({
+    const closed: IBisectClosed = AutoMovieEngineMath.bracketedCrossing({
       f: residual,
       past: (value: number): boolean => !(value * a > 0),
       low: -range,

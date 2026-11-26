@@ -7,8 +7,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { convexHull2D } from "../math/convexHull2D";
-import { pointHullDistance } from "../math/pointHullDistance";
+import { convexHull2D } from "../math/internal/convexHull2D";
+import { pointHullDistance } from "../math/internal/pointHullDistance";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
 import { projectileTrajectory } from "../physics/projectileTrajectory";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";

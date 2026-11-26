@@ -1,4 +1,4 @@
-import { builtEnvironmentDescendantSpaces } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
 import type { IAutoMovieBuiltEnvironment } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,7 +26,7 @@ export function test_architecture_descendant_spaces(): void {
 
   TestValidator.equals(
     "a root names its whole subtree in code-unit order",
-    builtEnvironmentDescendantSpaces(record, "house"),
+    AutoMovieEngineBuiltEnvironment.environmentDescendantSpaces(record, "house"),
     ["attic", "gallery", "hall", "house", "upper", "wing"],
   );
 
@@ -36,20 +36,20 @@ export function test_architecture_descendant_spaces(): void {
       [
         "a leaf names only itself",
         (): boolean =>
-          builtEnvironmentDescendantSpaces(record, "gallery").join(",") ===
+          AutoMovieEngineBuiltEnvironment.environmentDescendantSpaces(record, "gallery").join(",") ===
           "gallery",
       ],
       [
         "an intermediate space names its own subtree alone",
         (): boolean =>
-          builtEnvironmentDescendantSpaces(record, "upper").join(",") ===
+          AutoMovieEngineBuiltEnvironment.environmentDescendantSpaces(record, "upper").join(",") ===
           "attic,gallery,upper",
       ],
       [
         "and an absent space is refused by name",
         (): boolean =>
           throwsError(
-            (): string[] => builtEnvironmentDescendantSpaces(record, "cellar"),
+            (): string[] => AutoMovieEngineBuiltEnvironment.environmentDescendantSpaces(record, "cellar"),
             ["storeys", "cellar"],
           ),
       ],

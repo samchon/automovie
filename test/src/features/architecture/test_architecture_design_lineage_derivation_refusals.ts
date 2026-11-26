@@ -1,4 +1,4 @@
-import { validateDesignLineage } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type { IAutoMovieDesignLineage } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +13,7 @@ import { namedFacts } from "../internal/predicates";
 /** True when one edit away from the coherent fixture still validates. */
 const accepts: (edit: Parameters<typeof brokenLineage>[0]) => boolean = (
   edit: Parameters<typeof brokenLineage>[0],
-): boolean => validateDesignLineage({ lineage: brokenLineage(edit) }).success;
+): boolean => AutoMovieEngineArchitecture.validateDesignLineage({ lineage: brokenLineage(edit) }).success;
 
 /**
  * Validate alternative, decision, artifact-stamp and imported-asset citation integrity against a coherent lineage.

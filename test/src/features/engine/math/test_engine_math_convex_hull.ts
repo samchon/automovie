@@ -1,10 +1,4 @@
-import {
-  closestPointOnSegmentXZ,
-  convexHull2D,
-  nearestHullEdge,
-  pointHullDistance,
-  pointInHull,
-} from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieHullEdge,
   IAutoMovieVector3,
@@ -36,7 +30,7 @@ import { throwsError } from "../../internal/predicates";
  */
 export function test_engine_math_convex_hull(): void {
   const v = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
-  const square: IAutoMovieVector3[] = convexHull2D([
+  const square: IAutoMovieVector3[] = AutoMovieEngineMath.convexHull2D([
     v(0, 0),
     v(2, 0),
     v(2, 2),
@@ -46,84 +40,84 @@ export function test_engine_math_convex_hull(): void {
   TestValidator.equals("square", square.length, 4);
   TestValidator.equals(
     "duplicates",
-    convexHull2D([v(0, 0), v(0, 0), v(1, 0)]).length,
+    AutoMovieEngineMath.convexHull2D([v(0, 0), v(0, 0), v(1, 0)]).length,
     2,
   );
   TestValidator.equals(
     "collinear",
-    convexHull2D([v(0, 0), v(1, 0), v(2, 0)]).length,
+    AutoMovieEngineMath.convexHull2D([v(0, 0), v(1, 0), v(2, 0)]).length,
     2,
   );
-  TestValidator.equals("single", convexHull2D([v(5, 5)]).length, 1);
-  TestValidator.equals("empty", convexHull2D([]).length, 0);
+  TestValidator.equals("single", AutoMovieEngineMath.convexHull2D([v(5, 5)]).length, 1);
+  TestValidator.equals("empty", AutoMovieEngineMath.convexHull2D([]).length, 0);
   TestValidator.equals(
     "equal x",
-    convexHull2D([v(0, 2), v(0, 0), v(2, 1)]).length,
+    AutoMovieEngineMath.convexHull2D([v(0, 2), v(0, 0), v(2, 1)]).length,
     3,
   );
 
-  TestValidator.equals("inside", pointInHull(v(1, 1), square), true);
-  TestValidator.equals("outside", pointInHull(v(3, 1), square), false);
+  TestValidator.equals("inside", AutoMovieEngineMath.pointInHull(v(1, 1), square), true);
+  TestValidator.equals("outside", AutoMovieEngineMath.pointInHull(v(3, 1), square), false);
   TestValidator.equals(
     "segment hull",
-    pointInHull(v(0, 0), convexHull2D([v(0, 0), v(1, 0)])),
+    AutoMovieEngineMath.pointInHull(v(0, 0), AutoMovieEngineMath.convexHull2D([v(0, 0), v(1, 0)])),
     false,
   );
 
   TestValidator.equals(
     "distance inside",
-    pointHullDistance(v(1, 1), square),
+    AutoMovieEngineMath.pointHullDistance(v(1, 1), square),
     0,
   );
   TestValidator.equals(
     "distance beside",
-    pointHullDistance(v(3, 1), square),
+    AutoMovieEngineMath.pointHullDistance(v(3, 1), square),
     1,
   );
   TestValidator.equals(
     "distance to vertex",
-    pointHullDistance(v(3, 0), [v(0, 0)]),
+    AutoMovieEngineMath.pointHullDistance(v(3, 0), [v(0, 0)]),
     3,
   );
   TestValidator.equals(
     "distance to nothing",
-    pointHullDistance(v(0, 0), []),
+    AutoMovieEngineMath.pointHullDistance(v(0, 0), []),
     Infinity,
   );
   TestValidator.equals(
     "distance to segment",
-    pointHullDistance(v(1, 1), [v(0, 0), v(2, 0)]),
+    AutoMovieEngineMath.pointHullDistance(v(1, 1), [v(0, 0), v(2, 0)]),
     1,
   );
 
-  const edge: IAutoMovieHullEdge = nearestHullEdge(v(3, 1), square);
+  const edge: IAutoMovieHullEdge = AutoMovieEngineMath.nearestHullEdge(v(3, 1), square);
   TestValidator.equals("nearest edge distance", edge.distance, 1);
-  const single: IAutoMovieHullEdge = nearestHullEdge(v(3, 0), [v(0, 0)]);
+  const single: IAutoMovieHullEdge = AutoMovieEngineMath.nearestHullEdge(v(3, 0), [v(0, 0)]);
   TestValidator.equals("single vertex distance", single.distance, 3);
   TestValidator.equals("collapsed edge", single.start, single.end);
   TestValidator.predicate(
     "empty hull",
-    throwsError(() => nearestHullEdge(v(0, 0), []), ["nonempty hull"]),
+    throwsError(() => AutoMovieEngineMath.nearestHullEdge(v(0, 0), []), ["nonempty hull"]),
   );
 
   TestValidator.equals(
     "clamp before",
-    closestPointOnSegmentXZ(v(-1, 0), v(0, 0), v(2, 0)),
+    AutoMovieEngineMath.closestPointOnSegmentXZ(v(-1, 0), v(0, 0), v(2, 0)),
     v(0, 0),
   );
   TestValidator.equals(
     "project",
-    closestPointOnSegmentXZ(v(1, 1), v(0, 0), v(2, 0)),
+    AutoMovieEngineMath.closestPointOnSegmentXZ(v(1, 1), v(0, 0), v(2, 0)),
     v(1, 0),
   );
   TestValidator.equals(
     "clamp after",
-    closestPointOnSegmentXZ(v(3, 0), v(0, 0), v(2, 0)),
+    AutoMovieEngineMath.closestPointOnSegmentXZ(v(3, 0), v(0, 0), v(2, 0)),
     v(2, 0),
   );
   TestValidator.equals(
     "zero length",
-    closestPointOnSegmentXZ(v(1, 1), v(5, 5), v(5, 5)),
+    AutoMovieEngineMath.closestPointOnSegmentXZ(v(1, 1), v(5, 5), v(5, 5)),
     v(5, 5),
   );
 }

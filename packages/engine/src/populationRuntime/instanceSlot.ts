@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { seededValue } from "../math/seededValue";
+import { seededValue } from "../math/internal/seededValue";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 import { selectInstancePrototype } from "./selectInstancePrototype";
 

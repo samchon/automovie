@@ -1,6 +1,6 @@
 import { IAutoMovieDrawingPoint } from "@automovie/interface";
 
-import { polygonDoubleArea } from "../../architecture/polygonDoubleArea";
+import { polygonDoubleArea } from "../../architecture/internal/polygonDoubleArea";
 
 /**
  * Unsigned area of a simple page polygon, in square metres.

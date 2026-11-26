@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  quaternionFromAutoMovieBasis,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -96,7 +92,7 @@ export function verifyCarExitSill(
   const fallback: HumanMaterialContact.IFace = {
     frame: {
       position: through.at,
-      rotation: quaternionFromAutoMovieBasis(through.across, UP, normal),
+      rotation: AutoMovieEngineMath.quaternionFromBasis(through.across, UP, normal),
     },
     outline: [
       { x: -through.width / 2, y: 0, z: -ALLOWANCE / 2 },

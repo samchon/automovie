@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 /** Most rest fits the girth solve runs. */
 const MAX_ITERATIONS: number = 24;

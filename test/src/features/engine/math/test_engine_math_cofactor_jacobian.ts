@@ -1,4 +1,4 @@
-import { cofactorAutoMovieJacobian } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -22,14 +22,14 @@ import { throwsError } from "../../internal/predicates";
  *    0,1e-308,0, 0,0,1e308] has matrix[4] = Infinity.
  */
 export function test_engine_math_cofactor_jacobian(): void {
-  const identity = cofactorAutoMovieJacobian([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+  const identity = AutoMovieEngineMath.cofactorJacobian([1, 0, 0, 0, 1, 0, 0, 0, 1]);
   TestValidator.equals("identity determinant", identity.determinant, 1);
   TestValidator.equals(
     "identity cofactor",
     identity.matrix,
     [1, 0, 0, 0, 1, 0, 0, 0, 1],
   );
-  const scale = cofactorAutoMovieJacobian([2, 0, 0, 0, 3, 0, 0, 0, 4]);
+  const scale = AutoMovieEngineMath.cofactorJacobian([2, 0, 0, 0, 3, 0, 0, 0, 4]);
   TestValidator.equals("scale determinant", scale.determinant, 24);
   TestValidator.equals(
     "scale cofactor",
@@ -38,16 +38,16 @@ export function test_engine_math_cofactor_jacobian(): void {
   );
   TestValidator.predicate(
     "reflection",
-    throwsError(() => cofactorAutoMovieJacobian([1, 0, 0, 0, 1, 0, 0, 0, -1])),
+    throwsError(() => AutoMovieEngineMath.cofactorJacobian([1, 0, 0, 0, 1, 0, 0, 0, -1])),
   );
   TestValidator.predicate(
     "short",
-    throwsError(() => cofactorAutoMovieJacobian([1, 0, 0, 0, 1, 0, 0, 0])),
+    throwsError(() => AutoMovieEngineMath.cofactorJacobian([1, 0, 0, 0, 1, 0, 0, 0])),
   );
   const turn: number[] = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-  TestValidator.equals("turn", cofactorAutoMovieJacobian(turn).matrix, turn);
+  TestValidator.equals("turn", AutoMovieEngineMath.cofactorJacobian(turn).matrix, turn);
   const shear: number[] = [1, 2, 0, 0, 1, 0, 0, 0, 1];
-  const sheared = cofactorAutoMovieJacobian(shear);
+  const sheared = AutoMovieEngineMath.cofactorJacobian(shear);
   TestValidator.equals("shear determinant", sheared.determinant, 1);
   TestValidator.equals(
     "shear cofactor",
@@ -60,12 +60,12 @@ export function test_engine_math_cofactor_jacobian(): void {
     0,
   );
   const unit: number[] = [1, 0, 0, 0, 1, 0, 0, 0, 1];
-  const result = cofactorAutoMovieJacobian(unit);
+  const result = AutoMovieEngineMath.cofactorJacobian(unit);
   TestValidator.predicate("owned storage", result.matrix !== unit);
   result.matrix[0] = 99;
   TestValidator.equals(
     "recovers",
-    cofactorAutoMovieJacobian(unit).matrix,
+    AutoMovieEngineMath.cofactorJacobian(unit).matrix,
     unit,
   );
   for (const input of [
@@ -76,26 +76,26 @@ export function test_engine_math_cofactor_jacobian(): void {
     TestValidator.predicate(
       "refused",
       throwsError(
-        () => cofactorAutoMovieJacobian(input),
+        () => AutoMovieEngineMath.cofactorJacobian(input),
         ["local surface orientation"],
       ),
     );
   TestValidator.predicate(
     "nine entries",
     throwsError(
-      () => cofactorAutoMovieJacobian([...unit, 0]),
+      () => AutoMovieEngineMath.cofactorJacobian([...unit, 0]),
       ["nine row-major"],
     ),
   );
   TestValidator.equals(
     "raw cofactor overflow",
-    cofactorAutoMovieJacobian([1e308, 0, 0, 0, 1e-308, 0, 0, 0, 1e308])
+    AutoMovieEngineMath.cofactorJacobian([1e308, 0, 0, 0, 1e-308, 0, 0, 0, 1e308])
       .matrix[4],
     Infinity,
   );
   for (const input of [[], unit.slice(0, 8)])
     TestValidator.predicate(
       "short",
-      throwsError(() => cofactorAutoMovieJacobian(input), ["nine row-major"]),
+      throwsError(() => AutoMovieEngineMath.cofactorJacobian(input), ["nine row-major"]),
     );
 }

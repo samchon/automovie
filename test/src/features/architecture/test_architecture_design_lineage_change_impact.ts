@@ -1,4 +1,4 @@
-import { designLineageImpact } from "@automovie/engine";
+import { AutoMovieEngineDesignLineage } from "@automovie/engine";
 import type {
   IAutoMovieDesignImpact,
   IAutoMovieDesignLineage,
@@ -31,7 +31,7 @@ export function test_architecture_design_lineage_change_impact(): void {
 
   TestValidator.equals(
     "one opening change invalidates its wall, cut, door, quantity, and render",
-    designLineageImpact(lineage, ["opening-door"]),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["opening-door"]),
     {
       changed: ["opening-door"],
       invalidated: [
@@ -54,13 +54,13 @@ export function test_architecture_design_lineage_change_impact(): void {
 
   TestValidator.equals(
     "asking twice about one identity deduplicates instead of doubling",
-    designLineageImpact(lineage, ["opening-door", "opening-door"]),
-    designLineageImpact(lineage, ["opening-door"]),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["opening-door", "opening-door"]),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["opening-door"]),
   );
 
   TestValidator.equals(
     "changing an imported asset's bytes invalidates the outputs reading it",
-    designLineageImpact(lineage, ["oak-texture"]),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["oak-texture"]),
     {
       changed: ["oak-texture"],
       invalidated: [
@@ -83,7 +83,7 @@ export function test_architecture_design_lineage_change_impact(): void {
 
   TestValidator.equals(
     "a derived artifact named as changed invalidates itself and its dependents",
-    designLineageImpact(lineage, ["mesh-wall-north"]),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["mesh-wall-north"]),
     {
       changed: ["mesh-wall-north"],
       invalidated: [
@@ -106,7 +106,7 @@ export function test_architecture_design_lineage_change_impact(): void {
 
   TestValidator.equals(
     "two unrelated changes union their impact",
-    designLineageImpact(lineage, ["opening-door", "wall-west"]),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["opening-door", "wall-west"]),
     {
       changed: ["opening-door", "wall-west"],
       invalidated: [
@@ -125,7 +125,7 @@ export function test_architecture_design_lineage_change_impact(): void {
 
   TestValidator.equals(
     "changing nothing invalidates nothing and accounts for every artifact",
-    designLineageImpact(lineage, []),
+    AutoMovieEngineDesignLineage.designLineageImpact(lineage, []),
     {
       changed: [],
       invalidated: [],
@@ -148,7 +148,7 @@ export function test_architecture_design_lineage_change_impact(): void {
   TestValidator.predicate(
     "an identity no graph declared is refused rather than traced as empty",
     throwsError(
-      (): IAutoMovieDesignImpact => designLineageImpact(lineage, ["wall-east"]),
+      (): IAutoMovieDesignImpact => AutoMovieEngineDesignLineage.designLineageImpact(lineage, ["wall-east"]),
       'has no identity "wall-east" to trace',
     ),
   );
@@ -156,7 +156,7 @@ export function test_architecture_design_lineage_change_impact(): void {
     "an incoherent lineage is refused before any impact is computed",
     throwsError(
       (): IAutoMovieDesignImpact =>
-        designLineageImpact(
+        AutoMovieEngineDesignLineage.designLineageImpact(
           brokenLineage((draft: IAutoMovieDesignLineage): void => {
             draft.head = "r9";
           }),

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMeasureFeatureEdges,
 } from "@automovie/interface";
 
-import { pointSegmentDistance } from "../math/pointSegmentDistance";
+import { pointSegmentDistance } from "../math/internal/pointSegmentDistance";
 
 /**
  * The distances from a point on one triangle of a measured mesh to the nearest

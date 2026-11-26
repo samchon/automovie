@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { bracketedCrossing } from "../math/bracketedCrossing";
+import { bracketedCrossing } from "../math/internal/bracketedCrossing";
 
 /**
  * The point where two people's hands meet when both reach for it: a handshake's

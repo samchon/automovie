@@ -2,11 +2,7 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  closestPointsBetweenSegments,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieTransform,
@@ -114,7 +110,7 @@ export namespace equineExpressionObservation {
    */
   export function surface(bar: IBar, point: IAutoMovieVector3): number {
     return (
-      closestPointsBetweenSegments(point, point, bar.from, bar.to).distance -
+      AutoMovieEngineMath.closestPointsBetweenSegments(point, point, bar.from, bar.to).distance -
       bar.radius
     );
   }

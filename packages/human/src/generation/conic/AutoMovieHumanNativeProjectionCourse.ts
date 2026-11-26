@@ -1,8 +1,4 @@
-import {
-  AutoMovieViewAxisJet as AxisJet,
-  AutoMovieSolidVector as V,
-  adjacentAutoMovieFloat64 as adjacent,
-} from "@automovie/engine";
+import { AutoMovieViewAxisJet as AxisJet, AutoMovieSolidVector as V, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionOutlineParameter,
@@ -165,9 +161,9 @@ export namespace AutoMovieHumanNativeProjectionCourse {
 
     // An outward-rounded bound that lands on an integer N would let the sampler cut each interval into
     // exactly N rows, whose rounded spans exceed span/N by an ulp; the next float keeps it a strict bound.
-    const rounded: number = adjacent(lambda * speed, true);
+    const rounded: number = AutoMovieEngineMath.adjacentFloat64(lambda * speed, true);
     const maximumSpeed: number = Number.isInteger(rounded)
-      ? adjacent(rounded, true)
+      ? AutoMovieEngineMath.adjacentFloat64(rounded, true)
       : rounded;
     if (
       !(

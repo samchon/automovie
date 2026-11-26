@@ -1,4 +1,4 @@
-import { pointHullDistance } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,18 +19,18 @@ import { nclose } from "../../internal/predicates";
 export function test_engine_math_point_hull_distance(): void {
   const p = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
   const square: IAutoMovieVector3[] = [p(0, 0), p(1, 0), p(1, 1), p(0, 1)];
-  TestValidator.equals("inside", pointHullDistance(p(0.5, 0.5), square), 0);
+  TestValidator.equals("inside", AutoMovieEngineMath.pointHullDistance(p(0.5, 0.5), square), 0);
   TestValidator.predicate(
     "edge",
-    nclose(pointHullDistance(p(2, 0.5), square), 1, 1e-12),
+    nclose(AutoMovieEngineMath.pointHullDistance(p(2, 0.5), square), 1, 1e-12),
   );
   TestValidator.predicate(
     "corner",
-    nclose(pointHullDistance(p(4, 5), square), 5, 1e-12),
+    nclose(AutoMovieEngineMath.pointHullDistance(p(4, 5), square), 5, 1e-12),
   );
-  TestValidator.equals("empty", pointHullDistance(p(0, 0), []), Infinity);
+  TestValidator.equals("empty", AutoMovieEngineMath.pointHullDistance(p(0, 0), []), Infinity);
   TestValidator.predicate(
     "vertex",
-    nclose(pointHullDistance(p(3, 4), [p(0, 0)]), 5, 1e-12),
+    nclose(AutoMovieEngineMath.pointHullDistance(p(3, 4), [p(0, 0)]), 5, 1e-12),
   );
 }

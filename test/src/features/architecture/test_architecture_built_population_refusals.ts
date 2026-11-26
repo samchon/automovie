@@ -1,4 +1,4 @@
-import { validateBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineArchitecture } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieBuiltPopulation,
@@ -82,7 +82,7 @@ const refuses: (
   kind: "type" | "range" = "range",
 ): boolean =>
   hasViolation(
-    validateBuiltEnvironment({ environment: work(populations) }),
+    AutoMovieEngineArchitecture.validateBuiltEnvironment({ environment: work(populations) }),
     kind,
     path,
   );

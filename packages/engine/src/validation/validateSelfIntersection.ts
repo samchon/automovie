@@ -12,9 +12,9 @@ import {
 } from "@automovie/interface";
 
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
-import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
+import { segmentSegmentDistance } from "../math/internal/segmentSegmentDistance";
 import { sampleMotion } from "../motion/sampleMotion";
-import { sampleTimes } from "../motion/sampleTimes";
+import { sampleTimes } from "../motion/internal/sampleTimes";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";

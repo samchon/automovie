@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { closestPointOnSegmentXZ } from "../../../math/closestPointOnSegmentXZ";
+import { closestPointOnSegmentXZ } from "../../../math/internal/closestPointOnSegmentXZ";
 
 /**
  * Whether an XZ point lies on a world surface's footprint, its edge included.

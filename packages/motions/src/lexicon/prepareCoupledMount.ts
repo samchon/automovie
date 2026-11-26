@@ -1,12 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  convexHull2D,
-  physicalShapeBounds,
-  physicalShapeContactManifold,
-  pointInPolygon,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, physicalShapeContactManifold, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -462,9 +454,9 @@ function supports(
   );
   if (seat.length === 0) return false;
   const centre = HumanFitBalance.centre(body, poseBones(body, pose));
-  return pointInPolygon(
+  return AutoMovieEnginePlanarGeometry.pointInPolygon(
     { x: centre.x, y: centre.z },
-    convexHull2D([...seat, ...footholds]).map((point) => ({
+    AutoMovieEngineMath.convexHull2D([...seat, ...footholds]).map((point) => ({
       x: point.x,
       y: point.z,
     })),

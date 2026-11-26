@@ -1,4 +1,4 @@
-import { promoteDesignObservations } from "@automovie/engine";
+import { AutoMovieEngineDesignLineage } from "@automovie/engine";
 import type {
   IAutoMovieDesignPromotedReading,
   IAutoMovieDesignPromotion,
@@ -251,7 +251,7 @@ const verdicts: (
 ): { promoted: string[]; withheld: string[]; skipped: string[] } => {
   const value: IAutoMovieDesignReference = observation();
   mutate(value);
-  const promotion: IAutoMovieDesignPromotion = promoteDesignObservations(
+  const promotion: IAutoMovieDesignPromotion = AutoMovieEngineDesignLineage.promoteDesignObservations(
     minimumConfidence === undefined
       ? { reference: value }
       : { reference: value, minimumConfidence },

@@ -5,13 +5,7 @@ import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
 import {
   FamilyConicNativeRootObservations as Observation,
 } from "./FamilyConicNativeRootObservations";
-import {
-  AutoMovieConstructionAdmission,
-  AutoMovieSolidChain,
-  AutoMovieViewLoft,
-  bracketedRoot,
-  pointInPlanarRing,
-} from "@automovie/engine";
+import { AutoMovieConstructionAdmission, AutoMovieSolidChain, AutoMovieViewLoft, pointInPlanarRing, AutoMovieEngineMath } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as Loft,
   AutoMovieHumanF1 as Figure,
@@ -344,7 +338,7 @@ namespace FamilyConicNativeRound {
             ? a
             : fb === 0
               ? b
-              : bracketedRoot(
+              : AutoMovieEngineMath.bracketedRoot(
                   (station: number): number =>
                     source.surface.jet(station, phase).p[1] - y,
                   a,

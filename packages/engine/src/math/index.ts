@@ -7,71 +7,73 @@ export * from "./Quaternion";
 export * from "./prepareLinearSystem";
 export * from "./Transform";
 export * from "./Vector3";
-export * from "./addAutoMovieQuadraticProduct";
-export * from "./addPositiveModulo";
-export * from "./adjacentAutoMovieFloat64";
-export * from "./admitAutoMovieQuadraticProgram";
-export * from "./assembleAutoMovieQuadraticProgram";
-export * from "./assignAutoMovieMinimumCost";
-export * from "./bracketedBisection";
-export * from "./bracketedCrossing";
-export * from "./bracketedMinimum";
-export * from "./bracketedRoot";
-export * from "./clampAutoMovieUnitInterval";
-export * from "./closestPointOnSegmentXZ";
-export * from "./closestPointsBetweenSegments";
-export * from "./cofactorAutoMovieJacobian";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./constants";
-export * from "./convexHull2D";
-export * from "./createAutoMovieQuadraticConicProgram";
-export * from "./createAutoMovieQuadraticConstraintBasis";
-export * from "./createAutoMovieQuadraticFactor";
-export * from "./createAutoMovieQuadraticMemory";
-export * from "./createMeshEdgeKey";
-export * from "./createMeshPhysicalPartitionMatcher";
-export * from "./cubicHermiteValue";
-export * from "./decomposeAutoMovieSingularMatrix";
-export * from "./determinantAutoMovieMatrix3";
-export * from "./equilibrateAutoMovieQuadraticProgram";
-export * from "./fitRigidMeshTransform";
-export * from "./interpolateAutoMovieTrianglePoint";
-export * from "./linearColorToSrgbHex";
-export * from "./measureAutoMovieQuadraticState";
-export * from "./midpoint";
-export * from "./overflowsBinary64";
-export * from "./minimizeAutoMovieSimplexQuadratic";
-export * from "./mixSeed";
-export * from "./nearestAngleAlias";
-export * from "./nearestHullEdge";
-export * from "./orderAutoMovieQuadraticMatrix";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./pinnedElastica";
-export * from "./pointHullDistance";
-export * from "./pointInHull";
-export * from "./pointSegmentDistance";
-export * from "./polishAutoMovieQuadraticProgram";
-export * from "./polynomialUnitRoots";
-export * from "./positiveModulo";
-export * from "./quaternionFromAutoMovieBasis";
-export * from "./quaternionInterpolationCriticalRatios";
-export * from "./reduceAutoMovieQrDesign";
-export * from "./refineAutoMovieQuadraticProgram";
-export * from "./resolveAutoMovieMeshPhysicalVertices";
-export * from "./rigidTransformVelocity";
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./rotationBetween";
-export * from "./roundToThousandths";
-export * from "./seededValue";
-export * from "./segmentIndex";
-export * from "./segmentSegmentDistance";
-export * from "./solveAutoMovieBoundedDisplacement";
-export * from "./solveAutoMovieHalfPlaneProgram";
-export * from "./solveAutoMovieQuadraticInterior";
-export * from "./solveAutoMovieQuadraticKernel";
-export * from "./solveAutoMovieQuadraticProgram";
-export * from "./solveAutoMovieQuadraticStep";
-export * from "./solveAutoMovieQuadraticWorkingSetStep";
-export * from "./srgbHexToLinearColor";
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./swingTwist";
 export * from "./tetrahedralizeAutoMovieDelaunay";
 export * from "./transformedBoxBounds";
-export * from "./weldMeshVertices";
-export * from "./wrapDegrees";
+
+
+
+export { AutoMovieEngineMath } from "./AutoMovieEngineMath";

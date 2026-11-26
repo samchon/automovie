@@ -1,4 +1,4 @@
-import { addPositiveModulo } from "@automovie/engine";
+import { AutoMovieEngineMath } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -11,7 +11,7 @@ import { TestValidator } from "@nestia/e2e";
  *    is 350.
  */
 export function test_engine_math_add_positive_modulo(): void {
-  TestValidator.equals("wrap", addPositiveModulo(350, 20, 360), 10);
-  TestValidator.equals("whole period", addPositiveModulo(5, 360, 360), 5);
-  TestValidator.equals("negative", addPositiveModulo(-10, 0, 360), 350);
+  TestValidator.equals("wrap", AutoMovieEngineMath.addPositiveModulo(350, 20, 360), 10);
+  TestValidator.equals("whole period", AutoMovieEngineMath.addPositiveModulo(5, 360, 360), 5);
+  TestValidator.equals("negative", AutoMovieEngineMath.addPositiveModulo(-10, 0, 360), 350);
 }

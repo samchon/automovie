@@ -13,13 +13,13 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { assertAutoMovieAnalysisTargets } from "../assertAutoMovieAnalysisTargets";
+import { assertAutoMovieAnalysisTargets } from "./assertAutoMovieAnalysisTargets";
 import { autoMovieAnalysisMetric } from "../autoMovieAnalysisMetric";
-import { autoMovieAnalysisSettingsTargets } from "../autoMovieAnalysisSettingsTargets";
+import { autoMovieAnalysisSettingsTargets } from "./autoMovieAnalysisSettingsTargets";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "../constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
 import { AUTOMOVIE_SABINE_CONSTANT } from "../constants/AUTOMOVIE_SABINE_CONSTANT";
-import { sealAutoMovieAnalysisRun } from "../sealAutoMovieAnalysisRun";
-import { warnAutoMovieAnalysisTargetKeys } from "../warnAutoMovieAnalysisTargetKeys";
+import { sealAutoMovieAnalysisRun } from "./sealAutoMovieAnalysisRun";
+import { warnAutoMovieAnalysisTargetKeys } from "./warnAutoMovieAnalysisTargetKeys";
 
 /** Distances this short or shorter are the same point. */
 const EPSILON: number = 1e-12;

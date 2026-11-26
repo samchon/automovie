@@ -4,7 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { convexHull2D } from "../math/convexHull2D";
+import { convexHull2D } from "../math/internal/convexHull2D";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 /**

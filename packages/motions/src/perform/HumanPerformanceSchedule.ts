@@ -1,11 +1,4 @@
-import {
-  AutoMovieEngineScheduleCut,
-  AutoMovieScheduleError,
-  Vector3,
-  bracketedRoot,
-  resolveAutoMovieHumanoidSurfaces,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieSchedule, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntent,
@@ -431,7 +424,7 @@ export namespace HumanPerformanceSchedule {
           reached,
         ];
         let within: number = t;
-        bracketedRoot(
+        AutoMovieEngineMath.bracketedRoot(
           (seconds: number): number => {
             if (seconds === ends[0]) return ends[1];
             if (seconds === ends[2]) return ends[3];

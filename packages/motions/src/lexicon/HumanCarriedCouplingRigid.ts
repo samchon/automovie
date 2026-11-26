@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, fitRigidMeshTransform } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -130,7 +130,7 @@ export namespace HumanCarriedCouplingRigid {
         const b: IAutoMovieVector3 = Vector3.subtract(origin, d);
         return [a.x, a.y, a.z, b.x, b.y, b.z];
       });
-    const registered: IAutoMovieQuaternion = fitRigidMeshTransform({
+    const registered: IAutoMovieQuaternion = AutoMovieEngineMath.fitRigidMeshTransform({
       reference: mirrored(restB, from),
       target: mirrored(restT, to),
       vertices: Array.from(

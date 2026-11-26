@@ -12,7 +12,7 @@ import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdiv
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
 import { prepareAutoMovieBicubicAtlasBoundary64 } from "./prepareAutoMovieBicubicAtlasBoundary64";
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
+import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 
 type Patch = IAutoMovieBicubicAtlas64.Patch;
 
