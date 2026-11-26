@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./internal": "./src/internal.ts",
     "./executable/internal": "./src/executable/internal.ts",
+    "./testing/spacecraftGlideClock": "./src/testing/spacecraftGlideClock.ts",
     "./package.json": "./package.json"
   },
   "files": [
@@ -14,6 +15,8 @@
     "src",
     "!lib/executable",
     "!src/executable",
+    "!lib/testing",
+    "!src/testing",
     "package.json",
     "LICENSE",
     "README.md"

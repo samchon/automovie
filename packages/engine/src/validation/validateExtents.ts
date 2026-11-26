@@ -40,7 +40,7 @@ export function validateExtents(
       break;
   }
   for (const [name, value] of dims)
-    if (value <= 0)
+    if (!Number.isFinite(value) || value <= 0)
       collector.push(
         "range",
         `${path}.${name}`,

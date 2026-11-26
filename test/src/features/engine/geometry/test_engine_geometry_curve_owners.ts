@@ -5,6 +5,7 @@ import {
   AutoMovieEnginePchipField64,
   assertAutoMovieCurve64,
   assertAutoMovieCurveBoundary64,
+  tessellateAutoMovieParametricAtlas64,
 } from "@automovie/engine";
 import type {
   IAutoMovieCubicBezierCurve64,
@@ -24,7 +25,7 @@ import { throwsError } from "../../internal/throwsError";
  * 1. Scalar supports are snapshotted and scalar queries reject extrapolation.
  * 2. Vector supports are cloned and frozen while finite extrapolation remains
  *    supported.
- * 3. Curve grid guards reject nonfinite options and invalid vertex budgets.
+ * 3. Curve grid and parametric atlas guards reject invalid sampling budgets.
  * 4. Primitive coefficients and complete boundary fullJ fields reject NaN.
  * 5. A context clones and freezes its publication and rejects copied tokens.
  * 6. Large finite geometry never publishes NaN normals after overflowed crosses.
@@ -103,6 +104,34 @@ export function test_engine_geometry_curve_owners(): void {
       ) &&
       throwsError((): unknown =>
         AutoMovieEngineCurveGrid64.tessellate({ ...input, maxVertices: 4.5 }),
+      ) &&
+      throwsError((): unknown =>
+        tessellateAutoMovieParametricAtlas64({
+          domain: "empty-atlas",
+          patches: [],
+          maxVertices: Number.NaN,
+        }),
+      ) &&
+      throwsError((): unknown =>
+        tessellateAutoMovieParametricAtlas64({
+          domain: "empty-atlas",
+          patches: [],
+          maxVertices: Number.POSITIVE_INFINITY,
+        }),
+      ) &&
+      throwsError((): unknown =>
+        tessellateAutoMovieParametricAtlas64({
+          domain: "empty-atlas",
+          patches: [],
+          maxVertices: 1.5,
+        }),
+      ) &&
+      throwsError((): unknown =>
+        tessellateAutoMovieParametricAtlas64({
+          domain: "empty-atlas",
+          patches: [],
+          maxVertices: Number.MAX_SAFE_INTEGER + 1,
+        }),
       ),
   );
   const largeCourse = (z: number): IAutoMovieCubicBezierCurve64 => ({

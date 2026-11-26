@@ -32,6 +32,7 @@ export function tessellateAutoMovieParametricAtlas64(
 ): IAutoMovieTessellateParametricAtlas64.IResult {
   if (
     !props.domain.trim() ||
+    !Number.isSafeInteger(props.maxVertices) ||
     props.maxVertices <= 0 ||
     props.patches.length > 4096
   )

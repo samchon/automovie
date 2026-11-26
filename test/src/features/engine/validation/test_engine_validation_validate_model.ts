@@ -35,8 +35,8 @@ import { hasViolation } from "../../internal/predicates";
  *    recipe; a stack-top and a handle.
  * 2. Identity and graph: repeated material, part and bone ids; no parts; a bone
  *    whose parent `neck` is absent; a part's unknown material and bone.
- * 3. Geometry: a box of width 0 and a sphere of radius 0; mesh normals of the
- *    wrong length and index -1; a repeated skin joint; a two-scalar colour
+ * 3. Geometry: a box of width 0 and sphere radii 0, NaN and +Infinity; mesh
+ *    normals of the wrong length and index -1; a repeated skin joint; a two-scalar colour
  *    buffer; a bicubic patch of 15 controls (an admission warning, not a
  *    failure); a dual-quaternion skin on a part scaled (1, 2, 1).
  * 4. Transforms, joints and gaze: a part rotation with w = 2 and scale y = 0; a
@@ -245,6 +245,21 @@ export function test_engine_validation_validate_model(): void {
     ["range"],
     ".radius",
   );
+  for (const [label, radius] of [
+    ["NaN radius", Number.NaN],
+    ["infinite radius", Number.POSITIVE_INFINITY],
+  ] as const)
+    refused(
+      label,
+      part({
+        geometry: {
+          type: "primitive",
+          shape: { type: "sphere", radius },
+        },
+      }),
+      ["range"],
+      ".radius",
+    );
   const broken: IAutoMovieModel = meshed({
     ...triangle,
     normals: [0, 0, 1],
