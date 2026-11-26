@@ -7,6 +7,8 @@ import {
 import type {
   IAutoMovieConstructionNode,
   IAutoMovieConstructionSplit,
+  IAutoMovieConstructionSplitBand,
+  IAutoMovieConstructionSplitCompose,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieLoftViewFullSource,
   IAutoMovieSolidSurface,
@@ -15,9 +17,18 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanGlutealRelief } from "../AutoMovieHumanGlutealRelief";
+import { AutoMovieHumanLegMedialSource } from "../leg/AutoMovieHumanLegMedialSource";
 import { AutoMovieHumanBranchClock } from "./AutoMovieHumanBranchClock";
 import { AutoMovieHumanDigitalSection as Section } from "./AutoMovieHumanDigitalSection";
+import { AutoMovieHumanPelvicChordChart } from "./AutoMovieHumanPelvicChordChart";
 import { AutoMovieHumanPelvicCut } from "./AutoMovieHumanPelvicCut";
+import { AutoMovieHumanPelvicFore } from "./AutoMovieHumanPelvicFore";
+import { AutoMovieHumanPelvicGraphPatch } from "./AutoMovieHumanPelvicGraphPatch";
+import { AutoMovieHumanPelvicMedialConic } from "./AutoMovieHumanPelvicMedialConic";
+import { AutoMovieHumanPelvicMedialLoft } from "./AutoMovieHumanPelvicMedialLoft";
+import { AutoMovieHumanPelvicMedian } from "./AutoMovieHumanPelvicMedian";
+import { AutoMovieHumanPelvicMesh } from "./AutoMovieHumanPelvicMesh";
+import { AutoMovieHumanPelvicRegistration } from "./AutoMovieHumanPelvicRegistration";
 import { AutoMovieHumanPelvicSaddle } from "./AutoMovieHumanPelvicSaddle";
 
 /** The actual trunk and both protected thighs define one pelvic split. */
@@ -39,6 +50,233 @@ export namespace AutoMovieHumanPelvicSplit {
     branch: IAutoMovieConstructionNode;
   }
 
+  /** A single real sagittal field shared by both incident panels. */
+  export interface IAuthoredMedian {
+    /** Measured cardinal source and its own ordered world reader. */
+    cardinal: ReturnType<typeof AutoMovieHumanPelvicMedian.cardinal>;
+
+    /** The original pelvis with the same curve in its divider descriptors. */
+    source: Exclude<ReturnType<typeof retained>, string>;
+  }
+
+  /** Put the real sagittal boundary on the split source and both panels. */
+  export function authoredMedian(
+    source: Exclude<ReturnType<typeof retained>, string>,
+    parent: Owner["field"],
+    chordMm: number,
+  ): IAuthoredMedian {
+    const cardinal = AutoMovieHumanPelvicMedian.cardinal(
+      source,
+      parent,
+      chordMm,
+    );
+    return {
+      cardinal,
+      source: {
+        ...source,
+        guide: cardinal.guide,
+        input: {
+          ...source.input,
+          dividers: source.input.dividers.map((divider) => ({
+            ...divider,
+            guide: cardinal.guide,
+          })),
+        },
+      },
+    };
+  }
+
+  /** The complete original input to the physical anterior and posterior faces. */
+  export interface IMedial {
+    /** The same source and sagittal guide carried by both incident panels. */
+    authored: ReturnType<typeof authoredMedian>;
+
+    /** Original exterior and protected end courses. */
+    raw: Exclude<
+      ReturnType<typeof AutoMovieConstructionSplitCourses.prepare>,
+      string
+    >;
+
+    /** Each original thigh arc in the physical median's clock. */
+    registration: ReturnType<typeof AutoMovieHumanPelvicRegistration.prepare>;
+
+    /** Native transverse conic courses. */
+    conic: ReturnType<typeof AutoMovieHumanPelvicMedialConic.prepare>;
+
+    /** Original tangent-plane connections through the median conic. */
+    loft: ReturnType<typeof AutoMovieHumanPelvicMedialLoft.prepare>;
+  }
+
+  /** Prepare the composed medial sources once in ordinary construction units. */
+  export function medial(
+    source: Exclude<ReturnType<typeof retained>, string>,
+    parent: Owner["field"],
+    chordMm: number,
+  ): IMedial | string {
+    const authored = authoredMedian(source, parent, chordMm);
+    const raw = AutoMovieConstructionSplitCourses.prepare(
+      { ...authored.source.input, radialContact: false },
+      false,
+    );
+    if (typeof raw === "string") return raw;
+    const registration = AutoMovieHumanPelvicRegistration.prepare(
+      authored.source,
+      raw,
+    );
+    const conic = AutoMovieHumanPelvicMedialConic.prepare(
+      authored.source,
+      authored.cardinal,
+      raw,
+      registration,
+    );
+    return {
+      authored,
+      raw,
+      registration,
+      conic,
+      loft: AutoMovieHumanPelvicMedialLoft.prepare(
+        authored.source,
+        raw,
+        conic.charts,
+      ),
+    };
+  }
+
+  /** The original generators and first-order fields of both medial panels. */
+  export interface IPhysical {
+    /** The fixed original chord charts through the common and outer curves. */
+    charts: ReturnType<typeof AutoMovieHumanPelvicChordChart.prepare>;
+
+    /** Prepared physical anterior section sources, one per receiving thigh. */
+    fore: ReturnType<typeof AutoMovieHumanPelvicFore.prepareLoft>;
+
+    /** Prepare one demanded posterior section per distinct original phase. */
+    rear(
+      side: number,
+      stations: readonly number[],
+      phases: readonly number[],
+    ): ReturnType<typeof AutoMovieHumanPelvicGraphPatch.rear>;
+  }
+
+  /** Compose both physical faces directly from the person's owned source. */
+  export function physical(medial: IMedial): IPhysical {
+    const charts = AutoMovieHumanPelvicChordChart.prepare(medial.loft);
+    const projection = charts.map((chart) => [
+      AutoMovieHumanPelvicChordChart.projection(chart, false),
+      AutoMovieHumanPelvicChordChart.projection(chart, true),
+    ]);
+    const sagittal = AutoMovieHumanPelvicMedian.regularFore(
+      medial.authored.source,
+    );
+    const fore = AutoMovieHumanPelvicFore.prepareLoft(
+      medial.raw,
+      medial.loft,
+      projection.map(([front]) => front!),
+      sagittal,
+    );
+    return {
+      charts,
+      fore,
+      rear: (side, stations, phases) =>
+        AutoMovieHumanPelvicGraphPatch.rear(
+          charts[side]!,
+          projection[side]![1]!,
+          stations,
+          phases,
+        ),
+    };
+  }
+
+  /** The actual source coordinates of one receiving-and-parent wire. */
+  export interface IPhysicalWire {
+    /** Points at the true parent cut or sagittal boundary. */
+    parent: P3[];
+
+    /** World positions on the same original receiving thigh ring. */
+    child: P3[];
+
+    /** Original parent phase at each point, with the seam's first fork phase. */
+    parentPhases: number[];
+
+    /** Protected receiving phases, lifted in one ordered native revolution. */
+    childPhases: number[];
+
+    /** Original fork, exact common middle and opposite fork in this wire. */
+    transverse: readonly [number, number, number];
+  }
+
+  /**
+   * Sample the original outer and medial boundaries once for both incident
+   * faces. The medial phase count is even so the physical same-AP point belongs
+   * to the receiving ring and to both adjoining face plans.
+   */
+  export function wire(
+    medial: IMedial,
+    side: number,
+    quarter: number,
+  ): IPhysicalWire {
+    const { edges } = medial.raw.jets[side]!;
+    const exterior = edges[0]!;
+    const inside = edges[1]!;
+    if (
+      !(
+        quarter >= 2 &&
+        quarter % 2 === 0 &&
+        edges.length === 2 &&
+        exterior.bodyPhase !== undefined &&
+        inside.seam !== undefined
+      )
+    )
+      throw new Error(
+        "The physical pelvic wire needs one original exterior and two medial halves",
+      );
+    const registration = medial.registration[side]!;
+    const guide = medial.authored.cardinal.guide;
+    const cut = medial.authored.source.input.parent.cut;
+    const endpoint = exterior.bodyPhase(1);
+    const samples = Array.from({ length: 4 * quarter }, (_, i) => {
+      if (i < 3 * quarter) {
+        const t = i / (3 * quarter);
+        const parentPhase = exterior.bodyPhase!(t);
+        const child = exterior.course(t);
+        return {
+          parent: cut.point(parentPhase),
+          child: child.controls.at(-1)!,
+          parentPhase,
+          childPhase: child.phase,
+        };
+      }
+      const t = (i - 3 * quarter) / quarter;
+      const v = inside.seam!.reverse ? 1 - t : t;
+      const child = registration.receive(v);
+      return {
+        parent: guide.at(v).p,
+        child: child.q.p,
+        parentPhase: endpoint,
+        childPhase: child.phase,
+      };
+    });
+    const childPhases: number[] = [];
+    for (const { childPhase } of samples) {
+      const previous = childPhases.at(-1);
+      const delta = previous === undefined ? 0 : childPhase - previous;
+      childPhases.push(
+        previous === undefined
+          ? childPhase
+          : previous + Math.atan2(Math.sin(delta), Math.cos(delta)),
+      );
+    }
+    const forks: [number, number, number] = [3 * quarter, (7 * quarter) / 2, 0];
+    if (inside.seam.reverse) [forks[0], forks[2]] = [forks[2], forks[0]];
+    return {
+      parent: samples.map(({ parent }) => parent),
+      child: samples.map(({ child }) => child),
+      parentPhases: samples.map(({ parentPhase }) => parentPhase),
+      childPhases,
+      transverse: forks,
+    };
+  }
+
   /** Declare the production split from whole lower branches and original skin. */
   export function production(
     parent: IAutoMovieViewPart,
@@ -58,9 +296,23 @@ export namespace AutoMovieHumanPelvicSplit {
         continued === undefined
           ? source(hostSource, receivers, CHORD_MM)
           : retained(hostSource, receivers, CHORD_MM, continued.gluteal);
-      return typeof native === "string"
-        ? native
-        : prepare(native, host, [left.branch, right.branch]);
+      if (typeof native === "string") return native;
+      const branches = [left.branch, right.branch] as const;
+      if (continued === undefined) return prepare(native, host, branches);
+      const thighs = native.rails.map((rail) =>
+        owner(
+          AutoMovieHumanLegMedialSource.fromRail(rail, native.datum, CHORD_MM),
+        ),
+      );
+      const revised = retained(
+        hostSource,
+        [thighs[0]!, thighs[1]!],
+        CHORD_MM,
+        continued.gluteal,
+      );
+      return typeof revised === "string"
+        ? revised
+        : preparePhysical(revised, hostSource.field, host, branches);
     } catch (error: unknown) {
       return error instanceof Error ? error.message : String(error);
     }
@@ -350,6 +602,37 @@ export namespace AutoMovieHumanPelvicSplit {
     };
   }
 
+  /** Construction and original source authorities for one complete pelvic split. */
+  export interface IPrepared {
+    /** Construction topology of both retained branches. */
+    node: IAutoMovieConstructionSplit;
+
+    /** The native face charts and their exact shared boundaries. */
+    bands: IAutoMovieConstructionSplitBand.IPreparedStrip[];
+
+    /** Both actual thigh continuations at publication. */
+    parts: readonly IAutoMovieViewPart[];
+
+    /** Actual parent contour in the original trunk coordinates. */
+    cut: IAutoMovieConstructionSplitCompose.ParentCut;
+
+    /** Station associated with each native receiving thigh. */
+    rails: ReadonlyMap<string, number>;
+  }
+
+  /** Use the first-order source on the same body topology and protected loops. */
+  export function preparePhysical(
+    native: Exclude<ReturnType<typeof source>, string>,
+    parent: Owner["field"],
+    host: IAutoMovieConstructionNode,
+    branches: readonly [IAutoMovieConstructionNode, IAutoMovieConstructionNode],
+  ): IPrepared | string {
+    const source = medial(native, parent, CHORD_MM);
+    return typeof source === "string"
+      ? source
+      : prepare(source.authored.source, host, branches, source);
+  }
+
   /**
    * Prepare the engine's existing shared-incidence topology on the native
    * pelvic curves.
@@ -358,14 +641,46 @@ export namespace AutoMovieHumanPelvicSplit {
     native: Exclude<ReturnType<typeof source>, string>,
     host: IAutoMovieConstructionNode,
     branches: readonly [IAutoMovieConstructionNode, IAutoMovieConstructionNode],
-  ) {
+    medialSource?: IMedial,
+  ): IPrepared | string {
     const { input, parent, rails, shape } = native;
     const bandNames: string[] = rails.map(({ part }) => `groin.${part.name}`);
     const geometry = AutoMovieConstructionSplitPrepared.prepare(
-      input,
+      medialSource === undefined ? input : { ...input, radialContact: false },
       bandNames,
+      medialSource?.raw,
     );
     if (typeof geometry === "string") return geometry;
+    const bands = geometry.bands;
+    if (medialSource !== undefined) {
+      const skin = physical(medialSource);
+      for (const [side, original] of bands.entries()) {
+        const boundary = wire(medialSource, side, geometry.count / 4);
+        const band: IAutoMovieConstructionSplitBand.IPreparedStrip = {
+          ...original,
+          loop: boundary.parent,
+          phases: boundary.parentPhases,
+          childPhases: boundary.childPhases,
+          terminal: {
+            receiving: boundary.child,
+            prepare: (parent, child, firstId, orientation) =>
+              AutoMovieHumanPelvicMesh.prepare({
+                side,
+                geometry: skin,
+                band: {
+                  ...original,
+                  surface: { ...original.surface, orientation },
+                },
+                wire: boundary,
+                parent,
+                child,
+                firstId,
+              }),
+          },
+        };
+        bands[side] = band;
+      }
+    }
     const children = branches.map(
       (part, i): IAutoMovieConstructionSplit.IChild => ({
         part,
@@ -388,7 +703,8 @@ export namespace AutoMovieHumanPelvicSplit {
     };
     return {
       node,
-      bands: geometry.bands,
+      bands,
+      parts: rails.map(({ part }) => part),
       cut: shape.cut,
       rails: new Map(rails.map(({ part, station }) => [part.name, station])),
     };

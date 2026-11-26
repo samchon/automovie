@@ -7,6 +7,7 @@ import type {
 import { AutoMovieSolidBodyMerge } from "./AutoMovieSolidBodyMerge";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
+import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
 import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
 
 /**
@@ -117,6 +118,7 @@ export namespace AutoMovieSolidBody {
             }),
           ),
           inverted: f.inverted,
+          terminal: f.terminal,
           onFailure:
             onFailure === undefined
               ? undefined
@@ -133,7 +135,44 @@ export namespace AutoMovieSolidBody {
   ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
     const append = faceAutoMovieSolidMesh.prepare(mesh, true);
     return (input): IAutoMovieSolidMesh.IOpen[] =>
-      drawSplitParent(mesh, input, append);
+      input.terminal === undefined
+        ? drawSplitParent(mesh, input, append)
+        : drawTerminal(mesh, input, input.terminal);
+  }
+
+  /** Write a first-order terminal face on its two unedited original rails. */
+  function drawTerminal(
+    mesh: IAutoMovieSolidMesh.IMesh,
+    input: IAutoMovieSolidMesh.IFace,
+    terminal: IAutoMovieSolidMesh.ITerminal,
+  ): IAutoMovieSolidMesh.IOpen[] {
+    const fail = (detail: string): IAutoMovieSolidMesh.IOpen[] => {
+      if (input.onFailure === undefined) throw new Error(detail);
+      input.onFailure(detail);
+      return [];
+    };
+    const parent = input.loops.find(({ kind }) => kind === "start");
+    const receiver = input.loops.find(({ kind }) => kind === "end");
+    if (
+      input.loops.length !== 2 ||
+      parent === undefined ||
+      receiver === undefined ||
+      input.inverted === true
+    )
+      return fail("A terminal first-order face needs both intact source loops");
+    const firstVertex = mesh.positions.length / 3;
+    const plan = terminal(
+      parent.vertices,
+      receiver.vertices,
+      firstVertex,
+      input.surface.orientation,
+    );
+    if (typeof plan === "string") return fail(plan);
+    // The terminal face has several native charts and no single loft address.
+    for (const { point, normal } of plan.vertices)
+      AutoMovieSolidMeshWrite.vertex(mesh, point, NaN, NaN, NaN, normal);
+    for (const [a, b, c] of plan.triangles) mesh.indices.push(a, b, c);
+    return [];
   }
 
   /**
@@ -382,6 +421,7 @@ export namespace AutoMovieSolidBody {
               : {}),
             ...(f.retainPhases === true ? { samplePhases: [...f.phases] } : {}),
             cycles: f.cycles.map(cycle),
+            ...(f.terminal === undefined ? {} : { terminal: f.terminal }),
             ...(domains === undefined
               ? {}
               : { domainLoops: domains, grid: grid! }),

@@ -181,7 +181,14 @@ export function buildHumanNeutralCapture(
     surfaces.push(surface);
   }
   const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
-    sampleAutoMovieConstructionCurves({ chains, surfaces, diagnostics: [] }),
+    sampleAutoMovieConstructionCurves({
+      chains,
+      surfaces,
+      diagnostics: [],
+      body: calibration.bodies?.find(({ faces }) =>
+        faces.some(({ terminal }) => terminal !== undefined),
+      ),
+    }),
     subject,
   );
   return buildHumanSurfaceCapture(subject, "body", mesh, marks);

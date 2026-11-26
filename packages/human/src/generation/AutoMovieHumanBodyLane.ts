@@ -372,6 +372,10 @@ export namespace AutoMovieHumanBodyLane {
           root = AutoMovieHumanBodyTree.join(root, low, limits);
       } else {
         splits.push(pelvis);
+        for (const part of pelvis.parts) {
+          const original = sources.find(({ name }) => name === part.name);
+          if (original !== undefined) original.result.part = part;
+        }
         root = pelvis.node;
       }
     }

@@ -41,7 +41,10 @@ export namespace AutoMovieSolidBodyMerge {
     /** Included body face identifiers in original order. */
     const index: number[] = body.faces
       .map((_: IAutoMovieSolidBody.IFace, k: number): number => k)
-      .filter((k: number): boolean => k !== without);
+      .filter(
+        (k: number): boolean =>
+          k !== without && body.faces[k]!.terminal === undefined,
+      );
 
     /** Translate a body identifier into this atlas's face index. */
     const back: Map<number, number> = new Map(
@@ -220,6 +223,12 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Existing part index, or the original new-part sentinel. */
     const known: number = typeof input.part === "number" ? input.part : -1;
+
+    if (known >= 0 && body.faces[known]?.terminal !== undefined)
+      return fail(
+        "analytic merge part",
+        "A terminal first-order face cannot be trimmed",
+      );
 
     /** Original part surface reference supplied to the join. */
     const partSurface: IAutoMovieSolidSurface =

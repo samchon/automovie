@@ -106,6 +106,28 @@ export namespace IAutoMovieSolidMesh {
     faces?: number[];
   }
 
+  /** Prepared first-order face using two exact, already-indexed terminal loops. */
+  export type ITerminal = (
+    parent: readonly number[],
+    receiver: readonly number[],
+    firstVertex: number,
+    orientation: 1 | -1,
+  ) =>
+    | {
+        /**
+         * Contiguous new world positions and unit outward normals in vertex
+         * index order.
+         */
+        vertices: readonly {
+          point: AutoMovieVector3Tuple;
+          normal: AutoMovieVector3Tuple;
+        }[];
+
+        /** Outward triangles, including the two existing loops. */
+        triangles: readonly [number, number, number][];
+      }
+    | string;
+
   /** One coherent source face and its finite ordered sampling domain. */
   export interface IFace {
     /** The surface. */
@@ -141,6 +163,9 @@ export namespace IAutoMovieSolidMesh {
      * cutter: the solid's outside there is the cutter's inside. Absent, false.
      */
     inverted?: boolean;
+
+    /** First-order terminal chart requiring both original loops in full. */
+    terminal?: ITerminal;
 
     /** Receive a named planning refusal or partial endpoint diagnostic. */
     onFailure?: (detail: string) => void;

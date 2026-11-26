@@ -139,6 +139,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       NonNullable<IAutoMovieSolidBody.IPublished["faces"][number]["grid"]>
     > = new Map();
     const inverted: Set<string> = new Set();
+    const terminals = new Map<string, IAutoMovieSolidMesh.ITerminal>();
     for (const m of merges) {
       const host: IAutoMovieSolidSurface | null = surface(m.host);
       const part: IAutoMovieSolidSurface | null = surface(m.part);
@@ -228,6 +229,7 @@ export namespace AutoMovieHumanBodySurfaceSolids {
           ]);
         if (f.grid !== undefined) grids.set(f.chain, f.grid);
         if (f.inverted === true) inverted.add(f.chain);
+        if (f.terminal !== undefined) terminals.set(f.chain, f.terminal);
       }
     }
 
@@ -257,6 +259,21 @@ export namespace AutoMovieHumanBodySurfaceSolids {
       const s: IAutoMovieSolidSurface = surfaces.get(name)!;
       const grid: IAutoMovieSolidBody.IPublished["faces"][number]["grid"] =
         grids.get(name);
+      const terminal = terminals.get(name);
+      if (terminal !== undefined) {
+        groups.push({ name: `${name}/solid`, start: mesh.indices.length });
+        appendFace({
+          surface: s,
+          stations: [],
+          phases: [],
+          loops: trims,
+          inverted: inverted.has(name),
+          terminal,
+          onFailure: (detail): void =>
+            report("terminal face triangulation", name + ": " + detail),
+        });
+        continue;
+      }
       const first: number = chain.layers[0]!.y;
       const last: number = chain.layers[chain.layers.length - 1]!.y;
       const ringOf: (end: "bottom" | "top") => number[] | null = (
@@ -419,9 +436,13 @@ export namespace AutoMovieHumanBodySurfaceSolids {
           );
           continue;
         }
-        const apex: number = mesh.positions.length / 3;
-        mesh.positions.push(...pole.point);
-        mesh.coordinates.push(NaN, NaN, NaN);
+        const apex: number = AutoMovieSolidMesh.vertex(
+          mesh,
+          pole.point,
+          NaN,
+          NaN,
+          NaN,
+        );
         poles.push({
           at: apex,
           chain: name,

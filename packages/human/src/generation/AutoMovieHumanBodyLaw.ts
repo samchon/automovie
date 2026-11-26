@@ -148,10 +148,14 @@ export namespace AutoMovieHumanBodyLaw {
       },
     };
     const original = bodyInput(context);
-    const input: IAutoMovieHumanBodyLane.IInput =
-      options === undefined
-        ? original
-        : { ...original, trunk: { ...original.trunk, ...options } };
+    const input: IAutoMovieHumanBodyLane.IInput = {
+      ...original,
+      trunk: {
+        ...original.trunk,
+        nativeGluteal:
+          options?.nativeGluteal ?? original.trunk.nativeGluteal ?? true,
+      },
+    };
     const lane: IAutoMovieHumanBodyLane.IDefinition =
       AutoMovieHumanBodyLane.define({
         ...input,

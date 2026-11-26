@@ -15,11 +15,15 @@ export namespace AutoMovieConstructionSplitPrepared {
   const TURN = 2 * Math.PI;
 
   /** Prepare the curve-owned strips used by the shared fan incidence assembler. */
-  export function prepare(input: Courses.IInput, names: readonly string[]) {
+  export function prepare(
+    input: Courses.IInput,
+    names: readonly string[],
+    terminal?: Exclude<ReturnType<typeof Courses.prepare>, string>,
+  ) {
     const radial = input.radial === true;
-    const shape = Courses.prepare(input, !radial);
+    const shape = terminal ?? Courses.prepare(input, !radial);
     if (typeof shape === "string") return shape;
-    const quarter = Math.max(
+    const minimum = Math.max(
       2,
       ...shape.jets.flatMap(({ edges }) =>
         edges.map(({ count }, j): number =>
@@ -27,6 +31,9 @@ export namespace AutoMovieConstructionSplitPrepared {
         ),
       ),
     );
+    // The terminal medial curve carries its exact center as a shared vertex.
+    const quarter =
+      terminal === undefined ? minimum : 2 * Math.ceil(minimum / 2);
     const count = 4 * quarter;
     const bands = shape.jets.map(
       (

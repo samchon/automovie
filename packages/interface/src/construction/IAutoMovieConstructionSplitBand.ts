@@ -4,6 +4,7 @@ import type { IAutoMovieConstructionSkinCut } from "./IAutoMovieConstructionSkin
 import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
 import type { IAutoMovieConstructionSplitSeam } from "./IAutoMovieConstructionSplitSeam";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
+import type { IAutoMovieSolidMesh } from "./IAutoMovieSolidMesh";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
@@ -30,6 +31,15 @@ export namespace IAutoMovieConstructionSplitBand {
 
     /** Host arc phases at columns and arc ends, in the declared stretch order. */
     phases: number[];
+
+    /** Terminal first-order strip and its independent original receiving points. */
+    terminal?: {
+      /** Position on the native receiving rail for every held child phase. */
+      receiving: readonly AutoMovieVector3Tuple[];
+
+      /** Indexed reader using this strip's actual parent and receiving cycles. */
+      prepare: IAutoMovieSolidMesh.ITerminal;
+    };
 
     /** Held child rail phases, one unwrapped turn in the same column order. */
     childPhases: number[];

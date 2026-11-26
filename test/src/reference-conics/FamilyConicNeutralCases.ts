@@ -223,6 +223,27 @@ export namespace FamilyConicNeutralCases {
       observe("nail-views");
     }
     const form: Form.IReport = Form.measure(report, observe);
+    const pelvicContacts = [
+      ["groin.leg.left", "groin.leg.right"],
+      ["groin.leg.left", "leg.left"],
+      ["groin.leg.left", "trunk"],
+      ["groin.leg.right", "leg.right"],
+      ["groin.leg.right", "trunk"],
+    ] as const;
+    for (const name of ["groin.leg.left", "groin.leg.right"])
+      if (
+        !report.trianglesByOwner.some(
+          (part) => part.name === name && part.triangles > 0,
+        )
+      )
+        form.unavailable.push(`skin retains no triangles for ${name}`);
+    for (const [a, b] of pelvicContacts)
+      if (
+        !form.measurements?.contacts.some(
+          ({ first, second }) => first === a && second === b,
+        )
+      )
+        form.unavailable.push(`skin has no measured shared boundary ${a} / ${b}`);
     let views: Awaited<ReturnType<typeof Views.write>> | undefined;
     if (viewOutput !== undefined) {
       try {

@@ -809,6 +809,8 @@ function fan(
           band.loop.length !== n ||
           band.phases.length !== n ||
           band.childPhases.length !== n ||
+          (band.terminal !== undefined &&
+            band.terminal.receiving.length !== n) ||
           [...band.phases, ...band.childPhases].some(
             (t): boolean => !Number.isFinite(t),
           )
@@ -1139,7 +1141,10 @@ function fan(
           const at = clock(k);
           if (
             !exact(start(at), band.loop[k]!) ||
-            !exact(finish(at), receiving(band.childPhases[k]!))
+            !exact(
+              band.terminal?.receiving[k] ?? finish(at),
+              receiving(band.childPhases[k]!),
+            )
           )
             faults.push(
               `${band.chain.name}: held boundary differs at column ${k}`,
@@ -1253,6 +1258,9 @@ function fan(
         body.faces.push({
           surface: child.face,
           ...(prepared === undefined ? {} : { retainSurface: true as const }),
+          ...(child.band.terminal === undefined
+            ? {}
+            : { terminal: child.band.terminal.prepare }),
           stations:
             child.band.stations ??
             graded(child.band.length, node.rows, child.band.loop),
