@@ -8,12 +8,11 @@ import type { IAutoMovieConstructionNode } from "./IAutoMovieConstructionNode";
  *
  * The seam's two ends are host phases `a < b` on that end's ring. Child 0's
  * loop is the ring arc from `a` to `b`, then the straight chord back from the
- * ring point at `b` to the one at `a`; child 1's loop is the arc from `b` to `a
- * + 2 pi`, then the same chord the other way, so the two loops share it. Each
- * loop clock `c` runs over `[0, 2 pi)`: `[0, pi]` on the arc, linear in host
- * phase, `[pi, 2 pi)` on the chord, linear in its length. Each child's band
- * spans from its loop to the child face's ring at `rail`, and the child keeps
- * its stations beyond that ring.
+ * ring point at `b` to the one at `a`. Child 1 takes the remaining arc `[b, a +
+ * 2 pi]` and the same chord in reverse. The loop clock `c` runs from 0 to pi on
+ * the arc, linear in host phase, then to 2 pi on the chord, linear in its
+ * length. Each child's band spans from its loop to the child face's ring at
+ * `rail`. The child keeps its stations beyond that ring.
  *
  * Each band is the engine's join strip between two ribbons (each side's own
  * 2-jet across its rail, spanned by the quintic Hermite blend): on the arc the
@@ -50,9 +49,17 @@ export interface IAutoMovieConstructionSplit {
 
   /**
    * Which end of the host face: its first station's (`bottom`) or its last's
-   * (`top`); it must be open, neither a pole nor already cut.
+   * (`top`); it must be open unless a host cut replaces it, and cannot already
+   * be shared or cut.
    */
   hostEnd: "bottom" | "top";
+
+  /**
+   * The parent boundary inside its original skin. It uses the original phase
+   * and replaces the stations between the cut and `hostEnd`. Absent, the
+   * boundary is the open end's station ring.
+   */
+  hostCut?: IAutoMovieConstructionSplit.IHostCut;
 
   /**
    * The seam chord's two ends as host phases `[a, b]` on that end's ring,
@@ -114,6 +121,23 @@ export interface IAutoMovieConstructionSplit {
 
 /** Child bands, seam curves and declared crease windows at a split end. */
 export namespace IAutoMovieConstructionSplit {
+  /**
+   * One plane cutting the parent's regular station interval. At each phase the
+   * engine brackets the first transverse entry to its kept side from `hostEnd`,
+   * using the host's regular declared stations. The plane's outward normal
+   * points from the kept host toward the children. The original face keeps its
+   * station chart. The bands read the cut's exact positions and phase
+   * derivatives at and between columns. They use the owner's transverse jets at
+   * the columns and interpolate them between columns.
+   */
+  export interface IHostCut {
+    /** Tree coordinates or the nominal host end's section frame (`ICut`). */
+    frame: "tree" | "host";
+
+    /** Cut plane with its normal pointing toward the retained host. */
+    plane: IPlane;
+  }
+
   /**
    * A plane with a kept side: the points `x` with `normal . (x - point) >= 0`
    * are kept.
