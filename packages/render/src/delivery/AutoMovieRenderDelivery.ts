@@ -3,6 +3,9 @@ import type {
   IAutoMovieAssertProductionPngPictureProps,
   IAutoMovieProductionPngProfile,
   IAutoMovieResolveProductionPngProfileProps,
+  IAutoMovieAssertProductionVideoProfileProps,
+  IAutoMovieProductionVideoProfile,
+  IAutoMovieResolveProductionVideoProfileProps,
 } from "@automovie/interface";
 
 import { assertProductionAacProfile } from "./internal/assertProductionAacProfile.js";
