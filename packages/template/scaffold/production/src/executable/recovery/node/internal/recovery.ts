@@ -7,9 +7,8 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieRecoveryCurveConversion,
-  observeAutoMovieRecovery,
-  prepareAutoMovieRecoveryInput,
   AutoMovieRecoveryReconstruction,
+  AutoMovieRecoveryObservation,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -115,8 +114,8 @@ export function recovery(
       triangles,
     };
     if (spec.registration !== undefined) {
-      const admitted: ReturnType<typeof prepareAutoMovieRecoveryInput> =
-        prepareAutoMovieRecoveryInput({
+      const admitted: ReturnType<typeof AutoMovieRecoveryObservation.prepareInput> =
+        AutoMovieRecoveryObservation.prepareInput({
           registration: spec.registration,
           verticesMm,
           triangles,
@@ -135,7 +134,7 @@ export function recovery(
       admittedInput = admitted.value.observation;
     }
     const observed: IAutoMovieRecoveryResult<IAutoMovieRecoveryMeshSections> =
-      observeAutoMovieRecovery(admittedInput, {
+      AutoMovieRecoveryObservation.observeMesh(admittedInput, {
         sectionLimit,
         onProgress: (phase: string, completed: number, total: number): void => {
           console.error(

@@ -9,10 +9,10 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { admitRecoveryCameraPair } from "../internal/admitRecoveryCameraPair";
-import { createRecoveryCameraEstimate } from "../internal/createRecoveryCameraEstimate";
-import { extractRecoveryImageFeatures } from "../internal/extractRecoveryImageFeatures";
-import { matchRecoveryImageFeatures } from "../internal/matchRecoveryImageFeatures";
+import { admitRecoveryCameraPair } from "../../internal/admitRecoveryCameraPair";
+import { createRecoveryCameraEstimate } from "../../internal/createRecoveryCameraEstimate";
+import { extractRecoveryImageFeatures } from "../../internal/extractRecoveryImageFeatures";
+import { matchRecoveryImageFeatures } from "../../internal/matchRecoveryImageFeatures";
 
 /**
  * Observe automatic image correspondences and estimate a calibrated relative

@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoverySourceLineage } from "@automovie/interface";
-import { observeAutoMovieRecovery } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -17,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  *    cancellation publish no value.
  */
 export function test_recovery_observation_observe(): void {
-  const input: Parameters<typeof observeAutoMovieRecovery>[0] = {
+  const input: Parameters<typeof AutoMovieRecoveryObservation.observeMesh>[0] = {
     verticesMm: [
       [0, 0, 0],
       [3, 0, 0],
@@ -42,11 +44,11 @@ export function test_recovery_observation_observe(): void {
     cornerDegrees: 45,
   };
   const before: string = JSON.stringify(input);
-  const baseline: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(input);
+  const baseline: ReturnType<typeof AutoMovieRecoveryObservation.observeMesh> =
+    AutoMovieRecoveryObservation.observeMesh(input);
   const records: IAutoMovieRecoverySourceLineage[] = [];
-  const observed: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(input, {
+  const observed: ReturnType<typeof AutoMovieRecoveryObservation.observeMesh> =
+    AutoMovieRecoveryObservation.observeMesh(input, {
       onSourceLineage: (record: IAutoMovieRecoverySourceLineage): void => {
         records.push({
           ...record,
@@ -102,7 +104,7 @@ export function test_recovery_observation_observe(): void {
       record.publication.curveName,
     );
   }
-  const open: Parameters<typeof observeAutoMovieRecovery>[0] = {
+  const open: Parameters<typeof AutoMovieRecoveryObservation.observeMesh>[0] = {
     ...input,
     verticesMm: [
       [0, 0, 0],
@@ -112,8 +114,8 @@ export function test_recovery_observation_observe(): void {
     triangles: [[0, 1, 2]],
   };
   const openRecords: IAutoMovieRecoverySourceLineage[] = [];
-  const opened: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(open, {
+  const opened: ReturnType<typeof AutoMovieRecoveryObservation.observeMesh> =
+    AutoMovieRecoveryObservation.observeMesh(open, {
       onSourceLineage: (record: IAutoMovieRecoverySourceLineage): void => {
         openRecords.push(record);
       },
@@ -146,7 +148,7 @@ export function test_recovery_observation_observe(): void {
     );
   }
   const failedRecords: IAutoMovieRecoverySourceLineage[] = [];
-  observeAutoMovieRecovery(
+  AutoMovieRecoveryObservation.observeMesh(
     { ...input, maxSpans: 1 },
     {
       onSourceLineage: (record: IAutoMovieRecoverySourceLineage): void => {
@@ -163,8 +165,8 @@ export function test_recovery_observation_observe(): void {
     ),
   );
   let delivered: number = 0;
-  const failed: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(input, {
+  const failed: ReturnType<typeof AutoMovieRecoveryObservation.observeMesh> =
+    AutoMovieRecoveryObservation.observeMesh(input, {
       onSourceLineage: (): void => {
         delivered++;
         throw new Error("lineage observer failed");
@@ -186,8 +188,8 @@ export function test_recovery_observation_observe(): void {
     failed.status !== "complete" && failed.status !== "partial",
   );
   const during: AbortController = new AbortController();
-  const cancelled: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(input, {
+  const cancelled: ReturnType<typeof AutoMovieRecoveryObservation.observeMesh> =
+    AutoMovieRecoveryObservation.observeMesh(input, {
       cancelled: (): boolean => during.signal.aborted,
       onSourceLineage: (): void => {
         delivered++;
@@ -204,8 +206,8 @@ export function test_recovery_observation_observe(): void {
     "cancelled observation publishes no value",
     cancelled.status !== "complete" && cancelled.status !== "partial",
   );
-  const preaborted: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(input, {
+  const preaborted: ReturnType<typeof AutoMovieRecoveryObservation.observeMesh> =
+    AutoMovieRecoveryObservation.observeMesh(input, {
       cancelled: (): boolean => during.signal.aborted,
       onSourceLineage: (): void => {
         delivered++;

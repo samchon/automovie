@@ -2,7 +2,9 @@ import type {
   IAutoMovieRecoverySectionsInput,
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
-import { observeAutoMovieRecoverySections } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -76,8 +78,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
   const before: string = JSON.stringify(input);
   const lineage: IAutoMovieRecoverySourceLineage[] = [];
   const observed: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(input, {
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(input, {
     curveFormat: "hermite",
     onSourceLineage: (record: IAutoMovieRecoverySourceLineage): void => {
       lineage.push(record);
@@ -181,10 +183,10 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     coordinatesMm: [0.5],
   };
   const curveOnly: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(singlePlane, { curveFormat: "hermite" });
-  const exact: ReturnType<typeof observeAutoMovieRecoverySections<"hermite">> =
-    observeAutoMovieRecoverySections(
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(singlePlane, { curveFormat: "hermite" });
+  const exact: ReturnType<typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">> =
+    AutoMovieRecoveryObservation.observeMeshSections(
       { ...singlePlane, includeExactSourceLineage: true },
       {
         curveFormat: "hermite",
@@ -220,8 +222,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     [4, 5, 7],
   );
   const reversed: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(
     { ...input, axis: [0, -2, 0], coordinatesMm: [-2, -0.5, 1, -3] },
     { curveFormat: "hermite" },
   );
@@ -240,8 +242,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     ),
     [2, 2, 0, 0],
   );
-  const opened: ReturnType<typeof observeAutoMovieRecoverySections<"hermite">> =
-    observeAutoMovieRecoverySections(
+  const opened: ReturnType<typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">> =
+    AutoMovieRecoveryObservation.observeMeshSections(
       {
         ...input,
         coordinatesMm: [0.5],
@@ -276,7 +278,7 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     lineage[lineage.length - 1]!.publication.kind,
     "open",
   );
-  observeAutoMovieRecoverySections(
+  AutoMovieRecoveryObservation.observeMeshSections(
     { ...input, maxSpans: 1, coordinatesMm: [0.5] },
     {
       curveFormat: "hermite",
@@ -292,8 +294,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
   );
   for (const coordinatesMm of [[], [0.5, 0.5]]) {
     const refused: ReturnType<
-      typeof observeAutoMovieRecoverySections<"hermite">
-    > = observeAutoMovieRecoverySections(
+      typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+    > = AutoMovieRecoveryObservation.observeMeshSections(
       { ...input, coordinatesMm },
       { curveFormat: "hermite" },
     );
@@ -307,8 +309,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
       refused.status !== "complete" && refused.status !== "partial",
     );
   }
-  const failed: ReturnType<typeof observeAutoMovieRecoverySections<"hermite">> =
-    observeAutoMovieRecoverySections(input, {
+  const failed: ReturnType<typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">> =
+    AutoMovieRecoveryObservation.observeMeshSections(input, {
       curveFormat: "hermite",
       onSourceLineage: (): void => {
         throw new Error("fixed lineage failed");
@@ -329,8 +331,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
   const controller: AbortController = new AbortController();
   let delivered: number = 0;
   const cancelled: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(input, {
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(input, {
     curveFormat: "hermite",
     cancelled: (): boolean => controller.signal.aborted,
     onSourceLineage: (): void => {
@@ -349,8 +351,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     cancelled.status !== "complete" && cancelled.status !== "partial",
   );
   const terminal: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(
     {
       ...input,
       coordinatesMm: [0.5],
@@ -421,8 +423,8 @@ export function test_recovery_observation_observe_sections_fixed_sections(): voi
     ],
   };
   const unqualified: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(tube, { curveFormat: "hermite" });
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(tube, { curveFormat: "hermite" });
   if (unqualified.status !== "complete" && unqualified.status !== "partial")
     throw new Error(
       "Open distal source must retain explicit unsupported observations",

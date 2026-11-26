@@ -16,14 +16,14 @@ import type {
   IAutoMovieRecoverySectionObservationOperation,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
-import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
-import { bindRecoverySavedSectionCuts } from "../internal/bindRecoverySavedSectionCuts";
-import { cutExact } from "../internal/mesh-observations/cutExact";
-import { planeFrame } from "../internal/mesh-observations/planeFrame";
-import { sourceOrientation } from "../internal/mesh-observations/sourceOrientation";
-import { observeRecoverySection } from "../internal/observeRecoverySection";
-import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
+import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
+import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
+import { bindRecoverySavedSectionCuts } from "../../internal/bindRecoverySavedSectionCuts";
+import { cutExact } from "../../internal/mesh-observations/cutExact";
+import { planeFrame } from "../../internal/mesh-observations/planeFrame";
+import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
+import { observeRecoverySection } from "../../internal/observeRecoverySection";
+import { prepareRecoveryMeshIncidence } from "../../internal/prepareRecoveryMeshIncidence";
 
 /**
  * Fit only explicitly failed, rebound raw source contours into a new patch.

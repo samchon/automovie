@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryCameraFiles,
   IAutoMovieRecoveryCameraPairInput,
 } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraPair } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
@@ -134,8 +134,8 @@ export function recoveryCameras(args: string[], sourceEpoch: string): void {
       camera: view.camera,
     });
   }
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair({ ...spec.capture, views });
+  const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair({ ...spec.capture, views });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
   writeAutoMovieRecoveryArtifact(outputPath, {
     schema: "automovie-recovery-camera-artifact-v1",

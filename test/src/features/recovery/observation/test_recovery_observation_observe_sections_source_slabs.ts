@@ -3,7 +3,9 @@ import type {
   IAutoMovieRecoverySlabObservation,
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
-import { observeAutoMovieRecoverySections } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -69,12 +71,12 @@ export function test_recovery_observation_observe_sections_source_slabs(): void 
     cornerDegrees: 45,
   };
   const baseline: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(input, { curveFormat: "hermite" });
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(input, { curveFormat: "hermite" });
   const slabs: IAutoMovieRecoverySlabObservation[] = [];
   const observed: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(
     { ...input, slabPairs: [{ beforeMm: 0.5, afterMm: 1.5 }] },
     {
       curveFormat: "hermite",
@@ -196,8 +198,8 @@ export function test_recovery_observation_observe_sections_source_slabs(): void 
   const contactLineage: IAutoMovieRecoverySourceLineage[] = [];
   const contactSlabs: IAutoMovieRecoverySlabObservation[] = [];
   const contacted: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(contacts, {
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(contacts, {
     curveFormat: "hermite",
     onSourceLineage: (record: IAutoMovieRecoverySourceLineage): void => {
       contactLineage.push(record);
@@ -244,8 +246,8 @@ export function test_recovery_observation_observe_sections_source_slabs(): void 
     port?.exactSourceTriangleIds,
     [0],
   );
-  const failed: ReturnType<typeof observeAutoMovieRecoverySections<"hermite">> =
-    observeAutoMovieRecoverySections(
+  const failed: ReturnType<typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">> =
+    AutoMovieRecoveryObservation.observeMeshSections(
       { ...input, slabPairs: [{ beforeMm: 0.5, afterMm: 1.5 }] },
       {
         curveFormat: "hermite",
@@ -271,8 +273,8 @@ export function test_recovery_observation_observe_sections_source_slabs(): void 
   const controller: AbortController = new AbortController();
   let delivered: number = 0;
   const cancelled: ReturnType<
-    typeof observeAutoMovieRecoverySections<"hermite">
-  > = observeAutoMovieRecoverySections(
+    typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+  > = AutoMovieRecoveryObservation.observeMeshSections(
     {
       ...input,
       coordinatesMm: [0.5, 1.5, 2],
@@ -301,8 +303,8 @@ export function test_recovery_observation_observe_sections_source_slabs(): void 
     [{ beforeMm: 0.5, afterMm: 1 }],
   ]) {
     const refused: ReturnType<
-      typeof observeAutoMovieRecoverySections<"hermite">
-    > = observeAutoMovieRecoverySections(
+      typeof AutoMovieRecoveryObservation.observeMeshSections<"hermite">
+    > = AutoMovieRecoveryObservation.observeMeshSections(
       { ...input, slabPairs },
       { curveFormat: "hermite" },
     );

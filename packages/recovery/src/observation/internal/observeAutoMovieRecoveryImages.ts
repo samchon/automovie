@@ -6,8 +6,8 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { assertRecoveryImageChart } from "../internal/assertRecoveryImageChart";
-import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
+import { assertRecoveryImageChart } from "../../internal/assertRecoveryImageChart";
+import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 
 /**
  * Measure opaque row supports using a supplied fixed RGB background and

@@ -10,8 +10,8 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
-import { AutoMovieRecoveryMeshSections } from "./AutoMovieRecoveryMeshSections";
+import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
+import { AutoMovieRecoveryMeshSections } from "../AutoMovieRecoveryMeshSections";
 
 /**
  * Observe a registered mesh and return source-free cubic coefficients and

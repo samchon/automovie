@@ -19,15 +19,15 @@ import type {
   IAutoMovieRecoveryTerminalSeed,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
-import { RecoveryScalarIndex } from "../internal/RecoveryScalarIndex";
-import { cutExact } from "../internal/mesh-observations/cutExact";
-import { planeFrame } from "../internal/mesh-observations/planeFrame";
-import { sourceOrientation } from "../internal/mesh-observations/sourceOrientation";
-import { observeRecoverySection } from "../internal/observeRecoverySection";
-import { observeRecoverySourceSlabs } from "../internal/observeRecoverySourceSlabs";
-import { observeRecoverySourceTerminals } from "../internal/observeRecoverySourceTerminals";
-import { prepareRecoveryMeshIncidence } from "../internal/prepareRecoveryMeshIncidence";
+import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
+import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
+import { cutExact } from "../../internal/mesh-observations/cutExact";
+import { planeFrame } from "../../internal/mesh-observations/planeFrame";
+import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
+import { observeRecoverySection } from "../../internal/observeRecoverySection";
+import { observeRecoverySourceSlabs } from "../../internal/observeRecoverySourceSlabs";
+import { observeRecoverySourceTerminals } from "../../internal/observeRecoverySourceTerminals";
+import { prepareRecoveryMeshIncidence } from "../../internal/prepareRecoveryMeshIncidence";
 
 /**
  * Observe all source contours at a finite collection of caller-defined physical

@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoveryCameraPairInput } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraPair } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -75,8 +77,8 @@ export function test_recovery_observation_estimate_camera_pair(): void {
     });
   const input: IAutoMovieRecoveryCameraPairInput = makeInput();
   const phases: string[] = [];
-  const result: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(input, {
+  const result: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair(input, {
       onProgress: (phase: string, _completed: number, _total: number): void => {
         phases.push(phase);
         input.objectId = "caller-changed";
@@ -112,13 +114,13 @@ export function test_recovery_observation_estimate_camera_pair(): void {
   );
   const aborted: AbortController = new AbortController();
   aborted.abort();
-  const before: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(makeInput(), {
+  const before: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair(makeInput(), {
       cancelled: (): boolean => aborted.signal.aborted,
     });
   const during: AbortController = new AbortController();
-  const cancelled: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(makeInput(), {
+  const cancelled: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair(makeInput(), {
       cancelled: (): boolean => during.signal.aborted,
       onProgress: (
         _phase: string,
@@ -128,8 +130,8 @@ export function test_recovery_observation_estimate_camera_pair(): void {
         during.abort();
       },
     });
-  const failed: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(makeInput(), {
+  const failed: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair(makeInput(), {
       onProgress: (
         _phase: string,
         _completed: number,
@@ -165,8 +167,8 @@ export function test_recovery_observation_estimate_camera_pair(): void {
           view.rgb8[(y * view.width + x) * 3 + channel] = value;
       }
   }
-  const exhausted: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(limited);
+  const exhausted: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraPair> =
+    AutoMovieRecoveryObservation.estimateCameraPair(limited);
   TestValidator.predicate(
     "an admitted candidate-work overflow fails without publishing an incomplete feature prefix",
     exhausted.status === "failed" &&

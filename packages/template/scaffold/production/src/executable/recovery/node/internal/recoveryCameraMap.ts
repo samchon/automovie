@@ -2,7 +2,7 @@ import type {
   IAutoMovieRecoveryCameraMapFiles,
   IAutoMovieRecoveryCameraMapInput,
 } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraMap } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
@@ -90,8 +90,8 @@ export function recoveryCameraMap(args: string[], sourceEpoch: string): void {
       spec.capture.budget.maxPixels,
       spec.maxHeaderBytes,
     );
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraMap> =
-    estimateAutoMovieRecoveryCameraMap({ ...spec.capture, views });
+  const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraMap> =
+    AutoMovieRecoveryObservation.estimateCameraMap({ ...spec.capture, views });
   if (!("value" in outcome)) throw new Error(outcome.diagnostics.join("; "));
   writeAutoMovieRecoveryArtifact(outputPath, {
     schema: "automovie-recovery-camera-map-artifact-v1",

@@ -13,7 +13,7 @@ import type {
 import {
   AutoMovieRecoveryCompilation,
   AutoMovieRecoveryFitting,
-  observeAutoMovieRecoveryImages,
+  AutoMovieRecoveryObservation,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -54,7 +54,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
   const document: unknown = JSON.parse(bytes.toString("utf8"));
   const started: number = performance.now();
   let outcome:
-    | ReturnType<typeof observeAutoMovieRecoveryImages>
+    | ReturnType<typeof AutoMovieRecoveryObservation.observeImages>
     | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageFit>
     | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageRealization>
     | IAutoMovieRecoveryResult<IAutoMovieRecoverySupportFit>
@@ -116,7 +116,7 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
         camera: view.camera,
       });
     }
-    outcome = observeAutoMovieRecoveryImages({ ...spec.capture, views });
+    outcome = AutoMovieRecoveryObservation.observeImages({ ...spec.capture, views });
   } else if (command === "fit") {
     const spec: {
       observation: IAutoMovieRecoveryImageObservation;

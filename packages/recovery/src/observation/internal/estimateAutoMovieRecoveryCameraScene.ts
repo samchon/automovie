@@ -8,9 +8,9 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { admitRecoveryCameraScene } from "../internal/admitRecoveryCameraScene";
-import { createRecoveryCameraScene } from "../internal/createRecoveryCameraScene";
-import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
+import { admitRecoveryCameraScene } from "../../internal/admitRecoveryCameraScene";
+import { createRecoveryCameraScene } from "../../internal/createRecoveryCameraScene";
+import { observeRecoveryCameraSet } from "../../internal/observeRecoveryCameraSet";
 
 /**
  * Estimate one bounded sparse component from fixed calibrated RGB images. Views

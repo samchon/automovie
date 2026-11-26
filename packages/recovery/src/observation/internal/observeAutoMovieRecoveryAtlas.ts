@@ -10,13 +10,13 @@ import type {
   IAutoMovieRecoveryPendingChartObservation,
 } from "@automovie/interface";
 
-import { RecoveryAtlasObservationChart } from "../internal/RecoveryAtlasObservationChart";
-import { RecoveryAtlasObservationCreases } from "../internal/RecoveryAtlasObservationCreases";
-import { RecoveryAtlasObservationFeatures } from "../internal/RecoveryAtlasObservationFeatures";
-import { RecoveryAtlasObservationNormals } from "../internal/RecoveryAtlasObservationNormals";
-import { RecoveryAtlasObservationPublish } from "../internal/RecoveryAtlasObservationPublish";
-import { RecoveryAtlasObservationSource } from "../internal/RecoveryAtlasObservationSource";
-import { RecoveryChartBoundary } from "../internal/RecoveryChartBoundary";
+import { RecoveryAtlasObservationChart } from "../../internal/RecoveryAtlasObservationChart";
+import { RecoveryAtlasObservationCreases } from "../../internal/RecoveryAtlasObservationCreases";
+import { RecoveryAtlasObservationFeatures } from "../../internal/RecoveryAtlasObservationFeatures";
+import { RecoveryAtlasObservationNormals } from "../../internal/RecoveryAtlasObservationNormals";
+import { RecoveryAtlasObservationPublish } from "../../internal/RecoveryAtlasObservationPublish";
+import { RecoveryAtlasObservationSource } from "../../internal/RecoveryAtlasObservationSource";
+import { RecoveryChartBoundary } from "../../internal/RecoveryChartBoundary";
 
 /**
  * Observe orientable genus-zero source components through private disk charts.

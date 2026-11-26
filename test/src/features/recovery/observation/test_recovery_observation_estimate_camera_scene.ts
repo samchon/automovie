@@ -1,5 +1,7 @@
 import type { IAutoMovieRecoveryCameraSceneInput } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraScene } from "@automovie/recovery";
+import {
+  AutoMovieRecoveryObservation,
+} from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { createRecoverySceneNumericalFixture } from "../../internal/createRecoverySceneNumericalFixture";
@@ -41,8 +43,8 @@ export function test_recovery_observation_estimate_camera_scene(): void {
       ),
     });
   const input: IAutoMovieRecoveryCameraSceneInput = make();
-  const result: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
-    estimateAutoMovieRecoveryCameraScene(input, {
+  const result: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraScene> =
+    AutoMovieRecoveryObservation.estimateCameraScene(input, {
       onProgress: (): void => {
         input.objectId = "mutated";
         input.policy.maximumReprojectionErrorPx = 99;
@@ -74,11 +76,11 @@ export function test_recovery_observation_estimate_camera_scene(): void {
   const before: AbortController = new AbortController();
   before.abort();
   const during: AbortController = new AbortController();
-  const cancelled: ReturnType<typeof estimateAutoMovieRecoveryCameraScene>[] = [
-    estimateAutoMovieRecoveryCameraScene(make(), {
+  const cancelled: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraScene>[] = [
+    AutoMovieRecoveryObservation.estimateCameraScene(make(), {
       cancelled: (): boolean => before.signal.aborted,
     }),
-    estimateAutoMovieRecoveryCameraScene(make(), {
+    AutoMovieRecoveryObservation.estimateCameraScene(make(), {
       cancelled: (): boolean => during.signal.aborted,
       onProgress: (): void => during.abort(),
     }),
@@ -90,8 +92,8 @@ export function test_recovery_observation_estimate_camera_scene(): void {
         outcome.status === "cancelled",
     ),
   );
-  const failed: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
-    estimateAutoMovieRecoveryCameraScene(make(), {
+  const failed: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraScene> =
+    AutoMovieRecoveryObservation.estimateCameraScene(make(), {
       onProgress: (): void => {
         throw new Error(
           "camera-map: observer is not a numerical candidate refusal",
@@ -110,8 +112,8 @@ export function test_recovery_observation_estimate_camera_scene(): void {
   overBudget.budget.maxPixels = 4;
   variants.push(overBudget);
   for (const variant of variants) {
-    const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
-      estimateAutoMovieRecoveryCameraScene(variant);
+    const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraScene> =
+      AutoMovieRecoveryObservation.estimateCameraScene(variant);
     TestValidator.predicate(
       "over-budget view set refuses without a value",
       outcome.status === "refused",

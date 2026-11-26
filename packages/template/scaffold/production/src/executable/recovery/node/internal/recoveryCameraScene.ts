@@ -1,5 +1,5 @@
 import type { IAutoMovieRecoveryCameraSceneFiles } from "@automovie/interface";
-import { estimateAutoMovieRecoveryCameraScene } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
@@ -81,8 +81,8 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
       "A closed bounded camera-scene manifest with explicit view/pixel/header limits is required",
     );
   const started: number = performance.now();
-  const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
-    estimateAutoMovieRecoveryCameraScene({
+  const outcome: ReturnType<typeof AutoMovieRecoveryObservation.estimateCameraScene> =
+    AutoMovieRecoveryObservation.estimateCameraScene({
       ...spec.capture,
       views: readRecoveryCameraImages(
         spec.views,

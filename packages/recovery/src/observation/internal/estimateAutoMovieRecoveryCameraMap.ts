@@ -8,9 +8,9 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { admitRecoveryCameraMap } from "../internal/admitRecoveryCameraMap";
-import { createRecoveryCameraMap } from "../internal/createRecoveryCameraMap";
-import { observeRecoveryCameraSet } from "../internal/observeRecoveryCameraSet";
+import { admitRecoveryCameraMap } from "../../internal/admitRecoveryCameraMap";
+import { createRecoveryCameraMap } from "../../internal/createRecoveryCameraMap";
+import { observeRecoveryCameraSet } from "../../internal/observeRecoveryCameraSet";
 
 /**
  * Observe three fixed calibrated RGB images and register a sparse camera triad.

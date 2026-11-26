@@ -1,4 +1,4 @@
-import { observeAutoMovieRecoveryAtlas as O } from "@automovie/recovery";
+import { AutoMovieRecoveryObservation } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -54,7 +54,7 @@ export function observeRecoveryAtlas(
       maxObservationRowsPerChart?: number;
       maxRefinementsPerChart?: number;
     };
-    tessellation: Parameters<typeof O>[0]["tessellation"];
+    tessellation: Parameters<typeof AutoMovieRecoveryObservation.observeAtlas>[0]["tessellation"];
   } = JSON.parse(bytes.toString("utf8"));
   if (
     input.schema !== "automovie-recovery-atlas-observation-v1" ||
@@ -300,7 +300,7 @@ export function observeRecoveryAtlas(
       memory: process.memoryUsage(),
     }),
   );
-  const result: ReturnType<typeof O> = O(
+  const result: ReturnType<typeof AutoMovieRecoveryObservation.observeAtlas> = AutoMovieRecoveryObservation.observeAtlas(
     {
       verticesMm,
       triangles,

@@ -7,8 +7,8 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { convertAutoMovieRecoveryCurves } from "../curves/internal/convertAutoMovieRecoveryCurves";
-import { RecoveryBezierFit } from "../internal/RecoveryBezierFit";
+import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
+import { RecoveryBezierFit } from "../../internal/RecoveryBezierFit";
 
 /**
  * Fit one caller-ordered polyline through the shared tangent-constrained cubic
