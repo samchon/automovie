@@ -301,6 +301,7 @@ export function preparePickUpDigitCourse(
   return { close, course, verifies: (display) => accepted(assess(display)) };
 }
 
+/** Inputs and readers for the prepared digit course and its displayed check. */
 export namespace preparePickUpDigitCourse {
   export interface IModel {
     close(wrist: Wrist, closed: IShape, apex: number): IShape | undefined;

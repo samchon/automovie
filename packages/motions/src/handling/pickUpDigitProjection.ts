@@ -96,6 +96,7 @@ export function pickUpDigitProjection(
   return { angles, error: Math.sqrt(score(errors)) };
 }
 
+/** Result of projecting the digit angles at one prepared instant. */
 export namespace pickUpDigitProjection {
   export interface IProjection {
     /** The feasible point in clinical degrees and its residual in metres. */
