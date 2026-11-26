@@ -190,17 +190,17 @@ article h1 {
 }
 
 /* Controls */
-.am-app input:not(.am-instrument *),
-.am-app select:not(.am-instrument *),
-.am-app textarea:not(.am-instrument *),
-.am-app button:not(.am-instrument *) {
+.am-app input,
+.am-app select,
+.am-app textarea,
+.am-app button {
   font: inherit;
   color: var(--am-fg);
 }
 
-.am-app input:not(.am-instrument *),
-.am-app select:not(.am-instrument *),
-.am-app textarea:not(.am-instrument *) {
+.am-app input,
+.am-app select,
+.am-app textarea {
   width: 100%;
   min-height: var(--am-control-height);
   border: 1px solid var(--am-border-control);
@@ -209,14 +209,14 @@ article h1 {
   padding: var(--am-space-1) var(--am-space-2);
 }
 
-.am-app input[type="checkbox"]:not(.am-instrument *) {
+.am-app input[type="checkbox"] {
   width: 1rem;
   min-height: 0;
   height: 1rem;
   accent-color: var(--am-accent-bg);
 }
 
-.am-app input[type="range"]:not(.am-instrument *) {
+.am-app input[type="range"] {
   min-height: 0;
   border: 0;
   background: transparent;
@@ -224,13 +224,13 @@ article h1 {
   accent-color: var(--am-accent-bg);
 }
 
-.am-app textarea:not(.am-instrument *) {
+.am-app textarea {
   font-family: var(--am-font-mono);
   font-size: var(--am-text-sm);
   resize: vertical;
 }
 
-.am-app button:not(.am-instrument *) {
+.am-app button {
   min-height: var(--am-control-height);
   border: 1px solid var(--am-border-control);
   border-radius: var(--am-radius);
@@ -239,11 +239,11 @@ article h1 {
   cursor: pointer;
 }
 
-.am-app button:hover:not(:disabled):not(.am-instrument *) {
+.am-app button:hover:not(:disabled) {
   background: var(--am-bg-hover);
 }
 
-.am-app button:disabled:not(.am-instrument *) {
+.am-app button:disabled {
   cursor: default;
   opacity: 0.55;
 }
@@ -471,7 +471,7 @@ div:has(> footer) {
   background: var(--am-bg-panel) !important;
 }
 
-/* The heading row of an application page: the playground and an archetype. */
+/* The heading row of an archetype detail page. */
 .am-app .am-app-head h1 {
   font-family: var(--am-font-display);
   font-size: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);

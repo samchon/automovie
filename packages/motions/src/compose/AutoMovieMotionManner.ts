@@ -3,6 +3,7 @@ import type {
   IAutoMovieMotionClockInstant,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanEffort,
+  IAutoMovieMotionHumanSkill,
   IAutoMovieMotionManner,
   IAutoMovieRandom,
 } from "@automovie/interface";
@@ -21,11 +22,20 @@ type OfContext = "skill" | "random" | "tempo";
 type BOUNDSEntryItem = "tempo" | "extent";
 
 /**
+ * The timing and path skills used when a manner leaves consistency to the
+ * performer.
+ */
+type VariationAxes = Pick<
+  IAutoMovieMotionHumanSkill["axes"],
+  "timing" | "path"
+>;
+
+/**
  * The modifiers of an action's manner, drawn from the action's own seeded
- * channel and with the performer's timing skill where the manner states no
- * proficiency, and with its moving spans slowed by the action's own time scale
- * (`IHumanActionContext.tempo`) with or without a manner; its holds keep their
- * seconds.
+ * channel. The performer's timing and path skills govern the temporal and
+ * spatial spreads when the manner leaves consistency unspecified. Moving spans
+ * also take the action's own time scale (`IHumanActionContext.tempo`) with or
+ * without a manner; its holds keep their seconds.
  *
  * @param context The action's skill, draw streams and time scale.
  * @param manner The manner; neutral when absent.
@@ -39,8 +49,9 @@ export function AutoMovieMotionManner(
     manner === undefined
       ? AutoMovieMotionManner.NEUTRAL
       : AutoMovieMotionManner.resolve(
-          { consistency: context.skill.axes.timing, ...manner },
+          manner,
           context.random("manner"),
+          context.skill.axes,
         );
 
   // The action's own time scale, where it is replanned to take the time
@@ -100,39 +111,49 @@ export namespace AutoMovieMotionManner {
    * @param manner The manner; neutral when absent.
    * @param random The stream the variation is drawn from; indices 0 and 1 are
    *   read.
+   * @param axes The performer's temporal and spatial skills when consistency is
+   *   absent. Omit for elite spread in both dimensions.
    * @returns The modifiers.
    * @throws {Error} When a member lies outside its range.
    */
   export function resolve(
     manner: IAutoMovieMotionManner | undefined,
     random: IAutoMovieRandom,
+    axes?: VariationAxes,
   ): IAutoMovieMotionManner.IModifiers {
     if (manner === undefined) return NEUTRAL;
     const intensity: number = manner.intensity ?? 1;
     const pace: number = manner.pace ?? 1;
-    const proficiency: number = manner.consistency ?? 1;
+    const consistency: number | undefined = manner.consistency;
     const variation: number = manner.variation ?? 0;
     HumanBound.within("manner.intensity", intensity, 0, 1, "", "minimum");
     HumanBound.above("manner.pace", pace, 0);
-    HumanBound.within("manner.proficiency", proficiency, 0, 1);
+    if (consistency !== undefined)
+      HumanBound.within("manner.consistency", consistency, 0, 1);
     HumanBound.within("manner.variation", variation, 0, 1);
     const effort: IAutoMovieMotionHumanEffort.IModifiers =
       HumanEffort.modifiers(manner.effort);
     const offset = (
       bounds: readonly [number, number],
       index: number,
+      skill: number,
     ): number =>
       variation === 0
         ? 1
         : 1 +
           variation *
-            (bounds[0] + (bounds[1] - bounds[0]) * proficiency) *
+            (bounds[0] + (bounds[1] - bounds[0]) * skill) *
             (2 * random.float(index) - 1);
-    const tempo: number = (effort.tempo / pace) * offset(BOUNDS.tempo, 0);
+    const tempo: number =
+      (effort.tempo / pace) *
+      offset(BOUNDS.tempo, 0, consistency ?? axes?.timing ?? 1);
     return {
       tempo,
       hold: tempo * (1 + HOLD * (manner.effort?.flow ?? 0)),
-      extent: effort.extent * intensity * offset(BOUNDS.extent, 1),
+      extent:
+        effort.extent *
+        intensity *
+        offset(BOUNDS.extent, 1, consistency ?? axes?.path ?? 1),
       curvature: effort.curvature,
       bend: effort.elbow,
       step: effort.step,

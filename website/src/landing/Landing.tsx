@@ -15,11 +15,11 @@ import { LANDING_FILM } from "./LANDING_FILM";
 import { LANDING_RAIL } from "./LANDING_RAIL";
 
 /**
- * The landing page. It follows one scene from the decisions it rests on to
- * the frames it computes: the screenplay beside its take, the chain of
- * documents and code, the evidence graph that makes each layer state how it
- * keeps the decisions above it, the takes
- * that vary one choice, how any action is composed, and how to start.
+ * The landing page. It follows one scene from the decisions it rests on to the
+ * frames it computes: the screenplay beside its take, the chain of documents
+ * and code, the evidence graph that makes each layer state how it keeps the
+ * decisions above it, the takes that vary one choice, how any action is
+ * composed, and how to start.
  *
  * @returns The page.
  */
@@ -315,9 +315,11 @@ export function Landing(): ReactElement {
             <strong>Archetypes</strong>
             <span>Coarse seeded objects and the contacts an action reads.</span>
           </Link>
-          <Link href="/playground/">
-            <strong>Playground</strong>
-            <span>Compose a performance and watch it computed.</span>
+          <Link href="/gallery/">
+            <strong>Gallery</strong>
+            <span>
+              Short 3D takes that combine motions, performers and objects.
+            </span>
           </Link>
         </nav>
       </section>

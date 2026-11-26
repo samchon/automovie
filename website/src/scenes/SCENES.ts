@@ -1,3 +1,4 @@
+import { GALLERY_MOTION_EXAMPLES } from "./data/GALLERY_MOTION_EXAMPLES";
 import { SCENES_ASSISTANCE } from "./data/SCENES_ASSISTANCE";
 import { SCENES_BLADES } from "./data/SCENES_BLADES";
 import { SCENES_BOUTS } from "./data/SCENES_BOUTS";
@@ -28,10 +29,10 @@ import { SCENE_VICTORY_LOW_FIVE } from "./data/SCENE_VICTORY_LOW_FIVE";
 import type { IScene } from "./structures/IScene";
 
 /**
- * Every scene the site knows: the scenes that play on the installed
- * packages, the ones written for a release that has not landed, and the
- * ones a campaign plans. Each page orders them by setting and status. Add a
- * scene to a file under `data/`; no page changes.
+ * Every scene the site knows: the scenes that play on the installed packages,
+ * the ones written for a release that has not landed, and the ones a campaign
+ * plans. Each page orders them by setting and status. Add a scene to a file
+ * under `data/`; no page changes.
  */
 export const SCENES: readonly IScene[] = [
   ...SCENES_EVERYDAY,
@@ -60,5 +61,6 @@ export const SCENES: readonly IScene[] = [
   ...SCENES_PARTNER,
   ...SCENES_VEHICLES,
   ...SCENES_LABOUR,
+  ...GALLERY_MOTION_EXAMPLES,
   ...SCENES_PLANNED,
 ];

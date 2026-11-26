@@ -1,28 +1,29 @@
 import { playgroundActionParams } from "../playground/data/playgroundActionParams";
 import { playgroundAidWalkAction } from "../playground/package/playgroundAidWalkAction";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
+import { sceneCourseBuilder } from "./sceneCourseBuilder";
 import type { ISceneChainNames } from "./structures/ISceneChainNames";
 
 /**
- * A composition as the TypeScript an agent writes against
- * `@automovie/motions`: the archetypes it places, one `HumanChain` per
- * performer, each vocabulary action appended with `act` and each lexicon
- * row with `registered`, cut with `until`, timed with `sync` and with the
- * actions performed over it in `over`; the people's chains joined with
- * `with`, each mutual action after them with `next`; the laws the
- * performance registers; each placed archetype as a prop through
- * `HumanObject.prop`, with the person and bone it starts worn on, and a
- * blade that starts in its carrier staged by `HumanSheath.of`; and the
- * authored impulses. It shows the input `HumanPerformance` is built from,
- * as `PlaygroundPerformance` builds it, ending in the one line `const performance = new
- * HumanPerformance(input);`. A seat is written as `HumanObject.seat` of the
- * archetype that carries it, and an opening as `HumanObstacle.apertures`.
- * Each person's body is read from `bodies`, declared as the `IAutoMovieMotionHumanBody`
- * of each of the site's body ids, since a body is prepared from measures
- * the code does not show.
+ * A composition as the TypeScript an agent writes against `@automovie/motions`:
+ * the archetypes it places, one `HumanChain` per performer, each vocabulary
+ * action appended with `act` and each lexicon row with `registered`, cut with
+ * `until`, timed with `sync` and with the actions performed over it in `over`;
+ * the people's chains joined with `with`, each mutual action after them with
+ * `next`; the laws the performance registers; each placed archetype as a prop
+ * through `HumanObject.prop`, with the person and bone it starts worn on, and a
+ * blade that starts in its carrier staged by `HumanSheath.of`; and the authored
+ * impulses. It shows the input `HumanPerformance` is built from, as
+ * `PlaygroundPerformance` builds it, ending in the one line `const performance
+ * = new HumanPerformance(input);`. A seat is written as `HumanObject.seat` of
+ * the archetype that carries it, and an opening as `HumanObstacle.apertures`.
+ * Each person's body is read from `bodies`, declared as the
+ * `IAutoMovieMotionHumanBody` of each of the site's body ids, since a body is
+ * prepared from measures the code does not show.
  *
  * @param composition The composition.
- * @param names The exported names its code refers to, read from the packages when the site is built.
+ * @param names The exported names its code refers to, read from the packages
+ *   when the site is built.
  * @returns The source text.
  */
 export function formatSceneChain(
@@ -31,6 +32,10 @@ export function formatSceneChain(
 ): string {
   const objects: readonly IPlaygroundComposition.IObject[] =
     composition.objects ?? [];
+  const courses: readonly IPlaygroundComposition.IObject[] = objects.filter(
+    (object: IPlaygroundComposition.IObject): boolean =>
+      object.course !== undefined,
+  );
   const imports: Set<string> = new Set<string>(["HumanChain"]);
   const body: string[] = [];
   const indent: (text: string, by: string) => string = (
@@ -92,18 +97,13 @@ export function formatSceneChain(
         : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)}${o.fixed === true ? ", fixed: true" : ""} };`,
     );
   }
-  for (const object of objects) {
-    if (object.course === undefined) continue;
+  for (const object of courses) {
     const name: string = identifier(object.subject);
     const course = {
       ...object.course,
       start: { x: object.x, z: object.z, heading: object.yaw },
     };
-    const lift: string = vehicleCourseCall(
-      object.producer,
-      name,
-      value(course),
-    );
+    const lift: string = `archetypes.${sceneCourseBuilder(object.producer)}(${name}, ${value(course)})`;
     body.push(`const ${name}Ride = ${lift};`);
     if (object.joints === undefined) continue;
     body.push(
@@ -119,6 +119,25 @@ export function formatSceneChain(
       "  })),",
       "});",
     );
+  }
+
+  // A native ride publishes its authored gait instants on the film clock.
+  const hasCues: boolean =
+    courses.length !== 0 || composition.cues !== undefined;
+  if (hasCues) {
+    body.push(
+      "",
+      `const cues: Record<string, NonNullable<IAutoMovieMotionHumanPerformance.IInput["cues"]>[string]> = ${value(composition.cues ?? {})};`,
+    );
+    for (const object of courses) {
+      const name: string = identifier(object.subject);
+      body.push(
+        `const ${name}Gaits = ${name}Ride.instants`,
+        '  .filter(({ label }) => label.startsWith("gait:"))',
+        "  .map(({ label, seconds }) => ({ name: label, seconds }));",
+        `if (${name}Gaits.length !== 0) cues[${JSON.stringify(`${object.subject}:gaits`)}] = ${name}Gaits;`,
+      );
+    }
   }
   if (objects.length !== 0) body.push("");
 
@@ -266,6 +285,7 @@ export function formatSceneChain(
       ? []
       : [`  forces: ${value(composition.forces)},`]),
     ...(objects.length === 0 ? [] : ["  props,"]),
+    ...(hasCues ? ["  cues,"] : []),
     ...(names.laws.length === 0 ? [] : ["  laws,"]),
     "};",
     "const performance = new HumanPerformance(input);",
@@ -288,7 +308,10 @@ const RESERVED: ReadonlySet<string> = new Set<string>(
   ),
 );
 
-/** A subject id as a variable name: a reserved word, or one that starts with a digit, is changed so it is not one. */
+/**
+ * A subject id as a variable name: a reserved word, or one that starts with a
+ * digit, is changed so it is not one.
+ */
 function identifier(subject: string): string {
   const name: string = subject.replace(/[^A-Za-z0-9_$]/g, "_");
   return /^[0-9]/.test(name)
@@ -298,7 +321,10 @@ function identifier(subject: string): string {
       : name;
 }
 
-/** A value as a TypeScript literal: short objects on one line, longer ones one member a line; it records the namespaces it names. */
+/**
+ * A value as a TypeScript literal: short objects on one line, longer ones one
+ * member a line; it records the namespaces it names.
+ */
 function literal(value: unknown, imports: Set<string>): string {
   if (Array.isArray(value)) {
     const items: string[] = value.map((v: unknown): string =>
@@ -332,7 +358,10 @@ function literal(value: unknown, imports: Set<string>): string {
   return JSON.stringify(value);
 }
 
-/** Emit the stated parameters and any variant under the producer's declared key, such as `kind`, `frame` or `format`. */
+/**
+ * Emit the stated parameters and any variant under the producer's declared key,
+ * such as `kind`, `frame` or `format`.
+ */
 function options(object: IPlaygroundComposition.IObject, key: string): string {
   const entries: [string, unknown][] = Object.entries({
     ...(object.params ?? {}),
@@ -341,24 +370,4 @@ function options(object: IPlaygroundComposition.IObject, key: string): string {
   return entries.length === 0
     ? "{}"
     : `{ ${entries.map(([key, value]: [string, unknown]): string => `${key}: ${JSON.stringify(value)}`).join(", ")} }`;
-}
-
-/** The same native course constructor used by the playground's scene adapter. */
-function vehicleCourseCall(
-  producer: string,
-  name: string,
-  course: string,
-): string {
-  switch (producer) {
-    case "createCar":
-      return `archetypes.driveCar(${name}, ${course})`;
-    case "createBicycle":
-      return `archetypes.rideBicycle(${name}, ${course})`;
-    case "createMotorcycle":
-      return `archetypes.rideMotorcycle(${name}, ${course})`;
-    case "createCart":
-      return `archetypes.AutoMovieArchetypeRide.along(${name}, ${course})`;
-    default:
-      throw new Error(`"${producer}" does not supply a vehicle course.`);
-  }
 }

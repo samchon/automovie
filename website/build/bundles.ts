@@ -9,8 +9,7 @@
 // `@automovie/human` belongs in what the page itself loads: its initial
 // chunks, and the chunk that draws a take, which it loads on demand. Only
 // the take worker's chunk carries them. A string literal only each package
-// holds marks it, since minifying keeps string literals. The playground may
-// load them; it is not checked.
+// holds marks it, since minifying keeps string literals.
 import fs from "node:fs";
 import path from "node:path";
 
@@ -19,6 +18,7 @@ const ROUTES: readonly string[] = [
   "/(docs)/[[...mdxPath]]/page",
   "/(docs)/scenes/page",
   "/(docs)/scenes/[id]/page",
+  "/(docs)/gallery/page",
   "/(docs)/motions/page",
   "/(docs)/motions/[name]/page",
   "/(docs)/archetypes/page",

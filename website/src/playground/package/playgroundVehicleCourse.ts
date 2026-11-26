@@ -14,16 +14,19 @@ import type {
 } from "@automovie/interface";
 
 import type { SceneArchetype } from "../../scenes/package/SceneArchetype";
+import { sceneCourseBuilder } from "../../scenes/sceneCourseBuilder";
 import type { IPlaygroundComposition } from "../structures/IPlaygroundComposition";
 
 /**
- * Adapt an authored vehicle or ridden-animal course to the performance's native moving prop
- * and its articulation tracks. Root, grips and the take share one sampled
- * native ride. Prop tracks retain the final wheel and control positions.
+ * Adapt an authored vehicle or ridden-animal course to the performance's native
+ * moving prop and its articulation tracks. Root, grips and the take share one
+ * sampled native ride. Prop tracks retain the final wheel and control
+ * positions.
  *
  * @param object The vehicle and its placed course.
  * @param model The same stationary archetype passed to the prop.
- * @returns The course reader and its tracks, absent for a stationary scene prop.
+ * @returns The course reader and its tracks, absent for a stationary scene
+ *   prop.
  * @throws {Error} If a fixed, worn, or unsupported prop names a vehicle course.
  */
 export function playgroundVehicleCourse(
@@ -54,30 +57,25 @@ export function playgroundVehicleCourse(
     AutoMovieArchetypeRide.IRide<string, string>,
     "at" | "instants"
   > = (() => {
-    switch (object.producer) {
-      case "createCar":
+    switch (sceneCourseBuilder(object.producer)) {
+      case "driveCar":
         return driveCar(model as Parameters<typeof driveCar>[0], course);
-      case "createBicycle":
+      case "rideBicycle":
         return rideBicycle(model as Parameters<typeof rideBicycle>[0], course);
-      case "createMotorcycle":
+      case "rideMotorcycle":
         return rideMotorcycle(
           model as Parameters<typeof rideMotorcycle>[0],
           course,
         );
-      case "createHorse":
-      case "createPony":
+      case "rideQuadruped":
         return rideQuadruped(
           model as Parameters<typeof rideQuadruped>[0],
           course,
         );
-      case "createCart":
+      case "AutoMovieArchetypeRide.along":
         return AutoMovieArchetypeRide.along(
           model as Parameters<typeof AutoMovieArchetypeRide.along>[0],
           course,
-        );
-      default:
-        throw new Error(
-          `"${object.producer}" does not supply a vehicle course.`,
         );
     }
   })();
@@ -185,10 +183,16 @@ export namespace playgroundVehicleCourse {
     /** The vehicle's world frame at a film second. */
     placement: (seconds: number) => IAutoMovieRigidTransform;
 
-    /** A named affordance's world frame at a film second, on the articulated model. */
+    /**
+     * A named affordance's world frame at a film second, on the articulated
+     * model.
+     */
     contact: (id: string, seconds: number) => IAutoMovieTransform;
 
-    /** The ride's own gait changes, each named by its `gait:<from>-<to>` label at its film second; none for a vehicle. */
+    /**
+     * The ride's own gait changes, each named by its `gait:<from>-<to>` label
+     * at its film second; none for a vehicle.
+     */
     gaits: IPlaygroundComposition.ICue[];
 
     /** Each articulation's travel over the film. */

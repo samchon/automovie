@@ -1,0 +1,141 @@
+/* 3D viewport */
+.am-viewport {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  min-height: 16rem;
+  max-height: calc(100dvh - var(--am-navbar) - 11rem);
+  overflow: hidden;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius);
+  background: var(--am-viewport);
+}
+
+.am-viewport-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  cursor: grab;
+
+  /* A vertical swipe scrolls the page; a horizontal one turns the model. */
+  touch-action: pan-y;
+}
+
+.am-viewport-canvas:active {
+  cursor: grabbing;
+}
+
+.am-viewport-tags {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.am-viewport-tag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0.35rem 0 0 0.35rem;
+  border-radius: 3px;
+  background: var(--am-viewport-tag-bg);
+  color: var(--am-viewport-tag-fg);
+  padding: 0 0.3rem;
+  font-family: var(--am-font-mono);
+  font-size: var(--am-text-xs);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.am-viewport-status {
+  position: absolute;
+  left: var(--am-space-2);
+  bottom: var(--am-space-2);
+  border-radius: var(--am-radius);
+  background: var(--am-bg);
+  color: var(--am-fg);
+  padding: var(--am-space-1) var(--am-space-2);
+  font-size: var(--am-text-sm);
+}
+
+.am-viewport-error {
+  position: absolute;
+  inset: var(--am-space-3);
+  overflow: auto;
+  border: 1px solid var(--am-danger-border);
+  border-radius: var(--am-radius);
+  background: var(--am-danger-soft);
+  padding: var(--am-space-3);
+}
+
+.am-viewport-error strong {
+  display: block;
+  margin-bottom: var(--am-space-2);
+  color: var(--am-danger);
+}
+
+/* An archetype's page: the view and the facts; catalogue.css places them */
+.am-gallery {
+  display: grid;
+  align-items: start;
+  gap: var(--am-space-4);
+}
+
+.am-viewport-region {
+  grid-area: view;
+  min-width: 0;
+}
+
+.am-gallery-facts {
+  grid-area: facts;
+  min-width: 0;
+}
+
+.am-count {
+  border-radius: 999px;
+  background: var(--am-bg-hover);
+  color: var(--am-fg-muted);
+  padding: 0 0.45rem;
+  font-size: var(--am-text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 767px) {
+  .am-viewport {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+.am-slider {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 5.5rem;
+  align-items: center;
+  gap: var(--am-space-2);
+}
+
+.am-band-text {
+  display: block;
+  margin-top: var(--am-space-1);
+  color: var(--am-fg-muted);
+  font-size: var(--am-text-xs);
+}
+
+.am-band {
+  position: relative;
+  height: 0.5rem;
+  min-width: 7rem;
+  border-radius: 999px;
+  background: var(--am-bg-hover);
+}
+
+.am-band-mark {
+  position: absolute;
+  top: -0.2rem;
+  width: 0.2rem;
+  height: 0.9rem;
+  margin-left: -0.1rem;
+  border-radius: 1px;
+  background: var(--am-accent);
+}

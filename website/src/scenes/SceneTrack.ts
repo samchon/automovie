@@ -2,25 +2,25 @@
  * The placements of one computed take, and how a pose at any second is read
  * from them.
  *
- * The values run frame after frame; in a frame, group after group in
- * `orders` order; in a group, entry after entry in its order; and for each
- * entry its world position in metres (x, y, z) then its rotation as a unit
- * quaternion (x, y, z, w). That is `frames × Σ entries × STRIDE` values.
+ * The values run frame after frame; in a frame, group after group in `orders`
+ * order; in a group, entry after entry in its order; and for each entry its
+ * world position in metres (x, y, z) then its rotation as a unit quaternion (x,
+ * y, z, w). That is `frames × Σ entries × STRIDE` values.
  *
- * Each value is a signed 16-bit integer: a position in millimetres, which
- * covers ±32.7 m from the origin, and a quaternion component times 32767.
- * That halves what a take holds and moves from the take worker against
- * 32-bit floats, at an error of half a millimetre and a few thousandths of a
- * degree, which no drawing shows.
+ * Positions are stored in millimetres and quaternion components are scaled by
+ * 32767. A track whose positions fit within ±32.7 m uses signed 16-bit values.
+ * Tracks that span more space keep the same precision in 32 bits.
  *
- * Frames follow the sampling rate up to the final frame, whose timestamp
- * is the exact end and may shorten the last interval.
- * Reading between two frames interpolates each position linearly and each
- * rotation along the shorter arc, so a take posed at a low rate still plays
- * smoothly.
+ * Frames follow the sampling rate up to the final frame, whose timestamp is the
+ * exact end and may shorten the last interval. Reading between two frames
+ * interpolates each position linearly and each rotation along the shorter arc,
+ * so a take posed at a low rate still plays smoothly.
  */
 export namespace SceneTrack {
-  /** Prefix of a prop part's model-local placement, relative to the group's first entry. */
+  /**
+   * Prefix of a prop part's model-local placement, relative to the group's
+   * first entry.
+   */
   export const PROP_PART: string = "part:";
   /** Values an entry takes in a frame: position, then rotation. */
   export const STRIDE: number = 7;
@@ -30,6 +30,9 @@ export namespace SceneTrack {
 
   /** Stored units in a quaternion component of 1. */
   export const ROTATION_SCALE: number = 32767;
+
+  /** Compact values, or wide values when a track spans a larger world. */
+  export type Values = Int16Array | Int32Array;
 
   /** One entry's placement, the shape `buildHumanPolygon`'s `setPose` takes. */
   export interface IPlacement {
@@ -58,32 +61,40 @@ export namespace SceneTrack {
     orders: string[][];
 
     /** The values. */
-    values: Int16Array;
+    values: Values;
   }
 
   /**
    * Write placements into a track's values.
    *
-   * @param frames For each frame, for each group, its placements in that group's order.
+   * @param frames For each frame, for each group, its placements in that
+   *   group's order.
    * @param orders Each group's order.
    * @returns The values.
-   * @throws {Error} When a frame gives a group other entries than its order names, or a position lies beyond ±32.7 m.
+   * @throws {Error} When a frame has the wrong entries or a position cannot be
+   *   stored in signed 32-bit millimetres.
    */
   export function encode(
     frames: readonly (readonly (readonly IPlacement[])[])[],
     orders: readonly (readonly string[])[],
-  ): Int16Array {
+  ): Values {
     const width: number = orders.reduce(
       (sum: number, order: readonly string[]): number => sum + order.length,
       0,
     );
-    const values: Int16Array = new Int16Array(frames.length * width * STRIDE);
+    let values: Values = new Int16Array(frames.length * width * STRIDE);
     const position: (metres: number) => number = (metres: number): number => {
       const stored: number = Math.round(metres * POSITION_SCALE);
-      if (stored < -32767 || stored > 32767)
+      if (
+        !Number.isInteger(stored) ||
+        stored < -2147483648 ||
+        stored > 2147483647
+      )
         throw new Error(
-          `A position of ${metres} m lies beyond the ±32.7 m a track holds`,
+          `A position of ${metres} m cannot be stored in the track`,
         );
+      if ((stored < -32767 || stored > 32767) && values instanceof Int16Array)
+        values = new Int32Array(values);
       return stored;
     };
     let k: number = 0;
@@ -102,9 +113,12 @@ export namespace SceneTrack {
                 `Frame ${frame} gives group ${group} other entries than its order`,
               );
             for (const p of placements) {
-              values[k] = position(p.position[0]);
-              values[k + 1] = position(p.position[1]);
-              values[k + 2] = position(p.position[2]);
+              const x: number = position(p.position[0]);
+              const y: number = position(p.position[1]);
+              const z: number = position(p.position[2]);
+              values[k] = x;
+              values[k + 1] = y;
+              values[k + 2] = z;
 
               // q and -q are one rotation; storing the one with w ≥ 0 keeps
               // neighbouring frames on one side, so interpolation turns the
@@ -138,7 +152,7 @@ export namespace SceneTrack {
       (sum: number, order: string[]): number => sum + order.length,
       0,
     );
-    const v: Int16Array = track.values;
+    const v: Values = track.values;
     let a: number = lower * width * STRIDE;
     let b: number = upper * width * STRIDE;
     const lerp: (i: number) => number = (i: number): number =>
@@ -157,7 +171,10 @@ export namespace SceneTrack {
     );
   }
 
-  /** Fractional frame number at a film second, accounting for the final interval. */
+  /**
+   * Fractional frame number at a film second, accounting for the final
+   * interval.
+   */
   function frameAt(track: ITrack, seconds: number): number {
     const last: number = track.frames - 1;
     if (track.duration === undefined)
@@ -170,9 +187,12 @@ export namespace SceneTrack {
     return last - 1 + (seconds - tail) / (track.duration - tail);
   }
 
-  /** The rotation a share `t` of the way along the shorter arc between two stored quaternions. */
+  /**
+   * The rotation a share `t` of the way along the shorter arc between two
+   * stored quaternions.
+   */
   function slerp(
-    v: Int16Array,
+    v: Values,
     a: number,
     b: number,
     t: number,

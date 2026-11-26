@@ -42,7 +42,6 @@ const PAIRS: readonly (readonly [string, string, number])[] = [
   ["viewport-fg", "viewport-grid", 4.5],
   ["viewport-muted", "viewport", 4.5],
   ["viewport-ink", "viewport-button", 4.5],
-  ["instrument-fg", "instrument-bg", 4.5],
   ["viewport-fg", "viewport-lit", 4.5],
   ["room-code", "room", 4.5],
   ["room-muted", "room-deep", 4.5],

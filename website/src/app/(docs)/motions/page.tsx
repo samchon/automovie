@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
+import { GalleryNav } from "../../../components/gallery/GalleryNav";
 import { MotionCatalogue } from "../../../components/motions/MotionCatalogue";
 import { MotionIndex } from "../../../motions/package/MotionIndex";
 
@@ -11,8 +12,8 @@ export const metadata: Metadata = {
 };
 
 /**
- * The motion catalogue, written while the site is exported from the
- * installed `@automovie/motions` and the baked stills.
+ * The motion catalogue, written while the site is exported from the installed
+ * `@automovie/motions` and the baked stills.
  *
  * @returns The page.
  */
@@ -29,6 +30,7 @@ export default function MotionsPage(): ReactElement {
           code that writes it, the scenes that use it and a 3D take.
         </p>
       </header>
+      <GalleryNav current="motions" />
       <MotionCatalogue index={index} />
     </main>
   );

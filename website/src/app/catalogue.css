@@ -70,6 +70,38 @@
   line-height: 1.55;
 }
 
+.am-gallery-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--am-border);
+}
+
+.am-gallery-nav a {
+  padding: 0.5rem 0 0.625rem;
+  border-bottom: 2px solid transparent;
+  color: var(--am-fg-muted);
+}
+
+.am-gallery-nav a[aria-current="page"] {
+  border-color: var(--am-accent-line);
+  color: var(--am-fg);
+  font-weight: 600;
+}
+
+.am-gallery-hub h2 {
+  margin: 0 0 1rem;
+  font-family: var(--am-font-display);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 400;
+}
+
+.am-gallery-saved {
+  max-width: 58rem;
+  margin-bottom: 2rem;
+}
+
 .am-catalogue-bar {
   position: sticky;
   top: var(--am-navbar);

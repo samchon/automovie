@@ -292,7 +292,7 @@ function defended(
   const varied = {
     technique: "straight",
     at: ABDOMEN,
-    manner: { variation: 1, proficiency: 0 },
+    manner: { variation: 1, consistency: 0 },
   } as const;
   const read = (manner: boolean): IDefendedReadResult => {
     const standing: IAutoMovieMotionHumanPerformance = VariationSeries.perform(

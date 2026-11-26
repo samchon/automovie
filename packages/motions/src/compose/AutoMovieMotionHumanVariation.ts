@@ -35,9 +35,10 @@ type SPREADSEntryItem =
  * The source of an action's variation.
  *
  * @param context The action's skill and series.
- * @param manner The manner; its `variation` and `proficiency` are read.
+ * @param manner The manner; its `variation` and `consistency` are read.
  * @returns The source, or `undefined` when the variation is absent or 0.
- * @throws {Error} When the variation or the proficiency lies outside [0, 1].
+ * @throws {Error} When an active variation or its consistency lies outside [0,
+ *   1].
  */
 export function AutoMovieMotionHumanVariation(
   context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
@@ -46,19 +47,19 @@ export function AutoMovieMotionHumanVariation(
   const variation: number = manner?.variation ?? 0;
   HumanBound.within("manner.variation", variation, 0, 1);
   if (variation === 0) return undefined;
-  const proficiency: number | undefined = manner?.consistency;
-  if (proficiency !== undefined)
-    HumanBound.within("manner.proficiency", proficiency, 0, 1);
+  const consistency: number | undefined = manner?.consistency;
+  if (consistency !== undefined)
+    HumanBound.within("manner.consistency", consistency, 0, 1);
   return {
     skill:
-      proficiency === undefined
+      consistency === undefined
         ? context.skill
         : {
             ...context.skill,
             axes: {
               ...context.skill.axes,
-              path: proficiency,
-              timing: proficiency,
+              path: consistency,
+              timing: consistency,
             },
           },
     variation,

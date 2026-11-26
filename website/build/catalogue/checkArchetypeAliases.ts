@@ -17,6 +17,7 @@ import { GalleryCatalogue } from "../../src/gallery/package/GalleryCatalogue";
 import { PlaygroundAddress } from "../../src/playground/PlaygroundAddress";
 import { PlaygroundObjects } from "../../src/playground/package/PlaygroundObjects";
 import type { IPlaygroundComposition } from "../../src/playground/structures/IPlaygroundComposition";
+import { SCENES_PARTNER } from "../../src/scenes/data/SCENES_PARTNER";
 import { formatSceneChain } from "../../src/scenes/formatSceneChain";
 import { SceneArchetype } from "../../src/scenes/package/SceneArchetype";
 import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
@@ -238,6 +239,16 @@ export function checkArchetypeAliases(): void {
     /archetypes\.createPaper\(\{\s*format:\s*"foldedMap"/,
     "the emitted scene uses the producer's actual format parameter",
   );
+  const cavalry: IPlaygroundComposition = SCENES_PARTNER.find(
+    ({ id }) => id === "cavalry-charge",
+  )!.composition!;
+  const mountedCode: string = formatSceneChain(
+    cavalry,
+    SceneChainNames.read(cavalry),
+  );
+  assert.match(mountedCode, /const h0Ride = archetypes\.rideQuadruped\(h0,/);
+  assert.match(mountedCode, /cues\["h0:gaits"\] = h0Gaits/);
+  assert.match(mountedCode, /^  cues,$/m);
   const fitted = GalleryArchetype.build(
     GalleryAddress.decode(
       "?subject=createStageFittedCarrier&seed=7",

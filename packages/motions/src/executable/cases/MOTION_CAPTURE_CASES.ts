@@ -24,6 +24,7 @@ import { householdCases } from "./householdCases";
 import { jumpCases } from "./jumpCases";
 import { locomotionCases } from "./locomotionCases";
 import { martialArtCases } from "./martialArtCases";
+import { motionDiversityCases } from "./motionDiversityCases";
 import { racketCases } from "./racketCases";
 import { reactionCases } from "./reactionCases";
 import { selfCases } from "./selfCases";
@@ -134,6 +135,8 @@ export const MOTION_CAPTURE_CASES: Readonly<
   ): Iterable<IMotionCaptureCase> => strikingCases("striking-air", only),
   variation: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
     variationCases(only),
+  diversity: (only?: (name: string) => boolean): Iterable<IMotionCaptureCase> =>
+    motionDiversityCases(only),
   "hand-face": (): IMotionCaptureCase[] => handToFaceCases(),
   "hand-face-sweep": (): IMotionCaptureCase[] =>
     handToFaceCases(MotionBodies.SWEEP),
