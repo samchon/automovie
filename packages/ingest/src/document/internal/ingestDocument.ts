@@ -21,7 +21,7 @@ import type {
   vec4,
 } from "@gltf-transform/core";
 
-import { accessorValues } from "./internal/accessorValues";
+import { accessorValues } from "./accessorValues";
 
 /**
  * Map a parsed glTF/GLB {@link Document} onto automovie's core node graph and

@@ -2,27 +2,6 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 /**
- * Directory names the scaffold never ships, whatever a host leaves there: a
- * generated project installs its own dependencies and builds its own caches, so
- * anything under these names is a working artifact of whoever ran a tool inside
- * the scaffold directory.
- */
-const UNSHIPPED_DIRECTORIES: ReadonlySet<string> = new Set([
-  ".cache",
-  ".git",
-  "node_modules",
-]);
-
-/**
- * Compiler outputs, which are never authored scaffold inputs. Every executable
- * scaffold source is TypeScript, and a generated project's loader would prefer
- * an emitted `.js` next to its `.ts`, so an earlier local compilation must not
- * ship its modules, maps, declarations, or build info.
- */
-const UNSHIPPED_FILES: RegExp =
-  /(?:\.(?:c|m)?js(?:\.map)?|\.d\.(?:c|m)?ts|\.tsbuildinfo)$/u;
-
-/**
  * List every shipped file under `root`, as root-relative paths with the host's
  * separator, in a deterministic order.
  *
@@ -36,7 +15,7 @@ const UNSHIPPED_FILES: RegExp =
  * @param root Absolute scaffold directory.
  * @returns The shipped files.
  */
-export const listAutoMovieScaffoldFiles: (root: string) => string[] = (
+export const listFiles: (root: string) => string[] = (
   root: string,
 ): string[] => {
   const out: string[] = [];
@@ -58,3 +37,14 @@ export const listAutoMovieScaffoldFiles: (root: string) => string[] = (
   walk(root);
   return out;
 };
+
+/** Directory names that hold local project work rather than scaffold inputs. */
+const UNSHIPPED_DIRECTORIES: ReadonlySet<string> = new Set([
+  ".cache",
+  ".git",
+  "node_modules",
+]);
+
+/** Compiler output files that are never authored scaffold inputs. */
+const UNSHIPPED_FILES: RegExp =
+  /(?:\.(?:c|m)?js(?:\.map)?|\.d\.(?:c|m)?ts|\.tsbuildinfo)$/u;

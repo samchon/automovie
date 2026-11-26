@@ -3,20 +3,20 @@ import type {
   IAutoMovieDecodedProductionAudioAsset,
 } from "@automovie/interface";
 
-import { admitProductionTtsReceipt as admitReceipt } from "./admitProductionTtsReceipt";
-import { decodeProductionAudioAsset as decodeAsset } from "./decodeProductionAudioAsset";
+import { admitProductionTtsReceipt as admitAudioReceipt } from "./internal/admitProductionTtsReceipt";
+import { decodeProductionAudioAsset as decodeAudioAsset } from "./internal/decodeProductionAudioAsset";
 
 /** Admits production speech receipts and decodes supported audio assets. */
-export class AutoMovieIngestAudio {
+export namespace AutoMovieIngestAudio {
   /**
    * Decode one admitted WAVE asset to mono samples at the requested rate.
    * @param props Source asset bytes and decode policy.
    * @returns Decoded samples and processing facts.
    */
-  public static decodeAsset(
+  export function decodeAsset(
     props: IAutoMovieDecodedProductionAudioAsset.IProps,
   ): IAutoMovieDecodedProductionAudioAsset {
-    return decodeAsset(props);
+    return decodeAudioAsset(props);
   }
 
   /**
@@ -24,9 +24,9 @@ export class AutoMovieIngestAudio {
    * @param props Receipt and audio admission inputs.
    * @returns The admitted receipt.
    */
-  public static admitReceipt(
+  export function admitReceipt(
     props: IAutoMovieAdmitProductionTtsReceipt.IProps,
   ): IAutoMovieAdmitProductionTtsReceipt.IResult {
-    return admitReceipt(props);
+    return admitAudioReceipt(props);
   }
 }

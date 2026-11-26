@@ -5,7 +5,7 @@ import type {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
-import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "../AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
+import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
 import type { IAccessorSource } from "./IAccessorSource";
 import { SHAPE_COMPONENTS } from "./SHAPE_COMPONENTS";
 import { inspectExternalMotionNodes } from "./inspectExternalMotionNodes";

@@ -2,15 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { type Document, isMap, parseDocument, stringify, visit } from "yaml";
 
-/**
- * Catalog dependencies and build policy collected from the shipped manifests at
- * build time.
- */
-interface IScaffoldSettings {
-  automovie: string[];
-  catalogs: Record<string, Record<string, string>>;
-  allowBuilds: Record<string, boolean>;
-}
+import type { AutoMovieTemplateWorkspaceRequest } from "../AutoMovieTemplateWorkspaceRequest";
 
 /**
  * Render pnpm settings for a new production or workspace. Given an existing
@@ -26,17 +18,17 @@ interface IScaffoldSettings {
  *   exists.
  * @throws If the shipped settings or workspace YAML cannot be read as required.
  */
-export function renderAutoMovieWorkspace(
-  workspace: "production" | "workspace" | { directory: string; source: string },
+export function renderWorkspace(
+  workspace: "production" | "workspace" | AutoMovieTemplateWorkspaceRequest,
 ): string {
   const settings: IScaffoldSettings = JSON.parse(
     fs.readFileSync(
-      path.join(__dirname, "../generated/pnpm-workspace.json"),
+      path.join(__dirname, "../../../generated/pnpm-workspace.json"),
       "utf8",
     ),
   );
   const manifest: { version: string } = JSON.parse(
-    fs.readFileSync(path.join(__dirname, "../package.json"), "utf8"),
+    fs.readFileSync(path.join(__dirname, "../../../package.json"), "utf8"),
   );
   const catalogs: Record<string, Record<string, string>> = {
     automovie: Object.fromEntries(
@@ -104,6 +96,13 @@ export function renderAutoMovieWorkspace(
     changed = true;
   }
   return changed ? document.toString() : workspace.source;
+}
+
+/** Catalog dependencies and build policy collected from shipped manifests. */
+interface IScaffoldSettings {
+  automovie: string[];
+  catalogs: Record<string, Record<string, string>>;
+  allowBuilds: Record<string, boolean>;
 }
 
 /**

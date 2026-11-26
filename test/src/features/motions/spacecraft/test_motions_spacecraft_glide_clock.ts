@@ -1,6 +1,6 @@
-import { spacecraftGlideClock } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { spacecraftGlideClock } from "../../../../../packages/motions/src/spacecraft/spacecraftGlideClock";
 import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 

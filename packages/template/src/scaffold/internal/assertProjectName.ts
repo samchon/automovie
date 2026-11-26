@@ -13,7 +13,7 @@
  * @returns The trimmed name.
  * @throws When the name is refused.
  */
-export const assertScaffoldProjectName: (name: string) => string = (
+export const assertProjectName: (name: string) => string = (
   name: string,
 ): string => {
   const trimmed: string = name.trim();

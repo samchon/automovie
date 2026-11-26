@@ -1,7 +1,4 @@
-import {
-  createAutoMovieScaffold,
-  renderAutoMovieWorkspace,
-} from "@automovie/template";
+import { AutoMovieTemplateScaffold } from "@automovie/template";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { parse } from "yaml";
@@ -30,7 +27,7 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  */
 export function test_template_workspace_catalogs(): void {
   const directory: string = path.join(repositoryRoot(), "sample-workspace");
-  const files: Record<string, string> = createAutoMovieScaffold({
+  const files: Record<string, string> = AutoMovieTemplateScaffold.create({
     name: "member",
     kind: "workspace-production",
   });
@@ -43,7 +40,7 @@ export function test_template_workspace_catalogs(): void {
     ...manifest.devDependencies,
   };
   const complete = (source: string): string =>
-    renderAutoMovieWorkspace({ directory, source });
+    AutoMovieTemplateScaffold.renderWorkspace({ directory, source });
   for (const mode of ["registry", "catalog", "override"] as const) {
     const engine: string =
       mode === "catalog" ? "link:../packages/engine" : "1.2.3";

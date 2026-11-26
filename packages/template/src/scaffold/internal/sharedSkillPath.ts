@@ -1,8 +1,5 @@
 import * as path from "node:path";
 
-/** A placeholder's file name: `$` followed by one portable path segment. */
-const PLACEHOLDER: RegExp = /^\$([a-zA-Z0-9_-][a-zA-Z0-9_.-]*)$/u;
-
 /**
  * The repository skill path a scaffold placeholder stands for, or `null` when
  * the file is not a placeholder.
@@ -16,11 +13,11 @@ const PLACEHOLDER: RegExp = /^\$([a-zA-Z0-9_-][a-zA-Z0-9_.-]*)$/u;
  * each shared text has one source.
  *
  * @param relative Scaffold-relative file path with the host's separator, as
- *   {@link listAutoMovieScaffoldFiles} returns it.
+ *   {@link listFiles} returns it.
  * @returns The named item's path relative to `.agents/skills`, with `/`
  *   separators and the `$` removed, or `null`.
  */
-export const scaffoldSharedSkillPath: (relative: string) => string | null = (
+export const sharedSkillPath: (relative: string) => string | null = (
   relative: string,
 ): string | null => {
   const parts: string[] = relative.split(path.sep);
@@ -30,3 +27,6 @@ export const scaffoldSharedSkillPath: (relative: string) => string | null = (
   if (match === null || match[1] === "." || match[1] === "..") return null;
   return [...parts.slice(2, -1), match[1]!].join("/");
 };
+
+/** A placeholder's file name: `$` followed by one portable path segment. */
+const PLACEHOLDER: RegExp = /^\$([a-zA-Z0-9_-][a-zA-Z0-9_.-]*)$/u;

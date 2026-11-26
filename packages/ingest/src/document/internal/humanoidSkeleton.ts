@@ -12,8 +12,8 @@ import type {
   vec4,
 } from "@gltf-transform/core";
 
-import { composeLocalTransform } from "./internal/composeLocalTransform";
-import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
+import { composeLocalTransform } from "../../internal/composeLocalTransform";
+import { humanoidBoneOfName } from "../../internal/humanoidBoneOfName";
 
 /**
  * Retarget a parsed glTF's skins onto a normalized humanoid

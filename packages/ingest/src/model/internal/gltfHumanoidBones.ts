@@ -1,6 +1,6 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 
-import { humanoidBoneOfName } from "../internal/humanoidBoneOfName";
+import { humanoidBoneOfName } from "../../internal/humanoidBoneOfName";
 import type { IHumanoidSlot } from "./IHumanoidSlot";
 import { object } from "./object";
 import { requiredArray } from "./requiredArray";

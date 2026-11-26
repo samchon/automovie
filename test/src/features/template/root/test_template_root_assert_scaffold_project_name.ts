@@ -1,11 +1,11 @@
-import { assertScaffoldProjectName } from "@automovie/template";
+import { AutoMovieTemplateScaffold } from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `assertScaffoldProjectName` trims a name and refuses one that is not a
- * portable directory segment: empty, `.` or `..`, a trailing dot, a reserved
- * character `<>:"/\|?*` or control character, or a Windows device name
- * (Microsoft, "Naming Files, Paths, and Namespaces").
+ * `AutoMovieTemplateScaffold.assertProjectName` trims a name and refuses one
+ * that is not a portable directory segment: empty, `.` or `..`, a trailing dot,
+ * a reserved character `<>:"/\|?*` or control character, or a Windows device
+ * name (Microsoft, "Naming Files, Paths, and Namespaces").
  *
  * Scenarios:
  *
@@ -16,16 +16,16 @@ import { TestValidator } from "@nestia/e2e";
 export function test_template_root_assert_scaffold_project_name(): void {
   TestValidator.equals(
     "trimmed",
-    assertScaffoldProjectName("  my-film  "),
+    AutoMovieTemplateScaffold.assertProjectName("  my-film  "),
     "my-film",
   );
   for (const name of ["", "..", "film.", "a/b", "nul", "COM1.txt"])
     TestValidator.error(`"${name}" refuses`, (): string =>
-      assertScaffoldProjectName(name),
+      AutoMovieTemplateScaffold.assertProjectName(name),
     );
   TestValidator.equals(
     "console",
-    assertScaffoldProjectName("console"),
+    AutoMovieTemplateScaffold.assertProjectName("console"),
     "console",
   );
 }

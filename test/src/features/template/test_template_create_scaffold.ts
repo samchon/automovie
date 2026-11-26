@@ -1,6 +1,6 @@
 import {
-  type IAutoMovieScaffoldProps,
-  createAutoMovieScaffold,
+  AutoMovieTemplateScaffold,
+  type AutoMovieTemplateScaffoldProps,
 } from "@automovie/template";
 import { TestValidator } from "@nestia/e2e";
 import fs from "node:fs";
@@ -24,8 +24,8 @@ interface IManifest {
 const ROOT: string = repositoryRoot();
 
 /**
- * `createAutoMovieScaffold` selects layers and generated files by kind, names
- * the package, and resolves every `catalog:` dependency.
+ * `AutoMovieTemplateScaffold.create` selects layers and generated files by
+ * kind, names the package, and resolves every `catalog:` dependency.
  *
  * Scenarios:
  *
@@ -58,8 +58,9 @@ export function test_template_create_scaffold(): void {
     ) as IManifest
   ).version;
   const create = (
-    kind: IAutoMovieScaffoldProps["kind"],
-  ): Record<string, string> => createAutoMovieScaffold({ kind, name: kind });
+    kind: AutoMovieTemplateScaffoldProps["kind"],
+  ): Record<string, string> =>
+    AutoMovieTemplateScaffold.create({ kind, name: kind });
   const production: Record<string, string> = create("production");
   const workspace: Record<string, string> = create("workspace");
   const member: Record<string, string> = create("workspace-production");
@@ -161,6 +162,6 @@ export function test_template_create_scaffold(): void {
 
   // 4. The name rule.
   TestValidator.error("refused name", () =>
-    createAutoMovieScaffold({ kind: "production", name: "a/b" }),
+    AutoMovieTemplateScaffold.create({ kind: "production", name: "a/b" }),
   );
 }

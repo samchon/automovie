@@ -5,31 +5,31 @@ import type {
   IAutoMovieExternalMotionAdoptionReceipt,
 } from "@automovie/interface";
 
-import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES as profiles } from "./AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES";
-import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE as motionInterpretationProfile } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
-import { adoptAutoMovieExternalMotion as adoptMotion } from "./adoptAutoMovieExternalMotion";
-import { inspectAutoMovieExternalModelBytes as inspectBytes } from "./inspectAutoMovieExternalModelBytes";
-import { isAutoMovieExternalModelIngestProfile as isProfile } from "./isAutoMovieExternalModelIngestProfile";
+import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES as supportedProfiles } from "./internal/AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES";
+import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE as fixedMotionInterpretationProfile } from "./internal/AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
+import { adoptAutoMovieExternalMotion as adoptExternalMotion } from "./internal/adoptAutoMovieExternalMotion";
+import { inspectAutoMovieExternalModelBytes as inspectModelBytes } from "./internal/inspectAutoMovieExternalModelBytes";
+import { isAutoMovieExternalModelIngestProfile as isSupportedProfile } from "./internal/isAutoMovieExternalModelIngestProfile";
 
 /** Inspects external model bytes and validates authored motion adoption. */
-export class AutoMovieIngestExternalModel {
+export namespace AutoMovieIngestExternalModel {
   /** Supported fixed external-model profile literals. */
-  public static readonly profiles: readonly AutoMovieExternalModelIngestProfile[] =
-    profiles;
+  export const profiles: readonly AutoMovieExternalModelIngestProfile[] =
+    supportedProfiles;
 
   /** Fixed spatial interpretation used by glTF motion inspection. */
-  public static readonly motionInterpretationProfile: AutoMovieGltfMotionInterpretationProfile =
-    motionInterpretationProfile;
+  export const motionInterpretationProfile: AutoMovieGltfMotionInterpretationProfile =
+    fixedMotionInterpretationProfile;
 
   /**
    * Check whether an unknown value names a supported external-model profile.
    * @param value Candidate profile value.
    * @returns Whether it exactly matches a supported profile.
    */
-  public static isProfile(
+  export function isProfile(
     value: unknown,
   ): value is AutoMovieExternalModelIngestProfile {
-    return isProfile(value);
+    return isSupportedProfile(value);
   }
 
   /**
@@ -37,10 +37,10 @@ export class AutoMovieIngestExternalModel {
    * @param props Inspection options and resident bytes.
    * @returns Facts admitted from the source bytes.
    */
-  public static inspectBytes(
+  export function inspectBytes(
     props: IAutoMovieExternalModelInspection.IProps,
   ): IAutoMovieExternalModelInspection {
-    return inspectBytes(props);
+    return inspectModelBytes(props);
   }
 
   /**
@@ -48,9 +48,9 @@ export class AutoMovieIngestExternalModel {
    * @param props Inspection, source identity, and adoption decision.
    * @returns A detached motion-adoption receipt.
    */
-  public static adoptMotion(
+  export function adoptMotion(
     props: IAutoMovieExternalMotionAdoptionReceipt.IProps,
   ): IAutoMovieExternalMotionAdoptionReceipt {
-    return adoptMotion(props);
+    return adoptExternalMotion(props);
   }
 }

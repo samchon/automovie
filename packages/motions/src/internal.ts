@@ -35,4 +35,3 @@ export * from "./music/internal";
 export * from "./coupled/internal";
 export * from "./cover/internal";
 export * from "./rope/internal";
-export * from "./spacecraft/internal";

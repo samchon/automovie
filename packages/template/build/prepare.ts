@@ -1,4 +1,4 @@
-// Prepare what `createAutoMovieScaffold` reads from `generated`, which git
+// Prepare what `AutoMovieTemplateScaffold.create` reads from `generated`, which git
 // ignores and the package publishes:
 //
 // - `generated/skills`: the repository skill items the scaffold's `$<name>`
@@ -17,8 +17,8 @@ import {
 import { dirname, resolve } from "node:path";
 import { parse } from "yaml";
 
-import { listAutoMovieScaffoldFiles } from "../src/listAutoMovieScaffoldFiles";
-import { scaffoldSharedSkillPath } from "../src/scaffoldSharedSkillPath";
+import { listFiles } from "../src/scaffold/internal/listFiles";
+import { sharedSkillPath } from "../src/scaffold/internal/sharedSkillPath";
 
 const ROOT: string = resolve(__dirname, "../../..");
 const SCAFFOLD: string = resolve(__dirname, "../scaffold");
@@ -26,10 +26,8 @@ const GENERATED: string = resolve(__dirname, "../generated");
 
 // Rebuilt whole, so an item a placeholder no longer names cannot ship.
 rmSync(GENERATED, { force: true, recursive: true });
-for (const relative of listAutoMovieScaffoldFiles(
-  resolve(SCAFFOLD, "instructions"),
-)) {
-  const shared: string | null = scaffoldSharedSkillPath(relative);
+for (const relative of listFiles(resolve(SCAFFOLD, "instructions"))) {
+  const shared: string | null = sharedSkillPath(relative);
   if (shared === null) continue;
   const destination: string = resolve(GENERATED, "skills", shared);
   mkdirSync(dirname(destination), { recursive: true });

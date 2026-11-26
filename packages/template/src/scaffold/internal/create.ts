@@ -1,17 +1,11 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { IAutoMovieScaffoldProps } from "./IAutoMovieScaffoldProps";
-import { assertScaffoldProjectName } from "./assertScaffoldProjectName";
-import { listAutoMovieScaffoldFiles } from "./listAutoMovieScaffoldFiles";
-import { renderAutoMovieWorkspace } from "./renderAutoMovieWorkspace";
-import { scaffoldSharedSkillPath } from "./scaffoldSharedSkillPath";
-
-/**
- * The package root: `src` under ttsx and `lib` when published both sit one
- * level below it.
- */
-const PACKAGE: string = path.resolve(__dirname, "..");
+import type { AutoMovieTemplateScaffoldProps } from "../AutoMovieTemplateScaffoldProps";
+import { assertProjectName } from "./assertProjectName";
+import { listFiles } from "./listFiles";
+import { renderWorkspace } from "./renderWorkspace";
+import { sharedSkillPath } from "./sharedSkillPath";
 
 /**
  * Create the files of a new AutoMovie installation as a `{ posixPath: content
@@ -48,12 +42,12 @@ const PACKAGE: string = path.resolve(__dirname, "..");
  * @throws When the name is refused, when the build outputs are missing, or when
  *   two sources produce the same path.
  */
-export const createAutoMovieScaffold: (
-  props: IAutoMovieScaffoldProps,
+export const create: (
+  props: AutoMovieTemplateScaffoldProps,
 ) => Record<string, string> = (
-  props: IAutoMovieScaffoldProps,
+  props: AutoMovieTemplateScaffoldProps,
 ): Record<string, string> => {
-  const name: string = assertScaffoldProjectName(props.name);
+  const name: string = assertProjectName(props.name);
   const skills: string =
     props.kind === "workspace-production"
       ? "../../../.agents/skills"
@@ -74,7 +68,7 @@ export const createAutoMovieScaffold: (
   if (props.kind !== "workspace-production") readLayer("instructions", add);
   readLayer(props.kind === "workspace" ? "workspace" : "production", add);
   if (props.kind !== "workspace-production")
-    add("pnpm-workspace.yaml", renderAutoMovieWorkspace(props.kind));
+    add("pnpm-workspace.yaml", renderWorkspace(props.kind));
   if (props.kind !== "workspace")
     add(
       "evidence.config.ts",
@@ -82,6 +76,9 @@ export const createAutoMovieScaffold: (
     );
   return files;
 };
+
+/** The package root is three levels above this module in source and output. */
+const PACKAGE: string = path.resolve(__dirname, "../../..");
 
 /**
  * Pass every file of one scaffold layer to `add`, expanding shared-skill
@@ -105,8 +102,8 @@ const readLayer = (
       : text;
   };
 
-  for (const relative of listAutoMovieScaffoldFiles(root)) {
-    const shared: string | null = scaffoldSharedSkillPath(relative);
+  for (const relative of listFiles(root)) {
+    const shared: string | null = sharedSkillPath(relative);
     if (shared === null) {
       add(
         relative === "_gitignore" ? ".gitignore" : toPosix(relative),
@@ -117,7 +114,7 @@ const readLayer = (
     const item: string = path.join(PACKAGE, "generated", "skills", shared);
     const target: string = `.agents/skills/${shared}`;
     if (fs.statSync(item).isDirectory())
-      for (const file of listAutoMovieScaffoldFiles(item))
+      for (const file of listFiles(item))
         add(`${target}/${toPosix(file)}`, read(path.join(item, file)));
     else add(target, read(item));
   }

@@ -20,8 +20,8 @@ const NPM_NAME_LIMIT: number = 214;
  *
  * This transformation does not validate npm's reserved names; `node_modules`
  * and `favicon.ico` remain unchanged. Windows device names such as `con` also
- * remain unchanged and are refused by `createAutoMovieScaffold` before any file
- * is written.
+ * remain unchanged and are refused by `AutoMovieTemplateScaffold.create` before
+ * any file is written.
  */
 export function deriveAutoMovieProjectName(targetDir: string): string {
   const name: string = path

@@ -1,7 +1,6 @@
 import {
-  type IAutoMovieScaffoldProps,
-  createAutoMovieScaffold,
-  renderAutoMovieWorkspace,
+  AutoMovieTemplateScaffold,
+  type AutoMovieTemplateScaffoldProps,
 } from "@automovie/template";
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
@@ -111,11 +110,11 @@ Options:
  * - `review` runs `reviewAutoMovie`, resolving to 1 when the recorded page
  *   reported a script error.
  *
- * `create` and `add` take their files from `createAutoMovieScaffold` and refuse
- * a non-empty target without `--force`, which writes over same-path files and
- * keeps every other file. On success they list the written files relative to
- * the target, then the next steps. A failed write stops there and leaves the
- * files already written.
+ * `create` and `add` take their files from `AutoMovieTemplateScaffold.create`
+ * and refuse a non-empty target without `--force`, which writes over same-path
+ * files and keeps every other file. On success they list the written files
+ * relative to the target, then the next steps. A failed write stops there and
+ * leaves the files already written.
  *
  * Resolves to the process exit code, 0 after queuing the requested stdout text
  * or 1 after queuing a caught error's message and distinct `cause` objects'
@@ -215,11 +214,11 @@ export async function run(argv: readonly string[]): Promise<number> {
  */
 function write(
   directory: string,
-  props: IAutoMovieScaffoldProps,
+  props: AutoMovieTemplateScaffoldProps,
   force: boolean,
   workspaceFile?: string,
 ): void {
-  const files: Record<string, string> = createAutoMovieScaffold(props);
+  const files: Record<string, string> = AutoMovieTemplateScaffold.create(props);
   if (
     force === false &&
     fs.existsSync(directory) &&
@@ -250,7 +249,7 @@ function write(
 function completeCatalogs(file: string): void {
   const target: string = fs.realpathSync(file);
   const source: string = fs.readFileSync(target, "utf8");
-  const next: string = renderAutoMovieWorkspace({
+  const next: string = AutoMovieTemplateScaffold.renderWorkspace({
     directory: path.dirname(file),
     source,
   });

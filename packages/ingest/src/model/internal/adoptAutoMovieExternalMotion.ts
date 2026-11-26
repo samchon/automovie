@@ -18,8 +18,8 @@ import type {
 } from "@automovie/interface";
 
 import { AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE } from "./AUTOMOVIE_GLTF_MOTION_INTERPRETATION_PROFILE";
-import { compareCodeUnits } from "./internal/compareCodeUnits";
-import { composeLocalTransform } from "./internal/composeLocalTransform";
+import { compareCodeUnits } from "./compareCodeUnits";
+import { composeLocalTransform } from "../../internal/composeLocalTransform";
 
 /**
  * Select one inspected take and validate the author's native or retarget

@@ -1,4 +1,4 @@
-import { assertScaffoldProjectName } from "@automovie/template";
+import { AutoMovieTemplateScaffold } from "@automovie/template";
 
 import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
@@ -55,7 +55,7 @@ export function readAutoMovieAddArguments(
   const directory: string = parts[1]!;
   let admitted: string;
   try {
-    admitted = assertScaffoldProjectName(directory);
+    admitted = AutoMovieTemplateScaffold.assertProjectName(directory);
   } catch (cause) {
     throw new Error(
       `add needs one portable directory name after ${family}/; received ${JSON.stringify(directory)}.`,
