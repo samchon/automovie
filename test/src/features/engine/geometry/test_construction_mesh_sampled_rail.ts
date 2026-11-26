@@ -9,10 +9,9 @@ import type {
  * its two rails, including the segment that wraps the chart. Their analytic
  * curves leave and rejoin those chords between the four original samples.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The public face emitter is read on the same original points with and without analytic rails. Its retained mesh and original edge incidences must agree across both covers.
- * @evidence contracts/development/testing.md#independent-expectations The constraints are flat at stations 1 and 3, so all indexed faces must stay within that interval and every original rail segment must bound exactly one triangle. The analytic reader separately excludes points at stations 1.25 and 2.75 halfway along a rail segment.
- * @evidence contracts/development/testing.md#distinguishing-cases The same face uses each rail with its closing segment on either side of the grid seam and checks both analytic inward sides. Checking incidence and the exterior interval distinguishes a consistent partition from merely suppressing an admission diagnostic.
- * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU case on an analytic unit cylinder, using the ordinary indexed face path with no Human body or alternate mesher.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the sampled and analytic rail cases, each exercised with two chart origins, and the shared boundary behavior they verify.
+ * @evidence contracts/development/testing.md#behavioral-verification The public face emitter draws the same original points with and without analytic rails on a unit cylinder. The test reads the emitted mesh and original edge incidences on both covers.
+ * @evidence contracts/development/testing.md#independent-expectations The constraints at stations 1 and 3 bound every emitted triangle, each original rail edge bounds exactly one triangle, and every interior edge bounds two. The analytic reader separately excludes stations 1.25 and 2.75 halfway along a rail segment. These checks expose both an incorrectly refused interior and a filled exterior.
  */
 export function test_construction_mesh_sampled_rail(): void {
   for (const offset of [0, -Math.PI / 4]) {
