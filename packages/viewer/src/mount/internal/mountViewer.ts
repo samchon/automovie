@@ -11,7 +11,6 @@ import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompl
 import type { IAutoMovieViewerHandle } from "../../IAutoMovieViewerHandle.js";
 import type { IMountViewerOptions } from "../../IMountViewerOptions.js";
 import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
-import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
 import type { AutoMovieViewer } from "../AutoMovieViewer.js";
 import { releaseMountedViewer } from "./releaseMountedViewer.js";
 

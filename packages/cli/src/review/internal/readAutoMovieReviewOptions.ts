@@ -1,6 +1,5 @@
 import { AUTOMOVIE_REVIEW_OPTIONS } from "./AUTOMOVIE_REVIEW_OPTIONS";
 import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
-import type { IAutoMovieCliReviewObservation } from "../IAutoMovieCliReviewObservation";
 
 /** The longest Inspector recording in wall-clock seconds, one day. */
 const LONGEST: number = 86_400;

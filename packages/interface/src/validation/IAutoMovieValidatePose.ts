@@ -16,6 +16,7 @@ export namespace IAutoMovieValidatePose {
     Sink extends IAutoMovieViolationAppendRotationSink = IAutoMovieViolationCollector,
   > = Omit<IProps<Sink>, "collector"> & { collector: Sink };
 
+  /** Inputs for pose admission with an optional violation sink. */
   export type IProps<
     Sink extends IAutoMovieViolationAppendRotationSink =
       IAutoMovieViolationCollector,

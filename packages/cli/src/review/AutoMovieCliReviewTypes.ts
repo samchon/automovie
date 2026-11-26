@@ -4,20 +4,31 @@ import type { IAutoMovieCliReviewObservation } from "./IAutoMovieCliReviewObserv
 export namespace AutoMovieCliReviewTypes {
   /** Inspector playback recording options. */
   export interface InspectorOptions {
+    /** The Inspector page to open. */
     url: string;
+    /** Wall-clock playback seconds to record. */
     seconds: number;
+    /** The output directory, or null to use the default. */
     out: string | null;
   }
 
   /** File-bound mark, rebind or replay options. */
   export interface FileOptions {
+    /** The production artifact to review, when supplied. */
     file: string | null;
+    /** The saved mark to rebind or replay, when supplied. */
     mark: string | null;
+    /** The point or range requested for review, when supplied. */
     requested: IAutoMovieCliReviewObservation["requested"] | null;
+    /** Reviewer notes to store, when supplied. */
     note: string | null;
+    /** The reviewer identity stored in the observation. */
     reviewer: IAutoMovieCliReviewObservation["reviewer"];
+    /** The recorded review decision. */
     decision: IAutoMovieCliReviewObservation["decision"];
+    /** The playback or frame scope the reviewer actually inspected. */
     viewed: IAutoMovieCliReviewObservation["viewed"];
+    /** The output directory, or null to use the default. */
     out: string | null;
   }
 
@@ -68,7 +79,9 @@ export namespace AutoMovieCliReviewTypes {
 
   /** One reading of the Inspector time readout. */
   export interface PlaybackReading {
+    /** Wall-clock seconds elapsed since Play was pressed. */
     elapsedSeconds: number;
+    /** The time readout displayed by the Inspector. */
     text: string;
   }
 

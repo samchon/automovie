@@ -15,6 +15,7 @@ export namespace IAutoMovieValidateExpression {
     Sink extends IAutoMovieViolationAppendRangeSink = IAutoMovieViolationCollector,
   > = Omit<IProps<Sink>, "collector"> & { collector: Sink };
 
+  /** Inputs for expression admission with an optional violation sink. */
   export type IProps<
     Sink extends IAutoMovieViolationAppendRangeSink =
       IAutoMovieViolationCollector,
