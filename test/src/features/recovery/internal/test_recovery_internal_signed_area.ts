@@ -1,5 +1,5 @@
 import type { AutoMovieVector2Tuple } from "@automovie/interface";
-import { signedArea } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -24,15 +24,15 @@ export function test_recovery_internal_signed_area(): void {
     ];
     TestValidator.predicate(
       `contour winding at ${offset}`,
-      nclose(signedArea(square), 1, 0) &&
-        nclose(signedArea([...square].reverse()), -1, 0),
+      nclose(AutoMovieRecoveryGeometry.signedArea(square), 1, 0) &&
+        nclose(AutoMovieRecoveryGeometry.signedArea([...square].reverse()), -1, 0),
     );
   }
 
   TestValidator.predicate(
     "triangle area",
     nclose(
-      signedArea([
+      AutoMovieRecoveryGeometry.signedArea([
         [0, 0],
         [4, 0],
         [0, 3],
@@ -44,7 +44,7 @@ export function test_recovery_internal_signed_area(): void {
   TestValidator.predicate(
     "short contour area",
     nclose(
-      signedArea([
+      AutoMovieRecoveryGeometry.signedArea([
         [0, 0],
         [1, 1],
       ]),

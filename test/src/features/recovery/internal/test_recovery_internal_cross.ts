@@ -1,4 +1,4 @@
-import { cross } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -13,9 +13,9 @@ export function test_recovery_internal_cross(): void {
   TestValidator.equals(
     "products",
     [
-      cross([1, 0, 0], [0, 1, 0]),
-      cross([0, 1, 0], [1, 0, 0]),
-      cross([1, 2, 3], [4, 5, 6]),
+      AutoMovieRecoveryGeometry.cross([1, 0, 0], [0, 1, 0]),
+      AutoMovieRecoveryGeometry.cross([0, 1, 0], [1, 0, 0]),
+      AutoMovieRecoveryGeometry.cross([1, 2, 3], [4, 5, 6]),
     ],
     [
       [0, 0, 1],

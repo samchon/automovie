@@ -1,5 +1,5 @@
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
-import { norm } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -13,10 +13,10 @@ import { nclose } from "../../internal/nclose";
  * 2. The zero vector stays zero.
  */
 export function test_recovery_internal_norm(): void {
-  const unit: AutoMovieVector3Tuple = norm([0, 3, 4]);
+  const unit: AutoMovieVector3Tuple = AutoMovieRecoveryGeometry.norm([0, 3, 4]);
   TestValidator.predicate(
     "a unit vector",
     unit[0] === 0 && nclose(unit[1], 0.6, 1e-15) && nclose(unit[2], 0.8, 1e-15),
   );
-  TestValidator.equals("the zero vector", norm([0, 0, 0]), [0, 0, 0]);
+  TestValidator.equals("the zero vector", AutoMovieRecoveryGeometry.norm([0, 0, 0]), [0, 0, 0]);
 }
