@@ -15,12 +15,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The alternatives of `ContactsAtKey`'s site. */
-type ContactsAtKey = number | "-0";
-
-/** The alternatives of `ContactsTimesEntry`'s site. */
-type ContactsTimesEntry = number | "-0";
-
 /**
  * The supported phase of a gymnastic turn: the body, a shape that changes with
  * the angle of its turn, rolls over its spokes (a foot, both feet, a hand, both
@@ -257,6 +251,12 @@ export namespace GymnasticsWheel {
     }).y;
   }
 }
+
+/** The alternatives of `ContactsAtKey`'s site. */
+type ContactsAtKey = number | "-0";
+
+/** The alternatives of `ContactsTimesEntry`'s site. */
+type ContactsTimesEntry = number | "-0";
 
 /**
  * One ordered contact run before its fixed geometric endpoint angles become

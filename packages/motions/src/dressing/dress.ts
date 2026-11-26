@@ -43,15 +43,6 @@ import { poseBones } from "../posture/poseBones";
 import { HumanWorn } from "./HumanWorn";
 import { dressTurn } from "./dressTurn";
 
-/** The record of `IPlanCarriedResult`'s site. */
-type IPlanCarriedResult = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
-
-/** The record of `IHATItem`'s site. */
-type IHATItem = { out: number; ahead: number; down: number };
-
 /**
  * Putting on a hat or a pair of glasses held in one hand, with both hands,
  * while standing.
@@ -569,3 +560,12 @@ export namespace dress {
     };
   }
 }
+
+/** The record of `IPlanCarriedResult`'s site. */
+type IPlanCarriedResult = {
+  grip: IAutoMovieVector3;
+  rotation: IAutoMovieQuaternion;
+};
+
+/** The record of `IHATItem`'s site. */
+type IHATItem = { out: number; ahead: number; down: number };

@@ -13,9 +13,9 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
-import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
-import { physicalSupportPoint } from "./physicalSupportPoint";
-import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
+import { isPhysicalProfilePairExcluded } from "./internal/isPhysicalProfilePairExcluded";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRotation";
 
 /**
  * Reject an obstructed C1 return before advancing native bodies. This checks

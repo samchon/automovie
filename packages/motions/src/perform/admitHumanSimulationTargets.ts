@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalSupportPoint,
-  projectPhysicalJointRotation,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
@@ -66,13 +61,13 @@ export function admitHumanSimulationTargets(
       const rotation: IAutoMovieQuaternion = Quaternion.multiply(
         Quaternion.multiply(parent.rotation, joint.parentFrame.rotation),
         Quaternion.multiply(
-          projectPhysicalJointRotation(joint, relative),
+          AutoMovieEnginePhysics.projectPhysicalJointRotation(joint, relative),
           Quaternion.inverse(joint.childFrame.rotation),
         ),
       );
       admitted[joint.child] = {
         position: Vector3.subtract(
-          physicalSupportPoint(parent, joint.parentFrame.position),
+          AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
           Quaternion.rotateVector(rotation, joint.childFrame.position),
         ),
         rotation,

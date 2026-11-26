@@ -24,9 +24,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { pianoPedalStroke } from "./pianoPedalStroke";
 import { readPianoPedal } from "./readPianoPedal";
 
-/** The foot clock's independently authored stroke. */
-type Press = IAutoMovieMotionHumanPianoPedal.IPress;
-
 /** Extra swing clearance in metres for the seated foot's short transfer. */
 const SWING_CLEARANCE: number = 0.025;
 
@@ -45,6 +42,9 @@ export const pianoPedal: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     interrupts: {},
     plan,
   };
+
+/** The foot clock's independently authored stroke. */
+type Press = IAutoMovieMotionHumanPianoPedal.IPress;
 
 /** Resolve a seated right-foot path and independent pedal travel. */
 function plan(

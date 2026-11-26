@@ -33,25 +33,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
 
-/** The alternatives of `TurnedSignAxis2`'s site. */
-type TurnedSignAxis2 = 1 | 2;
-
-/** The alternatives of `TurnedSignAxis`'s site. */
-type TurnedSignAxis = 1 | 2;
-
-/** The alternatives of `TurnedSide`'s site. */
-type TurnedSide = 1 | -1;
-
-/** The record of `IReaction3`'s site. */
-type IReaction3 = { part: "trunk"; away: IAutoMovieVector3 };
-
-/** The record of `IReaction2`'s site. */
-type IReaction2 = {
-  part: "head";
-  away: IAutoMovieVector3;
-  angles: IAutoMovieMotionHumanJoints.Angles;
-};
-
 /**
  * Giving way to a contact: the head turned aside by a slap, or the trunk
  * carried by a hand that pushes or pulls, then a return to what the body held.
@@ -288,3 +269,22 @@ export namespace give {
     };
   }
 }
+
+/** The alternatives of `TurnedSignAxis2`'s site. */
+type TurnedSignAxis2 = 1 | 2;
+
+/** The alternatives of `TurnedSignAxis`'s site. */
+type TurnedSignAxis = 1 | 2;
+
+/** The alternatives of `TurnedSide`'s site. */
+type TurnedSide = 1 | -1;
+
+/** The record of `IReaction3`'s site. */
+type IReaction3 = { part: "trunk"; away: IAutoMovieVector3 };
+
+/** The record of `IReaction2`'s site. */
+type IReaction2 = {
+  part: "head";
+  away: IAutoMovieVector3;
+  angles: IAutoMovieMotionHumanJoints.Angles;
+};

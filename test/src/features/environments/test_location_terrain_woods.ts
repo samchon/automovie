@@ -1,7 +1,4 @@
-import {
-  createEnvironment,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { surfaceHeightAt, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -74,13 +71,13 @@ export function test_location_terrain_woods(): void {
     woods: Partial<IAutoMovieTerrainRecipe.IWoods> = {},
     path: boolean = true,
   ): IAutoMovieEnvironment =>
-    createEnvironment({
+    AutoMovieEnvironment.create({
       id: "forest",
       seed,
       items: {
         land: {
           at: ORIGIN,
-          use: createTerrain({
+          use: AutoMovieEnvironment.terrain({
             size: [40, 30],
             relief: { kind: "noise", amplitude: 1, wavelength: 30, octaves: 2 },
             ...(path ? { paths: { trail: PATH } } : {}),

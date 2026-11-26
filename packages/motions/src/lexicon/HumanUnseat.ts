@@ -29,18 +29,6 @@ import { HumanUnseatDrag } from "./HumanUnseatDrag";
 import { HumanUnseatFlight } from "./HumanUnseatFlight";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
-
-/** A fall's push away from the saddle. */
-interface IPush {
-  /** Its direction in the carrier's frame, `+X` toward the falling side. */
-  direction: IAutoMovieVector3;
-
-  /** Its speed, metres per second. */
-  speed: number;
-}
-
 /**
  * Each fall's push, in the carrier's frame with `+X` toward the falling side
  * (provisional stage readings).
@@ -59,14 +47,6 @@ const PUSHES: Readonly<Record<IAutoMovieMotionHumanUnseat.Fall, IPush>> = {
 const STEP: number = 1 / 240;
 
 /**
- * Admit the fall, find the release, solve the flight or the drag once, then
- * sample.
- */
-function planHumanUnseat(context: Context): IAutoMovieMotionHumanActionPlan {
-  return plan(context);
-}
-
-/**
  * A rider leaving a moving saddle (`IAutoMovieMotionHumanUnseat`): carried on
  * the saddle until the release, then flying from the saddle's own velocity with
  * the fall's push built over `HumanUnseatFlight.TAKE` (no jump in velocity),
@@ -83,6 +63,26 @@ export const HumanUnseat: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanUn
     interrupts: {},
     plan: planHumanUnseat,
   };
+
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanUnseat>;
+
+/** A fall's push away from the saddle. */
+interface IPush {
+  /** Its direction in the carrier's frame, `+X` toward the falling side. */
+  direction: IAutoMovieVector3;
+
+  /** Its speed, metres per second. */
+  speed: number;
+}
+
+/**
+ * Admit the fall, find the release, solve the flight or the drag once, then
+ * sample.
+ */
+function planHumanUnseat(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
 
 /** Admit the fall, find the release and sample its path. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {

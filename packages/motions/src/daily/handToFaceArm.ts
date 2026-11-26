@@ -11,9 +11,6 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTouchDrink } from "../compose/AutoMovieMotionHumanTouchDrink";
 import { AutoMovieMotionHumanTouchLaid } from "../compose/AutoMovieMotionHumanTouchLaid";
 
-/** The alternatives of `OfAt`'s site. */
-type OfAt = "point" | "normal";
-
 /**
  * One hand's arm at the face.
  *
@@ -147,3 +144,6 @@ export function handToFaceArm(
     ...(facing === undefined ? {} : { facing }),
   };
 }
+
+/** The alternatives of `OfAt`'s site. */
+type OfAt = "point" | "normal";

@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalSupportPoint,
-  setPhysicalTargetJointRotation,
-  warmPhysicalSupportTargets,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
@@ -203,7 +197,7 @@ export function test_engine_physics_warm_physical_support_targets(): void {
   function endpoint(
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): IAutoMovieRigidTransform["position"] {
-    return physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
+    return AutoMovieEnginePhysics.physicalSupportPoint(poses[limb.bone]!, limb.localPoint);
   }
 
   /** Run the warm seed with identical current and preceding authored poses. */
@@ -211,7 +205,7 @@ export function test_engine_physics_warm_physical_support_targets(): void {
     previous: Readonly<Record<string, IAutoMovieRigidTransform>>,
     selected: readonly string[],
   ): Record<string, IAutoMovieRigidTransform> {
-    return warmPhysicalSupportTargets({
+    return AutoMovieEnginePhysics.warmPhysicalSupportTargets({
       order: profile.segments,
       joints,
       descendants,
@@ -236,7 +230,7 @@ export function test_engine_physics_warm_physical_support_targets(): void {
       structuredClone(authored);
     for (const bone of chain)
       if (angles[bone] !== undefined)
-        setPhysicalTargetJointRotation(
+        AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
           result,
           joints.get(bone)!,
           descendants.get(bone)!,

@@ -17,7 +17,7 @@ import { sampleAutoMovieInspectionTrails } from "../scene/inspection/sampleAutoM
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AutoMovieDialogueMouthRecorder } from "./AutoMovieDialogueMouthRecorder.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
-import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
+import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
 import { replaceAutoMovieDrawInspection } from "./replaceAutoMovieDrawInspection.js";
 

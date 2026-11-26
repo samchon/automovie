@@ -35,9 +35,6 @@ import { pianoScoreEvents } from "./pianoScoreEvents";
 import { pianoScoreHand } from "./pianoScoreHand";
 import { resolvePianoScoreVoicing } from "./resolvePianoScoreVoicing";
 
-/** A hand placement shared by every key in a voicing. */
-type IVoicing = resolvePianoScoreVoicing.Voicing;
-
 /** The default entry transition in HumanPerformancePlace, seconds. */
 const READY: number = 0.25;
 
@@ -58,6 +55,9 @@ export const pianoScore: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPia
     interrupts: {},
     plan,
   };
+
+/** A hand placement shared by every key in a voicing. */
+type IVoicing = resolvePianoScoreVoicing.Voicing;
 /** The record of `IPlanContactsItem`'s site. */
 type IPlanContactsItem = { voicing: IVoicing; end?: ContactsEndItem };
 

@@ -36,9 +36,6 @@ import { hipJoints } from "../posture/hipJoints";
 import type { humanFootOffset } from "../posture/humanFootOffset";
 import { HumanBall } from "./HumanBall";
 
-/** The record of `ICHAMBERItem`'s site. */
-type ICHAMBERItem = { back: number; up: number };
-
 /**
  * Kicking the ball prop lying beside the support foot with the instep, from
  * standing: the kicking leg swings back, then through the ball and on.
@@ -374,3 +371,6 @@ export namespace kickBall {
     return { ...plan, launches: [...(plan.launches ?? []), launch] };
   }
 }
+
+/** The record of `ICHAMBERItem`'s site. */
+type ICHAMBERItem = { back: number; up: number };

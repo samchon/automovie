@@ -1,14 +1,4 @@
-import {
-  AutoMovieMotionAudit as Audit,
-  DEFAULT_HUMANOID_ROM,
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  jointToQuaternion,
-  measurePhysicalJointLimits,
-  scanJointRom,
-} from "@automovie/engine";
+import { AutoMovieMotionAudit as Audit, DEFAULT_HUMANOID_ROM, DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, jointToQuaternion, scanJointRom, AutoMovieEnginePhysics } from "@automovie/engine";
 import {
   AutoMovieHumanCanonicalBody,
   AutoMovieHumanCanonicalSolids,
@@ -344,7 +334,7 @@ export async function test_physical_human_profile_sources(): Promise<void> {
     const pose = (
       angles: IAutoMovieJointPose,
     ): IAutoMovieMeasurePhysicalJointLimits.IResult =>
-      measurePhysicalJointLimits(joint, REST, {
+      AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, REST, {
         position: REST.position,
         rotation: jointToQuaternion(
           angles,

@@ -14,7 +14,7 @@ import type { IAutoMovieInspectionPath } from "../../scene/inspection/IAutoMovie
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/listAutoMovieInspectionPaths.js";
 import type { resolveAutoMovieInspectionView } from "../../scene/inspection/resolveAutoMovieInspectionView.js";
 import { autoMovieSemanticMaskOf } from "../../scene/semanticMask/index.js";
-import { encodeAutoMovieDrawPixels } from "../encodeAutoMovieDrawPixels.js";
+import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 
 /**
  * Read the drawn picture back and assemble the draw page's result: the pixels

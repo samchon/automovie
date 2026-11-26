@@ -38,6 +38,26 @@ const UP: number = Math.SQRT1_2;
  * (`HumanTrunkLean`), so the dresser keeps its standoff; no hinge within the
  * hip's range is refused as a reach.
  */
+export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDressPartner> =
+  {
+    name: "dressPartner",
+    interrupts: {},
+    plan: planDressPartner,
+  };
+
+/**
+ * Dress another performer. The dresser's hand carries the held item to the
+ * partner's region by the arm phrase that visits a target, the item is worn on
+ * the partner's bone under that region from the phrase's stroke, when the hand
+ * arrives, and the hand's grip ends there and no hold is left on the item, so
+ * custody passes from the hand to the partner's body without a gap or an
+ * overlap. The partner's region is read where it is at the phrase's start, so a
+ * partner who presents a hand, bows or kneels first is met where they stand. A
+ * region beyond the standing arm, such as a kneeling partner's crown, is
+ * reached by the least hinge at the hips that brings the wrist within the arm
+ * (`HumanTrunkLean`), so the dresser keeps its standoff; no hinge within the
+ * hip's range is refused as a reach.
+ */
 function planDressPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDressPartner>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -206,23 +226,3 @@ function planDressPartner(
     ],
   };
 }
-
-/**
- * Dress another performer. The dresser's hand carries the held item to the
- * partner's region by the arm phrase that visits a target, the item is worn on
- * the partner's bone under that region from the phrase's stroke, when the hand
- * arrives, and the hand's grip ends there and no hold is left on the item, so
- * custody passes from the hand to the partner's body without a gap or an
- * overlap. The partner's region is read where it is at the phrase's start, so a
- * partner who presents a hand, bows or kneels first is met where they stand. A
- * region beyond the standing arm, such as a kneeling partner's crown, is
- * reached by the least hinge at the hips that brings the wrist within the arm
- * (`HumanTrunkLean`), so the dresser keeps its standoff; no hinge within the
- * hip's range is refused as a reach.
- */
-export const dressPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanDressPartner> =
-  {
-    name: "dressPartner",
-    interrupts: {},
-    plan: planDressPartner,
-  };

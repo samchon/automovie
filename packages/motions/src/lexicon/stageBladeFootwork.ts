@@ -17,9 +17,6 @@ import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { StrikingStance } from "../striking/StrikingStance";
 import { stageBladeFootworkSchedule } from "./stageBladeFootworkSchedule";
 
-/** A stage foot selected in the leading or following path. */
-type Side = AutoMovieHumanSide;
-
 /**
  * Shift a performer's stance between two floor marks on a blade set. A fenced
  * stage uses lifted steps, the kendo profile moves the travelling foot along
@@ -35,6 +32,9 @@ export const stageBladeFootwork: IAutoMovieMotionHumanActionLaw<IAutoMovieMotion
     },
     plan,
   };
+
+/** A stage foot selected in the leading or following path. */
+type Side = AutoMovieHumanSide;
 
 /**
  * Resolve the parameters once and transport the carried upper posture over the

@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  physicalShapeNearest,
-  projectileAt,
-  projectileFirstContact,
-} from "@automovie/engine";
+import { Vector3, projectileAt, projectileFirstContact, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -83,7 +78,7 @@ export function test_engine_physics_projectile_first_contact(): void {
     [
       {
         id: "post",
-        nearest: (a, b) => physicalShapeNearest(pose(), shape, a, b),
+        nearest: (a, b) => AutoMovieEnginePhysics.physicalShapeNearest(pose(), shape, a, b),
       },
     ],
     { from: 0, to: 1 },

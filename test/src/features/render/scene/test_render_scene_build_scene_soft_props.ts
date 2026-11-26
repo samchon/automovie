@@ -1,9 +1,5 @@
 import type { IAutoMovieRenderSoftPropFrame } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieSceneSoftProps,
-  buildSceneSoftProps,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieSceneSoftProps, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -50,7 +46,7 @@ export function test_render_scene_build_scene_soft_props(): void {
     },
   };
   const scene: THREE.Scene = new THREE.Scene();
-  const layer: IAutoMovieSceneSoftProps = buildSceneSoftProps(scene);
+  const layer: IAutoMovieSceneSoftProps = AutoMovieRenderSceneLayout.buildSceneSoftProps(scene);
   try {
     layer.update([frame]);
     const mesh: THREE.Object3D | undefined = scene.getObjectByName("soft:cord");

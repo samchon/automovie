@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeNearest, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanStrikingContact,
   IAutoMovieVector3,
@@ -64,7 +64,7 @@ export namespace StrikingContact {
     p: IAutoMovieVector3,
     shape: IAutoMovieMotionHumanStrikingContact.ICollider,
   ): number {
-    return physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
+    return AutoMovieEnginePhysics.physicalShapeNearest(shape.pose, shape.shape, p, p).distance;
   }
 
   /**

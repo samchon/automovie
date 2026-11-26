@@ -1,0 +1,72 @@
+import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
+import * as THREE from "three";
+
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
+
+/**
+ * Read a host-owned 2D target's complete attachment profile before drawing.
+ * Cube targets retain six color/depth faces; array and volume targets stay
+ * unknown. Depth without a custom texture uses the r186 D24/D24S8 four-byte
+ * bound; custom float-depth plus stencil uses the eight-byte D32FS8 profile.
+ * Native GL dimensions truncate positive fractional target declarations; the
+ * reported extents follow that physical pixel population rather than preserving
+ * a fractional JavaScript width as an unmeasurable texture. The target owns
+ * allocation identity independently of its texture's Source. No target state,
+ * pixels or caller lifetime is changed.
+ */
+export function readAutoMovieRenderTextureTarget(
+  owner: string,
+  target: THREE.RenderTarget,
+  transmissionScope?: string,
+): IAutoMovieRenderTextureTarget {
+  const cube: boolean = AutoMovieThreeKind.isWebGLCubeRenderTarget(target);
+  const unsupported: boolean =
+    target.depth !== 1 ||
+    target.textures.some(
+      (texture: THREE.Texture): boolean =>
+        AutoMovieThreeKind.isDataArrayTexture(texture) ||
+        AutoMovieThreeKind.isData3DTexture(texture),
+    );
+  const depth: THREE.DepthTexture | null = target.depthTexture;
+  const depthBytesPerTexel: number | null = !target.depthBuffer
+    ? 0
+    : depth === null
+      ? 4
+      : depth.format !== THREE.DepthFormat &&
+          depth.format !== THREE.DepthStencilFormat
+        ? null
+        : depth.type === THREE.FloatType
+          ? target.stencilBuffer || depth.format === THREE.DepthStencilFormat
+            ? 8
+            : 4
+          : depth.type === THREE.UnsignedIntType ||
+              depth.type === THREE.UnsignedInt248Type
+            ? 4
+            : depth.type === THREE.UnsignedShortType
+              ? target.stencilBuffer ||
+                depth.format === THREE.DepthStencilFormat
+                ? 4
+                : 2
+              : null;
+  return {
+    owner,
+    transmissionScope,
+    width: Math.floor(target.width),
+    height: Math.floor(target.height),
+    formats: target.textures.map(
+      (
+        texture: THREE.Texture,
+      ): ReturnType<typeof readAutoMovieTextureUploadFormat> =>
+        unsupported ? undefined : readAutoMovieTextureUploadFormat(texture),
+    ),
+    mipmapped: target.textures.some(
+      (texture: THREE.Texture): boolean =>
+        texture.generateMipmaps || texture.mipmaps.length > 1,
+    ),
+    samples: target.samples,
+    depthBytesPerTexel,
+    depthTexture: target.depthBuffer && depth !== null,
+    ...(cube ? { faces: 6 as const } : {}),
+  };
+}

@@ -10,7 +10,7 @@ import type {
 import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
 import { physicalShapeBounds } from "../physicalShapeBounds";
 import { physicalStanceBalance } from "../physicalStanceBalance";
-import { physicalSupportPoint } from "../physicalSupportPoint";
+import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * The floor-plane outline of a limb's support patch: its contact carriers'

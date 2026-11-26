@@ -7,10 +7,10 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
-import { physicalSupportPoint } from "./physicalSupportPoint";
-import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
+import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
+import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoal";
 
 /**
  * Recover original declared world endpoints at a single clock. Accepted

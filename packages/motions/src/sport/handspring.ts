@@ -35,18 +35,6 @@ import { handspringLanding } from "./handspringLanding";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 import { salto } from "./salto";
 
-/** The alternatives of `OverContactsPart`'s site. */
-type OverContactsPart = "leftFoot" | "rightFoot";
-
-/** The record of `IOverLaunchResult`'s site. */
-type IOverLaunchResult = {
-  centre: IAutoMovieVector3;
-  slope: IAutoMovieVector3;
-};
-
-/** The record of `IOverLaunch`'s site. */
-type IOverLaunch = { centre: IAutoMovieVector3; slope: IAutoMovieVector3 };
-
 /**
  * A front handspring: from standing, the body reaches forward into a lunge,
  * turns head over heels in pitch over its hands, leaves them and flies to its
@@ -492,3 +480,15 @@ export namespace handspring {
     return result;
   }
 }
+
+/** The alternatives of `OverContactsPart`'s site. */
+type OverContactsPart = "leftFoot" | "rightFoot";
+
+/** The record of `IOverLaunchResult`'s site. */
+type IOverLaunchResult = {
+  centre: IAutoMovieVector3;
+  slope: IAutoMovieVector3;
+};
+
+/** The record of `IOverLaunch`'s site. */
+type IOverLaunch = { centre: IAutoMovieVector3; slope: IAutoMovieVector3 };

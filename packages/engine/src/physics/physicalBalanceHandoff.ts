@@ -5,8 +5,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
-import { resolvePhysicalRecoveryStep } from "./resolvePhysicalRecoveryStep";
+import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
+import { resolvePhysicalRecoveryStep } from "./internal/resolvePhysicalRecoveryStep";
 
 /**
  * The balance controller's handoff phase (`advancePhysicalBalance`): authored

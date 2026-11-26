@@ -1,4 +1,4 @@
-import { derivePhysicalActuators } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -66,7 +66,7 @@ export function test_engine_physics_derive_physical_actuators(): void {
     childFrame: identity,
     axes: [],
   };
-  const joints: IAutoMoviePhysicalJoint[] = derivePhysicalActuators(
+  const joints: IAutoMoviePhysicalJoint[] = AutoMovieEnginePhysics.derivePhysicalActuators(
     [...profile.segments, carrier, payload],
     [hinge, fixed],
     { frequency: 10, dampingRatio: 1, torquePerKg: 3, passiveRate: 5 },

@@ -1,4 +1,4 @@
-import { selectFormationShadowPalette } from "@automovie/render";
+import { AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -25,18 +25,18 @@ export function test_render_scene_select_formation_shadow_palette(): void {
   const [first, second, third] = geometry.groups;
   TestValidator.predicate(
     "drawn groups",
-    selectFormationShadowPalette(geometry, palette, first!) === palette[0] &&
-      selectFormationShadowPalette(geometry, palette, second!) === palette[1] &&
-      selectFormationShadowPalette(geometry, palette, third!) === palette[1],
+    AutoMovieRenderFormationCycle.selectFormationShadowPalette(geometry, palette, first!) === palette[0] &&
+      AutoMovieRenderFormationCycle.selectFormationShadowPalette(geometry, palette, second!) === palette[1] &&
+      AutoMovieRenderFormationCycle.selectFormationShadowPalette(geometry, palette, third!) === palette[1],
   );
   TestValidator.predicate(
     "no drawn group",
-    selectFormationShadowPalette(geometry, palette, null) === palette[0] &&
-      selectFormationShadowPalette(geometry, palette, new THREE.Group()) ===
+    AutoMovieRenderFormationCycle.selectFormationShadowPalette(geometry, palette, null) === palette[0] &&
+      AutoMovieRenderFormationCycle.selectFormationShadowPalette(geometry, palette, new THREE.Group()) ===
         palette[0],
   );
   TestValidator.error("a missing palette index", (): unknown =>
-    selectFormationShadowPalette(geometry, [palette[0]!], second!),
+    AutoMovieRenderFormationCycle.selectFormationShadowPalette(geometry, [palette[0]!], second!),
   );
   geometry.dispose();
   for (const material of palette) material.dispose();

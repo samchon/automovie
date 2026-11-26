@@ -23,18 +23,6 @@ import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanSwordCutAt } from "./HumanSwordCutAt";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
-/** The alternatives of `StoppedContext`'s site. */
-type StoppedContext = "body" | "params";
-
-/** The alternatives of `HeldContext`'s site. */
-type HeldContext = "body" | "entry";
-
-/** The alternatives of `SPEEDEntryItem`'s site. */
-type SPEEDEntryItem = "thrust" | "cut";
-
-/** The alternatives of `LANDSEntryItem`'s site. */
-type LANDSEntryItem = "cut" | "parry";
-
 /**
  * Blade work with the blade as the effector: the cut on the eight lines, and
  * what every blade action shares. `HumanSwordThrust` holds the thrust,
@@ -410,3 +398,15 @@ export namespace HumanSword {
   export const cut: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSword.ICut> =
     cutAt(SPEED.cut);
 }
+
+/** The alternatives of `StoppedContext`'s site. */
+type StoppedContext = "body" | "params";
+
+/** The alternatives of `HeldContext`'s site. */
+type HeldContext = "body" | "entry";
+
+/** The alternatives of `SPEEDEntryItem`'s site. */
+type SPEEDEntryItem = "thrust" | "cut";
+
+/** The alternatives of `LANDSEntryItem`'s site. */
+type LANDSEntryItem = "cut" | "parry";

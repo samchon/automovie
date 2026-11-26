@@ -1,10 +1,5 @@
 import { createDrinkware } from "@automovie/archetypes";
-import {
-  createCafeKit,
-  createEnvironment,
-  createEnvironmentProp,
-  createGymKit,
-} from "@automovie/archetypes/environments";
+import { createCafeKit, createGymKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentItem,
@@ -40,7 +35,7 @@ export function test_environment_furnishing(): void {
   };
   const cup: IAutoMovieEnvironmentItem = {
     at: { anchor: "cafe/table-1/stack" },
-    use: createEnvironmentProp({
+    use: AutoMovieEnvironmentFurnishing.prop({
       model: createDrinkware({ kind: "cup" }),
       placement: {
         relations: [
@@ -70,7 +65,7 @@ export function test_environment_furnishing(): void {
       use: createGymKit({ room: [6, 5], stations: 2 }),
     },
   };
-  const plan: IAutoMovieEnvironment = createEnvironment({
+  const plan: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "facility",
     seed: 1,
     items,
@@ -109,14 +104,14 @@ export function test_environment_furnishing(): void {
       cupPoint.y <= 2.762 &&
       vclose(plan.anchors["cafe/table-1/stack"]!.translation, cupPoint),
   );
-  const reseeded: IAutoMovieEnvironment = createEnvironment({
+  const reseeded: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "facility",
     seed: 2,
     items,
   });
   const role: string = "cafe/table-1/chair-near";
   const automatic: string = "cafe/table-1/chair-far";
-  const pinnedTable: IAutoMovieEnvironment = createEnvironment({
+  const pinnedTable: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "facility",
     seed: 1,
     items: {
@@ -156,7 +151,7 @@ export function test_environment_furnishing(): void {
     "room capacity, a door swing and table bearing have distinct refusals",
     throwsError(
       (): IAutoMovieEnvironment =>
-        createEnvironment({
+        AutoMovieEnvironment.create({
           id: "small",
           items: { gym: { use: createGymKit({ room: [2, 2], stations: 3 }) } },
         }),
@@ -164,7 +159,7 @@ export function test_environment_furnishing(): void {
     ) &&
       throwsError(
         (): IAutoMovieEnvironment =>
-          createEnvironment({
+          AutoMovieEnvironment.create({
             id: "door",
             items: {
               cafe: {
@@ -181,7 +176,7 @@ export function test_environment_furnishing(): void {
       ) &&
       throwsError(
         (): IAutoMovieEnvironment =>
-          createEnvironment({
+          AutoMovieEnvironment.create({
             id: "facility",
             seed: 1,
             items: {

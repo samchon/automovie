@@ -1,4 +1,4 @@
-import { Vector3, resolveImpact } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanForceSite,
   IAutoMovieImpact,
@@ -71,7 +71,7 @@ export namespace HumanForce {
       hardness: 0,
       penetrability: 0,
     };
-    const response: IAutoMovieImpact = resolveImpact(
+    const response: IAutoMovieImpact = AutoMovieEnginePhysics.resolveImpact(
       { mass: receiver.mass, velocity: receiver.velocity, ...still },
       { mass: hit.mass, velocity: hit.velocity, ...still },
       hit.normal,

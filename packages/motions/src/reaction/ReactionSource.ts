@@ -10,9 +10,6 @@ import type {
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { StrikingBody } from "../striking/StrikingBody";
 
-/** The alternatives of `AtContext`'s site. */
-type AtContext = "aim" | "body" | "performer";
-
 /**
  * Where the blow a reaction answers comes from: a person's region read where
  * that person is at the second, not where the performer saw them a reaction
@@ -71,3 +68,6 @@ export namespace ReactionSource {
     };
   }
 }
+
+/** The alternatives of `AtContext`'s site. */
+type AtContext = "aim" | "body" | "performer";

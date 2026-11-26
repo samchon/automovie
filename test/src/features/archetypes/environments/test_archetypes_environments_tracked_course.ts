@@ -1,4 +1,4 @@
-import { createTrackedCourse } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironmentRide } from "@automovie/archetypes/environments";
 import { Quaternion } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
@@ -10,7 +10,7 @@ const TRACK_ROUNDING: number = 256 * Number.EPSILON;
 
 /** The station travels along a grade and banks around the graded tangent. */
 export function test_archetypes_environments_tracked_course(): void {
-  const course = createTrackedCourse({
+  const course = AutoMovieEnvironmentRide.trackedCourse({
     points: [
       { x: 1, y: 2, z: 5 },
       { x: 1, y: 5, z: 9 },

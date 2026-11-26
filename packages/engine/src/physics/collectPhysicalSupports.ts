@@ -10,7 +10,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /**
  * Read each limb's actual floor support: the rigid floor contacts the world's

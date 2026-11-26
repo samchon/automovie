@@ -7,7 +7,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
+import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRotation";
 
 /**
  * Convert authored placements into the declared fixed-pivot physical tree.

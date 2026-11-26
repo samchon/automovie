@@ -1,4 +1,4 @@
-import { samplePhysicalContactEvents } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalFrame,
@@ -109,7 +109,7 @@ export function test_render_scene_observe_placed_scene(): void {
       },
     ],
   };
-  const received = samplePhysicalContactEvents(receipt, time.filmSeconds)[0]!;
+  const received = AutoMovieEnginePhysics.samplePhysicalContactEvents(receipt, time.filmSeconds)[0]!;
   const edge = {
     kind: "step",
     path: "lantern.transform",

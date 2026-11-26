@@ -1,13 +1,4 @@
-import {
-  AutoMoviePhysicalJointChart,
-  Quaternion,
-  Vector3,
-  physicalRecoverySupportGoals,
-  physicalStanceBalance,
-  physicalSupportPoint,
-  physicalSwingReference,
-  samplePhysicalRecoveryGoal,
-} from "@automovie/engine";
+import { AutoMoviePhysicalJointChart, Quaternion, Vector3, physicalRecoverySupportGoals, physicalStanceBalance, physicalSwingReference, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalJoint,
@@ -200,7 +191,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
       seconds,
       path,
     ).foot!;
-    const sampled: IAutoMovieVector3 = samplePhysicalRecoveryGoal({
+    const sampled: IAutoMovieVector3 = AutoMovieEnginePhysics.samplePhysicalRecoveryGoal({
       swing,
       point: { x: 0, y: 0.05, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
@@ -344,7 +335,7 @@ export async function test_engine_physics_physical_recovery_support(): Promise<v
   const hip: IAutoMoviePhysicalJoint = human.profile.joints.find(
     (joint: IAutoMoviePhysicalJoint): boolean => joint.child === limb.chain[0],
   )!;
-  const standingPoint: IAutoMovieVector3 = physicalSupportPoint(
+  const standingPoint: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
     human.targets[limb.bone]!,
     limb.localPoint,
   );

@@ -27,9 +27,6 @@ import { HumanBoardHandoverStill } from "./HumanBoardHandoverStill";
 import { HumanBoardKey } from "./HumanBoardKey";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
-
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;
 /** Seconds the landed seat takes to settle (provisional). */
 const SETTLE: number = 0.3;
 
@@ -44,21 +41,6 @@ const GRASP: number = 0.15;
  * the support passes from the hold to the seat with no gap.
  */
 const LET_GO: number = 1;
-
-/**
- * Admit the boarding, solve the seated key in the seat's frame, then sample.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
- * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
- * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
- */
-function planHumanBoard(context: Context): IAutoMovieMotionHumanActionPlan {
-  return plan(context);
-}
 
 /**
  * Board a moving carrier's seat (`IAutoMovieMotionHumanBoard`): in the seat
@@ -79,6 +61,24 @@ export const HumanBoard: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBoa
     interrupts: {},
     plan: planHumanBoard,
   };
+
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBoard>;
+
+/**
+ * Admit the boarding, solve the seated key in the seat's frame, then sample.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the steps and the refusals: bad time or height, a take-off moving too fast against the seat, and a way too long, too high or too deep.
+ * @evidence contracts/development/implementation.md#principled-implementation The relative take-off velocity is the central difference of the performer's own root against the seat's; the seated key is `seated.point` and `seated.root` on the seat with the upright back's angles.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure Admission, the key, the bounds, then the sampler.
+ * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A boarding outside the bounds is refused, never shortened.
+ * @evidence contracts/development/implementation.md#efficient-algorithms One key per plan; a sample reads one seat frame and at most one held point.
+ * @evidence contracts/development/implementation.md#reuse-equivalent-work The key is shared by every sample.
+ * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The plan retains the key and the carrier reader.
+ */
+function planHumanBoard(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
 
 /** Admit, solve the key and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {

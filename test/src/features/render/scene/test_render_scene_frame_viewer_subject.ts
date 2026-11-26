@@ -1,8 +1,4 @@
-import {
-  type IAutoMovieViewerSubjectBounds,
-  type IAutoMovieViewerSubjectPose,
-  frameAutoMovieViewerSubject,
-} from "@automovie/render";
+import { type IAutoMovieViewerSubjectBounds, type IAutoMovieViewerSubjectPose, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /** Tolerance of the closed-form positions, metres. */
@@ -26,12 +22,12 @@ export function test_render_scene_frame_viewer_subject(): void {
   };
   const distance: number = Math.sqrt(3) * 2 * 1.25;
   const lens: { fovDeg: number; aspect: number } = { fovDeg: 60, aspect: 1 };
-  const front: IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
+  const front: IAutoMovieViewerSubjectPose = AutoMovieRenderSubjectViewpoint.frameAutoMovieViewerSubject(
     bounds,
     { id: "front", azimuthDeg: 0, elevationDeg: 0, distanceFactor: 1.25 },
     lens,
   );
-  const top: IAutoMovieViewerSubjectPose = frameAutoMovieViewerSubject(
+  const top: IAutoMovieViewerSubjectPose = AutoMovieRenderSubjectViewpoint.frameAutoMovieViewerSubject(
     bounds,
     { id: "top", azimuthDeg: 0, elevationDeg: 90, distanceFactor: 1.25 },
     lens,

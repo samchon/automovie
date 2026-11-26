@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-  physicalShapeNearest,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieVector3,
@@ -61,7 +56,7 @@ export function fitSeatedAnkleCrossSweep(
       Vector3.add(moving.bounds.min, moving.bounds.max),
       0.5,
     );
-    const witness = physicalShapeNearest(
+    const witness = AutoMovieEnginePhysics.physicalShapeNearest(
       fixed.pose,
       fixed.shape,
       center,

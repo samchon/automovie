@@ -17,111 +17,6 @@ import { HumanCarrierCustody } from "../lexicon/HumanCarrierCustody";
 import { drawFromCarrier } from "./drawFromCarrier";
 import { putDownAperture } from "./putDownAperture";
 
-/** One named point of a prop in its own frame, with its outward normal. */
-type Point = IAutoMovieMotionHumanProp["points"][string];
-
-/**
- * The seat on the mouth, turned half about its `X` so a blade's `+Y` runs into
- * the carrier; the entry the withdrawal out along the mouth's `+Y`; the slider
- * from the seat toward the entry, its `+X` along that line; and the slide
- * socket at the slider's travel.
- */
-function sockets(
-  mouth: IAutoMovieAffordance,
-  withdrawal: number,
-  travel: number,
-): IAutoMovieAffordance[] {
-  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-    Quaternion.multiply(
-      mouth.frame.rotation,
-      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
-    ),
-  );
-  const out: IAutoMovieVector3 = Quaternion.rotateVector(mouth.frame.rotation, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
-  const at: (distance: number) => IAutoMovieVector3 = (
-    distance: number,
-  ): IAutoMovieVector3 =>
-    Vector3.add(mouth.frame.translation, Vector3.scale(out, distance));
-  return [
-    {
-      id: HumanSheath.SEAT,
-      kind: "socket",
-      frame: {
-        translation: mouth.frame.translation,
-        rotation,
-        scale: mouth.frame.scale,
-      },
-      extent: null,
-    },
-    {
-      id: HumanSheath.ENTRY,
-      kind: "socket",
-      frame: {
-        translation: at(withdrawal),
-        rotation,
-        scale: mouth.frame.scale,
-      },
-      extent: null,
-    },
-    {
-      id: HumanSheath.SLIDER,
-      kind: "slider",
-      frame: {
-        translation: mouth.frame.translation,
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(
-            mouth.frame.rotation,
-            Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-          ),
-        ),
-        scale: mouth.frame.scale,
-      },
-      extent: null,
-      travel: withdrawal,
-    },
-    {
-      id: HumanSheath.SLIDE,
-      kind: "socket",
-      frame: {
-        translation: at(travel),
-        rotation,
-        scale: mouth.frame.scale,
-      },
-      extent: null,
-    },
-  ];
-}
-
-/** The named affordance of a prop, or a refusal naming the ones it has. */
-function find(
-  prop: IAutoMovieMotionHumanProp,
-  id: string,
-  axis: string,
-): IAutoMovieAffordance {
-  const found: IAutoMovieAffordance | undefined = prop.affordances?.find(
-    (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
-  );
-  if (found === undefined)
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis,
-      value: id,
-      feasible: {
-        kind: "alternatives",
-        values: (prop.affordances ?? []).map(
-          (affordance: IAutoMovieAffordance): string => affordance.id,
-        ),
-      },
-      reason: `${prop.subject} declares no affordance ${id}`,
-      fix: `name one of ${prop.subject}'s affordances`,
-    });
-  return found;
-}
-
 /**
  * Seat a blade in a carrier and derive the draw line.
  *
@@ -412,4 +307,109 @@ export namespace HumanSheath {
     };
     return chain.registered(putDownAperture.name, params, anchor);
   }
+}
+
+/** One named point of a prop in its own frame, with its outward normal. */
+type Point = IAutoMovieMotionHumanProp["points"][string];
+
+/**
+ * The seat on the mouth, turned half about its `X` so a blade's `+Y` runs into
+ * the carrier; the entry the withdrawal out along the mouth's `+Y`; the slider
+ * from the seat toward the entry, its `+X` along that line; and the slide
+ * socket at the slider's travel.
+ */
+function sockets(
+  mouth: IAutoMovieAffordance,
+  withdrawal: number,
+  travel: number,
+): IAutoMovieAffordance[] {
+  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      mouth.frame.rotation,
+      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
+    ),
+  );
+  const out: IAutoMovieVector3 = Quaternion.rotateVector(mouth.frame.rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const at: (distance: number) => IAutoMovieVector3 = (
+    distance: number,
+  ): IAutoMovieVector3 =>
+    Vector3.add(mouth.frame.translation, Vector3.scale(out, distance));
+  return [
+    {
+      id: HumanSheath.SEAT,
+      kind: "socket",
+      frame: {
+        translation: mouth.frame.translation,
+        rotation,
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+    },
+    {
+      id: HumanSheath.ENTRY,
+      kind: "socket",
+      frame: {
+        translation: at(withdrawal),
+        rotation,
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+    },
+    {
+      id: HumanSheath.SLIDER,
+      kind: "slider",
+      frame: {
+        translation: mouth.frame.translation,
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(
+            mouth.frame.rotation,
+            Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+          ),
+        ),
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+      travel: withdrawal,
+    },
+    {
+      id: HumanSheath.SLIDE,
+      kind: "socket",
+      frame: {
+        translation: at(travel),
+        rotation,
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+    },
+  ];
+}
+
+/** The named affordance of a prop, or a refusal naming the ones it has. */
+function find(
+  prop: IAutoMovieMotionHumanProp,
+  id: string,
+  axis: string,
+): IAutoMovieAffordance {
+  const found: IAutoMovieAffordance | undefined = prop.affordances?.find(
+    (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
+  );
+  if (found === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis,
+      value: id,
+      feasible: {
+        kind: "alternatives",
+        values: (prop.affordances ?? []).map(
+          (affordance: IAutoMovieAffordance): string => affordance.id,
+        ),
+      },
+      reason: `${prop.subject} declares no affordance ${id}`,
+      fix: `name one of ${prop.subject}'s affordances`,
+    });
+  return found;
 }

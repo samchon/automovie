@@ -23,9 +23,6 @@ import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 
-/** The alternatives of `PlanContactsPart`'s site. */
-type PlanContactsPart = "leftFoot" | "rightFoot";
-
 /**
  * A forward or backward roll on the floor: the body crouches into a tuck over
  * its feet, rolls once round over its back as a ball rolls, without flight, and
@@ -324,6 +321,9 @@ export namespace roll {
     }
   }
 }
+
+/** The alternatives of `PlanContactsPart`'s site. */
+type PlanContactsPart = "leftFoot" | "rightFoot";
 
 /**
  * Read every original roll-table sample from its current authored posture. The

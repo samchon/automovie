@@ -17,18 +17,6 @@ import { HumanAttribute } from "./HumanAttribute";
 import { HumanEnsembleMembers } from "./HumanEnsembleMembers";
 import { instance } from "./instance";
 
-/** The record of `IPickE`'s site. */
-type IPickE = { index: number };
-
-/** The record of `IPickB`'s site. */
-type IPickB = { key: number; index: number };
-
-/** The record of `IPickA`'s site. */
-type IPickA = { key: number; index: number };
-
-/** The record of `IPickResult`'s site. */
-type IPickResult = { index: number; key: number };
-
 /**
  * Resolve an ensemble's members.
  *
@@ -396,3 +384,15 @@ export namespace HumanEnsemble {
     return out;
   }
 }
+
+/** The record of `IPickE`'s site. */
+type IPickE = { index: number };
+
+/** The record of `IPickB`'s site. */
+type IPickB = { key: number; index: number };
+
+/** The record of `IPickA`'s site. */
+type IPickA = { key: number; index: number };
+
+/** The record of `IPickResult`'s site. */
+type IPickResult = { index: number; key: number };

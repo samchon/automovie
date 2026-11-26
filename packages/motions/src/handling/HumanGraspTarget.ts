@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieCurlChainUntilContact,
@@ -106,7 +106,7 @@ export function HumanGraspTarget(
           nearestDistance = candidate;
         }
       }
-      const [low, high]: readonly [number, number] = physicalShapeSpan(
+      const [low, high]: readonly [number, number] = AutoMovieEnginePhysics.physicalShapeSpan(
         {
           position: { x: 0, y: 0, z: 0 },
           rotation: { x: 0, y: 0, z: 0, w: 1 },

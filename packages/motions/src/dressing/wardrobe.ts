@@ -23,6 +23,36 @@ import { wardrobeHands } from "./wardrobeHands";
 import type { wardrobeModes } from "./wardrobeModes";
 import { wardrobeSleeve } from "./wardrobeSleeve";
 
+/**
+ * Put coarse stage wearables onto or take them off a real performer.
+ *
+ * A previously held open-front jacket is carried into position while the other
+ * hand passes into its named sleeve. It transfers from the grasping hand to the
+ * chest. The remaining sleeve can be threaded, and either sleeve can be
+ * cleared, with the pose on that same jacket. The zip moves with the hand on
+ * its actual slider. Its travel is retained by the native prop drive. The
+ * seated footwear modes reuse a chair and an opposite foot plant while
+ * transferring the shell onto or out of the raised foot.
+ *
+ * Clegg et al. describe independent alignment and sleeve passage phases in
+ * Animating Human Dressing (2015),
+ * https://sites.cc.gatech.edu/gvu/people/faculty/greg.turk/paper_pages/2015_animating_human_dressing/index.html.
+ * The jacket here uses explicit short openings and imposes staged rigid poses.
+ */
+export const wardrobe: IAutoMovieMotionHumanActionLaw<Params> = {
+  name: "wardrobe",
+  interrupts: {
+    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+  },
+  accepts: {
+    sit: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
+    pickUp: [
+      { window: ["lifted", 1], kind: "inertialize", entry: 0, keep: ["grip"] },
+    ],
+  },
+  plan: planWardrobe,
+};
+
 /** The installed wardrobe actions and their requested direction and side. */
 type Params = wardrobeModes.Params;
 
@@ -66,36 +96,6 @@ function planWardrobe(
     }
   }
 }
-
-/**
- * Put coarse stage wearables onto or take them off a real performer.
- *
- * A previously held open-front jacket is carried into position while the other
- * hand passes into its named sleeve. It transfers from the grasping hand to the
- * chest. The remaining sleeve can be threaded, and either sleeve can be
- * cleared, with the pose on that same jacket. The zip moves with the hand on
- * its actual slider. Its travel is retained by the native prop drive. The
- * seated footwear modes reuse a chair and an opposite foot plant while
- * transferring the shell onto or out of the raised foot.
- *
- * Clegg et al. describe independent alignment and sleeve passage phases in
- * Animating Human Dressing (2015),
- * https://sites.cc.gatech.edu/gvu/people/faculty/greg.turk/paper_pages/2015_animating_human_dressing/index.html.
- * The jacket here uses explicit short openings and imposes staged rigid poses.
- */
-export const wardrobe: IAutoMovieMotionHumanActionLaw<Params> = {
-  name: "wardrobe",
-  interrupts: {
-    any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
-  },
-  accepts: {
-    sit: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
-    pickUp: [
-      { window: ["lifted", 1], kind: "inertialize", entry: 0, keep: ["grip"] },
-    ],
-  },
-  plan: planWardrobe,
-};
 
 /** Transport the held jacket and thread the free hand before attaching it. */
 function jacket(

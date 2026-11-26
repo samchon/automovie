@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeFaceContact, physicalShapeGjk, physicalShapeNearest, physicalShapePairDistance, physicalShapeSupport, physicalShapeSurfaceAnchor, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeFaceContact, physicalShapeGjk, physicalShapePairDistance, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
@@ -255,8 +255,8 @@ export namespace HumanMaterialContact {
           down,
         );
         for (const shape of segment.shapes) {
-          const { point }: ReturnType<typeof physicalShapeSurfaceAnchor> =
-            physicalShapeSurfaceAnchor(segment.pose, shape, direction);
+          const { point }: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeSurfaceAnchor> =
+            AutoMovieEnginePhysics.physicalShapeSurfaceAnchor(segment.pose, shape, direction);
           const clearance: number = point.y - height;
           if (best === undefined || clearance < best.clearance)
             best = {
@@ -419,7 +419,7 @@ export namespace HumanMaterialContact {
                   shape: IAutoMoviePhysicalShape,
                 ): physicalShapeGjk.Support =>
                 (direction: IAutoMovieVector3): IAutoMovieVector3 =>
-                  physicalShapeSupport(pose, shape, direction);
+                  AutoMovieEnginePhysics.physicalShapeSupport(pose, shape, direction);
               const ax: physicalShapeGjk.Support = support(x.pose, sx);
               const by: physicalShapeGjk.Support = support(y.pose, sy);
               const onOther: IAutoMovieVector3 = physicalShapeGjk.witness(
@@ -434,10 +434,10 @@ export namespace HumanMaterialContact {
               ).point;
               // The simplex's overlap witness can lie inside either solid.
               // Recover the actual exterior before publishing either frame.
-              const receiving: ReturnType<typeof physicalShapeNearest> =
-                physicalShapeNearest(y.pose, sy, onOther, onOther);
-              const held: ReturnType<typeof physicalShapeNearest> =
-                physicalShapeNearest(x.pose, sx, onOwn, onOwn);
+              const receiving: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeNearest> =
+                AutoMovieEnginePhysics.physicalShapeNearest(y.pose, sy, onOther, onOther);
+              const held: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeNearest> =
+                AutoMovieEnginePhysics.physicalShapeNearest(x.pose, sx, onOwn, onOwn);
               if (
                 Vector3.dot(receiving.normal, otherNormal) < 0 ||
                 Vector3.dot(held.normal, ownNormal) < 0

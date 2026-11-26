@@ -6,7 +6,7 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 import type { physicalBalanceSense } from "../physicalBalanceSense";
-import { physicalSupportPoint } from "../physicalSupportPoint";
+import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * The authored capture point and its rate, the command the plan phase follows

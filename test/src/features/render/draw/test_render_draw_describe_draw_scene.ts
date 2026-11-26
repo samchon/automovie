@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieDrawScene,
-  describeAutoMovieDrawScene,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import assert from "node:assert/strict";
 import * as THREE from "three";
 
@@ -50,8 +47,8 @@ export function test_render_draw_describe_draw_scene(): void {
     },
     dispose: () => {},
   };
-  const late: ReturnType<typeof describeAutoMovieDrawScene> =
-    describeAutoMovieDrawScene("late", scene);
+  const late: ReturnType<typeof AutoMovieRenderDraw.describeAutoMovieDrawScene> =
+    AutoMovieRenderDraw.describeAutoMovieDrawScene("late", scene);
   assert.equal(late.marks.filter((kind) => kind === "joint").length, 1);
   assert.ok(late.marks.includes("contact") && late.marks.includes("edge"));
   assert.equal(seeks, 0);
@@ -73,10 +70,10 @@ export function test_render_draw_describe_draw_scene(): void {
     ],
   };
   delete initial.markKinds;
-  const legacy = describeAutoMovieDrawScene("legacy", initial);
+  const legacy = AutoMovieRenderDraw.describeAutoMovieDrawScene("legacy", initial);
   assert.ok(legacy.marks.includes("curve"));
-  const mixed: ReturnType<typeof describeAutoMovieDrawScene> =
-    describeAutoMovieDrawScene("mixed", {
+  const mixed: ReturnType<typeof AutoMovieRenderDraw.describeAutoMovieDrawScene> =
+    AutoMovieRenderDraw.describeAutoMovieDrawScene("mixed", {
       ...initial,
       markKinds: ["curve", "joint"],
     });

@@ -30,9 +30,6 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { humanAssistedTransferSeat } from "./humanAssistedTransferSeat";
 
-/** Roles performing the same support phase. */
-type Role = IAutoMovieMotionHumanAssistedTransfer.Role;
-
 /** The bearing parts of the transfer are not constrained to the chair's base. */
 const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
   { part: "leftFoot", kind: "bear" },
@@ -41,130 +38,6 @@ const FEET: readonly IAutoMovieMotionHumanSupport.IContact[] = [
 
 /** Acquire, rise, step, align, settle, and release. */
 const PHASE: number = 0.55;
-
-/** Attach the actual displayed palm to the shared clasp over its nominated span. */
-function gripReader(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAssistedTransfer.IRoleParams>,
-  plan: IAutoMovieMotionHumanActionPlan,
-  side: AutoMovieHumanSide,
-  seconds: number,
-): IAutoMovieMotionHumanActionPlan["posture"] {
-  const region: AutoMovieHumanoidRegion =
-    side === "left" ? "palmLeft" : "palmRight";
-  const own: IAutoMovieHumanoidSurfaces.IFrame =
-    context.body.surfaces.regions[region];
-  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([own.bone]);
-  const partner: ReturnType<typeof context.performer> | undefined =
-    context.params.role === "helper"
-      ? context.performer(context.params.partner)
-      : undefined;
-  const other: IAutoMovieHumanoidSurfaces.IFrame | undefined =
-    partner?.body.surfaces.regions[region];
-  const targetBone: ReadonlySet<AutoMovieHumanoidBone> | undefined =
-    other === undefined ? undefined : new Set([other.bone]);
-  const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
-  const start: number = seconds;
-  const clasped: number = 1.5 * seconds;
-  const released: number = 6 * seconds;
-  const bare: number = 7 * seconds;
-
-  /** Fixed shared point, with one visible arrival and release. */
-  const weight: (at: number) => number = (at: number): number =>
-    minimumJerk.share(
-      Math.max(
-        0,
-        Math.min(
-          1,
-          (at - start) / (clasped - start),
-          (bare - at) / (bare - released),
-        ),
-      ),
-    );
-
-  return (
-    at,
-    channels,
-    resolution,
-    projection,
-  ): IAutoMovieMotionHumanPosture => {
-    const source: IAutoMovieMotionHumanPosture = plan.posture(
-      at,
-      channels,
-      resolution,
-      projection,
-    );
-    const held: number = weight(at);
-    if (held === 0 || (channels !== undefined && !channels.includes(limb)))
-      return source;
-    const bones: ReturnType<typeof poseBones> = poseBones(
-      context.body,
-      resolveHumanPosture(context.body, source),
-      undefined,
-      requested,
-    );
-    const hand: IAutoMovieResolvedBone = bones.get(own.bone)!;
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      hand.worldRotation,
-      own.point,
-    );
-    const target: IAutoMovieVector3 =
-      partner === undefined || other === undefined
-        ? context.params.clasp
-        : resolveAutoMovieHumanoidSurfaces.point(
-            other,
-            partner.bones(context.start + at, targetBone).get(other.bone)!,
-          );
-    const point: IAutoMovieVector3 = Vector3.lerp(
-      Vector3.add(hand.worldPosition, offset),
-      target,
-      held,
-    );
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      context.body,
-      source,
-      side,
-    );
-    let wrist: IAutoMovieVector3 = Vector3.subtract(point, offset);
-    let fitted: IAutoMovieMotionHumanPosture = source;
-    let pose: IAutoMoviePose | undefined;
-    for (let iteration: number = 0; iteration < 5; iteration++) {
-      fitted = {
-        ...source,
-        limbs: { ...source.limbs, [limb]: { point: wrist, bend } },
-      };
-      pose = resolveHumanPosture(context.body, fitted);
-      const actual: IAutoMovieResolvedBone = poseBones(
-        context.body,
-        pose,
-        undefined,
-        requested,
-      ).get(own.bone)!;
-      const delta: IAutoMovieVector3 = Vector3.subtract(
-        point,
-        resolveAutoMovieHumanoidSurfaces.point(own, actual),
-      );
-      if (Vector3.length(delta) <= 0.001) break;
-      wrist = Vector3.add(wrist, delta);
-    }
-    if (pose === undefined) return fitted;
-    const jointSet: ReadonlySet<string> = new Set([
-      `${side}UpperArm`,
-      `${side}LowerArm`,
-      `${side}Hand`,
-    ]);
-    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...source.joints };
-    for (const joint of pose.joints)
-      if (jointSet.has(joint.bone))
-        joints[joint.bone] = [
-          joint.flexion ?? 0,
-          joint.abduction ?? 0,
-          joint.twist ?? 0,
-        ];
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...source.limbs };
-    delete limbs[limb];
-    return { ...source, limbs, joints };
-  };
-}
 
 /**
  * Stage one actor's role in a paired chair-to-care-seat transfer.
@@ -339,3 +212,130 @@ export const HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.ILaw =
       }),
     },
   };
+
+/** Roles performing the same support phase. */
+type Role = IAutoMovieMotionHumanAssistedTransfer.Role;
+
+/** Attach the actual displayed palm to the shared clasp over its nominated span. */
+function gripReader(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAssistedTransfer.IRoleParams>,
+  plan: IAutoMovieMotionHumanActionPlan,
+  side: AutoMovieHumanSide,
+  seconds: number,
+): IAutoMovieMotionHumanActionPlan["posture"] {
+  const region: AutoMovieHumanoidRegion =
+    side === "left" ? "palmLeft" : "palmRight";
+  const own: IAutoMovieHumanoidSurfaces.IFrame =
+    context.body.surfaces.regions[region];
+  const requested: ReadonlySet<AutoMovieHumanoidBone> = new Set([own.bone]);
+  const partner: ReturnType<typeof context.performer> | undefined =
+    context.params.role === "helper"
+      ? context.performer(context.params.partner)
+      : undefined;
+  const other: IAutoMovieHumanoidSurfaces.IFrame | undefined =
+    partner?.body.surfaces.regions[region];
+  const targetBone: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+    other === undefined ? undefined : new Set([other.bone]);
+  const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
+  const start: number = seconds;
+  const clasped: number = 1.5 * seconds;
+  const released: number = 6 * seconds;
+  const bare: number = 7 * seconds;
+
+  /** Fixed shared point, with one visible arrival and release. */
+  const weight: (at: number) => number = (at: number): number =>
+    minimumJerk.share(
+      Math.max(
+        0,
+        Math.min(
+          1,
+          (at - start) / (clasped - start),
+          (bare - at) / (bare - released),
+        ),
+      ),
+    );
+
+  return (
+    at,
+    channels,
+    resolution,
+    projection,
+  ): IAutoMovieMotionHumanPosture => {
+    const source: IAutoMovieMotionHumanPosture = plan.posture(
+      at,
+      channels,
+      resolution,
+      projection,
+    );
+    const held: number = weight(at);
+    if (held === 0 || (channels !== undefined && !channels.includes(limb)))
+      return source;
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      context.body,
+      resolveHumanPosture(context.body, source),
+      undefined,
+      requested,
+    );
+    const hand: IAutoMovieResolvedBone = bones.get(own.bone)!;
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+      hand.worldRotation,
+      own.point,
+    );
+    const target: IAutoMovieVector3 =
+      partner === undefined || other === undefined
+        ? context.params.clasp
+        : resolveAutoMovieHumanoidSurfaces.point(
+            other,
+            partner.bones(context.start + at, targetBone).get(other.bone)!,
+          );
+    const point: IAutoMovieVector3 = Vector3.lerp(
+      Vector3.add(hand.worldPosition, offset),
+      target,
+      held,
+    );
+    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
+      context.body,
+      source,
+      side,
+    );
+    let wrist: IAutoMovieVector3 = Vector3.subtract(point, offset);
+    let fitted: IAutoMovieMotionHumanPosture = source;
+    let pose: IAutoMoviePose | undefined;
+    for (let iteration: number = 0; iteration < 5; iteration++) {
+      fitted = {
+        ...source,
+        limbs: { ...source.limbs, [limb]: { point: wrist, bend } },
+      };
+      pose = resolveHumanPosture(context.body, fitted);
+      const actual: IAutoMovieResolvedBone = poseBones(
+        context.body,
+        pose,
+        undefined,
+        requested,
+      ).get(own.bone)!;
+      const delta: IAutoMovieVector3 = Vector3.subtract(
+        point,
+        resolveAutoMovieHumanoidSurfaces.point(own, actual),
+      );
+      if (Vector3.length(delta) <= 0.001) break;
+      wrist = Vector3.add(wrist, delta);
+    }
+    if (pose === undefined) return fitted;
+    const jointSet: ReadonlySet<string> = new Set([
+      `${side}UpperArm`,
+      `${side}LowerArm`,
+      `${side}Hand`,
+    ]);
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...source.joints };
+    for (const joint of pose.joints)
+      if (jointSet.has(joint.bone))
+        joints[joint.bone] = [
+          joint.flexion ?? 0,
+          joint.abduction ?? 0,
+          joint.twist ?? 0,
+        ];
+    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...source.limbs };
+    delete limbs[limb];
+    return { ...source, limbs, joints };
+  };
+}

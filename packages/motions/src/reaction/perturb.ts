@@ -45,21 +45,6 @@ import { stagger } from "./stagger";
 import { staggerBounds } from "./staggerBounds";
 import { staggerRecovery } from "./staggerRecovery";
 
-/** The alternatives of `AbsorbPlantPart2`'s site. */
-type AbsorbPlantPart2 = "leftFoot" | "rightFoot";
-
-/** The alternatives of `AbsorbPlantPart`'s site. */
-type AbsorbPlantPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `PlanChosen`'s site. */
-type PlanChosen = "absorb" | "step" | "fall";
-
-/** The alternatives of `PlanAsked`'s site. */
-type PlanAsked = "auto" | "absorb" | "step" | "fall";
-
-/** The alternatives of `PlanSuffix`'s site. */
-type PlanSuffix = "Left" | "Right";
-
 /**
  * One perturbation law whose response follows from the forces on its performer:
  * the body absorbs an impulse within its base, catches it with capture steps,
@@ -460,3 +445,18 @@ export namespace perturb {
     return tau;
   })();
 }
+
+/** The alternatives of `AbsorbPlantPart2`'s site. */
+type AbsorbPlantPart2 = "leftFoot" | "rightFoot";
+
+/** The alternatives of `AbsorbPlantPart`'s site. */
+type AbsorbPlantPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `PlanChosen`'s site. */
+type PlanChosen = "absorb" | "step" | "fall";
+
+/** The alternatives of `PlanAsked`'s site. */
+type PlanAsked = "auto" | "absorb" | "step" | "fall";
+
+/** The alternatives of `PlanSuffix`'s site. */
+type PlanSuffix = "Left" | "Right";

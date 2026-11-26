@@ -13,9 +13,9 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
-import { copyPhysicalTarget } from "./copyPhysicalTarget";
+import { copyPhysicalTarget } from "./internal/copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
-import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
+import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRotation";
 import { stabilizePhysicalJointReturn } from "./internal/stabilizePhysicalJointReturn";
 
 /**

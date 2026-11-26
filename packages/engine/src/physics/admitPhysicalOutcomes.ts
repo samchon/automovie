@@ -1,6 +1,6 @@
 import type { IAutoMovieAuditPhysicalOutcomes } from "@automovie/interface";
 
-import { samplePhysicalContactEvents } from "./samplePhysicalContactEvents";
+import { samplePhysicalContactEvents } from "./internal/samplePhysicalContactEvents";
 
 /**
  * Refuse invalid event windows, observed times and receipt authority before

@@ -17,21 +17,6 @@ import { AutoMovieMotionHumanTouchUpright } from "../compose/AutoMovieMotionHuma
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHeldEffector } from "./HumanHeldEffector";
 
-/** The alternatives of `KeptContext`'s site. */
-type KeptContext = "body" | "entry" | "prop";
-
-/** The alternatives of `SteadiestPlace`'s site. */
-type SteadiestPlace = "point" | "normal";
-
-/** The alternatives of `SteadiestContext`'s site. */
-type SteadiestContext = "body" | "entry" | "prop";
-
-/** The alternatives of `SidesContext`'s site. */
-type SidesContext = "body" | "entry" | "prop";
-
-/** The alternatives of `EffectorContext`'s site. */
-type EffectorContext = "body" | "entry" | "prop";
-
 /**
  * An act performed with the prop the hand already holds: the prop's own point
  * (a glass's lip, a phone's screen, a cigarette's mouth end) as the effector,
@@ -295,3 +280,18 @@ export namespace HumanHeld {
     };
   }
 }
+
+/** The alternatives of `KeptContext`'s site. */
+type KeptContext = "body" | "entry" | "prop";
+
+/** The alternatives of `SteadiestPlace`'s site. */
+type SteadiestPlace = "point" | "normal";
+
+/** The alternatives of `SteadiestContext`'s site. */
+type SteadiestContext = "body" | "entry" | "prop";
+
+/** The alternatives of `SidesContext`'s site. */
+type SidesContext = "body" | "entry" | "prop";
+
+/** The alternatives of `EffectorContext`'s site. */
+type EffectorContext = "body" | "entry" | "prop";

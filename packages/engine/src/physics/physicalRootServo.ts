@@ -11,7 +11,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import { physicalJointInertia } from "./physicalJointInertia";
+import { physicalJointInertia } from "./internal/physicalJointInertia";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 
 /**

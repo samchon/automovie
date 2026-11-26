@@ -1,6 +1,6 @@
 import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/render";
+import { AutoMovieSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { DataTexture } from "three";
 
@@ -24,11 +24,11 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   a.minFilter = THREE.NearestMipmapNearestFilter;
   const b: DataTexture = a.clone();
   b.minFilter = THREE.LinearMipmapNearestFilter;
-  const first: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+  const first: IAutoMovieRenderTextureSource = AutoMovieSceneTexture.readSource(
     "a",
     a,
   );
-  const second: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+  const second: IAutoMovieRenderTextureSource = AutoMovieSceneTexture.readSource(
     "b",
     b,
   );
@@ -79,7 +79,7 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   fixed[1].anisotropy = 4;
   const fixedFacts: IAutoMovieRenderTextureSource[] = fixed.map(
     (texture: DataTexture, index: number): IAutoMovieRenderTextureSource =>
-      readAutoMovieTextureSource(`fixed-${index}`, texture),
+      AutoMovieSceneTexture.readSource(`fixed-${index}`, texture),
   );
   TestValidator.predicate(
     "distinct native anisotropy keys remain distinct",
@@ -108,8 +108,8 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   Object.assign(fixed[1], { wrapR: 0, anisotropy: 1 });
   TestValidator.equals(
     "native falsy wrapR keys are equivalent",
-    readAutoMovieTextureSource("same", fixed[0]).uploadState,
-    readAutoMovieTextureSource("same", fixed[1]).uploadState,
+    AutoMovieSceneTexture.readSource("same", fixed[0]).uploadState,
+    AutoMovieSceneTexture.readSource("same", fixed[1]).uploadState,
   );
   for (const texture of fixed) texture.dispose();
   a.dispose();

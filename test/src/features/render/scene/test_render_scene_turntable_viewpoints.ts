@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieViewerViewpoint,
-  autoMovieViewerTurntableViewpoints,
-} from "@automovie/render";
+import { type IAutoMovieViewerViewpoint, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_render_scene_turntable_viewpoints(): void {
   const views: IAutoMovieViewerViewpoint[] =
-    autoMovieViewerTurntableViewpoints({
+    AutoMovieRenderSubjectViewpoint.autoMovieViewerTurntableViewpoints({
       azimuthCount: 4,
       elevationsDeg: [0, -15],
     });
@@ -54,7 +51,7 @@ export function test_render_scene_turntable_viewpoints(): void {
   );
   TestValidator.equals(
     "factor",
-    autoMovieViewerTurntableViewpoints({
+    AutoMovieRenderSubjectViewpoint.autoMovieViewerTurntableViewpoints({
       azimuthCount: 1,
       elevationsDeg: [0],
       distanceFactor: 2,
@@ -68,6 +65,6 @@ export function test_render_scene_turntable_viewpoints(): void {
     { azimuthCount: 4, elevationsDeg: [0.2, 0.4] },
   ])
     TestValidator.error(JSON.stringify(options), (): void => {
-      autoMovieViewerTurntableViewpoints(options);
+      AutoMovieRenderSubjectViewpoint.autoMovieViewerTurntableViewpoints(options);
     });
 }

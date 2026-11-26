@@ -1,9 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  physicalShapeSurfaceAnchor,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePreparePhysicalGeometry,
@@ -58,8 +53,8 @@ export async function test_engine_physics_physical_shape_surface(): Promise<void
       { x: 1, y: 0, z: 0 },
       { x: 0.3, y: 0.6, z: 0.2 },
     ]) {
-      const anchor: ReturnType<typeof physicalShapeSurfaceAnchor> =
-        physicalShapeSurfaceAnchor(pose, shape, normal);
+      const anchor: ReturnType<typeof AutoMovieEnginePhysics.physicalShapeSurfaceAnchor> =
+        AutoMovieEnginePhysics.physicalShapeSurfaceAnchor(pose, shape, normal);
       const projected: IAutoMovieRigidTransform["position"] = geometry.project(
         { body: "object", bone: "part", shape, pose },
         Vector3.add(anchor.point, Vector3.scale(anchor.normal, 0.01)),

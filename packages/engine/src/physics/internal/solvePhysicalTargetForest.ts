@@ -9,9 +9,9 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
-import { projectPhysicalJointRotation } from "../projectPhysicalJointRotation";
-import { setPhysicalTargetJointRotation } from "../setPhysicalTargetJointRotation";
-import { solvePhysicalTargetStep } from "../solvePhysicalTargetStep";
+import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
+import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation";
+import { solvePhysicalTargetStep } from "./solvePhysicalTargetStep";
 
 /** Admitted articulation trees with unique names in the same candidate pose map. */
 type IPhysicalTargetForestInput = Omit<

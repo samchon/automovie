@@ -8,7 +8,7 @@ import {
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
 import { Vector3 } from "../../math/Vector3";
-import { physicalModelRestTransforms } from "../physicalModelRestTransforms";
+import { physicalModelRestTransforms } from "./physicalModelRestTransforms";
 import { primitiveCentroid } from "./primitiveCentroid";
 import { primitiveVolume } from "./primitiveVolume";
 

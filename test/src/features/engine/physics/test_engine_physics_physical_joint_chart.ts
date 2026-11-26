@@ -1,9 +1,4 @@
-import {
-  AutoMoviePhysicalJointChart,
-  measurePhysicalJointLimits,
-  physicalJointMotorCommand,
-  projectPhysicalJointVelocity,
-} from "@automovie/engine";
+import { AutoMoviePhysicalJointChart, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -70,7 +65,7 @@ export function test_engine_physics_physical_joint_chart(): void {
   const twist: number = 2 * Math.atan2(inside.y, inside.w);
   if (!(twist > 1))
     failures.push(`the independent y reads ${twist}, not past its end`);
-  const measured = measurePhysicalJointLimits(joint, rest, {
+  const measured = AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, rest, {
     position: zero,
     rotation: inside,
   });
@@ -78,7 +73,7 @@ export function test_engine_physics_physical_joint_chart(): void {
     failures.push(
       `the solver measures an excess inside: ${JSON.stringify(measured)}`,
     );
-  const still: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const still: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     inside,
     joint.axes,
     zero,
@@ -87,7 +82,7 @@ export function test_engine_physics_physical_joint_chart(): void {
   );
   if (Math.hypot(still.x, still.y, still.z) > PhysicalTolerance.ACCUMULATED)
     failures.push(`a zero request inside projects to ${JSON.stringify(still)}`);
-  const command = physicalJointMotorCommand({
+  const command = AutoMovieEnginePhysics.physicalJointMotorCommand({
     joint,
     current: inside,
     target: inside,
@@ -101,7 +96,7 @@ export function test_engine_physics_physical_joint_chart(): void {
       failures.push(
         `the PD at its target commands ${commanded.speed} rad/s on ${commanded.axis}`,
       );
-  const held: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const held: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     inside,
     joint.axes,
     { x: 0, y: 0.5 / dt, z: 0 },
@@ -118,11 +113,11 @@ export function test_engine_physics_physical_joint_chart(): void {
     order,
     [1.2, 1.1, 0.4],
   );
-  const excess: number = measurePhysicalJointLimits(joint, rest, {
+  const excess: number = AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, rest, {
     position: zero,
     rotation: past,
   }).find((c): boolean => c.axis === "y")!.violation;
-  const back: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const back: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     past,
     joint.axes,
     zero,

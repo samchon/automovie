@@ -17,8 +17,8 @@ import { Vector3 } from "../../math/Vector3";
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
 import { linearizePhysicalSeparation } from "../linearizePhysicalSeparation";
-import { physicalShapeSurfaceAnchor } from "../physicalShapeSurfaceAnchor";
-import { physicalSupportPoint } from "../physicalSupportPoint";
+import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
+import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * Compile contact and separation rows against resolved source and receiver

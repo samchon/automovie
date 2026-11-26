@@ -1,7 +1,4 @@
-import {
-  sampleAutoMovieSurfaceNetwork,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
+import { sampleAutoMovieSurfaceNetwork, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionSurface,
@@ -28,7 +25,7 @@ export function sweepTransitionDeviation(
     network: sweepTransitionTube({ bow: 0 }),
     tier,
   });
-  const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
+  const surface: IAutoMovieSubdivisionSurface = AutoMovieEngineGeometry.subdivideSurface({
     cage: { positions: cage.cage.positions, faces: cage.cage.faces },
     levels: 2,
   });

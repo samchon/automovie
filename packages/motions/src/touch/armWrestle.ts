@@ -30,12 +30,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The alternatives of `PlanSpanTo`'s site. */
-type PlanSpanTo = "LowerArm" | "Hand";
-
-/** The alternatives of `PlanSpanFrom`'s site. */
-type PlanSpanFrom = "UpperArm" | "LowerArm";
-
 /**
  * Arm wrestling, one role of it: the elbow planted on a table's top, the hand
  * clasped with the partner's above it, the struggle and the pin.
@@ -545,6 +539,12 @@ export namespace armWrestle {
     return plan;
   }
 }
+
+/** The alternatives of `PlanSpanTo`'s site. */
+type PlanSpanTo = "LowerArm" | "Hand";
+
+/** The alternatives of `PlanSpanFrom`'s site. */
+type PlanSpanFrom = "UpperArm" | "LowerArm";
 
 /** A proposed pad cannot bear the displayed elbow through the contest. */
 function padRefusal(point: string | undefined): HumanRefusal {

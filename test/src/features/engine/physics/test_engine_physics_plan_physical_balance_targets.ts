@@ -1,12 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  planPhysicalBalanceTargets,
-  planPhysicalContactTargets,
-  planPhysicalFloorSupportTargets,
-  preparePhysicalGeometry,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { Quaternion, Vector3, planPhysicalBalanceTargets, preparePhysicalGeometry, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalContactSupportRows,
@@ -79,8 +71,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
   tilt(floorTargets, planted[0]!, 6);
   tilt(floorTargets, planted[1]!, -5);
   const original: string = JSON.stringify({ goals, pattern });
-  const fitted: ReturnType<typeof planPhysicalFloorSupportTargets> =
-    planPhysicalFloorSupportTargets({
+  const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalFloorSupportTargets> =
+    AutoMovieEnginePhysics.planPhysicalFloorSupportTargets({
       profile,
       targets: floorTargets,
       pattern,
@@ -134,14 +126,14 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
       };
     },
   );
-  const contacted: ReturnType<typeof planPhysicalContactTargets> =
+  const contacted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
     contact(bounds);
   const invalid: IAutoMoviePhysicalPointBound = {
     ...bounds[0]!,
     minimum: bounds[0]!.minimum! + 2,
     maximum: undefined,
   };
-  const missed: ReturnType<typeof planPhysicalContactTargets> = contact([
+  const missed: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> = contact([
     invalid,
   ]);
 
@@ -217,8 +209,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
   /** Forward a prepared pose without rebinding the original support goals. */
   function contact(
     pointBounds: readonly IAutoMoviePhysicalPointBound[],
-  ): ReturnType<typeof planPhysicalContactTargets> {
-    return planPhysicalContactTargets({
+  ): ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> {
+    return AutoMovieEnginePhysics.planPhysicalContactTargets({
       body,
       profiles: { [body]: profile },
       targets: contactTargets,
@@ -282,7 +274,7 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
     const joint: IAutoMoviePhysicalJoint = profile.joints.find(
       (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
     )!;
-    setPhysicalTargetJointRotation(
+    AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
       poses,
       joint,
       [bone],

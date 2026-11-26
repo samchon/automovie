@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieModelObject,
-  createAutoMoviePhysicalPoseAdapter,
-} from "@automovie/render";
+import { type IAutoMovieModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -36,8 +33,8 @@ export function test_render_scene_create_physical_pose_adapter(): void {
     ]),
     parts: new Map(),
   };
-  const apply: ReturnType<typeof createAutoMoviePhysicalPoseAdapter> =
-    createAutoMoviePhysicalPoseAdapter(model);
+  const apply: ReturnType<typeof AutoMovieRenderSceneMotion.createPhysicalPoseAdapter> =
+    AutoMovieRenderSceneMotion.createPhysicalPoseAdapter(model);
   apply({
     hips: {
       position: { x: 1, y: 0, z: 0 },
@@ -86,7 +83,7 @@ export function test_render_scene_create_physical_pose_adapter(): void {
   };
   let refused: boolean = false;
   try {
-    createAutoMoviePhysicalPoseAdapter(scaledModel)({
+    AutoMovieRenderSceneMotion.createPhysicalPoseAdapter(scaledModel)({
       head: {
         position: { x: 1, y: 0, z: 0 },
         rotation: {

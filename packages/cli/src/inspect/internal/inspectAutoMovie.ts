@@ -38,10 +38,10 @@ export async function inspectAutoMovie(
   );
   const options: AutoMovieCliInspectTypes.HostOptions =
     readAutoMovieInspectHostOptions(
-      render.readAutoMovieCaptureArguments(props.args),
+      render.AutoMovieRenderCapture.readArguments(props.args),
     );
   const request: IAutoMovieCapturePlanRequest =
-    render.parseAutoMovieCapturePlanRequest(options.request);
+    render.AutoMovieRenderCapture.parsePlanRequest(options.request);
 
   // The module's props, read before anything is served.
   let data: unknown = null;
@@ -85,7 +85,7 @@ export async function inspectAutoMovie(
       ],
     });
   process.stdout.write(
-    `inspect ${options.module}: ${formatAutoMovieInspectUrl(page.url, render.formatAutoMovieCapturePlanRequest(request))}\nPress Ctrl+C to stop.\n`,
+    `inspect ${options.module}: ${formatAutoMovieInspectUrl(page.url, render.AutoMovieRenderCapture.formatPlanRequest(request))}\nPress Ctrl+C to stop.\n`,
   );
 
   // Serve until interrupted.

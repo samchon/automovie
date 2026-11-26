@@ -9,9 +9,6 @@ import type {
 
 import { HumanRefusal } from "../../law/HumanRefusal";
 
-/** The alternatives of `OfProp`'s site. */
-type OfProp = "subject" | "frame" | "affordances";
-
 /**
  * The ring a placed prop is.
  *
@@ -213,3 +210,6 @@ export namespace KickboxingRing {
     return [dx * c - dz * s, dx * s + dz * c];
   }
 }
+
+/** The alternatives of `OfProp`'s site. */
+type OfProp = "subject" | "frame" | "affordances";

@@ -25,15 +25,6 @@ import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
 import { strikingStepSupport } from "./strikingStepSupport";
 
-/** The alternatives of `BlendArmsOut`'s site. */
-type BlendArmsOut = "leftArm" | "rightArm";
-
-/** The alternatives of `BlendArmsResult`'s site. */
-type BlendArmsResult = "leftArm" | "rightArm";
-
-/** The alternatives of `BlendArmsHands`'s site. */
-type BlendArmsHands = "leftArm" | "rightArm";
-
 /**
  * The fighting stance taken and held: from whatever the performer stands in,
  * each foot steps to its stance place in turn, cleared from the floor before it
@@ -464,3 +455,12 @@ export namespace guard {
     return { x: Math.sin(r), y: 0, z: Math.cos(r) };
   }
 }
+
+/** The alternatives of `BlendArmsOut`'s site. */
+type BlendArmsOut = "leftArm" | "rightArm";
+
+/** The alternatives of `BlendArmsResult`'s site. */
+type BlendArmsResult = "leftArm" | "rightArm";
+
+/** The alternatives of `BlendArmsHands`'s site. */
+type BlendArmsHands = "leftArm" | "rightArm";

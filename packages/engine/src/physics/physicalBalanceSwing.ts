@@ -8,9 +8,9 @@ import type {
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
 import { physicalStanceSwing } from "./physicalStanceSwing";
-import { samplePhysicalRecoveryGoal } from "./samplePhysicalRecoveryGoal";
+import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoal";
 
 /**
  * The balance controller's swing phase (`advancePhysicalBalance`): each lifted

@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalSupportPoint } from "./physicalSupportPoint";
-import { physicalSupportRootDrop } from "./physicalSupportRootDrop";
-import { planPhysicalFloorSupportTargets } from "./planPhysicalFloorSupportTargets";
-import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { physicalSupportRootDrop } from "./internal/physicalSupportRootDrop";
+import { planPhysicalFloorSupportTargets } from "./internal/planPhysicalFloorSupportTargets";
+import { rebasePhysicalTargets } from "./internal/rebasePhysicalTargets";
 
 /**
  * Fit world support intent in the measured floating-base frame. Reach-derived

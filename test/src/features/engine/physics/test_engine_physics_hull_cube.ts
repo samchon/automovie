@@ -1,4 +1,4 @@
-import { physicalHullSegment, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,7 +37,7 @@ export function test_engine_physics_hull_cube(): void {
   TestValidator.predicate(
     "deepest",
     nclose(
-      physicalHullSegment(
+      AutoMovieEnginePhysics.physicalHullSegment(
         corners,
         { x: -1, y: 0.5, z: 0.5 },
         { x: 2, y: 0.5, z: 0.5 },

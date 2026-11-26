@@ -42,6 +42,28 @@ const GRIPPED: ReadonlySet<IAutoMovieMotionHumanTendHorse.Task> =
 const CONTACT: number = 0.01;
 
 /**
+ * A handler's hand on a horse's actual moving contact while the handler stands:
+ * brushing, headgear, lead, saddle and a held hoof.
+ *
+ * The action is an arm overlay: the carrier under it, a stand, a crouch or a
+ * walk, owns the handler's feet and trunk. One hand acquires the named contact
+ * over `transition` on a minimum-jerk share, holds it, and releases it over
+ * `transition`; the contact is read from the horse prop at each film second, so
+ * it follows the horse's own responses, such as a hoof the horse lifts. A
+ * brushing hand strokes back and forth along the contact's line, one stroke out
+ * and back over the hold. While fully held the displayed hand must lie within
+ * 10 mm of the contact's surface, or the action refuses: an unreachable care or
+ * tack placement is refused, never clamped.
+ */
+export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTendHorse> =
+  {
+    name: "tendHorse",
+    overlay: true,
+    interrupts: {},
+    plan: planHumanTendHorse,
+  };
+
+/**
  * Fit and verify the displayed hand against one of the horse's actual moving
  * contacts.
  */
@@ -343,28 +365,6 @@ function planHumanTendHorse(
     },
   });
 }
-
-/**
- * A handler's hand on a horse's actual moving contact while the handler stands:
- * brushing, headgear, lead, saddle and a held hoof.
- *
- * The action is an arm overlay: the carrier under it, a stand, a crouch or a
- * walk, owns the handler's feet and trunk. One hand acquires the named contact
- * over `transition` on a minimum-jerk share, holds it, and releases it over
- * `transition`; the contact is read from the horse prop at each film second, so
- * it follows the horse's own responses, such as a hoof the horse lifts. A
- * brushing hand strokes back and forth along the contact's line, one stroke out
- * and back over the hold. While fully held the displayed hand must lie within
- * 10 mm of the contact's surface, or the action refuses: an unreachable care or
- * tack placement is refused, never clamped.
- */
-export const HumanTendHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTendHorse> =
-  {
-    name: "tendHorse",
-    overlay: true,
-    interrupts: {},
-    plan: planHumanTendHorse,
-  };
 
 /**
  * A held tool's working face in the holding hand's wrist frame, and how far

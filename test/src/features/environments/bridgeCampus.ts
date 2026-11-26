@@ -1,12 +1,4 @@
-import {
-  createBuilding,
-  createEnvironment,
-  createEnvironmentProp,
-  createGymKit,
-  createLift,
-  createPassage,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+import { createBuilding, createGymKit, createLift, createPassage, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { createSeat } from "@automovie/archetypes/furniture";
 import type {
   IAutoMovieEnvironment,
@@ -30,7 +22,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
     gap: 0.055,
     schedule,
   });
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "campus",
     seed: 1036,
     items: {
@@ -51,7 +43,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       },
       garden: {
         at: { x: 3, y: 0, z: 8 },
-        use: createTerrain({
+        use: AutoMovieEnvironment.terrain({
           size: [14, 6],
           paths: {
             promenade: {
@@ -70,7 +62,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       },
       bench: {
         at: { anchor: "garden/amenities/seat" },
-        use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: createSeat({ kind: "bench" }) }),
       },
     },
   });

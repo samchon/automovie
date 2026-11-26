@@ -3,7 +3,7 @@ import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 import { admitPhysicalBody } from "./admitPhysicalBody";
 import { admitPhysicalReleasePolicy } from "./admitPhysicalReleasePolicy";
 import { admitPhysicalTargets } from "./admitPhysicalTargets";
-import { validatePhysicalProfile } from "./validatePhysicalProfile";
+import { validatePhysicalProfile } from "./internal/validatePhysicalProfile";
 
 /**
  * Admit complete populations, floor dimensions and work budgets before identity

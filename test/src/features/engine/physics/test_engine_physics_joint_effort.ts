@@ -1,4 +1,4 @@
-import { physicalJointEffort } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/predicates";
@@ -18,35 +18,35 @@ import { nclose } from "../../internal/predicates";
  * 4. A recovery fraction of 0.5 multiplies independently: 0.8 x 0.5 x 0.25.
  */
 export function test_engine_physics_joint_effort(): void {
-  const base: Parameters<typeof physicalJointEffort>[0] = {
+  const base: Parameters<typeof AutoMovieEnginePhysics.physicalJointEffort>[0] = {
     effort: 0.8,
     seconds: 1,
     compliance: 0.25,
   };
   TestValidator.predicate(
     "undisturbed",
-    nclose(physicalJointEffort(base), 0.8, 1e-12),
+    nclose(AutoMovieEnginePhysics.physicalJointEffort(base), 0.8, 1e-12),
   );
   TestValidator.predicate(
     "override",
-    nclose(physicalJointEffort({ ...base, override: 0.5 }), 0.5, 1e-12),
+    nclose(AutoMovieEnginePhysics.physicalJointEffort({ ...base, override: 0.5 }), 0.5, 1e-12),
   );
   TestValidator.predicate(
     "deadline ahead",
-    nclose(physicalJointEffort({ ...base, softenedUntil: 1.2 }), 0.2, 1e-12),
+    nclose(AutoMovieEnginePhysics.physicalJointEffort({ ...base, softenedUntil: 1.2 }), 0.2, 1e-12),
   );
   TestValidator.predicate(
     "deadline now",
-    nclose(physicalJointEffort({ ...base, softenedUntil: 1 }), 0.2, 1e-12),
+    nclose(AutoMovieEnginePhysics.physicalJointEffort({ ...base, softenedUntil: 1 }), 0.2, 1e-12),
   );
   TestValidator.predicate(
     "deadline passed",
-    nclose(physicalJointEffort({ ...base, softenedUntil: 0.999 }), 0.8, 1e-12),
+    nclose(AutoMovieEnginePhysics.physicalJointEffort({ ...base, softenedUntil: 0.999 }), 0.8, 1e-12),
   );
   TestValidator.predicate(
     "recovery multiplies",
     nclose(
-      physicalJointEffort({ ...base, recovery: 0.5, softenedUntil: 2 }),
+      AutoMovieEnginePhysics.physicalJointEffort({ ...base, recovery: 0.5, softenedUntil: 2 }),
       0.1,
       1e-12,
     ),

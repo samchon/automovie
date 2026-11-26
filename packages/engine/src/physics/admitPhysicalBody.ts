@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
-import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
+import { admitPhysicalSupportPattern } from "./internal/admitPhysicalSupportPattern";
 import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode";
 
 /**

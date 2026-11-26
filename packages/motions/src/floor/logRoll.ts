@@ -58,6 +58,27 @@ const LOG: IAutoMovieMotionHumanPosture["joints"] = {
  * `end` position's parity. Naming both or neither, or a body not lying, is
  * refused.
  */
+export const logRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLogRoll> =
+  {
+    name: "logRoll",
+    interrupts: {
+      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planLogRoll,
+  };
+
+/**
+ * Log-roll across the floor. The lying body straightens into a log, legs
+ * extended and arms overhead, and rolls about its long axis (`lyingTurn`)
+ * toward the named side, half a turn per `HALF` seconds. It rolls without
+ * slipping: the pelvis advances along that side by the arc of the trunk's
+ * cross-section rolled, half the perimeter of the chest's ellipse (Ramanujan's
+ * approximation) per half turn, and the root rests the lowest collision shape
+ * on the floor at every second (`knockdown.rest`). A count gives the half
+ * turns; a place gives as many as bring the pelvis nearest it, rounded to the
+ * `end` position's parity. Naming both or neither, or a body not lying, is
+ * refused.
+ */
 function planLogRoll(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLogRoll>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -212,24 +233,3 @@ function planLogRoll(
     });
   return { ...planned, base: { kind: "lying" } };
 }
-
-/**
- * Log-roll across the floor. The lying body straightens into a log, legs
- * extended and arms overhead, and rolls about its long axis (`lyingTurn`)
- * toward the named side, half a turn per `HALF` seconds. It rolls without
- * slipping: the pelvis advances along that side by the arc of the trunk's
- * cross-section rolled, half the perimeter of the chest's ellipse (Ramanujan's
- * approximation) per half turn, and the root rests the lowest collision shape
- * on the floor at every second (`knockdown.rest`). A count gives the half
- * turns; a place gives as many as bring the pelvis nearest it, rounded to the
- * `end` position's parity. Naming both or neither, or a body not lying, is
- * refused.
- */
-export const logRoll: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLogRoll> =
-  {
-    name: "logRoll",
-    interrupts: {
-      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planLogRoll,
-  };

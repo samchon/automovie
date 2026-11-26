@@ -19,12 +19,6 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import type { prepareSeatedPalms } from "./prepareSeatedPalms";
 import { seatedHands } from "./seatedHands";
 
-/** The alternatives of `RootHeading`'s site. */
-type RootHeading = "yaw" | "pitch" | "roll";
-
-/** What the seat socket's place reads of a body: its rest and its surfaces. */
-type IRest = Pick<IAutoMovieMotionHumanBody, "rest" | "surfaces">;
-
 /**
  * The geometry every seat law shares: where on a seat the body's seat socket
  * rests, the root that puts it there under a trunk pitch, whether a seat suits
@@ -461,3 +455,9 @@ export namespace seated {
     );
   }
 }
+
+/** The alternatives of `RootHeading`'s site. */
+type RootHeading = "yaw" | "pitch" | "roll";
+
+/** What the seat socket's place reads of a body: its rest and its surfaces. */
+type IRest = Pick<IAutoMovieMotionHumanBody, "rest" | "surfaces">;

@@ -21,12 +21,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
-/** The record of `IGetInDuckNeed`'s site. */
-type IGetInDuckNeed = { at: number; degrees: number };
-
-/** The record of `IGetInNeedsItem`'s site. */
-type IGetInNeedsItem = { at: number; degrees: number };
-
 /**
  * Getting into a car through its door: the person stands in the doorway with
  * the back to the seat, sits down onto it sideways with the legs still outside,
@@ -377,3 +371,9 @@ export namespace HumanTravelCar {
       },
     };
 }
+
+/** The record of `IGetInDuckNeed`'s site. */
+type IGetInDuckNeed = { at: number; degrees: number };
+
+/** The record of `IGetInNeedsItem`'s site. */
+type IGetInNeedsItem = { at: number; degrees: number };

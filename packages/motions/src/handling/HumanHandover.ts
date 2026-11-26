@@ -25,9 +25,6 @@ import { HumanHandoverMeeting } from "./HumanHandoverMeeting";
 import { HumanHandoverUpright } from "./HumanHandoverUpright";
 import { HumanPrehension } from "./HumanPrehension";
 
-/** The alternatives of `PlanHandB`'s site. */
-type PlanHandB = "worldPosition" | "worldRotation";
-
 /**
  * The shared plan of one object passing from a giver's hand to a receiver's:
  * where it is handed over, when each hand moves, when the receiver's grip
@@ -327,6 +324,9 @@ export namespace HumanHandover {
     return HumanHandoverUpright.angle(asked, reached);
   }
 }
+
+/** The alternatives of `PlanHandB`'s site. */
+type PlanHandB = "worldPosition" | "worldRotation";
 
 /**
  * The carried wrist: a forearm, raised by `pitch` degrees, ahead of the elbow

@@ -1,9 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  Quaternion,
-  Vector3,
-  physicalShapeSpan,
-} from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -76,7 +71,7 @@ export namespace seatedHandsThighs {
       for (const shape of placed.shapes)
         surface = Math.max(
           surface,
-          physicalShapeSpan(placed.pose, shape, normal)[1],
+          AutoMovieEnginePhysics.physicalShapeSpan(placed.pose, shape, normal)[1],
         );
     if (surface === -Infinity) return point;
     const depth: number = handReach(

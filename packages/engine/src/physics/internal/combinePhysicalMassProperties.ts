@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { physicalInertiaTensor } from "../physicalInertiaTensor";
-import { physicalPrincipalAxes } from "../physicalPrincipalAxes";
+import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
 /**
  * Combine rotated inertia tensors using the parallel-axis theorem. A

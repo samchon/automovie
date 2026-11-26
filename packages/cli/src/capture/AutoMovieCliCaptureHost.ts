@@ -275,7 +275,7 @@ export class AutoMovieCliCaptureHost {
           }),
         );
       }
-      const plan: IAutoMovieCapturePlan = render.planAutoMovieCapture({
+      const plan: IAutoMovieCapturePlan = render.AutoMovieRenderCapture.plan({
         request: props.request,
         subject: session.subject,
         cuts: [],
@@ -287,7 +287,7 @@ export class AutoMovieCliCaptureHost {
           round: props.request.round,
           compare: props.request.compare,
         });
-      return await render.runAutoMovieCapture({
+      return await render.AutoMovieRenderCapture.run({
         plan,
         draw: (
           cell: IAutoMovieCaptureCell,

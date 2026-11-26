@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, createPhysicalHullShape, physicalHullErode, physicalHullFaces, physicalShapeBounds, physicalShapeNearest, physicalShapePairDistance, physicalShapeSegmentDistance, physicalShapeSpan, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, createPhysicalHullShape, physicalHullFaces, physicalShapeBounds, physicalShapePairDistance, physicalShapeSegmentDistance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -186,7 +186,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     pose: IAutoMovieRigidTransform,
     p: IAutoMovieVector3,
   ): IAutoMoviePhysicalShapeNearest.IResult =>
-    physicalShapeNearest(pose, hull, p, p);
+    AutoMovieEnginePhysics.physicalShapeNearest(pose, hull, p, p);
   const off: IAutoMoviePhysicalShapeNearest.IResult = point(quarter, {
     x: 0,
     y: 0,
@@ -245,8 +245,8 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     worst = Math.max(
       worst,
       Math.abs(
-        physicalShapeNearest(pose, turnedHull, a, b).distance -
-          physicalShapeNearest(pose, turnedBox, a, b).distance,
+        AutoMovieEnginePhysics.physicalShapeNearest(pose, turnedHull, a, b).distance -
+          AutoMovieEnginePhysics.physicalShapeNearest(pose, turnedBox, a, b).distance,
       ),
     );
   }
@@ -273,7 +273,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
     low: number,
     high: number,
   ): boolean => {
-    const [lo, hi]: readonly [number, number] = physicalShapeSpan(
+    const [lo, hi]: readonly [number, number] = AutoMovieEnginePhysics.physicalShapeSpan(
       still,
       shape,
       axis,
@@ -336,13 +336,13 @@ export function test_engine_physics_create_physical_hull_shape(): void {
 
   // 5. Erosion.
   const eroded: IAutoMoviePhysicalShape = hullOf(
-    physicalHullErode(corners(half), 0.05),
+    AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05),
   );
   const erodedBounds: ReturnType<typeof physicalShapeBounds> =
     physicalShapeBounds(still, eroded);
   TestValidator.predicate(
     "eroded box",
-    physicalHullFaces(physicalHullErode(corners(half), 0.05)).vertices
+    physicalHullFaces(AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.05)).vertices
       .length === 8 &&
       close(
         erodedBounds.max,
@@ -356,7 +356,7 @@ export function test_engine_physics_create_physical_hull_shape(): void {
       ),
   );
   assert.throws(
-    (): IAutoMovieVector3[] => physicalHullErode(corners(half), 0.1),
+    (): IAutoMovieVector3[] => AutoMovieEnginePhysics.physicalHullErode(corners(half), 0.1),
     /volume/i,
   );
 

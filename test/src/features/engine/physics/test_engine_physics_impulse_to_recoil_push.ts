@@ -1,4 +1,4 @@
-import { impulseToRecoilPush } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -14,22 +14,22 @@ import { throwsError } from "../../internal/predicates";
  * 3. A negative gain is refused with the message "gain must be >= 0".
  */
 export function test_engine_physics_impulse_to_recoil_push(): void {
-  TestValidator.equals("push", impulseToRecoilPush({ x: 3, y: 4, z: 0 }, 2), {
+  TestValidator.equals("push", AutoMovieEnginePhysics.impulseToRecoilPush({ x: 3, y: 4, z: 0 }, 2), {
     flexion: 10,
   });
   TestValidator.equals(
     "no gain",
-    impulseToRecoilPush({ x: 3, y: 4, z: 0 }, 0),
+    AutoMovieEnginePhysics.impulseToRecoilPush({ x: 3, y: 4, z: 0 }, 0),
     { flexion: 0 },
   );
   TestValidator.predicate(
     "negative gain",
-    throwsError(() => impulseToRecoilPush({ x: 1, y: 0, z: 0 }, -1)),
+    throwsError(() => AutoMovieEnginePhysics.impulseToRecoilPush({ x: 1, y: 0, z: 0 }, -1)),
   );
   TestValidator.predicate(
     "negative gain message",
     throwsError(
-      () => impulseToRecoilPush({ x: 1, y: 0, z: 0 }, -1),
+      () => AutoMovieEnginePhysics.impulseToRecoilPush({ x: 1, y: 0, z: 0 }, -1),
       ["gain must be >= 0"],
     ),
   );

@@ -9,8 +9,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalShapeSurfaceAnchor } from "./internal/physicalShapeSurfaceAnchor";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /**
  * Evaluate one scalar relationship with coherent same-body motion and an actual

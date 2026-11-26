@@ -21,6 +21,21 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 import { humanTrickSchedule } from "./humanTrickSchedule";
 
+/**
+ * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key
+ * posture in the seat contact's moving frame whose feet and hands are bound to
+ * the trick saddle's own straps, horn and handholds (or a pickup's prop) read
+ * where the carrier has them at each second; keys blend by a minimum-jerk share
+ * over each transfer and are carried by the seat contact. Every attitude and
+ * offset is a provisional stage reading. Register `HumanTrick` to use it.
+ */
+export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTrick> =
+  {
+    name: "trick",
+    interrupts: {},
+    plan: planHumanTrick,
+  };
+
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrick>;
 /** The alternatives of `BindLimb`'s site. */
@@ -48,21 +63,6 @@ interface IKey {
 function planHumanTrick(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
-
-/**
- * Trick-riding figures (`IAutoMovieMotionHumanTrick`): each figure is a key
- * posture in the seat contact's moving frame whose feet and hands are bound to
- * the trick saddle's own straps, horn and handholds (or a pickup's prop) read
- * where the carrier has them at each second; keys blend by a minimum-jerk share
- * over each transfer and are carried by the seat contact. Every attitude and
- * offset is a provisional stage reading. Register `HumanTrick` to use it.
- */
-export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTrick> =
-  {
-    name: "trick",
-    interrupts: {},
-    plan: planHumanTrick,
-  };
 /** Admit, lay the keys and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { on, frame, figures }: IAutoMovieMotionHumanTrick = context.params;

@@ -8,8 +8,8 @@ import type {
 } from "@automovie/interface";
 
 import { physicalShapeBounds } from "./physicalShapeBounds";
-import { physicalSupportPoint } from "./physicalSupportPoint";
-import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { solvePhysicalArticulationTargets } from "./internal/solvePhysicalArticulationTargets";
 
 /**
  * Fit endpoint goals and their floor constraints together using bounded native

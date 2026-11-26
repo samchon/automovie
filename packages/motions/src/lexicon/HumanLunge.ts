@@ -26,6 +26,35 @@ import { HumanLungeStance } from "./HumanLungeStance";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
+/**
+ * Lunge a horse from the circle's centre (`IAutoMovieMotionHumanLunge`): the
+ * handler turns on the spot to face the horse's root as it circles, the line
+ * hand on the lunge line where the horse's ride lays it and the whip hand low
+ * and aimed at the quarters.
+ *
+ * The pelvis faces the horse's bearing from the centre between the feet at
+ * every second, turning to it from the entry's heading over `transition`; the
+ * feet pivot round that centre in steps (`HumanLungePivot`), each foot's ankle
+ * and sole turned about the centre on a minimum-jerk share and lifted on a
+ * half-sine of `LIFT` of stature while it swings, and the legs reach them
+ * through the stance's leg goals (`StrikingStance.legs`). The line hand closes
+ * on the horse's line contact as a lead is held (`HumanRideHands`,
+ * `HumanMountRider.hold`), the palm on the line; the whip hand holds the whip
+ * out to its side at hip height, its shaft turned toward the quarters from the
+ * bearing and below level (`HumanLungeHands.whip`). At a change of rein the
+ * hands change over (`HumanLungeChange`): the whip hand comes to the line and
+ * closes beside the line hand, the line hand takes the whip from it, and each
+ * goes out to its new side as the horse's ride carries the line over. Both arms
+ * are laid on one planned course (`courseArmGoal`). A pivot step takes two of
+ * `step.period`'s swings, one per foot.
+ */
+export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLunge> =
+  {
+    name: "lungeHorse",
+    interrupts: {},
+    plan: planHumanLunge,
+  };
+
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;
 
@@ -347,32 +376,3 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   return shown;
 }
-
-/**
- * Lunge a horse from the circle's centre (`IAutoMovieMotionHumanLunge`): the
- * handler turns on the spot to face the horse's root as it circles, the line
- * hand on the lunge line where the horse's ride lays it and the whip hand low
- * and aimed at the quarters.
- *
- * The pelvis faces the horse's bearing from the centre between the feet at
- * every second, turning to it from the entry's heading over `transition`; the
- * feet pivot round that centre in steps (`HumanLungePivot`), each foot's ankle
- * and sole turned about the centre on a minimum-jerk share and lifted on a
- * half-sine of `LIFT` of stature while it swings, and the legs reach them
- * through the stance's leg goals (`StrikingStance.legs`). The line hand closes
- * on the horse's line contact as a lead is held (`HumanRideHands`,
- * `HumanMountRider.hold`), the palm on the line; the whip hand holds the whip
- * out to its side at hip height, its shaft turned toward the quarters from the
- * bearing and below level (`HumanLungeHands.whip`). At a change of rein the
- * hands change over (`HumanLungeChange`): the whip hand comes to the line and
- * closes beside the line hand, the line hand takes the whip from it, and each
- * goes out to its new side as the horse's ride carries the line over. Both arms
- * are laid on one planned course (`courseArmGoal`). A pivot step takes two of
- * `step.period`'s swings, one per foot.
- */
-export const HumanLunge: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLunge> =
-  {
-    name: "lungeHorse",
-    interrupts: {},
-    plan: planHumanLunge,
-  };

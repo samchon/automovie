@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeNearest } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -73,7 +73,7 @@ export namespace HumanColliders {
       if (bone !== found.bone) continue;
       for (const shape of shapes) {
         const near: IAutoMoviePhysicalShapeNearest.IResult =
-          physicalShapeNearest(pose, shape, a, b);
+          AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, a, b);
         if (best === undefined || near.distance < best.distance) best = near;
       }
     }

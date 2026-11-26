@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalSupportPoint,
-  rotationBetween,
-} from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -67,10 +62,10 @@ export namespace HumanPhysicalSolePlant {
           .filter((point: IVertex): boolean => point.region === region)
           .map(
             (point: IVertex): number =>
-              physicalSupportPoint(placed, point.local).y,
+              AutoMovieEnginePhysics.physicalSupportPoint(placed, point.local).y,
           ),
       );
-    const pivot: IAutoMovieVector3 = physicalSupportPoint(
+    const pivot: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
       pose,
       lowest(own, { [own[0]!.bone]: pose }, "forefoot")!.local,
     );
@@ -151,7 +146,7 @@ export namespace HumanPhysicalSolePlant {
     poses: Poses,
     child: string,
   ): IAutoMovieVector3 {
-    return physicalSupportPoint(
+    return AutoMovieEnginePhysics.physicalSupportPoint(
       poses[child]!,
       profile.joints.find(
         (joint: IAutoMoviePhysicalJoint): boolean => joint.child === child,

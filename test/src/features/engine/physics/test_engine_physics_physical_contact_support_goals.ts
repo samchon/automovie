@@ -1,7 +1,4 @@
-import {
-  physicalContactSupportGoals,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSimulationInput,
@@ -42,8 +39,8 @@ export function test_engine_physics_physical_contact_support_goals(): void {
   };
   const target: IAutoMoviePhysicalSimulationInput.ITarget = body.targets[1]!;
   const original: string = JSON.stringify({ body, state });
-  const goals: ReturnType<typeof physicalContactSupportGoals> =
-    physicalContactSupportGoals(
+  const goals: ReturnType<typeof AutoMovieEnginePhysics.physicalContactSupportGoals> =
+    AutoMovieEnginePhysics.physicalContactSupportGoals(
       body,
       target,
       0,
@@ -56,7 +53,7 @@ export function test_engine_physics_physical_contact_support_goals(): void {
   const selected: (typeof goals)[number] = goals.find(
     (goal: (typeof goals)[number]): boolean => goal.bone === limb.bone,
   )!;
-  const point: ReturnType<typeof physicalSupportPoint> = physicalSupportPoint(
+  const point: ReturnType<typeof AutoMovieEnginePhysics.physicalSupportPoint> = AutoMovieEnginePhysics.physicalSupportPoint(
     target.segments[limb.bone]!,
     limb.localPoint,
   );
@@ -70,7 +67,7 @@ export function test_engine_physics_physical_contact_support_goals(): void {
 
   target.unavailableSupports = [limb.bone];
   assert.equal(
-    physicalContactSupportGoals(
+    AutoMovieEnginePhysics.physicalContactSupportGoals(
       body,
       target,
       0,
@@ -86,7 +83,7 @@ export function test_engine_physics_physical_contact_support_goals(): void {
   target.unavailableSupports = [];
   target.segments[limb.bone]!.position.y += 0.1;
   assert.equal(
-    physicalContactSupportGoals(
+    AutoMovieEnginePhysics.physicalContactSupportGoals(
       body,
       target,
       0,
@@ -101,7 +98,7 @@ export function test_engine_physics_physical_contact_support_goals(): void {
   );
   body.targets[0]!.segments[limb.bone]!.position.y += 0.1;
   assert.equal(
-    physicalContactSupportGoals(
+    AutoMovieEnginePhysics.physicalContactSupportGoals(
       body,
       target,
       0,
@@ -127,7 +124,7 @@ export function test_engine_physics_physical_contact_support_goals(): void {
     maximumForce: 1,
   };
   target.supportStrength = { [limb.bone]: 1 };
-  const independent: typeof goals = physicalContactSupportGoals(
+  const independent: typeof goals = AutoMovieEnginePhysics.physicalContactSupportGoals(
     body,
     target,
     0,

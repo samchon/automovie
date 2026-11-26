@@ -1,11 +1,4 @@
-import {
-  PhysicalRotationVector,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  physicalJointRelativeRotation,
-  projectPhysicalJointRotation,
-} from "@automovie/engine";
+import { PhysicalRotationVector, Quaternion, ROM_TOLERANCE, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSimulation,
   IAutoMoviePhysicalFrame,
@@ -74,14 +67,14 @@ export function simulationResiduals(
               ],
             ),
           );
-        const relative: IAutoMovieQuaternion = physicalJointRelativeRotation(
+        const relative: IAutoMovieQuaternion = AutoMovieEnginePhysics.physicalJointRelativeRotation(
           poses,
           joint,
         );
         const residual: number = Vector3.length(
           PhysicalRotationVector.log(
             Quaternion.multiply(
-              projectPhysicalJointRotation(joint, relative),
+              AutoMovieEnginePhysics.projectPhysicalJointRotation(joint, relative),
               Quaternion.inverse(relative),
             ),
           ),

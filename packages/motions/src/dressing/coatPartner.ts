@@ -47,6 +47,25 @@ const SETTLE: number = 0.28;
  * returns. The jacket thus has one carrier at a time: the dresser's grip, then
  * the partner's chest.
  */
+export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCoatPartner> =
+  {
+    name: "coatPartner",
+    interrupts: {
+      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planCoatPartner,
+  };
+
+/**
+ * Help a partner into a coat. The dresser's holding hand carries the jacket's
+ * `wear` socket up to the partner's collar, read from the partner's shoulders
+ * and heading at the action's start, and holds it there still for the authored
+ * span. Meanwhile the partner threads each sleeve with `wardrobe`'s `sleeveIn`,
+ * whose openings stay where the held jacket keeps them. Then the hand lets go,
+ * the jacket is worn on the partner's chest from that instant, and the hand
+ * returns. The jacket thus has one carrier at a time: the dresser's grip, then
+ * the partner's chest.
+ */
 function planCoatPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCoatPartner>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -189,25 +208,6 @@ function planCoatPartner(
     },
   });
 }
-
-/**
- * Help a partner into a coat. The dresser's holding hand carries the jacket's
- * `wear` socket up to the partner's collar, read from the partner's shoulders
- * and heading at the action's start, and holds it there still for the authored
- * span. Meanwhile the partner threads each sleeve with `wardrobe`'s `sleeveIn`,
- * whose openings stay where the held jacket keeps them. Then the hand lets go,
- * the jacket is worn on the partner's chest from that instant, and the hand
- * returns. The jacket thus has one carrier at a time: the dresser's grip, then
- * the partner's chest.
- */
-export const coatPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCoatPartner> =
-  {
-    name: "coatPartner",
-    interrupts: {
-      any: [{ window: ["relax", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planCoatPartner,
-  };
 
 /**
  * The partner's collar: mid-shoulders plus the jacket's collar offset, turned

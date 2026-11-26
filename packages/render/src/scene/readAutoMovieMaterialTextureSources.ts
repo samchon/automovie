@@ -5,7 +5,7 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
+import { readAutoMovieTextureSource } from "./internal/readAutoMovieTextureSource.js";
 
 type RuntimeSource = NonNullable<
   IAutoMovieRenderTextureResidency["runtimeTextures"]

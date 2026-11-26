@@ -110,18 +110,6 @@ export function scoreWaterPoloGoal(
   return cues;
 }
 
-/** A fixed aperture and a level frame give the rule its scoring plane. */
-function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
-  return new HumanRefusal({
-    kind: "affordance",
-    axis: "goal",
-    value: goal.subject,
-    reason:
-      "a water polo goal needs a fixed, upright mouth aperture at the waterline",
-    fix: "bind the goal as a fixed prop with its mouth facing into the field",
-  });
-}
-
 /** What a goal credit reads of the film and its flights. */
 export namespace scoreWaterPoloGoal {
   /** A displayed flight of the ball: its timing, projectile, sphere and thrower. */
@@ -158,4 +146,16 @@ export namespace scoreWaterPoloGoal {
     /** The film displaying the ball and the goal. */
     film: IFilm;
   }
+}
+
+/** A fixed aperture and a level frame give the rule its scoring plane. */
+function invalidGoal(goal: IAutoMovieMotionHumanProp): HumanRefusal {
+  return new HumanRefusal({
+    kind: "affordance",
+    axis: "goal",
+    value: goal.subject,
+    reason:
+      "a water polo goal needs a fixed, upright mouth aperture at the waterline",
+    fix: "bind the goal as a fixed prop with its mouth facing into the field",
+  });
 }

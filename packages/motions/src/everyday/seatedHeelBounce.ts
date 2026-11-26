@@ -28,15 +28,6 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { seated } from "./seated";
 
-/** The alternatives of `PlanLimb`'s site. */
-type PlanLimb = "leftLeg" | "rightLeg";
-
-/** The alternatives of `PlanToes`'s site. */
-type PlanToes = "leftToes" | "rightToes";
-
-/** The alternatives of `PlanPart`'s site. */
-type PlanPart = "leftFoot" | "rightFoot";
-
 /**
  * Repeated seated heel raises, with the moving foot rocking about its ball. Qi
  * et al. (2019, doi:10.1038/s41598-019-43824-0) used unilateral seated heel
@@ -364,3 +355,12 @@ export namespace seatedHeelBounce {
       : HumanSupportCarry.on(context, plan, prop);
   }
 }
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The alternatives of `PlanToes`'s site. */
+type PlanToes = "leftToes" | "rightToes";
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";

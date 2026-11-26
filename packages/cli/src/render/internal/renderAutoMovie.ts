@@ -39,12 +39,12 @@ export async function renderAutoMovie(
     "@automovie/render",
   );
   const options: AutoMovieCliRenderTypes.Options = readAutoMovieRenderOptions(
-    render.readAutoMovieCaptureArguments(props.args),
+    render.AutoMovieRenderCapture.readArguments(props.args),
   );
 
   // The request names the subject and the control passes; a render draws its whole clock through its own camera, so no other key applies.
   const request: IAutoMovieCapturePlanRequest =
-    render.parseAutoMovieCapturePlanRequest(options.request);
+    render.AutoMovieRenderCapture.parsePlanRequest(options.request);
   for (const key of options.request.keys())
     if (key !== "subject" && key !== "passes")
       throw new Error(

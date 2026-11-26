@@ -6,18 +6,6 @@ import type {
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
 
-/** The record of `IRulesAt`'s site. */
-type IRulesAt = { at?: IAutoMovieMotionTarget };
-
-/** The record of `IFoulP2`'s site. */
-type IFoulP2 = {
-  at?: IAutoMovieMotionTarget;
-  technique?: string;
-};
-
-/** The record of `IFoulP`'s site. */
-type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };
-
 /**
  * The kickboxing ruleset a performance's schedule must keep, in the engine's
  * `checkAutoMovieLegality` form, for the motions vocabulary's `punch`, `kick`,
@@ -183,3 +171,15 @@ export namespace KickboxingRules {
     return (entry.intent.parameters?.params as object | undefined) ?? {};
   }
 }
+
+/** The record of `IRulesAt`'s site. */
+type IRulesAt = { at?: IAutoMovieMotionTarget };
+
+/** The record of `IFoulP2`'s site. */
+type IFoulP2 = {
+  at?: IAutoMovieMotionTarget;
+  technique?: string;
+};
+
+/** The record of `IFoulP`'s site. */
+type IFoulP = { at?: IAutoMovieMotionTarget; technique?: string };

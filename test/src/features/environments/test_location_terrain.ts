@@ -1,7 +1,4 @@
-import {
-  createEnvironment,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { AutoMovieEngineWorld, heightAt, prepareSpace, tessellateSurface, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
@@ -38,13 +35,13 @@ export function test_location_terrain(): void {
   const build: (seed: number) => IAutoMovieEnvironment = (
     seed: number,
   ): IAutoMovieEnvironment =>
-    createEnvironment({
+    AutoMovieEnvironment.create({
       id: "relief",
       seed,
       items: {
         land: {
           at: { x: -4, y: 3, z: -3 },
-          use: createTerrain({
+          use: AutoMovieEnvironment.terrain({
             size: [12, 10],
             relief: { kind: "rolling", amplitude: 1, wavelength: 7 },
             meshTolerance: 0.015,
@@ -125,11 +122,11 @@ export function test_location_terrain(): void {
     "hard level and slope conflicts name their sources",
     throwsError(
       (): IAutoMovieEnvironment =>
-        createEnvironment({
+        AutoMovieEnvironment.create({
           id: "conflict",
           items: {
             land: {
-              use: createTerrain({
+              use: AutoMovieEnvironment.terrain({
                 size: [10, 10],
                 pads: {
                   west: {
@@ -159,11 +156,11 @@ export function test_location_terrain(): void {
     ) &&
       throwsError(
         (): IAutoMovieEnvironment =>
-          createEnvironment({
+          AutoMovieEnvironment.create({
             id: "conflict",
             items: {
               land: {
-                use: createTerrain({
+                use: AutoMovieEnvironment.terrain({
                   size: [10, 10],
                   paths: {
                     hill: {
@@ -183,11 +180,11 @@ export function test_location_terrain(): void {
   const shoreTrail: (width: number) => IAutoMovieEnvironment = (
     width: number,
   ): IAutoMovieEnvironment =>
-    createEnvironment({
+    AutoMovieEnvironment.create({
       id: "shore",
       items: {
         land: {
-          use: createTerrain({
+          use: AutoMovieEnvironment.terrain({
             size: [12, 10],
             water: {
               pond: {

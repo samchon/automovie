@@ -4,9 +4,9 @@ import type {
   IAutoMovieMotionGeometry,
 } from "@automovie/interface";
 
-import { admitMotionGeometry } from "./admitMotionGeometry";
+import { admitMotionGeometry } from "./internal/admitMotionGeometry";
 import { motionAuditGeometry } from "./motionAuditGeometry";
-import { validatePhysicalProfile } from "./validatePhysicalProfile";
+import { validatePhysicalProfile } from "./internal/validatePhysicalProfile";
 
 /**
  * Invalid promises cannot produce a successful sampled audit by making

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalSupportPoint } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,
   IAutoMoviePhysicalProfile,
@@ -115,7 +115,7 @@ export function physicalMovingPair(
     target.segments.root = root;
     target.segments.child = {
       position: Vector3.subtract(
-        physicalSupportPoint(root, profile.joints[0]!.parentFrame.position),
+        AutoMovieEnginePhysics.physicalSupportPoint(root, profile.joints[0]!.parentFrame.position),
         Quaternion.rotateVector(turned, profile.joints[0]!.childFrame.position),
       ),
       rotation: turned,

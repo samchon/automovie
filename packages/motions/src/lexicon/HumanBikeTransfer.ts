@@ -38,6 +38,26 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  *
  * The scenic bicycle is authored independently while stopped or wheeled. Rack
  * and helmet choreography are separate equipment actions.
+ */
+export const HumanBikeTransfer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBikeTransfer> =
+  {
+    name: "bikeTransfer",
+    interrupts: {},
+    yields: [],
+    plan: planHumanBikeTransfer,
+  };
+
+/**
+ * Enter or leave the same stopped bicycle at a race boundary, using the
+ * high-seat transfer and its displayed floor contacts. World Triathlon
+ * Competition Rules §7.1(h,j) require a complete ground foot contact past the
+ * mount line and short of the dismount line. This law checks the sole geometry
+ * against a plane in the course frame and emits that event. See
+ * https://www.triathlonmanitoba.ca/wp-content/uploads/World-Triathlon_Competition-Rules_20260429.pdf
+ * .
+ *
+ * The scenic bicycle is authored independently while stopped or wheeled. Rack
+ * and helmet choreography are separate equipment actions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the legal line, floor contact and stopped bicycle assumptions.
  */
@@ -225,23 +245,3 @@ function planHumanBikeTransfer(
     ),
   };
 }
-
-/**
- * Enter or leave the same stopped bicycle at a race boundary, using the
- * high-seat transfer and its displayed floor contacts. World Triathlon
- * Competition Rules §7.1(h,j) require a complete ground foot contact past the
- * mount line and short of the dismount line. This law checks the sole geometry
- * against a plane in the course frame and emits that event. See
- * https://www.triathlonmanitoba.ca/wp-content/uploads/World-Triathlon_Competition-Rules_20260429.pdf
- * .
- *
- * The scenic bicycle is authored independently while stopped or wheeled. Rack
- * and helmet choreography are separate equipment actions.
- */
-export const HumanBikeTransfer: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBikeTransfer> =
-  {
-    name: "bikeTransfer",
-    interrupts: {},
-    yields: [],
-    plan: planHumanBikeTransfer,
-  };

@@ -28,9 +28,6 @@ import { HumanWeaponPresentFire } from "./HumanWeaponPresentFire";
 import { HumanWeaponPresentPlacedElbows } from "./HumanWeaponPresentPlacedElbows";
 import { HumanWeaponTrack } from "./HumanWeaponTrack";
 
-/** The alternatives of `SHOTEntryItem`'s site. */
-type SHOTEntryItem = "press" | "rise" | "recover";
-
 /**
  * Presenting any held launcher with the weapon as the effector, and the shot's
  * press and recoil: a pistol, a long gun, a crossbow, a bow, a couched lance
@@ -401,3 +398,6 @@ export namespace HumanWeaponPresent {
   /** {@link HumanWeaponPresentFire}, read through this namespace. */
   export const fire: typeof HumanWeaponPresentFire = HumanWeaponPresentFire;
 }
+
+/** The alternatives of `SHOTEntryItem`'s site. */
+type SHOTEntryItem = "press" | "rise" | "recover";

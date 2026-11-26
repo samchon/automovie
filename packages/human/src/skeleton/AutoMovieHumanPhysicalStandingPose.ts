@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, measurePhysicalJointLimits, physicalShapeBounds, physicalSupportPoint, resolveAutoMovieCenterOfMass, solvePhysicalArticulationTargets, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, resolveAutoMovieCenterOfMass, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -147,7 +147,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
             points.push({
               bone,
               region,
-              local: physicalSupportPoint(shape.transform, point),
+              local: AutoMovieEnginePhysics.physicalSupportPoint(shape.transform, point),
             });
         }
       }
@@ -168,7 +168,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
         Math.min(
           ...own.map(
             (point: IVertex): number =>
-              physicalSupportPoint(targets[foot]!, point.local).y,
+              AutoMovieEnginePhysics.physicalSupportPoint(targets[foot]!, point.local).y,
           ),
         ) - floor;
       if (bearing < -tolerance || bearing > BEARING)
@@ -232,7 +232,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
       for (const vertex of [heel, forefoot, lateral])
         goals.push({
           ...vertex,
-          world: physicalSupportPoint(placed, vertex.local),
+          world: AutoMovieEnginePhysics.physicalSupportPoint(placed, vertex.local),
         });
     }
 
@@ -267,8 +267,8 @@ export namespace AutoMovieHumanPhysicalStandingPose {
       if (!HumanPhysicalSolePlant.swing(profile, seeded, plan.side, plan.foot))
         return { kind: "unresolved", reason: "fit" };
 
-    const fit: ReturnType<typeof solvePhysicalArticulationTargets> =
-      solvePhysicalArticulationTargets({
+    const fit: ReturnType<typeof AutoMovieEnginePhysics.solvePhysicalArticulationTargets> =
+      AutoMovieEnginePhysics.solvePhysicalArticulationTargets({
         profile,
         bones,
         targets: seeded,
@@ -277,7 +277,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
         measure: (poses: Poses): number[] =>
           goals.flatMap((goal: (typeof goals)[number]): number[] => {
             const error: IAutoMovieVector3 = Vector3.subtract(
-              physicalSupportPoint(poses[goal.bone]!, goal.local),
+              AutoMovieEnginePhysics.physicalSupportPoint(poses[goal.bone]!, goal.local),
               goal.world,
             );
             return [error.x, error.y, error.z];
@@ -299,13 +299,13 @@ export namespace AutoMovieHumanPhysicalStandingPose {
       return { kind: "unresolved", reason: "anchor", residual };
     if (
       profile.joints.some((joint: IAutoMoviePhysicalJoint): boolean =>
-        measurePhysicalJointLimits(
+        AutoMovieEnginePhysics.measurePhysicalJointLimits(
           joint,
           posed[joint.parent]!,
           posed[joint.child]!,
         ).some(
           (
-            coordinate: ReturnType<typeof measurePhysicalJointLimits>[number],
+            coordinate: ReturnType<typeof AutoMovieEnginePhysics.measurePhysicalJointLimits>[number],
           ): boolean => !(coordinate.violation <= ANGLE_ROUNDOFF),
         ),
       )
@@ -338,7 +338,7 @@ export namespace AutoMovieHumanPhysicalStandingPose {
         Vector3.add(
           sum,
           Vector3.scale(
-            physicalSupportPoint(posed[segment.bone]!, segment.centerOfMass),
+            AutoMovieEnginePhysics.physicalSupportPoint(posed[segment.bone]!, segment.centerOfMass),
             segment.mass / profile.mass,
           ),
         ),
@@ -419,8 +419,8 @@ function anchors(profile: IAutoMoviePhysicalProfile, poses: Poses): boolean {
       child !== undefined &&
       Vector3.length(
         Vector3.subtract(
-          physicalSupportPoint(parent, joint.parentFrame.position),
-          physicalSupportPoint(child, joint.childFrame.position),
+          AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+          AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
         ),
       ) <= ANCHOR_ROUNDOFF
     );
@@ -439,7 +439,7 @@ function support(
     let heel: boolean = false;
     let front: boolean = false;
     for (const point of patch) {
-      const world: IAutoMovieVector3 = physicalSupportPoint(
+      const world: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
         poses[point.bone]!,
         point.local,
       );
@@ -467,7 +467,7 @@ function flexion(profile: IAutoMoviePhysicalProfile, targets: Poses): number {
         candidate.child === child,
     );
     return joint && targets[joint.parent]
-      ? physicalSupportPoint(targets[joint.parent]!, joint.parentFrame.position)
+      ? AutoMovieEnginePhysics.physicalSupportPoint(targets[joint.parent]!, joint.parentFrame.position)
       : undefined;
   };
   const hip: IAutoMovieVector3 | undefined = anchor("leftUpperLeg");

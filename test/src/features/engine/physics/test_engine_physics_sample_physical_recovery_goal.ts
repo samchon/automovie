@@ -1,7 +1,4 @@
-import {
-  AutoMoviePhysicalBalance,
-  samplePhysicalRecoveryGoal,
-} from "@automovie/engine";
+import { AutoMoviePhysicalBalance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieSamplePhysicalRecoveryGoal } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +33,7 @@ export function test_engine_physics_sample_physical_recovery_goal(): void {
   const sample = (
     seconds: number,
   ): IAutoMovieSamplePhysicalRecoveryGoal.IResult =>
-    samplePhysicalRecoveryGoal({
+    AutoMovieEnginePhysics.samplePhysicalRecoveryGoal({
       swing: {
         bone: "foot",
         kind: "swing",

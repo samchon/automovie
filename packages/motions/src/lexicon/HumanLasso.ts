@@ -32,11 +32,6 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanLassoAdmit } from "./humanLassoAdmit";
 
-/** The law's context. */
-type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
-/** The alternatives of `SWINGEntryItem`'s site. */
-type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";
-
 /**
  * The swinging wrist's circle overhead, metres, the hand turning mostly at the
  * wrist; the throw's reach-out time, seconds; the dally's radius round the
@@ -60,11 +55,6 @@ const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/** Admit the throw, lay the swing and the launch, then sample. */
-function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
-  return plan(context);
-}
-
 /**
  * Rope from the saddle (`IAutoMovieMotionHumanLasso`): carried on the saddle,
  * the rider's wrist circles over the right shoulder, one turn per stride of the
@@ -81,6 +71,16 @@ export const HumanLasso: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLas
     interrupts: {},
     plan: planHumanLasso,
   };
+
+/** The law's context. */
+type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
+/** The alternatives of `SWINGEntryItem`'s site. */
+type SWINGEntryItem = "radius" | "throw" | "wrap" | "turn";
+
+/** Admit the throw, lay the swing and the launch, then sample. */
+function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
+  return plan(context);
+}
 
 /** Admit, lay the circle and the launch, and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {

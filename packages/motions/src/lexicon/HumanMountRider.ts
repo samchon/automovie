@@ -34,14 +34,17 @@ import { placeRideReinPalm } from "./placeRideReinPalm";
  * that leans forward to a bar the arms would not reach.
  */
 export namespace HumanMountRider {
-  /** A mounted hand's exact wrist goal and the axis the fingers follow. */
-  interface IWrist {
-    point: IAutoMovieVector3;
-    fingers: IAutoMovieVector3;
-    /** The material-aligned wrist rotation, if the point came from a rein. */
-    rotation?: IAutoMovieQuaternion;
-    /** The rein's actual palm offset, preserved by the arm fit. */
-    contact?: IAutoMovieVector3;
+
+  /**
+   * A free wrist as the posture shows it, and the point its elbow bends toward
+   * there: the arm goal's own pole, or the elbow the fit placed.
+   */
+  export interface IFree extends IAutoMovieRigidTransform {
+    /**
+     * The point the elbow bends toward, world metres; none when the fit did not
+     * place the elbow.
+     */
+    pole?: IAutoMovieVector3;
   }
 
   /**
@@ -235,16 +238,6 @@ export namespace HumanMountRider {
       );
   }
 
-  /**
-   * Acquire the selected hand using this query's relaxed origin and current
-   * grip.
-   */
-  type Taking = (
-    side: AutoMovieHumanSide,
-    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
-    closed: IAutoMovieMotionHumanPosture["joints"],
-  ) => IAutoMovieMotionHumanMountRider.IHoldResult;
-
   /** A held grip requires its free origin only before acquisition finishes. */
   function held(
     body: IAutoMovieMotionHumanBody,
@@ -311,18 +304,6 @@ export namespace HumanMountRider {
       },
       fingers: closing,
     };
-  }
-
-  /**
-   * A free wrist as the posture shows it, and the point its elbow bends toward
-   * there: the arm goal's own pole, or the elbow the fit placed.
-   */
-  export interface IFree extends IAutoMovieRigidTransform {
-    /**
-     * The point the elbow bends toward, world metres; none when the fit did not
-     * place the elbow.
-     */
-    pole?: IAutoMovieVector3;
   }
 
   /**
@@ -435,6 +416,25 @@ export namespace HumanMountRider {
       ? 0
       : HumanMountReach.reach(body, seated, sides)(points);
   }
+  /** A mounted hand's exact wrist goal and the axis the fingers follow. */
+  interface IWrist {
+    point: IAutoMovieVector3;
+    fingers: IAutoMovieVector3;
+    /** The material-aligned wrist rotation, if the point came from a rein. */
+    rotation?: IAutoMovieQuaternion;
+    /** The rein's actual palm offset, preserved by the arm fit. */
+    contact?: IAutoMovieVector3;
+  }
+
+  /**
+   * Acquire the selected hand using this query's relaxed origin and current
+   * grip.
+   */
+  type Taking = (
+    side: AutoMovieHumanSide,
+    grip: IAutoMovieMotionHumanMountRider.IHoldGrip,
+    closed: IAutoMovieMotionHumanPosture["joints"],
+  ) => IAutoMovieMotionHumanMountRider.IHoldResult;
 }
 
 /**

@@ -1,10 +1,4 @@
-import {
-  createBedroomKit,
-  createEnvironment,
-  createKitchenKit,
-  createLivingRoomKit,
-  createOfficeKit,
-} from "@automovie/archetypes/environments";
+import { createBedroomKit, createKitchenKit, createLivingRoomKit, createOfficeKit, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -82,7 +76,7 @@ export function test_environment_room_kits(): void {
     use: IAutoMovieEnvironmentModule,
     seed: number = 3,
   ): IAutoMovieEnvironment =>
-    createEnvironment({ id: "flat", seed, items: { room: { use } } });
+    AutoMovieEnvironment.create({ id: "flat", seed, items: { room: { use } } });
   const modelOf: (
     environment: IAutoMovieEnvironment,
     role: string,

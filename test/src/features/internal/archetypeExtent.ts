@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "@automovie/archetypes";
-import { physicalShapeSpan } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -40,7 +40,7 @@ export function archetypeExtent(
   let high: number = -Infinity;
   for (const shape of "shapes" in archetype ? archetype.shapes() : archetype) {
     if (parts !== undefined && !parts.includes(shape.id)) continue;
-    const [from, to]: readonly [number, number] = physicalShapeSpan(
+    const [from, to]: readonly [number, number] = AutoMovieEnginePhysics.physicalShapeSpan(
       origin,
       shape,
       direction,

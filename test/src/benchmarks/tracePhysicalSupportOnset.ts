@@ -1,12 +1,4 @@
-import {
-  AutoMoviePhysicalBalance,
-  AutoMoviePhysicalSimulation,
-  Quaternion,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalShapeBounds,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMoviePhysicalBalance, AutoMoviePhysicalSimulation, Quaternion, Vector3, physicalShapeBounds, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
@@ -156,7 +148,7 @@ function observeFrame(
       (contact: (typeof floorContacts)[number]): boolean =>
         bones.includes(contact.bone) && contact.touching,
     );
-    const endpoint: IAutoMovieVector3 = physicalSupportPoint(
+    const endpoint: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
       poses[limb.bone]!,
       limb.localPoint,
     );
@@ -224,13 +216,13 @@ function observeFrame(
         anchorError,
         Vector3.length(
           Vector3.subtract(
-            physicalSupportPoint(parent, joint.parentFrame.position),
-            physicalSupportPoint(child, joint.childFrame.position),
+            AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+            AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
           ),
         ),
       );
-      return measurePhysicalJointLimits(joint, parent, child).flatMap(
-        (coordinate: ReturnType<typeof measurePhysicalJointLimits>[number]) => {
+      return AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).flatMap(
+        (coordinate: ReturnType<typeof AutoMovieEnginePhysics.measurePhysicalJointLimits>[number]) => {
           romViolation = Math.max(romViolation, coordinate.violation);
           return coordinate.violation > 0.0001
             ? [{ joint: joint.id, ...coordinate }]

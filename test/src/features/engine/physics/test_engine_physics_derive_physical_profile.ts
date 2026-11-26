@@ -1,4 +1,4 @@
-import { derivePhysicalProfile, validatePhysicalProfile, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalSegment,
@@ -37,7 +37,7 @@ export function test_engine_physics_derive_physical_profile(): void {
     profile.segments[0]!,
   );
   replacement.mass += 1;
-  const overridden: P = derivePhysicalProfile(model, {
+  const overridden: P = AutoMovieEnginePhysics.derivePhysicalProfile(model, {
     density: 1000,
     densities: {},
     material: "solid",
@@ -61,7 +61,7 @@ export function test_engine_physics_derive_physical_profile(): void {
   const d: number = 0.9 * (1 - Math.cos(Math.PI / 8));
   TestValidator.predicate(
     "independent primitive assembly totals",
-    validatePhysicalProfile(four).length === 0 &&
+    AutoMovieEnginePhysics.validatePhysicalProfile(four).length === 0 &&
       Math.abs(four.mass - 8) < PhysicalTolerance.ROUNDING &&
       vclose(
         four.centerOfMass,
@@ -109,7 +109,7 @@ export function test_engine_physics_derive_physical_profile(): void {
       },
     ],
   };
-  const derived: P = derivePhysicalProfile(analytic, {
+  const derived: P = AutoMovieEnginePhysics.derivePhysicalProfile(analytic, {
     density: 1,
     densities: {},
     material: "solid",

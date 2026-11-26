@@ -1,10 +1,4 @@
-import {
-  AutoMovieMotionBound,
-  Quaternion,
-  Vector3,
-  physicalShapeGjk,
-  physicalShapeNearest,
-} from "@automovie/engine";
+import { AutoMovieMotionBound, Quaternion, Vector3, physicalShapeGjk, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMoviePhysicalShapeNearest,
@@ -149,7 +143,7 @@ export function HumanArmTrajectorySweep(
         )
           continue;
         const reading: IAutoMoviePhysicalShapeNearest.IResult =
-          physicalShapeNearest(s.pose, s.shape, course[i]!, course[i + 1]!);
+          AutoMovieEnginePhysics.physicalShapeNearest(s.pose, s.shape, course[i]!, course[i + 1]!);
         read = i;
         gap = reading.distance;
         if (1000 * (reading.distance - r - lower) > T.CHECK) continue;

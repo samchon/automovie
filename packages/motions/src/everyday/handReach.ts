@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeSpan } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -81,7 +81,7 @@ export function handReach(
     for (const segment of placed)
       if (requested.has(segment.bone))
         for (const s of segment.shapes)
-          high = Math.max(high, physicalShapeSpan(segment.pose, s, axis)[1]);
+          high = Math.max(high, AutoMovieEnginePhysics.physicalShapeSpan(segment.pose, s, axis)[1]);
     return high - Vector3.dot(point, axis);
   };
 }

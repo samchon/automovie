@@ -26,21 +26,6 @@ import type {
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
-/** The alternatives of `PrepareApertureTipDigit2`'s site. */
-type PrepareApertureTipDigit2 = "Thumb" | "Index";
-
-/** The alternatives of `PrepareApertureTipDigit`'s site. */
-type PrepareApertureTipDigit = "Thumb" | "Index";
-
-/** The record of `IChainDistal`'s site. */
-type IChainDistal = { kind: "capsule" };
-
-/** The record of `IChainCapsuleResult`'s site. */
-type IChainCapsuleResult = { kind: "capsule" };
-
-/** The record of `IChainCapsule`'s site. */
-type IChainCapsule = { kind: "capsule" };
-
 /**
  * A hand closing on an object: which digits close for a grip kind, each digit's
  * phalanges as the body's own colliders, and the finger angles at contact,
@@ -350,3 +335,18 @@ export namespace HumanGrip {
     };
   }
 }
+
+/** The alternatives of `PrepareApertureTipDigit2`'s site. */
+type PrepareApertureTipDigit2 = "Thumb" | "Index";
+
+/** The alternatives of `PrepareApertureTipDigit`'s site. */
+type PrepareApertureTipDigit = "Thumb" | "Index";
+
+/** The record of `IChainDistal`'s site. */
+type IChainDistal = { kind: "capsule" };
+
+/** The record of `IChainCapsuleResult`'s site. */
+type IChainCapsuleResult = { kind: "capsule" };
+
+/** The record of `IChainCapsule`'s site. */
+type IChainCapsule = { kind: "capsule" };

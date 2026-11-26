@@ -5,10 +5,7 @@ import {
   createSeat,
   createTable,
 } from "@automovie/archetypes";
-import {
-  createEnvironment,
-  createFurnishedRoom,
-} from "@automovie/archetypes/environments";
+import { createFurnishedRoom, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
@@ -86,7 +83,7 @@ export function test_environment_furnishing_relations(): void {
       Record<string, readonly [number, number, number, number]>
     >,
   ): IAutoMovieEnvironment =>
-    createEnvironment({
+    AutoMovieEnvironment.create({
       id: "home",
       seed: 7,
       items: {

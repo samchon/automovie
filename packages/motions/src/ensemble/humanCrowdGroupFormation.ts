@@ -3,37 +3,6 @@ import type { IAutoMovieMotionHumanFormation } from "@automovie/interface";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFormation } from "./HumanFormation";
 
-/** The observed street density of population A, pedestrians per square metre. */
-const LOW_DENSITY: number = 0.03;
-
-/** The observed street density of population B, pedestrians per square metre. */
-const MODERATE_DENSITY: number = 0.25;
-
-/** One observed adjacent pair, with distances in metres and bearing in degrees. */
-type Observation = readonly [
-  lowDistance: number,
-  moderateDistance: number,
-  moderateBearing: number,
-];
-
-/**
- * The adjacent-member distances in metres and moderate-density bearings in
- * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1. Both
- * populations' pairs are abreast, so their bearing is 90 degrees.
- */
-const OBSERVATIONS: readonly (readonly Observation[])[] = [
-  [[0.78, 0.54, 90]],
-  [
-    [0.79, 0.55, 107.9],
-    [0.81, 0.62, 70.6],
-  ],
-  [
-    [0.87, 0.67, 102.3],
-    [0.93, 0.66, 86],
-    [0.8, 0.64, 76.6],
-  ],
-];
-
 /**
  * Compose density-sensitive walking slots around the centre of a pedestrian
  * group's course. For the two- to four-person groups measured by Moussaïd et
@@ -148,3 +117,34 @@ export function humanCrowdGroupFormation(
   );
   return HumanFormation({ frame, blocks });
 }
+
+/** The observed street density of population A, pedestrians per square metre. */
+const LOW_DENSITY: number = 0.03;
+
+/** The observed street density of population B, pedestrians per square metre. */
+const MODERATE_DENSITY: number = 0.25;
+
+/**
+ * The adjacent-member distances in metres and moderate-density bearings in
+ * degrees clockwise from travel, from Moussaïd et al. (2010), Table 1. Both
+ * populations' pairs are abreast, so their bearing is 90 degrees.
+ */
+const OBSERVATIONS: readonly (readonly Observation[])[] = [
+  [[0.78, 0.54, 90]],
+  [
+    [0.79, 0.55, 107.9],
+    [0.81, 0.62, 70.6],
+  ],
+  [
+    [0.87, 0.67, 102.3],
+    [0.93, 0.66, 86],
+    [0.8, 0.64, 76.6],
+  ],
+];
+
+/** One observed adjacent pair, with distances in metres and bearing in degrees. */
+type Observation = readonly [
+  lowDistance: number,
+  moderateDistance: number,
+  moderateBearing: number,
+];

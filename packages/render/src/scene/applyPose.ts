@@ -13,7 +13,7 @@ import type * as THREE from "three";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
-import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
+import { invalidateAutoMovieSkinnedPose } from "./internal/invalidateAutoMovieSkinnedPose.js";
 import { morphTargetDriversOf } from "./internal/morphTargetDriversOf.js";
 
 /**

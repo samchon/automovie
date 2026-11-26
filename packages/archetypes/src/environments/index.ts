@@ -1,9 +1,9 @@
 export * from "./buildings";
-export * from "./createEnvironment";
-export * from "./environmentModel";
+
+
 export * from "./furnishings/createBedroomKit";
 export * from "./furnishings/createCafeKit";
-export * from "./furnishings/createEnvironmentProp";
+
 export * from "./furnishings/createFurnishedRoom";
 export * from "./furnishings/createGymKit";
 export * from "./furnishings/createKitchenKit";
@@ -11,4 +11,8 @@ export * from "./furnishings/createLivingRoomKit";
 export * from "./furnishings/createOfficeKit";
 export * from "./lifts/createLift";
 export * from "./rides";
-export * from "./terrain/createTerrain";
+
+
+export { AutoMovieEnvironment } from "./AutoMovieEnvironment";
+
+export { AutoMovieEnvironmentFurnishing } from "./AutoMovieEnvironmentFurnishing";

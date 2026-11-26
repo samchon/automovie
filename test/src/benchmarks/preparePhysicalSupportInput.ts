@@ -1,11 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalShapeBounds,
-  physicalSupportPoint,
-  validatePoseResult,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, validatePoseResult, AutoMovieEnginePhysics } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   AutoMovieHumanoidBone,
@@ -267,12 +260,12 @@ function observePhysicalPose(
     const child: IAutoMovieRigidTransform = poses[joint.child]!;
     const error: number = Vector3.length(
       Vector3.subtract(
-        physicalSupportPoint(parent, joint.parentFrame.position),
-        physicalSupportPoint(child, joint.childFrame.position),
+        AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+        AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
       ),
     );
     if (error > anchor.error) anchor = { joint: joint.id, error };
-    for (const { axis, violation } of measurePhysicalJointLimits(
+    for (const { axis, violation } of AutoMovieEnginePhysics.measurePhysicalJointLimits(
       joint,
       parent,
       child,

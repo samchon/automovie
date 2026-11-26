@@ -45,9 +45,6 @@ import { lieTogetherShifted } from "./lieTogetherShifted";
  */
 const REST: number = 0.005;
 
-/** The two bones of a folding arm. */
-type ArmBone = "upper" | "lower";
-
 /**
  * The lower arm's fold as the body settles, clinical degrees: the upper arm
  * forward and the elbow bent, the hand up before the face, so the arm a body
@@ -72,6 +69,42 @@ const PILLOW: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
 
 /** How far two lying headings may differ, degrees (provisional). */
 const ALIGNED: number = 25;
+
+/**
+ * Lie together with a partner. Both already lie on the support (`lieDown`,
+ * `lieOnSurface`, `turnOver`), the performer within its arm's reach (upper arm,
+ * forearm and hand) of where it settles; as it settles, the arm on the side it
+ * lies on folds up before the face (`FOLD`), or, spooning, under its own head
+ * (`PILLOW`), the free arm draped over the partner (`lieTogetherDrape`).
+ * Spooning, the performer lies on the same side as the partner, heading within
+ * `ALIGNED`, and slides across the support until its chest's sternum region
+ * lies `REST` off the partner's upper back; where its hips meet the partner's
+ * first, the lumbar spine curls the chest the rest of the way
+ * (`lieTogetherCurl`), each midline keeping the height its own lying width
+ * gives it. With the head on the chest, it lies on its side beside the partner
+ * on the back, its head toward the partner's nearer chest region; it slides
+ * toward that region across the support until any part but its head and neck
+ * comes `REST` off the partner (`lieTogetherReach`), then the neck's side bend
+ * and flexion lay the lower cheek on the partner's surface beneath it, the
+ * nearest of the chest it reaches or the shoulder by it, on a coarse grid
+ * refined by degrees, a miss over a skin contact refused (`lieTogetherNeck`).
+ * The slide is horizontal, so the body stays on the support; it takes the
+ * transport time of its distance on a minimum-jerk share, once the arm has
+ * folded in the free-space time of its hand's arc. From the start the settled
+ * posture is carried rigidly by the bone under the partner's sternum
+ * (`carryHumanPosture`), so the contact holds as the partner breathes or
+ * shifts. Windows: the body lies on the support throughout, and from the settle
+ * the chest bears on the partner's back or the cheek on the partner's chest.
+ */
+export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLieTogether> =
+  {
+    name: "lieTogether",
+    interrupts: {},
+    plan: planLieTogether,
+  };
+
+/** The two bones of a folding arm. */
+type ArmBone = "upper" | "lower";
 
 /**
  * Lie together with a partner. Both already lie on the support (`lieDown`,
@@ -453,36 +486,3 @@ function planLieTogether(
         partner: p.partner,
       });
 }
-
-/**
- * Lie together with a partner. Both already lie on the support (`lieDown`,
- * `lieOnSurface`, `turnOver`), the performer within its arm's reach (upper arm,
- * forearm and hand) of where it settles; as it settles, the arm on the side it
- * lies on folds up before the face (`FOLD`), or, spooning, under its own head
- * (`PILLOW`), the free arm draped over the partner (`lieTogetherDrape`).
- * Spooning, the performer lies on the same side as the partner, heading within
- * `ALIGNED`, and slides across the support until its chest's sternum region
- * lies `REST` off the partner's upper back; where its hips meet the partner's
- * first, the lumbar spine curls the chest the rest of the way
- * (`lieTogetherCurl`), each midline keeping the height its own lying width
- * gives it. With the head on the chest, it lies on its side beside the partner
- * on the back, its head toward the partner's nearer chest region; it slides
- * toward that region across the support until any part but its head and neck
- * comes `REST` off the partner (`lieTogetherReach`), then the neck's side bend
- * and flexion lay the lower cheek on the partner's surface beneath it, the
- * nearest of the chest it reaches or the shoulder by it, on a coarse grid
- * refined by degrees, a miss over a skin contact refused (`lieTogetherNeck`).
- * The slide is horizontal, so the body stays on the support; it takes the
- * transport time of its distance on a minimum-jerk share, once the arm has
- * folded in the free-space time of its hand's arc. From the start the settled
- * posture is carried rigidly by the bone under the partner's sternum
- * (`carryHumanPosture`), so the contact holds as the partner breathes or
- * shifts. Windows: the body lies on the support throughout, and from the settle
- * the chest bears on the partner's back or the cheek on the partner's chest.
- */
-export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLieTogether> =
-  {
-    name: "lieTogether",
-    interrupts: {},
-    plan: planLieTogether,
-  };

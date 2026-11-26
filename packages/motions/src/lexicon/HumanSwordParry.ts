@@ -30,24 +30,6 @@ import { HumanSword } from "./HumanSword";
 import { HumanSwordParryAside } from "./HumanSwordParryAside";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
-/** The record of `IParryFound`'s site. */
-type IParryFound = {
-  share: number;
-  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-};
-
-/** The record of `IParryChosen`'s site. */
-type IParryChosen = {
-  share: number;
-  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-};
-
-/** The record of `IParryReceivedResult`'s site. */
-type IParryReceivedResult = {
-  share: number;
-  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-};
-
 /**
  * The parry of blade work: the strong of the blade brought across an incoming
  * blade where its attack is stopped.
@@ -116,24 +98,6 @@ export namespace HumanSwordParry {
    * pressing on the parrying one does not slide along it toward the hand.
    */
   export const LEAN: number = (Math.atan(0.57) * 180) / Math.PI;
-
-  /**
-   * Where a parry's blade goes: the point its strong meets, the way it points,
-   * the way its edge faces, the seconds from the start to the attack's decisive
-   * instant, the seconds the stopped attack stays there before it turns back
-   * (null and 0 for a drill), how far a taken blade is carried aside (none when
-   * the blade is not taken) and the second since the start the carrying
-   * begins.
-   */
-  interface IMeet {
-    at: IAutoMovieVector3;
-    point: IAutoMovieVector3;
-    edge: IAutoMovieVector3;
-    lead: number | null;
-    stays: number;
-    aside: IAutoMovieVector3;
-    sweep: number;
-  }
 
   /**
    * Where the parry meets: the drill's line, or the attacker's stopped blade
@@ -472,4 +436,40 @@ export namespace HumanSwordParry {
         });
       },
     };
+
+  /**
+   * Where a parry's blade goes: the point its strong meets, the way it points,
+   * the way its edge faces, the seconds from the start to the attack's decisive
+   * instant, the seconds the stopped attack stays there before it turns back
+   * (null and 0 for a drill), how far a taken blade is carried aside (none when
+   * the blade is not taken) and the second since the start the carrying
+   * begins.
+   */
+  interface IMeet {
+    at: IAutoMovieVector3;
+    point: IAutoMovieVector3;
+    edge: IAutoMovieVector3;
+    lead: number | null;
+    stays: number;
+    aside: IAutoMovieVector3;
+    sweep: number;
+  }
 }
+
+/** The record of `IParryFound`'s site. */
+type IParryFound = {
+  share: number;
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+};
+
+/** The record of `IParryChosen`'s site. */
+type IParryChosen = {
+  share: number;
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+};
+
+/** The record of `IParryReceivedResult`'s site. */
+type IParryReceivedResult = {
+  share: number;
+  frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
+};

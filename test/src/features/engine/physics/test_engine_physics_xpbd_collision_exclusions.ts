@@ -1,13 +1,4 @@
-import {
-  AutoMovieXpbdCollider,
-  AutoMovieXpbdWorld,
-  AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  bindPhysicalWorld,
-  isPhysicalPairExcluded,
-  preparePhysicalContactHooks,
-  type solveXpbdContacts,
-} from "@automovie/engine";
+import { AutoMovieXpbdCollider, AutoMovieXpbdWorld, AutoMoviePhysicalSimulation as Simulation, Vector3, bindPhysicalWorld, type solveXpbdContacts, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalJoint,
@@ -175,7 +166,7 @@ function verifyHookScope(
     input,
     false,
   );
-  const filter: solveXpbdContacts.Filter = preparePhysicalContactHooks(
+  const filter: solveXpbdContacts.Filter = AutoMovieEnginePhysics.preparePhysicalContactHooks(
     input,
     bound,
   );
@@ -240,7 +231,7 @@ function verifyHookScope(
   const otherTip: number = collider("other", "tip").handle;
   TestValidator.equals(
     "the live public lookup keeps undeclared self contact",
-    isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+    AutoMovieEnginePhysics.isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
     false,
   );
   other.profile.collisionExclusions.push({
@@ -250,7 +241,7 @@ function verifyHookScope(
   });
   TestValidator.equals(
     "the live public lookup observes mutable caller data",
-    isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
+    AutoMovieEnginePhysics.isPhysicalPairExcluded(input, bound, otherRoot, otherTip),
     true,
   );
 

@@ -20,12 +20,12 @@ import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { choosePhysicalSupportFit } from "./choosePhysicalSupportFit";
 import { physicalBalanceReference } from "./physicalBalanceReference";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
-import { physicalRecoverySwing } from "./physicalRecoverySwing";
+import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSwingReference } from "./physicalSwingReference";
 import { planPhysicalBalanceTargets } from "./planPhysicalBalanceTargets";
-import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
-import { warmPhysicalSupportTargets } from "./warmPhysicalSupportTargets";
+import { rebasePhysicalTargets } from "./internal/rebasePhysicalTargets";
+import { warmPhysicalSupportTargets } from "./internal/warmPhysicalSupportTargets";
 
 /**
  * Balance owns a coherent support posture independently of optional Cartesian

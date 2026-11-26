@@ -22,53 +22,8 @@ import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { crabWalkBounds } from "./crabWalkBounds";
 import { crabWalkClock } from "./crabWalkClock";
 
-/**
- * One limb of the crawl: its channel, its contact part, its diagonal group and
- * where it stands from the pelvis.
- */
-interface ILimb {
-  /** The limb's channel. */
-  limb: AutoMovieHumanLimb;
-
-  /** The contact part at its end. */
-  part: IAutoMovieMotionHumanContactWindow["part"];
-
-  /**
-   * Its phase in the stride cycle: 0 for the right hand and the left foot, one
-   * half for the other pair.
-   */
-  phase: number;
-
-  /**
-   * Its end's stance from the pelvis in the crawl's frame (`+z` the travel),
-   * metres.
-   */
-  stance: IAutoMovieVector3;
-
-  /** Its middle joint's hint from the end, in the same frame, metres. */
-  bend: IAutoMovieVector3;
-}
-
 /** The world's down. */
 const DOWN: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };
-
-/** The crawl's two trunk variants. */
-type Variant = "plain" | "backbend";
-
-/** One way of holding the trunk over the four supports. */
-interface IShape {
-  /** The whole body's pitch, degrees: negative tips it onto its back. */
-  pitch: number;
-
-  /** The trunk's whole extension, degrees, shared among its bones by their room. */
-  arch: number;
-
-  /**
-   * The neck's flexion, degrees: positive looks toward the feet, negative hangs
-   * the head back.
-   */
-  neck: number;
-}
 
 /**
  * A supine quadrupedal crawl, the crab walk (`IAutoMovieMotionHumanCrabWalk`).
@@ -339,4 +294,49 @@ export namespace crabWalk {
       },
     };
   }
+}
+
+/**
+ * One limb of the crawl: its channel, its contact part, its diagonal group and
+ * where it stands from the pelvis.
+ */
+interface ILimb {
+  /** The limb's channel. */
+  limb: AutoMovieHumanLimb;
+
+  /** The contact part at its end. */
+  part: IAutoMovieMotionHumanContactWindow["part"];
+
+  /**
+   * Its phase in the stride cycle: 0 for the right hand and the left foot, one
+   * half for the other pair.
+   */
+  phase: number;
+
+  /**
+   * Its end's stance from the pelvis in the crawl's frame (`+z` the travel),
+   * metres.
+   */
+  stance: IAutoMovieVector3;
+
+  /** Its middle joint's hint from the end, in the same frame, metres. */
+  bend: IAutoMovieVector3;
+}
+
+/** The crawl's two trunk variants. */
+type Variant = "plain" | "backbend";
+
+/** One way of holding the trunk over the four supports. */
+interface IShape {
+  /** The whole body's pitch, degrees: negative tips it onto its back. */
+  pitch: number;
+
+  /** The trunk's whole extension, degrees, shared among its bones by their room. */
+  arch: number;
+
+  /**
+   * The neck's flexion, degrees: positive looks toward the feet, negative hangs
+   * the head back.
+   */
+  neck: number;
 }

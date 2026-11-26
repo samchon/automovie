@@ -15,7 +15,7 @@ import { applySceneEnvironment } from "./applySceneEnvironment.js";
 import { applySceneFog } from "./applySceneFog.js";
 import { applyTransform } from "./applyTransform.js";
 import { buildLight } from "./buildLight.js";
-import { buildSceneSoftProps } from "./buildSceneSoftProps.js";
+import { buildSceneSoftProps } from "./internal/buildSceneSoftProps.js";
 import { buildSpaceObject } from "./buildSpace.js";
 import { applySceneMedium } from "./medium/applySceneMedium.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";

@@ -28,9 +28,6 @@ import { prepareDanceBeats } from "./prepareDanceBeats";
 import { tapDanceFlights } from "./tapDanceFlights";
 import { tapDanceSteps } from "./tapDanceSteps";
 
-/** The alternatives of `SetSocket`'s site. */
-type SetSocket = "ball" | "heel";
-
 /**
  * Tap dance on the dance law's beat clock. Each step is a table of strikes in
  * quarter beats from its first beat (`tapDanceSteps.STEPS`): which foot (the
@@ -352,3 +349,6 @@ export namespace tapDance {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }
 }
+
+/** The alternatives of `SetSocket`'s site. */
+type SetSocket = "ball" | "heel";

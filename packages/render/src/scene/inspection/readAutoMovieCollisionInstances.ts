@@ -8,7 +8,7 @@ import * as THREE from "three";
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationCycleTake } from "../IAutoMovieFormationCycleTake.js";
 import { formationCyclePosition } from "../formationCyclePosition.js";
-import { isAutoMovieFormationCycleMaterial } from "../isAutoMovieFormationCycleMaterial.js";
+import { isAutoMovieFormationCycleMaterial } from "../internal/isAutoMovieFormationCycleMaterial.js";
 import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
 import { sampleFormationCycleMatrix } from "../sampleFormationCycleMatrix.js";
 import { AutoMovieCollisionSource } from "./AutoMovieCollisionSource.js";

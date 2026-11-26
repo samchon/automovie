@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { selectFormationShadowPalette } from "../selectFormationShadowPalette.js";
+import { selectFormationShadowPalette } from "./selectFormationShadowPalette.js";
 
 /**
  * Bind one resident tier's cycle to its mesh and supported shadow projections.

@@ -8,7 +8,7 @@ import type {
 
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { physicalJointMotorCommand } from "./physicalJointMotorCommand";
+import { physicalJointMotorCommand } from "./internal/physicalJointMotorCommand";
 
 /**
  * Apply one joint's bounded quaternion PD command

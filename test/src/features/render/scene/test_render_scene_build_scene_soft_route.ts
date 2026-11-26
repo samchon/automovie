@@ -1,9 +1,5 @@
 import type { IAutoMovieRenderSoftPropFrame } from "@automovie/interface";
-import {
-  AutoMovieThreeKind,
-  type IAutoMovieSceneSoftProps,
-  buildSceneSoftProps,
-} from "@automovie/render";
+import { AutoMovieThreeKind, type IAutoMovieSceneSoftProps, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -30,7 +26,7 @@ export function test_render_scene_build_scene_soft_route(): void {
   root.add(rigid);
   const first: IAutoMovieRenderSoftPropFrame = cloth(0.5, "rest");
   const second: IAutoMovieRenderSoftPropFrame = cloth(0.75, "solved");
-  const soft: IAutoMovieSceneSoftProps = buildSceneSoftProps(root);
+  const soft: IAutoMovieSceneSoftProps = AutoMovieRenderSceneLayout.buildSceneSoftProps(root);
   try {
     soft.update([first]);
     const mesh: THREE.Object3D | undefined = root.getObjectByName("soft:cloth");

@@ -7,9 +7,6 @@ import type {
 
 import { HumanObject } from "../perform/HumanObject";
 
-/** The record of `IBedsidePerchPlacement`'s site. */
-type IBedsidePerchPlacement = { yaw: number };
-
 /**
  * Sit on a fixed bed's long edge, pause, then stand. Enter facing away from the
  * chosen edge with the feet on the floor within reach of the seat. The bed
@@ -44,3 +41,6 @@ export function bedsidePerch(
   );
   return chain.sit({ seat: edge, hold: seconds }).rise();
 }
+
+/** The record of `IBedsidePerchPlacement`'s site. */
+type IBedsidePerchPlacement = { yaw: number };

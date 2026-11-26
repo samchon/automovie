@@ -1,15 +1,4 @@
-import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  AutoMoviePhysicalPlayback as Playback,
-  Quaternion,
-  AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  advancePhysicalOwnership,
-  bindPhysicalWorld,
-  physicalSupportPoint,
-  samplePhysicalTarget,
-} from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, AutoMoviePhysicalPlayback as Playback, Quaternion, AutoMoviePhysicalSimulation as Simulation, Vector3, advancePhysicalOwnership, bindPhysicalWorld, samplePhysicalTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSegment,
@@ -108,11 +97,11 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
     cache.frames.every(
       (frame): boolean =>
         Vector3.distance(
-          physicalSupportPoint(
+          AutoMovieEnginePhysics.physicalSupportPoint(
             frame.bodies[body.id]!.root!,
             joint.parentFrame.position,
           ),
-          physicalSupportPoint(
+          AutoMovieEnginePhysics.physicalSupportPoint(
             frame.bodies[body.id]!.child!,
             joint.childFrame.position,
           ),
@@ -175,8 +164,8 @@ export async function test_engine_physics_physical_playback_handoff(): Promise<v
         actual.linvel(),
         Vector3.scale(
           Vector3.subtract(
-            physicalSupportPoint(next, com),
-            physicalSupportPoint(previous, com),
+            AutoMovieEnginePhysics.physicalSupportPoint(next, com),
+            AutoMovieEnginePhysics.physicalSupportPoint(previous, com),
           ),
           60,
         ),

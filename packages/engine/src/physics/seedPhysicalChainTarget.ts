@@ -10,8 +10,8 @@ import type {
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalJointPoint } from "./physicalJointPoint";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalJointPoint } from "./internal/physicalJointPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /**
  * Seed a straight-chain singularity with the shared triangle solver, through

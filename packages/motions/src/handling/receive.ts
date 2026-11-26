@@ -36,12 +36,6 @@ import { HumanPrehension } from "./HumanPrehension";
 import { HumanPreshape } from "./HumanPreshape";
 import { handshake } from "./handshake";
 
-/** The record of `IPlanLean`'s site. */
-type IPlanLean = {
-  share: number;
-  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
-};
-
 /**
  * Taking a prop a giver holds out: the receiver's half of a handover.
  *
@@ -469,3 +463,9 @@ export namespace receive {
     };
   }
 }
+
+/** The record of `IPlanLean`'s site. */
+type IPlanLean = {
+  share: number;
+  joints: IAutoMovieMotionHumanSeatedReach.IJoint[];
+};

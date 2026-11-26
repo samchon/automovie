@@ -20,7 +20,7 @@ import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 import { autoMovieSemanticMaskOf } from "./semanticMask/index.js";
 import { applyAutoMovieGraphicsMode } from "./surfaceGraphic/applyAutoMovieGraphicsMode.js";
-import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurfaceGraphics.js";
+import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 
 /** A renderable that is NOT a mesh: a line/grid/helper, points, or a sprite. */
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (

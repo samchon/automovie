@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeSupport } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -80,7 +80,7 @@ export async function test_motions_exercise_wall_sit(): Promise<void> {
         .filter(({ bone }): boolean => torso.has(bone))
         .flatMap(({ pose, shapes }) =>
           shapes.map(
-            (shape): number => physicalShapeSupport(pose, shape, rear).z,
+            (shape): number => AutoMovieEnginePhysics.physicalShapeSupport(pose, shape, rear).z,
           ),
         ),
     );

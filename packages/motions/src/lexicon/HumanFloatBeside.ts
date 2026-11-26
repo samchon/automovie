@@ -41,6 +41,32 @@ import { HumanRideHands } from "./HumanRideHands";
 import { humanFloatBesideAdmit } from "./humanFloatBesideAdmit";
 
 /**
+ * Slide off a swimming horse to its upstream side and float beside it, one hand
+ * on its mane.
+ *
+ * A rider crossing water too deep for the horse to wade slides off on the
+ * upstream side, keeps hold of the mane and floats prone beside the horse,
+ * kicking, while it swims; the current then presses the rider against the horse
+ * rather than under it. The float's height is the water's own trim of the posed
+ * shape (`HumanWater.float`, the immersed swim's buoyancy), raised until the
+ * mouth clears the surface by `CLEAR` where buoyancy alone leaves it under: the
+ * held mane carries the rest. The near shoulder keeps `REACH_SHARE` of the
+ * arm's length from the held part, `TRAIL` degrees behind its lateral line, so
+ * the body follows the horse's actual moving mane; the slide-off blends the
+ * seated entry, carried with the horse, into that float over `transition`, its
+ * path lifted by `ARC` over the saddle's side.
+ *
+ * The author gives the total `seconds` and the `transition` into the float; a
+ * flutter kick cycle is provisional (missing a measured swimmer's kick rate).
+ */
+export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFloatBeside> =
+  {
+    name: "floatBeside",
+    interrupts: {},
+    plan: planHumanFloatBeside,
+  };
+
+/**
  * Place the floating body beside the horse's moving held part and verify the
  * displayed hand on it.
  *
@@ -405,32 +431,6 @@ function planHumanFloatBeside(
     },
   });
 }
-
-/**
- * Slide off a swimming horse to its upstream side and float beside it, one hand
- * on its mane.
- *
- * A rider crossing water too deep for the horse to wade slides off on the
- * upstream side, keeps hold of the mane and floats prone beside the horse,
- * kicking, while it swims; the current then presses the rider against the horse
- * rather than under it. The float's height is the water's own trim of the posed
- * shape (`HumanWater.float`, the immersed swim's buoyancy), raised until the
- * mouth clears the surface by `CLEAR` where buoyancy alone leaves it under: the
- * held mane carries the rest. The near shoulder keeps `REACH_SHARE` of the
- * arm's length from the held part, `TRAIL` degrees behind its lateral line, so
- * the body follows the horse's actual moving mane; the slide-off blends the
- * seated entry, carried with the horse, into that float over `transition`, its
- * path lifted by `ARC` over the saddle's side.
- *
- * The author gives the total `seconds` and the `transition` into the float; a
- * flutter kick cycle is provisional (missing a measured swimmer's kick rate).
- */
-export const HumanFloatBeside: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFloatBeside> =
-  {
-    name: "floatBeside",
-    interrupts: {},
-    plan: planHumanFloatBeside,
-  };
 
 /** A frame's heading about +Y, degrees, 0 facing +Z. */
 function heading(rotation: IAutoMovieQuaternion): number {

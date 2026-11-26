@@ -31,18 +31,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 
-/** The alternatives of `PlanPart`'s site. */
-type PlanPart = "leftFoot" | "rightFoot";
-
-/** The record of `IPlanResult`'s site. */
-type IPlanResult = { name: string; share: number };
-
-/** The record of `IPlanE`'s site. */
-type IPlanE = {
-  name: string;
-  share: number;
-};
-
 /**
  * A squat vault over a box: the hands set on the near edge of the box's top,
  * the body tucked over them, a push-off into a flight over the box and a
@@ -324,3 +312,15 @@ export namespace squatVault {
     };
   }
 }
+
+/** The alternatives of `PlanPart`'s site. */
+type PlanPart = "leftFoot" | "rightFoot";
+
+/** The record of `IPlanResult`'s site. */
+type IPlanResult = { name: string; share: number };
+
+/** The record of `IPlanE`'s site. */
+type IPlanE = {
+  name: string;
+  share: number;
+};

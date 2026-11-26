@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  AutoMoviePhysicalSimulation as Simulation,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { Quaternion, AutoMoviePhysicalSimulation as Simulation, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMovieMotionHumanBody,
@@ -339,12 +333,12 @@ function quietMetrics(
         anchor,
         Vector3.length(
           Vector3.subtract(
-            physicalSupportPoint(parent, joint.parentFrame.position),
-            physicalSupportPoint(child, joint.childFrame.position),
+            AutoMovieEnginePhysics.physicalSupportPoint(parent, joint.parentFrame.position),
+            AutoMovieEnginePhysics.physicalSupportPoint(child, joint.childFrame.position),
           ),
         ),
       );
-      for (const coordinate of measurePhysicalJointLimits(joint, parent, child))
+      for (const coordinate of AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child))
         limit = Math.max(limit, coordinate.violation);
     }
   }
@@ -396,7 +390,7 @@ function quietMetrics(
 
       /** Evaluate the declared endpoint in the measured native pose. */
       function endpoint(frame: Frame): IAutoMovieVector3 {
-        return physicalSupportPoint(
+        return AutoMovieEnginePhysics.physicalSupportPoint(
           frame.bodies[body.id]![limb.bone]!,
           limb.localPoint,
         );

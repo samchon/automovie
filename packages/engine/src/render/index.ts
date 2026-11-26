@@ -50,6 +50,7 @@ export * from "./resolveAutoMovieMaterial";
 
 
 
+export { AutoMovieEngineCaptureRecord } from "./AutoMovieEngineCaptureRecord";
 export { AutoMovieEngineRenderSemanticMask } from "./AutoMovieEngineRenderSemanticMask";
 
 export { AutoMovieEngineRenderTarget } from "./AutoMovieEngineRenderTarget";

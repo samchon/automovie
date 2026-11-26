@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /** A support limb of the balance pattern. */
 type Limb = IAutoMovieFootfallPattern["limbs"][number];

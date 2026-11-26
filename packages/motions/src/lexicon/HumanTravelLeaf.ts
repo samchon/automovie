@@ -34,24 +34,6 @@ import { HumanTravelLeafShown } from "./HumanTravelLeafShown";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
 import { HumanTravelLeafWrite } from "./HumanTravelLeafWrite";
 
-/** The record of `IOpenDoorWalkedResult`'s site. */
-type IOpenDoorWalkedResult = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-};
-
-/** The alternatives of `OpenDoorAcross`'s site. */
-type OpenDoorAcross = 1 | -1;
-
-/** The record of `IOpenDoorHandleMoved`'s site. */
-type IOpenDoorHandleMoved = {
-  point: IAutoMovieVector3;
-  normal: IAutoMovieVector3;
-};
-
-/** The record of `IOpenDoorRest`'s site. */
-type IOpenDoorRest = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
-
 /**
  * Opening a door by its handle and holding it: the hand reaches the handle,
  * closes on it and goes with it while the leaf swings, the person standing, and
@@ -465,3 +447,21 @@ export namespace HumanTravelLeaf {
       },
     };
 }
+
+/** The record of `IOpenDoorWalkedResult`'s site. */
+type IOpenDoorWalkedResult = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The alternatives of `OpenDoorAcross`'s site. */
+type OpenDoorAcross = 1 | -1;
+
+/** The record of `IOpenDoorHandleMoved`'s site. */
+type IOpenDoorHandleMoved = {
+  point: IAutoMovieVector3;
+  normal: IAutoMovieVector3;
+};
+
+/** The record of `IOpenDoorRest`'s site. */
+type IOpenDoorRest = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };

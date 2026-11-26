@@ -1,8 +1,5 @@
 import type { IAutoMoviePlaybackTimeline } from "@automovie/interface";
-import {
-  type IAutoMovieDrawScene,
-  placeAutoMovieDrawLayer,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, rejectsError } from "../../internal/predicates";
@@ -55,12 +52,12 @@ export async function test_render_draw_place_layer(): Promise<void> {
   };
   const previous: { entry: number; shot: string } = { entry: 0, shot: "old" };
   const next: { entry: number; shot: string } = { entry: 1, shot: "next" };
-  await placeAutoMovieDrawLayer("layer", byShot, null, 0.25);
-  await placeAutoMovieDrawLayer("layer", byShot, previous, 0.5);
-  await placeAutoMovieDrawLayer("layer", byShot, next, 1);
-  await placeAutoMovieDrawLayer("layer", byShot, previous, 1);
-  await placeAutoMovieDrawLayer("layer", film, previous, 1);
-  await placeAutoMovieDrawLayer("layer", film, next, 0.5);
+  await AutoMovieRenderDraw.placeAutoMovieDrawLayer("layer", byShot, null, 0.25);
+  await AutoMovieRenderDraw.placeAutoMovieDrawLayer("layer", byShot, previous, 0.5);
+  await AutoMovieRenderDraw.placeAutoMovieDrawLayer("layer", byShot, next, 1);
+  await AutoMovieRenderDraw.placeAutoMovieDrawLayer("layer", byShot, previous, 1);
+  await AutoMovieRenderDraw.placeAutoMovieDrawLayer("layer", film, previous, 1);
+  await AutoMovieRenderDraw.placeAutoMovieDrawLayer("layer", film, next, 0.5);
   TestValidator.predicate(
     "film-clock places and boundary holds",
     () =>
@@ -83,7 +80,7 @@ export async function test_render_draw_place_layer(): Promise<void> {
     "absent entry refuses",
     await rejectsError(
       () =>
-        placeAutoMovieDrawLayer(
+        AutoMovieRenderDraw.placeAutoMovieDrawLayer(
           "layer",
           byShot,
           { entry: 2, shot: "missing" },

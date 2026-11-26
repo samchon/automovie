@@ -86,6 +86,35 @@ const PHALANX_NAME: Readonly<
  * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
  * `dressPartner` reaches a region, so the dresser keeps its standoff.
  */
+export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipRing> =
+  {
+    name: "slipRing",
+    interrupts: {},
+    plan: planSlipRing,
+  };
+
+/**
+ * Slip a ring onto a partner's finger. The partner's presented hand is read
+ * where it is at the action's start, so the partner presents it first
+ * (`presentHand`). The dresser's other hand takes the partner's forearm with
+ * the palm laid on its collider (`HumanColliders.cast`). When the partner's
+ * wrist faces the dresser, the fingers follow the approach along the contact
+ * plane. The steadying palm lands before the ring hand leaves its rest and
+ * lets go once the ring hand is back at it
+ * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
+ * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,
+ * then slides it along the axis to `SEAT` of the proximal phalanx over the
+ * stroke: the ring's `wear` axis lies along the finger, from the fingertip
+ * toward the hand, its roll about the finger the one, by `ROLL` steps, that
+ * turns the holding hand least from how it holds the ring. From `strokeEnd` the
+ * ring is worn on the partner's proximal bone and the ring hand's grip ends, so
+ * custody passes without a gap; both hands then return. Both arms are laid in
+ * one course (`courseArmGoal` with `with`), pairing the ring's grip with
+ * the supporting palm on the forearm.
+ * A presented hand beyond the standing arms is reached by the least hinge at
+ * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
+ * `dressPartner` reaches a region, so the dresser keeps its standoff.
+ */
 function planSlipRing(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSlipRing>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -402,32 +431,3 @@ function planSlipRing(
     ],
   };
 }
-
-/**
- * Slip a ring onto a partner's finger. The partner's presented hand is read
- * where it is at the action's start, so the partner presents it first
- * (`presentHand`). The dresser's other hand takes the partner's forearm with
- * the palm laid on its collider (`HumanColliders.cast`). When the partner's
- * wrist faces the dresser, the fingers follow the approach along the contact
- * plane. The steadying palm lands before the ring hand leaves its rest and
- * lets go once the ring hand is back at it
- * (Guiard 1987: the non-dominant hand leads and lags). The ring hand brings the
- * ring's hole onto the finger's axis `LINE_UP` beyond the fingertip by `ready`,
- * then slides it along the axis to `SEAT` of the proximal phalanx over the
- * stroke: the ring's `wear` axis lies along the finger, from the fingertip
- * toward the hand, its roll about the finger the one, by `ROLL` steps, that
- * turns the holding hand least from how it holds the ring. From `strokeEnd` the
- * ring is worn on the partner's proximal bone and the ring hand's grip ends, so
- * custody passes without a gap; both hands then return. Both arms are laid in
- * one course (`courseArmGoal` with `with`), pairing the ring's grip with
- * the supporting palm on the forearm.
- * A presented hand beyond the standing arms is reached by the least hinge at
- * the hips that brings both wrists within their arms (`HumanTrunkLean`), as
- * `dressPartner` reaches a region, so the dresser keeps its standoff.
- */
-export const slipRing: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSlipRing> =
-  {
-    name: "slipRing",
-    interrupts: {},
-    plan: planSlipRing,
-  };

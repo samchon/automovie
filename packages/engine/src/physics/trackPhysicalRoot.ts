@@ -16,7 +16,7 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
+import { distributePhysicalSupportWrench } from "./internal/distributePhysicalSupportWrench";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalRootDemand } from "./physicalRootDemand";
 import { physicalRootExternal } from "./physicalRootExternal";

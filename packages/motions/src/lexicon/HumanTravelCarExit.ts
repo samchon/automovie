@@ -28,20 +28,6 @@ import { admitCarExitSill } from "./admitCarExitSill";
 import { carExitAnkleAt } from "./carExitAnkleAt";
 import { verifyCarExitSill } from "./verifyCarExitSill";
 
-/** A quiet placement of both feet. */
-type Feet = IAutoMovieMotionHumanEntryState["feet"];
-
-/** The two ankle goal points used by the shared standing stance. */
-type Ankles = Record<AutoMovieHumanSide, IAutoMovieVector3>;
-/** The alternatives of `GetOutPart`'s site. */
-type GetOutPart = "leftFoot" | "rightFoot";
-
-/** The alternatives of `GetOutPosturePart`'s site. */
-type GetOutPosturePart = "leftLeg" | "rightLeg";
-
-/** The record of `IGetOutFrame`'s site. */
-type IGetOutFrame = { origin: IAutoMovieVector3; yaw: number };
-
 /**
  * Static rear-seat egress via the adjacent, already-open door. Shippen (2012,
  * IJTTE 2:107–117) studied occupants leaving the rear seat through the nearest
@@ -473,3 +459,17 @@ export namespace HumanTravelCarExit {
       },
     };
 }
+
+/** A quiet placement of both feet. */
+type Feet = IAutoMovieMotionHumanEntryState["feet"];
+
+/** The two ankle goal points used by the shared standing stance. */
+type Ankles = Record<AutoMovieHumanSide, IAutoMovieVector3>;
+/** The alternatives of `GetOutPart`'s site. */
+type GetOutPart = "leftFoot" | "rightFoot";
+
+/** The alternatives of `GetOutPosturePart`'s site. */
+type GetOutPosturePart = "leftLeg" | "rightLeg";
+
+/** The record of `IGetOutFrame`'s site. */
+type IGetOutFrame = { origin: IAutoMovieVector3; yaw: number };

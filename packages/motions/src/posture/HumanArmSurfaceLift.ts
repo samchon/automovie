@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  physicalShapeNearest,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { Vector3, physicalShapeSegmentDistance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShapeNearest,
   IAutoMovieVector3,
@@ -32,7 +28,7 @@ export function HumanArmSurfaceLift(
   const { normal, shape }: P.ILocated = at;
   if (normal === undefined || shape === undefined) return undefined;
   const height: number = at.height ?? at.gap(at.point);
-  const nearest: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
+  const nearest: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
     shape.pose,
     shape.shape,
     contact,
@@ -53,7 +49,7 @@ export function HumanArmSurfaceLift(
   if (high <= 0) return local();
   const point = (distance: number): IAutoMovieVector3 =>
     Vector3.add(contact, Vector3.scale(normal, distance));
-  const deepest: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
+  const deepest: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
     shape.pose,
     shape.shape,
     contact,

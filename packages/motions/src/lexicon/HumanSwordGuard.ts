@@ -16,13 +16,6 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingSkill } from "../striking/StrikingSkill";
 import { HumanSword } from "./HumanSword";
 
-/** The record of `IGUARDSEntryItem`'s site. */
-type IGUARDSEntryItem = {
-  hilt: IAutoMovieMotionHumanSword.IParts;
-  point: IAutoMovieMotionHumanSword.IParts;
-  edge: IAutoMovieMotionHumanSword.IParts;
-};
-
 /**
  * The guards of blade work: the blade taken from where the hand holds it to a
  * named guard and kept there.
@@ -131,3 +124,10 @@ export namespace HumanSwordGuard {
       },
     };
 }
+
+/** The record of `IGUARDSEntryItem`'s site. */
+type IGUARDSEntryItem = {
+  hilt: IAutoMovieMotionHumanSword.IParts;
+  point: IAutoMovieMotionHumanSword.IParts;
+  edge: IAutoMovieMotionHumanSword.IParts;
+};

@@ -1,5 +1,7 @@
 export * from "./AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";
 export * from "./IAutoMovieSurfaceGraphicsObject.js";
 export * from "./IPrepareAutoMovieSurfaceGraphicsProps.js";
-export * from "./hideAutoMovieSurfaceGraphics.js";
-export * from "./prepareAutoMovieSurfaceGraphics.js";
+
+
+
+export { AutoMovieRenderSurfaceGraphic } from "./AutoMovieRenderSurfaceGraphic.js";

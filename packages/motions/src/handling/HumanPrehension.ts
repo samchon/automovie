@@ -18,12 +18,6 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { prepareHumanShapeBlend } from "../posture/prepareHumanShapeBlend";
 import { HumanSkill } from "../skill/HumanSkill";
 
-/** The alternatives of `ShapesEntryItem`'s site. */
-type ShapesEntryItem = "entry" | "open" | "closed";
-
-/** The record of `IAPPROACHItem`'s site. */
-type IAPPROACHItem = { end: number; start: number };
-
 /**
  * Reach to grasp as two coupled components, the model of prehension since
  * Jeannerod (1981, 1984): the transport carries the hand to the object and the
@@ -305,3 +299,9 @@ export namespace HumanPrehension {
     };
   }
 }
+
+/** The alternatives of `ShapesEntryItem`'s site. */
+type ShapesEntryItem = "entry" | "open" | "closed";
+
+/** The record of `IAPPROACHItem`'s site. */
+type IAPPROACHItem = { end: number; start: number };

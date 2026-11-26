@@ -16,9 +16,9 @@ import type {
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import { PHYSICAL_COUPLED_RELATIONSHIP_LIMIT } from "./PHYSICAL_COUPLED_RELATIONSHIP_LIMIT";
 import { PHYSICAL_TARGET_LIMITS } from "./PHYSICAL_TARGET_LIMITS";
-import { admitPhysicalContactBindings } from "../admitPhysicalContactBindings";
+import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
 import { initialPhysicalContactTargets } from "./initialPhysicalContactTargets";
-import { linearizePhysicalTargetRows } from "../linearizePhysicalTargetRows";
+import { linearizePhysicalTargetRows } from "./linearizePhysicalTargetRows";
 import { physicalContactTargetBones } from "./physicalContactTargetBones";
 import { physicalCoupledTargetDependencies } from "./physicalCoupledTargetDependencies";
 import { preparePhysicalContactTargetRows } from "./preparePhysicalContactTargetRows";

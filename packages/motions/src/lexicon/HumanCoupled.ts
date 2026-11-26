@@ -10,33 +10,6 @@ import type {
 import { supportAssist } from "../actions/supportAssist";
 import { getUp } from "../floor/getUp";
 
-/** The alternatives of `CastEntryItem3`'s site. */
-type CastEntryItem3 = "thrower" | "thrown";
-
-/** The alternatives of `ThrowingRole`'s site. */
-type ThrowingRole = "thrower" | "thrown";
-
-/** The alternatives of `Throwing`'s site. */
-type Throwing = "thrower" | "thrown";
-
-/** The alternatives of `CastEntryItem2`'s site. */
-type CastEntryItem2 = "helper" | "second" | "helped";
-
-/** The alternatives of `SupportWalkRole`'s site. */
-type SupportWalkRole = "helper" | "second" | "helped";
-
-/** The alternatives of `SupportWalk`'s site. */
-type SupportWalk = "helper" | "second" | "helped";
-
-/** The alternatives of `CastEntryItem`'s site. */
-type CastEntryItem = "bearer" | "borne";
-
-/** The alternatives of `CarryRole`'s site. */
-type CarryRole = "bearer" | "borne";
-
-/** The alternatives of `Carry`'s site. */
-type Carry = "bearer" | "borne";
-
 /**
  * The two-body compositions: carries with their lift and set-down, a supported
  * walk, and throws and takedowns, each a mutual record over shipped laws, with
@@ -320,3 +293,30 @@ export namespace HumanCoupled {
           },
   };
 }
+
+/** The alternatives of `CastEntryItem3`'s site. */
+type CastEntryItem3 = "thrower" | "thrown";
+
+/** The alternatives of `ThrowingRole`'s site. */
+type ThrowingRole = "thrower" | "thrown";
+
+/** The alternatives of `Throwing`'s site. */
+type Throwing = "thrower" | "thrown";
+
+/** The alternatives of `CastEntryItem2`'s site. */
+type CastEntryItem2 = "helper" | "second" | "helped";
+
+/** The alternatives of `SupportWalkRole`'s site. */
+type SupportWalkRole = "helper" | "second" | "helped";
+
+/** The alternatives of `SupportWalk`'s site. */
+type SupportWalk = "helper" | "second" | "helped";
+
+/** The alternatives of `CastEntryItem`'s site. */
+type CastEntryItem = "bearer" | "borne";
+
+/** The alternatives of `CarryRole`'s site. */
+type CarryRole = "bearer" | "borne";
+
+/** The alternatives of `Carry`'s site. */
+type Carry = "bearer" | "borne";

@@ -10,7 +10,7 @@ import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "../filmResponse/AUTOMOVIE_FILM_
 import { collectAutoMovieFilmOverlays } from "../filmResponse/collectAutoMovieFilmOverlays.js";
 import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHADERS.js";
 import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
-import { applyFilmIndirectPatch } from "./applyFilmIndirectPatch.js";
+import { applyFilmIndirectPatch } from "./internal/applyFilmIndirectPatch.js";
 import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
 
 /**

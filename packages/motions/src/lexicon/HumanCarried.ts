@@ -24,33 +24,6 @@ import { HumanCarriedDrag } from "./HumanCarriedDrag";
 const SHOULDER_LEGS: readonly [number, number, number] = [70, 90, 30];
 
 /**
- * Where a straddling rider's shins hang from its seat, an arm's length from the
- * carrier's resting region, toward the hand's side: the leg drawn in its own
- * sagittal plane, the thigh flexed `flexion` forward from hanging and the shin
- * `knee` back from the thigh, a mid-shin a thigh plus half a shin out for thigh
- * and shin of one length, then turned out about the forward axis by
- * `abduction`. Only the direction carries: the registration turns the rider to
- * its holds' directions from the resting point.
- *
- * @param legs The carry's hip flexion, knee flexion and hip abduction, degrees.
- * @returns The offset, arm lengths.
- */
-function straddled(
-  legs: readonly [number, number, number],
-): IAutoMovieMotionHumanCarried.IOffset {
-  const rad: number = Math.PI / 180;
-  const [flexion, knee, abduction] = legs;
-  const down: number =
-    -Math.cos(flexion * rad) - Math.cos((flexion - knee) * rad) / 2;
-  const ahead: number =
-    Math.sin(flexion * rad) + Math.sin((flexion - knee) * rad) / 2;
-  const out: number = -down * Math.sin(abduction * rad);
-  const up: number = down * Math.cos(abduction * rad);
-  const length: number = Math.hypot(out, up, ahead);
-  return { out: out / length, up: up / length, forward: ahead / length };
-}
-
-/**
  * Being carried by another person: on the back, in the arms or over a shoulder.
  * The carried person keeps the posture they are in and goes rigidly with one
  * bone of the carrier (the upper chest when none is named), so whatever the
@@ -345,4 +318,31 @@ export namespace HumanCarried {
 
   /** Seconds the carrier's hands take to reach their hold (provisional). */
   export const TAKE: number = 0.4;
+}
+
+/**
+ * Where a straddling rider's shins hang from its seat, an arm's length from the
+ * carrier's resting region, toward the hand's side: the leg drawn in its own
+ * sagittal plane, the thigh flexed `flexion` forward from hanging and the shin
+ * `knee` back from the thigh, a mid-shin a thigh plus half a shin out for thigh
+ * and shin of one length, then turned out about the forward axis by
+ * `abduction`. Only the direction carries: the registration turns the rider to
+ * its holds' directions from the resting point.
+ *
+ * @param legs The carry's hip flexion, knee flexion and hip abduction, degrees.
+ * @returns The offset, arm lengths.
+ */
+function straddled(
+  legs: readonly [number, number, number],
+): IAutoMovieMotionHumanCarried.IOffset {
+  const rad: number = Math.PI / 180;
+  const [flexion, knee, abduction] = legs;
+  const down: number =
+    -Math.cos(flexion * rad) - Math.cos((flexion - knee) * rad) / 2;
+  const ahead: number =
+    Math.sin(flexion * rad) + Math.sin((flexion - knee) * rad) / 2;
+  const out: number = -down * Math.sin(abduction * rad);
+  const up: number = down * Math.cos(abduction * rad);
+  const length: number = Math.hypot(out, up, ahead);
+  return { out: out / length, up: up / length, forward: ahead / length };
 }

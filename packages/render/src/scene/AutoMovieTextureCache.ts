@@ -7,7 +7,7 @@ import * as THREE from "three";
 
 import { IAutoMovieTextureLoader } from "./IAutoMovieTextureLoader.js";
 import { decodeAutoMovieImage } from "./internal/decodeAutoMovieImage.js";
-import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
+import { readAutoMovieTextureSource } from "./internal/readAutoMovieTextureSource.js";
 import { textureBindingAsset } from "./textureBindingAsset.js";
 
 /**

@@ -51,6 +51,38 @@ const PRESENT: number = 0.1;
  */
 const BELOW: number = 0.2;
 
+/**
+ * Set a neck loop over a partner's head. The loop's path is
+ * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
+ * start, so a partner who bows, kneels or sits first is met where they are. The
+ * hand that holds the loop at entry first presents it level before the chest
+ * (its nearest edge `PRESENT` off the chest, `BELOW` the shoulders), turned as
+ * it will go over the head, and the other hand closes on the loop's other
+ * handle there by `ready`, without carrying it. Both hands guide the loop over
+ * the head. If both grips cannot reach the nape together, the assisting hand
+ * releases at `assistRelease` once the loop clears the head. At `strokeEnd` the
+ * loop is worn on the partner's upper chest (the sternum region's bone) and the
+ * carrying grip ends. Both arms are laid in one course (`courseArmGoal` with
+ * `with`). Before any of it, the loop's inner half-breadth is checked against
+ * the partner's head radius, and the hands' highest places, above the crown,
+ * against the arm's reach from each shoulder, from the dresser's stance: chosen
+ * as Vahrenkamp, Asfour and Dillmann 2013's Algorithm 1 tries base poses
+ * (`AutoMovieMotionHumanTouchStance.choose`) between standing where it entered
+ * and one adjustment step toward the hands' place at the crown
+ * (`pickUpAdjust.stepped`), the first that clears it. A loop too narrow for the
+ * head, or a crown neither stance clears (a standing tall partner), is refused
+ * with the measure, so the partner bows or kneels. Down past the crown to a
+ * seated partner's nape and chest the dresser hinges at the hips by the least
+ * angle that keeps both wrists within their arms along the path
+ * (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
+ */
+export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlaceOverHead> =
+  {
+    name: "placeOverHead",
+    interrupts: {},
+    plan: planPlaceOverHead,
+  };
+
 /** The handle names a neck loop declares. */
 type Handle = "holdLeft" | "holdRight";
 
@@ -396,35 +428,3 @@ function assistRelease(clock: IAutoMovieMotionClock, share: number): number {
   }
   return hi;
 }
-
-/**
- * Set a neck loop over a partner's head. The loop's path is
- * `placeOverHeadPath`'s, read on the partner's displayed body at the action's
- * start, so a partner who bows, kneels or sits first is met where they are. The
- * hand that holds the loop at entry first presents it level before the chest
- * (its nearest edge `PRESENT` off the chest, `BELOW` the shoulders), turned as
- * it will go over the head, and the other hand closes on the loop's other
- * handle there by `ready`, without carrying it. Both hands guide the loop over
- * the head. If both grips cannot reach the nape together, the assisting hand
- * releases at `assistRelease` once the loop clears the head. At `strokeEnd` the
- * loop is worn on the partner's upper chest (the sternum region's bone) and the
- * carrying grip ends. Both arms are laid in one course (`courseArmGoal` with
- * `with`). Before any of it, the loop's inner half-breadth is checked against
- * the partner's head radius, and the hands' highest places, above the crown,
- * against the arm's reach from each shoulder, from the dresser's stance: chosen
- * as Vahrenkamp, Asfour and Dillmann 2013's Algorithm 1 tries base poses
- * (`AutoMovieMotionHumanTouchStance.choose`) between standing where it entered
- * and one adjustment step toward the hands' place at the crown
- * (`pickUpAdjust.stepped`), the first that clears it. A loop too narrow for the
- * head, or a crown neither stance clears (a standing tall partner), is refused
- * with the measure, so the partner bows or kneels. Down past the crown to a
- * seated partner's nape and chest the dresser hinges at the hips by the least
- * angle that keeps both wrists within their arms along the path
- * (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
- */
-export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlaceOverHead> =
-  {
-    name: "placeOverHead",
-    interrupts: {},
-    plan: planPlaceOverHead,
-  };

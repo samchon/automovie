@@ -18,9 +18,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { bowlingSlideSchedule } from "./bowlingSlideSchedule";
 
-/** The authored final glide of a one-handed bowling approach. */
-type Parameters = IAutoMovieMotionHumanBowlingSlide.IParams;
-
 /**
  * The swinging toe's least clearance over the floor, metres: the minimum toe
  * clearance of gait, 12.9 mm (Winter 1992).
@@ -61,6 +58,9 @@ export const bowlingSlide: IAutoMovieMotionHumanActionLaw<Parameters> = {
   yields: ["leftArm", "leftHand", "rightArm", "rightHand", "trunk", "head"],
   plan,
 };
+
+/** The authored final glide of a one-handed bowling approach. */
+type Parameters = IAutoMovieMotionHumanBowlingSlide.IParams;
 
 /**
  * Prepare the slide and the distinct recovery step without changing entry

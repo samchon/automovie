@@ -1,8 +1,5 @@
 import type { IAutoMovieShot } from "@automovie/interface";
-import {
-  type IAutoMovieModelObject,
-  applyPracticalSurfaceMaterials,
-} from "@automovie/render";
+import { type IAutoMovieModelObject, AutoMovieRenderMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Group, Material, Mesh, MeshBasicMaterial, Object3D } from "three";
 
@@ -62,7 +59,7 @@ export function test_render_scene_practical_surface_materials(): void {
     id: string,
   ): Material | undefined =>
     id === "active" ? active : id === "idle" ? initial : undefined;
-  applyPracticalSurfaceMaterials(original, 0.5, resolveNode, resolveMaterial);
+  AutoMovieRenderMaterial.applyPracticalSurfaceMaterials(original, 0.5, resolveNode, resolveMaterial);
   TestValidator.predicate(
     "only the tracked part receives the prepared reference",
     panel.material === active && frame.material === initial,
@@ -83,7 +80,7 @@ export function test_render_scene_practical_surface_materials(): void {
     "later material is refused by name",
     throwsError(
       () =>
-        applyPracticalSurfaceMaterials(
+        AutoMovieRenderMaterial.applyPracticalSurfaceMaterials(
           demanded,
           0.5,
           resolveNode,
@@ -112,7 +109,7 @@ export function test_render_scene_practical_surface_materials(): void {
     "duplicate native target is refused",
     throwsError(
       () =>
-        applyPracticalSurfaceMaterials(
+        AutoMovieRenderMaterial.applyPracticalSurfaceMaterials(
           aliases,
           0.5,
           resolveNode,
@@ -129,7 +126,7 @@ export function test_render_scene_practical_surface_materials(): void {
     "shot end is excluded",
     throwsError(
       () =>
-        applyPracticalSurfaceMaterials(
+        AutoMovieRenderMaterial.applyPracticalSurfaceMaterials(
           original,
           1,
           (): never => {

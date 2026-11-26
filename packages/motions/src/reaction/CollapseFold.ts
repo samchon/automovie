@@ -4,41 +4,6 @@ import type {
   IAutoMovieMotionHumanJoints,
 } from "@automovie/interface";
 
-/** The record of `IARMSItem`'s site. */
-type IARMSItem = {
-  reach: number;
-  ahead: number;
-  sweep: number;
-  yield: number;
-  brace: number;
-  open: number;
-  elbow: number;
-  limp: number;
-  limpElbow: number;
-  neck: number;
-};
-
-/** The record of `ISAGItem`'s site. */
-type ISAGItem = { knee: number; pitch: number };
-
-/** One direction's kneeling and lying angles, degrees. */
-interface IShape {
-  /** Hip flexion on the knees. */
-  hip: number;
-  /** Knee flexion on the knees. */
-  knee: number;
-  /** Trunk pitch reached by the drop. */
-  pitch: number;
-  /** Hip flexion lying. */
-  lyingHip: number;
-  /** Knee flexion lying. */
-  lyingKnee: number;
-  /** Trunk pitch added by the lay. */
-  lyingPitch: number;
-  /** Trunk roll reached by the lay toward the fall's side. */
-  roll: number;
-}
-
 /** Each direction's angles, degrees (provisional stage readings). */
 const SHAPES: Readonly<
   Record<Exclude<IAutoMovieMotionHumanCollapse.Direction, "backward">, IShape>
@@ -194,4 +159,39 @@ export namespace CollapseFold {
    * before its trunk: provisional.
    */
   export const HANDS: number = 0.6;
+}
+
+/** The record of `IARMSItem`'s site. */
+type IARMSItem = {
+  reach: number;
+  ahead: number;
+  sweep: number;
+  yield: number;
+  brace: number;
+  open: number;
+  elbow: number;
+  limp: number;
+  limpElbow: number;
+  neck: number;
+};
+
+/** The record of `ISAGItem`'s site. */
+type ISAGItem = { knee: number; pitch: number };
+
+/** One direction's kneeling and lying angles, degrees. */
+interface IShape {
+  /** Hip flexion on the knees. */
+  hip: number;
+  /** Knee flexion on the knees. */
+  knee: number;
+  /** Trunk pitch reached by the drop. */
+  pitch: number;
+  /** Hip flexion lying. */
+  lyingHip: number;
+  /** Knee flexion lying. */
+  lyingKnee: number;
+  /** Trunk pitch added by the lay. */
+  lyingPitch: number;
+  /** Trunk roll reached by the lay toward the fall's side. */
+  roll: number;
 }

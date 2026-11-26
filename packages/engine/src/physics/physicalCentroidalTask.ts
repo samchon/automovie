@@ -8,7 +8,7 @@ import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /**
  * The whole-body momentum task of a root under internal actuation: the ground

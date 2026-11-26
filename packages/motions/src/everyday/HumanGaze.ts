@@ -22,15 +22,6 @@ import { HumanGazeLayer } from "./HumanGazeLayer";
 import { blendGazeJoint } from "./blendGazeJoint";
 import { readHumanGazeBones } from "./readHumanGazeBones";
 
-/** The record of `IAimFacingTarget`'s site. */
-type IAimFacingTarget = { yaw: number; pitch: number };
-
-/** The record of `IAimTowards`'s site. */
-type IAimTowards = { yaw: number; pitch: number };
-
-/** The record of `IHEADItem`'s site. */
-type IHEADItem = { yaw: number; down: number; up: number };
-
 /**
  * Gaze as a goal: the eyes' lines brought onto a target, with the eyes, the
  * head and neck and the trunk recruited in that order as the target lies
@@ -348,6 +339,15 @@ export namespace HumanGaze {
     return HumanGazeLayer(requests, name);
   }
 }
+
+/** The record of `IAimFacingTarget`'s site. */
+type IAimFacingTarget = { yaw: number; pitch: number };
+
+/** The record of `IAimTowards`'s site. */
+type IAimTowards = { yaw: number; pitch: number };
+
+/** The record of `IHEADItem`'s site. */
+type IHEADItem = { yaw: number; down: number; up: number };
 
 /**
  * One gaze axis split: the first part's share up to `first` either way, then

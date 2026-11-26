@@ -13,7 +13,7 @@ import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracki
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { physicalShapeBounds } from "./physicalShapeBounds";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /** A support limb of a body's support-tracking pattern. */
 type ILimb = NonNullable<

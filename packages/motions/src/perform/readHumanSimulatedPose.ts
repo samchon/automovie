@@ -1,10 +1,4 @@
-import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  physicalJointRelativeRotation,
-  projectPhysicalJointRotation,
-} from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieClinicalAxis,
   AutoMovieHumanoidBone,
@@ -176,9 +170,9 @@ export function readHumanSimulatedPose(
           joint.parentFrame.rotation,
         ),
         Quaternion.multiply(
-          projectPhysicalJointRotation(
+          AutoMovieEnginePhysics.projectPhysicalJointRotation(
             joint,
-            physicalJointRelativeRotation(
+            AutoMovieEnginePhysics.physicalJointRelativeRotation(
               {
                 [joint.parent]: frame[joint.parent]!,
                 [joint.child]: solved,

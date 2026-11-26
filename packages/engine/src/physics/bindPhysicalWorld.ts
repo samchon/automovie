@@ -18,7 +18,7 @@ import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalHullFaces } from "./physicalHullFaces";
-import { physicalHullFacesErode } from "./physicalHullFacesErode";
+import { physicalHullFacesErode } from "./internal/physicalHullFacesErode";
 import { physicalShapeHull } from "./physicalShapeHull";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 

@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeNearest } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieVector3,
@@ -136,7 +136,7 @@ export function HumanArmTrajectoryMaterialSweep(
     if (witness === undefined) continue;
     const [startPoint, radius] = from.probes[witness.probe]!;
     const endPoint: IAutoMovieVector3 = witness.to;
-    const nearest = physicalShapeNearest(
+    const nearest = AutoMovieEnginePhysics.physicalShapeNearest(
       shape.pose,
       shape.shape,
       startPoint,

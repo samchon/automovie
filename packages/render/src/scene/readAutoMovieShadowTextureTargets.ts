@@ -10,7 +10,7 @@ import type { IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { matchesAutoMovieShadowTextureProfile } from "./internal/matchesAutoMovieShadowTextureProfile.js";
 import { planAutoMovieShadowTextureTarget } from "./internal/planAutoMovieShadowTextureTarget.js";
-import { readAutoMovieRenderTextureTarget } from "./readAutoMovieRenderTextureTarget.js";
+import { readAutoMovieRenderTextureTarget } from "./internal/readAutoMovieRenderTextureTarget.js";
 import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
 
 /**

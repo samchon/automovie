@@ -1,4 +1,4 @@
-import { Vector3, physicalShapeNearest } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
@@ -207,7 +207,7 @@ function trip(
   const nearest: number = Math.min(
     ...reader.prop.shapes.map(
       (shape: IAutoMoviePhysicalShape): number =>
-        physicalShapeNearest(pose, shape, ball, toe).distance,
+        AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, ball, toe).distance,
     ),
   );
   const heading: IAutoMovieVector3 = HumanFrame.forward(

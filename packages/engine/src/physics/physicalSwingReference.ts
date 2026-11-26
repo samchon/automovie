@@ -13,9 +13,9 @@ import { Vector3 } from "../math/Vector3";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
-import { physicalSupportPoint } from "./physicalSupportPoint";
-import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
-import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { projectPhysicalJointRotation } from "./internal/projectPhysicalJointRotation";
+import { solvePhysicalArticulationTargets } from "./internal/solvePhysicalArticulationTargets";
 
 /**
  * A swinging limb's references near its lift-off: each of its chain's joints

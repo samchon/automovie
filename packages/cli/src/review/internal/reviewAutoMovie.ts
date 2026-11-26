@@ -33,7 +33,7 @@ export async function reviewAutoMovie(
   );
   const options: ReturnType<typeof readAutoMovieReviewOptions> =
     readAutoMovieReviewOptions(
-      render.readAutoMovieCaptureArguments(props.args),
+      render.AutoMovieRenderCapture.readArguments(props.args),
     );
   if (!("url" in options)) {
     await reviewAutoMovieFile({ options, root, env: props.env });

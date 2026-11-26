@@ -1,8 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  AutoMoviePhysicalSimulation as Simulation,
-  planPhysicalContactTargets,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, AutoMoviePhysicalSimulation as Simulation, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalContactBinding as Binding,
   IAutoMoviePhysicalJoint,
@@ -88,8 +84,8 @@ export async function test_engine_physics_physical_binding_budget(): Promise<voi
   assert.throws((): string => Simulation.identity(input), /budget/);
   source.maximumBindings = 17;
   Simulation.identity(input);
-  const fitted: ReturnType<typeof planPhysicalContactTargets> =
-    planPhysicalContactTargets({
+  const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: source.id,
       profiles: { assembly: profile, receiver },
       targets: source.targets[0]!.segments,

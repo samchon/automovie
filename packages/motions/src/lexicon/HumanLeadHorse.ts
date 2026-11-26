@@ -22,6 +22,20 @@ import { HumanRideHands } from "./HumanRideHands";
 import { admitLeadReach } from "./admitLeadReach";
 import { humanRideGripTiming } from "./humanRideGripTiming";
 
+/**
+ * Keep one handler's hand on the horse's actual moving lead frame.
+ *
+ * The base action owns steps and the lead remains on the posed horse. The
+ * overlay acquires the rope and releases it over equal authored intervals.
+ */
+export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLeadHorse> =
+  {
+    name: "leadHorse",
+    overlay: true,
+    interrupts: {},
+    plan: planHumanLeadHorse,
+  };
+
 /** Fit and verify the displayed hand against one actual moving lead. */
 function planHumanLeadHorse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLeadHorse>,
@@ -204,17 +218,3 @@ function planHumanLeadHorse(
     },
   });
 }
-
-/**
- * Keep one handler's hand on the horse's actual moving lead frame.
- *
- * The base action owns steps and the lead remains on the posed horse. The
- * overlay acquires the rope and releases it over equal authored intervals.
- */
-export const HumanLeadHorse: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLeadHorse> =
-  {
-    name: "leadHorse",
-    overlay: true,
-    interrupts: {},
-    plan: planHumanLeadHorse,
-  };

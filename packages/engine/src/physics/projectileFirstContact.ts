@@ -13,7 +13,7 @@ import type {
 import { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieContactEvents";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { physicalShapeNearest } from "./physicalShapeNearest";
+import { physicalShapeNearest } from "./internal/physicalShapeNearest";
 import { physicalShapeSegmentDistance } from "./physicalShapeSegmentDistance";
 import { projectileAt } from "./projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";

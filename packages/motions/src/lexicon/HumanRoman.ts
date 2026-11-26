@@ -13,6 +13,21 @@ import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { humanRomanStance } from "./humanRomanStance";
 
+/**
+ * Roman riding (`IAutoMovieMotionHumanRoman`): each foot planted on its own
+ * horse's moving seat, the root standing over their middle at the hip's height,
+ * facing their mean heading; the stand is reached from the entry over `step` by
+ * a minimum-jerk share. A stance the legs cannot span, wider than both legs or
+ * narrower than the hips, is refused at any sampled second of the hold.
+ * Register `HumanRoman` to use it.
+ */
+export const HumanRoman: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRoman> =
+  {
+    name: "roman",
+    interrupts: {},
+    plan: planHumanRoman,
+  };
+
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoman>;
 
@@ -88,18 +103,3 @@ function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
     },
   };
 }
-
-/**
- * Roman riding (`IAutoMovieMotionHumanRoman`): each foot planted on its own
- * horse's moving seat, the root standing over their middle at the hip's height,
- * facing their mean heading; the stand is reached from the entry over `step` by
- * a minimum-jerk share. A stance the legs cannot span, wider than both legs or
- * narrower than the hips, is refused at any sampled second of the hold.
- * Register `HumanRoman` to use it.
- */
-export const HumanRoman: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRoman> =
-  {
-    name: "roman",
-    interrupts: {},
-    plan: planHumanRoman,
-  };

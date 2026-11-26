@@ -29,6 +29,41 @@ const FIT_GAP: number = 0.01;
 const continueContact = (
   contact: IAutoMovieMotionHumanEntryState.ISupport,
 ): IAutoMovieMotionHumanContactWindow => ({ ...contact, from: 0, to: 1 });
+
+/**
+ * Cross one ankle over the other knee while seated, hold, and put the foot
+ * back. Register under `crossAnkleOverKnee` and perform after a completed chair
+ * `sit`. The same seat, carrying leg and other active supports continue through
+ * the action.
+ *
+ * Jeong et al. (2008), Leg Crossing-Induced Asymmetrical Trunk Muscle Activity
+ * During Seated Computer Work, distinguish ankle-on-knee from upper-leg
+ * crossing
+ * (https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001291962).
+ * Yu and An (2015), https://pmc.ncbi.nlm.nih.gov/articles/PMC4483391/, studied
+ * the latter. Turley et al. (2013),
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC3589629/, identify coupled hip range
+ * limits during activities such as chair leg crossing. Ganokroj et al. (2021),
+ * https://doi.org/10.1186/s12891-021-04487-z, distinguish the chair figure-four
+ * by its hip flexion, abduction and external rotation. The moving hip needs a
+ * calibrated thigh-axis rotation order. The planner fits the seated leg's
+ * actual bearing surface and checks the sweep outside and above the carrying
+ * leg before settling the ankle. The return retraces that fit.
+ */
+export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrossAnkleOverKnee> =
+  {
+    name: "crossAnkleOverKnee",
+    interrupts: {
+      rise: [{ window: ["footDown", 1], kind: "inertialize", entry: 0 }],
+      crossAnkleOverKnee: [
+        { window: ["footDown", 1], kind: "inertialize", entry: 0 },
+      ],
+    },
+    accepts: {
+      sit: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planCrossAnkleOverKnee,
+  };
 /** The alternatives of `PlanCrossAnkleOverKneeKnee`'s site. */
 type PlanCrossAnkleOverKneeKnee = "leftLowerLeg" | "rightLowerLeg";
 
@@ -176,38 +211,3 @@ function planCrossAnkleOverKnee(
     },
   };
 }
-
-/**
- * Cross one ankle over the other knee while seated, hold, and put the foot
- * back. Register under `crossAnkleOverKnee` and perform after a completed chair
- * `sit`. The same seat, carrying leg and other active supports continue through
- * the action.
- *
- * Jeong et al. (2008), Leg Crossing-Induced Asymmetrical Trunk Muscle Activity
- * During Seated Computer Work, distinguish ankle-on-knee from upper-leg
- * crossing
- * (https://www.kci.go.kr/kciportal/ci/sereArticleSearch/ciSereArtiView.kci?sereArticleSearchBean.artiId=ART001291962).
- * Yu and An (2015), https://pmc.ncbi.nlm.nih.gov/articles/PMC4483391/, studied
- * the latter. Turley et al. (2013),
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC3589629/, identify coupled hip range
- * limits during activities such as chair leg crossing. Ganokroj et al. (2021),
- * https://doi.org/10.1186/s12891-021-04487-z, distinguish the chair figure-four
- * by its hip flexion, abduction and external rotation. The moving hip needs a
- * calibrated thigh-axis rotation order. The planner fits the seated leg's
- * actual bearing surface and checks the sweep outside and above the carrying
- * leg before settling the ankle. The return retraces that fit.
- */
-export const crossAnkleOverKnee: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCrossAnkleOverKnee> =
-  {
-    name: "crossAnkleOverKnee",
-    interrupts: {
-      rise: [{ window: ["footDown", 1], kind: "inertialize", entry: 0 }],
-      crossAnkleOverKnee: [
-        { window: ["footDown", 1], kind: "inertialize", entry: 0 },
-      ],
-    },
-    accepts: {
-      sit: [{ window: ["seated", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planCrossAnkleOverKnee,
-  };

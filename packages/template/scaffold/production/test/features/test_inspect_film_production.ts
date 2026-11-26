@@ -9,7 +9,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
 import { HumanVerdicts } from "@automovie/motions";
-import { type IAutoMovieDrawScene, observeAutoMoviePlacedInspection, selectAutoMoviePlacedChecks, AutoMovieRenderInspectionMarks } from "@automovie/render";
+import { type IAutoMovieDrawScene, selectAutoMoviePlacedChecks, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -182,7 +182,7 @@ export async function test_inspect_film_production(): Promise<void> {
     mode: IAutoMovieDrawScene.IPlacedSample["mode"],
   ): Promise<IAutoMovieInspectionDiagnostics> => {
     await subject.seek(frame / FPS);
-    return observeAutoMoviePlacedInspection(subject, frame / FPS, mode)!;
+    return AutoMovieRenderDraw.observeAutoMoviePlacedInspection(subject, frame / FPS, mode)!;
   };
   const gapOf = (
     packet: IAutoMovieInspectionDiagnostics,

@@ -1,7 +1,4 @@
-import {
-  createEnvironment,
-  createLift,
-} from "@automovie/archetypes/environments";
+import { createLift, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import type { IAutoMovieEnvironment } from "@automovie/interface";
 
 import { environmentLiftSchedule } from "./environmentLiftSchedule";
@@ -22,7 +19,7 @@ export function environmentLiftFixture(upper: number = 3.4): {
     car: { callHeight: 1.18 },
     schedule,
   });
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "estate",
     items: { lift: { use: lift } },
   });

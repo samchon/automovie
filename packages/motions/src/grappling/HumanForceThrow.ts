@@ -31,9 +31,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanForceExchange } from "./HumanForceExchange";
 
-/** The record of `IPlanState`'s site. */
-type IPlanState = { angle: number; rate: number };
-
 /**
  * The throw of a pulled body whose base has broken: the swing over the
  * thrower's fulcrum, the release where the centre comes level with it and the
@@ -344,3 +341,6 @@ export namespace HumanForceThrow {
     };
   }
 }
+
+/** The record of `IPlanState`'s site. */
+type IPlanState = { angle: number; rate: number };

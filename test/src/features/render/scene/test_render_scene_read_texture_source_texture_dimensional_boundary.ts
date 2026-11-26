@@ -1,5 +1,5 @@
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/render";
+import { AutoMovieSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import type { Texture, TextureEventMap, WebGLRenderTarget } from "three";
 
@@ -24,7 +24,7 @@ export async function test_render_scene_read_texture_source_texture_dimensional_
   );
   TestValidator.equals(
     "supported two-dimensional image",
-    readAutoMovieTextureSource("image", image).format,
+    AutoMovieSceneTexture.readSource("image", image).format,
     "rgba8",
   );
   for (const texture of [
@@ -38,7 +38,7 @@ export async function test_render_scene_read_texture_source_texture_dimensional_
     texture.internalFormat = "RGBA8";
     TestValidator.equals(
       "unsupported dimensional storage stays unknown",
-      readAutoMovieTextureSource("layers", texture).format,
+      AutoMovieSceneTexture.readSource("layers", texture).format,
       undefined,
     );
     texture.dispose();
@@ -52,12 +52,12 @@ export async function test_render_scene_read_texture_source_texture_dimensional_
   image.image = volumeImage;
   TestValidator.equals(
     "a volume extent cannot masquerade as two-dimensional",
-    readAutoMovieTextureSource("image", image).format,
+    AutoMovieSceneTexture.readSource("image", image).format,
     undefined,
   );
   const target: WebGLRenderTarget<Texture<unknown, TextureEventMap>> =
     new THREE.WebGLRenderTarget(4, 4);
-  const facts: IAutoMovieRenderTextureSource = readAutoMovieTextureSource(
+  const facts: IAutoMovieRenderTextureSource = AutoMovieSceneTexture.readSource(
     "target",
     target.texture,
   );
@@ -72,14 +72,14 @@ export async function test_render_scene_read_texture_source_texture_dimensional_
     4,
     1,
   );
-  const before: string | undefined = readAutoMovieTextureSource(
+  const before: string | undefined = AutoMovieSceneTexture.readSource(
     "layers",
     array,
   ).uploadState;
   array.setValues({ wrapR: THREE.RepeatWrapping });
   TestValidator.predicate(
     "native depth wrapping changes upload state",
-    readAutoMovieTextureSource("layers", array).uploadState !== before,
+    AutoMovieSceneTexture.readSource("layers", array).uploadState !== before,
   );
   target.dispose();
   array.dispose();

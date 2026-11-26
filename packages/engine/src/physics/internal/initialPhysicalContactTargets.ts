@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { projectPhysicalTargets } from "../projectPhysicalTargets";
-import { rebasePhysicalTargets } from "../rebasePhysicalTargets";
+import { rebasePhysicalTargets } from "./rebasePhysicalTargets";
 
 /**
  * Project a body's authored joint limits and place the coherent tree at its

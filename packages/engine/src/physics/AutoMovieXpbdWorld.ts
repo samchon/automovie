@@ -11,7 +11,7 @@ import { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import { AutoMovieXpbdIntegration } from "./AutoMovieXpbdIntegration";
 import { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdSnapshot } from "./AutoMovieXpbdSnapshot";
-import { readXpbdManifolds } from "./readXpbdManifolds";
+import { readXpbdManifolds } from "./internal/readXpbdManifolds";
 import { respondXpbdArticulation } from "./internal/respondXpbdArticulation";
 import { solveXpbdContactVelocities } from "./internal/solveXpbdContactVelocities";
 import { solveXpbdContacts } from "./solveXpbdContacts";

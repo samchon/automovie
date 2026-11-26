@@ -46,9 +46,6 @@ import { sitHandSpans } from "./sitHandSpans";
 import { sitHands } from "./sitHands";
 import { sitPlace } from "./sitPlace";
 
-/** The alternatives of `CROSSEDEntryItem`'s site. */
-type CROSSEDEntryItem = "ahead" | "over" | "lift";
-
 /**
  * Sitting down on a chair, bench or stool from standing in front of it: the
  * body's seat socket is lowered onto the seat while the trunk leans forward and
@@ -684,3 +681,6 @@ export namespace sit {
     );
   }
 }
+
+/** The alternatives of `CROSSEDEntryItem`'s site. */
+type CROSSEDEntryItem = "ahead" | "over" | "lift";

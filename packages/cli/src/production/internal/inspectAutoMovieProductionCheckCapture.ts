@@ -1,3 +1,4 @@
+import { AutoMovieEngineCaptureRecord } from "@automovie/engine";
 import type {
   IAutoMovieCaptureRecord,
   IAutoMovieInspectionDiagnostics,
@@ -36,9 +37,8 @@ export async function inspectAutoMovieProductionCheckCapture(
     message,
     evidence,
   });
-  const render: typeof import("@automovie/render") = await loadRender(root);
   const capture: IAutoMovieCaptureRecord.IObservation =
-    render.AutoMovieRenderCaptureRecord.observe(record);
+    AutoMovieEngineCaptureRecord.observe(record);
   if (capture.type === "unobserved") {
     switch (capture.reason) {
       case "missing":
@@ -104,10 +104,14 @@ export async function inspectAutoMovieProductionCheckCapture(
   const directory: string = path.resolve(root, path.dirname(check.record));
   let from: number = Infinity;
   let to: number = -Infinity;
-  const hashPixels = async (bytes: Uint8Array): Promise<string> =>
-    render.AutoMovieRenderPicture.hashRasterImage(
-      await render.AutoMovieRenderPicture.decodeRasterPng(bytes),
+  let render: Promise<typeof import("@automovie/render")> | undefined;
+  const hashPixels = async (bytes: Uint8Array): Promise<string> => {
+    const { AutoMovieRenderPicture }: typeof import("@automovie/render") =
+      await (render ??= loadRender(root));
+    return AutoMovieRenderPicture.hashRasterImage(
+      await AutoMovieRenderPicture.decodeRasterPng(bytes),
     );
+  };
   for (const row of rows) {
     if (row.type !== "drawn") continue;
     const { frame, seconds } = row.time;
@@ -257,7 +261,7 @@ async function retainsStill(
   }
 }
 
-/** Load the optional capture package only when a capture check needs it. */
+/** Load optional Render support for a legacy PNG pixel digest. */
 function loadRender(root: string): Promise<typeof import("@automovie/render")> {
   return import("@automovie/render").catch(
     (error: unknown): typeof import("@automovie/render") => {

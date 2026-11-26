@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { physicalShapeSupport } from "../physicalShapeSupport";
+import { physicalShapeSupport } from "./physicalShapeSupport";
 
 /**
  * How deep two overlapping convex colliders interpenetrate: the shortest

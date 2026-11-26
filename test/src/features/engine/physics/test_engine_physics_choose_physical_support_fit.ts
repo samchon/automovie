@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  choosePhysicalSupportFit,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { Quaternion, choosePhysicalSupportFit, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -106,7 +102,7 @@ export function test_engine_physics_choose_physical_support_fit(): void {
         ],
       ),
     );
-    setPhysicalTargetJointRotation(
+    AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
       poses,
       knee,
       ["lower-0", "support-0"],

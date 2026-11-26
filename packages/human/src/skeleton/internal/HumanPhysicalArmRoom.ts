@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  isPhysicalProfilePairExcluded,
-  physicalShapePairDistance,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapePairDistance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitHumanPhysicalStandingPose,
   IAutoMoviePhysicalJoint,
@@ -91,7 +85,7 @@ function openArm(
     limbs.every((limb: IAutoMoviePhysicalSegment): boolean =>
       rest.every(
         (other: IAutoMoviePhysicalSegment): boolean =>
-          isPhysicalProfilePairExcluded(profile, limb.bone, other.bone) ||
+          AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(profile, limb.bone, other.bone) ||
           limb.shapes.every((a): boolean =>
             other.shapes.every(
               (b): boolean =>
@@ -115,7 +109,7 @@ function openArm(
       axis.channel === `${root}.abduction`,
   );
   if (channel === undefined) return false;
-  const pivot: IAutoMovieVector3 = physicalSupportPoint(
+  const pivot: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
     poses[root]!,
     joint.childFrame.position,
   );
@@ -157,7 +151,7 @@ function openArm(
   const elbow = (
     turned: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ) => {
-    const at: IAutoMovieVector3 = physicalSupportPoint(
+    const at: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalSupportPoint(
       turned[`${side}LowerArm`]!,
       profile.joints.find(
         (candidate: IAutoMoviePhysicalJoint): boolean =>

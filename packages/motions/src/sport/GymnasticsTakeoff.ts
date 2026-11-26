@@ -15,9 +15,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
-/** The record of `IOfRead`'s site. */
-type IOfRead = { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 };
-
 /** How many times the landing place is corrected. */
 const PASSES: number = 3;
 
@@ -152,3 +149,6 @@ export namespace GymnasticsTakeoff {
       );
   }
 }
+
+/** The record of `IOfRead`'s site. */
+type IOfRead = { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 };

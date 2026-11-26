@@ -1,13 +1,4 @@
-import {
-  AutoMoviePhysicalJointChart,
-  AutoMovieXpbdBody,
-  AutoMovieXpbdJoint,
-  AutoMovieXpbdWorld,
-  Quaternion,
-  Vector3,
-  configurePhysicalJointMotor,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMoviePhysicalJointChart, AutoMovieXpbdBody, AutoMovieXpbdJoint, AutoMovieXpbdWorld, Quaternion, Vector3, configurePhysicalJointMotor, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalJointAxis,
@@ -188,7 +179,7 @@ function frame(substeps: number): IReading {
       position: IAutoMovieVector3;
       rotation: IAutoMovieQuaternion;
     } = {
-      position: physicalSupportPoint(parent, { x: reach, y: 0, z: 0 }),
+      position: AutoMovieEnginePhysics.physicalSupportPoint(parent, { x: reach, y: 0, z: 0 }),
       rotation: Quaternion.multiply(parent.rotation, relative),
     };
     const body: AutoMovieXpbdBody = world.createBody(true, pose);
@@ -254,14 +245,14 @@ function frame(substeps: number): IReading {
         ...joints.map(({ joint }, index: number): number =>
           Vector3.length(
             Vector3.subtract(
-              physicalSupportPoint(
+              AutoMovieEnginePhysics.physicalSupportPoint(
                 {
                   position: bodies[index]!.translation(),
                   rotation: bodies[index]!.rotation(),
                 },
                 joint.parentFrame.position,
               ),
-              physicalSupportPoint(
+              AutoMovieEnginePhysics.physicalSupportPoint(
                 {
                   position: bodies[index + 1]!.translation(),
                   rotation: bodies[index + 1]!.rotation(),

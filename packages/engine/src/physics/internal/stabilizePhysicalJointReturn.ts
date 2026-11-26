@@ -7,7 +7,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { PhysicalRotationVector as Rotation } from "../PhysicalRotationVector";
-import { projectPhysicalJointRotation } from "../projectPhysicalJointRotation";
+import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 
 /**
  * Post-stabilize a returning segment's parent-relative state onto its joint's

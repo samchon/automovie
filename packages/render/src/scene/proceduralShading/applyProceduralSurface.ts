@@ -5,7 +5,7 @@ import * as THREE from "three";
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "./AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
-import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
+import { proceduralPatternGlsl } from "./internal/proceduralPatternGlsl.js";
 
 /**
  * Shade a material from an admitted procedural surface, evaluating the engine's

@@ -1,4 +1,4 @@
-import { SUBSURFACE_TARGET, subsurfacePhysicalChunk } from "@automovie/render";
+import { SUBSURFACE_TARGET, AutoMovieRenderSubsurfaceShading } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_render_scene_subsurface_physical_chunk(): void {
   const before: string = "reflectedLight.directSpecular += specular;\n";
   const after: string = "\nreflectedLight.indirectDiffuse += indirect;";
-  const patched: string = subsurfacePhysicalChunk(
+  const patched: string = AutoMovieRenderSubsurfaceShading.physicalChunk(
     before + SUBSURFACE_TARGET + after,
   );
   TestValidator.predicate(
@@ -36,6 +36,6 @@ export function test_render_scene_subsurface_physical_chunk(): void {
   );
   for (const input of ["", before + after])
     TestValidator.error("incompatible chunk", (): void => {
-      subsurfacePhysicalChunk(input);
+      AutoMovieRenderSubsurfaceShading.physicalChunk(input);
     });
 }

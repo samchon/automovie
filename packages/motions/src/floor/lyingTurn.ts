@@ -7,14 +7,6 @@ import type {
 
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 
-/** The alternatives of `Tilt2`'s site. */
-type Tilt2 = "yaw" | "pitch" | "roll";
-
-/** A posture's whole-body tilt angles. */
-type Tilt = Pick<IAutoMovieMotionHumanPosture, Tilt2>;
-/** The alternatives of `TURNSEntryItem`'s site. */
-type TURNSEntryItem = "supine" | "lateralLeft" | "prone" | "lateralRight";
-
 /**
  * The heading and turn a lying posture shows.
  *
@@ -92,3 +84,11 @@ export namespace lyingTurn {
     );
   }
 }
+
+/** The alternatives of `Tilt2`'s site. */
+type Tilt2 = "yaw" | "pitch" | "roll";
+
+/** A posture's whole-body tilt angles. */
+type Tilt = Pick<IAutoMovieMotionHumanPosture, Tilt2>;
+/** The alternatives of `TURNSEntryItem`'s site. */
+type TURNSEntryItem = "supine" | "lateralLeft" | "prone" | "lateralRight";

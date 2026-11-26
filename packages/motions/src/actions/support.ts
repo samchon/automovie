@@ -32,12 +32,6 @@ import { supportStep } from "./supportStep";
  */
 const BLEND: number = 0.3;
 
-/** A support point in world metres, or an unnamed floor place. */
-type Point = IAutoMovieVector3 | null;
-
-/** A key's fixed contact lookup. */
-type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;
-
 /**
  * Moving the body's weight across a sequence of supports: each stance's
  * contacts (`HumanSupport.IStance`) solved into one static key posture, and the
@@ -430,3 +424,9 @@ export namespace support {
     return supportPlan(context, keys, seconds, entry, course, routes);
   }
 }
+
+/** A support point in world metres, or an unnamed floor place. */
+type Point = IAutoMovieVector3 | null;
+
+/** A key's fixed contact lookup. */
+type Place = (contact: IAutoMovieMotionHumanSupport.IContact) => Point;

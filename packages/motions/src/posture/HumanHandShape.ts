@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeSurfaceAnchor,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -399,7 +394,7 @@ function padOf(
       placed.normal,
     );
     for (const shape of collider.shapes) {
-      const anchor: IAutoMovieVector3 = physicalShapeSurfaceAnchor(
+      const anchor: IAutoMovieVector3 = AutoMovieEnginePhysics.physicalShapeSurfaceAnchor(
         collider.pose,
         shape,
         outward,

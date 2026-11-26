@@ -3,7 +3,7 @@ import * as THREE from "three";
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
-import { subsurfaceFragment } from "./subsurfaceFragment.js";
+import { subsurfaceFragment } from "./internal/subsurfaceFragment.js";
 
 /**
  * Register the existing direct-diffuse subsurface shader approximation on a new

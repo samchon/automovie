@@ -1,7 +1,4 @@
-import {
-  createCafeKit,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+import { createCafeKit, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import type { IAutoMovieMotion } from "@automovie/interface";
 
 import { locationTrackedRideFixture } from "../internal/locationTrackedRideFixture";
@@ -18,7 +15,7 @@ export function bankedParkRide(): compileEnvironmentExample.IInput {
           anchor: "coaster/stops/departure",
           offset: { x: 1.6, y: 0, z: -4 },
         },
-        use: createTerrain({
+        use: AutoMovieEnvironment.terrain({
           size: [12, 10],
           paths: {
             approach: {

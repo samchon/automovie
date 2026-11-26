@@ -9,8 +9,8 @@ import type {
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import type { IPhysicalContactTargetSeed } from "./internal/IPhysicalContactTargetSeed";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
-import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
-import { planPhysicalContactTargets } from "./planPhysicalContactTargets";
+import { physicalContactSupportGoals } from "./internal/physicalContactSupportGoals";
+import { planPhysicalContactTargets } from "./internal/planPhysicalContactTargets";
 import { preparePhysicalContactTargetSeed } from "./internal/preparePhysicalContactTargetSeed";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { trackPhysicalCoupledTargets } from "./internal/trackPhysicalCoupledTargets";

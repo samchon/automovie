@@ -12,7 +12,7 @@ import { closestPointsBetweenSegments } from "../math/internal/closestPointsBetw
 import { physicalHullEdges } from "./internal/physicalHullEdges";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalShapeHull } from "./physicalShapeHull";
-import { physicalShapeNearest } from "./physicalShapeNearest";
+import { physicalShapeNearest } from "./internal/physicalShapeNearest";
 
 /**
  * The signed distance between two admitted shapes, each placed by its parent

@@ -18,7 +18,7 @@ export * from "./createSpacecraft";
 export * from "./createTransitBus";
 export * from "./createWheelchair";
 export * from "./driveCar";
-export * from "./prepareTowedCartDriver";
+
 export * from "./rideBicycle";
 export * from "./rideMotorcycle";
 export * from "./rideWheelchair";
@@ -35,3 +35,5 @@ export * from "./createRowboat";
 export { AutoMovieArchetypeShoppingTrolley } from "./AutoMovieArchetypeShoppingTrolley";
 export { AutoMovieArchetypeWagon } from "./AutoMovieArchetypeWagon";
 export { AutoMovieArchetypeWheelbarrow } from "./AutoMovieArchetypeWheelbarrow";
+
+export { AutoMovieArchetypeTowedCartDriver } from "./AutoMovieArchetypeTowedCartDriver";

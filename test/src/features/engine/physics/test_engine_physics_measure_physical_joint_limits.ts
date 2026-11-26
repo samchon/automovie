@@ -1,13 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  measurePhysicalJointLimits,
-  physicalShapeBounds,
-  planPhysicalFloorSupportTargets,
-  projectPhysicalTargets,
-  solvePhysicalChainTarget,
-  solvePhysicalFloorChainTarget,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeBounds, projectPhysicalTargets, solvePhysicalFloorChainTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalSegment,
@@ -57,8 +48,8 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
     projection.maximumTranslation > 0.05 && projection.maximumRotation > 0.01,
   );
   inspect(projection.targets);
-  const fit: ReturnType<typeof solvePhysicalChainTarget> =
-    solvePhysicalChainTarget({
+  const fit: ReturnType<typeof AutoMovieEnginePhysics.solvePhysicalChainTarget> =
+    AutoMovieEnginePhysics.solvePhysicalChainTarget({
       profile,
       chain: ["upper-0", "lower-0", "support-0"],
       targets: projection.targets,
@@ -153,8 +144,8 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
         ],
       ),
     );
-    const result: ReturnType<typeof planPhysicalFloorSupportTargets> =
-      planPhysicalFloorSupportTargets({
+    const result: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalFloorSupportTargets> =
+      AutoMovieEnginePhysics.planPhysicalFloorSupportTargets({
         profile,
         targets,
         pattern,
@@ -204,8 +195,8 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
     }
     // Unreachable and free endpoints are count-independent; read them once.
     if (count !== 4) continue;
-    const unreachable: ReturnType<typeof planPhysicalFloorSupportTargets> =
-      planPhysicalFloorSupportTargets({
+    const unreachable: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalFloorSupportTargets> =
+      AutoMovieEnginePhysics.planPhysicalFloorSupportTargets({
         profile,
         targets,
         pattern,
@@ -262,9 +253,9 @@ export function test_engine_physics_measure_physical_joint_limits(): void {
       )
         failures.push(`${joint.id}: anchor`);
       if (
-        measurePhysicalJointLimits(joint, parent, child).some(
+        AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).some(
           (
-            coordinate: ReturnType<typeof measurePhysicalJointLimits>[number],
+            coordinate: ReturnType<typeof AutoMovieEnginePhysics.measurePhysicalJointLimits>[number],
           ): boolean => coordinate.violation > PhysicalTolerance.ACCUMULATED,
         )
       )

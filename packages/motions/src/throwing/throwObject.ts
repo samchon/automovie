@@ -37,17 +37,14 @@ import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 import { precisionThrow } from "./precisionThrow";
-import { throwObjectAim } from "./throwObjectAim";
-import { throwObjectBalance } from "./throwObjectBalance";
+import { throwObjectAim } from "./throwObject/throwObjectAim";
+import { throwObjectBalance } from "./throwObject/throwObjectBalance";
 import { throwObjectCurve } from "./throwObjectCurve";
-import { throwObjectForm } from "./throwObjectForm";
+import { throwObjectForm } from "./throwObject/throwObjectForm";
 import { throwObjectLaunch } from "./throwObjectLaunch";
-import { throwObjectLever } from "./throwObjectLever";
-import { throwObjectRelease } from "./throwObjectRelease";
-import { throwObjectSwing } from "./throwObjectSwing";
-
-/** The alternatives of `GripFrame2`'s site. */
-type GripFrame2 = "point" | "rotation";
+import { throwObjectLever } from "./throwObject/throwObjectLever";
+import { throwObjectRelease } from "./throwObject/throwObjectRelease";
+import { throwObjectSwing } from "./throwObject/throwObjectSwing";
 
 /**
  * Throwing a held object to a target: overarm, underarm, or a gentle toss.
@@ -476,3 +473,6 @@ export namespace throwObject {
     };
   }
 }
+
+/** The alternatives of `GripFrame2`'s site. */
+type GripFrame2 = "point" | "rotation";

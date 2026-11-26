@@ -366,7 +366,7 @@ async function replay(props: {
   try {
     await runAutoMovieFfmpeg(
       ffmpeg,
-      render.planAutoMovieVideoFrames({ file, frames, directory }),
+      render.AutoMovieRenderCapture.planVideoFrames({ file, frames, directory }),
     );
     if ((await hashAutoMovieFile(file)) !== mark.sha256)
       throw new Error("The reviewed file changed during capture");

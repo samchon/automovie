@@ -1,7 +1,4 @@
-import {
-  admitPhysicalPlaybackMetadata,
-  samplePhysicalContactEvents,
-} from "@automovie/engine";
+import { admitPhysicalPlaybackMetadata, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalPlayback,
@@ -118,11 +115,11 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
     samples: [completed, { ...completed, seconds: 1 }],
   };
   admitPhysicalPlaybackMetadata({ ...header(), contacts: [valid] });
-  const earlier: IAutoMovieContactReceipt[] = samplePhysicalContactEvents(
+  const earlier: IAutoMovieContactReceipt[] = AutoMovieEnginePhysics.samplePhysicalContactEvents(
     valid,
     0.5,
   );
-  const all: IAutoMovieContactReceipt[] = samplePhysicalContactEvents(valid);
+  const all: IAutoMovieContactReceipt[] = AutoMovieEnginePhysics.samplePhysicalContactEvents(valid);
   TestValidator.predicate(
     "live contact events never read a later completed step",
     earlier.length === 1 &&
@@ -155,7 +152,7 @@ export function test_engine_physics_admit_physical_playback_metadata(): void {
       )
     )
       contactFailures.push(`archive ${label}`);
-    if (!throwsError(() => samplePhysicalContactEvents(receipt), liveError))
+    if (!throwsError(() => AutoMovieEnginePhysics.samplePhysicalContactEvents(receipt), liveError))
       contactFailures.push(`live ${label}`);
   }
   TestValidator.equals(

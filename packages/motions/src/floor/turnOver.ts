@@ -52,6 +52,26 @@ const KEYS: readonly IAutoMovieMotionHumanLieDown.IPose[] = [
  * named surface at every second (`knockdown.rest`). A body not lying is
  * refused.
  */
+export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnOver> =
+  {
+    name: "turnOver",
+    interrupts: {
+      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planTurnOver,
+  };
+
+/**
+ * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
+ * from the position it lies in to the requested one, a quarter turn at a time,
+ * through each side posture between; a turn between the back and the front
+ * passes the `via` side. The limbs go from one quarter's posture to the next
+ * (`lieDown`'s postures: the arms and the uppermost knee come over first in the
+ * side posture, provisional angles), the pelvis keeps its place over the
+ * support and the root rests the lowest collision shape on the floor or the
+ * named surface at every second (`knockdown.rest`). A body not lying is
+ * refused.
+ */
 function planTurnOver(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTurnOver>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -191,26 +211,6 @@ function planTurnOver(
     });
   return { ...planned, base: { kind: "lying" } };
 }
-
-/**
- * Turn over while lying. The body turns about its own long axis (`lyingTurn`)
- * from the position it lies in to the requested one, a quarter turn at a time,
- * through each side posture between; a turn between the back and the front
- * passes the `via` side. The limbs go from one quarter's posture to the next
- * (`lieDown`'s postures: the arms and the uppermost knee come over first in the
- * side posture, provisional angles), the pelvis keeps its place over the
- * support and the root rests the lowest collision shape on the floor or the
- * named surface at every second (`knockdown.rest`). A body not lying is
- * refused.
- */
-export const turnOver: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTurnOver> =
-  {
-    name: "turnOver",
-    interrupts: {
-      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planTurnOver,
-  };
 
 /** The support's height: the named prop surface's, or the floor's. */
 function height(

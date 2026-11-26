@@ -1,4 +1,4 @@
-import { physicalShapeNearest } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMoviePhysicalShapeNearest,
@@ -78,7 +78,7 @@ export function HumanArmTrajectoryDeepestStep(
       HumanArmTrajectoryHalfStep.sphere(s, start.point, end.point) - r;
     if (bound >= lower || lower - bound <= deepest) continue;
     const reading: IAutoMoviePhysicalShapeNearest.IResult =
-      physicalShapeNearest(s.pose, s.shape, start.point, end.point);
+      AutoMovieEnginePhysics.physicalShapeNearest(s.pose, s.shape, start.point, end.point);
 
     const clear: number = reading.distance - r;
     if (clear >= lower || lower - clear <= deepest) continue;

@@ -12,15 +12,6 @@ import type {
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { HumanFrame } from "../posture/HumanFrame";
 
-/** The alternatives of `HeadContext`'s site. */
-type HeadContext = "body" | "carrier";
-
-/** The alternatives of `OfResult`'s site. */
-type OfResult = "point" | "normal";
-
-/** The alternatives of `OfContext`'s site. */
-type OfContext = "body" | "carrier";
-
 // Moving readers held the phone 33.3 cm from their eyes at customary speed.
 const WALK_DISTANCE: number = 0.333;
 
@@ -239,3 +230,12 @@ export namespace handToFaceSheet {
     return Math.max(HEAD, down - EYE_DOWN);
   }
 }
+
+/** The alternatives of `HeadContext`'s site. */
+type HeadContext = "body" | "carrier";
+
+/** The alternatives of `OfResult`'s site. */
+type OfResult = "point" | "normal";
+
+/** The alternatives of `OfContext`'s site. */
+type OfContext = "body" | "carrier";

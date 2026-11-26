@@ -95,6 +95,18 @@ const POSITIONS: readonly IAutoMovieMotionHumanTurnOver.Position[] = [
   "prone",
 ];
 
+/** What a sleep appends its turns to. */
+export namespace sleep {
+  /**
+   * A chain the turns are appended to: each a registered `turnOver`, the chain
+   * it returns read on.
+   */
+  export interface IChain<Chain> {
+    /** Append a registered action. */
+    registered(name: string, params: IAutoMovieMotionHumanTurnOver): Chain;
+  }
+}
+
 /** A position drawn by prevalence, excluding the current one. */
 function draw(
   u: number,
@@ -114,16 +126,4 @@ function draw(
     if (left < 0) return p;
   }
   return options.at(-1)!;
-}
-
-/** What a sleep appends its turns to. */
-export namespace sleep {
-  /**
-   * A chain the turns are appended to: each a registered `turnOver`, the chain
-   * it returns read on.
-   */
-  export interface IChain<Chain> {
-    /** Append a registered action. */
-    registered(name: string, params: IAutoMovieMotionHumanTurnOver): Chain;
-  }
 }

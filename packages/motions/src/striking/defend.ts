@@ -25,18 +25,6 @@ import { defendFootwork } from "./defendFootwork";
 import { defendGeometry } from "./defendGeometry";
 import { strikingReadBack } from "./strikingReadBack";
 
-/** The record of `IPlanAt`'s site. */
-type IPlanAt = {
-  at?: IPlanAtAt;
-};
-
-/** The record of `IPlanAtAt`'s site. */
-type IPlanAtAt = {
-  kind: string;
-  subject?: string;
-  region?: AutoMovieHumanoidRegion;
-};
-
 /**
  * A defence against one placed strike: a glove, forearm or shin brought to
  * where the incoming weapon will be, or the head moved off its line.
@@ -293,3 +281,15 @@ export namespace defend {
     };
   }
 }
+
+/** The record of `IPlanAt`'s site. */
+type IPlanAt = {
+  at?: IPlanAtAt;
+};
+
+/** The record of `IPlanAtAt`'s site. */
+type IPlanAtAt = {
+  kind: string;
+  subject?: string;
+  region?: AutoMovieHumanoidRegion;
+};

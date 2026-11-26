@@ -1,9 +1,4 @@
-import {
-  Vector3,
-  physicalShapeNearest,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieHumanoidSurfaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -38,9 +33,6 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
-
-/** The record of `IRegionsEntry`'s site. */
-type IRegionsEntry = { region: AutoMovieHumanoidRegion; across: number };
 
 /**
  * Taking a clinch grip on a partner standing within reach and holding it: the
@@ -275,7 +267,7 @@ export namespace clinch {
           for (const segment of placeColliders(partnerBones)) {
             if (segment.bone !== bearing) continue;
             for (const shape of segment.shapes) {
-              const witness = physicalShapeNearest(
+              const witness = AutoMovieEnginePhysics.physicalShapeNearest(
                 segment.pose,
                 shape,
                 at.point,
@@ -392,3 +384,6 @@ export namespace clinch {
     return composed;
   }
 }
+
+/** The record of `IRegionsEntry`'s site. */
+type IRegionsEntry = { region: AutoMovieHumanoidRegion; across: number };

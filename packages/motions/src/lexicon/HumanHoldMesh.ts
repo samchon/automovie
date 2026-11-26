@@ -10,9 +10,6 @@ import type {
 
 import { HumanInteractionMesh } from "../posture/HumanInteractionMesh";
 
-/** The alternatives of `AdaptAdaptedSide`'s site. */
-type AdaptAdaptedSide = 0 | 1;
-
 /**
  * A two-person hold's key pose adapted to any pair of bodies: the joints of
  * both bodies at the key pose, the target bodies' bone lengths and the hold's
@@ -129,3 +126,6 @@ export namespace HumanHoldMesh {
     return [adapted(0), adapted(1)];
   }
 }
+
+/** The alternatives of `AdaptAdaptedSide`'s site. */
+type AdaptAdaptedSide = 0 | 1;

@@ -9,7 +9,7 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeBounds } from "./physicalShapeBounds";
-import { physicalShapeNearest } from "./physicalShapeNearest";
+import { physicalShapeNearest } from "./internal/physicalShapeNearest";
 import { physicalShapePairContact } from "./internal/physicalShapePairContact";
 
 /**

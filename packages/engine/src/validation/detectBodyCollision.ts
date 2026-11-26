@@ -21,7 +21,7 @@ import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/internal/closestPointsBetweenSegments";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/internal/sampleTimes";
-import { suggestCollisionResponse } from "../physics/suggestCollisionResponse";
+import { suggestCollisionResponse } from "../physics/internal/suggestCollisionResponse";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { validateCapsule } from "./validateCapsule";

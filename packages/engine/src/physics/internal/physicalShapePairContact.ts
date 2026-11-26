@@ -9,7 +9,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import { physicalShapeNearest } from "../physicalShapeNearest";
+import { physicalShapeNearest } from "./physicalShapeNearest";
 import { physicalShapePairDistance } from "../physicalShapePairDistance";
 import { physicalShapePenetration } from "./physicalShapePenetration";
 

@@ -18,36 +18,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanFormation } from "./HumanFormation";
 
-/** The record of `ICycleNextS`'s site. */
-type ICycleNextS = { seconds: number; side: string };
-
-/** The record of `ICycleNext`'s site. */
-type ICycleNext = { seconds: number; side: string };
-
-/** The record of `ICycleStart`'s site. */
-type ICycleStart = { seconds: number; side: string };
-
-/** The record of `ICycleStrikesB`'s site. */
-type ICycleStrikesB = { seconds: number };
-
-/** The record of `ICycleStrikesA`'s site. */
-type ICycleStrikesA = { seconds: number };
-
-/** The record of `ICycleStrikesS`'s site. */
-type ICycleStrikesS = { seconds: number };
-
-/** The record of `ICycleStrikesResult`'s site. */
-type ICycleStrikesResult = { seconds: number; side: string };
-
-/** The record of `ICycleStrikesItem`'s site. */
-type ICycleStrikesItem = { seconds: number; side: string };
-
-/** The record of `IDesignResult`'s site. */
-type IDesignResult = { slot: number; actor: string };
-
-/** The record of `IDesignOrigin`'s site. */
-type IDesignOrigin = { at: IAutoMovieVector3; heading: number };
-
 /**
  * Background members handed to the instanced population layer: their places as
  * one formation design, and their motion as a cycle of a performed template
@@ -372,3 +342,33 @@ export namespace HumanPopulation {
     context: Pick<IAutoMovieMotionHumanSegment["context"], "body" | "entry">;
   };
 }
+
+/** The record of `ICycleNextS`'s site. */
+type ICycleNextS = { seconds: number; side: string };
+
+/** The record of `ICycleNext`'s site. */
+type ICycleNext = { seconds: number; side: string };
+
+/** The record of `ICycleStart`'s site. */
+type ICycleStart = { seconds: number; side: string };
+
+/** The record of `ICycleStrikesB`'s site. */
+type ICycleStrikesB = { seconds: number };
+
+/** The record of `ICycleStrikesA`'s site. */
+type ICycleStrikesA = { seconds: number };
+
+/** The record of `ICycleStrikesS`'s site. */
+type ICycleStrikesS = { seconds: number };
+
+/** The record of `ICycleStrikesResult`'s site. */
+type ICycleStrikesResult = { seconds: number; side: string };
+
+/** The record of `ICycleStrikesItem`'s site. */
+type ICycleStrikesItem = { seconds: number; side: string };
+
+/** The record of `IDesignResult`'s site. */
+type IDesignResult = { slot: number; actor: string };
+
+/** The record of `IDesignOrigin`'s site. */
+type IDesignOrigin = { at: IAutoMovieVector3; heading: number };

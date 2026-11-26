@@ -1,8 +1,5 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
-import {
-  type IAutoMovieDrawScene,
-  observeAutoMoviePlacedInspection,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { Object3D, PerspectiveCamera, Scene } from "three";
 
@@ -78,7 +75,7 @@ export function test_render_draw_observe_placed_inspection(): void {
     },
   };
   const exact: IAutoMovieInspectionDiagnostics =
-    observeAutoMoviePlacedInspection(subject, 0.5, "viewer")!;
+    AutoMovieRenderDraw.observeAutoMoviePlacedInspection(subject, 0.5, "viewer")!;
   const sample: IAutoMovieDrawScene.IPlacedSample = samples[0]!;
   TestValidator.predicate(
     "actual raster owns the inspection projection",
@@ -108,14 +105,14 @@ export function test_render_draw_observe_placed_inspection(): void {
   );
 
   const offGrid: IAutoMovieInspectionDiagnostics =
-    observeAutoMoviePlacedInspection(
+    AutoMovieRenderDraw.observeAutoMoviePlacedInspection(
       subject,
       0.375,
       "capture",
       undefined,
       true,
     )!;
-  const end: IAutoMovieInspectionDiagnostics = observeAutoMoviePlacedInspection(
+  const end: IAutoMovieInspectionDiagnostics = AutoMovieRenderDraw.observeAutoMoviePlacedInspection(
     subject,
     1,
     "delivery",
@@ -142,7 +139,7 @@ export function test_render_draw_observe_placed_inspection(): void {
       `a mismatched clock at ${seconds} refuses`,
       throwsError(
         () =>
-          observeAutoMoviePlacedInspection(
+          AutoMovieRenderDraw.observeAutoMoviePlacedInspection(
             {
               ...base,
               inspectPlaced: (): IAutoMovieInspectionDiagnostics => ({
@@ -160,7 +157,7 @@ export function test_render_draw_observe_placed_inspection(): void {
     );
   TestValidator.equals(
     "absent producer",
-    observeAutoMoviePlacedInspection(base, 0.5, "viewer"),
+    AutoMovieRenderDraw.observeAutoMoviePlacedInspection(base, 0.5, "viewer"),
     undefined,
   );
 }

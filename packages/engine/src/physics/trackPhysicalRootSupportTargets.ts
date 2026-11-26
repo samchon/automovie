@@ -6,7 +6,7 @@ import type {
 
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
-import { planPhysicalRootSupportTargets } from "./planPhysicalRootSupportTargets";
+import { planPhysicalRootSupportTargets } from "./internal/planPhysicalRootSupportTargets";
 
 /**
  * Optional endpoint IK owns only chains disjoint from balance posture. Its

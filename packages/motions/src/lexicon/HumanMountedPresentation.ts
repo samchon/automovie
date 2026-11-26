@@ -10,9 +10,6 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
-/** The alternatives of `TwistBone`'s site. */
-type TwistBone = "chest" | "spine";
-
 /**
  * A mounted presentation: a rider seated in the saddle turns the trunk toward a
  * target before the arms present to it, since the seat and the legs keep the
@@ -211,3 +208,6 @@ export namespace HumanMountedPresentation {
     return range;
   }
 }
+
+/** The alternatives of `TwistBone`'s site. */
+type TwistBone = "chest" | "spine";

@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { physicalPrincipalAxes } from "../physicalPrincipalAxes";
+import { physicalPrincipalAxes } from "./physicalPrincipalAxes";
 
 /**
  * The volume, centroid and principal inertia of the uniform solid convex hull

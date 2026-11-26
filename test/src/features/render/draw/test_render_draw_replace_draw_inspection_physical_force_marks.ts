@@ -1,11 +1,4 @@
-import {
-  AutoMoviePhysicalPlayback as Playback,
-  AutoMoviePhysicalSimulation as Simulation,
-  distributePhysicalSupportWrench,
-  markAutoMovieContacts,
-  markAutoMovieSupportWrenches,
-  physicalInputDigest,
-} from "@automovie/engine";
+import { AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, markAutoMovieContacts, markAutoMovieSupportWrenches, physicalInputDigest, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDistributePhysicalSupportWrench,
@@ -423,8 +416,8 @@ function allocate(
           friction: 0.5,
         }));
   const torque: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const result: ReturnType<typeof distributePhysicalSupportWrench> =
-    distributePhysicalSupportWrench({
+  const result: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> =
+    AutoMovieEnginePhysics.distributePhysicalSupportWrench({
       origin,
       force,
       torque,

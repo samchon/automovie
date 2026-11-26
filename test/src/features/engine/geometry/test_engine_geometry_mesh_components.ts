@@ -1,4 +1,4 @@
-import { countAutoMovieMeshComponents } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,7 +24,7 @@ export function test_engine_geometry_mesh_components(): void {
       uvs: null,
       skin: null,
     };
-    return countAutoMovieMeshComponents(mesh);
+    return AutoMovieEngineGeometry.countMeshComponents(mesh);
   };
   TestValidator.equals(
     "shared",

@@ -11,7 +11,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeGjk } from "./physicalShapeGjk";
 import { physicalShapeHull } from "./physicalShapeHull";
-import { physicalShapeSupport } from "./physicalShapeSupport";
+import { physicalShapeSupport } from "./internal/physicalShapeSupport";
 
 /**
  * Find the lowest point of a convex solid over a bounded simple contact face,

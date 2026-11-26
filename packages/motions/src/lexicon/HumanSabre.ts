@@ -37,6 +37,31 @@ import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 import { humanSabreCharge } from "./humanSabreCharge";
 
+/**
+ * A sabre's slope and engage from the saddle (`IAutoMovieMotionHumanSabre`):
+ * carried on the seat contact, the right hand closes on the held sabre's grip
+ * and is placed by the sabre's own geometry (`StrikingHeld`) at stations laid
+ * from the right shoulder joint. At the slope the upper arm hangs and the
+ * forearm lies level forward, the hand in front of the elbow holding the blade
+ * upright with the edge forward, and the grip is loosened: the blade turns in
+ * the hand about the grip (the grip window's in-hand motion) until its back
+ * rests on the front of the right shoulder, point up and a little back, edge
+ * forward, as the historical slope carries it with the hilt pivoting between
+ * the thumb and the fingers; at the charge the fingers close back to the full
+ * grip and the hand comes to the engage, the ox's raised hilt about the
+ * shoulder turned toward the line with the point leading along it. The left
+ * hand holds both reins at their middle. A charge cue brings the slope to the
+ * engage after the rider's warned reaction over `transition` seconds by a
+ * minimum-jerk path in the seat frame; the grip stays closed throughout.
+ * Register `HumanSabre` to use it.
+ */
+export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSabre> =
+  {
+    name: "sabre",
+    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
+    plan: planHumanSabre,
+  };
+
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
 
@@ -440,28 +465,3 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       }),
   );
 }
-
-/**
- * A sabre's slope and engage from the saddle (`IAutoMovieMotionHumanSabre`):
- * carried on the seat contact, the right hand closes on the held sabre's grip
- * and is placed by the sabre's own geometry (`StrikingHeld`) at stations laid
- * from the right shoulder joint. At the slope the upper arm hangs and the
- * forearm lies level forward, the hand in front of the elbow holding the blade
- * upright with the edge forward, and the grip is loosened: the blade turns in
- * the hand about the grip (the grip window's in-hand motion) until its back
- * rests on the front of the right shoulder, point up and a little back, edge
- * forward, as the historical slope carries it with the hilt pivoting between
- * the thumb and the fingers; at the charge the fingers close back to the full
- * grip and the hand comes to the engage, the ox's raised hilt about the
- * shoulder turned toward the line with the point leading along it. The left
- * hand holds both reins at their middle. A charge cue brings the slope to the
- * engage after the rider's warned reaction over `transition` seconds by a
- * minimum-jerk path in the seat frame; the grip stays closed throughout.
- * Register `HumanSabre` to use it.
- */
-export const HumanSabre: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSabre> =
-  {
-    name: "sabre",
-    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
-    plan: planHumanSabre,
-  };

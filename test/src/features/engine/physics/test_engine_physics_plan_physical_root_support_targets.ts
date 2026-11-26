@@ -1,4 +1,4 @@
-import { Vector3, planPhysicalRootSupportTargets } from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieRigidTransform,
   IAutoMoviePhysicalProfile as P,
@@ -30,8 +30,8 @@ export function test_engine_physics_plan_physical_root_support_targets(): void {
   const before: string = JSON.stringify(targets);
   const actual: IAutoMovieRigidTransform = structuredClone(targets.body!);
   actual.position.x += 0.03;
-  const planned: ReturnType<typeof planPhysicalRootSupportTargets> =
-    planPhysicalRootSupportTargets({
+  const planned: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalRootSupportTargets> =
+    AutoMovieEnginePhysics.planPhysicalRootSupportTargets({
       body,
       targets,
       root: { bone: "body", pose: actual },

@@ -10,7 +10,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 import { physicalSwingReference } from "./physicalSwingReference";
 import { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 

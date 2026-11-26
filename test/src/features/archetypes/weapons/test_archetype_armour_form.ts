@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeRefusal,
   createArmour,
 } from "@automovie/archetypes";
-import { physicalShapeNearest, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMovieRigidTransform,
@@ -170,7 +170,7 @@ export function test_archetype_armour_form(): void {
         return Math.min(
           ...shapes.map(
             (shape: IAutoMoviePhysicalShape): number =>
-              physicalShapeNearest(pose, shape, a, b).distance,
+              AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, a, b).distance,
           ),
         );
       }

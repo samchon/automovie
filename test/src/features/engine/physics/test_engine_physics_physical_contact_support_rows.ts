@@ -1,7 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  physicalContactSupportRows,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalContactSupportRows,
@@ -49,7 +46,7 @@ export async function test_engine_physics_physical_contact_support_rows(): Promi
   };
   const before: string = JSON.stringify({ profile, support, targets });
   const rows: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
-    physicalContactSupportRows({
+    AutoMovieEnginePhysics.physicalContactSupportRows({
       profile,
       supports: [support],
       body: "primitive",
@@ -95,7 +92,7 @@ export async function test_engine_physics_physical_contact_support_rows(): Promi
     patch: { contacts: ["root"], floor: 0.9 },
   };
   const withoutWitness: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
-    physicalContactSupportRows({
+    AutoMovieEnginePhysics.physicalContactSupportRows({
       profile,
       supports: [complete],
       body: "primitive",
@@ -125,7 +122,7 @@ export async function test_engine_physics_physical_contact_support_rows(): Promi
   ])
     assert.throws(
       (): IAutoMovieLinearizePhysicalTargetRows.IRows[] =>
-        physicalContactSupportRows({
+        AutoMovieEnginePhysics.physicalContactSupportRows({
           profile,
           supports: [invalid],
           body: "primitive",

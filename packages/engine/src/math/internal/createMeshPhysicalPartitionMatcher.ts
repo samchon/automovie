@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { triangleIndicesOf } from "../../geometry/internal/triangleIndicesOf";
-import { weldedDegenerateTriangles } from "../../geometry/weldedDegenerateTriangles";
+import { weldedDegenerateTriangles } from "../../geometry/internal/weldedDegenerateTriangles";
 import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhysicalVertices";
 
 /**

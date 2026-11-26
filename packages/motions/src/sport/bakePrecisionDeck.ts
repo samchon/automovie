@@ -11,12 +11,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-/** Cache rate for the finite deck result. */
-const RATE: number = 120;
-
-/** One completed solver sample of a contact receipt. */
-type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
-
 /**
  * Bake a released ball on its playing surface and its effect on loose targets:
  * a bowling ball on the lane and its pins, a cue ball on the table and its
@@ -105,6 +99,12 @@ export async function bakePrecisionDeck(
     ...(firstTarget === undefined ? {} : { firstTarget }),
   };
 }
+
+/** Cache rate for the finite deck result. */
+const RATE: number = 120;
+
+/** One completed solver sample of a contact receipt. */
+type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
 
 /**
  * Use the actual rigid model and its authored first velocity as native inputs.

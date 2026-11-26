@@ -54,9 +54,6 @@ import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
 import { handToFaceVessel } from "./handToFaceVessel";
 
-/** The alternatives of `PlanGraspedAt`'s site. */
-type PlanGraspedAt = "point" | "normal";
-
 /**
  * A hand-to-face task of daily living while standing: drinking, sipping, eating
  * with a spoon, biting held food, a phone at the ear, reading a held sheet,
@@ -489,3 +486,6 @@ export namespace handToFace {
       : HumanHeld.kept(context, plan, first, p.prop);
   }
 }
+
+/** The alternatives of `PlanGraspedAt`'s site. */
+type PlanGraspedAt = "point" | "normal";

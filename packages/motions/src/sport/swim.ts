@@ -33,12 +33,6 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { SwimStroke } from "./SwimStroke";
 import { prepareSurfaceSwimTransfer } from "./prepareSurfaceSwimTransfer";
 
-/** The alternatives of `PlanLimb`'s site. */
-type PlanLimb = "leftLeg" | "rightLeg";
-
-/** The record of `ICOORDINATION`'s site. */
-type ICOORDINATION = { novice: number; elite: number };
-
 /**
  * Swimming on a declared water plane: treading water and the front crawl. There
  * is no fluid: the root floats at the plane, a height the author declares, and
@@ -453,3 +447,9 @@ export namespace swim {
     );
   }
 }
+
+/** The alternatives of `PlanLimb`'s site. */
+type PlanLimb = "leftLeg" | "rightLeg";
+
+/** The record of `ICOORDINATION`'s site. */
+type ICOORDINATION = { novice: number; elite: number };

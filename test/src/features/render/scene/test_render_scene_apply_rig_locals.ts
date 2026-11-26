@@ -1,8 +1,5 @@
 import type { IAutoMovieRigLocalTransform } from "@automovie/interface";
-import {
-  applyAutoMovieRigLocals,
-  createImportedModelObject,
-} from "@automovie/render";
+import { createImportedModelObject, AutoMovieRenderSceneMotion } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -28,7 +25,7 @@ export function test_render_scene_apply_rig_locals(): void {
     rotation: [number, number, number, number],
   ): IAutoMovieRigLocalTransform => ({ translation, rotation });
   const root: IAutoMovieRigLocalTransform = local([1, 0, 0], [0, 0, 0, 1]);
-  applyAutoMovieRigLocals(
+  AutoMovieRenderSceneMotion.applyRigLocals(
     model,
     new Map([["hips", local([0, 2, 0], [0, 0, half, half])]]),
     root,
@@ -44,10 +41,10 @@ export function test_render_scene_apply_rig_locals(): void {
     [[1, 0, 0], [0, 2, 0], [0, 0, half, half], [1, 1, 1]],
   );
   TestValidator.error("missing bone", (): void => {
-    applyAutoMovieRigLocals(model, new Map(), root);
+    AutoMovieRenderSceneMotion.applyRigLocals(model, new Map(), root);
   });
   TestValidator.error("not a unit quaternion", (): void => {
-    applyAutoMovieRigLocals(
+    AutoMovieRenderSceneMotion.applyRigLocals(
       model,
       new Map([["hips", local([0, 0, 0], [0, 0, 0, 2])]]),
       root,

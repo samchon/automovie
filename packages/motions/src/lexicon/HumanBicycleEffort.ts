@@ -65,6 +65,29 @@ const INTERVALS: number = 8;
  * The law uses the distinct body/support states described by the in-field
  * seated and standing sprint study https://www.mdpi.com/1424-8220/24/11/3453 .
  * Its clearance, timing and fore-aft transfer are staging decisions.
+ */
+export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBicycleEffort> =
+  {
+    name: "bicycleEffort",
+    interrupts: {
+      any: [
+        { window: [0, "seatOff"], kind: "inertialize", entry: 0 },
+        { window: ["seatOn", 1], kind: "inertialize", entry: 0 },
+      ],
+    },
+    yields: ["head"],
+    plan: planHumanBicycleEffort,
+  };
+
+/**
+ * Rise from the saddle while both feet follow their pedals and both hands
+ * follow the handlebar. The seated ride provides the moving contact targets. A
+ * smooth rise into and out of the authored clearance moves the pelvis up and
+ * forward, and the ankle is refit about its pedal point under the new hip. The
+ * entry seat and each sole's ball must already align with their named supports.
+ * The law uses the distinct body/support states described by the in-field
+ * seated and standing sprint study https://www.mdpi.com/1424-8220/24/11/3453 .
+ * Its clearance, timing and fore-aft transfer are staging decisions.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the fitted supports, the authored transitions and the measured reference.
  */
@@ -328,26 +351,3 @@ function planHumanBicycleEffort(
     posture,
   };
 }
-
-/**
- * Rise from the saddle while both feet follow their pedals and both hands
- * follow the handlebar. The seated ride provides the moving contact targets. A
- * smooth rise into and out of the authored clearance moves the pelvis up and
- * forward, and the ankle is refit about its pedal point under the new hip. The
- * entry seat and each sole's ball must already align with their named supports.
- * The law uses the distinct body/support states described by the in-field
- * seated and standing sprint study https://www.mdpi.com/1424-8220/24/11/3453 .
- * Its clearance, timing and fore-aft transfer are staging decisions.
- */
-export const HumanBicycleEffort: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBicycleEffort> =
-  {
-    name: "bicycleEffort",
-    interrupts: {
-      any: [
-        { window: [0, "seatOff"], kind: "inertialize", entry: 0 },
-        { window: ["seatOn", 1], kind: "inertialize", entry: 0 },
-      ],
-    },
-    yields: ["head"],
-    plan: planHumanBicycleEffort,
-  };

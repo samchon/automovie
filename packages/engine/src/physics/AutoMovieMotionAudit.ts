@@ -10,8 +10,8 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { admitPhysicalMotionAudit } from "./admitPhysicalMotionAudit";
 import { admitPhysicalMotionFrame } from "./admitPhysicalMotionFrame";
-import { measurePhysicalJointLimits } from "./measurePhysicalJointLimits";
-import { measurePhysicalMotionConstraint as Constraint } from "./measurePhysicalMotionConstraint";
+import { measurePhysicalJointLimits } from "./internal/measurePhysicalJointLimits";
+import { measurePhysicalMotionConstraint as Constraint } from "./internal/measurePhysicalMotionConstraint";
 import { motionAuditGeometry } from "./motionAuditGeometry";
 import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
 

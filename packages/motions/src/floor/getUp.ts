@@ -33,15 +33,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { floorEntry } from "./floorEntry";
 import { lieDown } from "./lieDown";
 
-/** The record of `IKeyedA`'s site. */
-type IKeyedA = { hip: number; knee: number; ankle: number; shoulder: number };
-
-/** The alternatives of `PlanStancesPart`'s site. */
-type PlanStancesPart = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
-
-/** The alternatives of `ItemEntryItem`'s site. */
-type ItemEntryItem = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
-
 /**
  * Getting up from the floor to standing: from lying on the back or the front,
  * from the hands and knees or crouched, as a crawl ends.
@@ -394,6 +385,15 @@ export namespace getUp {
     return { ...pose, joints };
   }
 }
+
+/** The record of `IKeyedA`'s site. */
+type IKeyedA = { hip: number; knee: number; ankle: number; shoulder: number };
+
+/** The alternatives of `PlanStancesPart`'s site. */
+type PlanStancesPart = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
+
+/** The alternatives of `ItemEntryItem`'s site. */
+type ItemEntryItem = IAutoMovieMotionHumanSupport.Part | "lead" | "trail";
 
 /** The new supports established before the symmetric crouch. */
 type FootTargets = Partial<Record<AutoMovieHumanSide, IFootTarget>>;

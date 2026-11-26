@@ -46,11 +46,6 @@ const Y: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 /** Raised clearance before and after the stroke in metres, provisional. */
 const CLEARANCE: number = 0.035;
 
-/** The record of `IBowViolin`'s site. */
-type IBowViolin = {
-  name: "bowViolin";
-};
-
 /**
  * One staged open-string violin stroke with a held bow. Register this law with
  * HumanChain.extend and HumanPerformance.laws. The bow moves to a raised ready
@@ -73,6 +68,11 @@ export const bowViolin: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBowV
   overlay: true,
   interrupts: {},
   plan: planStroke,
+};
+
+/** The record of `IBowViolin`'s site. */
+type IBowViolin = {
+  name: "bowViolin";
 };
 
 /**

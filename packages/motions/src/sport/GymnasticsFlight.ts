@@ -29,15 +29,6 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { knockdown } from "../reaction/knockdown";
 import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 
-/** The alternatives of `PrepareTurnedAfter`'s site. */
-type PrepareTurnedAfter = "yaw" | "pitch" | "roll";
-
-/** The record of `IFreezeResult`'s site. */
-type IFreezeResult = {
-  posture: IAutoMovieMotionHumanPosture;
-  pose: IAutoMoviePose;
-};
-
 /**
  * The airborne kernel of the gymnastic and jumping laws: a body in flight is a
  * set of joint angles, a heading and a tip, placed where its centre of mass
@@ -443,3 +434,12 @@ export namespace GymnasticsFlight {
     return high;
   }
 }
+
+/** The alternatives of `PrepareTurnedAfter`'s site. */
+type PrepareTurnedAfter = "yaw" | "pitch" | "roll";
+
+/** The record of `IFreezeResult`'s site. */
+type IFreezeResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  pose: IAutoMoviePose;
+};

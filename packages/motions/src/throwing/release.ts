@@ -36,24 +36,6 @@ import { HumanHand } from "../posture/HumanHand";
 import { placeHumanHandSurface } from "../posture/placeHumanHandSurface";
 import { poseBones } from "../posture/poseBones";
 
-/** The alternatives of `PlanPlacedShape`'s site. */
-type PlanPlacedShape = "fist" | "flat";
-
-/** The record of `IPlanPlacedResult`'s site. */
-type IPlanPlacedResult = {
-  wrist: IAutoMovieMotionHumanHand.IWrist;
-  contact: IAutoMovieVector3;
-};
-
-/** The record of `IPlanPlaced`'s site. */
-type IPlanPlaced = {
-  wrist: IAutoMovieMotionHumanHand.IWrist;
-  contact: IAutoMovieVector3;
-};
-
-/** The alternatives of `OffsetsEntryItem`'s site. */
-type OffsetsEntryItem = "fist" | "flat";
-
 /**
  * Letting go: a hand opens on what it holds, and the held prop leaves it.
  *
@@ -306,3 +288,21 @@ export namespace release {
     return { ...composed, launches };
   }
 }
+
+/** The alternatives of `PlanPlacedShape`'s site. */
+type PlanPlacedShape = "fist" | "flat";
+
+/** The record of `IPlanPlacedResult`'s site. */
+type IPlanPlacedResult = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  contact: IAutoMovieVector3;
+};
+
+/** The record of `IPlanPlaced`'s site. */
+type IPlanPlaced = {
+  wrist: IAutoMovieMotionHumanHand.IWrist;
+  contact: IAutoMovieVector3;
+};
+
+/** The alternatives of `OffsetsEntryItem`'s site. */
+type OffsetsEntryItem = "fist" | "flat";

@@ -25,44 +25,6 @@ import { HumanHand } from "../posture/HumanHand";
 import { touch } from "../touch/touch";
 
 /**
- * The hand of the partner that holds the prop as the disarm starts: the
- * performance's own grip custody (`IAutoMovieMotionHumanPropReader.holderAt`),
- * read after the partner is, so a partner placed on demand is placed first. A
- * reader that tracks no grips is read by the nearer hand to the prop.
- */
-function holding(
-  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
-  partner: string,
-  prop: string,
-): AutoMovieHumanSide {
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
-    .performer(partner)
-    .bones(
-      context.start,
-      new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
-    );
-  const reader: IAutoMovieMotionHumanPropReader = context.prop(prop);
-  if (reader.holderAt !== undefined) {
-    const held: IAutoMovieMotionHumanPropReader.IHolder | undefined =
-      reader.holderAt(context.start);
-    if (held === undefined || held.subject !== partner)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "prop",
-        value: prop,
-        reason: `${partner} does not hold ${prop} as the disarm starts`,
-        fix: "arm the partner with the weapon before the disarm",
-      });
-    return held.side;
-  }
-  const frame: IAutoMovieVector3 = reader.frame(context.start).position;
-  return Vector3.distance(bones.get("leftHand")!.worldPosition, frame) <
-    Vector3.distance(bones.get("rightHand")!.worldPosition, frame)
-    ? "left"
-    : "right";
-}
-
-/**
  * A staged disarm (`IAutoMovieMotionHumanDisarm`). The defender's hands close
  * on the armed arm by the stage-fight grab (`touch`, both palms squeezing): for
  * a knife on the armed wrist and the forearm, for a handgun on the armed wrist
@@ -238,4 +200,42 @@ export namespace disarm {
       },
     };
   }
+}
+
+/**
+ * The hand of the partner that holds the prop as the disarm starts: the
+ * performance's own grip custody (`IAutoMovieMotionHumanPropReader.holderAt`),
+ * read after the partner is, so a partner placed on demand is placed first. A
+ * reader that tracks no grips is read by the nearer hand to the prop.
+ */
+function holding(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDisarm.IParams>,
+  partner: string,
+  prop: string,
+): AutoMovieHumanSide {
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = context
+    .performer(partner)
+    .bones(
+      context.start,
+      new Set<AutoMovieHumanoidBone>(["leftHand", "rightHand"]),
+    );
+  const reader: IAutoMovieMotionHumanPropReader = context.prop(prop);
+  if (reader.holderAt !== undefined) {
+    const held: IAutoMovieMotionHumanPropReader.IHolder | undefined =
+      reader.holderAt(context.start);
+    if (held === undefined || held.subject !== partner)
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "prop",
+        value: prop,
+        reason: `${partner} does not hold ${prop} as the disarm starts`,
+        fix: "arm the partner with the weapon before the disarm",
+      });
+    return held.side;
+  }
+  const frame: IAutoMovieVector3 = reader.frame(context.start).position;
+  return Vector3.distance(bones.get("leftHand")!.worldPosition, frame) <
+    Vector3.distance(bones.get("rightHand")!.worldPosition, frame)
+    ? "left"
+    : "right";
 }

@@ -34,10 +34,6 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
-/** The law's context. */
-type Context =
-  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;
-
 /**
  * The carried shaft's direction in the seat frame: along the travel, the point
  * a little down and in, so the butt behind the grip rises clear of the horse's
@@ -56,6 +52,34 @@ const FRAME: number = 1 / 60;
  * (provisional).
  */
 const REACH: number = 0.5;
+
+/**
+ * A lance couched and lowered to a skill-at-arms target from the saddle
+ * (`IAutoMovieMotionHumanLanceCouch`): carried on the seat contact, the right
+ * hand holds the lance by its grip with the upper arm out and down from the
+ * shoulder, the shaft along the travel at the grasp's angle to the forearm, and
+ * the left holds both reins at their middle. The strike is the first frame at
+ * which a carriage lays the lance's point on the target's own point, read in
+ * the moving seat frame: the grip one lance length from the target within the
+ * arm's reach, the forearm at the grasp's angle to the shaft; over `lower`
+ * seconds before it the hand comes down to that carriage and the shaft onto the
+ * line to the target by a minimum-jerk path between two carriages laid from the
+ * arm's own line (the hand continuing the forearm, the shaft at the grasp's
+ * angle to it, the elbow one upper arm from the shoulder), the point meets the
+ * target at the strike, the target is set on the lance's point from then, and
+ * over `lower` seconds after it the lance comes back to the couch. Register
+ * `HumanLanceCouch` to use it.
+ */
+export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLanceCouch> =
+  {
+    name: "lanceCouch",
+    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
+    plan: planHumanLanceCouch,
+  };
+
+/** The law's context. */
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLanceCouch>;
 
 /**
  * Admit the act, find the strike, lay the stations, then sample.
@@ -350,30 +374,6 @@ function planHumanLanceCouch(
     span,
   });
 }
-
-/**
- * A lance couched and lowered to a skill-at-arms target from the saddle
- * (`IAutoMovieMotionHumanLanceCouch`): carried on the seat contact, the right
- * hand holds the lance by its grip with the upper arm out and down from the
- * shoulder, the shaft along the travel at the grasp's angle to the forearm, and
- * the left holds both reins at their middle. The strike is the first frame at
- * which a carriage lays the lance's point on the target's own point, read in
- * the moving seat frame: the grip one lance length from the target within the
- * arm's reach, the forearm at the grasp's angle to the shaft; over `lower`
- * seconds before it the hand comes down to that carriage and the shaft onto the
- * line to the target by a minimum-jerk path between two carriages laid from the
- * arm's own line (the hand continuing the forearm, the shaft at the grasp's
- * angle to it, the elbow one upper arm from the shoulder), the point meets the
- * target at the strike, the target is set on the lance's point from then, and
- * over `lower` seconds after it the lance comes back to the couch. Register
- * `HumanLanceCouch` to use it.
- */
-export const HumanLanceCouch: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLanceCouch> =
-  {
-    name: "lanceCouch",
-    interrupts: { any: [{ window: [0, 1], kind: "inertialize", entry: 0 }] },
-    plan: planHumanLanceCouch,
-  };
 
 /** And above and below the target's level, in degrees. */
 const UPDOWN: number = 10;

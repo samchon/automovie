@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalShapeNearest } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMovieMotionHumanQuadraticProgram,
@@ -37,7 +37,7 @@ function skin(
           nearest.distance
       )
         continue;
-      const read: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
+      const read: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
         placed.pose,
         solid,
         point,

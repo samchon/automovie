@@ -17,9 +17,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { ExerciseKey } from "./ExerciseKey";
 
-/** The alternatives of `FeetContext`'s site. */
-type FeetContext = "body" | "entry";
-
 /**
  * Ballet's five positions of the feet and what the legs do in them. Each foot
  * turns out by the turnout from the dancer's heading; the heels stand, in foot
@@ -346,3 +343,6 @@ export namespace balletPositions {
       : { left: rear, right: lead };
   }
 }
+
+/** The alternatives of `FeetContext`'s site. */
+type FeetContext = "body" | "entry";

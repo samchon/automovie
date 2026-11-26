@@ -72,6 +72,32 @@ const REACH: number = ADJUST;
  *
  * Events: `take` when the hand closes on the grip, `step{k}` at each landing
  * and `release` at the end.
+ */
+export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBikeGuide> =
+  {
+    name: "bikeGuide",
+    interrupts: {},
+    yields: [],
+    plan: planHumanBikeGuide,
+  };
+
+/**
+ * Wheel a bicycle by hand beside it, as a triathlete does through the
+ * transition lane. The scene's course rolls the bicycle, with any stop it
+ * makes; the athlete keeps the entered place beside it, so the root follows the
+ * bicycle's frame, and the near hand holds that side's handlebar grip on the
+ * posed bicycle. The path is stepped run by run between the bicycle's stops,
+ * each run closed with the feet together. Steps are laid along the root's path:
+ * a normal walking step of 0.41 stature, lengthened to keep a running cadence
+ * where the bicycle is faster at the step's start, then a closing step that
+ * brings the feet together where the bicycle stops. A foot lands when the root
+ * has come half a step short of its print and swings for at most the swing time
+ * before that, after the other foot has landed, so a foot stays planted while
+ * the bicycle pauses. The pelvis lowers only as far as the longer leg needs to
+ * reach its foot.
+ *
+ * Events: `take` when the hand closes on the grip, `step{k}` at each landing
+ * and `release` at the end.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States who owns the path, the step rule with its sources and provisional values, the landing and swing timing, the pelvis rule and the events.
  */
@@ -385,32 +411,6 @@ function planHumanBikeGuide(
     span: { start: 0, ready: REACH, relax: duration, end: duration },
   });
 }
-
-/**
- * Wheel a bicycle by hand beside it, as a triathlete does through the
- * transition lane. The scene's course rolls the bicycle, with any stop it
- * makes; the athlete keeps the entered place beside it, so the root follows the
- * bicycle's frame, and the near hand holds that side's handlebar grip on the
- * posed bicycle. The path is stepped run by run between the bicycle's stops,
- * each run closed with the feet together. Steps are laid along the root's path:
- * a normal walking step of 0.41 stature, lengthened to keep a running cadence
- * where the bicycle is faster at the step's start, then a closing step that
- * brings the feet together where the bicycle stops. A foot lands when the root
- * has come half a step short of its print and swings for at most the swing time
- * before that, after the other foot has landed, so a foot stays planted while
- * the bicycle pauses. The pelvis lowers only as far as the longer leg needs to
- * reach its foot.
- *
- * Events: `take` when the hand closes on the grip, `step{k}` at each landing
- * and `release` at the end.
- */
-export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBikeGuide> =
-  {
-    name: "bikeGuide",
-    interrupts: {},
-    yields: [],
-    plan: planHumanBikeGuide,
-  };
 
 /** The world up axis. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

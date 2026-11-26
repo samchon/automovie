@@ -1,3 +1,4 @@
+import { AutoMovieEngineCaptureRecord } from "@automovie/engine";
 import type {
   IAutoMovieCaptureFolder,
   IAutoMovieCaptureFolderOpenProps,
@@ -6,7 +7,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieRenderCaptureRecord } from "./AutoMovieRenderCaptureRecord.js";
-import { CAPTURE_FILE_NAME } from "./internal/CAPTURE_FILE_NAME.js";
 
 /** The record's file name. */
 const RECORD: string = "record.json";
@@ -207,7 +207,7 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
    */
   public async claim(names: readonly string[]): Promise<void> {
     for (const name of names) {
-      if (!CAPTURE_FILE_NAME.test(name) || name === RECORD)
+      if (!AutoMovieEngineCaptureRecord.isFileName(name) || name === RECORD)
         throw new Error(`A capture cannot write "${name}" in its folder`);
       this.claimed.add(name);
     }
@@ -253,7 +253,7 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
     name: string,
     earlier: boolean = false,
   ): Promise<Uint8Array> {
-    if (!CAPTURE_FILE_NAME.test(name))
+    if (!AutoMovieEngineCaptureRecord.isFileName(name))
       throw new Error(`A capture cannot read "${name}"`);
     if (earlier && this.reference === null)
       throw new Error("This capture compares against no round");

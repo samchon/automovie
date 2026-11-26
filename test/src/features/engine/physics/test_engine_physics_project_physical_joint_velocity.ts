@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  projectPhysicalJointVelocity,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,
   IAutoMovieQuaternion,
@@ -64,13 +60,13 @@ export function test_engine_physics_project_physical_joint_velocity(): void {
       }),
     ),
   ];
-  const projected: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const projected: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     current,
     axes,
     requested,
     dt,
   );
-  const opposite: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const opposite: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     { x: -current.x, y: -current.y, z: -current.z, w: -current.w },
     axes,
     requested,
@@ -103,13 +99,13 @@ export function test_engine_physics_project_physical_joint_velocity(): void {
     Vector3.length(Vector3.subtract(projected, opposite)) <
       PhysicalTolerance.ACCUMULATED,
   );
-  const free: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const free: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     Quaternion.identity(),
     [{ ...axis, minimum: -Math.PI, maximum: Math.PI }],
     requested,
     dt,
   );
-  const interior: IAutoMovieVector3 = projectPhysicalJointVelocity(
+  const interior: IAutoMovieVector3 = AutoMovieEnginePhysics.projectPhysicalJointVelocity(
     Quaternion.identity(),
     [axis],
     requested,

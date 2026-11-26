@@ -12,8 +12,8 @@ import type {
   IAutoMovieSolveSunPosition,
   IAutoMovieValidateEnvironmentContext,
   IAutoMovieValidation,
-} from "@automovie/interface";ovieAnalysisSolid, type IAutoMovieEnvironmentContext, type IAutoMovieEnvironmentInstant, type IAutoMovieVector3, type IAutoMovieHemisphereDirections, type IAutoMovieRayObstruction, type IAutoMovieReferenceGround, type IAutoMovieSolidBlockQuery, type IAutoMovieSunDirection, type IAutoMovieSunPosition, type IAutoMovieSolveSunPosition } from "@automovie/interface";
-import type { IAutoMovieValidateEnvironmentContext, IAutoMovieValidation } from "@automovie/interface";
+} from "@automovie/interface";
+
 import { validateAutoMovieEnvironmentContext as validateAutoMovieEnvironmentContextImplementation } from "./internal/validateAutoMovieEnvironmentContext";
 import { autoMovieContextSolids as autoMovieContextSolidsImplementation } from "./internal/autoMovieContextSolids";
 import { autoMovieDewPoint as autoMovieDewPointImplementation } from "./internal/autoMovieDewPoint";

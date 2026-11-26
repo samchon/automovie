@@ -1,9 +1,4 @@
-import {
-  preparePhysicalDisturbanceSpan as Span,
-  Vector3,
-  physicalSpanPose,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { preparePhysicalDisturbanceSpan as Span, Vector3, physicalSpanPose, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
@@ -57,7 +52,7 @@ export function test_engine_physics_physical_span_pose(): void {
     poses: Record<string, IAutoMovieSamplePhysicalTarget.IResult>,
     bone: string,
   ): IAutoMovieVector3 =>
-    physicalSupportPoint(
+    AutoMovieEnginePhysics.physicalSupportPoint(
       poses[bone]!.pose,
       limbs.find((limb) => limb.bone === bone)!.localPoint,
     );
@@ -117,8 +112,8 @@ export function test_engine_physics_physical_span_pose(): void {
       if (!parent || !child) continue;
       const gap: number = Vector3.length(
         Vector3.subtract(
-          physicalSupportPoint(parent.pose, joint.parentFrame.position),
-          physicalSupportPoint(child.pose, joint.childFrame.position),
+          AutoMovieEnginePhysics.physicalSupportPoint(parent.pose, joint.parentFrame.position),
+          AutoMovieEnginePhysics.physicalSupportPoint(child.pose, joint.childFrame.position),
         ),
       );
       if (gap > PLACE)

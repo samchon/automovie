@@ -7,11 +7,13 @@ export * from "./IAutoMovieViewerSubjectPose.js";
 export * from "./IAutoMovieViewerTurntableOptions.js";
 export * from "./IAutoMovieViewerSubjectView.js";
 export * from "./IAutoMovieViewerSubjectViewRequest.js";
-export * from "./autoMovieViewerSubjectKey.js";
-export * from "./parseAutoMovieViewerSubjectKey.js";
-export * from "./autoMovieViewerNamedViewpoints.js";
-export * from "./autoMovieViewerTurntableViewpoints.js";
-export * from "./frameAutoMovieViewerSubject.js";
+
+
+
+
+
 export * from "./autoMovieViewerPoseFromHeading.js";
-export * from "./applyAutoMovieViewerSubjectPose.js";
-export * from "./captureAutoMovieViewerSubjectView.js";
+
+
+
+export { AutoMovieRenderSubjectViewpoint } from "./AutoMovieRenderSubjectViewpoint.js";

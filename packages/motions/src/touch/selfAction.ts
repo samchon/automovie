@@ -34,12 +34,6 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The alternatives of `PlanLiftBone`'s site. */
-type PlanLiftBone = "leftShoulder" | "rightShoulder";
-
-/** The alternatives of `PLACESEntryItem`'s site. */
-type PLACESEntryItem = "stretch" | "victory" | "fistPump";
-
 /**
  * A whole-body self action while standing: the yawn-and-stretch with both arms
  * overhead, both arms raised in victory, a fist pump, a neck roll and a
@@ -97,24 +91,6 @@ export namespace selfAction {
 
   /** May be performed over a carrier: it claims only the parts it moves. */
   export const overlay: boolean = true;
-
-  /**
-   * An arm a kind raises: its side, its place, the hand's shape and whether its
-   * fist pumps.
-   */
-  interface IRaised {
-    /** The arm. */
-    side: AutoMovieHumanSide;
-
-    /** The place of the air the hand goes to. */
-    grid: IAutoMovieMotionHumanTargetGrid.IGrid;
-
-    /** The hand's shape: flat palms or a fist. */
-    shape: IAutoMovieMotionHumanHand.Shape;
-
-    /** Whether the fist drops and rises over the stroke. */
-    pump: boolean;
-  }
 
   /**
    * Where the pumping arm's elbow hangs, which the fist's forearm rises from:
@@ -407,4 +383,28 @@ export namespace selfAction {
       contact: "stroke",
     });
   }
+
+  /**
+   * An arm a kind raises: its side, its place, the hand's shape and whether its
+   * fist pumps.
+   */
+  interface IRaised {
+    /** The arm. */
+    side: AutoMovieHumanSide;
+
+    /** The place of the air the hand goes to. */
+    grid: IAutoMovieMotionHumanTargetGrid.IGrid;
+
+    /** The hand's shape: flat palms or a fist. */
+    shape: IAutoMovieMotionHumanHand.Shape;
+
+    /** Whether the fist drops and rises over the stroke. */
+    pump: boolean;
+  }
 }
+
+/** The alternatives of `PlanLiftBone`'s site. */
+type PlanLiftBone = "leftShoulder" | "rightShoulder";
+
+/** The alternatives of `PLACESEntryItem`'s site. */
+type PLACESEntryItem = "stretch" | "victory" | "fistPump";

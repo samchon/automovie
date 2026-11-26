@@ -7,8 +7,8 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeContactManifold } from "./physicalShapeContactManifold";
-import { physicalShapeSupport } from "./physicalShapeSupport";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalShapeSupport } from "./internal/physicalShapeSupport";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 
 /**
  * Freeze the current separating normal and the bone-local witnesses of the

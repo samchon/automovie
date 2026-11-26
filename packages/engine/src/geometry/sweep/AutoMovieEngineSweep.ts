@@ -1,4 +1,6 @@
-import { type IAutoMovieSweep, type IAutoMovieCompileSweepGuideOutput, type IAutoMoviePlanSurfaceRigPatchesOutput, type IAutoMoviePlanSurfaceRigPatches, type IAutoMovieSurfaceConstruction, type IAutoMoviePrepareSurfaceConstruction, type IAutoMoviePreserveSweepVolume } from "@automovie/interface";
+import { sampleAutoMovieParameterSweep as sampleAutoMovieParameterSweepImplementation } from "./internal/sampleAutoMovieParameterSweep";
+
+import { type IAutoMovieSweep, type IAutoMovieCompileSweepGuideOutput, type IAutoMoviePlanSurfaceRigPatchesOutput, type IAutoMoviePlanSurfaceRigPatches, type IAutoMovieSurfaceConstruction, type IAutoMoviePrepareSurfaceConstruction, type IAutoMoviePreserveSweepVolume, type IAutoMovieSampleParameterSweep } from "@automovie/interface";
 import { checkAutoMovieSweepFeature as checkAutoMovieSweepFeatureImplementation } from "./internal/checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepGuide as compileAutoMovieSweepGuideImplementation } from "./internal/compileAutoMovieSweepGuide";
 import { compileAutoMovieSweepProfile as compileAutoMovieSweepProfileImplementation } from "./internal/compileAutoMovieSweepProfile";
@@ -128,5 +130,33 @@ export namespace AutoMovieEngineSweep {
    */
   export function reachSurfaceCell(step: number, first: boolean, last: boolean): [number, number] {
     return reachAutoMovieSurfaceCellImplementation(step, first, last);
+  }
+
+  /**
+   * Register a fixed-cell Cartesian section average for parameter correspondence.
+   *
+   * Parameter correspondence pairs the curve parameter, so an off-axis, concave
+   * section or an authored origin cannot be reconstructed from a polar radius.
+   * The tensor trapezoid first averages the unscaled two-dimensional shape over
+   * v, then its scaled points over u, in the centre frame just as the radial
+   * writer does. The u-dependent scale belongs inside that second average.
+   * Direction-correspondence radius averaging remains with rigAutoMovieSweep.
+   *
+   * Each signed coordinate is normalized by its largest magnitude before the
+   * weighted sum. This avoids overflow in the sum and preserves an ordinary
+   * positive subnormal constant. A genuine cancelling mean may be the origin;
+   * only a nonzero normalized result lost in multiplication is refused. Scale
+   * products, positive weights and world coordinates are admitted before output
+   * publication. A rejected write leaves the caller's output buffer unchanged.
+   *
+   * @param props The compiled unscaled surface, fixed footprint and live rig
+   *   views
+   * @returns The allocation-free writer in model metres
+   * @throws Error for nonfinite source coordinates, invalid or unrepresentable
+   *   cell reaches/weights, scale products, signed means or world coordinates;
+   *   write failures preserve the output buffer.
+   */
+  export function sampleParameterSweep(props: IAutoMovieSampleParameterSweep.IProps): (out: Float64Array, offset: number) => void {
+    return sampleAutoMovieParameterSweepImplementation(props);
   }
 }

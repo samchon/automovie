@@ -15,7 +15,7 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import type { physicalStanceSeat } from "./physicalStanceSeat";
 import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
-import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 import { physicalSwingReference } from "./physicalSwingReference";
 
 /**

@@ -9,9 +9,6 @@ import type {
 
 import { HumanForceDrawn } from "./HumanForceDrawn";
 
-/** The record of `ISwingResult`'s site. */
-type ISwingResult = { angle: number; rate: number };
-
 /**
  * The mechanics of a force exchanged through grips: a pull that draws a partner
  * off balance (kuzushi), the counter-lean that resists it, and a throw's
@@ -259,3 +256,6 @@ export namespace HumanForceExchange {
     );
   }
 }
+
+/** The record of `ISwingResult`'s site. */
+type ISwingResult = { angle: number; rate: number };

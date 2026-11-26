@@ -6,14 +6,7 @@ import {
   createSeat,
   createTable,
 } from "@automovie/archetypes";
-import {
-  createBuilding,
-  createCafeKit,
-  createEnvironment,
-  createEnvironmentProp,
-  createFurnishedRoom,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+import { createBuilding, createCafeKit, createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
@@ -72,7 +65,7 @@ export function test_environment_support_report(): void {
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({
       at: { x: -10, y: 0, z: -10 },
-      use: createTerrain({ size: [20, 20] }),
+      use: AutoMovieEnvironment.terrain({ size: [20, 20] }),
     });
   const cup: (
     declared: boolean,
@@ -82,7 +75,7 @@ export function test_environment_support_report(): void {
     table: "table-1" | "table-2",
   ): IAutoMovieEnvironmentItem => ({
     at: { anchor: `cafe/${table}/stack` },
-    use: createEnvironmentProp({
+    use: AutoMovieEnvironmentFurnishing.prop({
       model: createDrinkware({ kind: "cup" }),
       ...(declared
         ? {
@@ -107,13 +100,13 @@ export function test_environment_support_report(): void {
 
   // Scenarios 1 to 5 and 7: a terrain with a pad, a cafe on it, two crates,
   // two cups and a building on level ground beside it.
-  const set: IAutoMovieEnvironment = createEnvironment({
+  const set: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "set",
     seed: 5,
     items: {
       land: {
         at: { x: -10, y: 0, z: -10 },
-        use: createTerrain({
+        use: AutoMovieEnvironment.terrain({
           size: [40, 20],
           pads: {
             plaza: {
@@ -137,11 +130,11 @@ export function test_environment_support_report(): void {
       cupDeclared: cup(true, "table-2"),
       floatingCrate: {
         at: { x: 14, y: 0.8, z: -6 },
-        use: createEnvironmentProp({ model: crate }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: crate }),
       },
       sunkCrate: {
         at: { x: 14, y: -0.3, z: 6 },
-        use: createEnvironmentProp({ model: crate }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: crate }),
       },
       hall: {
         at: { x: 22, y: 0, z: -4 },
@@ -165,7 +158,7 @@ export function test_environment_support_report(): void {
   // Scenario 6: a mirror on wall +x of a furnished room, and the same mirror
   // 0.1 m off that wall by coordinates.
   const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, 1019);
-  const hung: IAutoMovieEnvironment = createEnvironment({
+  const hung: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "home",
     seed: 5,
     items: {
@@ -184,7 +177,7 @@ export function test_environment_support_report(): void {
     },
   });
   const frame: IAutoMovieTransform = hung.anchors["room/mirror"]!;
-  const loose: IAutoMovieEnvironment = createEnvironment({
+  const loose: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "home",
     seed: 5,
     items: {
@@ -196,7 +189,7 @@ export function test_environment_support_report(): void {
           z: frame.translation.z,
         },
         rotation: frame.rotation,
-        use: createEnvironmentProp({ model: mirror }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: mirror }),
       },
     },
   });
@@ -214,7 +207,7 @@ export function test_environment_support_report(): void {
 
   // Scenario 10: a furnished interior with a hung mirror on a floor, and an
   // outdoor set of a wood, a trail, a rock and a bench on level ground.
-  const interior: IAutoMovieEnvironment = createEnvironment({
+  const interior: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "interior",
     seed: 5,
     items: {
@@ -240,13 +233,13 @@ export function test_environment_support_report(): void {
       },
     },
   });
-  const outdoor: IAutoMovieEnvironment = createEnvironment({
+  const outdoor: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "outdoor",
     seed: 5,
     items: {
       land: {
         at: { x: -15, y: 0, z: -10 },
-        use: createTerrain({
+        use: AutoMovieEnvironment.terrain({
           size: [30, 20],
           paths: {
             trail: {
@@ -273,13 +266,13 @@ export function test_environment_support_report(): void {
       },
       rock: {
         at: { anchor: "land/amenities/rock" },
-        use: createEnvironmentProp({
+        use: AutoMovieEnvironmentFurnishing.prop({
           model: createRock({ kind: "boulder" }, 1023),
         }),
       },
       bench: {
         at: { anchor: "land/amenities/bench" },
-        use: createEnvironmentProp({
+        use: AutoMovieEnvironmentFurnishing.prop({
           model: createSeat({ kind: "bench" }, 1024),
         }),
       },
@@ -415,7 +408,7 @@ export function test_environment_support_report(): void {
     [
       "the report is recomputed from the other outputs, and a rebuild repeats them all",
       (): boolean => {
-        const again: IAutoMovieEnvironment = createEnvironment({
+        const again: IAutoMovieEnvironment = AutoMovieEnvironment.create({
           id: "home",
           seed: 5,
           items: {

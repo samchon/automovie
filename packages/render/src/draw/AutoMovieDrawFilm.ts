@@ -11,7 +11,7 @@ import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlph
 import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
 import type { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
-import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
+import { placeAutoMovieDrawLayer } from "./internal/placeAutoMovieDrawLayer.js";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
 
 /**

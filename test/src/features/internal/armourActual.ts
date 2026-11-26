@@ -1,10 +1,5 @@
 import type { createArmour } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  physicalHullFaces,
-  physicalShapeNearest,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalHullFaces, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieBodyMeasure,
   IAutoMoviePhysicalHullFaces,
@@ -188,7 +183,7 @@ export namespace armourActual {
     return Math.min(
       ...shapes.map(
         (shape: IAutoMoviePhysicalShape): number =>
-          physicalShapeNearest(pose, shape, point, point).distance,
+          AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, point, point).distance,
       ),
     );
   }

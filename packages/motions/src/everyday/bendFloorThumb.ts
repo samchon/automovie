@@ -1,4 +1,4 @@
-import { ROM_TOLERANCE, Vector3, getConstraint, physicalShapeSpan, AutoMovieEngineMath } from "@automovie/engine";
+import { ROM_TOLERANCE, Vector3, getConstraint, AutoMovieEngineMath, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -89,7 +89,7 @@ export function bendFloorThumb(
         for (const collider of part.shapes)
           highest = Math.max(
             highest,
-            physicalShapeSpan(part.pose, collider, palm.normal)[1],
+            AutoMovieEnginePhysics.physicalShapeSpan(part.pose, collider, palm.normal)[1],
           );
     return highest - Vector3.dot(palm.point, palm.normal);
   };

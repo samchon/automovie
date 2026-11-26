@@ -1,4 +1,4 @@
-import { AutoMovieEngineEffect, compileImpactEffects } from "@automovie/engine";
+import { AutoMovieEngineEffect, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieEffectRecipe,
@@ -24,11 +24,11 @@ export function test_engine_physics_compile_impact_effects(): void {
     separation: -0.01,
     compression: 0.01,
   };
-  const streams: ReturnType<typeof compileImpactEffects> = [
+  const streams: ReturnType<typeof AutoMovieEnginePhysics.compileImpactEffects> = [
     false,
     true,
   ].flatMap(
-    (retainStains: boolean): ReturnType<typeof compileImpactEffects> => {
+    (retainStains: boolean): ReturnType<typeof AutoMovieEnginePhysics.compileImpactEffects> => {
       const recipe: IAutoMovieEffectRecipe = {
         id: retainStains ? "settling-coating" : "evaporating-spray",
         kind: "spray",
@@ -55,7 +55,7 @@ export function test_engine_physics_compile_impact_effects(): void {
         budget: { maxParticles: 64, lodDistance: 100 },
         blend: "alpha",
       };
-      return compileImpactEffects({
+      return AutoMovieEnginePhysics.compileImpactEffects({
         contacts: [receipt],
         geometricImpulses: {},
         recipe,
@@ -108,7 +108,7 @@ export function test_engine_physics_compile_impact_effects(): void {
     } else if (late.particles.length !== 0)
       findings.push(`${stream.id}: airborne spray survives its lifetime`);
   }
-  const source: ReturnType<typeof compileImpactEffects>[number] = streams[0]!;
+  const source: ReturnType<typeof AutoMovieEnginePhysics.compileImpactEffects>[number] = streams[0]!;
   const invalid: ((recipe: IAutoMovieEffectRecipe) => void)[] = [
     (recipe: IAutoMovieEffectRecipe): void => {
       recipe.motion.ballistic!.gravity = -1;
@@ -122,7 +122,7 @@ export function test_engine_physics_compile_impact_effects(): void {
     change(recipe);
     let refused: boolean = false;
     try {
-      compileImpactEffects({
+      AutoMovieEnginePhysics.compileImpactEffects({
         contacts: [
           {
             id: "receipt",

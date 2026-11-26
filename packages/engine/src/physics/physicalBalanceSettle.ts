@@ -10,7 +10,7 @@ import { Vector3 } from "../math/Vector3";
 import { physicalBalanceBracing } from "./physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
-import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
+import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 
 /**
  * The balance controller's settle phase (`advancePhysicalBalance`): the

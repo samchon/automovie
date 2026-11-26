@@ -35,21 +35,6 @@ import { highJumpBar } from "./highJumpBar";
 import { highJumpFlight } from "./highJumpFlight";
 import { prepareGymnasticsFrame } from "./prepareGymnasticsFrame";
 
-/** The record of `IPlanLaunchFrameResult`'s site. */
-type IPlanLaunchFrameResult = {
-  posture: IAutoMovieMotionHumanPosture;
-  centre: IAutoMovieVector3;
-};
-
-/** The record of `IPlanLaunchFrame`'s site. */
-type IPlanLaunchFrame = {
-  posture: IAutoMovieMotionHumanPosture;
-  centre: IAutoMovieVector3;
-};
-
-/** The alternatives of `CrossbarContext`'s site. */
-type CrossbarContext = "prop" | "start";
-
 /**
  * A high jump in the Fosbury flop: a one-foot take-off, a half turn that puts
  * the back to the bar, a backward lay-out over it with the back arched, the
@@ -445,3 +430,18 @@ export namespace highJump {
     };
   }
 }
+
+/** The record of `IPlanLaunchFrameResult`'s site. */
+type IPlanLaunchFrameResult = {
+  posture: IAutoMovieMotionHumanPosture;
+  centre: IAutoMovieVector3;
+};
+
+/** The record of `IPlanLaunchFrame`'s site. */
+type IPlanLaunchFrame = {
+  posture: IAutoMovieMotionHumanPosture;
+  centre: IAutoMovieVector3;
+};
+
+/** The alternatives of `CrossbarContext`'s site. */
+type CrossbarContext = "prop" | "start";

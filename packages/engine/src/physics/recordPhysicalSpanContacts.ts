@@ -9,7 +9,7 @@ import { Vector3 } from "../math/Vector3";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalSpanPose } from "./physicalSpanPose";
 import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
-import { recordPhysicalContact } from "./recordPhysicalContact";
+import { recordPhysicalContact } from "./internal/recordPhysicalContact";
 
 /**
  * Record the floor's reaction on a body while its disturbance response plays

@@ -1,4 +1,11 @@
-import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion } from "@automovie/interface";
+import { countAutoMovieMeshComponents as countAutoMovieMeshComponentsImplementation } from "./internal/countAutoMovieMeshComponents";
+import { measureAutoMovieMeshDefects as measureAutoMovieMeshDefectsImplementation } from "./internal/measureAutoMovieMeshDefects";
+import { measureAutoMovieModelCrossings as measureAutoMovieModelCrossingsImplementation } from "./internal/measureAutoMovieModelCrossings";
+import { separateAutoMovieMeshSequence as separateAutoMovieMeshSequenceImplementation } from "./internal/separateAutoMovieMeshSequence";
+import { subdivideAutoMovieSurface as subdivideAutoMovieSurfaceImplementation } from "./internal/subdivideAutoMovieSurface";
+import { weldedDegenerateTriangles as weldedDegenerateTrianglesImplementation } from "./internal/weldedDegenerateTriangles";
+
+import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion, type IAutoMovieMeshDefect, type IAutoMovieMeasureMeshDefects, type IAutoMovieModelCrossing, type IAutoMovieModel, type IAutoMovieMeasureModelCrossings, type IAutoMovieSubdivideSurface } from "@automovie/interface";
 import { admitAutoMovieBicubicAtlas as admitAutoMovieBicubicAtlasImplementation } from "./internal/admitAutoMovieBicubicAtlas";
 import { assertAutoMovieDeformedTriangles as assertAutoMovieDeformedTrianglesImplementation } from "./internal/assertAutoMovieDeformedTriangles";
 import { autoMovieFeatureEdgeDistance as autoMovieFeatureEdgeDistanceImplementation } from "./internal/autoMovieFeatureEdgeDistance";
@@ -975,5 +982,205 @@ export namespace AutoMovieEngineGeometry {
    */
   export function triangleIndicesOf(mesh: IAutoMovieMesh, label: string): number[] {
     return triangleIndicesOfImplementation(mesh, label);
+  }
+
+  /**
+   * Count components of used triangle vertices under their exact index identity.
+   * Coincident positions with different indices stay separate. Unused vertices
+   * contribute no component, and an empty triangle population returns zero.
+   * Coordinates, winding, area and physical-source aliases do not change this
+   * index graph. The result certifies no surface manifoldness or anatomy.
+   *
+   * @param mesh Borrowed indexed or consecutive-triangle mesh; positions supply
+   *   only the vertex count.
+   * @returns Components containing at least one triangle, including degenerate
+   *   triangles.
+   * @throws The canonical triangleIndicesOf refusal for malformed xyz/index
+   *   cardinality or out-of-range indices; coordinate finiteness is not needed
+   *   for this graph.
+   */
+  export function countMeshComponents(mesh: IAutoMovieMesh): number {
+    return countAutoMovieMeshComponentsImplementation(mesh);
+  }
+
+  /**
+   * List every defect of a triangle mesh with the vertices that carry it, so an
+   * inspection can draw each one where it is instead of reading a count.
+   *
+   * `positions` is flat xyz in any one length unit and `indices` holds triangle
+   * corners, or is `null` for a non-indexed list whose every three vertices are
+   * one triangle. Both are read in place, typed arrays included, and neither is
+   * changed. Vertices weld by position: each coordinate is multiplied by
+   * `options.weld`, the number of lattice cells per unit of length, and rounded
+   * to the nearest whole cell, and vertices in the same cell on all three axes
+   * are one corner. The default is `MESH_WELD_GRID`, a nanometre grid when the
+   * unit is the metre. Welding by cell is not welding by distance: two points
+   * closer than a cell that fall on either side of a rounding boundary stay
+   * apart.
+   *
+   * A triangle whose corners weld onto fewer than three cells is `degenerate` and
+   * contributes no edges. Every other triangle contributes its three edges
+   * between welded corners. An edge used by exactly one triangle is `open`, by
+   * more than two `non-manifold`, and by exactly two that traverse it in the same
+   * direction `inconsistent`, which is also what a triangle stored twice reports
+   * on all three edges. A non-manifold edge is not tested for winding. `sliver`
+   * is reported only when `options.sliver` is given: a triangle on three distinct
+   * cells whose aspect, its longest edge squared divided by twice its area,
+   * exceeds that limit. The aspect is dimensionless and equals the longest edge
+   * over the height standing on it: `2 / sqrt(3)` for an equilateral triangle, 2
+   * for a right isosceles one, and infinite for collinear corners on distinct
+   * cells. It is measured on the stored positions, not on the lattice.
+   *
+   * Defects come in ascending order of the first triangle that carries them.
+   * Within one triangle its own `degenerate` or `sliver` defect comes first, then
+   * its edges in corner order: corner 0 to 1, 1 to 2, 2 to 0. An edge is listed
+   * once, at the first triangle that uses it. The same input always gives the
+   * same list.
+   *
+   * It throws a named `Error` for a position count not divisible by three, a
+   * corner count not divisible by three, an index that is not a whole number
+   * inside the position buffer, a `weld` or `sliver` that is not positive and
+   * finite, a vertex whose lattice coordinate is not finite, and more than 94 906
+   * 265 vertices. Only edge incidence is measured: a vertex where two fans touch
+   * and surfaces that cross each other are not found here.
+   *
+   * @param mesh Position and index buffers to measure.
+   * @param options `weld` is the lattice's cells per unit of length, default
+   *   `MESH_WELD_GRID`. `sliver` is the aspect limit above which a triangle is a
+   *   sliver; absent, no sliver is reported.
+   * @returns The defects, empty for a closed, consistently wound mesh without
+   *   degenerate triangles.
+   */
+  export function measureMeshDefects(mesh: IAutoMovieMeasureMeshDefects.IMesh, options?: IAutoMovieMeasureMeshDefects.IOptions): IAutoMovieMeshDefect[] {
+    return measureAutoMovieMeshDefectsImplementation(mesh, options);
+  }
+
+  /**
+   * Report every pair of a model's mesh parts whose surfaces cross, measured
+   * where the parts actually sit in the model's frame.
+   *
+   * Each mesh part is first carried into the model frame by its own transform
+   * and, when attached to a bone the rest pose resolves, by that bone's rest
+   * placement, the placement `autoMovieModelPartMatrices` owns; a part with
+   * neither keeps its coordinates exactly. Bicubic recipes use the canonical
+   * engine's retained finite mesh, including declared partial output; primitives
+   * and unrecognized geometry remain outside this mesh crossing query. A pair
+   * appears once, in model part order, only when at least one triangle on either
+   * side is crossed, with each side's crossed triangle count and their combined
+   * coplanar count. Touching is not crossing: the underlying
+   * `AutoMovieEngineMeshCrossingQuery.measure` test is strict, so shells meeting
+   * along a seam do not report.
+   *
+   * An empty result does not mean a healthy model, nor a full one a broken one. A
+   * layered character rests with shells inside each other on purpose: the eyeball
+   * inside the lid, lashes rooted in skin, the tongue against the teeth. What
+   * carries information is the change from a rest pose, so a caller measures its
+   * own rest pose once and compares. The report is geometry, not acceptance:
+   * crossed triangles hidden inside a closed shell and visible once it opens look
+   * the same here, and that judgement stays with rendered review.
+   *
+   * `withinParts` also measures each part against itself, adding before that
+   * part's pairs one entry whose `part` and `other` are both that part, counting
+   * its triangles that another triangle of the same part crosses. That is for a
+   * continuous skin partitioned into segments, where a fold swallowing its own
+   * crease is exactly the penetration the partition exists to find; the same
+   * strict rules apply, so a triangle against itself and neighbours sharing an
+   * edge or corner without folding are touching. Throws, naming the part, on a
+   * mesh part whose index buffer is malformed, and passes on the crossing
+   * measure's own refusals.
+   *
+   * @param model A built model, whatever composed it.
+   * @param options `withinParts` also counts each part against itself.
+   * @returns One entry per crossing pair, empty when nothing crosses.
+   */
+  export function measureModelCrossings(model: IAutoMovieModel, options?: IAutoMovieMeasureModelCrossings.IOptions): IAutoMovieModelCrossing[] {
+    return measureAutoMovieModelCrossingsImplementation(model, options);
+  }
+
+  /**
+   * Separate an ordered mesh sequence along one positive local axis, retaining
+   * every shape, normal and transverse coordinate. Each earlier/later pair passes
+   * an axial bound or complete projected overlap. A signed minimum g imposes
+   * t[later]-t[earlier] >= clearance-g. A forward longest-path pass satisfies all
+   * pair constraints without an iterative collision correction or a guessed size.
+   * Translations are nondecreasing before their common half-range is subtracted;
+   * the first/last translations therefore balance around zero. Already separated
+   * input has zero travel. Returned meshes own their buffers.
+   *
+   * Mesh coordinates and nonnegative clearance use metres. Input order is the
+   * requested order, not an inferred spatial sort. The same ray-parallel limit as
+   * measureAutoMovieMeshClearance applies; this does not pack arbitrary volumes
+   * around corners or preserve an external path after separation.
+   *
+   * @throws Error for malformed triangles, non-finite coordinates or clearance,
+   *   an invalid axis, or arithmetic that exceeds finite translations or
+   *   positions.
+   */
+  export function separateMeshSequence(meshes: readonly IAutoMovieMesh[], axis: "x" | "y" | "z", clearance?: number): IAutoMovieMesh[] {
+    return separateAutoMovieMeshSequenceImplementation(meshes, axis, clearance);
+  }
+
+  /**
+   * Refine a polygon cage into a Catmull-Clark subdivision surface and evaluate
+   * its limit positions and normals.
+   *
+   * Each level applies Catmull and Clark's (1978) face, edge and vertex rules.
+   * Boundary edges are infinitely sharp, so a boundary follows the cubic B-spline
+   * of its cage edges, and a boundary vertex with one face is rounded rather than
+   * kept, OpenSubdiv's edge-only boundary interpolation. Creases follow DeRose,
+   * Kass and Truong (1998): a vertex with two sharp edges takes the crease rule,
+   * one with three or more is a corner, and semi-sharp edges blend into smooth
+   * ones as their sharpness decays. After the first level every face is a quad,
+   * so the cage may mix triangles, pentagons and other polygons with its quads.
+   *
+   * The limit position and normal of each vertex come from the published limit
+   * masks, evaluated after any semi-sharp sharpness left at the final level is
+   * spent, so they are what infinite refinement gives and do not depend on the
+   * level. A vertex on an infinitely sharp crease or boundary gets one normal per
+   * side. The exceptions are boundary or crease sides of one face, such as a cage
+   * corner under edge-only interpolation, or of four or more faces: there the
+   * limit surface has no tangent plane containing the crease, and the normal is
+   * OpenSubdiv's approximating mask, as `limitSubdivisionRing` explains.
+   *
+   * UVs refine face-varying with every chart boundary pinned, so an authored UV
+   * layout keeps its chart outlines exactly. The surface is deterministic: the
+   * same cage and level give the same numbers in the same order on every host.
+   *
+   * Refused before refinement: every defect `admitSubdivisionCage` lists, and a
+   * level that is not an integer from 1 to 6. The cap exists because each level
+   * multiplies the quad count by four, so the output is at most 1,024 quads per
+   * cage corner. A vertex whose limit normal vanishes, such as an interior vertex
+   * of valence two or a collapsed cage, is refused after refinement.
+   *
+   * @param props.cage The control cage, only read.
+   * @param props.levels Number of refinement steps, an integer from 1 to 6.
+   * @returns The refined quads, limit positions and normals, UVs and cage
+   *   parameters.
+   */
+  export function subdivideSurface(props: IAutoMovieSubdivideSurface.IProps): IAutoMovieSubdivisionSurface {
+    return subdivideAutoMovieSurfaceImplementation(props);
+  }
+
+  /**
+   * Original ordinals of the triangles whose corners repeat a vertex on the
+   * topology weld grid.
+   *
+   * Two corners repeat when their positions round to the same cell of the
+   * engine's shared nanometre grid, `MESH_WELD_GRID`, even if they are different
+   * index entries, so a seam pole or a collapsed fan counts. The portrait Float32
+   * gate uses these ordinals to tell an existing seam or pole from a face newly
+   * collapsed by single precision, the physical partition matcher requires a
+   * repartitioned mesh to keep the same population, and the human local frame
+   * skips them when it checks face directions. Only the triangle population is
+   * answered, without the edge incidence or signed volume of a complete topology
+   * report. Positions are local metres; neither the mesh nor its connectivity is
+   * changed.
+   *
+   * @param mesh Mesh to inspect.
+   * @returns Ascending ordinals of degenerate triangles.
+   * @throws Error when the index run is malformed.
+   */
+  export function weldedDegenerateTriangles(mesh: IAutoMovieMesh): number[] {
+    return weldedDegenerateTrianglesImplementation(mesh);
   }
 }

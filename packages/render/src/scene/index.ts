@@ -8,7 +8,7 @@ export * from "./createAutoMovieResourceRetirement.js";
 export * from "./reportAutoMovieResourceRetirement.js";
 export { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 export { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
-export * from "./readAutoMovieTextureSource.js";
+
 export * from "./AutoMovieThreeKind.js";
 export * from "./IAutoMovieDepthPrecisionRenderer.js";
 export * from "./IAutoMovieFramebufferContext.js";
@@ -48,15 +48,15 @@ export * from "./IAutoMovieModelObject.js";
 export * from "./applyTransform.js";
 export * from "./buildModel.js";
 export * from "./AutoMovieSkinnedMesh.js";
-export * from "./invalidateAutoMovieSkinnedPose.js";
+
 export * from "./applyPose.js";
-export * from "./applyAutoMovieRigLocals.js";
+
 export * from "./applyExpression.js";
 export * from "./importedModel/index.js";
 export * from "./applyObjectMotion.js";
 export * from "./applyObjectMotions.js";
 export * from "./applyLightMotion.js";
-export * from "./applyPracticalSurfaceMaterials.js";
+
 export * from "./applyLightState.js";
 export * from "./renderCrossDissolveFrames.js";
 export * from "./renderCrossDissolve.js";
@@ -64,7 +64,7 @@ export * from "./buildSpace.js";
 export * from "./deliveryCrop.js";
 export * from "./cameraDepthPrecision.js";
 export * from "./buildScene.js";
-export * from "./buildSceneSoftProps.js";
+
 export * from "./IAutoMovieSceneObject.js";
 export * from "./IAutoMovieSceneSoftProps.js";
 export * from "./applyAutoMovieShadowParticipation.js";
@@ -126,13 +126,21 @@ export * from "./resolveAutoMovieFilmBeautyComposition.js";
 export * from "./renderFadeToBlackFrame.js";
 export * from "./renderAutoMovieFilmFrame.js";
 export * from "./AutoMovieTransitionDisplays.js";
-export * from "./readAutoMovieRenderTextureTarget.js";
+
 export * from "./readAutoMovieTransmissionTextureTarget.js";
 export * from "./readAutoMovieDisplayDestinationEncoding.js";
 export * from "./updateAutoMovieComparisonCamera.js";
 export { createAutoMovieSurfaceAppearance } from "./createAutoMovieSurfaceAppearance.js";
-export { createAutoMoviePhysicalPoseAdapter } from "./createAutoMoviePhysicalPoseAdapter.js";
+
 export * from "./human-polygon/index.js";
 export * from "./AutoMovieResourceRetirementScope.js";
 export * from "./constructAutoMovieOwnedResources.js";
 export * from "./restoreAutoMovieRenderModeOnce.js";
+
+export { AutoMovieSceneTexture } from "./AutoMovieSceneTexture.js";
+
+export { AutoMovieRenderSceneLayout } from "./AutoMovieRenderSceneLayout.js";
+
+export { AutoMovieRenderSceneMotion } from "./AutoMovieRenderSceneMotion.js";
+
+export { AutoMovieRenderMaterial } from "./AutoMovieRenderMaterial.js";

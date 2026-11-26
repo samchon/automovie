@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalHullFaces,
-  physicalHullNearest,
-  physicalShapeNearest,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalHullFaces, physicalHullNearest, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -58,7 +52,7 @@ export function test_engine_physics_physical_hull_nearest(): void {
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
   ): IAutoMoviePhysicalShapeNearest.IResult =>
-    physicalShapeNearest(still, shape, a, b);
+    AutoMovieEnginePhysics.physicalShapeNearest(still, shape, a, b);
 
   // 1. Hand cases on a box hull.
   const half: IAutoMovieVector3 = { x: 0.5, y: 0.2, z: 0.1 };

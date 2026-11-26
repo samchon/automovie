@@ -15,7 +15,7 @@ import type {
 
 import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 import { FurnishingRect } from "./FurnishingRect";
-import { createEnvironmentProp } from "./createEnvironmentProp";
+import { createEnvironmentProp } from "./internal/createEnvironmentProp";
 import { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 
 /** Room-frame point on each wall's inner face and its unit normal into the room. */

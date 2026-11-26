@@ -2,10 +2,7 @@ import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMovieInspectionLegendEntry,
 } from "@automovie/interface";
-import {
-  type IAutoMovieDrawSubject,
-  selectAutoMovieDrawSubject,
-} from "@automovie/render";
+import { type IAutoMovieDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
 import {
   type ChangeEvent,
   type Dispatch,
@@ -121,7 +118,7 @@ export function AutoMovieInspector(
   let name: string | null = null;
   let unnamed: string | null = null;
   try {
-    name = selectAutoMovieDrawSubject(names, state.request.subject);
+    name = AutoMovieRenderDraw.selectAutoMovieDrawSubject(names, state.request.subject);
   } catch (error) {
     unnamed = error instanceof Error ? error.message : String(error);
   }

@@ -11,7 +11,7 @@ import type { IPhysicalContactTargetSeed } from "./IPhysicalContactTargetSeed";
 import type { IPhysicalCoupledTargetGroup } from "./IPhysicalCoupledTargetGroup";
 import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
 import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
-import { physicalContactSupportGoals } from "../physicalContactSupportGoals";
+import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
 import { samplePhysicalTrackingTarget } from "../samplePhysicalTrackingTarget";
 

@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  fitPhysicalWholeBodyTarget,
-  measurePhysicalJointLimits,
-  rerootPhysicalProfile,
-} from "@automovie/engine";
+import { Quaternion, Vector3, fitPhysicalWholeBodyTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieFitPhysicalWholeBodyTarget,
   IAutoMoviePhysicalJoint,
@@ -50,7 +44,7 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
   );
 
   // Rerooting on the left shank inverts its knee and hip only.
-  const rerooted: P = rerootPhysicalProfile(profile, "leftLowerLeg");
+  const rerooted: P = AutoMovieEnginePhysics.rerootPhysicalProfile(profile, "leftLowerLeg");
   const changed: string[] = rerooted.joints
     .filter(
       (joint: IAutoMoviePhysicalJoint, k: number): boolean =>
@@ -180,9 +174,9 @@ export function test_engine_physics_fit_physical_whole_body_target(): void {
       )
         failures.push(`${joint.id}: anchor`);
       if (
-        measurePhysicalJointLimits(joint, parent, child).some(
+        AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).some(
           (
-            coordinate: ReturnType<typeof measurePhysicalJointLimits>[number],
+            coordinate: ReturnType<typeof AutoMovieEnginePhysics.measurePhysicalJointLimits>[number],
           ): boolean => coordinate.violation > PhysicalTolerance.ACCUMULATED,
         )
       )

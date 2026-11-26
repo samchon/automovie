@@ -36,15 +36,6 @@ import { HumanGraspTarget } from "./HumanGraspTarget";
 import { HumanGraspUse } from "./HumanGraspUse";
 import { HumanGrip } from "./HumanGrip";
 
-/** The record of `IKeyDigitsItem`'s site. */
-type IKeyDigitsItem = { point: IAutoMovieVector3; radius: number };
-
-/** The alternatives of `KeyContext`'s site. */
-type KeyContext = "body" | "entry" | "prop" | "start";
-
-/** The alternatives of `KeptContext`'s site. */
-type KeptContext = "body" | "entry" | "prop" | "start";
-
 /**
  * A held tool used as the grasp it was taken up by presents it: the act that
  * works with it keeps the hand's rotation the grasp was chosen to hold at the
@@ -373,3 +364,12 @@ export namespace HumanHeldUse {
     ];
   }
 }
+
+/** The record of `IKeyDigitsItem`'s site. */
+type IKeyDigitsItem = { point: IAutoMovieVector3; radius: number };
+
+/** The alternatives of `KeyContext`'s site. */
+type KeyContext = "body" | "entry" | "prop" | "start";
+
+/** The alternatives of `KeptContext`'s site. */
+type KeptContext = "body" | "entry" | "prop" | "start";

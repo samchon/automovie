@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, derivePhysicalProfile } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMoviePhysicalJoint,
@@ -25,7 +25,7 @@ export namespace PhysicalModelFixtures {
       limbRadius: 0.04,
       material: material("solid"),
     });
-    const profile: P = derivePhysicalProfile(model, {
+    const profile: P = AutoMovieEnginePhysics.derivePhysicalProfile(model, {
       density: 1000,
       densities: {},
       material: "solid",
@@ -86,7 +86,7 @@ export namespace PhysicalModelFixtures {
           depth: dimensions[2],
         }),
       ]);
-      const profile: P = derivePhysicalProfile(model, {
+      const profile: P = AutoMovieEnginePhysics.derivePhysicalProfile(model, {
         density,
         densities: {},
         material: "solid",

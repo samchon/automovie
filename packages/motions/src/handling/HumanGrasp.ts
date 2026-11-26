@@ -1,4 +1,4 @@
-import { physicalShapeSpan } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -19,12 +19,6 @@ import { HumanGraspHand } from "./HumanGraspHand";
 import { HumanGraspReach } from "./HumanGraspReach";
 import { HumanGraspSearch } from "./HumanGraspSearch";
 import { HumanGraspTarget } from "./HumanGraspTarget";
-
-/** The alternatives of `StandingBonesEntry`'s site. */
-type StandingBonesEntry = "worldPosition" | "worldRotation";
-
-/** The alternatives of `Frame`'s site. */
-type Frame = "point" | "approach" | "axis" | "width";
 
 /**
  * A prop's grip affordance as a grasp target, and the hand that grasps it:
@@ -273,7 +267,7 @@ export namespace HumanGrasp {
     let lo: number = Infinity;
     let hi: number = -Infinity;
     for (const c of colliders) {
-      const [low, high]: readonly [number, number] = physicalShapeSpan(
+      const [low, high]: readonly [number, number] = AutoMovieEnginePhysics.physicalShapeSpan(
         c.frame,
         c.shape,
         axis,
@@ -284,3 +278,9 @@ export namespace HumanGrasp {
     return [lo, hi];
   }
 }
+
+/** The alternatives of `StandingBonesEntry`'s site. */
+type StandingBonesEntry = "worldPosition" | "worldRotation";
+
+/** The alternatives of `Frame`'s site. */
+type Frame = "point" | "approach" | "axis" | "width";

@@ -1,7 +1,4 @@
-import {
-  createEnvironment,
-  environmentModel,
-} from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import {
   Quaternion,
   Transform,
@@ -83,7 +80,7 @@ export function test_environment_composition(): void {
       walkable: ["floor"],
     },
   };
-  const landmark: IAutoMovieEnvironmentModule = environmentModel(landmarkInput);
+  const landmark: IAutoMovieEnvironmentModule = AutoMovieEnvironment.model(landmarkInput);
   /**
    * Store the module's actual seed in a model label so the scenario can compare
    * it after composition.
@@ -102,7 +99,7 @@ export function test_environment_composition(): void {
       ),
     };
   };
-  const prop: IAutoMovieEnvironmentModule = environmentModel({
+  const prop: IAutoMovieEnvironmentModule = AutoMovieEnvironment.model({
     model: base,
     prop: { articulation: null },
   });
@@ -118,7 +115,7 @@ export function test_environment_composition(): void {
     },
     left: { use: seededLandmark, at: { x: -20, y: 2, z: 0 } },
   };
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "estate",
     seed: 4,
     items,
@@ -152,14 +149,14 @@ export function test_environment_composition(): void {
       nclose(heightAt(environment.stage.space!, 12, 4) ?? NaN, 3.5) &&
       heightAt(environment.stage.space!, 10, 5) === null,
   );
-  const replacement: IAutoMovieEnvironment = createEnvironment({
+  const replacement: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "estate",
     seed: 4,
     items: {
       ...items,
       right: {
         ...items.right!,
-        use: environmentModel({ ...landmarkInput, model: base }),
+        use: AutoMovieEnvironment.model({ ...landmarkInput, model: base }),
       },
     },
   });
@@ -174,7 +171,7 @@ export function test_environment_composition(): void {
       replacement.stage.set[0]!.node === "estate/marker" &&
       vclose(replacement.stage.set[0]!.position, { x: 13, y: 4.5, z: 4 }),
   );
-  const withSibling: IAutoMovieEnvironment = createEnvironment({
+  const withSibling: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "estate",
     seed: 4,
     items: { sign: { use: prop }, ...items },
@@ -188,7 +185,7 @@ export function test_environment_composition(): void {
       environment.runtime.models[2]!.name ===
         withSibling.runtime.models[3]!.name,
   );
-  const mutualOrigins: IAutoMovieEnvironment = createEnvironment({
+  const mutualOrigins: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "survey",
     items: {
       a: {
@@ -218,7 +215,7 @@ export function test_environment_composition(): void {
     "missing anchors refuse the original placement path",
     throwsError(
       () =>
-        createEnvironment({
+        AutoMovieEnvironment.create({
           id: "estate",
           items: {
             ...items,
@@ -232,7 +229,7 @@ export function test_environment_composition(): void {
     "cyclic placement and conflicting definitions refuse",
     throwsError(
       () =>
-        createEnvironment({
+        AutoMovieEnvironment.create({
           id: "estate",
           items: {
             a: { use: prop, at: { anchor: "b" } },
@@ -243,7 +240,7 @@ export function test_environment_composition(): void {
     ) &&
       throwsError(
         () =>
-          createEnvironment({
+          AutoMovieEnvironment.create({
             id: "estate",
             items: { a: { use: () => ({ models: [base, { ...base }] }) } },
           }),

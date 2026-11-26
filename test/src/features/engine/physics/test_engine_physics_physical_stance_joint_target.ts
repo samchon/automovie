@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  physicalJointMotorCommand,
-  physicalStanceJointTarget,
-} from "@automovie/engine";
+import { Quaternion, physicalStanceJointTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMovieQuaternion,
@@ -115,7 +111,7 @@ export function test_engine_physics_physical_stance_joint_target(): void {
     findings.push(
       `the hip target leaves the pelvis at ${JSON.stringify(pelvis)}`,
     );
-  const command = physicalJointMotorCommand({
+  const command = AutoMovieEnginePhysics.physicalJointMotorCommand({
     joint: {
       id: "hip",
       parent: "pelvis",

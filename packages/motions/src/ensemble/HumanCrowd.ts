@@ -20,9 +20,6 @@ import { HumanSkill } from "../skill/HumanSkill";
 import { HUMAN_ATTRIBUTE_EFFECTS } from "./HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "./HumanAttribute";
 
-/** The alternatives of `DesiredRequest`'s site. */
-type DesiredRequest = "gait" | "latency" | "flight";
-
 /**
  * A crowd that keeps no formation, steered: each member (or each walking group,
  * as one agent) heads for its goals at its own drawn speed and avoids the
@@ -310,3 +307,6 @@ export namespace HumanCrowd {
     );
   }
 }
+
+/** The alternatives of `DesiredRequest`'s site. */
+type DesiredRequest = "gait" | "latency" | "flight";

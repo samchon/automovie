@@ -62,6 +62,26 @@ const WAY: Readonly<
  * one course (`courseArmGoal`). A performer not lying on the back (the sternum
  * less than half the chest's depth above the upper back) is refused.
  */
+export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPullCover> =
+  {
+    name: "pullCover",
+    interrupts: {},
+    plan: planPullCover,
+  };
+
+/**
+ * Pull a cover up while lying, or push it off. Each hand's way runs over its
+ * own side of the lying body, from the thigh's front over the upper abdomen to
+ * the chest (`WAY`), each region `OVER` out along its normal, read on the
+ * posture the body lies in at the start. Pulling, both hands go to the thigh
+ * end by `ready`, grip the soft cover there (the soft prop binds its particle
+ * nearest each hand's grip socket when the grip closes) and draw it up the way
+ * to the chest by `strokeEnd`, where they let go and return; pushing runs the
+ * way from the chest down. The hands face the body, the palms down onto the
+ * cover, the fingers across the body toward its midline. Both arms are laid in
+ * one course (`courseArmGoal`). A performer not lying on the back (the sternum
+ * less than half the chest's depth above the upper back) is refused.
+ */
 function planPullCover(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPullCover>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -271,23 +291,3 @@ function planPullCover(
     ],
   };
 }
-
-/**
- * Pull a cover up while lying, or push it off. Each hand's way runs over its
- * own side of the lying body, from the thigh's front over the upper abdomen to
- * the chest (`WAY`), each region `OVER` out along its normal, read on the
- * posture the body lies in at the start. Pulling, both hands go to the thigh
- * end by `ready`, grip the soft cover there (the soft prop binds its particle
- * nearest each hand's grip socket when the grip closes) and draw it up the way
- * to the chest by `strokeEnd`, where they let go and return; pushing runs the
- * way from the chest down. The hands face the body, the palms down onto the
- * cover, the fingers across the body toward its midline. Both arms are laid in
- * one course (`courseArmGoal`). A performer not lying on the back (the sternum
- * less than half the chest's depth above the upper back) is refused.
- */
-export const pullCover: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPullCover> =
-  {
-    name: "pullCover",
-    interrupts: {},
-    plan: planPullCover,
-  };

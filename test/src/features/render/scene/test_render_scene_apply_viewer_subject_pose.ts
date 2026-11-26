@@ -1,4 +1,4 @@
-import { applyAutoMovieViewerSubjectPose } from "@automovie/render";
+import { AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -15,7 +15,7 @@ const DIRECTION_TOLERANCE: number = 1e-9;
  */
 export function test_render_scene_apply_viewer_subject_pose(): void {
   const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera();
-  applyAutoMovieViewerSubjectPose(camera, {
+  AutoMovieRenderSubjectViewpoint.applyAutoMovieViewerSubjectPose(camera, {
     position: { x: 0, y: 0, z: 5 },
     target: { x: 0, y: 0, z: 0 },
     lens: { fovDeg: 40, aspect: 2 },

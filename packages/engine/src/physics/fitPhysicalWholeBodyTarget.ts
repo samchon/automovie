@@ -10,8 +10,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { rerootPhysicalProfile } from "./rerootPhysicalProfile";
-import { solvePhysicalArticulationTargets } from "./solvePhysicalArticulationTargets";
+import { rerootPhysicalProfile } from "./internal/rerootPhysicalProfile";
+import { solvePhysicalArticulationTargets } from "./internal/solvePhysicalArticulationTargets";
 
 /**
  * Fit a whole articulated body to one endpoint goal while a support segment

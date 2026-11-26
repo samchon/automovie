@@ -1,14 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  attachPhysicalProfileHulls,
-  clampPose,
-  indexSkeletonTopology,
-  measureAutoMovieHumanoidBody,
-  prepareChainConstants,
-  prepareSkeletonPoseResolution,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, clampPose, indexSkeletonTopology, measureAutoMovieHumanoidBody, prepareChainConstants, prepareSkeletonPoseResolution, resolveAutoMovieCenterOfMass, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -108,7 +98,7 @@ export namespace AutoMovieMotionHumanBody {
     // The colliders at rest, mirrored left from right once here, and the bones
     // they ride, read off the rig, its rest joints and the profile alone.
     const hulled: IAutoMoviePhysicalProfile =
-      attachPhysicalProfileHulls(profile);
+      AutoMovieEnginePhysics.attachPhysicalProfileHulls(profile);
     const colliders: IAutoMovieMotionHumanBody["colliders"] =
       HumanColliderPlacement.neutral({ skeleton, profile: hulled, rest });
     const colliderBones: IAutoMovieMotionHumanBody["colliderBones"] =

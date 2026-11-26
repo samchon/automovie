@@ -37,9 +37,6 @@ import { HumanHand } from "../posture/HumanHand";
 import { prepareHumanSampledCourse } from "../posture/prepareHumanSampledCourse";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
-/** The record of `IBACKItem`'s site. */
-type IBACKItem = { down: number; back: number };
-
 /**
  * A relay baton pass, one role of it, performed over a run (`HumanChain.over`):
  * the outgoing runner's hand goes back, open, palm back, and the incoming
@@ -369,3 +366,6 @@ export namespace relayPass {
     return plan;
   }
 }
+
+/** The record of `IBACKItem`'s site. */
+type IBACKItem = { down: number; back: number };

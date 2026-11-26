@@ -1,9 +1,4 @@
-import {
-  type IAutoMovieFormationCycle,
-  applyDualQuaternionSkinning,
-  applyFormationCycleMaterial,
-  isAutoMovieFormationCycleMaterial,
-} from "@automovie/render";
+import { type IAutoMovieFormationCycle, applyDualQuaternionSkinning, applyFormationCycleMaterial, AutoMovieRenderFormationCycle } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -27,15 +22,15 @@ export function test_render_scene_is_formation_cycle_material(): void {
   applyDualQuaternionSkinning(skinned);
   const both: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   applyFormationCycleMaterial(both, cycle);
-  const cycled: boolean = isAutoMovieFormationCycleMaterial(both);
+  const cycled: boolean = AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(both);
   applyDualQuaternionSkinning(both);
   TestValidator.equals(
     "detections",
     [
-      isAutoMovieFormationCycleMaterial(plain),
-      isAutoMovieFormationCycleMaterial(skinned),
+      AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(plain),
+      AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(skinned),
       cycled,
-      isAutoMovieFormationCycleMaterial(both),
+      AutoMovieRenderFormationCycle.isAutoMovieFormationCycleMaterial(both),
       both.customProgramCacheKey() !== "automovie-formation-cycle",
     ],
     [false, false, true, true, true],

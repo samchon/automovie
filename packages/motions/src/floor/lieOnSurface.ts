@@ -54,6 +54,29 @@ const MARGIN: number = 0.05;
 const BEHIND: number = 0.15;
 
 /**
+ * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
+ * trunk lowers onto the side that turns toward the head end (the body's left on
+ * the edge whose left points there) while the legs swing up onto the surface,
+ * then the body rolls onto its back; `rise` reverses the route from lying to
+ * sitting on the edge, feet on the floor. The keys are `lieDown`'s side-lying
+ * and supine postures (VanSant 1988 components, provisional angles) laid along
+ * the surface's length, the hips on its midline with the head's room before
+ * them. Lying, the root rests the body's lowest collision shape on the surface
+ * (`knockdown.rest` raised to it); between the edge and the side the hips
+ * travel on a straight line. A surface shorter than the body and `MARGIN`, or
+ * narrower than the shoulders and twice `MARGIN`, is refused with the
+ * dimension, as is a lie not entered seated.
+ */
+export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLieOnSurface> =
+  {
+    name: "lieOnSurface",
+    interrupts: {
+      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planLieOnSurface,
+  };
+
+/**
  * One key of the route: the body's tilt and joints, the hips' world point and
  * the event that names its arrival.
  */
@@ -516,29 +539,6 @@ function planLieOnSurface(
     base: rise ? { kind: "seated" } : { kind: "lying" },
   };
 }
-
-/**
- * Lie on a raised support. Entered seated on a bed's or a sofa's long edge, the
- * trunk lowers onto the side that turns toward the head end (the body's left on
- * the edge whose left points there) while the legs swing up onto the surface,
- * then the body rolls onto its back; `rise` reverses the route from lying to
- * sitting on the edge, feet on the floor. The keys are `lieDown`'s side-lying
- * and supine postures (VanSant 1988 components, provisional angles) laid along
- * the surface's length, the hips on its midline with the head's room before
- * them. Lying, the root rests the body's lowest collision shape on the surface
- * (`knockdown.rest` raised to it); between the edge and the side the hips
- * travel on a straight line. A surface shorter than the body and `MARGIN`, or
- * narrower than the shoulders and twice `MARGIN`, is refused with the
- * dimension, as is a lie not entered seated.
- */
-export const lieOnSurface: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLieOnSurface> =
-  {
-    name: "lieOnSurface",
-    interrupts: {
-      any: [{ window: ["settled", 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planLieOnSurface,
-  };
 
 /** An affordance's local frame. */
 function frame(a: IAutoMovieAffordance): IAutoMovieRigidTransform {

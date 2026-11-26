@@ -1,9 +1,4 @@
-import {
-  compileAutoMovieSweep,
-  locateAutoMovieSurfaceVertices,
-  sampleAutoMovieSurfaceNetwork,
-  subdivideAutoMovieSurface,
-} from "@automovie/engine";
+import { compileAutoMovieSweep, locateAutoMovieSurfaceVertices, sampleAutoMovieSurfaceNetwork, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieSubdivisionParameter,
   IAutoMovieSubdivisionSurface,
@@ -46,7 +41,7 @@ export function test_engine_geometry_locate_surface_vertices(): void {
     ["tube", sweepTransitionTube()],
   ] satisfies [string, IAutoMovieSurfaceNetwork][]) {
     const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network, tier: "medium" });
-    const surface: IAutoMovieSubdivisionSurface = subdivideAutoMovieSurface({
+    const surface: IAutoMovieSubdivisionSurface = AutoMovieEngineGeometry.subdivideSurface({
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels: 2,
     });

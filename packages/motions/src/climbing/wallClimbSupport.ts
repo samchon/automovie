@@ -6,14 +6,6 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 
-/** The hands and feet, in a fixed traversal order for each stance. */
-const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
-  "leftHand",
-  "rightHand",
-  "leftFoot",
-  "rightFoot",
-];
-
 /**
  * Build the stances for `HumanChain.support` from a route on fixed wall holds.
  * Each stance owns at least three distinct holds. Releasing one foot before the
@@ -97,6 +89,14 @@ export function wallClimbSupport(
   }
   return { stances };
 }
+
+/** The hands and feet, in a fixed traversal order for each stance. */
+const LIMBS: readonly IAutoMovieMotionHumanClimbLadder.Limb[] = [
+  "leftHand",
+  "rightHand",
+  "leftFoot",
+  "rightFoot",
+];
 
 /**
  * Equality of one authored hold location before a scene resolves its frame.

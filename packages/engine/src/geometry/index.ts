@@ -18,7 +18,7 @@ export * from "./checkAutoMovieFormExpectation";
 export * from "./constants";
 export * from "./construction";
 export * from "./countAtLeast";
-export * from "./countAutoMovieMeshComponents";
+
 
 
 
@@ -45,10 +45,10 @@ export * from "./limitSubdivisionRing";
 
 
 
-export * from "./measureAutoMovieMeshDefects";
+
 export * from "./measureAutoMovieMeshPieces";
 export * from "./measureAutoMovieModelContacts";
-export * from "./measureAutoMovieModelCrossings";
+
 
 export * from "./mergeAutoMovieMeshParts";
 export * from "./mergeAutoMovieMeshes";
@@ -73,10 +73,10 @@ export * from "./refineSubdivisionUvs";
 
 export * from "./revolveAutoMovieProfile";
 
-export * from "./separateAutoMovieMeshSequence";
+
 export * from "./signedArea";
 export * from "./stepSubdivisionRing";
-export * from "./subdivideAutoMovieSurface";
+
 
 export * from "./subdivisionEdgeSmoothness";
 export * from "./subdivisionRingEigenbasis";
@@ -88,6 +88,6 @@ export * from "./tessellateSurface";
 export * from "./tessellateToMesh";
 export * from "./transformAutoMovieMesh";
 
-export * from "./weldedDegenerateTriangles";
+
 
 export { AutoMovieEngineGeometry } from "./AutoMovieEngineGeometry";

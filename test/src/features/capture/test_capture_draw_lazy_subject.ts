@@ -1,4 +1,4 @@
-import { type IAutoMovieDrawFunction, type IAutoMovieDrawGlobal, type IAutoMovieDrawScene, installAutoMovieDraw, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { type IAutoMovieDrawFunction, type IAutoMovieDrawGlobal, type IAutoMovieDrawScene, AutoMovieRenderInspectionRequest, AutoMovieRenderDraw } from "@automovie/render";
 import assert from "node:assert/strict";
 import { setImmediate } from "node:timers/promises";
 
@@ -19,7 +19,7 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
       hideUnused = listener;
     },
   };
-  installAutoMovieDraw(() => {
+  AutoMovieRenderDraw.installAutoMovieDraw(() => {
     offers++;
     return {
       starter: { create: () => new Promise<IAutoMovieDrawScene>(() => {}) },
@@ -37,7 +37,7 @@ export async function test_capture_draw_lazy_subject(): Promise<void> {
       hideFailed = listener;
     },
   };
-  installAutoMovieDraw(
+  AutoMovieRenderDraw.installAutoMovieDraw(
     () => ({
       starter: {
         create: async (): Promise<IAutoMovieDrawScene> => {

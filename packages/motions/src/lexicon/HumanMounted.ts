@@ -34,6 +34,22 @@ import { HumanMountedWhip } from "./HumanMountedWhip";
 import { HumanRideHands } from "./HumanRideHands";
 import { admitHumanMountedFigure } from "./admitHumanMountedFigure";
 
+/**
+ * Plan a mounted performance on a moving carrier
+ * (`IAutoMovieMotionHumanMounted`): seat figures in a carrier contact's frame,
+ * joined by transfers that keep a support held through them, with each named
+ * support acquired, held and released on the figures' clock and the whole
+ * carried by the carrier's moving contact. Register `HumanMounted` to use it.
+ */
+export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanMounted> =
+  {
+    name: "mounted",
+    interrupts: {
+      any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
+    },
+    plan: planHumanMounted,
+  };
+
 /** The mounted law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanMounted>;
 
@@ -55,22 +71,6 @@ type Joints = IAutoMovieMotionHumanPosture["joints"];
 function planHumanMounted(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
-
-/**
- * Plan a mounted performance on a moving carrier
- * (`IAutoMovieMotionHumanMounted`): seat figures in a carrier contact's frame,
- * joined by transfers that keep a support held through them, with each named
- * support acquired, held and released on the figures' clock and the whole
- * carried by the carrier's moving contact. Register `HumanMounted` to use it.
- */
-export const HumanMounted: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanMounted> =
-  {
-    name: "mounted",
-    interrupts: {
-      any: [{ window: [0, 1], kind: "inertialize", entry: 0 }],
-    },
-    plan: planHumanMounted,
-  };
 
 /**
  * Admit the figures, solve each seat once, then sample the carried key postures

@@ -24,10 +24,6 @@ import { poseBones } from "../posture/poseBones";
 import { guitarNoteEntry } from "./guitarNoteEntry";
 import { resolveGuitarStringContact } from "./resolveGuitarStringContact";
 
-/** A staged guitar note's inputs and entry state. */
-type Context =
-  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarNote>;
-
 /** Tolerance for a usable projected shoulder direction, metres. */
 const COINCIDENCE: number = 1e-6;
 
@@ -55,6 +51,10 @@ export const guitarNote: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanGui
     interrupts: {},
     plan,
   };
+
+/** A staged guitar note's inputs and entry state. */
+type Context =
+  IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGuitarNote>;
 
 /**
  * Resolve the staged instrument and plan the synchronized contact paths.

@@ -23,15 +23,6 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { HumanSkill } from "../skill/HumanSkill";
 import { HumanGaze } from "./HumanGaze";
 
-/** The alternatives of `ReactionLawCue`'s site. */
-type ReactionLawCue = "seen" | "signal";
-
-/** The alternatives of `ReactionCue`'s site. */
-type ReactionCue = "seen" | "signal";
-
-/** The record of `IPlanFirst`'s site. */
-type IPlanFirst = { yaw: number; pitch: number };
-
 /**
  * Standing and turning the eyes, head and trunk to a target, either at once or,
  * when cued by something seen or heard, after a seeded reaction time: the
@@ -281,3 +272,12 @@ export namespace look {
     };
   }
 }
+
+/** The alternatives of `ReactionLawCue`'s site. */
+type ReactionLawCue = "seen" | "signal";
+
+/** The alternatives of `ReactionCue`'s site. */
+type ReactionCue = "seen" | "signal";
+
+/** The record of `IPlanFirst`'s site. */
+type IPlanFirst = { yaw: number; pitch: number };

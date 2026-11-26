@@ -1,7 +1,4 @@
-import {
-  Vector3,
-  distributePhysicalSupportWrench as distribute,
-} from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieVector3 as V } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,14 +20,14 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
  */
 export function test_engine_physics_distribute_physical_support_wrench(): void {
   const origin: V = { x: 0, y: 1, z: 0 };
-  const two: Parameters<typeof distribute>[0]["points"] = [-1, 1].flatMap(
-    (side: number): Parameters<typeof distribute>[0]["points"][number][] =>
+  const two: Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"] = [-1, 1].flatMap(
+    (side: number): Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"][number][] =>
       [-1, 1].flatMap(
-        (x: number): Parameters<typeof distribute>[0]["points"][number][] =>
+        (x: number): Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"][number][] =>
           [-1, 1].map(
             (
               z: number,
-            ): Parameters<typeof distribute>[0]["points"][number] => ({
+            ): Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"][number] => ({
               bone: `patch-${side}`,
               point: { x: x * 0.1, y: 0, z: side * 0.2 + z * 0.05 },
               friction: 0.6,
@@ -38,10 +35,10 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
           ),
       ),
   );
-  const four: Parameters<typeof distribute>[0]["points"] = [-1, 1].flatMap(
-    (x: number): Parameters<typeof distribute>[0]["points"][number][] =>
+  const four: Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"] = [-1, 1].flatMap(
+    (x: number): Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"][number][] =>
       [-1, 1].map(
-        (z: number): Parameters<typeof distribute>[0]["points"][number] => ({
+        (z: number): Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"][number] => ({
           bone: `point-${x}-${z}`,
           point: { x: x * 0.3, y: 0, z: z * 0.2 },
           friction: 0.6,
@@ -52,7 +49,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
     ["two patches", two],
     ["four points", four],
   ] as const) {
-    const result: ReturnType<typeof distribute> = distribute({
+    const result: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
       origin,
       points,
       force: { x: 0, y: 100, z: 0 },
@@ -121,7 +118,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
       );
     }
   }
-  const moving: ReturnType<typeof distribute> = distribute({
+  const moving: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
     origin,
     points: four,
     force: { x: 5, y: 100, z: 4 },
@@ -134,10 +131,10 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
     Vector3.length(moving.residual.force) < 0.001 &&
       Vector3.length(moving.residual.torque) < 0.001,
   );
-  const single: Parameters<typeof distribute>[0]["points"] = [
+  const single: Parameters<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>[0]["points"] = [
     { bone: "point", point: { x: 0, y: 0, z: 0 }, friction: 0.5 },
   ];
-  const diagonal: ReturnType<typeof distribute> = distribute({
+  const diagonal: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
     origin: { x: 0, y: 0, z: 0 },
     points: single,
     force: { x: 100, y: 100, z: 100 },
@@ -149,7 +146,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
     "infeasible diagonal force remains visible",
     Vector3.length(diagonal.residual.force) > 50,
   );
-  const pull: ReturnType<typeof distribute> = distribute({
+  const pull: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
     origin,
     points: single,
     force: { x: 0, y: -10, z: 0 },
@@ -161,7 +158,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
     "floor cannot pull the body down",
     0.001 > pull.force.y && -9.999 > pull.residual.force.y,
   );
-  const yaw: ReturnType<typeof distribute> = distribute({
+  const yaw: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
     origin,
     points: single,
     force: { x: 0, y: 10, z: 0 },
@@ -173,7 +170,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
     Math.abs(yaw.torque.y) < PhysicalTolerance.ROUNDING &&
       yaw.residual.torque.y === 5,
   );
-  const flight: ReturnType<typeof distribute> = distribute({
+  const flight: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench> = AutoMovieEnginePhysics.distributePhysicalSupportWrench({
     origin,
     points: [],
     force: { x: 0, y: 100, z: 0 },
@@ -192,7 +189,7 @@ export function test_engine_physics_distribute_physical_support_wrench(): void {
    * Independently measure each returned contact, rather than trust an
    * optimization status.
    */
-  function feasible(result: ReturnType<typeof distribute>): void {
+  function feasible(result: ReturnType<typeof AutoMovieEnginePhysics.distributePhysicalSupportWrench>): void {
     for (const point of result.forces)
       TestValidator.predicate(
         "unilateral circular Coulomb cone",

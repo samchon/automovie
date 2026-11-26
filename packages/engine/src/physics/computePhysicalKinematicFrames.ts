@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
-import { bindPhysicalKinematicFrame } from "./bindPhysicalKinematicFrame";
-import { createPhysicalKinematicFrame } from "./createPhysicalKinematicFrame";
+import { bindPhysicalKinematicFrame } from "./internal/bindPhysicalKinematicFrame";
+import { createPhysicalKinematicFrame } from "./internal/createPhysicalKinematicFrame";
 import { preparePhysicalGeometry } from "./preparePhysicalGeometry";
 import { yieldPhysicalSimulation } from "./yieldPhysicalSimulation";
 

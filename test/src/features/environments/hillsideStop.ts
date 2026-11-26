@@ -1,10 +1,4 @@
-import {
-  createBuilding,
-  createCafeKit,
-  createEnvironment,
-  createEnvironmentProp,
-  createTerrain,
-} from "@automovie/archetypes/environments";
+import { createBuilding, createCafeKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { createDrinkware } from "@automovie/archetypes/props";
 import { Quaternion, Vector3, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
@@ -52,13 +46,13 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   ];
   const entryWidth: number = 1.2;
   const grade: number = 1.3;
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "hill",
     seed: 1037,
     items: {
       terrain: {
         at: { x: -10, y: 0, z: -10 },
-        use: createTerrain({
+        use: AutoMovieEnvironment.terrain({
           size: [30, 24],
           relief: { kind: "plane", slope: [0.1, 0] },
           pads: {
@@ -137,7 +131,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
       },
       cup: {
         at: { anchor: "cafe/table-1/stack" },
-        use: createEnvironmentProp({ model: createDrinkware({ kind: "cup" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: createDrinkware({ kind: "cup" }) }),
       },
     },
   });

@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  physicalSupportPoint,
-  solvePhysicalArticulationTargets,
-} from "@automovie/engine";
+import { Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
   IAutoMovieRigidTransform,
@@ -80,8 +76,8 @@ export function test_engine_physics_solve_physical_articulation_targets(): void 
     y: 1 + point.x * Math.sin(0.8),
     z: 0,
   };
-  const result: ReturnType<typeof solvePhysicalArticulationTargets> =
-    solvePhysicalArticulationTargets({
+  const result: ReturnType<typeof AutoMovieEnginePhysics.solvePhysicalArticulationTargets> =
+    AutoMovieEnginePhysics.solvePhysicalArticulationTargets({
       profile,
       bones: ["child"],
       targets,
@@ -91,7 +87,7 @@ export function test_engine_physics_solve_physical_articulation_targets(): void 
         poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
       ): number[] => {
         const difference: V = Vector3.subtract(
-          physicalSupportPoint(poses.child!, point),
+          AutoMovieEnginePhysics.physicalSupportPoint(poses.child!, point),
           goal,
         );
         return [difference.x, difference.y, difference.z];
@@ -101,7 +97,7 @@ export function test_engine_physics_solve_physical_articulation_targets(): void 
     "actual residual reaches declared tolerance",
     Vector3.length(
       Vector3.subtract(
-        physicalSupportPoint(result.targets.child!, point),
+        AutoMovieEnginePhysics.physicalSupportPoint(result.targets.child!, point),
         goal,
       ),
     ) <= 0.0001 && result.residual <= 0.0001,

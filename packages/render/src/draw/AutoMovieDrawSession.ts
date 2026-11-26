@@ -19,9 +19,9 @@ import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { IAutoMovieDrawPage } from "./IAutoMovieDrawPage.js";
 import type { IAutoMovieDrawPageRequest } from "./IAutoMovieDrawPageRequest.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
-import { decodeAutoMovieDrawPixels } from "./decodeAutoMovieDrawPixels.js";
+import { decodeAutoMovieDrawPixels } from "./internal/decodeAutoMovieDrawPixels.js";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";
-import { stampAutoMovieDrawLegend } from "./stampAutoMovieDrawLegend.js";
+import { stampAutoMovieDrawLegend } from "./internal/stampAutoMovieDrawLegend.js";
 
 /**
  * A host's hold on one draw page: the props injected before it loaded, the

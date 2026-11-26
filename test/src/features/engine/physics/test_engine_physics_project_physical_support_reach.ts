@@ -1,4 +1,4 @@
-import { projectPhysicalSupportReach } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -10,14 +10,14 @@ import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
 export function test_engine_physics_project_physical_support_reach(): void {
   for (const count of [2, 4]) {
     const supports: Parameters<
-      typeof projectPhysicalSupportReach
+      typeof AutoMovieEnginePhysics.projectPhysicalSupportReach
     >[0]["supports"] = Array.from(
       { length: count },
       (
         _: unknown,
         index: number,
       ): Parameters<
-        typeof projectPhysicalSupportReach
+        typeof AutoMovieEnginePhysics.projectPhysicalSupportReach
       >[0]["supports"][number] => ({
         origin: { x: index * 0.2, y: 1, z: (index % 2) * 0.2 },
         target: { x: index * 0.2 + 0.4, y: 0, z: (index % 2) * 0.2 },
@@ -25,8 +25,8 @@ export function test_engine_physics_project_physical_support_reach(): void {
       }),
     );
     const before: string = JSON.stringify(supports);
-    const result: ReturnType<typeof projectPhysicalSupportReach> =
-      projectPhysicalSupportReach({
+    const result: ReturnType<typeof AutoMovieEnginePhysics.projectPhysicalSupportReach> =
+      AutoMovieEnginePhysics.projectPhysicalSupportReach({
         supports,
         maximumTranslation: 0.5,
         iterations: 8,
@@ -49,13 +49,13 @@ export function test_engine_physics_project_physical_support_reach(): void {
       before,
     );
   }
-  const conflict: ReturnType<typeof projectPhysicalSupportReach> =
-    projectPhysicalSupportReach({
+  const conflict: ReturnType<typeof AutoMovieEnginePhysics.projectPhysicalSupportReach> =
+    AutoMovieEnginePhysics.projectPhysicalSupportReach({
       supports: [-2, 2].map(
         (
           x: number,
         ): Parameters<
-          typeof projectPhysicalSupportReach
+          typeof AutoMovieEnginePhysics.projectPhysicalSupportReach
         >[0]["supports"][number] => ({
           origin: { x: 0, y: 0, z: 0 },
           target: { x, y: 0, z: 0 },

@@ -5,7 +5,7 @@ import {
   type IAutoMovieRenderTextureResidency,
   type IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
-import { readAutoMovieTextureSource } from "@automovie/render";
+import { AutoMovieSceneTexture } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import { DataTexture } from "three";
 
@@ -36,7 +36,7 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
     THREE.FloatType,
   );
   const { asset: _asset, ...texture }: IAutoMovieRenderTextureSource =
-    readAutoMovieTextureSource("table", table);
+    AutoMovieSceneTexture.readSource("table", table);
   const profile: (
     runtimeTextures: NonNullable<
       IAutoMovieRenderTextureResidency["runtimeTextures"]

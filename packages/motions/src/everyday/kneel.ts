@@ -35,12 +35,6 @@ import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelPhases } from "./prepareKneelPhases";
 
-/** The record of `IPlanDisplayResult`'s site. */
-type IPlanDisplayResult = { name: string; seconds: number };
-
-/** The alternatives of `PHASESEntryItem`'s site. */
-type PHASESEntryItem = "step" | "lower" | "second" | "sit";
-
 /**
  * Kneeling from standing: on one knee (half kneel), on both knees upright, or
  * sitting back on the heels, held, then rising the way it went down.
@@ -462,3 +456,9 @@ export namespace kneel {
   /** A phase between two key states. */
   type IPhase = kneelPhaseTable.IPhase;
 }
+
+/** The record of `IPlanDisplayResult`'s site. */
+type IPlanDisplayResult = { name: string; seconds: number };
+
+/** The alternatives of `PHASESEntryItem`'s site. */
+type PHASESEntryItem = "step" | "lower" | "second" | "sit";

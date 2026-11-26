@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { physicalJointRelativeRotation } from "./physicalJointRelativeRotation";
+import { physicalJointRelativeRotation } from "./internal/physicalJointRelativeRotation";
 
 /**
  * Choose one bounded support fit among candidates fitted from different seeds.

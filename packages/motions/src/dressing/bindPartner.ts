@@ -25,6 +25,23 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * were when the restraint went on (`HumanPerformanceBonds`) until a later grip
  * takes it off.
  */
+export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBindPartner> =
+  {
+    name: "bindPartner",
+    interrupts: {},
+    plan: planBindPartner,
+  };
+
+/**
+ * Bind another performer with a held restraint. The binder's hand carries the
+ * restraint to the partner's region by the arm phrase that visits a target, the
+ * fingers down and the palm turned in (the thumb ahead, clear of the binder's
+ * own hips), and the restraint is worn on the bone under the region from the
+ * phrase's stroke with the link: the partner's other region's bone, or a scene
+ * target, and the slack. The performance then keeps the bound parts where they
+ * were when the restraint went on (`HumanPerformanceBonds`) until a later grip
+ * takes it off.
+ */
 function planBindPartner(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanBindPartner>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -122,20 +139,3 @@ function planBindPartner(
     ],
   };
 }
-
-/**
- * Bind another performer with a held restraint. The binder's hand carries the
- * restraint to the partner's region by the arm phrase that visits a target, the
- * fingers down and the palm turned in (the thumb ahead, clear of the binder's
- * own hips), and the restraint is worn on the bone under the region from the
- * phrase's stroke with the link: the partner's other region's bone, or a scene
- * target, and the slack. The performance then keeps the bound parts where they
- * were when the restraint went on (`HumanPerformanceBonds`) until a later grip
- * takes it off.
- */
-export const bindPartner: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanBindPartner> =
-  {
-    name: "bindPartner",
-    interrupts: {},
-    plan: planBindPartner,
-  };

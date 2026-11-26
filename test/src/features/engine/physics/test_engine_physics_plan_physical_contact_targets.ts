@@ -1,12 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  isPhysicalProfilePairExcluded,
-  measurePhysicalJointLimits,
-  planPhysicalContactTargets,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -50,7 +42,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     const targets: Poses = {};
     for (const segment of model.segments)
       targets[segment.bone] = structuredClone(segment.neutral);
-    setPhysicalTargetJointRotation(
+    AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
       targets,
       model.joints.find((joint) => joint.child === "upper-0")!,
       ["upper-0", "lower-0", "support-0"],
@@ -60,7 +52,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
   };
   /** The self-avoidance fit with the root held at its actual pose. */
   const plan = (model: P, targets: Poses): Poses =>
-    planPhysicalContactTargets({
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "mechanism",
       profiles: { mechanism: model },
       targets: structuredClone(targets),
@@ -75,7 +67,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     ...model,
     joints: model.joints.map((joint: IAutoMoviePhysicalJoint) => {
       if (!children.includes(joint.child)) return joint;
-      const angles = measurePhysicalJointLimits(
+      const angles = AutoMovieEnginePhysics.measurePhysicalJointLimits(
         joint,
         targets[joint.parent]!,
         targets[joint.child]!,
@@ -135,7 +127,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
       );
       return (
         gap < KEPT &&
-        measurePhysicalJointLimits(joint, parent, child).every(
+        AutoMovieEnginePhysics.measurePhysicalJointLimits(joint, parent, child).every(
           (entry): boolean => entry.violation < KEPT,
         )
       );
@@ -154,7 +146,7 @@ export async function test_engine_physics_plan_physical_contact_targets(): Promi
     let result: number = 0;
     for (const [index, segment] of model.segments.entries())
       for (const other of model.segments.slice(index + 1)) {
-        if (isPhysicalProfilePairExcluded(model, segment.bone, other.bone))
+        if (AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(model, segment.bone, other.bone))
           continue;
         for (const a of segment.shapes)
           for (const b of other.shapes)

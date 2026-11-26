@@ -1,4 +1,4 @@
-import { Quaternion, physicalShapeNearest } from "@automovie/engine";
+import { Quaternion, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalShapeNearest,
@@ -102,7 +102,7 @@ export function test_engine_physics_physical_shape_nearest(): void {
     (h - half) * Math.sqrt(1 - k * k) - r0 - k * (0.5 - half);
   const at: number = 0.5 + (k * h) / Math.sqrt(1 - k * k);
   for (const [name, shape] of Object.entries(shapes)) {
-    const read: IAutoMoviePhysicalShapeNearest.IResult = physicalShapeNearest(
+    const read: IAutoMoviePhysicalShapeNearest.IResult = AutoMovieEnginePhysics.physicalShapeNearest(
       still,
       shape,
       a,
@@ -124,8 +124,8 @@ export function test_engine_physics_physical_shape_nearest(): void {
 
   // 3. One radius on both ends is the bare segment less that radius.
   for (const [name, shape] of Object.entries(shapes)) {
-    const bare: number = physicalShapeNearest(still, shape, a, b).distance;
-    const widened: number = physicalShapeNearest(
+    const bare: number = AutoMovieEnginePhysics.physicalShapeNearest(still, shape, a, b).distance;
+    const widened: number = AutoMovieEnginePhysics.physicalShapeNearest(
       still,
       shape,
       a,

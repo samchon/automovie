@@ -60,6 +60,27 @@ const ORIGIN: IAutoMovieRigidTransform = {
   position: { x: 0, y: 0, z: 0 },
   rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
+
+/**
+ * Shift a court-supported seat by pressing on one stationary palm, then release
+ * the palm and bring both forearms to a receive platform. The torso support
+ * remains on the court during play, as in World ParaVolley Rule 9.4.1, without
+ * using the optional defensive lift. See
+ * https://worldparavolley.org/wp-content/uploads/2025/03/2025-2028-WPV-Official-Sitting-Volleyball-Rules-English-v1-2025-03-18.pdf
+ * and the measured seated displacement and balance protocol at
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC5747199/ . Phase shares, incline and
+ * single-shift bounds are provisional staging choices. The receiving location
+ * is independent of any ball outcome.
+ */
+export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSittingVolley.ISittingVolley> =
+  {
+    name: "sittingVolley",
+    interrupts: {
+      any: [{ window: ["receive", 1], kind: "inertialize", entry: 0 }],
+    },
+    yields: ["head"],
+    plan: planHumanSittingVolley,
+  };
 /** The record of `IPlanHumanSittingVolleyMissesItem`'s site. */
 type IPlanHumanSittingVolleyMissesItem = {
   phase: string;
@@ -420,24 +441,3 @@ function planHumanSittingVolley(
     posture,
   };
 }
-
-/**
- * Shift a court-supported seat by pressing on one stationary palm, then release
- * the palm and bring both forearms to a receive platform. The torso support
- * remains on the court during play, as in World ParaVolley Rule 9.4.1, without
- * using the optional defensive lift. See
- * https://worldparavolley.org/wp-content/uploads/2025/03/2025-2028-WPV-Official-Sitting-Volleyball-Rules-English-v1-2025-03-18.pdf
- * and the measured seated displacement and balance protocol at
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC5747199/ . Phase shares, incline and
- * single-shift bounds are provisional staging choices. The receiving location
- * is independent of any ball outcome.
- */
-export const HumanSittingVolley: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanSittingVolley.ISittingVolley> =
-  {
-    name: "sittingVolley",
-    interrupts: {
-      any: [{ window: ["receive", 1], kind: "inertialize", entry: 0 }],
-    },
-    yields: ["head"],
-    plan: planHumanSittingVolley,
-  };

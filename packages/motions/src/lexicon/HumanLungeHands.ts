@@ -27,24 +27,6 @@ const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
  */
 const CONTACT: number = 0.01;
 
-/** The whip hand's place and aim. */
-interface IWhip {
-  /** Forward of the hips, a share of the hip height. */
-  forward: number;
-
-  /** Out to the whip's side, a share of the hip height. */
-  out: number;
-
-  /** Above the floor, a share of the hip height. */
-  height: number;
-
-  /** The shaft's turn from the bearing toward the whip's side, degrees. */
-  turn: number;
-
-  /** The shaft's pitch below level, degrees. */
-  down: number;
-}
-
 /**
  * The whip hand's place and aim, provisional: at the hips' height, a little
  * forward and out to its side, the shaft turned toward a circling horse's
@@ -227,4 +209,22 @@ export namespace HumanLungeHands {
       support: { kind: "ground" },
     };
   }
+}
+
+/** The whip hand's place and aim. */
+interface IWhip {
+  /** Forward of the hips, a share of the hip height. */
+  forward: number;
+
+  /** Out to the whip's side, a share of the hip height. */
+  out: number;
+
+  /** Above the floor, a share of the hip height. */
+  height: number;
+
+  /** The shaft's turn from the bearing toward the whip's side, degrees. */
+  turn: number;
+
+  /** The shaft's pitch below level, degrees. */
+  down: number;
 }

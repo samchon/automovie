@@ -1,11 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  isPhysicalProfilePairExcluded,
-  planPhysicalContactTargets,
-  setPhysicalTargetJointRotation,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalSegment,
@@ -47,14 +40,14 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     (candidate: IAutoMoviePhysicalJoint): boolean =>
       candidate.child === "upper-0",
   )!;
-  setPhysicalTargetJointRotation(
+  AutoMovieEnginePhysics.setPhysicalTargetJointRotation(
     targets,
     joint,
     ["upper-0", "lower-0", "support-0"],
     Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, -85),
   );
-  const fitted: ReturnType<typeof planPhysicalContactTargets> =
-    planPhysicalContactTargets({
+  const fitted: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "mechanism",
       profiles: { mechanism: profile },
       targets,
@@ -76,7 +69,7 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     targets.body,
   );
   TestValidator.predicate("joint neighbours excluded", (): boolean =>
-    isPhysicalProfilePairExcluded(profile, "body", "upper-0"),
+    AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(profile, "body", "upper-0"),
   );
   const excluded: P = {
     ...profile,
@@ -89,14 +82,14 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     ],
   };
   TestValidator.predicate("provider pivot exclusion retained", (): boolean =>
-    isPhysicalProfilePairExcluded(excluded, "lower-0", "body"),
+    AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(excluded, "lower-0", "body"),
   );
 
   const shifted: Record<string, IAutoMovieRigidTransform> =
     structuredClone(targets);
   shifted.body!.position.x += 0.2;
-  const connected: ReturnType<typeof planPhysicalContactTargets> =
-    planPhysicalContactTargets({
+  const connected: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "mechanism",
       profiles: { mechanism: profile },
       targets: shifted,
@@ -133,7 +126,7 @@ export async function test_engine_physics_physical_self_avoidance(): Promise<voi
     let result: number = 0;
     for (const [index, first] of profile.segments.entries())
       for (const second of profile.segments.slice(index + 1)) {
-        if (isPhysicalProfilePairExcluded(profile, first.bone, second.bone))
+        if (AutoMovieEnginePhysics.isPhysicalProfilePairExcluded(profile, first.bone, second.bone))
           continue;
         for (const a of first.shapes)
           for (const b of second.shapes)

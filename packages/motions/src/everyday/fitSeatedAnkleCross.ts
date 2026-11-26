@@ -1,14 +1,4 @@
-import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  clampPose,
-  decomposeJointRotation,
-  hingedArmSwivel,
-  physicalShapeBounds,
-  physicalShapeNearest,
-  prepareChainPlant,
-} from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Quaternion, Vector3, clampPose, decomposeJointRotation, hingedArmSwivel, physicalShapeBounds, prepareChainPlant, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -394,7 +384,7 @@ function upperSurface(
       continue;
     for (let y = max.y + SURFACE_PRECISION; y >= min.y; ) {
       const point = { ...station, y };
-      const result = physicalShapeNearest(pose, shape, point, point);
+      const result = AutoMovieEnginePhysics.physicalShapeNearest(pose, shape, point, point);
       if (result.distance <= SURFACE_PRECISION) {
         if (result.normal.y > 0 && (top === undefined || y > top.y))
           top = { y, normal: result.normal };

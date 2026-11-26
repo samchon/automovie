@@ -1,9 +1,4 @@
-import {
-  createEnvironment,
-  createEnvironmentProp,
-  createTerrain,
-  environmentModel,
-} from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { createSeat } from "@automovie/archetypes/furniture";
 import {
   Quaternion,
@@ -52,12 +47,12 @@ export function pondTrail(): compileEnvironmentExample.IInput {
       },
     ],
   };
-  const environment: IAutoMovieEnvironment = createEnvironment({
+  const environment: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "pond",
     seed: 24,
     items: {
       terrain: {
-        use: createTerrain({
+        use: AutoMovieEnvironment.terrain({
           size: [24, 20],
           water: {
             pond: {
@@ -86,11 +81,11 @@ export function pondTrail(): compileEnvironmentExample.IInput {
         }),
       },
       bench: {
-        use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }),
+        use: AutoMovieEnvironmentFurnishing.prop({ model: createSeat({ kind: "bench" }) }),
         at: { anchor: "terrain/amenities/bench" },
       },
       marker: {
-        use: environmentModel({
+        use: AutoMovieEnvironment.model({
           model: marker,
           anchors: {
             summit: Transform.of({ x: 0, y: 1.3, z: 0 }, Quaternion.identity()),

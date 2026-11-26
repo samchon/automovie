@@ -31,12 +31,6 @@ import { courtStroke } from "./courtStroke";
 import { racketClock } from "./racketClock";
 import { racketStance } from "./racketStance";
 
-/** The alternatives of `PlanGripBend2`'s site. */
-type PlanGripBend2 = "front" | "forward";
-
-/** The alternatives of `PlanGripBend`'s site. */
-type PlanGripBend = "front" | "forward";
-
 /**
  * Racket stroke dispatch and the original solo racket or golf positions. The
  * following positions use an implied handle.
@@ -269,3 +263,9 @@ export namespace racket {
         };
   }
 }
+
+/** The alternatives of `PlanGripBend2`'s site. */
+type PlanGripBend2 = "front" | "forward";
+
+/** The alternatives of `PlanGripBend`'s site. */
+type PlanGripBend = "front" | "forward";

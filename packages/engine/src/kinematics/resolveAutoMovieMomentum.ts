@@ -13,7 +13,7 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { samplePoseVelocity } from "../motion/samplePoseVelocity";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
-import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
+import { physicalPrincipalAxes } from "../physics/internal/physicalPrincipalAxes";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 
 /**

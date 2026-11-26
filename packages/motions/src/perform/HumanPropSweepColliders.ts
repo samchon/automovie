@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeNearest,
-  projectileAt,
-  projectileFirstContact,
-} from "@automovie/engine";
+import { Quaternion, Vector3, projectileAt, projectileFirstContact, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMoviePhysicalShape,
@@ -228,7 +222,7 @@ export namespace HumanPropSweepColliders {
           Vector3.scale(sum, 1 / shape.points.length),
         ),
       );
-      const depth: number = -physicalShapeNearest(ORIGIN, shape, centre, centre)
+      const depth: number = -AutoMovieEnginePhysics.physicalShapeNearest(ORIGIN, shape, centre, centre)
         .distance;
       if (depth > 0) found = 2 * depth;
     }

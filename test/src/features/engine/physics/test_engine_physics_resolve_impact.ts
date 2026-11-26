@@ -1,4 +1,4 @@
-import { resolveImpact } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieImpactBodyState,
   IAutoMovieVector3,
@@ -48,7 +48,7 @@ export function test_engine_physics_resolve_impact(): void {
   const moving: IAutoMovieImpactBodyState = { ...rest, velocity: v(0, 0, 10) };
   const normal: IAutoMovieVector3 = v(0, 0, 1);
 
-  const impact = resolveImpact(moving, rest, normal);
+  const impact = AutoMovieEnginePhysics.resolveImpact(moving, rest, normal);
   TestValidator.equals("closing speed", impact.speed, 10);
   TestValidator.equals("impulse", impact.impulse.z, 5);
   TestValidator.equals("velocity A", impact.velocityA.z, 5);
@@ -57,16 +57,16 @@ export function test_engine_physics_resolve_impact(): void {
   for (const mass of [0, -1]) {
     TestValidator.predicate(
       `mass A ${mass}`,
-      throwsError(() => resolveImpact({ ...moving, mass }, rest, normal)),
+      throwsError(() => AutoMovieEnginePhysics.resolveImpact({ ...moving, mass }, rest, normal)),
     );
     TestValidator.predicate(
       `mass B ${mass}`,
-      throwsError(() => resolveImpact(moving, { ...rest, mass }, normal)),
+      throwsError(() => AutoMovieEnginePhysics.resolveImpact(moving, { ...rest, mass }, normal)),
     );
   }
   TestValidator.predicate(
     "zero normal",
-    throwsError(() => resolveImpact(moving, rest, v(0, 0, 0))),
+    throwsError(() => AutoMovieEnginePhysics.resolveImpact(moving, rest, v(0, 0, 0))),
   );
   const coefficients: ("restitution" | "hardness" | "penetrability")[] = [
     "restitution",
@@ -78,13 +78,13 @@ export function test_engine_physics_resolve_impact(): void {
       TestValidator.predicate(
         `A ${field} ${value}`,
         throwsError(() =>
-          resolveImpact({ ...moving, [field]: value }, rest, normal),
+          AutoMovieEnginePhysics.resolveImpact({ ...moving, [field]: value }, rest, normal),
         ),
       );
       TestValidator.predicate(
         `B ${field} ${value}`,
         throwsError(() =>
-          resolveImpact(moving, { ...rest, [field]: value }, normal),
+          AutoMovieEnginePhysics.resolveImpact(moving, { ...rest, [field]: value }, normal),
         ),
       );
     }
@@ -97,7 +97,7 @@ export function test_engine_physics_resolve_impact(): void {
     restitution: 0.9,
     hardness: 0.9,
   };
-  const bounce = resolveImpact(
+  const bounce = AutoMovieEnginePhysics.resolveImpact(
     { ...hard, velocity: v(0, 0, 10) },
     hard,
     normal,
@@ -121,7 +121,7 @@ export function test_engine_physics_resolve_impact(): void {
     hardness: 0.2,
     penetrability,
   });
-  const embed = resolveImpact(arrow(40), torso(0.7), normal);
+  const embed = AutoMovieEnginePhysics.resolveImpact(arrow(40), torso(0.7), normal);
   TestValidator.predicate(
     "an embed",
     embed.kind === "embed" &&
@@ -130,17 +130,17 @@ export function test_engine_physics_resolve_impact(): void {
       embed.velocityB.z > 0 &&
       embed.velocityB.z < 0.3,
   );
-  const through = resolveImpact(arrow(40), torso(0.9), normal);
+  const through = AutoMovieEnginePhysics.resolveImpact(arrow(40), torso(0.9), normal);
   TestValidator.predicate(
     "through",
     through.kind === "through" && through.velocityA.z > 20,
   );
   TestValidator.equals(
     "a slower arrow embeds",
-    resolveImpact(arrow(10), torso(0.9), normal).kind,
+    AutoMovieEnginePhysics.resolveImpact(arrow(10), torso(0.9), normal).kind,
     "embed",
   );
-  const apart = resolveImpact({ ...rest, velocity: v(0, 0, -5) }, rest, normal);
+  const apart = AutoMovieEnginePhysics.resolveImpact({ ...rest, velocity: v(0, 0, -5) }, rest, normal);
   TestValidator.predicate(
     "separating deflects",
     apart.kind === "deflect" &&
@@ -148,7 +148,7 @@ export function test_engine_physics_resolve_impact(): void {
       apart.velocityA.z === -5,
   );
   const soft: IAutoMovieImpactBodyState = { ...rest, hardness: 0.3 };
-  const scuff = resolveImpact(
+  const scuff = AutoMovieEnginePhysics.resolveImpact(
     { ...soft, velocity: v(0, 0, 4) },
     { ...soft, penetrability: 0.2 },
     normal,

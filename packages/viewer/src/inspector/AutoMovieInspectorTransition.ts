@@ -2,13 +2,7 @@ import type {
   IAutoMovieInspectionRequest,
   IAutoMoviePlaybackLayer,
 } from "@automovie/interface";
-import {
-  AutoMovieTransitionDisplays,
-  type IAutoMovieDrawScene,
-  isAutoMoviePlainBeautyRequest,
-  placeAutoMovieDrawLayer,
-  AutoMovieRenderDraw,
-} from "@automovie/render";
+import { AutoMovieTransitionDisplays, type IAutoMovieDrawScene, AutoMovieRenderDraw } from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -99,13 +93,13 @@ export class AutoMovieInspectorTransition {
       AutoMovieRenderDraw.planPicture(props.name, instance, seconds);
     this.shown_ = plan.shown;
     this.layers_ =
-      compositor !== null && isAutoMoviePlainBeautyRequest(props.request)
+      compositor !== null && AutoMovieRenderDraw.isAutoMoviePlainBeautyRequest(props.request)
         ? plan.layers
         : null;
     this.compositor_ = compositor;
     for (const layer of this.drawn()) {
       if (layer === this.shown_) continue;
-      await placeAutoMovieDrawLayer(props.name, instance, layer, seconds);
+      await AutoMovieRenderDraw.placeAutoMovieDrawLayer(props.name, instance, layer, seconds);
 
       // A mount disposed during the placement paints and holds nothing; the
       // subject's render-target work runs after the placement, as the draw
@@ -115,7 +109,7 @@ export class AutoMovieInspectorTransition {
       props.paint();
       this.displays_.hold(compositor!, slotOf(layer));
     }
-    await placeAutoMovieDrawLayer(props.name, instance, this.shown_, seconds);
+    await AutoMovieRenderDraw.placeAutoMovieDrawLayer(props.name, instance, this.shown_, seconds);
   }
 
   /**

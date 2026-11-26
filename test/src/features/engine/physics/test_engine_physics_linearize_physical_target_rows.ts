@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  linearizePhysicalTargetRows,
-  solvePhysicalArticulationTargets,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieLinearizePhysicalTargetRows,
   IAutoMoviePhysicalSegment,
@@ -56,8 +51,8 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
   );
   const original: string = JSON.stringify(targets);
   const published: { poses: Poses; before: string }[] = [];
-  const result: ReturnType<typeof solvePhysicalArticulationTargets> =
-    solvePhysicalArticulationTargets({
+  const result: ReturnType<typeof AutoMovieEnginePhysics.solvePhysicalArticulationTargets> =
+    AutoMovieEnginePhysics.solvePhysicalArticulationTargets({
       profile,
       targets,
       bones: ["carrier"],
@@ -164,8 +159,8 @@ export function test_engine_physics_linearize_physical_target_rows(): void {
       linearize: (): typeof measure => measure,
     }),
   );
-  const model: ReturnType<typeof linearizePhysicalTargetRows> =
-    linearizePhysicalTargetRows(rows, accepted);
+  const model: ReturnType<typeof AutoMovieEnginePhysics.linearizePhysicalTargetRows> =
+    AutoMovieEnginePhysics.linearizePhysicalTargetRows(rows, accepted);
   compare(
     "common rigid motion only freezes intrinsic distance",
     model(probe, new Set(["a", "b"])),

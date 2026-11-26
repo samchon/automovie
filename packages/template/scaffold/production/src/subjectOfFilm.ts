@@ -7,11 +7,7 @@ import type {
   IAutoMovieMark,
   IAutoMovieRenderSoftPropFrame,
 } from "@automovie/interface";
-import {
-  type IAutoMovieDrawScene,
-  type IAutoMovieDrawSubject,
-  bindAutoMovieDrawSceneSoftProps,
-} from "@automovie/render";
+import { type IAutoMovieDrawScene, type IAutoMovieDrawSubject, AutoMovieRenderDraw } from "@automovie/render";
 import type * as THREE from "three";
 
 import type { IFilm } from "./IFilm";
@@ -148,7 +144,7 @@ export function subjectOfFilm(
         production.softPropsAt?.bind(production);
       return softPropsAt === undefined
         ? subject
-        : bindAutoMovieDrawSceneSoftProps(
+        : AutoMovieRenderDraw.bindAutoMovieDrawSceneSoftProps(
             subject,
             (seconds: number): readonly IAutoMovieRenderSoftPropFrame[] =>
               softPropsAt(clamp(seconds)),

@@ -1,8 +1,4 @@
-import {
-  createBuilding,
-  createEnvironment,
-  createPassage,
-} from "@automovie/archetypes/environments";
+import { createBuilding, createPassage, AutoMovieEnvironment } from "@automovie/archetypes/environments";
 import { Quaternion, Vector3, heightAt } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
@@ -147,7 +143,7 @@ export function test_location_floor_plan(): void {
     at: { x: number; y: number; z: number };
   } = { use: first, at: { x: 0, y: 3, z: 0 } };
   const west: typeof east = { use: second, at: { x: -8, y: 3, z: 0 } };
-  const site: IAutoMovieEnvironment = createEnvironment({
+  const site: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "walkway-test",
     items: { east, west, bridge: { use: span } },
   });
@@ -213,7 +209,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      createEnvironment({
+      AutoMovieEnvironment.create({
         id: "displaced",
         items: {
           east,
@@ -225,7 +221,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      createEnvironment({
+      AutoMovieEnvironment.create({
         id: "overwide",
         items: {
           east,
@@ -244,7 +240,7 @@ export function test_location_floor_plan(): void {
   );
   assert.throws(
     (): IAutoMovieEnvironment =>
-      createEnvironment({
+      AutoMovieEnvironment.create({
         id: "oblique",
         items: {
           east,

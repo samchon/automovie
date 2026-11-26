@@ -17,7 +17,7 @@ import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
 import { preserveAutoMovieSweepVolume } from "./internal/preserveAutoMovieSweepVolume";
-import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
+import { sampleAutoMovieParameterSweep } from "./internal/sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 

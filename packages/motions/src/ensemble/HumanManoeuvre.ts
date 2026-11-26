@@ -18,9 +18,6 @@ import { manoeuvreCrossings } from "./manoeuvreCrossings";
 import { manoeuvreSteered } from "./manoeuvreSteered";
 import { manoeuvreWheel } from "./manoeuvreWheel";
 
-/** The alternatives of `PlanPartsArrive`'s site. */
-type PlanPartsArrive = "stand" | "kneel";
-
 /**
  * Manoeuvres planned as each member's own travel, and appended to the members'
  * chains.
@@ -286,6 +283,9 @@ export namespace HumanManoeuvre {
       : travelled;
   }
 }
+
+/** The alternatives of `PlanPartsArrive`'s site. */
+type PlanPartsArrive = "stand" | "kneel";
 
 /**
  * A way by the flank: along the target line's front to the member's own file,

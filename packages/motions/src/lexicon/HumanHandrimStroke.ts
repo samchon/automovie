@@ -37,6 +37,60 @@ import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
 import { humanHandrimStrokePhases } from "./humanHandrimStrokePhases";
 
+/** Carry a sampled grip from one chair placement into another. */
+const carry = (
+  grip: Grip,
+  from: IAutoMovieRigidTransform,
+  to: IAutoMovieRigidTransform,
+): Grip => {
+  const swing: IAutoMovieQuaternion = Quaternion.multiply(
+    to.rotation,
+    Quaternion.inverse(from.rotation),
+  );
+  return {
+    ...grip,
+    point: Vector3.add(
+      to.position,
+      Quaternion.rotateVector(
+        swing,
+        Vector3.subtract(grip.point, from.position),
+      ),
+    ),
+    normal: Quaternion.rotateVector(swing, grip.normal),
+    axis: Quaternion.rotateVector(swing, grip.axis!),
+  };
+};
+
+/**
+ * One single-handed or bilateral handrim engagement over a seated ride.
+ * Register the law and give the chair a circumferential contact reader, such as
+ * `wheelchairHandrimFrame`. The hands approach, follow the rotating rim points
+ * until release, and recover outward to the carried seated pose. Wheel travel
+ * is supplied by the authored course.
+ *
+ * The contact and recovery phases follow the arcing path documented in Slowik
+ * et al. (2015), Figure 1 and Table 1,
+ * https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1 . The recovery clearance
+ * is a staging dimension of one rider hand length. The wrist enters and leaves
+ * at the rim's tangential rate, estimated from the material point inside the
+ * grip window, then blends to the seated pose. The law checks seat alignment,
+ * active wheel sides and solved wrists at nine points through the push before
+ * publishing contact windows. Chénier et al. (2022),
+ * https://pubmed.ncbi.nlm.nih.gov/34915435/, also measured asymmetric
+ * propulsion during wheelchair basketball dribbles.
+ *
+ * The three phases last the author's `approach`, `push` and `recovery` seconds;
+ * no natural value is defined (provisional: no wheelchair-propulsion timing
+ * study was read); pushing a manual wheelchair.
+ */
+export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandrimStroke> =
+  {
+    name: "handrimStroke",
+    interrupts: {},
+    yields: ["head"],
+    plan: planHumanHandrimStroke,
+  };
+
 /** The point and directions a rider uses to take the rim. */
 type Grip = Parameters<typeof HumanMountRider.hold>[3];
 
@@ -78,30 +132,6 @@ interface IRim {
   /** Its declared axle frame and radius. */
   geometry: IAutoMovieAffordance;
 }
-
-/** Carry a sampled grip from one chair placement into another. */
-const carry = (
-  grip: Grip,
-  from: IAutoMovieRigidTransform,
-  to: IAutoMovieRigidTransform,
-): Grip => {
-  const swing: IAutoMovieQuaternion = Quaternion.multiply(
-    to.rotation,
-    Quaternion.inverse(from.rotation),
-  );
-  return {
-    ...grip,
-    point: Vector3.add(
-      to.position,
-      Quaternion.rotateVector(
-        swing,
-        Vector3.subtract(grip.point, from.position),
-      ),
-    ),
-    normal: Quaternion.rotateVector(swing, grip.normal),
-    axis: Quaternion.rotateVector(swing, grip.axis!),
-  };
-};
 
 /**
  * One single-handed or bilateral handrim engagement over a seated ride.
@@ -428,33 +458,3 @@ function planHumanHandrimStroke(
     posture,
   };
 }
-
-/**
- * One single-handed or bilateral handrim engagement over a seated ride.
- * Register the law and give the chair a circumferential contact reader, such as
- * `wheelchairHandrimFrame`. The hands approach, follow the rotating rim points
- * until release, and recover outward to the carried seated pose. Wheel travel
- * is supplied by the authored course.
- *
- * The contact and recovery phases follow the arcing path documented in Slowik
- * et al. (2015), Figure 1 and Table 1,
- * https://pmc.ncbi.nlm.nih.gov/articles/PMC4631660/#T1 . The recovery clearance
- * is a staging dimension of one rider hand length. The wrist enters and leaves
- * at the rim's tangential rate, estimated from the material point inside the
- * grip window, then blends to the seated pose. The law checks seat alignment,
- * active wheel sides and solved wrists at nine points through the push before
- * publishing contact windows. Chénier et al. (2022),
- * https://pubmed.ncbi.nlm.nih.gov/34915435/, also measured asymmetric
- * propulsion during wheelchair basketball dribbles.
- *
- * The three phases last the author's `approach`, `push` and `recovery` seconds;
- * no natural value is defined (provisional: no wheelchair-propulsion timing
- * study was read); pushing a manual wheelchair.
- */
-export const HumanHandrimStroke: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandrimStroke> =
-  {
-    name: "handrimStroke",
-    interrupts: {},
-    yields: ["head"],
-    plan: planHumanHandrimStroke,
-  };

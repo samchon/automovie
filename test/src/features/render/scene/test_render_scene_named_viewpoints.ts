@@ -1,7 +1,4 @@
-import {
-  type IAutoMovieViewerViewpoint,
-  autoMovieViewerNamedViewpoints,
-} from "@automovie/render";
+import { type IAutoMovieViewerViewpoint, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -27,7 +24,7 @@ export function test_render_scene_named_viewpoints(): void {
     elevationDeg,
     distanceFactor,
   });
-  TestValidator.equals("default plan", autoMovieViewerNamedViewpoints(), [
+  TestValidator.equals("default plan", AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints(), [
     view("front", 0, 0, 1.25),
     view("back", 180, 0, 1.25),
     view("right", 90, 0, 1.25),
@@ -38,7 +35,7 @@ export function test_render_scene_named_viewpoints(): void {
     view("three-quarter-back", 225, 20, 1.25),
   ]);
 
-  const far: IAutoMovieViewerViewpoint[] = autoMovieViewerNamedViewpoints(2);
+  const far: IAutoMovieViewerViewpoint[] = AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints(2);
   TestValidator.equals(
     "given factor",
     far.map((entry: IAutoMovieViewerViewpoint): number => entry.distanceFactor),
@@ -47,12 +44,12 @@ export function test_render_scene_named_viewpoints(): void {
   far[0]!.azimuthDeg = 12;
   TestValidator.equals(
     "fresh records",
-    autoMovieViewerNamedViewpoints(2)[0]!.azimuthDeg,
+    AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints(2)[0]!.azimuthDeg,
     0,
   );
 
   for (const factor of [0, -1])
     TestValidator.error(`factor ${factor}`, (): void => {
-      autoMovieViewerNamedViewpoints(factor);
+      AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints(factor);
     });
 }

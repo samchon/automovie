@@ -1,10 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  Quaternion,
-  Vector3,
-  physicalPointProjection,
-  planPhysicalContactTargets as plan,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, physicalPointProjection, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
   IAutoMoviePhysicalSegment,
@@ -57,11 +51,11 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
     ...PhysicalPointFixtures.bound(),
     reference: { body: "123", bone: "root", shape: "surface" },
   };
-  const fit: (bound: Bound, height: number) => ReturnType<typeof plan> = (
+  const fit: (bound: Bound, height: number) => ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> = (
     bound: Bound,
     height: number,
-  ): ReturnType<typeof plan> =>
-    plan({
+  ): ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> =>
+    AutoMovieEnginePhysics.planPhysicalContactTargets({
       body: "assembly",
       profiles: { assembly: profile, "123": receiver },
       targets: poses,
@@ -81,7 +75,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
     });
   // A translated sphere support is exactly height + radius along world Y.
   for (const height of [1.4, 1.6]) {
-    const result: ReturnType<typeof plan> = fit(base, height);
+    const result: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> = fit(base, height);
     const actual: number = Math.atan2(
       result.targets.source!.position.y - 1,
       result.targets.source!.position.x,
@@ -95,7 +89,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
     ...base,
     reference: { body: "assembly", bone: "reference", shape: "surface" },
   };
-  const same: ReturnType<typeof plan> = fit(own, 1);
+  const same: ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> = fit(own, 1);
   const angle: number = Math.atan2(
     same.targets.source!.position.y - 1,
     same.targets.source!.position.x,
@@ -232,7 +226,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
   ];
   for (const bound of invalid)
     assert.throws(
-      (): ReturnType<typeof plan> => fit(bound, 1),
+      (): ReturnType<typeof AutoMovieEnginePhysics.planPhysicalContactTargets> => fit(bound, 1),
       /point relationship/,
     );
 }

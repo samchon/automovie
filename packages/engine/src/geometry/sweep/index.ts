@@ -39,7 +39,7 @@ export * from "./rigAutoMovieSurfaceCoons";
 export * from "./rigAutoMovieSurfaceCurve";
 export * from "./rigAutoMovieSurfaceNetwork";
 export * from "./rigAutoMovieSweep";
-export * from "./sampleAutoMovieParameterSweep";
+
 export * from "./sampleAutoMovieSurfaceNetwork";
 export * from "./sampleAutoMovieSweepSection";
 export * from "./settleAutoMovieSweepVolume";

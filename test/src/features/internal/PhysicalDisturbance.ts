@@ -1,13 +1,4 @@
-import {
-  AutoMoviePhysicalBalance,
-  Quaternion,
-  Vector3,
-  physicalShapeBounds,
-  physicalStanceBalance,
-  physicalStanceSupport,
-  physicalStanceSwing,
-  physicalSupportPoint,
-} from "@automovie/engine";
+import { AutoMoviePhysicalBalance, Quaternion, Vector3, physicalShapeBounds, physicalStanceBalance, physicalStanceSupport, physicalStanceSwing, AutoMovieEnginePhysics } from "@automovie/engine";
 import { AutoMovieHumanPhysicalStandingPose } from "@automovie/human";
 import type {
   IAutoMovieMotionHumanBody,
@@ -863,7 +854,7 @@ export namespace PhysicalDisturbance {
         const spread = (pose: IAutoMovieRigidTransform): number => {
           const heights: number[] = face.map(
             (local: IAutoMovieVector3): number =>
-              physicalSupportPoint(pose, local).y,
+              AutoMovieEnginePhysics.physicalSupportPoint(pose, local).y,
           );
           return Math.max(...heights) - Math.min(...heights);
         };
@@ -889,13 +880,13 @@ export namespace PhysicalDisturbance {
     for (const shape of [...segment.shapes, ...(segment.contactShapes ?? [])])
       if (shape.kind === "hull")
         for (const point of shape.points)
-          local.push(physicalSupportPoint(shape.transform, point));
+          local.push(AutoMovieEnginePhysics.physicalSupportPoint(shape.transform, point));
       else if (shape.kind === "box")
         for (const x of [-1, 1])
           for (const y of [-1, 1])
             for (const z of [-1, 1])
               local.push(
-                physicalSupportPoint(shape.transform, {
+                AutoMovieEnginePhysics.physicalSupportPoint(shape.transform, {
                   x: x * shape.halfExtents.x,
                   y: y * shape.halfExtents.y,
                   z: z * shape.halfExtents.z,
@@ -903,7 +894,7 @@ export namespace PhysicalDisturbance {
               );
     if (local.length === 0) return [];
     const heights: number[] = local.map(
-      (point: IAutoMovieVector3): number => physicalSupportPoint(pose, point).y,
+      (point: IAutoMovieVector3): number => AutoMovieEnginePhysics.physicalSupportPoint(pose, point).y,
     );
     const lowest: number = Math.min(...heights);
     return local.filter(

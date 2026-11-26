@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { SUBSURFACE_TEXTURE_SIZE } from "./SUBSURFACE_TEXTURE_SIZE.js";
-import { subsurfaceTable } from "./subsurfaceTable.js";
+import { subsurfaceTable } from "./internal/subsurfaceTable.js";
 
 const { cosines: COSINES, blurs: BLURS }: typeof SUBSURFACE_TEXTURE_SIZE =
   SUBSURFACE_TEXTURE_SIZE;

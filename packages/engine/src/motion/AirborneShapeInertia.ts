@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
-import { physicalPrincipalAxes } from "../physics/physicalPrincipalAxes";
+import { physicalPrincipalAxes } from "../physics/internal/physicalPrincipalAxes";
 import type { AirborneShapeStatistics } from "./AirborneShapeStatistics";
 
 /**

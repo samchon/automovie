@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  physicalInertiaTensor,
-  physicalPrincipalAxes,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalInertiaTensor, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMovieCombinePhysicalMassProperties,
   IAutoMovieQuaternion,
@@ -166,8 +161,8 @@ export function test_engine_mass_tensor_spin(): void {
           [0, 2, 0],
           [0, 0, 3],
         ];
-    const principal: ReturnType<typeof physicalPrincipalAxes> =
-      physicalPrincipalAxes(tensor);
+    const principal: ReturnType<typeof AutoMovieEnginePhysics.physicalPrincipalAxes> =
+      AutoMovieEnginePhysics.physicalPrincipalAxes(tensor);
     const moments: readonly number[] = [
       principal.moments.x,
       principal.moments.y,
@@ -215,7 +210,7 @@ export function test_engine_mass_tensor_spin(): void {
   TestValidator.predicate(
     "zero tensor cannot define principal axes",
     throwsError((): void => {
-      physicalPrincipalAxes([
+      AutoMovieEnginePhysics.physicalPrincipalAxes([
         [0, 0, 0],
         [0, 0, 0],
         [0, 0, 0],

@@ -1,4 +1,4 @@
-import { DEFAULT_HUMANOID_ROM, DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, createPhysicalHullShape, physicalSupportPoint, rotationBetween, toRigAngle, AutoMovieEnginePhysics } from "@automovie/engine";
+import { DEFAULT_HUMANOID_ROM, DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, createPhysicalHullShape, rotationBetween, toRigAngle, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieCombinePhysicalMassProperties,
@@ -545,7 +545,7 @@ function soleOf(
     if (shape.kind !== "hull" || (!heel && !fore)) continue;
     const points: IAutoMovieVector3[] = shape.points.map(
       (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        physicalSupportPoint(shape.transform, point),
+        AutoMovieEnginePhysics.physicalSupportPoint(shape.transform, point),
     );
     for (const point of points) vertices.push({ point, heel });
     centroids.push(

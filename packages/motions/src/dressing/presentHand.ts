@@ -33,6 +33,22 @@ import { presentHandPlace } from "./presentHandPlace";
  * laid as one course (`courseArmGoal`). Events: `ready` once presented, `relax`
  * as it starts back.
  */
+export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPresentHand> =
+  {
+    name: "presentHand",
+    interrupts: {},
+    plan: planPresentHand,
+  };
+
+/**
+ * Present a hand to a partner. The palm goes, palm down and fingers forward, to
+ * the place the arm reaches with the upper arm hanging and the forearm level
+ * ahead (`presentHandPlace`): inward of the shoulder's half width, the upper
+ * arm's length below it, the forearm and half the hand ahead of it, all from
+ * the body's own measure; it stays the authored seconds and returns. The arm is
+ * laid as one course (`courseArmGoal`). Events: `ready` once presented, `relax`
+ * as it starts back.
+ */
 function planPresentHand(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPresentHand>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -117,19 +133,3 @@ function planPresentHand(
     },
   });
 }
-
-/**
- * Present a hand to a partner. The palm goes, palm down and fingers forward, to
- * the place the arm reaches with the upper arm hanging and the forearm level
- * ahead (`presentHandPlace`): inward of the shoulder's half width, the upper
- * arm's length below it, the forearm and half the hand ahead of it, all from
- * the body's own measure; it stays the authored seconds and returns. The arm is
- * laid as one course (`courseArmGoal`). Events: `ready` once presented, `relax`
- * as it starts back.
- */
-export const presentHand: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPresentHand> =
-  {
-    name: "presentHand",
-    interrupts: {},
-    plan: planPresentHand,
-  };

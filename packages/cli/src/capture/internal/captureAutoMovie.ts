@@ -51,10 +51,10 @@ export async function captureAutoMovie(
   );
   const options: ReturnType<typeof readAutoMovieCaptureHostOptions> =
     readAutoMovieCaptureHostOptions(
-      render.readAutoMovieCaptureArguments(props.args),
+      render.AutoMovieRenderCapture.readArguments(props.args),
     );
   const request: IAutoMovieCapturePlanRequest =
-    render.parseAutoMovieCapturePlanRequest(options.request);
+    render.AutoMovieRenderCapture.parsePlanRequest(options.request);
 
   const recordPath = (folder: string): string =>
     path.join(
@@ -128,7 +128,7 @@ export async function captureAutoMovie(
           "-",
         ]),
       );
-    record = await render.runAutoMovieVideoCapture({
+    record = await render.AutoMovieRenderCapture.runVideo({
       file,
       subject: { name, ...probe },
       request,

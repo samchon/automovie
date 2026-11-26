@@ -9,15 +9,6 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanGaze } from "./HumanGaze";
 import { HumanProxemics } from "./HumanProxemics";
 
-/** The alternatives of `AVERSIONSEntryItem`'s site. */
-type AVERSIONSEntryItem = "right" | "left" | "down" | "diagonal" | "up";
-
-/** The record of `IGLANCESEntryItem`'s site. */
-type IGLANCESEntryItem = { on: number; away: number };
-
-/** The alternatives of `GLANCESEntryItem`'s site. */
-type GLANCESEntryItem = "speaking" | "listening";
-
 /**
  * Where a person in a conversation looks: at the partner's face for seeded
  * glances, away between them, more while listening than while speaking.
@@ -87,6 +78,15 @@ export namespace HumanConversation {
     return planGlances(subject, turns, random, eyes, partner, release);
   }
 }
+
+/** The alternatives of `AVERSIONSEntryItem`'s site. */
+type AVERSIONSEntryItem = "right" | "left" | "down" | "diagonal" | "up";
+
+/** The record of `IGLANCESEntryItem`'s site. */
+type IGLANCESEntryItem = { on: number; away: number };
+
+/** The alternatives of `GLANCESEntryItem`'s site. */
+type GLANCESEntryItem = "speaking" | "listening";
 
 /** A direction of look away, as `AVERSIONS` names them. */
 type Aversion = keyof typeof HumanConversation.AVERSIONS;

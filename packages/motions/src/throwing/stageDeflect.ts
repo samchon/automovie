@@ -29,6 +29,27 @@ import { stageDeflectRebound } from "./stageDeflectRebound";
  * sphere on a surface held still through the touch (no tangential friction
  * along a head-on normal).
  */
+export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCatchObject.IStageParams> =
+  {
+    ...stageCatch,
+    name: "stageDeflect",
+    plan: planStageDeflect,
+  };
+
+/**
+ * A deliberate deflection of an incoming ball: the staged interception of
+ * `stageCatch`, whose hand meets the ball on its actual flight at the authored
+ * instant, hands the same ball straight back instead of closing on it. The
+ * deflection is the outcome the caller decides, so it is published as a launch
+ * at the touch, and the incoming flight's sweep leaves the touching hands to
+ * that launch as a staged catch's hands are left to it.
+ *
+ * The rebound is the ball's own restitution off a palm facing the incoming
+ * ball: with the palm's normal `n` against the incoming velocity `v`, the
+ * outgoing velocity is `v - (1 + e)(v . n) n = -e v`, the normal impact of a
+ * sphere on a surface held still through the touch (no tangential friction
+ * along a head-on normal).
+ */
 function planStageDeflect(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCatchObject.IStageParams>,
 ): IAutoMovieMotionHumanCatchObject.IPlan {
@@ -91,24 +112,3 @@ function planStageDeflect(
     launches: [...(caught.launches ?? []), launch],
   };
 }
-
-/**
- * A deliberate deflection of an incoming ball: the staged interception of
- * `stageCatch`, whose hand meets the ball on its actual flight at the authored
- * instant, hands the same ball straight back instead of closing on it. The
- * deflection is the outcome the caller decides, so it is published as a launch
- * at the touch, and the incoming flight's sweep leaves the touching hands to
- * that launch as a staged catch's hands are left to it.
- *
- * The rebound is the ball's own restitution off a palm facing the incoming
- * ball: with the palm's normal `n` against the incoming velocity `v`, the
- * outgoing velocity is `v - (1 + e)(v . n) n = -e v`, the normal impact of a
- * sphere on a surface held still through the touch (no tangential friction
- * along a head-on normal).
- */
-export const stageDeflect: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCatchObject.IStageParams> =
-  {
-    ...stageCatch,
-    name: "stageDeflect",
-    plan: planStageDeflect,
-  };

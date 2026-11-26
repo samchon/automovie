@@ -22,21 +22,6 @@ import { HumanCarriedCouplingRigid } from "./HumanCarriedCouplingRigid";
 import { HumanCarriedGripGaps } from "./HumanCarriedGripGaps";
 import { HumanCarriedStraddle } from "./HumanCarriedStraddle";
 
-/** A borne region a hand holds, or no grip for that hand. */
-type HeldRegion = AutoMovieHumanoidRegion | null;
-
-/** The borne regions held by the bearer's left and right hands. */
-type Grip = readonly [HeldRegion, HeldRegion];
-
-/** The upper-leg coordinates used to vary the borne key pose. */
-type LegAxis = "flexion" | "abduction";
-
-/** A clinical coordinate whose limits bound the key-pose fit. */
-type LegCoordinate = readonly [AutoMovieHumanoidBone, LegAxis];
-
-/** A complete kinematic reading before carrying either body. */
-type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-
 /** Grip indices follow the carry row's left-to-right order. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
@@ -438,3 +423,18 @@ export namespace HumanCarriedCouplingFit {
     state?: IAutoMovieMotionHumanQuadraticProgram.IState;
   }
 }
+
+/** A borne region a hand holds, or no grip for that hand. */
+type HeldRegion = AutoMovieHumanoidRegion | null;
+
+/** The borne regions held by the bearer's left and right hands. */
+type Grip = readonly [HeldRegion, HeldRegion];
+
+/** The upper-leg coordinates used to vary the borne key pose. */
+type LegAxis = "flexion" | "abduction";
+
+/** A clinical coordinate whose limits bound the key-pose fit. */
+type LegCoordinate = readonly [AutoMovieHumanoidBone, LegAxis];
+
+/** A complete kinematic reading before carrying either body. */
+type Bones = ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;

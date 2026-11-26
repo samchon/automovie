@@ -37,13 +37,15 @@ export class AutoMovieRenderAudio {
 
   /**
    * Encode equal-length normalized channels as deterministic stereo PCM16 WAVE.
-   * Inputs must be nonempty, finite and within [-1, 1], and the sample rate
-   * must be a positive safe integer.
+   * Supply finite samples in [-1, 1] and a positive integer rate whose stereo
+   * byte rate of four times the sample rate fits a 32-bit RIFF field.
    *
    * @param left Left channel.
    * @param right Right channel.
    * @param sampleRate Samples per second.
    * @returns Canonical 44-byte-header RIFF/WAVE bytes.
+   * @throws {Error} When channel lengths are empty, unequal or exceed the RIFF
+   *   limit, the rate is nonpositive, or a sample magnitude exceeds one.
    */
   public static encodeWavPcm16(
     left: Float32Array,

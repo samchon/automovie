@@ -1,4 +1,4 @@
-import { separateAutoMovieMeshSequence } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,7 +55,7 @@ export function test_engine_geometry_mesh_sequence(): void {
       },
     );
     const before: string = JSON.stringify(meshes);
-    const result: IAutoMovieMesh[] = separateAutoMovieMeshSequence(
+    const result: IAutoMovieMesh[] = AutoMovieEngineGeometry.separateMeshSequence(
       meshes,
       axis,
       0.2,
@@ -84,7 +84,7 @@ export function test_engine_geometry_mesh_sequence(): void {
   }
 
   // 2.
-  const apart: IAutoMovieMesh[] = separateAutoMovieMeshSequence(
+  const apart: IAutoMovieMesh[] = AutoMovieEngineGeometry.separateMeshSequence(
     [plane(0), plane(-20, 10), plane(-1)],
     "z",
     0.2,
@@ -98,22 +98,22 @@ export function test_engine_geometry_mesh_sequence(): void {
   const clear: IAutoMovieMesh[] = [plane(0), plane(1)];
   TestValidator.equals(
     "separated",
-    separateAutoMovieMeshSequence(clear, "z"),
+    AutoMovieEngineGeometry.separateMeshSequence(clear, "z"),
     clear,
   );
   TestValidator.equals(
     "single",
-    separateAutoMovieMeshSequence([clear[0]!], "z"),
+    AutoMovieEngineGeometry.separateMeshSequence([clear[0]!], "z"),
     [clear[0]!],
   );
-  TestValidator.equals("empty", separateAutoMovieMeshSequence([], "z"), []);
+  TestValidator.equals("empty", AutoMovieEngineGeometry.separateMeshSequence([], "z"), []);
   const vast: IAutoMovieMesh = {
     ...plane(5),
     positions: [-1e200, -1e200, 5, 1e200, -1e200, 5, 0, 1e200, 5],
   };
   TestValidator.equals(
     "vast",
-    separateAutoMovieMeshSequence([plane(0), vast], "z"),
+    AutoMovieEngineGeometry.separateMeshSequence([plane(0), vast], "z"),
     [plane(0), vast],
   );
 
@@ -121,25 +121,25 @@ export function test_engine_geometry_mesh_sequence(): void {
   for (const [label, run, message] of [
     [
       "gap -1",
-      (): unknown => separateAutoMovieMeshSequence([], "z", -1),
+      (): unknown => AutoMovieEngineGeometry.separateMeshSequence([], "z", -1),
       "clearance",
     ],
     [
       "malformed",
       (): unknown =>
-        separateAutoMovieMeshSequence([{ ...plane(0), positions: [NaN] }], "z"),
+        AutoMovieEngineGeometry.separateMeshSequence([{ ...plane(0), positions: [NaN] }], "z"),
       "triangle buffers",
     ],
     [
       "travel",
       (): unknown =>
-        separateAutoMovieMeshSequence([plane(0), plane(-1e308)], "z", 1e308),
+        AutoMovieEngineGeometry.separateMeshSequence([plane(0), plane(-1e308)], "z", 1e308),
       "translation",
     ],
     [
       "positions",
       (): unknown =>
-        separateAutoMovieMeshSequence(
+        AutoMovieEngineGeometry.separateMeshSequence(
           [plane(0), plane(-1e308), plane(1.7e308, 10)],
           "z",
         ),

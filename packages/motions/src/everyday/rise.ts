@@ -43,12 +43,6 @@ import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
 
-/** The record of `IPlanSat`'s site. */
-type IPlanSat = { seat?: IAutoMovieMotionHumanSeated.ISeat };
-
-/** The alternatives of `PlanEntryHeading`'s site. */
-type PlanEntryHeading = "yaw" | "pitch" | "roll";
-
 /**
  * Standing up from a seat, in the four phases of sit-to-stand (Schenkman,
  * Berger, Riley, Mann and Hodge 1990, Phys Ther 70:638): flexion momentum,
@@ -509,3 +503,9 @@ export namespace rise {
     };
   }
 }
+
+/** The record of `IPlanSat`'s site. */
+type IPlanSat = { seat?: IAutoMovieMotionHumanSeated.ISeat };
+
+/** The alternatives of `PlanEntryHeading`'s site. */
+type PlanEntryHeading = "yaw" | "pitch" | "roll";

@@ -6,7 +6,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
+import { admitPhysicalContactBindings } from "./internal/admitPhysicalContactBindings";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 
 /**

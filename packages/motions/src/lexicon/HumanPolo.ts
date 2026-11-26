@@ -32,6 +32,24 @@ import { HumanPoloForm } from "./HumanPoloForm";
 import { HumanPoloHand } from "./HumanPoloHand";
 import { humanPoloTimetable } from "./humanPoloTimetable";
 
+/**
+ * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`): carried on the
+ * saddle, the rider rises in the stirrups and turns the shoulders toward the
+ * swing's side; the arm and the held mallet turn as one about the right
+ * shoulder in the plane through the ball and the horse's level heading, the
+ * mallet at the angle the grip and the wrist's deviation give, from the carry
+ * and the cocked top of the backswing, the arm short of straight up along the
+ * upright trunk, down through the ball at the contact, the rider leaning out
+ * over the side as it comes down, and on to the finish; the ball is launched
+ * along the swing at the contact. Register `HumanPolo` to use it.
+ */
+export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo.IPolo> =
+  {
+    name: "polo",
+    interrupts: {},
+    plan: planHumanPolo,
+  };
+
 /** The law's context. */
 type Context =
   IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPolo.IPolo>;
@@ -50,24 +68,6 @@ type Context =
 function planHumanPolo(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
-
-/**
- * A polo stroke from the saddle (`IAutoMovieMotionHumanPolo`): carried on the
- * saddle, the rider rises in the stirrups and turns the shoulders toward the
- * swing's side; the arm and the held mallet turn as one about the right
- * shoulder in the plane through the ball and the horse's level heading, the
- * mallet at the angle the grip and the wrist's deviation give, from the carry
- * and the cocked top of the backswing, the arm short of straight up along the
- * upright trunk, down through the ball at the contact, the rider leaning out
- * over the side as it comes down, and on to the finish; the ball is launched
- * along the swing at the contact. Register `HumanPolo` to use it.
- */
-export const HumanPolo: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPolo.IPolo> =
-  {
-    name: "polo",
-    interrupts: {},
-    plan: planHumanPolo,
-  };
 
 /** Admit, lay the plane and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {

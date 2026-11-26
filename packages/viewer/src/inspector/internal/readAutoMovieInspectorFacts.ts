@@ -1,10 +1,4 @@
-import {
-  type IApplyAutoMovieInspectionProps,
-  type IAutoMovieDrawScene,
-  type IAutoMovieViewerViewpoint,
-  autoMovieViewerNamedViewpoints,
-  listAutoMovieInspectionPaths,
-} from "@automovie/render";
+import { type IApplyAutoMovieInspectionProps, type IAutoMovieDrawScene, type IAutoMovieViewerViewpoint, listAutoMovieInspectionPaths, AutoMovieRenderSubjectViewpoint } from "@automovie/render";
 
 import type { IAutoMovieInspectorScene } from "../IAutoMovieInspectorScene.js";
 
@@ -38,7 +32,7 @@ export function readAutoMovieInspectorFacts(props: {
     markKinds: instance.markKinds ?? [],
     views: [
       ...Object.keys(instance.views ?? {}),
-      ...autoMovieViewerNamedViewpoints().map(
+      ...AutoMovieRenderSubjectViewpoint.autoMovieViewerNamedViewpoints().map(
         ({ id }: IAutoMovieViewerViewpoint): string => id,
       ),
     ],

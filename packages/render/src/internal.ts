@@ -22,7 +22,7 @@ export * from "./scene/internal/readAutoMovieEnvironmentColorSpace.js";
 export * from "./scene/internal/readAutoMovieTextureUploadFormat.js";
 export * from "./scene/internal/slotMatrix.js";
 export * from "./scene/subsurfaceShading/SUBSURFACE_TEXTURE_SIZE.js";
-export * from "./scene/subsurfaceShading/subsurfaceTable.js";
+export * from "./scene/subsurfaceShading/internal/subsurfaceTable.js";
 export * from "./scene/surfaceGraphic/buildAutoMovieSurfaceGraphicKey.js";
 export * from "./scene/surfaceGraphic/createAutoMovieSystemTextTexture.js";
 export * from "./screenplay/screenplaySceneSlug.js";

@@ -6,10 +6,10 @@ export * from "./AutoMovieRenderDraw.js";
 export * from "./AutoMovieDrawPlacement.js";
 export * from "./AutoMovieDrawSession.js";
 export * from "./AutoMovieDrawSubjects.js";
-export * from "./bindAutoMovieDrawSceneSoftProps.js";
-export * from "./decodeAutoMovieDrawPixels.js";
-export * from "./describeAutoMovieDrawScene.js";
-export * from "./encodeAutoMovieDrawPixels.js";
+
+
+
+
 export * from "./IAutoMovieDrawFunction.js";
 export * from "./IAutoMovieDrawGlobal.js";
 export * from "./IAutoMovieDrawPage.js";
@@ -17,11 +17,9 @@ export * from "./IAutoMovieDrawPageRequest.js";
 export * from "./IAutoMovieDrawProps.js";
 export * from "./IAutoMovieDrawScene.js";
 export * from "./IAutoMovieDrawSubject.js";
-export * from "./installAutoMovieDraw.js";
-export * from "./isAutoMoviePlainBeautyRequest.js";
-export * from "./observeAutoMoviePlacedInspection.js";
-export * from "./placeAutoMovieDrawLayer.js";
+
+
+
+
 export * from "./renderAutoMovieDrawnVideo.js";
 export * from "./replaceAutoMovieDrawInspection.js";
-export * from "./selectAutoMovieDrawSubject.js";
-export * from "./stampAutoMovieDrawLegend.js";

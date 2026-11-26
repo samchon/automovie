@@ -1,9 +1,4 @@
-import {
-  AutoMovieXpbdBody,
-  AutoMovieXpbdWorld,
-  physicalJointInertia,
-  samplePhysicalTarget,
-} from "@automovie/engine";
+import { AutoMovieXpbdBody, AutoMovieXpbdWorld, samplePhysicalTarget, AutoMovieEnginePhysics } from "@automovie/engine";
 import type { IAutoMovieQuaternion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,7 +33,7 @@ export async function test_engine_physics_physical_joint_inertia(): Promise<void
     rotation: identity,
   });
   parent.setMass(1, { x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 }, identity);
-  const inertia: ReturnType<typeof physicalJointInertia> = physicalJointInertia(
+  const inertia: ReturnType<typeof AutoMovieEnginePhysics.physicalJointInertia> = AutoMovieEnginePhysics.physicalJointInertia(
     { x: 0, y: 0, z: Math.SQRT1_2, w: Math.SQRT1_2 },
     child,
     parent,

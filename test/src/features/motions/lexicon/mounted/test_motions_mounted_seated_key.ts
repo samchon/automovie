@@ -1,11 +1,5 @@
 import { createHorse } from "@automovie/archetypes";
-import {
-  Quaternion,
-  Vector3,
-  physicalShapeContactManifold,
-  physicalShapeNearest,
-  physicalShapePairDistance,
-} from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeContactManifold, physicalShapePairDistance, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanPosture,
@@ -146,7 +140,7 @@ export async function test_motions_mounted_seated_key(): Promise<void> {
         .filter(({ bone }) => bone === `${side}Foot` || bone === `${side}Toes`)
         .flatMap(({ pose, shapes }) =>
           shapes.map((skin) =>
-            Math.abs(physicalShapeNearest(pose, skin, ball, ball).distance),
+            Math.abs(AutoMovieEnginePhysics.physicalShapeNearest(pose, skin, ball, ball).distance),
           ),
         ),
     );

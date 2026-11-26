@@ -1,4 +1,4 @@
-import { measureAutoMovieMeshDefects } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMark,
   IAutoMovieMeshDefect,
@@ -125,7 +125,7 @@ function measure(
     positions[i * 3 + 2] = position.getZ(i);
   }
   try {
-    return measureAutoMovieMeshDefects(
+    return AutoMovieEngineGeometry.measureMeshDefects(
       { positions, indices: geometry.getIndex()?.array ?? null },
       sliver === null ? {} : { sliver },
     );

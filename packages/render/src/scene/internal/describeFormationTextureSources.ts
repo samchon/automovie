@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import { readAutoMovieTextureSource } from "../readAutoMovieTextureSource.js";
+import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 
 /**
  * Describe every retained, reachable gait table from its actual owned texture.
