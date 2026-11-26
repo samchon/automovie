@@ -1,3 +1,4 @@
+import { createAutoMovieRandom } from "@automovie/engine";
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -6,6 +7,7 @@ import type {
 import {
   AutoMovieMotionClock,
   AutoMovieMotionManner,
+  HumanSkill,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -58,6 +60,8 @@ const UNREAD: IAutoMovieRandom = {
  * 4. The weary preset (time −0.7, flow 0.3, pace 0.8) resolves to tempo 1.21 / 0.8
  *    = 1.5125, the 1.51 times the time it cites, and hold 1.5125 · 1.09; its
  *    clock keeps every instant's name and order.
+ * 5. A performer with elite timing and novice path skill has separate tempo and
+ *    extent spreads. Explicit consistency replaces both spreads.
  */
 export function test_motions_compose_manner_pace(): void {
   const clock: IAutoMovieMotionClock = AutoMovieMotionClock(3, [
@@ -118,5 +122,27 @@ export function test_motions_compose_manner_pace(): void {
       nclose(weary.hold, (1.21 / 0.8) * 1.09, ROUNDING) &&
       names(AutoMovieMotionManner.time(clock, weary)).join() ===
         names(clock).join(),
+  );
+
+  const random: IAutoMovieRandom = createAutoMovieRandom("manner-axes");
+  const context: Parameters<typeof AutoMovieMotionManner>[0] = {
+    skill: HumanSkill.resolve(
+      { level: "trained", axes: { timing: 1, path: 0 } },
+      "manner-axes",
+    ),
+    random: (): IAutoMovieRandom => random,
+  };
+  const varied: ReturnType<typeof AutoMovieMotionManner> =
+    AutoMovieMotionManner(context, { variation: 1 });
+  const consistent: ReturnType<typeof AutoMovieMotionManner> =
+    AutoMovieMotionManner(context, { variation: 1, consistency: 1 });
+  const tempo: number = 1 + 0.05 * (2 * random.float(0) - 1);
+  const extent: number = 2 * random.float(1) - 1;
+  TestValidator.predicate(
+    "timing controls tempo and path controls extent until explicitly overridden",
+    nclose(varied.tempo, tempo, ROUNDING) &&
+      nclose(varied.extent, 1 + 0.2 * extent, ROUNDING) &&
+      nclose(consistent.tempo, tempo, ROUNDING) &&
+      nclose(consistent.extent, 1 + 0.08 * extent, ROUNDING),
   );
 }

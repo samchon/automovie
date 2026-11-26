@@ -19,11 +19,11 @@ import { useSceneClock } from "./useSceneClock";
 /**
  * One scene in the gallery: its still, its title, what happens and who is in
  * it, linking to its page. Pointing at the card or focusing it plays the
- * scene's baked take in 3D in place of the still, and leaving it lets the
- * view go, so a page of cards draws only the one the visitor looks at.
+ * scene's baked take in 3D in place of the still, and leaving it lets the view
+ * go, so a page of cards draws only the one the visitor looks at.
  *
- * The link is named by the title alone; the still and the view are
- * decoration inside it.
+ * The link is named by the title alone; the still and the view are decoration
+ * inside it.
  *
  * @param props The scene and whether its first take was baked.
  * @returns The card.
@@ -60,8 +60,8 @@ export function SceneCard(props: {
           ) : (
             <span className="am-scene-card-blank" aria-hidden="true" />
           )}
-          {live ? (
-            <LiveTake scene={scene} baked={props.baked} poster={poster} />
+          {live && props.baked ? (
+            <LiveTake scene={scene} poster={poster} />
           ) : null}
         </span>
         <span className="am-scene-card-title">{scene.title}</span>
@@ -75,13 +75,7 @@ export function SceneCard(props: {
 }
 
 /** The scene's first take, playing over the still while the card is pointed at. */
-function LiveTake(props: {
-  scene: IScene;
-  baked: boolean;
-  /** The baked take's length, seconds; absent when it was not baked. */
-  seconds?: number;
-  poster: string;
-}): ReactElement {
+function LiveTake(props: { scene: IScene; poster: string }): ReactElement {
   const clock: SceneClock = useSceneClock();
   return (
     <span className="am-scene-card-live">
@@ -90,8 +84,8 @@ function LiveTake(props: {
         take={0}
         clock={clock}
         decorative
-        baked={props.baked ? "scene" : undefined}
-        poster={props.baked ? props.poster : undefined}
+        baked="scene"
+        poster={props.poster}
         onLoad={(player: IScenePlayer): void => {
           clock.duration = player.duration;
           clock.fps = player.fps;

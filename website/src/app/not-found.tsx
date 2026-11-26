@@ -30,8 +30,8 @@ export default function NotFound(): ReactElement {
         <a className="am-button" href={`${SITE_BASE}/reference/`}>
           Reference
         </a>
-        <a className="am-button" href={`${SITE_BASE}/playground/`}>
-          Playground
+        <a className="am-button" href={`${SITE_BASE}/gallery/`}>
+          Gallery
         </a>
       </nav>
     </main>

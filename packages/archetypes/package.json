@@ -19,6 +19,7 @@
     "./music": "./src/music/index.ts",
     "./nature": "./src/nature/index.ts",
     "./environments": "./src/environments/index.ts",
+    "./executable/internal": "./src/executable/internal.ts",
     "./internal": "./src/internal.ts",
     "./package.json": "./package.json"
   },

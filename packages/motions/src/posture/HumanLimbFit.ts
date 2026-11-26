@@ -366,11 +366,14 @@ export namespace HumanLimbFit {
       ): IAutoMovieSeededChainFit =>
         read(fitter, point, near, continued, incumbent, capture),
     );
-    // A continued fit whose admitted arc vanished (`IAutoMovieSwivelSeed.vanished`)
-    // has no swivel connected to its seed that takes the hand's asked turn:
-    // the arm would have to jump to another arc or leave the turn, so the
-    // goal is refused rather than shown either way.
-    if (fitted.seed?.vanished === true) throw vanishedRefusal(limb);
+    // A continued arm whose admitted arc vanished cannot keep the hand's
+    // requested turn on its elbow path. A leg returns its solved pose and
+    // seed so the caller can check the actual ankle and support constraints.
+    if (
+      fitted.seed?.vanished === true &&
+      (limb === "leftArm" || limb === "rightArm")
+    )
+      throw vanishedRefusal(limb);
     return fitted;
   }
 
@@ -378,7 +381,7 @@ export namespace HumanLimbFit {
    * The refusal of a goal whose continued arm lost every swivel connected to
    * its seed that takes the hand's asked turn.
    */
-  function vanishedRefusal(limb: AutoMovieHumanLimb): HumanRefusal {
+  function vanishedRefusal(limb: "leftArm" | "rightArm"): HumanRefusal {
     return new HumanLimbVanishedRefusal({
       kind: "reach",
       axis: "rotation",

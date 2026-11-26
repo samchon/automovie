@@ -42,28 +42,29 @@ export function archetypeCaptureRest(): Readonly<
       leadRadius: 0.004,
     },
   });
-  const params: AutoMovieArchetypeQuadrupedRestPlan.IParams = {
+  const params: Omit<
+    AutoMovieArchetypeQuadrupedRestPlan.IParams,
+    "parts" | "contacts" | "folded"
+  > = {
     floorY: 0,
     loweringSeconds: 2,
     restingSeconds: 1,
     risingSeconds: 2,
     restPitch: 0,
     tailDirection: -90,
-    folded: { fore: [90, 0], hind: [-90, 0] },
     windows: { body: [0, 1], fore: [0, 1], hind: [0, 1] },
-    parts: {
-      withers: "trunk",
-      leftEar: "head",
-      rightEar: "head",
-      collar: "neck",
-      lead: "neck",
-    },
-    contacts: { lead: "neck" },
   };
+  const dogCarriers: ReturnType<typeof QuadrupedCarriage.of> =
+    QuadrupedCarriage.of(dog, createQuadruped.species(dog));
   const clip: AutoMovieArchetypeQuadrupedRestPlan.IClip<
     createDog.Affordance,
     AutoMovieArchetypeQuadrupedBody.Dimension
-  > = AutoMovieArchetypeQuadrupedRest(dog, params);
+  > = AutoMovieArchetypeQuadrupedRest(dog, {
+    ...params,
+    ...dogCarriers,
+    folded: { fore: [-120, -50], hind: [-95, 80] },
+    parts: { ...dogCarriers.parts, leftEar: "head", rightEar: "head" },
+  });
   const horse: ReturnType<typeof createHorse> = createHorse({
     tack: "saddle",
     withersHeight: AutoMovieArchetypeEquine.JENSEN.withers,
@@ -80,6 +81,7 @@ export function archetypeCaptureRest(): Readonly<
   > = AutoMovieArchetypeQuadrupedRest(horse, {
     ...params,
     ...carriers,
+    folded: { fore: [-110, 5], hind: [-105, 55] },
     restPitch: (Math.atan2(front.y - rear.y, front.z - rear.z) * 180) / Math.PI,
   });
   return {

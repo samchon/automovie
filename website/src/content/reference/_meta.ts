@@ -1,9 +1,9 @@
 import type { MetaRecord } from "nextra";
 
 /**
- * The reference's pages, for a developer or a coding agent that writes
- * against the packages, in the order its sidebar lists them: the pages, the
- * catalogues of what a film is composed from, and the API documents.
+ * The reference's pages, for a developer or a coding agent that writes against
+ * the packages, in the order its sidebar lists them: the pages, the catalogues
+ * of what a film is composed from, and the API documents.
  */
 const meta: MetaRecord = {
   index: "Overview",
@@ -13,6 +13,7 @@ const meta: MetaRecord = {
   motion: "Motion API",
 
   "-- catalogues": { type: "separator", title: "Catalogues" },
+  "gallery-overview": { title: "Gallery", href: "/gallery/" },
   "motions-catalogue": { title: "Motions", href: "/motions/" },
   "archetypes-catalogue": { title: "Archetypes", href: "/archetypes/" },
   "scene-studies": { title: "Scene studies", href: "/scenes/" },

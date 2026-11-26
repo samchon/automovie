@@ -22,12 +22,10 @@ const APPLICATION: {
 };
 
 /**
- * The site's top-level pages, in the order the navigation bar lists them.
- * The index is the landing page, which the logo links to. The guide, the
- * reference and the playground are in the bar; the catalogues a film is
- * composed with (motions, archetypes, scene studies) and the TypeDoc API are
- * listed in the reference's sidebar. Former addresses stay as hidden pages
- * that forward.
+ * The site's top-level pages, in the order the navigation bar lists them. The
+ * index is the landing page, which the logo links to. The guide, the reference
+ * and the gallery are in the bar. Each catalogue also has a direct entry in the
+ * reference. Former addresses stay as hidden pages that forward.
  */
 const meta: MetaRecord = {
   index: {
@@ -44,14 +42,12 @@ const meta: MetaRecord = {
     title: "Reference",
     type: "page",
   },
-  playground: {
-    title: "Playground",
+  gallery: {
+    title: "Gallery",
     type: "page",
     theme: APPLICATION,
   },
-  // The catalogues are pages of their own, hidden from the bar because the
-  // reference's sidebar lists them; objects, gallery and human are former
-  // addresses that forward.
+  // The catalogues have their own pages and a shared gallery entry.
   scenes: {
     title: "Scene studies",
     type: "page",
@@ -76,8 +72,8 @@ const meta: MetaRecord = {
     display: "hidden",
     theme: APPLICATION,
   },
-  gallery: {
-    title: "Archetypes",
+  playground: {
+    title: "Gallery",
     type: "page",
     display: "hidden",
     theme: APPLICATION,

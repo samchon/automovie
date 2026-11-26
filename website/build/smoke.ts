@@ -1,6 +1,6 @@
 // Open the built site in a headless browser and check that its pages run.
 //
-//   pnpm run smoke [--shots]
+//   pnpm run smoke [--shots] [--only <case pattern>]
 //
 // The type check cannot see what only the browser bundle
 // does, such as a package source the bundler compiled wrongly. This serves
@@ -34,7 +34,6 @@ import { SceneStatus } from "../src/scenes/package/SceneStatus";
 import type { IScene } from "../src/scenes/structures/IScene";
 import { TakeCompute } from "../src/takes/package/TakeCompute";
 import { archetypeSmokeCases } from "./catalogue/archetypeSmokeCases";
-import "./catalogue/check";
 import { serveExport } from "./serveExport";
 
 /** One page to open and what it must show. */
@@ -87,13 +86,43 @@ const REFUSED: string = compressToEncodedURIComponent(
   }),
 );
 
+/** A saved half-second standing take. */
+const SAVED: string = compressToEncodedURIComponent(
+  JSON.stringify({
+    version: 1,
+    seed: "saved",
+    performers: [
+      {
+        subject: "a",
+        body: "m1",
+        x: 0,
+        z: 0,
+        yaw: 0,
+        proficiency: "trained",
+        actions: [{ name: "stand", params: { hold: 0.5 } }],
+      },
+    ],
+    mutuals: [],
+  }),
+);
+
 /** A drawn scene view: a canvas inside a view that finished loading. */
 const DRAWN: string = '.am-scene-view[aria-busy="false"] canvas';
 
 /** Whether each page is saved as a screenshot once checked. */
 const SHOTS: boolean = process.argv.includes("--shots");
 
-/** The longest a take may take to compute and draw in the headless browser, which poses on the CPU alone, before the case fails. */
+/** Restrict a local smoke run to a case name or path. */
+const ONLY_AT: number = process.argv.indexOf("--only");
+if (ONLY_AT !== -1 && process.argv[ONLY_AT + 1] === undefined)
+  throw new Error("--only requires a case pattern");
+const ONLY: RegExp | null =
+  ONLY_AT === -1 ? null : new RegExp(process.argv[ONLY_AT + 1]!);
+
+/**
+ * The longest a take may take to compute and draw in the headless browser,
+ * which poses on the CPU alone, before the case fails.
+ */
 const COMPUTE_LIMIT: number = 180000;
 
 /** A marked scene that still exercises the packages' refusal path. */
@@ -103,7 +132,11 @@ const REFUSED_SCENE: IScene | undefined = SCENES.find(
       scene.hidden === true ||
       scene.composition === null ||
       scene.takes[0] === undefined ||
-      SceneStatus.of(scene).kind !== "refused"
+      SceneStatus.of(scene).kind !== "refused" ||
+      (ONLY !== null &&
+        !ONLY.test(
+          `scene ${scene.id} shows the packages' refusal scenes/${scene.id}/`,
+        ))
     )
       return false;
     const result: ReturnType<typeof TakeCompute.take> = TakeCompute.take(
@@ -120,14 +153,16 @@ const STILL: (kind: "scenes" | "motions") => string = (
 ): string => `img[src*="/automovie/baked/${kind}/"]`;
 
 /**
- * Pointing at the gallery's first card plays its baked take in place of
- * its still; the time from pointing to drawing is logged.
+ * Pointing at the gallery's first card plays its baked take in place of its
+ * still; the time from pointing to drawing is logged.
  */
 const hoverCard: (page: Page, problems: string[]) => Promise<void> = async (
   page: Page,
   problems: string[],
 ): Promise<void> => {
-  const card: Locator = page.locator(".am-scene-card").first();
+  const card: Locator = page
+    .locator(`.am-scene-card:has(${STILL("scenes")})`)
+    .first();
   const started: number = Date.now();
   await card.hover();
   try {
@@ -274,19 +309,16 @@ const CASES: readonly ICase[] = [
     check: async (page: Page, problems: string[]): Promise<void> => {
       await page
         .getByRole("searchbox", { name: "Search motions" })
-        .fill("headTilt");
-      await page.getByRole("link", { name: /^headTilt/ }).click();
-      await page.getByRole("link", { name: "Open in the playground" }).click();
-      await Promise.all([
-        page.waitForSelector("#am-pane-result .am-instrument canvas", {
-          timeout: COMPUTE_LIMIT,
-        }),
-        page.waitForSelector('.am-span-overlay[title^="headTilt "]', {
-          timeout: COMPUTE_LIMIT,
-        }),
-      ]);
-      if ((await page.locator("#am-pane-result .am-alert").count()) !== 0)
-        problems.push("the head tilt rehearsal did not perform");
+        .fill("cartwheelLeft");
+      await page.getByRole("link", { name: /^cartwheelLeft/ }).click();
+      await page
+        .locator(`.am-motion-page ${DRAWN}`)
+        .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+      if (
+        (await page.getByRole("heading", { name: "cartwheelLeft" }).count()) !==
+        1
+      )
+        problems.push("the catalogue did not open the cartwheel");
     },
   },
   {
@@ -339,27 +371,59 @@ const CASES: readonly ICase[] = [
     lacks: [],
   },
   {
-    name: "playground performs the dance circle",
-    path: "playground/",
+    name: "gallery shows baked examples and both catalogues",
+    path: "gallery/",
     shows: [
-      "#am-pane-compose",
-      "#am-pane-result .am-instrument canvas",
-      "#am-timeline",
-      "#am-verdicts",
+      ".am-gallery-hub h1",
+      '.am-gallery-nav a[href="/automovie/motions/"]',
+      '.am-gallery-nav a[href="/automovie/archetypes/"]',
+      `.am-gallery-hub .am-scene-card ${STILL("scenes")}`,
     ],
-    lacks: [".am-alert"],
+    lacks: ['a[href="/automovie/playground/"]', ".am-gallery-saved"],
+    contexts: 1,
+    check: hoverCard,
   },
   {
-    name: "playground shows a refusal on its action",
+    name: "the former editor address opens the gallery",
+    path: "playground/",
+    arrives: "gallery/",
+    shows: [".am-gallery-hub h1"],
+    lacks: ["#am-pane-compose", ".am-gallery-saved"],
+  },
+  {
+    name: "a legacy shared performance plays in the gallery on request",
+    path: `playground/#c=${SAVED}`,
+    arrives: `gallery/#c=${SAVED}`,
+    shows: [".am-gallery-saved button"],
+    lacks: ["#am-pane-compose", ".am-scene-view-refusal"],
+    contexts: 1,
+    check: async (page: Page): Promise<void> => {
+      await page.getByRole("button", { name: "Load saved take" }).click();
+      await page
+        .locator(`.am-gallery-saved ${DRAWN}`)
+        .waitFor({ state: "attached", timeout: COMPUTE_LIMIT });
+    },
+  },
+  {
+    name: "an invalid legacy shared performance explains its missing action",
     path: `playground/#c=${REFUSED}`,
-    shows: [
-      '#am-pane-result .am-alert[role="alert"]',
-      '.am-action[data-refused="true"] .am-action-refusal',
-    ],
-    lacks: [".am-instrument"],
+    arrives: `gallery/#c=${REFUSED}`,
+    shows: [".am-gallery-saved button"],
+    lacks: ["#am-pane-compose"],
+    check: async (page: Page): Promise<void> => {
+      await page.getByRole("button", { name: "Load saved take" }).click();
+      await page
+        .locator(".am-gallery-saved")
+        .getByRole("alert")
+        .filter({ hasText: "no action is named levitate" })
+        .waitFor({ state: "visible", timeout: COMPUTE_LIMIT });
+    },
   },
 ];
-/** Counts the WebGL contexts a page creates, installed before any of its scripts run. */
+/**
+ * Counts the WebGL contexts a page creates, installed before any of its scripts
+ * run.
+ */
 const COUNTERS: string = `
   window.__amContexts = 0;
   const getContext = HTMLCanvasElement.prototype.getContext;
@@ -374,6 +438,14 @@ const COUNTERS: string = `
 `;
 
 const main: () => Promise<void> = async (): Promise<void> => {
+  if (ONLY === null) await import("./catalogue/check");
+  const selected: readonly ICase[] =
+    ONLY === null
+      ? CASES
+      : CASES.filter((each: ICase): boolean =>
+          ONLY.test(`${each.name} ${each.path}`),
+        );
+  if (selected.length === 0) throw new Error("No smoke case matches --only");
   const served: { server: http.Server; address: string } = await serveExport(0);
   const browser: Browser = await chromium.launch({
     headless: true,
@@ -383,7 +455,7 @@ const main: () => Promise<void> = async (): Promise<void> => {
   });
   const failures: string[] = [];
   try {
-    for (const each of CASES) {
+    for (const each of selected) {
       const context: BrowserContext = await browser.newContext({
         reducedMotion: each.reduced === true ? "reduce" : "no-preference",
         viewport: { width: 1440, height: 900 },

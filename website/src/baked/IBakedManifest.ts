@@ -1,11 +1,11 @@
 /**
- * What the build baked, written beside the files as `baked/manifest.json`.
- * A page reads it while the site is exported to know which stills and takes
- * exist, and draws a placeholder for the rest, so a site served before any
- * bake still works.
+ * What the build baked, written beside the files as `baked/manifest.json`. A
+ * page reads it while the site is exported to know which stills and takes
+ * exist, and draws a placeholder for the rest, so a site served before any bake
+ * still works.
  */
 export interface IBakedManifest {
-  /** The byte format's version, `BakedTake`'s magic. */
+  /** The manifest's format marker. Takes carry their own sample-width magic. */
   format: string;
 
   /** The baked scenes by id. */
@@ -23,7 +23,10 @@ export namespace IBakedManifest {
     /** Bytes of its compressed take, so a page can say what a click loads. */
     bytes: number;
 
-    /** `BakedManifest.hash` of the composition it was computed from, so a take baked before the composition changed is not played as current. */
+    /**
+     * `BakedManifest.hash` of the composition it was computed from, so a take
+     * baked before the composition changed is not played as current.
+     */
     composition: string;
   }
 }

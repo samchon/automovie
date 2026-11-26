@@ -75,10 +75,6 @@
   --am-room-alarm-line: #6b3a35;
   --am-room-alarm-fg: #ffb3aa;
 
-  /* The inspector of `@automovie/viewer` keeps its own light surface. */
-  --am-instrument-bg: #ffffff;
-  --am-instrument-fg: #1b1f26;
-
   /* The lift of a panel off the page. */
   --am-shadow: 0 30px 60px -40px rgb(23 24 28 / 0.35);
 

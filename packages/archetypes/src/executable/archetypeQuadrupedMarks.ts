@@ -134,9 +134,10 @@ export function archetypeQuadrupedMarks(
       );
     }
 
-    // Support heights are exact; their X/Z projection is an inspection ruler, not a fabricated contact point.
+    const cells: AutoMovieArchetype["convexCells"] = animal.convexCells;
+    // The rulers report exact heights at each part's horizontal centre.
     for (const part of animal.parts) {
-      const height: number = QuadrupedRestFloor(part);
+      const height: number = QuadrupedRestFloor(part, cells);
       const centre: IAutoMovieVector3 = part.transform!.translation;
       marks.push(
         mark(
@@ -155,7 +156,7 @@ export function archetypeQuadrupedMarks(
       const terminal: AutoMovieArchetypeQuadrupedBody.Bone =
         AutoMovieArchetypeQuadrupedBody.BONES[limb][3]!;
       const part: IAutoMovieModelPart = parts.get(terminal)!;
-      const height: number = QuadrupedRestFloor(part);
+      const height: number = QuadrupedRestFloor(part, cells);
       marks.push(
         mark(
           `sole/${limb}`,

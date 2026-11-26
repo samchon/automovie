@@ -18,7 +18,6 @@ import { useSceneClock } from "../components/scenes/useSceneClock";
 import { Transport } from "../components/stage/Transport";
 import { TransportKeys } from "../components/stage/TransportKeys";
 import { formatArchetypeLabel } from "../gallery/formatArchetypeLabel";
-import { PlaygroundAddress } from "../playground/PlaygroundAddress";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
 import type { SceneClock } from "../scenes/SceneClock";
 import { SceneFacts } from "../scenes/SceneFacts";
@@ -33,7 +32,10 @@ type Panel = "code" | "timeline" | "takes";
 /** The panels in their tabs' order. */
 const PANELS: readonly Panel[] = ["code", "timeline", "takes"];
 
-/** The player's loaded take, and what redraws its view after the toolbar moves the camera. */
+/**
+ * The player's loaded take, and what redraws its view after the toolbar moves
+ * the camera.
+ */
 interface ILoaded {
   /** The take. */
   take: IScenePlayer;
@@ -51,16 +53,18 @@ const VIEWS: readonly IScene.ICamera["view"][] = [
 ];
 
 /**
- * One scene: the player with its named views and transport beside the cast,
- * the objects and the actions, then three panels: the code an agent writes
- * for it, the timeline of the take, and the takes that vary one choice.
+ * One scene: the player with its named views and transport beside the cast, the
+ * objects and the actions, then three panels: the code an agent writes for it,
+ * the timeline of the take, and the takes that vary one choice.
  *
- * The first take plays from its baked bytes at once; the takes panel
- * computes the other takes in the page only when it is opened. A scene the
- * installed packages cannot compute shows what it will compose and the
- * issues it waits on.
+ * The first take plays from its baked bytes at once; the takes panel computes
+ * the other takes in the page only when it is opened. A scene the installed
+ * packages cannot compute shows what it will compose and the issues it waits
+ * on.
  *
- * @param props The scene's record, whether the installed packages compute its takes, whether its first take was baked, the exported names its code refers to, and which of its actions have a motion page.
+ * @param props The scene's record, whether the installed packages compute its
+ *   takes, whether its first take was baked, the exported names its code refers
+ *   to, and which of its actions have a motion page.
  * @returns The page.
  */
 export default function SceneMovie(props: {
@@ -301,15 +305,6 @@ export default function SceneMovie(props: {
             )}
           </ul>
           <div className="am-scene-links">
-            <Link
-              className="am-button am-button-primary"
-              href={`/playground/${PlaygroundAddress.encode({
-                ...composition,
-                version: PlaygroundAddress.VERSION,
-              })}`}
-            >
-              Open in the playground
-            </Link>
             <button
               type="button"
               className="am-button"

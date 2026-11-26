@@ -1,9 +1,9 @@
 /* Every stylesheet of the site, in the order the cascade depends on: the
-   faces, frame and controls first, then the playground, which refines them,
+   faces, frame and controls first, then the archetype viewport,
    the shared pieces, the landing page, the catalogues and the scene pages.
    The order lives here, in CSS, so no import sorter can change it. */
 @import "./global.css";
-@import "./playground.css";
+@import "./archetypes.css";
 @import "./shared.css";
 @import "./landing.css";
 @import "./landing-band.css";

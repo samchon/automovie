@@ -7,7 +7,10 @@ import { SceneBuild } from "./SceneBuild";
 const { act, mutual, object, person, scene, seat }: typeof SceneBuild =
   SceneBuild;
 
-/** One floor aid's stage: the aid, the body that fits its mark and where it stands. */
+/**
+ * One floor aid's stage: the aid, the body that fits its mark and where it
+ * stands.
+ */
 interface IAidStage {
   /** The aid. */
   kind: IAutoMovieMotionHumanAidWalk["kind"];
@@ -46,7 +49,10 @@ const WALKER_ROUTE: typeof ROUTE = [
   { x: 0.049, z: 0.34, turn: 15, seconds: 1.05 },
 ];
 
-/** Aid travel and an interrupted room walk followed by a supported seat transfer. */
+/**
+ * Aid travel and an interrupted room walk followed by a supported seat
+ * transfer.
+ */
 export const SCENES_ASSISTANCE: readonly IScene[] = [
   ...AIDS.map(({ kind, body, x, z, height }: IAidStage): IScene => {
     const walker: boolean = kind === "walker";
@@ -120,7 +126,7 @@ export const SCENES_ASSISTANCE: readonly IScene[] = [
         { helper: "helper", helped: "recipient" },
         {
           from: { prop: "chair", point: "seat" },
-          to: { prop: "bed", point: "rightSide", along: -0.62 },
+          to: { prop: "bed", point: "rightSide", along: -0.66 },
           clasp: { x: -0.2, y: 0.88, z: -0.43 },
           seconds: 0.55,
         },

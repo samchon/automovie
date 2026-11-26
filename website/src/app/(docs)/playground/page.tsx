@@ -1,19 +1,18 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 
-import PlaygroundMovie from "../../../movies/PlaygroundMovie";
+import ForwardMovie from "../../../movies/ForwardMovie";
 
 export const metadata: Metadata = {
-  title: "Playground",
-  description:
-    "Compose a performance from @automovie/motions, perform it on the polygon man and read its refusals and verdicts.",
+  title: "Gallery",
+  robots: { index: false },
 };
 
 /**
- * The composition playground's route.
+ * Forward saved composition links and the former editor's address.
  *
  * @returns The page.
  */
 export default function PlaygroundPage(): ReactElement {
-  return <PlaygroundMovie />;
+  return <ForwardMovie to="/gallery/" label="Gallery" fragment />;
 }

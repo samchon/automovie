@@ -20,8 +20,8 @@ import type { IScenePlayer } from "../scenes/structures/IScenePlayer";
 
 /**
  * One motion: its take in the 3D player, alone or in the first scene that
- * performs it, beside its name and family; how a chain writes it and where
- * the API reference describes its parameters; the scenes that use it and the
+ * performs it, beside its name and family; how a chain writes it and where the
+ * API reference describes its parameters; the scenes that use it and the
  * motions next to it in its family.
  *
  * @param props The motion's page data.
@@ -38,6 +38,8 @@ export default function MotionMovie(props: {
     <main className="am-app am-scene-page am-motion-page" data-pagefind-body>
       <header className="am-scene-head">
         <nav aria-label="Breadcrumb" className="am-crumbs">
+          <Link href="/gallery/">Gallery</Link>
+          <span aria-hidden="true">/</span>
           <Link href="/motions/">Motions</Link>
           <span aria-hidden="true">/</span>
           <Link href={`/motions/#${detail.category.id}`}>
@@ -123,16 +125,6 @@ export default function MotionMovie(props: {
               )}
             </ul>
           )}
-          <div className="am-scene-links">
-            {detail.playground === null ? null : (
-              <Link
-                className="am-button am-button-primary"
-                href={detail.playground}
-              >
-                Open in the playground
-              </Link>
-            )}
-          </div>
           <nav className="am-motion-step" aria-label="In this family">
             {detail.previous === null ? (
               <span />
@@ -177,8 +169,8 @@ export default function MotionMovie(props: {
 
 /**
  * How a chain appends the motion, its parameters left to the API reference. A
- * lexicon row is taken from its namespace and extends the chain first, and
- * the performance registers it in its `laws`, as the motions README shows.
+ * lexicon row is taken from its namespace and extends the chain first, and the
+ * performance registers it in its `laws`, as the motions README shows.
  */
 function snippet(detail: MotionIndex.IDetail): string {
   const args: string = "/* parameters */";

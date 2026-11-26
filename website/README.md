@@ -7,6 +7,7 @@ Use the public site to learn the production workflow, look up APIs and see what 
 | [Guide](https://samchon.github.io/automovie/docs/) | Create a production and follow it from brief to rendered film |
 | [Reference](https://samchon.github.io/automovie/reference/) | Look up the CLI and package interfaces |
 | [API](https://samchon.github.io/automovie/api/) | Browse types and functions |
+| [Gallery](https://samchon.github.io/automovie/gallery/) | Play 3D examples and browse motions and archetypes |
 | [Scenes](https://samchon.github.io/automovie/scenes/) | Play scene studies and read their composition code |
 | [Motions](https://samchon.github.io/automovie/motions/) | Try individual actions |
 | [Archetypes](https://samchon.github.io/automovie/archetypes/) | Inspect props and supports |

@@ -1,4 +1,5 @@
 import type { AutoMovieRecoveryCurveFormat } from "@automovie/interface";
+import { createRequire } from "node:module";
 
 import { recovery } from "./internal/recovery";
 import { recoveryAtlas } from "./internal/recoveryAtlas";
@@ -28,15 +29,14 @@ export async function runAutoMovieRecoveryCommand(
         "recovery: extract|extract-prefix|reconstruct input.json output.json [prefixSections] [--curve-format bezier|hermite]\n" +
         "recoveryAtlas: observe|compile input.json new-output-directory\n" +
         "recoveryContourPath: input.json new-output-directory\n" +
-        "For open continuation and local reconstruction, see Recover an open surface in the production README.\n" +
         "Outputs can be partial. Inspect coverage and diagnostics; completion does not certify source fidelity or smoothness.",
     );
     return 0;
   }
   if (args.length === 1 && args[0] === "--version") {
-    const metadata: { version: string } = require("../../package.json") as {
-      version: string;
-    };
+    const metadata: { version: string } = createRequire(import.meta.url)(
+      "@automovie/recovery/package.json",
+    ) as { version: string };
     console.log(`@automovie/recovery ${metadata.version}; legacy-contour-v1`);
     return 0;
   }
