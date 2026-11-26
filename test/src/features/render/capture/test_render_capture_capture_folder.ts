@@ -19,8 +19,9 @@ import { rejectsError } from "../../internal/rejectsError";
  *    of refused.
  * 4. A round's folder holding a file no record lists is refused, and a `rounds`
  *    entry inside a round is not owned.
- * 5. A compared round that does not exist, or whose record is still running, is
- *    refused before the previous capture's files are deleted.
+ * 5. A compared round that does not exist, whose record is still running, or whose
+ *    complete record contains only a subject name and file list is refused
+ *    before the previous capture's files are deleted.
  * 6. A record that is not JSON is refused naming its path.
  * 7. A claim of a path with a separator, a relative step or the record's own name
  *    is refused, and a write of an unclaimed name is refused.
@@ -137,6 +138,16 @@ export async function test_render_capture_capture_folder(): Promise<void> {
         "out/rounds/before/record.json": JSON.stringify({
           state: "running",
           files: [],
+        }),
+      },
+    ],
+    [
+      "malformed",
+      {
+        "out/rounds/before/record.json": JSON.stringify({
+          state: "complete",
+          files: [],
+          subject: { name: "s" },
         }),
       },
     ],

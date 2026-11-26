@@ -22,13 +22,10 @@ import type { IAutoMovieTransform } from "@automovie/interface";
  * @param child Transform expressed in `parent`'s space.
  * @returns A new transform expressing `child` in the space `parent` lives in.
  */
-export const composeLocalTransform: (
+export function composeLocalTransform(
   parent: IAutoMovieTransform,
   child: IAutoMovieTransform,
-) => IAutoMovieTransform = (
-  parent: IAutoMovieTransform,
-  child: IAutoMovieTransform,
-): IAutoMovieTransform => {
+): IAutoMovieTransform {
   const q: IAutoMovieTransform["rotation"] = parent.rotation;
   const vx: number = parent.scale.x * child.translation.x;
   const vy: number = parent.scale.y * child.translation.y;
@@ -56,4 +53,4 @@ export const composeLocalTransform: (
       z: parent.scale.z * child.scale.z,
     },
   };
-};
+}

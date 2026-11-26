@@ -14,22 +14,6 @@ import { object } from "./object";
 import { readMotionAccessor } from "./readMotionAccessor";
 import { requiredArray } from "./requiredArray";
 
-type AutoMovieMotionTargetPath =
-  | "translation"
-  | "rotation"
-  | "scale"
-  | "weights";
-
-/** Accessor shape each target path's output must use. */
-const MOTION_OUTPUT_TYPES: Readonly<
-  Record<AutoMovieMotionTargetPath, "SCALAR" | "VEC3" | "VEC4">
-> = {
-  translation: "VEC3",
-  rotation: "VEC4",
-  scale: "VEC3",
-  weights: "SCALAR",
-};
-
 /**
  * Normalize glTF animation samplers into deterministic node tracks.
  *
@@ -42,21 +26,14 @@ const MOTION_OUTPUT_TYPES: Readonly<
  * Missing interpolation means LINEAR; unknown interpolation, duplicate
  * node/path channels and malformed data throw with the field path.
  */
-export const inspectExternalMotion: (props: {
+export function inspectExternalMotion(props: {
   path: string;
   byteLength: number;
   animations: unknown[];
   nodes: unknown[];
   parentByIndex: readonly (number | undefined)[];
   source: IAccessorSource;
-}) => IAutoMovieExternalMotionInspection | undefined = (props: {
-  path: string;
-  byteLength: number;
-  animations: unknown[];
-  nodes: unknown[];
-  parentByIndex: readonly (number | undefined)[];
-  source: IAccessorSource;
-}): IAutoMovieExternalMotionInspection | undefined => {
+}): IAutoMovieExternalMotionInspection | undefined {
   if (props.animations.length === 0) return undefined;
   const nodes: IAutoMovieExternalMotionNodeInspection[] =
     inspectExternalMotionNodes(props.nodes, props.parentByIndex);
@@ -66,15 +43,11 @@ export const inspectExternalMotion: (props: {
   // Shared accessors reuse finite FLOAT decoding; each track owns a copy and
   // still checks its times, interpolation-specific arity and quaternion values.
   const decoded: Map<string, number[]> = new Map<string, number[]>();
-  const readOnce: (
+  function readOnce(
     accessorIndex: number,
     expectedType: "SCALAR" | "VEC3" | "VEC4",
     path: string,
-  ) => number[] = (
-    accessorIndex: number,
-    expectedType: "SCALAR" | "VEC3" | "VEC4",
-    path: string,
-  ): number[] => {
+  ): number[] {
     const key: string = `${accessorIndex}:${expectedType}`;
     let values: number[] | undefined = decoded.get(key);
     if (values === undefined) {
@@ -87,7 +60,7 @@ export const inspectExternalMotion: (props: {
       decoded.set(key, values);
     }
     return values.slice();
-  };
+  }
   const takes: IAutoMovieClip[] = props.animations.map(
     (value: unknown, animationIndex: number): IAutoMovieClip => {
       const animation: Record<string, unknown> = object(
@@ -222,45 +195,49 @@ export const inspectExternalMotion: (props: {
     nodeIds,
     takes,
   };
+}
+
+type AutoMovieMotionTargetPath =
+  | "translation"
+  | "rotation"
+  | "scale"
+  | "weights";
+
+/** Accessor shape each target path's output must use. */
+const MOTION_OUTPUT_TYPES: Readonly<
+  Record<AutoMovieMotionTargetPath, "SCALAR" | "VEC3" | "VEC4">
+> = {
+  translation: "VEC3",
+  rotation: "VEC4",
+  scale: "VEC3",
+  weights: "SCALAR",
 };
 
-const motionInterpolation: (
+function motionInterpolation(
   value: unknown,
   path: string,
-) => IAutoMovieTrack["interpolation"] = (
-  value: unknown,
-  path: string,
-): IAutoMovieTrack["interpolation"] => {
+): IAutoMovieTrack["interpolation"] {
   if (value === undefined || value === "LINEAR") return "linear";
   if (value === "STEP") return "step";
   if (value === "CUBICSPLINE") return "cubicspline";
   throw new Error(`${path} must be LINEAR, STEP, or CUBICSPLINE.`);
-};
+}
 
-const validateMotionTimes: (times: number[], path: string) => void = (
-  times: number[],
-  path: string,
-): void => {
+function validateMotionTimes(times: number[], path: string): void {
   for (let index: number = 0; index < times.length; ++index)
     if (times[index]! < 0 || (index > 0 && times[index]! <= times[index - 1]!))
       throw new Error(
         `${path} keyframe times must be non-negative and strictly increasing.`,
       );
-};
+}
 
-const validateMotionOutput: (props: {
+function validateMotionOutput(props: {
   path: string;
   targetPath: AutoMovieMotionTargetPath;
   interpolation: IAutoMovieTrack["interpolation"];
   keyframes: number;
   values: number[];
-}) => void = (props: {
-  path: string;
-  targetPath: AutoMovieMotionTargetPath;
-  interpolation: IAutoMovieTrack["interpolation"];
-  keyframes: number;
-  values: number[];
-}): void => {
+}): void {
   const factor: number = props.interpolation === "cubicspline" ? 3 : 1;
   const width: number | null =
     props.targetPath === "weights"
@@ -291,4 +268,4 @@ const validateMotionOutput: (props: {
     if (Math.abs(magnitude - 1) > 1e-4)
       throw new Error(`${props.path} contains a non-unit rotation keyframe.`);
   }
-};
+}

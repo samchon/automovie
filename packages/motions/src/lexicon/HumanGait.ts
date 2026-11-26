@@ -14,7 +14,7 @@ import { run } from "../actions/run";
 import { walk } from "../actions/walk";
 import { walkCadence } from "../actions/walkCadence";
 import { walkStation } from "../actions/walkStation";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GAIT_HURRY } from "../next/presets/HUMAN_GAIT_HURRY";
 import { HUMAN_GAIT_STROLL } from "../next/presets/HUMAN_GAIT_STROLL";
 import { HUMAN_GAIT_SWAGGER } from "../next/presets/HUMAN_GAIT_SWAGGER";
@@ -101,7 +101,7 @@ export namespace HumanGait {
    */
   export const stroll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["stroll"]
-  > = HumanActionRow("stroll", walk, HUMAN_GAIT_STROLL);
+  > = AutoMovieMotionHumanActionRow.of("stroll", walk, HUMAN_GAIT_STROLL);
 
   /**
    * The hurry: the walk with the hurry preset's pace, step and arm swing fixed
@@ -109,7 +109,7 @@ export namespace HumanGait {
    */
   export const hurry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["hurry"]
-  > = HumanActionRow("hurry", walk, HUMAN_GAIT_HURRY);
+  > = AutoMovieMotionHumanActionRow.of("hurry", walk, HUMAN_GAIT_HURRY);
 
   /**
    * The weary trudge: the walk with the trudge preset's pace, step and arm
@@ -117,7 +117,7 @@ export namespace HumanGait {
    */
   export const trudge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["trudge"]
-  > = HumanActionRow("trudge", walk, HUMAN_GAIT_TRUDGE);
+  > = AutoMovieMotionHumanActionRow.of("trudge", walk, HUMAN_GAIT_TRUDGE);
 
   /**
    * The swagger: the walk with the swagger preset's pace, arm swing and elbows
@@ -125,7 +125,7 @@ export namespace HumanGait {
    */
   export const swagger: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["swagger"]
-  > = HumanActionRow("swagger", walk, HUMAN_GAIT_SWAGGER);
+  > = AutoMovieMotionHumanActionRow.of("swagger", walk, HUMAN_GAIT_SWAGGER);
 
   /**
    * A jog: the `jog` run (about 2.3 m/s, about 165 steps a minute); exercise,
@@ -134,7 +134,7 @@ export namespace HumanGait {
    */
   export const jog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["jog"]
-  > = HumanActionRow("jog", run, { pace: "jog" });
+  > = AutoMovieMotionHumanActionRow.of("jog", run, { pace: "jog" });
 
   /**
    * A sprint: the `sprint` run (about 6.8 m/s, about 234 steps a minute); a
@@ -143,7 +143,7 @@ export namespace HumanGait {
    */
   export const sprint: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["sprint"]
-  > = HumanActionRow("sprint", run, { pace: "sprint" });
+  > = AutoMovieMotionHumanActionRow.of("sprint", run, { pace: "sprint" });
 
   /**
    * The march: steps a minute, the step in metres (the regulation's 30 inches,

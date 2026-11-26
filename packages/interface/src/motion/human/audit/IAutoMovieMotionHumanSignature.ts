@@ -15,10 +15,15 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
  * the bounds and their sources belong to the test.
  *
  * ```ts
- * const reader = HumanSignature(performance, "a", body, 0);
+ * const reader = AutoMovieMotionHumanSignature.read(
+ *   performance,
+ *   "a",
+ *   body,
+ *   0,
+ * );
  * const lean =
- *   HumanSignature.trunk(reader, seconds) -
- *   HumanSignature.trunk(reader, 0);
+ *   AutoMovieMotionHumanSignature.trunk(reader, seconds) -
+ *   AutoMovieMotionHumanSignature.trunk(reader, 0);
  * ```
  *
  * Conventions: the performer's forward is the heading given to the reader, so a

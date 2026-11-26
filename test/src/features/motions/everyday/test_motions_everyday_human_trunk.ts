@@ -178,8 +178,8 @@ namespace part_human_trunk_region {
    * colliders.
    *
    * The body is built whole (`humanFixtureBody`): a region is placed by forward
-   * kinematics over the rig and the surfaces, records `createHumanBody`
-   * derives.
+   * kinematics over the rig and the surfaces, records
+   * `AutoMovieMotionHumanBody.create` derives.
    *
    * Scenarios, the average man upright with no joint turned:
    *

@@ -4,14 +4,14 @@ import {
   IAutoMovieDrivenDriver,
   IAutoMovieDriver,
   IAutoMovieNode,
-  IAutoMovieQuaternion,
   type IAutoMovieSampledChannel,
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { channelKey } from "./channelKey";
 import { evaluateDrivenCurve } from "./evaluateDrivenCurve";
+import { lerpChannelValues } from "./internal/lerpChannelValues";
+import { slerpChannelValues } from "./internal/slerpChannelValues";
 import { orderValueDrivers } from "./orderValueDrivers";
 
 /** The two channel-space drivers this pass resolves (no world transform needed). */
@@ -97,8 +97,8 @@ const writeBlend: (
     nodesById,
   );
   const result: number[] = isRotation
-    ? slerpArray(owner, source, d.influence)
-    : lerpArray(owner, source, d.influence);
+    ? slerpChannelValues(owner, source, d.influence)
+    : lerpChannelValues(owner, source, d.influence);
   setChannel(
     sampled,
     `node:${d.owner}:${path}`,
@@ -310,23 +310,4 @@ const setChannel: (
   const existing: IAutoMovieSampledChannel | undefined = sampled.get(key);
   if (existing !== undefined) existing.value = value;
   else sampled.set(key, { channel, value });
-};
-
-const lerpArray: (a: number[], b: number[], t: number) => number[] = (
-  a: number[],
-  b: number[],
-  t: number,
-): number[] => a.map((v: number, i: number): number => v + (b[i]! - v) * t);
-
-const slerpArray: (a: number[], b: number[], t: number) => number[] = (
-  a: number[],
-  b: number[],
-  t: number,
-): number[] => {
-  const q: IAutoMovieQuaternion = Quaternion.slerp(
-    { x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! },
-    { x: b[0]!, y: b[1]!, z: b[2]!, w: b[3]! },
-    t,
-  );
-  return [q.x, q.y, q.z, q.w];
 };

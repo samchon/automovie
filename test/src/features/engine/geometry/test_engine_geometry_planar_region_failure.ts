@@ -17,6 +17,7 @@ import { TestValidator } from "@nestia/e2e";
  *    the label "section" names the ring.
  * 3. Ring relations: a hole touching the outer ring at (0, 1) (outer edge 3, hole
  *    edge 0); a hole outside the outer ring; a hole inside another hole.
+ * 4. A unit square at (1e8, 1e8) has nonzero area and passes admission.
  */
 export function test_engine_geometry_planar_region_failure(): void {
   const ring = (...xy: number[]): IAutoMoviePlanarPoint[] =>
@@ -95,4 +96,18 @@ export function test_engine_geometry_planar_region_failure(): void {
       autoMoviePlanarRegionFailure({ outer, holes }),
       message,
     );
+
+  // 4.
+  const offset: number = 1e8;
+  const translated: IAutoMoviePlanarPoint[] = [
+    { x: offset, y: offset },
+    { x: offset + 1, y: offset },
+    { x: offset + 1, y: offset + 1 },
+    { x: offset, y: offset + 1 },
+  ];
+  TestValidator.equals(
+    "translated square admitted",
+    autoMoviePlanarRegionFailure({ outer: translated }),
+    null,
+  );
 }

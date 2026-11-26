@@ -8,7 +8,7 @@ import type {
 
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { handToFace } from "../daily/handToFace";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_TOUCH_SOCIAL_COMFORT } from "../next/presets/HUMAN_TOUCH_SOCIAL_COMFORT";
 import { HUMAN_TOUCH_SOCIAL_FIRM_PRESS } from "../next/presets/HUMAN_TOUCH_SOCIAL_FIRM_PRESS";
 import { HUMAN_TOUCH_SOCIAL_SHOULDER_PAT } from "../next/presets/HUMAN_TOUCH_SOCIAL_SHOULDER_PAT";
@@ -82,7 +82,7 @@ export namespace HumanSocial {
    */
   export const whisper: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["whisper"]
-  > = HumanActionRow("whisper", kiss, {
+  > = AutoMovieMotionHumanActionRow.of("whisper", kiss, {
     region: "earLeft",
     hold: 2,
   });
@@ -93,7 +93,7 @@ export namespace HumanSocial {
    */
   export const cheekKiss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["cheekKiss"]
-  > = HumanActionRow("cheekKiss", kiss, {
+  > = AutoMovieMotionHumanActionRow.of("cheekKiss", kiss, {
     region: "cheekLeft",
   });
 
@@ -103,7 +103,7 @@ export namespace HumanSocial {
    */
   export const foreheadKiss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["foreheadKiss"]
-  > = HumanActionRow("foreheadKiss", kiss, {
+  > = AutoMovieMotionHumanActionRow.of("foreheadKiss", kiss, {
     region: "forehead",
   });
 
@@ -115,7 +115,11 @@ export namespace HumanSocial {
    */
   export const shoulderPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["shoulderPat"]
-  > = HumanActionRow("shoulderPat", touch, HUMAN_TOUCH_SOCIAL_SHOULDER_PAT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "shoulderPat",
+    touch,
+    HUMAN_TOUCH_SOCIAL_SHOULDER_PAT,
+  );
 
   /**
    * A comforting hand held on the partner. Held 2 s after the reach
@@ -123,7 +127,11 @@ export namespace HumanSocial {
    */
   export const comfort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["comfort"]
-  > = HumanActionRow("comfort", touch, HUMAN_TOUCH_SOCIAL_COMFORT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "comfort",
+    touch,
+    HUMAN_TOUCH_SOCIAL_COMFORT,
+  );
 
   /**
    * A fist bump, one role of it. The fists stay together 0.1 s, then return in
@@ -132,7 +140,7 @@ export namespace HumanSocial {
    */
   export const fistBump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["fistBump"]
-  > = HumanActionRow("fistBump", highFive, {
+  > = AutoMovieMotionHumanActionRow.of("fistBump", highFive, {
     kind: "fist",
   });
 
@@ -143,7 +151,7 @@ export namespace HumanSocial {
    */
   export const lowFive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["lowFive"]
-  > = HumanActionRow("lowFive", highFive, {
+  > = AutoMovieMotionHumanActionRow.of("lowFive", highFive, {
     kind: "low",
   });
 
@@ -153,7 +161,7 @@ export namespace HumanSocial {
    */
   export const toastSip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["toastSip"]
-  > = HumanActionRow("toastSip", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("toastSip", handToFace, {
     kind: "sip",
   });
 
@@ -221,7 +229,7 @@ export namespace HumanSocial {
    */
   export const pinkyPromise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["pinkyPromise"]
-  > = HumanActionRow("pinkyPromise", highFive, {
+  > = AutoMovieMotionHumanActionRow.of("pinkyPromise", highFive, {
     kind: "fist",
   });
 
@@ -252,7 +260,11 @@ export namespace HumanSocial {
    */
   export const firmPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["firmPress"]
-  > = HumanActionRow("firmPress", touch, HUMAN_TOUCH_SOCIAL_FIRM_PRESS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "firmPress",
+    touch,
+    HUMAN_TOUCH_SOCIAL_FIRM_PRESS,
+  );
 
   /**
    * A light, quick flick of the fingertips on the partner, as brushing lint off
@@ -263,7 +275,7 @@ export namespace HumanSocial {
    */
   export const flickOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["flickOff"]
-  > = HumanActionRow("flickOff", touch.stroked(touch.FLICK), {
+  > = AutoMovieMotionHumanActionRow.of("flickOff", touch.stroked(touch.FLICK), {
     effector: "fingertips",
     kind: "stroke",
     manner: AutoMovieMotionManner.PRESETS.flick,

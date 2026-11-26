@@ -17,10 +17,10 @@ import {
 } from "@automovie/interface";
 
 import { sampleMotion } from "../motion/sampleMotion";
+import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
+import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { sampleFormationMotion } from "../sampleFormationMotion";
-import { transformFormationPoint } from "../transformFormationPoint";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
 import { foldRoot } from "./foldRoot";

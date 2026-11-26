@@ -33,16 +33,10 @@ export interface IAutoMovieCaptureFolder {
   /** Compared round name, or null when no comparison was requested. */
   readonly compare: string | null;
   /**
-   * Compared complete record read before destination cleanup; null exactly
-   * without comparison.
+   * Observations admitted from the completed earlier round before destination
+   * cleanup, or null without comparison.
    */
-  readonly earlier: Extract<
-    IAutoMovieCaptureRecord,
-    {
-      /** Select only successfully published complete capture records. */
-      state: "complete";
-    }
-  > | null;
+  readonly earlier: IAutoMovieCaptureRecord.IComparison | null;
   /**
    * Compared round directory, or null without comparison. Reads must not mutate
    * it.

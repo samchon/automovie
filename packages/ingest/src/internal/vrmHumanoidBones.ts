@@ -18,13 +18,10 @@ import { validNodeIndex } from "./validNodeIndex";
  * does not validate a complete VRM schema, unique target nodes or skin
  * weights.
  */
-export const vrmHumanoidBones: (
+export function vrmHumanoidBones(
   document: Record<string, unknown>,
   nodes: unknown[],
-) => IHumanoidSlot[] = (
-  document: Record<string, unknown>,
-  nodes: unknown[],
-): IHumanoidSlot[] => {
+): IHumanoidSlot[] {
   const extensions: Record<string, unknown> = optionalObject(
     document.extensions,
     "extensions",
@@ -92,16 +89,14 @@ export const vrmHumanoidBones: (
     });
   }
   return [];
-};
+}
 
 /**
  * Read a VRM 0.x bone name as its VRM 1.0 slot. VRM 1.0 renamed the thumb
  * chain, so 0.x `ThumbProximal` is the 1.0 `ThumbMetacarpal` and 0.x
  * `ThumbIntermediate` the 1.0 `ThumbProximal`; every other name is shared.
  */
-const vrm0Bone: (value: unknown) => AutoMovieHumanoidBone | undefined = (
-  value: unknown,
-): AutoMovieHumanoidBone | undefined => {
+function vrm0Bone(value: unknown): AutoMovieHumanoidBone | undefined {
   if (typeof value !== "string") return undefined;
   const migrated: string = Object.hasOwn(VRM0_THUMB_NAMES, value)
     ? VRM0_THUMB_NAMES[value]!
@@ -109,7 +104,7 @@ const vrm0Bone: (value: unknown) => AutoMovieHumanoidBone | undefined = (
   return Object.hasOwn(HUMANOID_BONES, migrated)
     ? (migrated as AutoMovieHumanoidBone)
     : undefined;
-};
+}
 
 const VRM0_THUMB_NAMES: Readonly<Record<string, AutoMovieHumanoidBone>> = {
   leftThumbProximal: "leftThumbMetacarpal",

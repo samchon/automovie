@@ -7,7 +7,7 @@ import { brace } from "../everyday/brace";
 import { crouch } from "../everyday/crouch";
 import { kneel } from "../everyday/kneel";
 import { lieDown } from "../floor/lieDown";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FLOOR_LIE_STILL } from "../next/presets/HUMAN_FLOOR_LIE_STILL";
 import { HUMAN_FLOOR_SIT_CROSS_LEGGED } from "../next/presets/HUMAN_FLOOR_SIT_CROSS_LEGGED";
 import { HUMAN_FLOOR_SIT_ON_FLOOR } from "../next/presets/HUMAN_FLOOR_SIT_ON_FLOOR";
@@ -31,7 +31,11 @@ export namespace HumanPose {
    */
   export const takeAKnee: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["takeAKnee"]
-  > = HumanActionRow("takeAKnee", kneel, HUMAN_SEAT_TAKE_A_KNEE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "takeAKnee",
+    kneel,
+    HUMAN_SEAT_TAKE_A_KNEE,
+  );
 
   /**
    * Kneel, stay 1 s and get up again; checking something low, tying a shoe, a
@@ -40,7 +44,11 @@ export namespace HumanPose {
    */
   export const kneelBriefly: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["kneelBriefly"]
-  > = HumanActionRow("kneelBriefly", kneel, HUMAN_SEAT_KNEEL_BRIEFLY);
+  > = AutoMovieMotionHumanActionRow.of(
+    "kneelBriefly",
+    kneel,
+    HUMAN_SEAT_KNEEL_BRIEFLY,
+  );
 
   /**
    * Sit back on the heels from both knees and stay, the floor seat of a
@@ -48,7 +56,7 @@ export namespace HumanPose {
    */
   export const kneelSit: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["kneelSit"]
-  > = HumanActionRow("kneelSit", kneel, HUMAN_SEAT_KNEEL_SIT);
+  > = AutoMovieMotionHumanActionRow.of("kneelSit", kneel, HUMAN_SEAT_KNEEL_SIT);
 
   /**
    * Sit down on the floor with the legs ahead and stay three seconds
@@ -56,12 +64,20 @@ export namespace HumanPose {
    */
   export const sitOnFloor: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitOnFloor"]
-  > = HumanActionRow("sitOnFloor", lieDown, HUMAN_FLOOR_SIT_ON_FLOOR);
+  > = AutoMovieMotionHumanActionRow.of(
+    "sitOnFloor",
+    lieDown,
+    HUMAN_FLOOR_SIT_ON_FLOOR,
+  );
 
   /** Sit down on the floor cross-legged and stay three seconds (provisional). */
   export const sitCrossLegged: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitCrossLegged"]
-  > = HumanActionRow("sitCrossLegged", lieDown, HUMAN_FLOOR_SIT_CROSS_LEGGED);
+  > = AutoMovieMotionHumanActionRow.of(
+    "sitCrossLegged",
+    lieDown,
+    HUMAN_FLOOR_SIT_CROSS_LEGGED,
+  );
 
   /**
    * Sit down on the floor with both legs folded to the right, leaning on the
@@ -69,7 +85,11 @@ export namespace HumanPose {
    */
   export const sitSideways: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["sitSideways"]
-  > = HumanActionRow("sitSideways", lieDown, HUMAN_FLOOR_SIT_SIDEWAYS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "sitSideways",
+    lieDown,
+    HUMAN_FLOOR_SIT_SIDEWAYS,
+  );
 
   /**
    * Squat fully, heels up, and hold three seconds (provisional), as people sit
@@ -78,7 +98,11 @@ export namespace HumanPose {
    */
   export const squatSit: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["squatSit"]
-  > = HumanActionRow("squatSit", crouch, HUMAN_STANCE_SQUAT_SIT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "squatSit",
+    crouch,
+    HUMAN_STANCE_SQUAT_SIT,
+  );
 
   /**
    * Duck down and hold 2 s, as behind cover: the partial crouch takes 1.0 s
@@ -87,7 +111,11 @@ export namespace HumanPose {
    */
   export const takeCover: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["takeCover"]
-  > = HumanActionRow("takeCover", crouch, HUMAN_STANCE_TAKE_COVER);
+  > = AutoMovieMotionHumanActionRow.of(
+    "takeCover",
+    crouch,
+    HUMAN_STANCE_TAKE_COVER,
+  );
 
   /**
    * Lie down and stay 3 s (provisional), as to sleep or to play dead; the
@@ -95,7 +123,11 @@ export namespace HumanPose {
    */
   export const lieStill: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["lieStill"]
-  > = HumanActionRow("lieStill", lieDown, HUMAN_FLOOR_LIE_STILL);
+  > = AutoMovieMotionHumanActionRow.of(
+    "lieStill",
+    lieDown,
+    HUMAN_FLOOR_LIE_STILL,
+  );
 
   /**
    * Brace for an impact: the brace of kind `impact`, set 0.6 s after the start
@@ -104,7 +136,7 @@ export namespace HumanPose {
    */
   export const braceForImpact: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["braceForImpact"]
-  > = HumanActionRow("braceForImpact", brace, {
+  > = AutoMovieMotionHumanActionRow.of("braceForImpact", brace, {
     kind: "impact",
   });
 
@@ -114,7 +146,7 @@ export namespace HumanPose {
    */
   export const startle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["startle"]
-  > = HumanActionRow("startle", flinch, { intensity: 1 });
+  > = AutoMovieMotionHumanActionRow.of("startle", flinch, { intensity: 1 });
 
   /**
    * A wince: the slight flinch, 0.4 of the startle's size in the same 0.6 s
@@ -122,7 +154,7 @@ export namespace HumanPose {
    */
   export const wince: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["wince"]
-  > = HumanActionRow("wince", flinch, { intensity: 0.4 });
+  > = AutoMovieMotionHumanActionRow.of("wince", flinch, { intensity: 0.4 });
 
   /**
    * A stumble from a shove that the body steps out of: a push of 0.5 m/s from
@@ -143,5 +175,5 @@ export namespace HumanPose {
    */
   export const stumble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pose"]["stumble"]
-  > = HumanActionRow("stumble", stagger, { speed: 0.5 });
+  > = AutoMovieMotionHumanActionRow.of("stumble", stagger, { speed: 0.5 });
 }

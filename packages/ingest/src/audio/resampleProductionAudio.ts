@@ -80,7 +80,7 @@ const STOPBAND_DB: number = 80;
 const TABLE_DENSITY: number = 512;
 
 /** Modified Bessel function of the first kind, order zero, by its power series. */
-const besselI0: (x: number) => number = (x: number): number => {
+function besselI0(x: number): number {
   let sum: number = 1;
   let term: number = 1;
   for (let k: number = 1; term > sum * 1e-21; ++k) {
@@ -88,7 +88,7 @@ const besselI0: (x: number) => number = (x: number): number => {
     sum += term;
   }
   return sum;
-};
+}
 
 /**
  * The windowed sinc `sinc(u) × I0(β √(1 − (u/Z)²)) / I0(β)` at `u = i /

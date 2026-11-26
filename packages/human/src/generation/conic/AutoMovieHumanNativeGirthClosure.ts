@@ -1,5 +1,5 @@
 import { AutoMovieHumanConicSection as S } from "./AutoMovieHumanConicSection";
-import { AutoMovieViewChain } from "@automovie/engine";
+import { AutoMovieEnginePlanarHull, AutoMovieViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicSection,
@@ -70,26 +70,7 @@ export namespace AutoMovieHumanNativeGirthClosure {
       return [r * Math.cos(phi), r * Math.sin(phi)];
     });
 
-    // Andrew's monotone chain: the lower and the upper hull of the points sorted by coordinate.
-    const sorted: AutoMovieVector2Tuple[] = [...points].sort((a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple): number => a[0] - b[0] || a[1] - b[1]);
-    const turn = (o: AutoMovieVector2Tuple, a: AutoMovieVector2Tuple, b: AutoMovieVector2Tuple): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const half = (source: readonly AutoMovieVector2Tuple[]): AutoMovieVector2Tuple[] => {
-      const out: AutoMovieVector2Tuple[] = [];
-      for (const p of source) {
-        while (out.length >= 2 && turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0) out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    const hull: AutoMovieVector2Tuple[] = [...half(sorted), ...half([...sorted].reverse())];
-    let sum: number = 0;
-    for (let i: number = 0; i < hull.length; ++i) {
-      const a: AutoMovieVector2Tuple = hull[i]!;
-      const b: AutoMovieVector2Tuple = hull[(i + 1) % hull.length]!;
-      sum += Math.hypot(b[0] - a[0], b[1] - a[1]);
-    }
-    return sum;
+    return AutoMovieEnginePlanarHull.perimeter(points, 0, 1);
   }
 
   /**

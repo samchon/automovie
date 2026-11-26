@@ -7,12 +7,6 @@ import type {
 
 import { positiveModulo } from "../math/positiveModulo";
 
-/** Smallest metre length counted as a real gap or overlap. */
-const LENGTH_EPSILON: number = 1e-9;
-
-/** Smallest surviving-fraction shortfall counted as a real sliver. */
-const COVERAGE_EPSILON: number = 1e-12;
-
 /**
  * Measure every laid piece and every neighbouring pair against the declaration.
  *
@@ -44,13 +38,10 @@ const COVERAGE_EPSILON: number = 1e-12;
  * @param placements The run's placements, in run order.
  * @returns Every quality finding, per-piece findings first.
  */
-export const autoMoviePatternFindings: (
+export function autoMoviePatternFindings(
   pattern: IAutoMovieSurfacePattern,
   placements: readonly IAutoMoviePatternPlacement[],
-) => IAutoMoviePatternFinding[] = (
-  pattern: IAutoMovieSurfacePattern,
-  placements: readonly IAutoMoviePatternPlacement[],
-): IAutoMoviePatternFinding[] => {
+): IAutoMoviePatternFinding[] {
   const findings: IAutoMoviePatternFinding[] = [];
   for (const placement of placements) {
     if (placement.coverage < pattern.minimumPiece - COVERAGE_EPSILON)
@@ -107,20 +98,30 @@ export const autoMoviePatternFindings: (
     },
   );
   return findings;
-};
+}
+
+/** Smallest metre length counted as a real gap or overlap. */
+const LENGTH_EPSILON: number = 1e-9;
+
+/** Smallest surviving-fraction shortfall counted as a real sliver. */
+const COVERAGE_EPSILON: number = 1e-12;
+
+/** The extreme projections of a polygon in metres on a unit axis. */
+interface IProjectionInterval {
+  /** Smallest projected coordinate. */
+  readonly min: number;
+
+  /** Largest projected coordinate. */
+  readonly max: number;
+}
 
 /** Append the pair findings one neighbouring pair raises. */
-const judgePair: (
+function judgePair(
   pattern: IAutoMovieSurfacePattern,
   placement: IAutoMoviePatternPlacement,
   other: IAutoMoviePatternPlacement,
   findings: IAutoMoviePatternFinding[],
-) => void = (
-  pattern: IAutoMovieSurfacePattern,
-  placement: IAutoMoviePatternPlacement,
-  other: IAutoMoviePatternPlacement,
-  findings: IAutoMoviePatternFinding[],
-): void => {
+): void {
   const gap: number = separation(placement.outline, other.outline);
   if (gap < -LENGTH_EPSILON) {
     findings.push({
@@ -151,30 +152,23 @@ const judgePair: (
       limit: pattern.grainToleranceDeg,
       detail: `neighbouring occurrences "${placement.id}" and "${other.id}" run their grain ${deviation}° apart, above the ${pattern.grainToleranceDeg}° tolerance`,
     });
-};
+}
 
 /** The grid cell key of a placement's centre, offset by whole cells. */
-const bucketKey: (
+function bucketKey(
   placement: IAutoMoviePatternPlacement,
   cellSize: number,
   du: number,
   dv: number,
-) => string = (
-  placement: IAutoMoviePatternPlacement,
-  cellSize: number,
-  du: number,
-  dv: number,
-): string =>
-  `${Math.floor(placement.center.u / cellSize) + du},${Math.floor(placement.center.v / cellSize) + dv}`;
+): string {
+  return `${Math.floor(placement.center.u / cellSize) + du},${Math.floor(placement.center.v / cellSize) + dv}`;
+}
 
 /** Smallest in-plane angle between two 180-periodic grain directions. */
-const grainDeviation: (left: number, right: number) => number = (
-  left: number,
-  right: number,
-): number => {
+function grainDeviation(left: number, right: number): number {
   const delta: number = positiveModulo(left - right, 180);
   return Math.min(delta, 180 - delta);
-};
+}
 
 /**
  * The gap between two convex pieces, measured along their own edge normals.
@@ -184,13 +178,10 @@ const grainDeviation: (left: number, right: number) => number = (
  * edge normals. A negative result is a real overlap, because no axis separated
  * them.
  */
-const separation: (
+function separation(
   left: readonly IAutoMoviePatternPoint[],
   right: readonly IAutoMoviePatternPoint[],
-) => number = (
-  left: readonly IAutoMoviePatternPoint[],
-  right: readonly IAutoMoviePatternPoint[],
-): number => {
+): number {
   let best: number = Number.NEGATIVE_INFINITY;
   for (const polygon of [left, right])
     for (let index: number = 0; index < polygon.length; ++index) {
@@ -205,21 +196,18 @@ const separation: (
         u: axis.u / length,
         v: axis.v / length,
       };
-      const a: { min: number; max: number } = project(left, normal);
-      const b: { min: number; max: number } = project(right, normal);
+      const a: IProjectionInterval = project(left, normal);
+      const b: IProjectionInterval = project(right, normal);
       best = Math.max(best, Math.max(b.min - a.max, a.min - b.max));
     }
   return best;
-};
+}
 
 /** The interval a polygon's corners cover along one unit axis. */
-const project: (
+function project(
   polygon: readonly IAutoMoviePatternPoint[],
   axis: IAutoMoviePatternPoint,
-) => { min: number; max: number } = (
-  polygon: readonly IAutoMoviePatternPoint[],
-  axis: IAutoMoviePatternPoint,
-): { min: number; max: number } => {
+): IProjectionInterval {
   let min: number = Number.POSITIVE_INFINITY;
   let max: number = Number.NEGATIVE_INFINITY;
   for (const point of polygon) {
@@ -228,4 +216,4 @@ const project: (
     max = Math.max(max, value);
   }
   return { min, max };
-};
+}

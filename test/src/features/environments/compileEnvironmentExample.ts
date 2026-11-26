@@ -20,10 +20,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanGait,
   HumanChain,
   HumanPerformance,
-  createHumanBody,
 } from "@automovie/motions";
 
 import { environmentExampleBody } from "./environmentExampleBody";
@@ -55,7 +55,7 @@ export function compileEnvironmentExample(
       performers: [
         {
           subject,
-          body: createHumanBody(rig, body.profile),
+          body: AutoMovieMotionHumanBody.create(rig, body.profile),
           at: { x: 0, y: 0, z: 0 },
           yaw: 0,
           proficiency: { level: "trained" },

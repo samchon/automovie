@@ -1,6 +1,6 @@
 import type { IAutoMovieMotionHumanResolve } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanResolve } from "../compose/AutoMovieMotionHumanResolve";
 import { MotionBodies } from "./MotionBodies";
 import type { humanPolygonMan } from "./humanPolygonMan";
@@ -35,7 +35,10 @@ const main = (): void => {
     AutoMovieMotionHumanResolve.swivel(
       men.map((man: humanPolygonMan.IPolygonMan) => ({
         name: man.id,
-        body: createHumanBody(man.body.skeleton, man.body.profile),
+        body: AutoMovieMotionHumanBody.create(
+          man.body.skeleton,
+          man.body.profile,
+        ),
       })),
     ),
   );

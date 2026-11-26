@@ -1,4 +1,9 @@
-import { Quaternion, Vector3, physicalShapeBounds } from "@automovie/engine";
+import {
+  AutoMovieEnginePlanarHull,
+  Quaternion,
+  Vector3,
+  physicalShapeBounds,
+} from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanObject,
@@ -264,33 +269,13 @@ export namespace HumanObstacle {
    * on a straight run (Andrew's monotone chain); `y` is 0.
    */
   const hull = (points: readonly IAutoMovieVector3[]): IAutoMovieVector3[] => {
-    const sorted: IAutoMovieVector3[] = [...points].sort(
-      (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-        a.x - b.x || a.z - b.z,
-    );
-    const turn = (
-      o: IAutoMovieVector3,
-      a: IAutoMovieVector3,
-      b: IAutoMovieVector3,
-    ): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-    const chain = (
-      order: readonly IAutoMovieVector3[],
-    ): IAutoMovieVector3[] => {
-      const out: IAutoMovieVector3[] = [];
-      for (const p of order) {
-        while (
-          out.length >= 2 &&
-          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    if (sorted.length < 3) return [];
-    return [...chain(sorted), ...chain([...sorted].reverse())].map(
-      (p: IAutoMovieVector3): IAutoMovieVector3 => ({ x: p.x, y: 0, z: p.z }),
+    if (points.length < 3) return [];
+    return AutoMovieEnginePlanarHull.vertices(points, "x", "z").map(
+      (point: IAutoMovieVector3): IAutoMovieVector3 => ({
+        x: point.x,
+        y: 0,
+        z: point.z,
+      }),
     );
   };
 

@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { selfAction } from "../touch/selfAction";
 
 /**
@@ -22,7 +22,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfStretch"]
-  > = HumanActionRow("selfStretch", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("selfStretch", selfAction, {
     kind: "stretch",
   });
 
@@ -33,7 +33,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfVictory: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfVictory"]
-  > = HumanActionRow("selfVictory", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("selfVictory", selfAction, {
     kind: "victory",
   });
 
@@ -44,7 +44,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfFistPump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfFistPump"]
-  > = HumanActionRow("selfFistPump", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("selfFistPump", selfAction, {
     kind: "fistPump",
   });
 
@@ -55,7 +55,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfNeckRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfNeckRoll"]
-  > = HumanActionRow("selfNeckRoll", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("selfNeckRoll", selfAction, {
     kind: "neckRoll",
   });
 
@@ -66,7 +66,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfShoulderRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfShoulderRoll"]
-  > = HumanActionRow("selfShoulderRoll", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("selfShoulderRoll", selfAction, {
     kind: "shoulderRoll",
   });
 }

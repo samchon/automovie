@@ -2,11 +2,9 @@ import { object } from "./object";
 import { optionalArray } from "./optionalArray";
 
 /** Establish a unique-parent acyclic glTF node forest. */
-export const inspectExternalModelHierarchy: (
+export function inspectExternalModelHierarchy(
   values: unknown[],
-) => Array<number | undefined> = (
-  values: unknown[],
-): Array<number | undefined> => {
+): Array<number | undefined> {
   const parentByIndex: Array<number | undefined> = new Array<
     number | undefined
   >(values.length);
@@ -48,4 +46,4 @@ export const inspectExternalModelHierarchy: (
     for (const entry of path) state[entry] = 2;
   }
   return parentByIndex;
-};
+}

@@ -12,12 +12,13 @@ import { AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES } from "./AUTO_MOVIE_EXTERNAL
  * @param value Candidate selection of any type.
  * @returns `true` when `value` is one of the profile literals.
  */
-export const isAutoMovieExternalModelIngestProfile: (
+export function isAutoMovieExternalModelIngestProfile(
   value: unknown,
-) => value is AutoMovieExternalModelIngestProfile = (
-  value: unknown,
-): value is AutoMovieExternalModelIngestProfile =>
-  typeof value === "string" &&
-  AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES.includes(
-    value as AutoMovieExternalModelIngestProfile,
+): value is AutoMovieExternalModelIngestProfile {
+  return (
+    typeof value === "string" &&
+    AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES.includes(
+      value as AutoMovieExternalModelIngestProfile,
+    )
   );
+}

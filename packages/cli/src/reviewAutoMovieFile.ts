@@ -87,7 +87,7 @@ export async function reviewAutoMovieFile(props: {
       `Review rebind needs the same subject, ${previous.subject}, but this delivery reports ${report.subject}`,
     );
 
-  const clock: IAutoMovieReviewClock | null = readClock(
+  const clock: IAutoMovieReviewClock | null = await readClock(
     report.delivery,
     sha256,
   );
@@ -169,17 +169,18 @@ async function readPublishedReview(
 }
 
 /** Reads the complete native grid already established on the same encoded bytes. */
-function readClock(
+async function readClock(
   delivery: unknown,
   sha256: string,
-): IAutoMovieReviewClock | null {
+): Promise<IAutoMovieReviewClock | null> {
+  const { AutoMovieEngineFrameClock } = await import("@automovie/engine");
   if (
     !record(delivery) ||
     !record(delivery.source) ||
     delivery.source.sha256 !== sha256 ||
     !record(delivery.expected) ||
     !positiveInteger(delivery.expected.frameCount) ||
-    !ratio(delivery.expected.frameRate) ||
+    !AutoMovieEngineFrameClock.isRatio(delivery.expected.frameRate) ||
     !record(delivery.streams) ||
     !record(delivery.streams.video)
   )
@@ -192,8 +193,8 @@ function readClock(
     !record(video.end) ||
     video.start.ticks !== 0 ||
     !positiveInteger(video.end.ticks) ||
-    !ratio(video.start.timeBase) ||
-    !ratio(video.end.timeBase) ||
+    !AutoMovieEngineFrameClock.isRatio(video.start.timeBase) ||
+    !AutoMovieEngineFrameClock.isRatio(video.end.timeBase) ||
     video.end.timeBase[0] !== video.start.timeBase[0] ||
     video.end.timeBase[1] !== video.start.timeBase[1]
   )
@@ -202,11 +203,13 @@ function readClock(
   const timeBase: IAutoMovieDeliveryContentAudit.Ratio = video.start.timeBase;
   const rate: IAutoMovieDeliveryContentAudit.Ratio =
     delivery.expected.frameRate;
-  const ticksPerFrame: number = video.end.ticks / count;
+  const ticksPerFrame: number | null = AutoMovieEngineFrameClock.ticksPerFrame(
+    timeBase,
+    rate,
+  );
   if (
-    !Number.isSafeInteger(ticksPerFrame) ||
-    BigInt(ticksPerFrame) * BigInt(timeBase[0]) * BigInt(rate[0]) !==
-      BigInt(timeBase[1]) * BigInt(rate[1])
+    ticksPerFrame === null ||
+    AutoMovieEngineFrameClock.boundary(count, ticksPerFrame) !== video.end.ticks
   )
     return null;
   return { frameCount: count, timeBase, ticksPerFrame };
@@ -469,11 +472,4 @@ function whole(value: unknown): value is number {
 /** A finite nonnegative film second. */
 function nonnegative(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
-}
-
-/** Two positive whole terms of a native clock. */
-function ratio(value: unknown): value is IAutoMovieDeliveryContentAudit.Ratio {
-  return (
-    Array.isArray(value) && value.length === 2 && value.every(positiveInteger)
-  );
 }

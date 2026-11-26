@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanHandToBody,
 } from "@automovie/interface";
 
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_HAND_TO_BODY_WIPE_TEARS } from "../next/presets/HUMAN_HAND_TO_BODY_WIPE_TEARS";
 import { handToFace } from "./handToFace";
 
@@ -19,4 +19,8 @@ import { handToFace } from "./handToFace";
  * are authored choices.
  */
 export const wipeTears: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.IWipeTears> =
-  HumanActionRow("wipeTears", handToFace, HUMAN_HAND_TO_BODY_WIPE_TEARS);
+  AutoMovieMotionHumanActionRow.of(
+    "wipeTears",
+    handToFace,
+    HUMAN_HAND_TO_BODY_WIPE_TEARS,
+  );

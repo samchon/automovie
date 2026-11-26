@@ -1,6 +1,4 @@
 import type {
-  IAutoMovieCaptureCellRecord,
-  IAutoMovieCaptureFindingDiff,
   IAutoMovieCaptureRecord,
   IAutoMovieInspectionDiagnostics,
   IAutoMovieProductionCheck,
@@ -38,33 +36,33 @@ export async function inspectAutoMovieProductionCheckCapture(
     message,
     evidence,
   });
-  if (record === null || typeof record !== "object" || !("state" in record))
-    return absent("Run the scoped capture to write its record.");
-  if (record.state !== "complete")
-    return absent("The capture has not finished.");
-  const capture: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
-    record as Extract<IAutoMovieCaptureRecord, { state: "complete" }>;
-  if (
-    capture.subject?.name !== check.subject ||
-    !Array.isArray(capture.rows) ||
-    !Array.isArray(capture.diagnostics?.episodes) ||
-    !Array.isArray(capture.diagnostics?.coverage)
-  )
+  const render: typeof import("@automovie/render") = await loadRender(root);
+  const capture: IAutoMovieCaptureRecord.IObservation =
+    render.AutoMovieRenderCaptureRecord.observe(record);
+  if (capture.type === "unobserved") {
+    switch (capture.reason) {
+      case "missing":
+        return absent("Run the scoped capture to write its record.");
+      case "unfinished":
+        return absent("The capture has not finished.");
+      case "malformed":
+        return absent(
+          "Capture the selected subject with its diagnostic enabled.",
+        );
+    }
+  }
+  if (capture.subject !== check.subject)
     return absent("Capture the selected subject with its diagnostic enabled.");
 
-  const at: IAutoMovieProductionCheck.ICapture["at"] = check.at;
-  if (!validSelection(at))
-    throw new Error(
-      "A capture check needs a finite second or a nonempty frame interval.",
-    );
+  const at: IAutoMovieProductionCheck.ICaptureTime = check.at;
   const atTime = (time: IAutoMovieInspectionDiagnostics.ITime): boolean =>
-    "second" in at
+    at.type === "second"
       ? time.filmSeconds === at.second
       : time.outputFrame !== undefined &&
         at.fromFrame <= time.outputFrame &&
         time.outputFrame < at.endFrame;
-  const rows: IAutoMovieCaptureCellRecord[] = capture.rows.filter(
-    (row: IAutoMovieCaptureCellRecord): boolean =>
+  const rows: IAutoMovieCaptureRecord.IObservationCell[] = capture.rows.filter(
+    (row: IAutoMovieCaptureRecord.IObservationCell): boolean =>
       atTime({
         filmSeconds: row.time.seconds,
         ...(row.time.frame === null ? {} : { outputFrame: row.time.frame }),
@@ -72,7 +70,7 @@ export async function inspectAutoMovieProductionCheckCapture(
   );
   if (
     rows.some(
-      (row: IAutoMovieCaptureCellRecord): boolean =>
+      (row: IAutoMovieCaptureRecord.IObservationCell): boolean =>
         row.view !== check.view || row.pass !== check.pass,
     )
   )
@@ -83,7 +81,8 @@ export async function inspectAutoMovieProductionCheckCapture(
     return absent("The requested samples were not captured.");
   if (
     rows.some(
-      (row: IAutoMovieCaptureCellRecord): boolean => row.state === "failed",
+      (row: IAutoMovieCaptureRecord.IObservationCell): boolean =>
+        row.type === "failed",
     )
   )
     return {
@@ -93,20 +92,25 @@ export async function inspectAutoMovieProductionCheckCapture(
     };
 
   const coverage: readonly IAutoMovieInspectionDiagnostics.ICoverageRange[] =
-    capture.diagnostics.coverage.filter(
+    capture.coverage.filter(
       (range: IAutoMovieInspectionDiagnostics.ICoverageRange): boolean =>
         range.scope === check.occurrence &&
         range.coverage.check === check.diagnostic.check &&
         range.coverage.key === check.diagnostic.key,
     );
-  const expected: number = "second" in at ? 1 : at.endFrame - at.fromFrame;
+  const expected: number =
+    at.type === "second" ? 1 : at.endFrame - at.fromFrame;
   const observed: Set<number> = new Set();
   const directory: string = path.resolve(root, path.dirname(check.record));
   let from: number = Infinity;
   let to: number = -Infinity;
+  const hashPixels = async (bytes: Uint8Array): Promise<string> =>
+    render.hashAutoMovieRasterImage(
+      await render.decodeAutoMovieRasterPng(bytes),
+    );
   for (const row of rows) {
-    if (row.state !== "drawn") continue;
-    const { frame, seconds }: IAutoMovieCaptureCellRecord["time"] = row.time;
+    if (row.type !== "drawn") continue;
+    const { frame, seconds } = row.time;
     const matching: readonly IAutoMovieInspectionDiagnostics.ICoverageRange[] =
       coverage.filter(
         (range: IAutoMovieInspectionDiagnostics.ICoverageRange): boolean =>
@@ -126,7 +130,7 @@ export async function inspectAutoMovieProductionCheckCapture(
         (range: IAutoMovieInspectionDiagnostics.ICoverageRange): boolean =>
           range.coverage.status === "checked",
       ) &&
-      (await retainsStill(row, directory, root, hashFile))
+      (await retainsStill(row, directory, hashFile, hashPixels))
     ) {
       observed.add(frame ?? seconds);
       from = Math.min(from, seconds);
@@ -139,7 +143,7 @@ export async function inspectAutoMovieProductionCheckCapture(
     );
 
   const episodes: readonly IAutoMovieInspectionDiagnostics.IEpisode[] =
-    capture.diagnostics.episodes.filter(
+    capture.episodes.filter(
       (episode: IAutoMovieInspectionDiagnostics.IEpisode): boolean =>
         episode.scope === check.occurrence &&
         episode.worst.finding.check === check.diagnostic.check &&
@@ -164,17 +168,12 @@ export async function inspectAutoMovieProductionCheckCapture(
       "Retake the finding's interval to separate possible or neighboring defects.",
     );
 
-  const difference: IAutoMovieCaptureFindingDiff | undefined =
-    capture.comparison?.findings;
   if (
-    difference?.state === "compared" &&
-    difference.entries.some(
+    capture.unmatched.some(
       (entry): boolean =>
-        entry.category === "error" &&
         entry.scope === check.occurrence &&
         entry.check === check.diagnostic.check &&
         entry.key === check.diagnostic.key &&
-        entry.state === "unmatched" &&
         touchesUncovered(entry.uncovered, from, to),
     )
   )
@@ -186,16 +185,6 @@ export async function inspectAutoMovieProductionCheckCapture(
     message: `${observed.size} requested samples checked.`,
     evidence,
   };
-}
-
-/** Admit a nonnegative subject second or an ordered zero-based frame range. */
-function validSelection(at: IAutoMovieProductionCheck.ICapture["at"]): boolean {
-  return "second" in at
-    ? Number.isFinite(at.second) && at.second >= 0
-    : Number.isSafeInteger(at.fromFrame) &&
-        Number.isSafeInteger(at.endFrame) &&
-        0 <= at.fromFrame &&
-        at.fromFrame < at.endFrame;
 }
 
 /**
@@ -221,14 +210,11 @@ function touchesUncovered(
   to: number,
 ): boolean {
   return (
-    !Array.isArray(ranges) ||
+    ranges === undefined ||
     ranges.length === 0 ||
     ranges.some(
       (range: IAutoMovieInspectionDiagnostics.IInterval): boolean =>
-        !Number.isFinite(range?.from) ||
-        !Number.isFinite(range?.to) ||
-        range.from > range.to ||
-        (range.from <= to && from <= range.to),
+        range.from <= to && from <= range.to,
     )
   );
 }
@@ -238,16 +224,12 @@ function touchesUncovered(
  * visible.
  */
 async function retainsStill(
-  row: Extract<IAutoMovieCaptureCellRecord, { state: "drawn" }>,
+  row: IAutoMovieCaptureRecord.IDrawnCell,
   directory: string,
-  root: string,
   hashFile: (file: string) => Promise<string>,
+  hashPixels: (bytes: Uint8Array) => Promise<string>,
 ): Promise<boolean> {
-  if (
-    typeof row.file !== "string" ||
-    !row.file.endsWith(".png") ||
-    row.file !== path.basename(row.file)
-  )
+  if (!row.file.endsWith(".png") || row.file !== path.basename(row.file))
     return false;
   const file: string = path.join(directory, row.file);
   let bytes: Buffer;
@@ -268,25 +250,24 @@ async function retainsStill(
     throw error;
   }
 
-  const render: typeof import("@automovie/render") =
-    await import("@automovie/render").catch(
-      (error: unknown): typeof import("@automovie/render") => {
-        const code: string | undefined = (error as NodeJS.ErrnoException).code;
-        if (code !== "ERR_MODULE_NOT_FOUND" && code !== "MODULE_NOT_FOUND")
-          throw error;
-        return loadAutoMovieProductionModule(
-          root,
-          "@automovie/render",
-        ) as typeof import("@automovie/render");
-      },
-    );
   try {
-    return (
-      render.hashAutoMovieRasterImage(
-        await render.decodeAutoMovieRasterPng(bytes),
-      ) === row.hash
-    );
+    return (await hashPixels(bytes)) === row.hash;
   } catch {
     return false;
   }
+}
+
+/** Load the optional capture package only when a capture check needs it. */
+function loadRender(root: string): Promise<typeof import("@automovie/render")> {
+  return import("@automovie/render").catch(
+    (error: unknown): typeof import("@automovie/render") => {
+      const code: string | undefined = (error as NodeJS.ErrnoException).code;
+      if (code !== "ERR_MODULE_NOT_FOUND" && code !== "MODULE_NOT_FOUND")
+        throw error;
+      return loadAutoMovieProductionModule(
+        root,
+        "@automovie/render",
+      ) as typeof import("@automovie/render");
+    },
+  );
 }

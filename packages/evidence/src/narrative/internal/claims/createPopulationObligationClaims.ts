@@ -32,9 +32,12 @@ export function createPopulationObligationClaims(
   const disabled: boolean = constructionStage(props, layer) === "disabled";
 
   // Older trees can omit supplements and earlier layers' own obligations.
-  const optional: (file: string) => boolean = (file: string): boolean =>
-    file === "realized.md" ||
-    (layer !== "screenplay" && file === `${layer}.md`);
+  function optional(file: string): boolean {
+    return (
+      file === "realized.md" ||
+      (layer !== "screenplay" && file === `${layer}.md`)
+    );
+  }
   const shared: IEvidenceClaim[] = layerFiles(layer)
     .filter(
       (file: string): boolean =>

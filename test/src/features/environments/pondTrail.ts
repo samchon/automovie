@@ -17,9 +17,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   HumanChain,
   HumanPerformance,
-  createHumanBody,
 } from "@automovie/motions";
 
 import { createModel } from "../internal/createModel";
@@ -115,7 +115,7 @@ export function pondTrail(): compileEnvironmentExample.IInput {
     performers: [
       {
         subject: walker.node,
-        body: createHumanBody(model.skeleton, model.profile),
+        body: AutoMovieMotionHumanBody.create(model.skeleton, model.profile),
         at: walker.position,
         yaw: walker.facingDeg,
         proficiency: { level: "trained" },

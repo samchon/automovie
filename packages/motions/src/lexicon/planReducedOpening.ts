@@ -21,7 +21,7 @@ import type {
 } from "@automovie/interface";
 
 import { walk } from "../actions/walk";
-import { HumanSignature } from "../audit/HumanSignature";
+import { AutoMovieMotionHumanSignature } from "../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
 import { HumanColliders } from "../posture/HumanColliders";
@@ -218,7 +218,10 @@ function measureOpening(
   const project: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
   const envelope: IOpeningEnvelope = { left: 0, right: 0, height: 0 };
-  for (const t of [...HumanSignature.times(0, plan.duration), plan.duration]) {
+  for (const t of [
+    ...AutoMovieMotionHumanSignature.times(0, plan.duration),
+    plan.duration,
+  ]) {
     const current: IAutoMovieMotionHumanPosture = plan.posture(t);
     const fit: IAutoMoviePose = resolveHumanPosture.seeded(
       body,

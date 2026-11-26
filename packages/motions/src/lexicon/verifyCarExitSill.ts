@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSignature } from "../audit/HumanSignature";
+import { AutoMovieMotionHumanSignature } from "../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMaterialContact } from "../posture/HumanMaterialContact";
 import { crossingClearance } from "../terrain/crossingClearance";
@@ -108,7 +108,7 @@ export function verifyCarExitSill(
   let lowest: IAutoMovieMotionHumanContactWindow.IMaterial | undefined;
   let at: number = 0;
   for (const seconds of new Set([
-    ...HumanSignature.times(0, duration, 240),
+    ...AutoMovieMotionHumanSignature.times(0, duration, 240),
     ...marks,
     duration,
   ])) {

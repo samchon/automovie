@@ -22,7 +22,7 @@ import { operate } from "../affordance/operate";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_ARCHERY_PRESENT_BOW } from "../next/presets/HUMAN_ARCHERY_PRESENT_BOW";
 import { HumanHand } from "../posture/HumanHand";
@@ -75,14 +75,14 @@ export namespace HumanArchery {
   /** Take an arrow by its shaft. */
   export const takeArrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["takeArrow"]
-  > = HumanActionRow("takeArrow", pickUp, {
+  > = AutoMovieMotionHumanActionRow.of("takeArrow", pickUp, {
     handle: "nockGrip",
   });
 
   /** The nocking as a plain put-down row, before the arrow's own nock is named. */
   const nockRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
-  > = HumanActionRow("nockArrow", putDown, {});
+  > = AutoMovieMotionHumanActionRow.of("nockArrow", putDown, {});
 
   /**
    * Set the arrow's nock on the bow's string: the arrow's own `nock` socket is
@@ -112,7 +112,7 @@ export namespace HumanArchery {
   /** Hold the bow out in one hand on the line from the face to the target. */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "presentBow",
     HumanWeaponPresent.present,
     HUMAN_ARCHERY_PRESENT_BOW,
@@ -121,7 +121,7 @@ export namespace HumanArchery {
   /** The draw as a plain operation row, before the bow is read off the bow arm. */
   const drawRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
-  > = HumanActionRow("drawBow", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("drawBow", operate, {});
 
   /**
    * Draw the string back to the anchor, over `presentBow`: the string is read
@@ -146,7 +146,7 @@ export namespace HumanArchery {
   export const loose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
   > = {
-    ...HumanActionRow("loose", release, {}),
+    ...AutoMovieMotionHumanActionRow.of("loose", release, {}),
     plan: (
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
@@ -169,15 +169,19 @@ export namespace HumanArchery {
   /** Span a crossbow by its string or its crank. */
   export const spanCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["spanCrossbow"]
-  > = HumanActionRow("spanCrossbow", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("spanCrossbow", operate, {});
 
   /** Present the crossbow at the cheek with the prop's fixed rail mark. */
   export const presentCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentCrossbow"]
   > = {
-    ...HumanActionRow("presentCrossbow", HumanWeaponPresent.present, {
-      anchor: "cheek",
-    }),
+    ...AutoMovieMotionHumanActionRow.of(
+      "presentCrossbow",
+      HumanWeaponPresent.present,
+      {
+        anchor: "cheek",
+      },
+    ),
     plan: (
       context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWeaponPresent.IPresent>,
     ): IAutoMovieMotionHumanActionPlan =>
@@ -201,7 +205,11 @@ export namespace HumanArchery {
   export const shootCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
   > = {
-    ...HumanActionRow("shootCrossbow", HumanWeaponPresent.fire, {}),
+    ...AutoMovieMotionHumanActionRow.of(
+      "shootCrossbow",
+      HumanWeaponPresent.fire,
+      {},
+    ),
     plan: (
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]

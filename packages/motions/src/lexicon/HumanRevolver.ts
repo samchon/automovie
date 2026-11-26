@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * A revolver's handling, each a row of `operate` on the revolver's affordances:
@@ -21,25 +21,25 @@ export namespace HumanRevolver {
   /** Cock the hammer with the thumb. */
   export const cock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["cock"]
-  > = HumanActionRow("cockRevolver", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("cockRevolver", operate, {});
 
   /** Fan the hammer with the other palm. */
   export const fanHammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["fanHammer"]
-  > = HumanActionRow("fanHammer", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("fanHammer", operate, {});
 
   /** Open the loading gate. */
   export const openGate: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["openGate"]
-  > = HumanActionRow("openGate", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("openGate", operate, {});
 
   /** Load a cartridge into the chamber at the gate. */
   export const loadChamber: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["loadChamber"]
-  > = HumanActionRow("loadChamber", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("loadChamber", operate, {});
 
   /** Close the loading gate. */
   export const closeGate: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["closeGate"]
-  > = HumanActionRow("closeGate", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("closeGate", operate, {});
 }

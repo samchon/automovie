@@ -12,10 +12,10 @@ import type {
 } from "@automovie/interface";
 
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
+import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
+import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { sampleFormationMotion } from "../sampleFormationMotion";
-import { transformFormationPoint } from "../transformFormationPoint";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 

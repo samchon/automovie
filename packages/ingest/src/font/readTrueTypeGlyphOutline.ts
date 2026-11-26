@@ -6,39 +6,6 @@ import type {
 import type { TrueTypeByteReader } from "./TrueTypeByteReader";
 
 /**
- * Deepest component nesting a composite glyph may use; real fonts nest one or
- * two levels.
- */
-const MAX_COMPONENT_DEPTH: number = 16;
-
-/**
- * Composite glyph flag (ISO/IEC 14496-22, section 5.3.4, the `glyf` composite
- * glyph description): the component's two arguments are 16-bit, else 8-bit.
- */
-const ARG_1_AND_2_ARE_WORDS: number = 0x0001;
-
-/** Composite flag: the arguments are signed x/y offsets, else point numbers. */
-const ARGS_ARE_XY_VALUES: number = 0x0002;
-
-/** Composite flag: one scale applies to both axes of the component. */
-const WE_HAVE_A_SCALE: number = 0x0008;
-
-/** Composite flag: another component follows this one. */
-const MORE_COMPONENTS: number = 0x0020;
-
-/** Composite flag: the component has separate x and y scales. */
-const WE_HAVE_AN_X_AND_Y_SCALE: number = 0x0040;
-
-/** Composite flag: a 2 × 2 matrix transforms the component. */
-const WE_HAVE_A_TWO_BY_TWO: number = 0x0080;
-
-/** Composite flag: the component's offset is scaled by its transform. */
-const SCALED_COMPONENT_OFFSET: number = 0x0800;
-
-/** Composite flag: the component's offset is not scaled by its transform. */
-const UNSCALED_COMPONENT_OFFSET: number = 0x1000;
-
-/**
  * Read one glyph's outline from `glyf` as closed chains of quadratic segments
  * in font units, resolving a composite glyph into its transformed components.
  *
@@ -87,6 +54,39 @@ export function readTrueTypeGlyphOutline(props: {
 }): IAutoMovieFontSegment[][] {
   return read(props, props.glyph, []);
 }
+
+/**
+ * Deepest component nesting a composite glyph may use; real fonts nest one or
+ * two levels.
+ */
+const MAX_COMPONENT_DEPTH: number = 16;
+
+/**
+ * Composite glyph flag (ISO/IEC 14496-22, section 5.3.4, the `glyf` composite
+ * glyph description): the component's two arguments are 16-bit, else 8-bit.
+ */
+const ARG_1_AND_2_ARE_WORDS: number = 0x0001;
+
+/** Composite flag: the arguments are signed x/y offsets, else point numbers. */
+const ARGS_ARE_XY_VALUES: number = 0x0002;
+
+/** Composite flag: one scale applies to both axes of the component. */
+const WE_HAVE_A_SCALE: number = 0x0008;
+
+/** Composite flag: another component follows this one. */
+const MORE_COMPONENTS: number = 0x0020;
+
+/** Composite flag: the component has separate x and y scales. */
+const WE_HAVE_AN_X_AND_Y_SCALE: number = 0x0040;
+
+/** Composite flag: a 2 × 2 matrix transforms the component. */
+const WE_HAVE_A_TWO_BY_TWO: number = 0x0080;
+
+/** Composite flag: the component's offset is scaled by its transform. */
+const SCALED_COMPONENT_OFFSET: number = 0x0800;
+
+/** Composite flag: the component's offset is not scaled by its transform. */
+const UNSCALED_COMPONENT_OFFSET: number = 0x1000;
 
 /** Read one glyph with the component stack above it. */
 function read(
@@ -195,10 +195,7 @@ function simple(
 
   // Coordinates are deltas: a short delta is one unsigned byte signed by the
   // "same" bit, a long one an i16, and "same" without "short" repeats the last.
-  const axis: (short: number, same: number) => number[] = (
-    short: number,
-    same: number,
-  ): number[] => {
+  function axis(short: number, same: number): number[] {
     const values: number[] = [];
     let value: number = 0;
     for (const flag of flags) {
@@ -212,7 +209,7 @@ function simple(
       values.push(value);
     }
     return values;
-  };
+  }
   const xs: number[] = axis(0x02, 0x10);
   const ys: number[] = axis(0x04, 0x20);
 
@@ -253,15 +250,11 @@ function quadratics(
   }
 
   const segments: IAutoMovieFontSegment[] = [];
-  const push: (
+  function push(
     from: AutoMovieVector2Tuple,
     control: AutoMovieVector2Tuple,
     to: AutoMovieVector2Tuple,
-  ) => void = (
-    from: AutoMovieVector2Tuple,
-    control: AutoMovieVector2Tuple,
-    to: AutoMovieVector2Tuple,
-  ): void => {
+  ): void {
     if (
       from[0] === to[0] &&
       from[1] === to[1] &&
@@ -270,7 +263,7 @@ function quadratics(
     )
       return;
     segments.push({ start: [...from], control: [...control], end: [...to] });
-  };
+  }
   let current: AutoMovieVector2Tuple = start;
   let pending: AutoMovieVector2Tuple | null = null;
   for (const entry of [...sequence, { point: start, on: true }]) {
@@ -331,8 +324,9 @@ function composite(
     let b: number = 0;
     let c: number = 0;
     let d: number = 1;
-    const fixed: (index: number) => number = (index: number): number =>
-      at(span, cursor + index * 2, 2, "i16") / 16384;
+    function fixed(index: number): number {
+      return at(span, cursor + index * 2, 2, "i16") / 16384;
+    }
     if ((flags & WE_HAVE_A_SCALE) !== 0) {
       a = fixed(0);
       d = a;
@@ -354,12 +348,12 @@ function composite(
     )
       [dx, dy] = [a * dx + c * dy, b * dx + d * dy];
 
-    const map: (point: AutoMovieVector2Tuple) => AutoMovieVector2Tuple = (
-      point: AutoMovieVector2Tuple,
-    ): AutoMovieVector2Tuple => [
-      a * point[0] + c * point[1] + dx,
-      b * point[0] + d * point[1] + dy,
-    ];
+    function map(point: AutoMovieVector2Tuple): AutoMovieVector2Tuple {
+      return [
+        a * point[0] + c * point[1] + dx,
+        b * point[0] + d * point[1] + dy,
+      ];
+    }
     for (const contour of read(props, component, stack))
       contours.push(
         contour.map(

@@ -1,4 +1,6 @@
-import { IAutoMovieVector3 } from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
+
+import { AutoMovieEnginePlanarHull } from "./AutoMovieEnginePlanarHull";
 
 /**
  * 2D convex hull and point queries over the horizontal XZ plane.
@@ -17,46 +19,18 @@ export const convexHull2D: (
 ): IAutoMovieVector3[] => {
   const unique: IAutoMovieVector3[] = dedupeXZ(points);
   if (unique.length <= 2) return unique;
-  const sorted: IAutoMovieVector3[] = [...unique].sort(
-    (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
-      a.x - b.x || a.z - b.z,
+
+  const hull: IAutoMovieVector3[] = AutoMovieEnginePlanarHull.vertices(
+    unique,
+    "x",
+    "z",
   );
-  const lower: IAutoMovieVector3[] = [];
-  for (const p of sorted) {
-    while (
-      lower.length >= 2 &&
-      cross(lower[lower.length - 2]!, lower[lower.length - 1]!, p) <= 0
-    )
-      lower.pop();
-    lower.push(p);
-  }
-  const upper: IAutoMovieVector3[] = [];
-  for (let i: number = sorted.length - 1; i >= 0; i--) {
-    const p: IAutoMovieVector3 = sorted[i]!;
-    while (
-      upper.length >= 2 &&
-      cross(upper[upper.length - 2]!, upper[upper.length - 1]!, p) <= 0
-    )
-      upper.pop();
-    upper.push(p);
-  }
-  lower.pop();
-  upper.pop();
-  const hull: IAutoMovieVector3[] = [...lower, ...upper];
+
   // All input points collinear → the chain collapses to the two extremes.
   return hull.length >= 3 ? hull : dedupeXZ(hull);
 };
 
-const cross: (
-  o: IAutoMovieVector3,
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-) => number = (
-  o: IAutoMovieVector3,
-  a: IAutoMovieVector3,
-  b: IAutoMovieVector3,
-): number => (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-
+/** Retain the first original point at each projected floor coordinate. */
 const dedupeXZ: (
   points: readonly IAutoMovieVector3[],
 ) => IAutoMovieVector3[] = (

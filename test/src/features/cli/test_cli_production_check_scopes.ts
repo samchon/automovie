@@ -130,7 +130,7 @@ export async function test_cli_production_check_scopes(): Promise<void> {
             view: "front",
             pass: "beauty",
             diagnostic: { check: "contact", key: "chair" },
-            at: { second: 0 },
+            at: { type: "second", second: 0 },
           },
         ],
         false,

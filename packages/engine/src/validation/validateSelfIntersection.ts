@@ -17,13 +17,15 @@ import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
+import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
 /**
  * Sample valid capsule pairs through FK and warn when segment distance is less
- * than summed radii.
+ * than summed radii. A nonfinite or nonpositive rate yields a range finding
+ * before the pose sweep.
  */
 export const validateSelfIntersection: (
   props: IAutoMovieValidateSelfIntersection.IProps,
@@ -41,7 +43,8 @@ export const validateSelfIntersection: (
     ),
   );
 
-  if (sampleRate <= 0) return rejectSampleRate(collector, path, sampleRate);
+  if (!admitMotionSampleRate(collector, path, sampleRate))
+    return collector.toValidation();
 
   const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(
     props.skeleton,
@@ -113,40 +116,6 @@ export const validateSelfIntersection: (
     },
   );
 
-  return collector.toValidation();
-};
-
-/**
- * Append a range error for nonfinite/nonpositive sampling rate and signal
- * refusal.
- *
- * The check runs before sampleTimes and FK resolution.
- *
- * An explicit bad rate is not replaced by the24Hz default.
- *
- * The returned failed validation and exact sampleRate fault path are stated.
- *
- * Constant finite/comparison work plus failure text is required.
- *
- * The same admitted rate serves all pairs for this call.
- *
- * Only caller-owned diagnostics remain, without a sampler task.
- */
-const rejectSampleRate: (
-  collector: IAutoMovieViolationCollector,
-  path: string,
-  sampleRate: number,
-) => IAutoMovieValidation = (
-  collector: IAutoMovieViolationCollector,
-  path: string,
-  sampleRate: number,
-): IAutoMovieValidation => {
-  collector.push(
-    "range",
-    `${path}.sampleRate`,
-    `sampleRate must be a finite number > 0, but was ${sampleRate}`,
-    sampleRate,
-  );
   return collector.toValidation();
 };
 

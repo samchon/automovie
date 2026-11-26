@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -30,7 +30,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { hoseBackup } from "./hoseBackup";
 import { hoseLineReaction } from "./hoseLineReaction";
-import { rotationBetween } from "./rotationBetween";
 
 /** The stream's sweep, degrees in all: provisional. */
 const SPAN: number = 30;
@@ -229,10 +228,7 @@ function nozzle(
   const at: IAutoMovieVector3 = context.aim(p.target, context.start).point;
   const aimed: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(
-      rotationBetween(
-        Vector3.normalize(stream),
-        Vector3.normalize(Vector3.subtract(at, outlet)),
-      ),
+      rotationBetween(stream, Vector3.subtract(at, outlet)),
       hand.worldRotation,
     ),
   );

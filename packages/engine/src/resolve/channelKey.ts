@@ -1,11 +1,6 @@
-import {
-  IAutoMovieChannel,
-  IAutoMovieNodeChannel,
-  IAutoMoviePointerChannel,
-} from "@automovie/interface";
+import type { IAutoMovieChannel } from "@automovie/interface";
 
-import { CHANNEL_VALUE_TYPES } from "../validation/constants/CHANNEL_VALUE_TYPES";
-import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
+import { admitChannel } from "./internal/admitChannel";
 
 /**
  * Canonical key for a channel. Node channels and pointer channels live in
@@ -15,35 +10,8 @@ import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 export const channelKey: (channel: IAutoMovieChannel) => string = (
   channel: IAutoMovieChannel,
 ): string => {
-  switch (channel.kind) {
-    case "node":
-      validateNodePath(channel.path);
-      return `node:${channel.node}:${channel.path}`;
-    case "pointer":
-      validateChannelValueType(channel.valueType);
-      return `ptr:${channel.pointer}`;
-    default:
-      return throwUnknownChannelKind(channel);
-  }
-};
-
-const throwUnknownChannelKind: (channel: IAutoMovieChannel) => never = (
-  channel: IAutoMovieChannel,
-): never => {
-  const kind: unknown = (channel as { kind: unknown }).kind;
-  throw new Error(`unknown channel kind "${String(kind)}"`);
-};
-
-const validateNodePath: (path: IAutoMovieNodeChannel["path"]) => void = (
-  path: IAutoMovieNodeChannel["path"],
-): void => {
-  if (!NODE_CHANNEL_PATHS.has(path))
-    throw new Error(`unknown channel path "${String(path)}"`);
-};
-
-const validateChannelValueType: (
-  valueType: IAutoMoviePointerChannel["valueType"],
-) => void = (valueType: IAutoMoviePointerChannel["valueType"]): void => {
-  if (!CHANNEL_VALUE_TYPES.has(valueType))
-    throw new Error(`unknown channel valueType "${String(valueType)}"`);
+  admitChannel(channel);
+  return channel.kind === "node"
+    ? `node:${channel.node}:${channel.path}`
+    : `ptr:${channel.pointer}`;
 };

@@ -14,17 +14,16 @@ import type { AutoMovieHumanoidBone } from "@automovie/interface";
  * @param name Joint node name exactly as the source declares it.
  * @returns The slot, or `undefined` when no convention in the table names it.
  */
-export const humanoidBoneOfName: (
+export function humanoidBoneOfName(
   name: string,
-) => AutoMovieHumanoidBone | undefined = (
-  name: string,
-): AutoMovieHumanoidBone | undefined =>
-  HUMANOID_ALIASES.get(
+): AutoMovieHumanoidBone | undefined {
+  return HUMANOID_ALIASES.get(
     name
       .toLowerCase()
       .replace(/^mixamorig:?/u, "")
       .replace(/[\s_.:|-]/gu, ""),
   );
+}
 
 const HUMANOID_ALIASES: ReadonlyMap<string, AutoMovieHumanoidBone> = new Map<
   string,

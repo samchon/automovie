@@ -1,3 +1,4 @@
+import { AutoMovieEngineKeyframeSearch } from "@automovie/engine";
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 import { HumanArmRefine } from "./HumanArmRefine";
@@ -43,7 +44,12 @@ export namespace HumanArmTrajectoryKnots {
     grid: readonly number[],
   ): IWeight[][] {
     return grid.map((at: number): IWeight[] => {
-      const i: number = segment(knots, at);
+      const i: number = AutoMovieEngineKeyframeSearch.segment(
+        knots.length,
+        (index: number): number => knots[index]!,
+        at,
+        "next",
+      );
       const h: number = knots[i + 1]! - knots[i]!;
       const u: number = Math.min(1, Math.max(0, (at - knots[i]!) / h));
       const [h0, h1, h2, h3, h4, h5]: number[] = basis(u, 0);
@@ -141,7 +147,12 @@ export namespace HumanArmTrajectoryKnots {
       if (seconds <= knots[0]!) return { knot: 0, coordinates: [...x[0]!] };
       if (seconds >= knots[last]!)
         return { knot: last, coordinates: [...x[last]!] };
-      const knot: number = segment(knots, seconds);
+      const knot: number = AutoMovieEngineKeyframeSearch.segment(
+        knots.length,
+        (index: number): number => knots[index]!,
+        seconds,
+        "next",
+      );
       const elapsed: number = seconds - knots[knot]!;
       return {
         knot,
@@ -221,7 +232,12 @@ export namespace HumanArmTrajectoryKnots {
     accelerations: readonly (readonly number[])[],
     seconds: number,
   ): [number[], number[], number[]] {
-    const i: number = segment(knots, seconds);
+    const i: number = AutoMovieEngineKeyframeSearch.segment(
+      knots.length,
+      (index: number): number => knots[index]!,
+      seconds,
+      "next",
+    );
     const h: number = knots[i + 1]! - knots[i]!;
     const u: number = Math.min(1, Math.max(0, (seconds - knots[i]!) / h));
     const out: number[][] = [0, 1, 2].map((order: number): number[] => {
@@ -449,21 +465,6 @@ export namespace HumanArmTrajectoryKnots {
     );
     return { n: vars, band, p, q, rows };
   }
-}
-
-/**
- * The segment a second lies in: the last knot at or before it, short of the
- * last.
- */
-function segment(knots: readonly number[], seconds: number): number {
-  let low: number = 0;
-  let high: number = knots.length - 2;
-  while (low < high) {
-    const middle: number = (low + high + 1) >> 1;
-    if (knots[middle]! <= seconds) low = middle;
-    else high = middle - 1;
-  }
-  return low;
 }
 
 /**

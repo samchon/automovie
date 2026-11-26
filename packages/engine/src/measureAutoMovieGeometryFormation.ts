@@ -16,21 +16,21 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { composeFormationHeroTransform } from "./composeFormationHeroTransform";
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { intersectsPerspectiveFrustumSphere } from "./film/intersectsPerspectiveFrustumSphere";
 import { placeTransformedPoint } from "./film/placeTransformedPoint";
 import { projectToNdc } from "./film/projectToNdc";
 import { resolveAutoMovieDeliveryCrop } from "./film/resolveAutoMovieDeliveryCrop";
 import { resolveCameraAt } from "./film/resolveCameraAt";
-import { formationSlotPosition } from "./formationSlotPosition";
-import { placeFormationSlot } from "./placeFormationSlot";
+import { composeFormationHeroTransform } from "./populationRuntime/formation/composeFormationHeroTransform";
+import { formationSlotPosition } from "./populationRuntime/formation/formationSlotPosition";
+import { placeFormationSlot } from "./populationRuntime/formation/placeFormationSlot";
+import { sampleFormationMotion } from "./populationRuntime/formation/sampleFormationMotion";
+import { sampleFormationSlotMotion } from "./populationRuntime/formation/sampleFormationSlotMotion";
+import { selectFormationLod } from "./populationRuntime/formation/selectFormationLod";
+import { transformFormationBounds } from "./populationRuntime/formation/transformFormationBounds";
+import { transformFormationPoint } from "./populationRuntime/formation/transformFormationPoint";
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
-import { sampleFormationMotion } from "./sampleFormationMotion";
-import { sampleFormationSlotMotion } from "./sampleFormationSlotMotion";
-import { selectFormationLod } from "./selectFormationLod";
-import { transformFormationBounds } from "./transformFormationBounds";
-import { transformFormationPoint } from "./transformFormationPoint";
 
 /**
  * Measure one materialized formation at shot-local seconds: representative

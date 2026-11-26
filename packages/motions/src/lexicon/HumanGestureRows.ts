@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { gesture } from "../everyday/gesture";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GESTURE_BECKON } from "../next/presets/HUMAN_GESTURE_BECKON";
 import { HUMAN_GESTURE_BOW } from "../next/presets/HUMAN_GESTURE_BOW";
 import { HUMAN_GESTURE_CHEER } from "../next/presets/HUMAN_GESTURE_CHEER";
@@ -46,7 +46,11 @@ export namespace HumanGestureRows {
    */
   export const gestureWave: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureWave"]
-  > = HumanActionRow("gestureWave", gesture, HUMAN_GESTURE_WAVE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureWave",
+    gesture,
+    HUMAN_GESTURE_WAVE,
+  );
 
   /**
    * `gesture` of kind `raiseHand`: one raise of 0.5 s, plus the preparation and
@@ -55,7 +59,11 @@ export namespace HumanGestureRows {
    */
   export const gestureRaiseHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureRaiseHand"]
-  > = HumanActionRow("gestureRaiseHand", gesture, HUMAN_GESTURE_RAISE_HAND);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureRaiseHand",
+    gesture,
+    HUMAN_GESTURE_RAISE_HAND,
+  );
 
   /**
    * `gesture` of kind `cheer`: two raises of 0.5 s, a stroke of 1.0 s, both
@@ -64,7 +72,11 @@ export namespace HumanGestureRows {
    */
   export const gestureCheer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureCheer"]
-  > = HumanActionRow("gestureCheer", gesture, HUMAN_GESTURE_CHEER);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureCheer",
+    gesture,
+    HUMAN_GESTURE_CHEER,
+  );
 
   /**
    * `gesture` of kind `stopPalm`: one push of 0.35 s, plus the preparation and
@@ -73,7 +85,11 @@ export namespace HumanGestureRows {
    */
   export const gestureStopPalm: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureStopPalm"]
-  > = HumanActionRow("gestureStopPalm", gesture, HUMAN_GESTURE_STOP_PALM);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureStopPalm",
+    gesture,
+    HUMAN_GESTURE_STOP_PALM,
+  );
 
   /**
    * `gesture` of kind `point`: one point of 0.5 s, plus the preparation and
@@ -82,7 +98,11 @@ export namespace HumanGestureRows {
    */
   export const gesturePoint: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePoint"]
-  > = HumanActionRow("gesturePoint", gesture, HUMAN_GESTURE_POINT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gesturePoint",
+    gesture,
+    HUMAN_GESTURE_POINT,
+  );
 
   /**
    * `gesture` of kind `palmsUp`: one opening of 0.6 s, both hands, plus the
@@ -92,7 +112,11 @@ export namespace HumanGestureRows {
    */
   export const gesturePalmsUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePalmsUp"]
-  > = HumanActionRow("gesturePalmsUp", gesture, HUMAN_GESTURE_PALMS_UP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gesturePalmsUp",
+    gesture,
+    HUMAN_GESTURE_PALMS_UP,
+  );
 
   /**
    * `gesture` of kind `beckon`: two curls of 0.6 s, a stroke of 1.2 s, plus the
@@ -101,7 +125,11 @@ export namespace HumanGestureRows {
    */
   export const gestureBeckon: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureBeckon"]
-  > = HumanActionRow("gestureBeckon", gesture, HUMAN_GESTURE_BECKON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureBeckon",
+    gesture,
+    HUMAN_GESTURE_BECKON,
+  );
 
   /**
    * `gesture` of kind `clap`: four claps at 4 a second (Neda et al. 2000), a
@@ -111,7 +139,11 @@ export namespace HumanGestureRows {
    */
   export const gestureClap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureClap"]
-  > = HumanActionRow("gestureClap", gesture, HUMAN_GESTURE_CLAP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureClap",
+    gesture,
+    HUMAN_GESTURE_CLAP,
+  );
 
   /**
    * `gesture` of kind `rubHands`: three rubs of 0.35 s, a stroke of 1.05 s,
@@ -120,7 +152,11 @@ export namespace HumanGestureRows {
    */
   export const gestureRubHands: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureRubHands"]
-  > = HumanActionRow("gestureRubHands", gesture, HUMAN_GESTURE_RUB_HANDS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureRubHands",
+    gesture,
+    HUMAN_GESTURE_RUB_HANDS,
+  );
 
   /**
    * `gesture` of kind `palmsTogether`: one close of 0.8 s, both hands, plus the
@@ -129,7 +165,7 @@ export namespace HumanGestureRows {
    */
   export const gesturePalmsTogether: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePalmsTogether"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "gesturePalmsTogether",
     gesture,
     HUMAN_GESTURE_PALMS_TOGETHER,
@@ -142,7 +178,11 @@ export namespace HumanGestureRows {
    */
   export const gestureThumbsDown: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureThumbsDown"]
-  > = HumanActionRow("gestureThumbsDown", gesture, HUMAN_GESTURE_THUMBS_DOWN);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureThumbsDown",
+    gesture,
+    HUMAN_GESTURE_THUMBS_DOWN,
+  );
 
   /**
    * `gesture` of kind `touchFace`: a held touch of 0.8 s, plus the preparation
@@ -151,7 +191,11 @@ export namespace HumanGestureRows {
    */
   export const gestureTouchFace: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureTouchFace"]
-  > = HumanActionRow("gestureTouchFace", gesture, HUMAN_GESTURE_TOUCH_FACE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureTouchFace",
+    gesture,
+    HUMAN_GESTURE_TOUCH_FACE,
+  );
 
   /**
    * `gesture` of kind `pushGlasses`: one push of 0.3 s, plus the preparation
@@ -160,7 +204,11 @@ export namespace HumanGestureRows {
    */
   export const gesturePushGlasses: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gesturePushGlasses"]
-  > = HumanActionRow("gesturePushGlasses", gesture, HUMAN_GESTURE_PUSH_GLASSES);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gesturePushGlasses",
+    gesture,
+    HUMAN_GESTURE_PUSH_GLASSES,
+  );
 
   /**
    * `gesture` of kind `scratchHead`: four scratches of 0.25 s, a stroke of 1.0
@@ -169,7 +217,11 @@ export namespace HumanGestureRows {
    */
   export const gestureScratchHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureScratchHead"]
-  > = HumanActionRow("gestureScratchHead", gesture, HUMAN_GESTURE_SCRATCH_HEAD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureScratchHead",
+    gesture,
+    HUMAN_GESTURE_SCRATCH_HEAD,
+  );
 
   /**
    * `gesture` of kind `shrug`: one shrug of 0.7 s, both shoulders, plus the
@@ -178,7 +230,11 @@ export namespace HumanGestureRows {
    */
   export const gestureShrug: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureShrug"]
-  > = HumanActionRow("gestureShrug", gesture, HUMAN_GESTURE_SHRUG);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureShrug",
+    gesture,
+    HUMAN_GESTURE_SHRUG,
+  );
 
   /**
    * `gesture` of kind `nod`: two nods of 0.5 s, a stroke of 1.0 s, plus the
@@ -187,7 +243,11 @@ export namespace HumanGestureRows {
    */
   export const gestureNod: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureNod"]
-  > = HumanActionRow("gestureNod", gesture, HUMAN_GESTURE_NOD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureNod",
+    gesture,
+    HUMAN_GESTURE_NOD,
+  );
 
   /**
    * `gesture` of kind `shakeHead`: three turns of 0.45 s, a stroke of 1.35 s,
@@ -196,7 +256,11 @@ export namespace HumanGestureRows {
    */
   export const gestureShakeHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureShakeHead"]
-  > = HumanActionRow("gestureShakeHead", gesture, HUMAN_GESTURE_SHAKE_HEAD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureShakeHead",
+    gesture,
+    HUMAN_GESTURE_SHAKE_HEAD,
+  );
 
   /**
    * `gesture` of kind `bow`: the trunk goes down at about 50 degrees a second,
@@ -207,7 +271,11 @@ export namespace HumanGestureRows {
    */
   export const gestureBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureBow"]
-  > = HumanActionRow("gestureBow", gesture, HUMAN_GESTURE_BOW);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureBow",
+    gesture,
+    HUMAN_GESTURE_BOW,
+  );
 
   /**
    * `gesture` of kind `chinLift`: a held pose of 0.8 s, plus the preparation
@@ -216,7 +284,11 @@ export namespace HumanGestureRows {
    */
   export const gestureChinLift: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureChinLift"]
-  > = HumanActionRow("gestureChinLift", gesture, HUMAN_GESTURE_CHIN_LIFT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureChinLift",
+    gesture,
+    HUMAN_GESTURE_CHIN_LIFT,
+  );
 
   /**
    * `gesture` of kind `squareShoulders`: a held pose of 0.8 s, plus the
@@ -225,7 +297,7 @@ export namespace HumanGestureRows {
    */
   export const gestureSquareShoulders: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureSquareShoulders"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "gestureSquareShoulders",
     gesture,
     HUMAN_GESTURE_SQUARE_SHOULDERS,
@@ -238,5 +310,9 @@ export namespace HumanGestureRows {
    */
   export const gestureSlump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperGesture"]["gestureSlump"]
-  > = HumanActionRow("gestureSlump", gesture, HUMAN_GESTURE_SLUMP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gestureSlump",
+    gesture,
+    HUMAN_GESTURE_SLUMP,
+  );
 }

@@ -15,21 +15,14 @@ import { object } from "./object";
  * synchronous inspector, while image formats and sparse contents remain
  * uninspected.
  */
-export const validatePayloadClosure: (props: {
+export function validatePayloadClosure(props: {
   format: "gltf" | "glb" | "vrm";
   bin: Uint8Array | null;
   buffers: unknown[];
   bufferViews: unknown[];
   images: unknown[];
   resolveResource?: AutoMovieExternalModelResourceResolver;
-}) => Uint8Array[] = (props: {
-  format: "gltf" | "glb" | "vrm";
-  bin: Uint8Array | null;
-  buffers: unknown[];
-  bufferViews: unknown[];
-  images: unknown[];
-  resolveResource?: AutoMovieExternalModelResourceResolver;
-}): Uint8Array[] => {
+}): Uint8Array[] {
   const payloads: Uint8Array[] = props.buffers.map(
     (value: unknown, index: number): Uint8Array => {
       const buffer: Record<string, unknown> = object(
@@ -114,4 +107,4 @@ export const validatePayloadClosure: (props: {
       );
   });
   return payloads;
-};
+}

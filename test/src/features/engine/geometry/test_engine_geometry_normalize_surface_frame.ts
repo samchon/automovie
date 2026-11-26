@@ -22,12 +22,14 @@ import { throwsError, vclose } from "../../internal/predicates";
  * 1. The basis is the origin, x (1,0,0), y (0,0.8,-0.6) and normal (0,0.6,0.8),
  *    the same for directions scaled by 1e-300, 1 and 1e300.
  * 2. The reversed normal flips y and the normal and keeps x.
- * 3. A forward of (1e-300, 0, 1) against the normal +z keeps x = +x and y = +y.
+ * 3. A tiny or subnormal +x component with forward z = 1 still gives x = +x
+ *    and y = +y against the normal +z.
  * 4. A zero forward or normal, and a forward parallel or antiparallel to the
  *    normal, are refused.
  * 5. Editing a result touches no caller record; later edits of the request are
  *    read by the next call (origin y 7, forward x -4: x = -x, y = (0, -0.8,
  *    0.6)) without changing an earlier result.
+ * 6. A nonfinite coordinate in the origin, forward or normal is refused.
  */
 export function test_engine_geometry_normalize_surface_frame(): void {
   const origin: IAutoMovieVector3 = { x: 3, y: -2, z: 5 };
@@ -74,19 +76,20 @@ export function test_engine_geometry_normalize_surface_frame(): void {
   );
 
   // 3.
-  TestValidator.predicate(
-    "near parallel",
-    basis(
-      normalizeAutoMovieSurfaceFrame({
-        origin,
-        forward: { x: 1e-300, y: 0, z: 1 },
-        normal: { x: 0, y: 0, z: 1 },
-      }),
-      X,
-      { x: 0, y: 1, z: 0 },
-      { x: 0, y: 0, z: 1 },
-    ),
-  );
+  for (const x of [1e-300, 1e-320])
+    TestValidator.predicate(
+      `near parallel ${x}`,
+      basis(
+        normalizeAutoMovieSurfaceFrame({
+          origin,
+          forward: { x, y: 0, z: 1 },
+          normal: { x: 0, y: 0, z: 1 },
+        }),
+        X,
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+      ),
+    );
 
   // 4.
   for (const frame of [
@@ -123,4 +126,19 @@ export function test_engine_geometry_normalize_surface_frame(): void {
       vclose(changed.x, { x: -1, y: 0, z: 0 }) &&
       vclose(changed.y, { x: 0, y: -0.8, z: 0.6 }),
   );
+
+  // 6.
+  const admitted: string[] = [];
+  for (const field of ["origin", "forward", "normal"] as const)
+    for (const x of [Number.NaN, Number.POSITIVE_INFINITY])
+      if (
+        !throwsError((): IAutoMovieSweepFrame =>
+          normalizeAutoMovieSurfaceFrame({
+            ...request,
+            [field]: { ...request[field], x },
+          }),
+        )
+      )
+        admitted.push(`${field}.x = ${x}`);
+  TestValidator.equals("all nonfinite inputs refused", admitted, []);
 }

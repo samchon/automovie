@@ -39,14 +39,11 @@ import { resampleProductionAudio } from "./resampleProductionAudio";
 export function admitProductionTtsReceipt(
   props: IAutoMovieAdmitProductionTtsReceipt.IProps,
 ): IAutoMovieAdmitProductionTtsReceipt.IResult {
-  const fail: (field: string, message: string) => never = (
-    field: string,
-    message: string,
-  ): never => {
+  function fail(field: string, message: string): never {
     throw new Error(
       `Dialogue receipt "${props.receiptPath}" [${field}] ${message}`,
     );
-  };
+  }
   const receipt: IAutoMovieProductionTtsReceipt = parseReceipt(
     props.receipt,
     fail,
@@ -154,13 +151,10 @@ export function admitProductionTtsReceipt(
  * Parse the receipt bytes and check the type of every field admission reads or
  * the receipt requires.
  */
-const parseReceipt: (
+function parseReceipt(
   bytes: Uint8Array,
   fail: (field: string, message: string) => never,
-) => IAutoMovieProductionTtsReceipt = (
-  bytes: Uint8Array,
-  fail: (field: string, message: string) => never,
-): IAutoMovieProductionTtsReceipt => {
+): IAutoMovieProductionTtsReceipt {
   let value: unknown;
   try {
     value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
@@ -259,4 +253,4 @@ const parseReceipt: (
 
   // Every field read above has its declared type, so the record is the receipt.
   return record as unknown as IAutoMovieProductionTtsReceipt;
-};
+}

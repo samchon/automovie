@@ -6,7 +6,7 @@ import type {
 import { gesture } from "../everyday/gesture";
 import { dance } from "../exercise/dance";
 import { exercise } from "../exercise/exercise";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_MILITARY_DRILL_AIM } from "../next/presets/HUMAN_MILITARY_DRILL_AIM";
 import { HUMAN_MILITARY_DRILL_FRONT_KICK } from "../next/presets/HUMAN_MILITARY_DRILL_FRONT_KICK";
 import { HUMAN_MILITARY_DRILL_HOOK } from "../next/presets/HUMAN_MILITARY_DRILL_HOOK";
@@ -29,22 +29,34 @@ export namespace HumanDrill {
   /** A lead hook. */
   export const hook: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["hook"]
-  > = HumanActionRow("hook", punch, HUMAN_MILITARY_DRILL_HOOK);
+  > = AutoMovieMotionHumanActionRow.of(
+    "hook",
+    punch,
+    HUMAN_MILITARY_DRILL_HOOK,
+  );
 
   /** A rear uppercut. */
   export const uppercut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["uppercut"]
-  > = HumanActionRow("uppercut", punch, HUMAN_MILITARY_DRILL_UPPERCUT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "uppercut",
+    punch,
+    HUMAN_MILITARY_DRILL_UPPERCUT,
+  );
 
   /** A front push kick with the lead leg, as a teep or a door kick. */
   export const frontKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["frontKick"]
-  > = HumanActionRow("frontKick", kick, HUMAN_MILITARY_DRILL_FRONT_KICK);
+  > = AutoMovieMotionHumanActionRow.of(
+    "frontKick",
+    kick,
+    HUMAN_MILITARY_DRILL_FRONT_KICK,
+  );
 
   /** A southpaw guard. */
   export const southpaw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["southpaw"]
-  > = HumanActionRow("southpaw", guard, {
+  > = AutoMovieMotionHumanActionRow.of("southpaw", guard, {
     stance: "southpaw",
   });
 
@@ -54,24 +66,28 @@ export namespace HumanDrill {
    */
   export const aim: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["aim"]
-  > = HumanActionRow("aim", gesture, HUMAN_MILITARY_DRILL_AIM);
+  > = AutoMovieMotionHumanActionRow.of(
+    "aim",
+    gesture,
+    HUMAN_MILITARY_DRILL_AIM,
+  );
 
   /** Squats. */
   export const squats: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["squats"]
-  > = HumanActionRow("squats", exercise, {
+  > = AutoMovieMotionHumanActionRow.of("squats", exercise, {
     kind: "squat",
   });
 
   /** Jumping jacks. */
   export const jumpingJacks: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["jumpingJacks"]
-  > = HumanActionRow("jumpingJacks", exercise, {
+  > = AutoMovieMotionHumanActionRow.of("jumpingJacks", exercise, {
     kind: "jumpingJack",
   });
 
   /** A sway to music. */
   export const sway: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["sway"]
-  > = HumanActionRow("sway", dance, { kind: "sway" });
+  > = AutoMovieMotionHumanActionRow.of("sway", dance, { kind: "sway" });
 }

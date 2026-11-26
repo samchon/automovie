@@ -10,7 +10,7 @@ import * as props from "@automovie/archetypes/props";
 import { Quaternion, Vector3 } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type { IAutoMovieHumanParameters } from "@automovie/interface";
-import { AutoMovieMotionHumanOperate, createHumanBody, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
+import { AutoMovieMotionHumanOperate, AutoMovieMotionHumanBody, HumanChain, HumanObject, HumanPerformance } from "@automovie/motions";
 import { HumanHand } from "@automovie/motions/internal";
 
 import type { IFilmProduction } from "../../../src/IFilmProduction";
@@ -44,7 +44,7 @@ export async function test_installed_sdk(): Promise<void> {
 
   const params: IAutoMovieHumanParameters = ${JSON.stringify(contactBody.params)};
   const prepared = AutoMovieHumanCanonicalBody.prepare(params, { id: "f-average", mass: ${contactBody.mass} });
-  const body = createHumanBody(prepared.skeleton, prepared.profile);
+  const body = AutoMovieMotionHumanBody.create(prepared.skeleton, prepared.profile);
   const rotation = Quaternion.multiply(
     Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 30),
     Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 180),

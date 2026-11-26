@@ -6,9 +6,9 @@ import type {
   IAutoMovieMotionHumanPerformance,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   HumanChain,
   HumanPerformance,
-  createHumanBody,
 } from "@automovie/motions";
 
 /**
@@ -178,7 +178,7 @@ export function overlappingPerformance(
       mass: 78.365,
       id: "man",
     });
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     prepared.skeleton,
     prepared.profile,
   );

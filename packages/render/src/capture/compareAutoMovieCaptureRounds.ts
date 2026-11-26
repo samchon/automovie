@@ -72,10 +72,7 @@ export async function compareAutoMovieCaptureRounds(
   props: IAutoMovieCaptureComparisonProps,
 ): Promise<IAutoMovieCaptureComparison> {
   const { folder, match } = props;
-  const earlier: Extract<
-    IAutoMovieCaptureRecord,
-    { state: "complete" }
-  > | null = folder.earlier;
+  const earlier: IAutoMovieCaptureRecord.IComparison | null = folder.earlier;
   if (earlier === null)
     throw new Error(
       "A capture compares only with a folder opened against a round",

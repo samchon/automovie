@@ -16,7 +16,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { handshake } from "../../handling/handshake";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -40,11 +40,11 @@ export function handoverCases(): IMotionCaptureCase[] {
   ] as const) {
     const one: humanPolygonMan.IPolygonMan = MotionBodies.population(first);
     const two: humanPolygonMan.IPolygonMan = MotionBodies.population(second);
-    const a: IAutoMovieMotionHumanBody = createHumanBody(
+    const a: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       one.body.skeleton,
       one.body.profile,
     );
-    const b: IAutoMovieMotionHumanBody = createHumanBody(
+    const b: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       two.body.skeleton,
       two.body.profile,
     );

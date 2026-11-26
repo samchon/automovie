@@ -13,14 +13,11 @@ import { object } from "./object";
  * ids, null for absent/empty names or root parents, and fresh transform
  * objects.
  */
-export const inspectExternalMotionNodes: (
+export function inspectExternalMotionNodes(
   values: unknown[],
   parentByIndex: readonly (number | undefined)[],
-) => IAutoMovieExternalMotionNodeInspection[] = (
-  values: unknown[],
-  parentByIndex: readonly (number | undefined)[],
-): IAutoMovieExternalMotionNodeInspection[] =>
-  values.map(
+): IAutoMovieExternalMotionNodeInspection[] {
+  return values.map(
     (value: unknown, index: number): IAutoMovieExternalMotionNodeInspection => {
       const node: Record<string, unknown> = object(value, `nodes[${index}]`);
       if (node.matrix !== undefined)
@@ -77,3 +74,4 @@ export const inspectExternalMotionNodes: (
       };
     },
   );
+}

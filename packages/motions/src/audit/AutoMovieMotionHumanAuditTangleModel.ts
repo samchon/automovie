@@ -60,8 +60,9 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   }
 
   /**
-   * Build a body's model, once, when the body is made (`createHumanBody`);
-   * every reader reads the body's record (`IAutoMovieMotionHumanBody.tangle`).
+   * Build a body's model, once, when the body is made
+   * (`AutoMovieMotionHumanBody.create`); every reader reads the body's record
+   * (`IAutoMovieMotionHumanBody.tangle`).
    *
    * @param body The body's record with its quiet stance solved.
    * @returns The model, every ordered pair's reference depths included.

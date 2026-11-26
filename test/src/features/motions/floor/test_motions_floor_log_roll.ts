@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import {
   HumanColliders,
   HumanRefusal,
@@ -99,7 +99,7 @@ export async function test_motions_floor_log_roll(): Promise<void> {
   );
   const fixture: Awaited<ReturnType<typeof humanFixture>> =
     await humanFixture("f-small");
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     fixture.skeleton,
     fixture.profile,
   );

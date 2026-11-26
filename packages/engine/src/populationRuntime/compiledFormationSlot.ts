@@ -4,8 +4,8 @@ import type {
   IAutoMovieFormationSlot,
 } from "@automovie/interface";
 
-import { formationSlotPosition } from "../formationSlotPosition";
-import { formationSlotRecord } from "../formationSlotRecord";
+import { formationSlotPosition } from "./formation/formationSlotPosition";
+import { formationSlotRecord } from "./formation/formationSlotRecord";
 
 /**
  * Regenerate one exact member of a compiled formation in constant memory.

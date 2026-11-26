@@ -41,10 +41,6 @@
         "types": "./lib/index.d.ts",
         "default": "./lib/index.js"
       },
-      "./internal": {
-        "types": "./lib/internal/index.d.ts",
-        "default": "./lib/internal/index.js"
-      },
       "./package.json": "./package.json"
     }
   },

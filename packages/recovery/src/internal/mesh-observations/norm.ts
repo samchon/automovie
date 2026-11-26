@@ -1,7 +1,5 @@
+import { Vector3 } from "@automovie/engine";
 import type { AutoMovieVector3Tuple } from "@automovie/interface";
-
-import { len } from "./len";
-import { mul } from "./mul";
 
 /**
  * Unit direction; a zero input remains zero so callers can handle degeneracy
@@ -9,4 +7,4 @@ import { mul } from "./mul";
  */
 export const norm: (a: AutoMovieVector3Tuple) => AutoMovieVector3Tuple = (
   a: AutoMovieVector3Tuple,
-): AutoMovieVector3Tuple => mul(a, 1 / (len(a) || 1));
+): AutoMovieVector3Tuple => Vector3.normalizeTuple(a);

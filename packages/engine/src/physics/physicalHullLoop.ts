@@ -1,6 +1,7 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { walkSortedPlanarHull } from "../math/internal/walkSortedPlanarHull";
 
 /**
  * The indices of the member points on a hull face's boundary, counter clockwise
@@ -37,7 +38,7 @@ export function physicalHullLoop(
       flat.push({ index, x: Vector3.dot(p, u), y: Vector3.dot(p, v) });
   });
   flat.sort(comparePlanarPoints);
-  return [...planarChain(flat), ...planarChain([...flat].reverse())].map(
+  return walkSortedPlanarHull(flat, "x", "y").map(
     (p: IPlanarPoint): number => p.index,
   );
 }
@@ -60,27 +61,4 @@ interface IPlanarPoint {
  */
 function comparePlanarPoints(a: IPlanarPoint, b: IPlanarPoint): number {
   return a.x - b.x || a.y - b.y;
-}
-
-/**
- * Keep the same determinant expression and collinearity comparison in both
- * chains.
- */
-function planarTurn(o: IPlanarPoint, a: IPlanarPoint, b: IPlanarPoint): number {
-  return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
-}
-
-/** One original monotone-chain walk; only its output stack belongs to this call. */
-function planarChain(ordered: IPlanarPoint[]): IPlanarPoint[] {
-  const out: IPlanarPoint[] = [];
-  for (const p of ordered) {
-    while (
-      out.length >= 2 &&
-      planarTurn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-    )
-      out.pop();
-    out.push(p);
-  }
-  out.pop();
-  return out;
 }

@@ -16,9 +16,7 @@ import type { Accessor } from "@gltf-transform/core";
  * @returns A new flat array in element order, or `null` when the accessor holds
  *   no array data; the caller supplies a valid accessor layout.
  */
-export const accessorValues: (accessor: Accessor) => number[] | null = (
-  accessor: Accessor,
-): number[] | null => {
+export function accessorValues(accessor: Accessor): number[] | null {
   const array: ReturnType<Accessor["getArray"]> = accessor.getArray();
   if (array === null) return null;
   if (accessor.getNormalized() === false) return Array.from(array);
@@ -32,4 +30,4 @@ export const accessorValues: (accessor: Accessor) => number[] | null = (
       values[index * width + component] = element[component]!;
   }
   return values;
-};
+}

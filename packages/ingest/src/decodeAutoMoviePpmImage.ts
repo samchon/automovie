@@ -31,16 +31,17 @@ export function decodeAutoMoviePpmImage(
     throw new Error(
       "PPM decoding requires bytes, explicit transfer and positive integer budgets",
     );
-  const whitespace: (byte: number) => boolean = (byte: number): boolean =>
-    byte === 32 || (byte >= 9 && byte <= 13);
+  function whitespace(byte: number): boolean {
+    return byte === 32 || (byte >= 9 && byte <= 13);
+  }
   if (bytes[0] !== 80 || bytes[1] !== 54 || !whitespace(bytes[2]))
     throw new Error("Only a raw P6 image is supported");
   let cursor: number = 2;
-  const advance: () => void = (): void => {
+  function advance(): void {
     if (++cursor > options.maxHeaderBytes || cursor >= bytes.length)
       throw new Error("PPM header is truncated or exceeds maxHeaderBytes");
-  };
-  const token: () => number = (): number => {
+  }
+  function token(): number {
     while (cursor < bytes.length) {
       if (bytes[cursor] === 35) {
         while (bytes[cursor] !== 10 && bytes[cursor] !== 13) advance();
@@ -59,7 +60,7 @@ export function decodeAutoMoviePpmImage(
     if (!digits || !(whitespace(bytes[cursor]) || bytes[cursor] === 35))
       throw new Error("PPM header requires decimal integer tokens");
     return value;
-  };
+  }
   const width: number = token(),
     height: number = token(),
     maximum: number = token();

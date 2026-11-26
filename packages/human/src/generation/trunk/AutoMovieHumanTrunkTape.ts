@@ -1,4 +1,5 @@
 import {
+  AutoMovieEnginePlanarHull,
   AutoMovieIllinois,
   AutoMovieViewCurves,
   AutoMovieViewOutline,
@@ -374,51 +375,20 @@ export namespace AutoMovieHumanTrunkTape {
    * The perimeter of a point set's convex hull (Andrew's monotone chain).
    *
    * @param points The points `[x, z]`.
+   * @param vertices Optional output for the selected boundary witnesses.
    * @returns The hull's perimeter, mm.
    */
   function hull(
     points: readonly [number, number][],
     vertices?: [number, number][],
   ): number {
-    const sorted: [number, number][] = [...points].sort(
-      (a: [number, number], b: [number, number]): number =>
-        a[0] - b[0] || a[1] - b[1],
+    if (points.length < 2) return 0;
+    const boundary: [number, number][] = AutoMovieEnginePlanarHull.vertices(
+      points,
+      0,
+      1,
     );
-    const turn: (
-      o: [number, number],
-      a: [number, number],
-      b: [number, number],
-    ) => number = (
-      o: [number, number],
-      a: [number, number],
-      b: [number, number],
-    ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const half: (list: [number, number][]) => [number, number][] = (
-      list: [number, number][],
-    ): [number, number][] => {
-      const out: [number, number][] = [];
-      for (const p of list) {
-        while (
-          out.length >= 2 &&
-          turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
-    const h: [number, number][] = [
-      ...half(sorted),
-      ...half([...sorted].reverse()),
-    ];
-    vertices?.push(...h);
-    let length: number = 0;
-    for (let i: number = 0; i < h.length; i++) {
-      const a: [number, number] = h[i]!;
-      const b: [number, number] = h[(i + 1) % h.length]!;
-      length += Math.hypot(b[0] - a[0], b[1] - a[1]);
-    }
-    return length;
+    vertices?.push(...boundary);
+    return AutoMovieEnginePlanarHull.boundaryLength(boundary, 0, 1);
   }
 }

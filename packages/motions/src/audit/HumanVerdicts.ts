@@ -267,7 +267,7 @@ export function HumanVerdicts(
  * may pass through a hip, a foot may skate. A production checks its own scene
  * with this report before it looks at a single frame, and a scene is accepted
  * only when the report is clean, a cited signature value holds
- * (`HumanSignature`) and the stills show no flaw.
+ * (`AutoMovieMotionHumanSignature`) and the stills show no flaw.
  *
  * ```ts
  * const report = HumanVerdicts(performance);

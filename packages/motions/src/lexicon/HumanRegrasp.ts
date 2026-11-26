@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { regrasp } from "../handling/regrasp";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * A held object moved within or with the hand, without being put down: each a
@@ -19,7 +19,7 @@ export namespace HumanRegrasp {
    */
   export const twist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["regrasp"]["twist"]
-  > = HumanActionRow("twist", regrasp, { kind: "twist" });
+  > = AutoMovieMotionHumanActionRow.of("twist", regrasp, { kind: "twist" });
 
   /**
    * The object shifted in the still hand to another of its grips. A grip change
@@ -27,7 +27,7 @@ export namespace HumanRegrasp {
    */
   export const regrip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["regrasp"]["regrip"]
-  > = HumanActionRow("regrip", regrasp, {
+  > = AutoMovieMotionHumanActionRow.of("regrip", regrasp, {
     kind: "regrip",
   });
 
@@ -37,5 +37,5 @@ export namespace HumanRegrasp {
    */
   export const roll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["regrasp"]["roll"]
-  > = HumanActionRow("roll", regrasp, { kind: "roll" });
+  > = AutoMovieMotionHumanActionRow.of("roll", regrasp, { kind: "roll" });
 }

@@ -23,6 +23,16 @@ interface IMarker {
   ptsTime: string;
 }
 
+/** Decoded streams and the listed primary audio stream when it is present. */
+interface IDeliveryDecode {
+  /** Native video presentation and observations. */
+  video: Stream;
+  /** Audio availability before the host's separate decode. */
+  audio: Stream;
+  /** The listed primary audio stream for the second decoder pass. */
+  audioIndex?: number;
+}
+
 /**
  * Reads native video timing and detector markers from a successful FFmpeg
  * delivery decode. It also identifies the input's first audio stream when one
@@ -33,10 +43,10 @@ interface IMarker {
  * @returns Decoded video evidence and the independently observed audio stream
  *   status.
  */
-export function readAutoMovieDeliveryDecode(
+export async function readAutoMovieDeliveryDecode(
   log: string,
   expected: Pick<Audit["expected"], "frameRate" | "frameCount">,
-): { video: Stream; audio: Stream; audioIndex?: number } {
+): Promise<IDeliveryDecode> {
   let videoIndex: number | undefined;
   let audioIndex: number | undefined;
   let listingInput = false;
@@ -133,14 +143,14 @@ export function readAutoMovieDeliveryDecode(
   if (inputListed && videoIndex === undefined)
     return { video: { status: "missing" }, ...inventory };
 
+  const { AutoMovieEngineFrameClock } = await import("@automovie/engine");
   const first = frames[0];
   const last = frames.at(-1);
   if (
     malformed ||
     videoIndex === undefined ||
     !Number.isSafeInteger(videoIndex) ||
-    timeBase === undefined ||
-    !timeBase.every((value) => Number.isSafeInteger(value) && value > 0) ||
+    !AutoMovieEngineFrameClock.isRatio(timeBase) ||
     first === undefined ||
     last === undefined
   )
@@ -152,9 +162,19 @@ export function readAutoMovieDeliveryDecode(
       ...inventory,
     };
 
-  const continuous =
+  const step: number | null = AutoMovieEngineFrameClock.ticksPerFrame(
+    timeBase,
+    expected.frameRate,
+  );
+  const continuous: boolean =
     frames.length === expected.frameCount &&
-    isCommissionedGrid(frames, timeBase, expected.frameRate);
+    step !== null &&
+    frames.every(
+      (frame: IFrame, index: number): boolean =>
+        frame.index === index &&
+        frame.pts === AutoMovieEngineFrameClock.boundary(index, step) &&
+        frame.duration === step,
+    );
   const observations = continuous ? readMarkers(markers, frames, timeBase) : [];
   if (observations === undefined)
     return {
@@ -176,27 +196,6 @@ export function readAutoMovieDeliveryDecode(
     },
     ...inventory,
   };
-}
-
-/**
- * Checks every frame index, native presentation tick and native duration on the
- * rational grid.
- */
-function isCommissionedGrid(
-  frames: IFrame[],
-  timeBase: Ratio,
-  rate: Ratio,
-): boolean {
-  if (!rate.every((value) => Number.isSafeInteger(value) && value > 0))
-    return false;
-  const scale = BigInt(timeBase[0]) * BigInt(rate[0]);
-  const step = BigInt(timeBase[1]) * BigInt(rate[1]);
-  return frames.every(
-    (frame, index) =>
-      frame.index === index &&
-      BigInt(frame.pts) * scale === BigInt(index) * step &&
-      BigInt(frame.duration) * scale === step,
-  );
 }
 
 /**

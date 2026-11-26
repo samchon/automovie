@@ -20,11 +20,11 @@ import type {
   IAutoMovieStageSetPiece,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanRide,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  createHumanBody,
 } from "@automovie/motions";
 
 import { bakeEnvironmentPerformance } from "./bakeEnvironmentPerformance";
@@ -171,7 +171,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   };
   const model: ReturnType<typeof environmentExampleBody> =
     environmentExampleBody();
-  const person: IAutoMovieMotionHumanBody = createHumanBody(
+  const person: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     model.skeleton,
     model.profile,
   );

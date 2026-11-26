@@ -8,7 +8,7 @@ import type {
 
 import { manipulate } from "../handling/manipulate";
 import { manipulateHeld } from "../handling/manipulateHeld";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * Keyed contact sequences: the digits pressing the sites of a prop one after
@@ -33,7 +33,7 @@ export namespace HumanManipulate {
    */
   export const type: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["type"]
-  > = HumanActionRow("type", manipulate, { hand: "both" });
+  > = AutoMovieMotionHumanActionRow.of("type", manipulate, { hand: "both" });
 
   /**
    * Two-finger typing: a text on a keyboard, each key pressed by the forefinger
@@ -41,7 +41,7 @@ export namespace HumanManipulate {
    */
   export const typeTwoFinger: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["typeTwoFinger"]
-  > = HumanActionRow("typeTwoFinger", manipulate, {
+  > = AutoMovieMotionHumanActionRow.of("typeTwoFinger", manipulate, {
     hand: "both",
     digit: "index",
   });
@@ -55,7 +55,7 @@ export namespace HumanManipulate {
    */
   export const play: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["play"]
-  > = HumanActionRow("play", manipulate, { hand: "both" });
+  > = AutoMovieMotionHumanActionRow.of("play", manipulate, { hand: "both" });
 
   /**
    * Fretting a guitar: the left hand's digits on the fret sites, the fingering
@@ -66,7 +66,7 @@ export namespace HumanManipulate {
    */
   export const fret: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["fret"]
-  > = HumanActionRow("fret", manipulate, { hand: "left" });
+  > = AutoMovieMotionHumanActionRow.of("fret", manipulate, { hand: "left" });
 
   /**
    * Strumming or plucking: the right hand's digits across the string sites. The
@@ -75,7 +75,7 @@ export namespace HumanManipulate {
    */
   export const strum: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["strum"]
-  > = HumanActionRow("strum", manipulate, {
+  > = AutoMovieMotionHumanActionRow.of("strum", manipulate, {
     hand: "right",
   });
 
@@ -86,7 +86,7 @@ export namespace HumanManipulate {
    */
   export const dial: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["dial"]
-  > = HumanActionRow("dial", manipulate, {
+  > = AutoMovieMotionHumanActionRow.of("dial", manipulate, {
     hand: "right",
     digit: "index",
   });
@@ -103,7 +103,7 @@ export namespace HumanManipulate {
    */
   export const thumbText: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["manipulate"]["thumbText"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "thumbText",
     {
       ...manipulate,

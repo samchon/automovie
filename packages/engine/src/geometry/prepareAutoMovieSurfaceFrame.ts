@@ -6,7 +6,6 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 
 /**
@@ -27,12 +26,9 @@ export function prepareAutoMovieSurfaceFrame(
 
   const first: IAutoMovieVector3 = Vector3.subtract(points[1], points[0]);
   const second: IAutoMovieVector3 = Vector3.subtract(points[2], points[0]);
+
   // Differences of finite points can overflow binary64.
-  if (
-    [first.x, first.y, first.z, second.x, second.y, second.z].some(
-      overflowsBinary64,
-    )
-  )
+  if (!Vector3.isFinite(first) || !Vector3.isFinite(second))
     throw new Error("Surface point differences exceed finite coordinates.");
 
   let normal: IAutoMovieVector3 = Vector3.cross(
@@ -40,7 +36,10 @@ export function prepareAutoMovieSurfaceFrame(
     Vector3.normalize(second),
   );
   if (referenceNormal !== undefined) {
-    if (Vector3.length(referenceNormal) === 0)
+    if (
+      !Vector3.isFinite(referenceNormal) ||
+      Vector3.length(referenceNormal) === 0
+    )
       throw new Error("Surface reference normal must be finite and nonzero.");
 
     const alignment: number = Vector3.dot(
@@ -71,7 +70,7 @@ export function prepareAutoMovieSurfaceFrame(
         y: Vector3.dot(delta, basis.y),
         z: Vector3.dot(delta, basis.normal),
       };
-      if ([offset.x, offset.y, offset.z].some(overflowsBinary64))
+      if (!Vector3.isFinite(offset))
         throw new Error("Surface offsets exceed finite coordinates.");
       return offset;
     },

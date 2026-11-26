@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
@@ -41,7 +41,7 @@ export function swimCases(
   const water: number = 1.2;
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );

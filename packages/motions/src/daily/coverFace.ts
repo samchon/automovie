@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanHandToBody,
 } from "@automovie/interface";
 
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_HAND_TO_BODY_COVER_FACE } from "../next/presets/HUMAN_HAND_TO_BODY_COVER_FACE";
 import { handToFace } from "./handToFace";
 
@@ -19,4 +19,8 @@ import { handToFace } from "./handToFace";
  * the default 1.2 s additional hold are authored choices.
  */
 export const coverFace: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ICoverFace> =
-  HumanActionRow("coverFace", handToFace, HUMAN_HAND_TO_BODY_COVER_FACE);
+  AutoMovieMotionHumanActionRow.of(
+    "coverFace",
+    handToFace,
+    HUMAN_HAND_TO_BODY_COVER_FACE,
+  );

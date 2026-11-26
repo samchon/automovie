@@ -14,7 +14,7 @@ import { run } from "../actions/run";
 import { HumanGaze } from "../everyday/HumanGaze";
 import { HumanProxemics } from "../everyday/HumanProxemics";
 import { approach } from "../everyday/approach";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HUMAN_GAIT_CONFRONT } from "../next/presets/HUMAN_GAIT_CONFRONT";
@@ -49,7 +49,7 @@ export namespace HumanPursuit {
    */
   export const follow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
-  > = HumanActionRow("follow", approach, HUMAN_GAIT_FOLLOW);
+  > = AutoMovieMotionHumanActionRow.of("follow", approach, HUMAN_GAIT_FOLLOW);
 
   /**
    * Come to a person's left side at the personal distance, as an escort takes
@@ -57,12 +57,16 @@ export namespace HumanPursuit {
    */
   export const escort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
-  > = HumanActionRow("escort", approach, HUMAN_GAIT_ESCORT);
+  > = AutoMovieMotionHumanActionRow.of("escort", approach, HUMAN_GAIT_ESCORT);
 
   /** Step up face to face, as a confrontation begins. */
   export const confront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]
-  > = HumanActionRow("confront", approach, HUMAN_GAIT_CONFRONT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "confront",
+    approach,
+    HUMAN_GAIT_CONFRONT,
+  );
 
   /**
    * Head a moving person off: a run to where they will be when the runner gets
@@ -143,7 +147,7 @@ export namespace HumanPursuit {
    */
   export const chase: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
-  > = HumanActionRow("chase", intercept, {});
+  > = AutoMovieMotionHumanActionRow.of("chase", intercept, {});
 
   /**
    * Seconds one glance back at a pursuer lasts before the eyes return ahead

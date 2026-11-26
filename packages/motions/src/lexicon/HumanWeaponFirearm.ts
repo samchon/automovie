@@ -6,7 +6,7 @@ import type {
 
 import { pickUp } from "../handling/pickUp";
 import { putDown } from "../handling/putDown";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FIREARM_DRAW } from "../next/presets/HUMAN_FIREARM_DRAW";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
 
@@ -54,7 +54,11 @@ export namespace HumanWeaponFirearm {
    */
   export const draw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["draw"]
-  > = HumanActionRow("drawFirearm", pickUp, HUMAN_FIREARM_DRAW);
+  > = AutoMovieMotionHumanActionRow.of(
+    "drawFirearm",
+    pickUp,
+    HUMAN_FIREARM_DRAW,
+  );
 
   /**
    * Holster: put the firearm back where the composition says its holster holds
@@ -62,5 +66,5 @@ export namespace HumanWeaponFirearm {
    */
   export const holster: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["holster"]
-  > = HumanActionRow("holsterFirearm", putDown, {});
+  > = AutoMovieMotionHumanActionRow.of("holsterFirearm", putDown, {});
 }

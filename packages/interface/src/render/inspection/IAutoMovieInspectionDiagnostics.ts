@@ -221,14 +221,17 @@ export namespace IAutoMovieInspectionDiagnostics {
     readonly coverage: ICoverage;
   }
 
-  /** Summary of the supplied inspection samples. */
-  export interface IAudit {
+  /** Ordered findings and coverage supplied by recorded inspection samples. */
+  export interface IObservations {
     /** Episodes in first observation order. */
     readonly episodes: readonly IEpisode[];
 
     /** Coverage ranges in first observation order. */
     readonly coverage: readonly ICoverageRange[];
+  }
 
+  /** Summary of the supplied inspection samples. */
+  export interface IAudit extends IObservations {
     /** Number of distinct output indices seen across the supplied scopes. */
     readonly observedOutputFrames: number;
 

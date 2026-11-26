@@ -1,5 +1,8 @@
+import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface";
 import { planViewerFrameTimes } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose, throwsError } from "../../internal/predicates";
 
 /**
  * Plan the film seconds a still capture writes, on the encoded frame grid.
@@ -11,7 +14,9 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A step in seconds yields the same frames as the equivalent frame interval,
  *    and an off-grid range starts at the next frame.
  * 3. Explicit seconds are kept, sorted and deduplicated.
- * 4. Mixed or incomplete requests, out-of-film seconds and invalid intervals are
+ * 4. A range ending at the film duration samples only encoded frames. An explicit
+ *    request can still name the exact end.
+ * 5. Mixed or incomplete requests, out-of-film seconds and invalid intervals are
  *    refused.
  */
 export function test_render_root_plan_frame_times(): void {
@@ -49,6 +54,51 @@ export function test_render_root_plan_frame_times(): void {
     planViewerFrameTimes({ ...film, at: [150.4, 12, 150.4, 0] }),
     [0, 12, 150.4],
   );
+  const finalRange: IAutoMoviePlanViewerFrameTimesRequest = {
+    fps: 4,
+    durationSeconds: 1,
+    from: 0,
+    to: 1,
+  };
+  const expected: readonly number[] = [0, 0.25, 0.5, 0.75];
+  const issues: string[] = [];
+  for (const [label, frames] of [
+    ["frame interval", planViewerFrameTimes({ ...finalRange, every: 1 })],
+    ["seconds interval", planViewerFrameTimes({ ...finalRange, step: 0.25 })],
+  ] as const)
+    if (
+      frames.length !== expected.length ||
+      frames.some(
+        (seconds: number, index: number): boolean =>
+          !nclose(seconds, expected[index]!),
+      )
+    )
+      issues.push(label);
+  if (
+    !throwsError(
+      (): number[] => planViewerFrameTimes({ ...finalRange, every: 0.5 }),
+      "positive whole number",
+    )
+  )
+    issues.push("fractional frame interval");
+  TestValidator.equals(
+    "range selection agrees with the encoded grid",
+    issues,
+    [],
+  );
+
+  const explicit: number[] = planViewerFrameTimes({
+    fps: 4,
+    durationSeconds: 1,
+    at: [1, 0.13],
+  });
+  TestValidator.predicate(
+    "explicit times keep the off-grid second and exact endpoint",
+    explicit.length === 2 &&
+      nclose(explicit[0]!, 0.13) &&
+      nclose(explicit[1]!, 1),
+  );
+
   for (const [label, request] of [
     ["both forms", { ...film, at: [1], from: 0, to: 1, every: 1 }],
     ["neither form", { ...film }],

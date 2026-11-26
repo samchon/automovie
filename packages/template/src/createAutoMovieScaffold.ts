@@ -129,12 +129,12 @@ const readLayer = (
  */
 const renderEvidenceConfig = (workspace: boolean): string =>
   [
-    `import { createEvidenceConfig } from "@automovie/evidence";`,
+    `import { AutoMovieEvidenceConfig } from "@automovie/evidence";`,
     ``,
     workspace
       ? `/** The default project checks source and tests without selecting a narrative, against the workspace root's skills. */`
       : `/** The default project checks source and tests without selecting a narrative. */`,
-    `export default createEvidenceConfig({`,
+    `export default AutoMovieEvidenceConfig.create({`,
     `  location: import.meta.dirname,`,
     ...(workspace ? [`  skills: "../../../.agents/skills",`] : []),
     `});`,

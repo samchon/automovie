@@ -4,6 +4,7 @@
 // canObserverSeeEdge, isPoint2DInsideConvexPolygon2D, signed distance and
 // orthogonal projection), and ConvexPolygon2D.scale.
 // See vendor/ihmc/NOTICE.
+import { walkSortedPlanarHull } from "../math/internal/walkSortedPlanarHull";
 import { physicalPlanarPolygonEdges as Edges } from "./physicalPlanarPolygonEdges";
 
 /**
@@ -98,23 +99,10 @@ export namespace physicalPlanarPolygon {
       )
         unique.push({ x: p.x, y: p.y });
     if (unique.length <= 2) return unique;
-    const chain = (list: readonly IPoint[]): IPoint[] => {
-      const out: IPoint[] = [];
-      for (const p of list) {
-        while (
-          out.length >= 2 &&
-          Edges.cross(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-        )
-          out.pop();
-        out.push(p);
-      }
-      out.pop();
-      return out;
-    };
 
     // The monotone chain runs counter-clockwise; Euclid's polygons run
     // clockwise.
-    const ccw: IPoint[] = [...chain(unique), ...chain([...unique].reverse())];
+    const ccw: IPoint[] = walkSortedPlanarHull(unique, "x", "y");
     return ccw.length >= 3 ? ccw.reverse() : unique.slice(0, 2);
   }
 

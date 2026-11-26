@@ -50,13 +50,10 @@ import { humanoidBoneOfName } from "./internal/humanoidBoneOfName";
  * @throws {Error} When a mapped joint's ancestors loop, which no glTF node
  *   hierarchy may.
  */
-export const humanoidSkeleton: (
-  doc: Document,
-  skeletonId?: string,
-) => IAutoMovieSkeleton | null = (
+export function humanoidSkeleton(
   doc: Document,
   skeletonId: string = "skeleton",
-): IAutoMovieSkeleton | null => {
+): IAutoMovieSkeleton | null {
   const skins: Skin[] = doc.getRoot().listSkins();
   if (skins.length === 0) return null;
 
@@ -115,11 +112,9 @@ export const humanoidSkeleton: (
     bones.push({ bone: slot, parent, rest, constraint: null });
   }
   return { id: skeletonId, bones };
-};
+}
 
-const localTransform: (node: GLTFNode) => IAutoMovieTransform = (
-  node: GLTFNode,
-): IAutoMovieTransform => {
+function localTransform(node: GLTFNode): IAutoMovieTransform {
   const t: vec3 = node.getTranslation();
   const r: vec4 = node.getRotation();
   const s: vec3 = node.getScale();
@@ -128,4 +123,4 @@ const localTransform: (node: GLTFNode) => IAutoMovieTransform = (
     rotation: { x: r[0], y: r[1], z: r[2], w: r[3] },
     scale: { x: s[0], y: s[1], z: s[2] },
   };
-};
+}

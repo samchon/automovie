@@ -34,7 +34,9 @@ import {
  * 2. A 0.02 dip inside tolerance 0.03 succeeds.
  * 3. A still clip over ground raised to 0.1, at 1 Hz with path `$motion`, warns at
  *    both samples under `$motion.samples[0]...`.
- * 4. Sample rate 0 fails with a range finding at `.sampleRate`.
+ * 4. A zero or nonfinite sample rate produces a range finding at `.sampleRate`.
+ * 5. A nonfinite tolerance produces a range finding at `.tolerance`, even when it
+ *    would hide the dip in the sampled clip.
  */
 export function test_engine_validation_validate_ground_contact(): void {
   const at = (x: number, y: number, z: number): IAutoMovieTransform => ({
@@ -159,5 +161,28 @@ export function test_engine_validation_validate_ground_contact(): void {
   TestValidator.predicate(
     "rate 0",
     zero.success === false && hasViolation(zero, "range", ".sampleRate"),
+  );
+
+  const settingsFailures: string[] = [];
+  for (const field of ["sampleRate", "tolerance"] as const) {
+    for (const value of [NaN, Infinity]) {
+      try {
+        const result: IAutoMovieValidation = validateGroundContact({
+          motion: dipping,
+          skeleton,
+          sampleRate: 4,
+          [field]: value,
+        });
+        if (!hasViolation(result, "range", `.${field}`))
+          settingsFailures.push(`${field} ${value} did not return its finding`);
+      } catch (error: unknown) {
+        settingsFailures.push(`${field} ${value} threw ${String(error)}`);
+      }
+    }
+  }
+  TestValidator.equals(
+    "nonfinite settings return range findings",
+    settingsFailures,
+    [],
   );
 }

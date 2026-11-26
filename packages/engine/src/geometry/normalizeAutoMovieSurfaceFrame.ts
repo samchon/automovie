@@ -32,6 +32,13 @@ import { Vector3 } from "../math/Vector3";
 export function normalizeAutoMovieSurfaceFrame(
   frame: IAutoMovieSurfaceFrame,
 ): IAutoMovieSweepFrame {
+  if (
+    !Vector3.isFinite(frame.origin) ||
+    !Vector3.isFinite(frame.forward) ||
+    !Vector3.isFinite(frame.normal)
+  )
+    throw new Error("Surface frame requires finite origin and directions.");
+
   const normal: IAutoMovieVector3 = Vector3.normalize(frame.normal);
   const candidate: IAutoMovieVector3 = Vector3.normalize(frame.forward);
   const side: IAutoMovieVector3 = Vector3.normalize(

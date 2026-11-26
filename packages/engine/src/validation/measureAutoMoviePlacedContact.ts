@@ -37,6 +37,18 @@ function measureSupport(
   const { path, maxGap, maxSlip } = props;
   const collector: ViolationCollector = new ViolationCollector();
   validateFrame(sample.frame, `${path}.frame`, "support frame", collector);
+  validatePosition(
+    sample.point,
+    `${path}.point`,
+    "observed support point",
+    collector,
+  );
+  validatePosition(
+    sample.anchor,
+    `${path}.anchor`,
+    "support anchor",
+    collector,
+  );
   collector.range(`${path}.maxGap`, maxGap, 0, Infinity, "normal gap limit");
   collector.range(
     `${path}.maxSlip`,
@@ -56,6 +68,23 @@ function measureSupport(
   const delta: IAutoMovieVector3 = Vector3.subtract(local, sample.anchor);
   const gap: number = delta.y;
   const slip: number = Math.hypot(delta.x, delta.z);
+  if (!Number.isFinite(gap) || !Number.isFinite(slip)) {
+    collector.range(
+      `${path}.gap`,
+      gap,
+      -Number.MAX_VALUE,
+      Number.MAX_VALUE,
+      "signed support gap in metres",
+    );
+    collector.range(
+      `${path}.slip`,
+      slip,
+      0,
+      Number.MAX_VALUE,
+      "tangential support slip in metres",
+    );
+    return { status: "invalid", violations: collector.items };
+  }
   collector.range(
     `${path}.gap`,
     gap,
@@ -123,6 +152,23 @@ function measureGrip(
   );
   const distance: number = Vector3.distance(position, sample.expected.position);
   const angle: number = Quaternion.angle(rotation, sample.expected.rotation);
+  if (!Number.isFinite(distance) || !Number.isFinite(angle)) {
+    collector.range(
+      `${path}.distance`,
+      distance,
+      0,
+      Number.MAX_VALUE,
+      "grip separation in metres",
+    );
+    collector.range(
+      `${path}.angle`,
+      angle,
+      0,
+      Math.PI,
+      "grip angle in radians",
+    );
+    return { status: "invalid", violations: collector.items };
+  }
   collector.range(
     `${path}.distance`,
     distance,
@@ -150,11 +196,47 @@ function validateFrame(
   label: string,
   collector: ViolationCollector,
 ): void {
-  collector.unitQuaternion(
-    `${path}.rotation`,
-    frame.rotation,
-    `${label} rotation`,
+  validatePosition(
+    frame.position,
+    `${path}.position`,
+    `${label} position`,
+    collector,
   );
+  const rotation: IAutoMovieQuaternion = frame.rotation;
+  if (
+    Number.isFinite(rotation.x) &&
+    Number.isFinite(rotation.y) &&
+    Number.isFinite(rotation.z) &&
+    Number.isFinite(rotation.w)
+  )
+    collector.unitQuaternion(`${path}.rotation`, rotation, `${label} rotation`);
+  else
+    collector.push(
+      "range",
+      `${path}.rotation`,
+      `${label} rotation must be a finite unit quaternion`,
+      rotation,
+    );
+}
+
+/** Report an unrepresentable world or local point at its declared input path. */
+function validatePosition(
+  point: IAutoMovieVector3,
+  path: string,
+  label: string,
+  collector: ViolationCollector,
+): void {
+  if (
+    !Number.isFinite(point.x) ||
+    !Number.isFinite(point.y) ||
+    !Number.isFinite(point.z)
+  )
+    collector.push(
+      "range",
+      path,
+      `${label} must have finite components`,
+      point,
+    );
 }
 
 /**

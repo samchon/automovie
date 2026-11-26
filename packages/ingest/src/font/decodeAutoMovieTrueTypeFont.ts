@@ -11,17 +11,6 @@ import { readTrueTypeGlyphOutline } from "./readTrueTypeGlyphOutline";
 import { readTrueTypeKerning } from "./readTrueTypeKerning";
 import { readTrueTypeNames } from "./readTrueTypeNames";
 
-/** Tables every admitted font must carry. */
-const REQUIRED: readonly string[] = [
-  "head",
-  "hhea",
-  "maxp",
-  "cmap",
-  "hmtx",
-  "loca",
-  "glyf",
-];
-
 /**
  * Decode one TrueType-outline font's bytes into outlines, metrics, kerning and
  * descriptive names, following the Open Font Format (ISO/IEC 14496-22).
@@ -90,17 +79,14 @@ export function decodeAutoMovieTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   for (const name of REQUIRED)
     if (!tables.has(name))
       throw new Error(`The TrueType font is missing required table "${name}"`);
-  const table: (name: string, minimum: number) => number = (
-    name: string,
-    minimum: number,
-  ): number => {
+  function table(name: string, minimum: number): number {
     const found: { offset: number; length: number } = tables.get(name)!;
     if (found.length < minimum)
       throw new Error(
         `TrueType table "${name}" is ${found.length} bytes, shorter than its ${minimum}-byte header`,
       );
     return found.offset;
-  };
+  }
 
   const head: number = table("head", 54);
   if (reader.u32(head + 12, "head") !== 0x5f0f3cf5)
@@ -126,8 +112,9 @@ export function decodeAutoMovieTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
   // Glyphs past the last full metric repeat its advance.
   const hmtx: number = table("hmtx", 0);
   reader.require(hmtx, metrics * 4 + (glyphCount - metrics) * 2, "hmtx table");
-  const advance: (glyph: number) => number = (glyph: number): number =>
-    reader.u16(hmtx + Math.min(glyph, metrics - 1) * 4, "hmtx");
+  function advance(glyph: number): number {
+    return reader.u16(hmtx + Math.min(glyph, metrics - 1) * 4, "hmtx");
+  }
 
   // loca: one offset per glyph and one past the last, increasing within glyf.
   const glyf: { offset: number; length: number } = tables.get("glyf")!;
@@ -215,3 +202,14 @@ export function decodeAutoMovieTrueTypeFont(bytes: Uint8Array): IAutoMovieFont {
       : { family: null, licenseDescription: null, licenseUrl: null },
   };
 }
+
+/** Tables every admitted font must carry. */
+const REQUIRED: readonly string[] = [
+  "head",
+  "hhea",
+  "maxp",
+  "cmap",
+  "hmtx",
+  "loca",
+  "glyf",
+];

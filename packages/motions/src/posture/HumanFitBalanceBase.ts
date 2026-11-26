@@ -1,3 +1,4 @@
+import { AutoMovieEnginePlanarHull } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /** The record of `IHalfPlanes2`'s site. */
@@ -29,15 +30,6 @@ type IPlanesNormalsItem = { x: number; z: number };
 
 /** The record of `IPlanesAnchorsItem`'s site. */
 type IPlanesAnchorsItem = { x: number; z: number };
-
-/** The alternatives of `HullChainStride2`'s site. */
-type HullChainStride2 = 1 | -1;
-
-/** The alternatives of `HullChainStride`'s site. */
-type HullChainStride = 1 | -1;
-
-/** The record of `IHull`'s site. */
-type IHull = { x: number; z: number };
 
 /** The record of `IMeanResult`'s site. */
 type IMeanResult = {
@@ -107,42 +99,6 @@ function mean(outline: readonly IMeanOutlineItem[]): IMeanResult {
     z += p.z / outline.length;
   }
   return { x, z };
-}
-
-/**
- * Andrew's monotone chain on the caller's owned planar projection, sorted in
- * place and traversed in both directions without a reversed copy; the corners
- * kept are the caller's own records.
- */
-function hull<T extends IHull>(points: T[]): T[] {
-  const sorted: T[] = points.sort(
-    (a: T, b: T): number => a.x - b.x || a.z - b.z,
-  );
-  if (sorted.length < 3) return sorted;
-  const turn: (o: T, a: T, b: T) => number = (o: T, a: T, b: T): number =>
-    (a.x - o.x) * (b.z - o.z) - (a.z - o.z) * (b.x - o.x);
-  const chain: (first: number, end: number, stride: HullChainStride) => T[] = (
-    first: number,
-    end: number,
-    stride: HullChainStride2,
-  ): T[] => {
-    const out: T[] = [];
-    for (let i: number = first; i !== end; i += stride) {
-      const p: T = sorted[i]!;
-      while (
-        out.length >= 2 &&
-        turn(out[out.length - 2]!, out[out.length - 1]!, p) <= 0
-      )
-        out.pop();
-      out.push(p);
-    }
-    out.pop();
-    return out;
-  };
-  const lower: T[] = chain(0, sorted.length, 1);
-  const upper: T[] = chain(sorted.length - 1, -1, -1);
-  for (const p of upper) lower.push(p);
-  return lower;
 }
 
 /**
@@ -220,15 +176,18 @@ function halfPlanes(
 export function HumanFitBalanceBase(
   points: readonly IAutoMovieVector3[],
 ): HumanFitBalanceBase.IPlanes & IOfResult {
-  const corners: HumanFitBalanceBase.ICorner[] = hull(
-    points.map(
-      (p: IAutoMovieVector3, i: number): HumanFitBalanceBase.ICorner => ({
-        x: p.x,
-        z: p.z,
-        i,
-      }),
-    ),
-  );
+  const corners: HumanFitBalanceBase.ICorner[] =
+    AutoMovieEnginePlanarHull.vertices(
+      points.map(
+        (p: IAutoMovieVector3, i: number): HumanFitBalanceBase.ICorner => ({
+          x: p.x,
+          z: p.z,
+          i,
+        }),
+      ),
+      "x",
+      "z",
+    );
   return { ...halfPlanes(corners), corners };
 }
 

@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -88,7 +88,10 @@ export namespace FamilyCaseKit {
     return {
       id,
       man,
-      body: createHumanBody(man.body.skeleton, man.body.profile),
+      body: AutoMovieMotionHumanBody.create(
+        man.body.skeleton,
+        man.body.profile,
+      ),
     };
   }
 

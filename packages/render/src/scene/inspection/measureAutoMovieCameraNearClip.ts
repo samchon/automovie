@@ -15,6 +15,8 @@ import {
 } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { clipInspectionPolygon } from "./internal/clipInspectionPolygon.js";
+import { inspectionPlaneRoundingSlack } from "./internal/inspectionPlaneRoundingSlack.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
@@ -177,14 +179,15 @@ export function measureAutoMovieCameraNearClip(
         let count: number = 3;
         for (let k: number = 0; k < 3; ++k) polygon[k]!.copy(corners[k]!);
         for (const plane of sides) {
-          count = clip(polygon, count, plane, scratch);
+          count = clipInspectionPolygon(polygon, count, plane, scratch);
           if (count === 0) break;
           for (let k: number = 0; k < count; ++k) polygon[k]!.copy(scratch[k]!);
         }
         for (let k: number = 0; k < count; ++k) {
           const point: Vector3 = polygon[k]!;
           const distance: number = near.distanceToPoint(point);
-          const tolerance: number = slack + rounding(near, point);
+          const tolerance: number =
+            slack + inspectionPlaneRoundingSlack(near, point);
           if (distance >= -tolerance) continue;
           const depth: number = -distance;
           if (
@@ -295,41 +298,4 @@ function leastDistance(box: Box3, plane: Plane): number {
 /** The same plane facing the other way. */
 function flip(plane: Plane): Plane {
   return plane.clone().negate();
-}
-
-/** Rounding slack of one plane evaluation, 32 ulps of its largest term. */
-function rounding(plane: Plane, point: Vector3): number {
-  return (
-    32 *
-    Number.EPSILON *
-    (1 +
-      Math.abs(plane.normal.x * point.x) +
-      Math.abs(plane.normal.y * point.y) +
-      Math.abs(plane.normal.z * point.z) +
-      Math.abs(plane.constant))
-  );
-}
-
-/**
- * Keep the part of a convex polygon on the plane's inner side
- * (Sutherland-Hodgman). A triangle clipped by four planes has at most seven
- * vertices, within the eight-slot scratch.
- */
-function clip(
-  polygon: readonly Vector3[],
-  count: number,
-  plane: Plane,
-  output: Vector3[],
-): number {
-  let written: number = 0;
-  for (let k: number = 0; k < count; ++k) {
-    const current: Vector3 = polygon[k]!;
-    const next: Vector3 = polygon[(k + 1) % count]!;
-    const a: number = plane.distanceToPoint(current);
-    const b: number = plane.distanceToPoint(next);
-    if (a >= 0) output[written++]!.copy(current);
-    if (a >= 0 !== b >= 0)
-      output[written++]!.lerpVectors(current, next, a / (a - b));
-  }
-  return written;
 }

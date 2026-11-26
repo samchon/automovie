@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_SWING_BACKHAND_DRIVE } from "../next/presets/HUMAN_SWING_BACKHAND_DRIVE";
 import { HUMAN_SWING_BAT } from "../next/presets/HUMAN_SWING_BAT";
 import { HUMAN_SWING_BUNT } from "../next/presets/HUMAN_SWING_BUNT";
@@ -83,7 +83,11 @@ export namespace HumanSportSwing {
    */
   export const batSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["batSwing"]
-  > = HumanActionRow("batSwing", HumanSword.cutAt(BAT_SPEED), HUMAN_SWING_BAT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "batSwing",
+    HumanSword.cutAt(BAT_SPEED),
+    HUMAN_SWING_BAT,
+  );
 
   /**
    * A checked swing: the bat started at the swing's speed (`BAT_SPEED`) and
@@ -91,7 +95,7 @@ export namespace HumanSportSwing {
    */
   export const checkSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["checkSwing"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "checkSwing",
     HumanSword.cutAt(BAT_SPEED),
     HUMAN_SWING_CHECK,
@@ -100,7 +104,11 @@ export namespace HumanSportSwing {
   /** A bunt: the bat held level before the body in both hands. */
   export const bunt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["bunt"]
-  > = HumanActionRow("bunt", HumanSwordGuard.guard, HUMAN_SWING_BUNT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "bunt",
+    HumanSwordGuard.guard,
+    HUMAN_SWING_BUNT,
+  );
 
   /**
    * A forehand drive of tennis, squash or table tennis; the racket head at the
@@ -109,7 +117,7 @@ export namespace HumanSportSwing {
    */
   export const forehand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["forehand"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "forehand",
     HumanSword.cutAt(RACKET_SPEED),
     HUMAN_SWING_FOREHAND,
@@ -121,7 +129,7 @@ export namespace HumanSportSwing {
    */
   export const backhandDrive: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["backhandDrive"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "backhandDrive",
     HumanSword.cut,
     HUMAN_SWING_BACKHAND_DRIVE,
@@ -133,7 +141,7 @@ export namespace HumanSportSwing {
    */
   export const twoHandBackhand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["twoHandBackhand"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "twoHandBackhand",
     HumanSword.cut,
     HUMAN_SWING_TWO_HAND_BACKHAND,
@@ -145,7 +153,11 @@ export namespace HumanSportSwing {
    */
   export const topspin: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["topspin"]
-  > = HumanActionRow("topspin", HumanSword.cut, HUMAN_SWING_TOPSPIN);
+  > = AutoMovieMotionHumanActionRow.of(
+    "topspin",
+    HumanSword.cut,
+    HUMAN_SWING_TOPSPIN,
+  );
 
   /**
    * A serve, a smash or a badminton clear: the racket brought down from
@@ -154,7 +166,7 @@ export namespace HumanSportSwing {
    */
   export const overheadSmash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["overheadSmash"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "overheadSmash",
     HumanSword.cut,
     HUMAN_SWING_OVERHEAD_SMASH,
@@ -166,7 +178,11 @@ export namespace HumanSportSwing {
    */
   export const volley: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["volley"]
-  > = HumanActionRow("volley", HumanSword.cut, HUMAN_SWING_VOLLEY);
+  > = AutoMovieMotionHumanActionRow.of(
+    "volley",
+    HumanSword.cut,
+    HUMAN_SWING_VOLLEY,
+  );
 
   /**
    * A full golf swing: both hands, down from above the rear shoulder; the
@@ -174,7 +190,7 @@ export namespace HumanSportSwing {
    */
   export const golfSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["golfSwing"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "golfSwing",
     HumanSword.cutAt(CLUB_SPEED),
     HUMAN_SWING_GOLF_SWING,
@@ -186,7 +202,11 @@ export namespace HumanSportSwing {
    */
   export const putt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["putt"]
-  > = HumanActionRow("putt", HumanSword.cut, HUMAN_SWING_PUTT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "putt",
+    HumanSword.cut,
+    HUMAN_SWING_PUTT,
+  );
 
   /**
    * A volleyball spike or serve: the open hand brought down from overhead; the
@@ -194,5 +214,9 @@ export namespace HumanSportSwing {
    */
   export const spike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportSwing"]["spike"]
-  > = HumanActionRow("spike", HumanSword.cutAt(HAND_SPEED), HUMAN_SWING_SPIKE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "spike",
+    HumanSword.cutAt(HAND_SPEED),
+    HUMAN_SWING_SPIKE,
+  );
 }

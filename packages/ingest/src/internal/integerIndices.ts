@@ -2,13 +2,13 @@ import { integerIndex } from "./integerIndex";
 import { requiredArray } from "./requiredArray";
 
 /** Validate every index in an optional glTF reference array. */
-export const integerIndices: (
+export function integerIndices(
   value: unknown,
   length: number,
   path: string,
-) => void = (value: unknown, length: number, path: string): void => {
+): void {
   if (value === undefined) return;
   requiredArray(value, path).forEach((entry: unknown, index: number): void =>
     integerIndex(entry, length, `${path}[${index}]`, true),
   );
-};
+}

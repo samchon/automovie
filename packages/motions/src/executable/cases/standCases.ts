@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -40,7 +40,7 @@ export function standCases(
 ): IMotionCaptureCase[] {
   const men = names.map((name) => MotionBodies.population(name));
   const bodies: IAutoMovieMotionHumanBody[] = men.map((man) =>
-    createHumanBody(man.body.skeleton, man.body.profile),
+    AutoMovieMotionHumanBody.create(man.body.skeleton, man.body.profile),
   );
   let chain: IAutoMovieMotionHumanChain | undefined;
   names.forEach((_, i: number): void => {

@@ -13,17 +13,12 @@ import { object } from "./object";
  * order and checked finite; a mismatch or non-finite value throws with the
  * supplied path.
  */
-export const readMotionAccessor: (
+export function readMotionAccessor(
   source: IAccessorSource,
   accessorIndex: number,
   expectedType: "SCALAR" | "VEC3" | "VEC4",
   path: string,
-) => number[] = (
-  source: IAccessorSource,
-  accessorIndex: number,
-  expectedType: "SCALAR" | "VEC3" | "VEC4",
-  path: string,
-): number[] => {
+): number[] {
   const accessor: Record<string, unknown> = object(
     source.accessors[accessorIndex],
     `accessors[${accessorIndex}]`,
@@ -53,4 +48,4 @@ export const readMotionAccessor: (
       values[element * width + component] = value;
     }
   return values;
-};
+}

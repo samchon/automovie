@@ -6,7 +6,7 @@ import type {
 import { walk } from "../actions/walk";
 import { handToFace } from "../daily/handToFace";
 import { gesture } from "../everyday/gesture";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { touch } from "../touch/touch";
 
 /**
@@ -26,7 +26,7 @@ export namespace HumanHabit {
    */
   export const smoke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["smoke"]
-  > = HumanActionRow("smoke", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("smoke", handToFace, {
     kind: {
       region: "mouth",
       effector: {
@@ -57,7 +57,7 @@ export namespace HumanHabit {
    */
   export const readingWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["readingWalk"]
-  > = HumanActionRow("readingWalk", walk, {
+  > = AutoMovieMotionHumanActionRow.of("readingWalk", walk, {
     manner: { pace: 2 / 3 },
   });
 
@@ -74,7 +74,7 @@ export namespace HumanHabit {
    */
   export const photograph: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["photograph"]
-  > = HumanActionRow("photograph", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("photograph", handToFace, {
     point: "screen",
     grasp: { handle: "grip", line: "across" },
     other: "support",
@@ -104,7 +104,7 @@ export namespace HumanHabit {
    */
   export const checkPhone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["checkPhone"]
-  > = HumanActionRow("checkPhone", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("checkPhone", handToFace, {
     kind: "read",
   });
 
@@ -116,7 +116,7 @@ export namespace HumanHabit {
    */
   export const checkWatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["checkWatch"]
-  > = HumanActionRow("checkWatch", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("checkWatch", handToFace, {
     kind: {
       region: null,
       effector: {
@@ -142,7 +142,7 @@ export namespace HumanHabit {
    */
   export const applyLipstick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["applyLipstick"]
-  > = HumanActionRow("applyLipstick", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("applyLipstick", handToFace, {
     kind: {
       region: "mouth",
       effector: {
@@ -170,7 +170,7 @@ export namespace HumanHabit {
    */
   export const shave: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["shave"]
-  > = HumanActionRow("shave", touch, {
+  > = AutoMovieMotionHumanActionRow.of("shave", touch, {
     target: { kind: "self", region: "jawRight" },
     kind: "rub",
     count: 3,
@@ -184,7 +184,7 @@ export namespace HumanHabit {
    */
   export const rubEyes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["rubEyes"]
-  > = HumanActionRow("rubEyes", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("rubEyes", handToFace, {
     kind: {
       region: "noseBridge",
       effector: { surface: "indexTip", shape: "flat" },
@@ -203,7 +203,7 @@ export namespace HumanHabit {
    */
   export const scratchNape: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["scratchNape"]
-  > = HumanActionRow("scratchNape", touch, {
+  > = AutoMovieMotionHumanActionRow.of("scratchNape", touch, {
     target: { kind: "self", region: "nape" },
     effector: "fingertips",
     kind: "scratch",
@@ -216,7 +216,7 @@ export namespace HumanHabit {
    */
   export const blowNose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["blowNose"]
-  > = HumanActionRow("blowNose", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("blowNose", handToFace, {
     kind: {
       region: "nose",
       effector: { surface: "palm", shape: "flat" },
@@ -235,7 +235,7 @@ export namespace HumanHabit {
    */
   export const applyCream: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["applyCream"]
-  > = HumanActionRow("applyCream", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("applyCream", handToFace, {
     kind: "washFace",
     count: 2,
   });
@@ -247,7 +247,7 @@ export namespace HumanHabit {
    */
   export const fanSelf: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["fanSelf"]
-  > = HumanActionRow("fanSelf", gesture, {
+  > = AutoMovieMotionHumanActionRow.of("fanSelf", gesture, {
     kind: "wave",
     count: 6,
   });
@@ -259,7 +259,7 @@ export namespace HumanHabit {
    */
   export const sniff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["sniff"]
-  > = HumanActionRow("sniff", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("sniff", handToFace, {
     kind: {
       region: "nose",
       effector: {
@@ -285,12 +285,16 @@ export namespace HumanHabit {
    */
   export const flickHair: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["flickHair"]
-  > = HumanActionRow("flickHair", touch.stroked(touch.FLICK), {
-    target: { kind: "self", region: "templeRight" },
-    effector: "handBack",
-    kind: "stroke",
-    hand: "right",
-  });
+  > = AutoMovieMotionHumanActionRow.of(
+    "flickHair",
+    touch.stroked(touch.FLICK),
+    {
+      target: { kind: "self", region: "templeRight" },
+      effector: "handBack",
+      kind: "stroke",
+      hand: "right",
+    },
+  );
 
   /**
    * A selfie: a phone held out before the eyes at the reading distance, the
@@ -299,7 +303,7 @@ export namespace HumanHabit {
    */
   export const selfie: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["selfie"]
-  > = HumanActionRow("selfie", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("selfie", handToFace, {
     kind: {
       region: null,
       effector: {
@@ -325,7 +329,7 @@ export namespace HumanHabit {
    */
   export const lightCigarette: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["lightCigarette"]
-  > = HumanActionRow("lightCigarette", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("lightCigarette", handToFace, {
     kind: {
       region: "mouth",
       effector: {
@@ -352,7 +356,7 @@ export namespace HumanHabit {
    */
   export const ashTap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["ashTap"]
-  > = HumanActionRow("ashTap", touch, {
+  > = AutoMovieMotionHumanActionRow.of("ashTap", touch, {
     kind: "tap",
     count: 2,
     point: "flame",
@@ -366,7 +370,7 @@ export namespace HumanHabit {
    */
   export const stubOut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["habit"]["stubOut"]
-  > = HumanActionRow("stubOut", touch, {
+  > = AutoMovieMotionHumanActionRow.of("stubOut", touch, {
     kind: "press",
     count: 1,
     point: "flame",

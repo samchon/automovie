@@ -6,7 +6,7 @@ import type {
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanSignature } from "@automovie/motions";
+import { AutoMovieMotionHumanSignature } from "@automovie/motions";
 
 import { MOTION_HUMAN_LAW_STAGES } from "./MOTION_HUMAN_LAW_STAGES";
 import { motionCoveringArray } from "./motionCoveringArray";
@@ -44,7 +44,7 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
  */
 export namespace motionHumanSignature {
   /** How near the floor a sole socket bears, metres. */
-  export const CONTACT: number = HumanSignature.CONTACT;
+  export const CONTACT: number = AutoMovieMotionHumanSignature.CONTACT;
 
   /** A performed row. */
   export interface IStaged {
@@ -127,7 +127,12 @@ export namespace motionHumanSignature {
   export function reader(
     staged: IStaged,
   ): IAutoMovieMotionHumanSignature.IReader {
-    return HumanSignature(staged.film, "a", staged.body, staged.yaw);
+    return AutoMovieMotionHumanSignature.read(
+      staged.film,
+      "a",
+      staged.body,
+      staged.yaw,
+    );
   }
 
   /** The bones of `a` at a second. */
@@ -135,7 +140,7 @@ export namespace motionHumanSignature {
     staged: IStaged,
     seconds: number,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-    return HumanSignature.bones(reader(staged), seconds);
+    return AutoMovieMotionHumanSignature.bones(reader(staged), seconds);
   }
 
   /** A joint centre of `a` at a second. */
@@ -144,18 +149,19 @@ export namespace motionHumanSignature {
     seconds: number,
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieVector3 {
-    return HumanSignature.joint(reader(staged), seconds, bone);
+    return AutoMovieMotionHumanSignature.joint(reader(staged), seconds, bone);
   }
 
   /** The performer's forward on the floor. */
-  export const forward: typeof HumanSignature.forward = HumanSignature.forward;
+  export const forward: typeof AutoMovieMotionHumanSignature.forward =
+    AutoMovieMotionHumanSignature.forward;
 
   /**
    * The trunk's inclination of `a`, degrees, positive forward
-   * (`HumanSignature.trunk`).
+   * (`AutoMovieMotionHumanSignature.trunk`).
    */
   export function trunk(staged: IStaged, seconds: number): number {
-    return HumanSignature.trunk(reader(staged), seconds);
+    return AutoMovieMotionHumanSignature.trunk(reader(staged), seconds);
   }
   /** Each body's quiet-stance trunk reading, computed once a process. */
   const UPRIGHT: Map<string, number> = new Map();
@@ -202,7 +208,8 @@ export namespace motionHumanSignature {
    * The angle a distal segment turns from its proximal one at a joint: 0
    * straight, degrees.
    */
-  export const flexion: typeof HumanSignature.flexion = HumanSignature.flexion;
+  export const flexion: typeof AutoMovieMotionHumanSignature.flexion =
+    AutoMovieMotionHumanSignature.flexion;
 
   /** A knee's flexion, degrees. */
   export function knee(
@@ -210,7 +217,7 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): number {
-    return HumanSignature.knee(reader(staged), seconds, side);
+    return AutoMovieMotionHumanSignature.knee(reader(staged), seconds, side);
   }
 
   /** A hip's flexion: the thigh's turn from the trunk's line, degrees. */
@@ -219,7 +226,7 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): number {
-    return HumanSignature.hip(reader(staged), seconds, side);
+    return AutoMovieMotionHumanSignature.hip(reader(staged), seconds, side);
   }
 
   /** An elbow's flexion, degrees. */
@@ -228,7 +235,7 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): number {
-    return HumanSignature.elbow(reader(staged), seconds, side);
+    return AutoMovieMotionHumanSignature.elbow(reader(staged), seconds, side);
   }
 
   /**
@@ -236,12 +243,12 @@ export namespace motionHumanSignature {
    * degrees.
    */
   export function head(staged: IStaged, seconds: number): number {
-    return HumanSignature.head(reader(staged), seconds);
+    return AutoMovieMotionHumanSignature.head(reader(staged), seconds);
   }
 
   /** The whole-body centre of mass of `a`, world metres. */
   export function centre(staged: IStaged, seconds: number): IAutoMovieVector3 {
-    return HumanSignature.centre(reader(staged), seconds);
+    return AutoMovieMotionHumanSignature.centre(reader(staged), seconds);
   }
 
   /** The lowest sole socket of a foot, world metres. */
@@ -250,12 +257,12 @@ export namespace motionHumanSignature {
     seconds: number,
     side: "left" | "right",
   ): IAutoMovieVector3 {
-    return HumanSignature.sole(reader(staged), seconds, side);
+    return AutoMovieMotionHumanSignature.sole(reader(staged), seconds, side);
   }
 
   /**
    * Whether a foot of `a` bears on a floor at a height
-   * (`HumanSignature.bears`).
+   * (`AutoMovieMotionHumanSignature.bears`).
    */
   export function bears(
     staged: IStaged,
@@ -264,38 +271,48 @@ export namespace motionHumanSignature {
     floor: number = 0,
     origin?: number,
   ): boolean {
-    return HumanSignature.bears(reader(staged), seconds, side, floor, origin);
+    return AutoMovieMotionHumanSignature.bears(
+      reader(staged),
+      seconds,
+      side,
+      floor,
+      origin,
+    );
   }
 
   /** The least time between two strikes of one foot, seconds. */
-  export const STRIDE: number = HumanSignature.STRIDE;
+  export const STRIDE: number = AutoMovieMotionHumanSignature.STRIDE;
 
   /**
    * The horizontal speed below which a low sole counts as bearing, metres per
    * second.
    */
-  export const SLIDE: number = HumanSignature.SLIDE;
+  export const SLIDE: number = AutoMovieMotionHumanSignature.SLIDE;
 
   /**
    * Samples a second for a mean or an extreme over a held posture or a whole
    * act.
    */
-  export const HELD: number = HumanSignature.HELD;
+  export const HELD: number = AutoMovieMotionHumanSignature.HELD;
 
   /** Instants from `from` to `to` at a rate. */
-  export const times: typeof HumanSignature.times = HumanSignature.times;
+  export const times: typeof AutoMovieMotionHumanSignature.times =
+    AutoMovieMotionHumanSignature.times;
 
   /** The gait of a window: the duty factor of each foot and the cadence. */
   export type IGait = IAutoMovieMotionHumanSignature.IGait;
 
-  /** The gait of `a` over a window of steady travel (`HumanSignature.gait`). */
+  /**
+   * The gait of `a` over a window of steady travel
+   * (`AutoMovieMotionHumanSignature.gait`).
+   */
   export function gait(
     staged: IStaged,
     from: number,
     to: number,
     rate: number = 120,
   ): IGait {
-    return HumanSignature.gait(reader(staged), from, to, rate);
+    return AutoMovieMotionHumanSignature.gait(reader(staged), from, to, rate);
   }
 
   /** The peak speed of a joint centre of `a` over a window, metres per second. */
@@ -305,7 +322,7 @@ export namespace motionHumanSignature {
     from: number,
     to: number,
   ): number {
-    return HumanSignature.speed(reader(staged), bone, from, to);
+    return AutoMovieMotionHumanSignature.speed(reader(staged), bone, from, to);
   }
 
   /** A region of a person placed on their displayed bones, world metres. */
@@ -316,8 +333,13 @@ export namespace motionHumanSignature {
     name: string,
     seconds: number,
   ): IAutoMovieVector3 {
-    return HumanSignature.region(
-      HumanSignature(staged.film, subject, body, staged.yaw),
+    return AutoMovieMotionHumanSignature.region(
+      AutoMovieMotionHumanSignature.read(
+        staged.film,
+        subject,
+        body,
+        staged.yaw,
+      ),
       name as AutoMovieHumanoidRegion,
       seconds,
     );
@@ -332,15 +354,16 @@ export namespace motionHumanSignature {
     seconds: number,
     partner: IAutoMovieMotionHumanBody,
   ): number {
-    return HumanSignature.apart(
+    return AutoMovieMotionHumanSignature.apart(
       reader(staged),
-      HumanSignature(staged.film, "b", partner, staged.yaw),
+      AutoMovieMotionHumanSignature.read(staged.film, "b", partner, staged.yaw),
       seconds,
     );
   }
 
   /** The mean of a reading over instants. */
-  export const mean: typeof HumanSignature.mean = HumanSignature.mean;
+  export const mean: typeof AutoMovieMotionHumanSignature.mean =
+    AutoMovieMotionHumanSignature.mean;
   /** The film second of a named event, or undefined when the law has none. */
   export function event(staged: IStaged, name: string): number | undefined {
     try {

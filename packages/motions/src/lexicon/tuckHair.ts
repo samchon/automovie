@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { armPhrase } from "../everyday/armPhrase";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "../next/presets/HUMAN_HAND_TO_BODY_TUCK_HAIR";
 
 /**
@@ -18,4 +18,8 @@ import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "../next/presets/HUMAN_HAND_TO_BODY
  * head as the fingertip passes the ear landmark.
  */
 export const tuckHair: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ITuckHair> =
-  HumanActionRow("tuckHair", armPhrase, HUMAN_HAND_TO_BODY_TUCK_HAIR);
+  AutoMovieMotionHumanActionRow.of(
+    "tuckHair",
+    armPhrase,
+    HUMAN_HAND_TO_BODY_TUCK_HAIR,
+  );

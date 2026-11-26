@@ -3,6 +3,7 @@ export * from "./compiledLodModelDigest";
 export * from "./compiledPopulationRepresentation";
 export * from "./constants";
 export * from "./createCompiledSlotSummary";
+export * from "./formation";
 export * from "./instancePrototypeChoices";
 export * from "./instanceSlot";
 export * from "./materializeCompiledFormation";

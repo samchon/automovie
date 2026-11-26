@@ -1,20 +1,11 @@
 import type { IParsedContainer } from "./IParsedContainer";
 import { decodeJson } from "./decodeJson";
 
-const GLB_MAGIC: number = 0x46546c67;
-
-const GLB_JSON_CHUNK: number = 0x4e4f534a;
-
-const GLB_BIN_CHUNK: number = 0x004e4942;
-
 /** Decode one GLB 2.0 container's mandatory JSON and optional BIN chunk. */
-export const decodeGlb: (
+export function decodeGlb(
   bytes: Uint8Array,
   vrmExtension: boolean,
-) => IParsedContainer = (
-  bytes: Uint8Array,
-  vrmExtension: boolean,
-): IParsedContainer => {
+): IParsedContainer {
   if (bytes.byteLength < 20)
     throw new Error("GLB/VRM container is shorter than its mandatory header.");
   const view: DataView = new DataView(
@@ -57,4 +48,10 @@ export const decodeGlb: (
     format: vrmExtension ? "vrm" : "glb",
     bin,
   };
-};
+}
+
+const GLB_MAGIC: number = 0x46546c67;
+
+const GLB_JSON_CHUNK: number = 0x4e4f534a;
+
+const GLB_BIN_CHUNK: number = 0x004e4942;

@@ -67,11 +67,9 @@ import { isAutoMovieExternalModelIngestProfile } from "./isAutoMovieExternalMode
  *   entry, with caller-owned cost and effects.
  * @returns New facts that hold no reference to the input bytes.
  */
-export const inspectAutoMovieExternalModelBytes: (
+export function inspectAutoMovieExternalModelBytes(
   props: IAutoMovieExternalModelInspection.IProps,
-) => IAutoMovieExternalModelInspection = (
-  props: IAutoMovieExternalModelInspection.IProps,
-): IAutoMovieExternalModelInspection => {
+): IAutoMovieExternalModelInspection {
   if (isAutoMovieExternalModelIngestProfile(props.profile) === false)
     throw new Error(
       `Unsupported external-model ingest profile "${props.profile}".`,
@@ -338,4 +336,4 @@ export const inspectAutoMovieExternalModelBytes: (
     ),
     ...(motion === undefined ? {} : { motion }),
   };
-};
+}

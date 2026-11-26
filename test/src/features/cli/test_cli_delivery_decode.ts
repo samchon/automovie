@@ -11,11 +11,20 @@ import { writeDeliveryMp4Header } from "../internal/writeDeliveryMp4Header";
  * Reads the native video and audio evidence supplied by the delivery CLI.
  *
  * Scenarios:
- * 1. The video plan preserves timestamps, runs both detectors once, and uses a null output. The audio plan emits f32le on stdout.
- * 2. A fractional presentation grid retains exact carrier and reference-frame times. Black closes at a nonblack frame and a freeze remains open at EOF.
- * 3. A suffix reporting a rounded EOF does not override decoded duration. Missing native frame duration or ambiguous freeze time makes the stream uncovered.
- * 4. The audio scan spans split floats and stereo frames, preserves exact silence bounds, and requires all channels to be quiet.
- * 5. Partial PCM, audio frame gaps and decoder refusal do not establish continuous coverage.
+ *
+ * 1. The video plan preserves timestamps, runs both detectors once, and uses a
+ *    null output. The audio plan emits f32le on stdout.
+ * 2. A fractional presentation grid retains exact carrier and reference-frame
+ *    times. Black closes at a nonblack frame and a freeze remains open at EOF.
+ * 3. A suffix reporting a rounded EOF does not override decoded duration. Missing
+ *    native frame duration or ambiguous freeze time makes the stream
+ *    uncovered.
+ * 4. The audio scan spans split floats and stereo frames, preserves exact silence
+ *    bounds, and requires all channels to be quiet.
+ * 5. Partial PCM, audio frame gaps and decoder refusal do not establish continuous
+ *    coverage.
+ * 6. A one-tick frame at 1 fps uses the exact native time base. An unsafe ratio
+ *    that would round to one second per tick leaves the video uncovered.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the native evidence and clock behaviors checked by each case.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real delivery entry with a process runner fixture and feeds it split text and PCM exactly as the process owner does.
@@ -34,7 +43,10 @@ export async function test_cli_delivery_decode(): Promise<void> {
   }
 }
 
-/** Runs every scenario against one delivery path holding a six-sample audio movie header. */
+/**
+ * Runs every scenario against one delivery path holding a six-sample audio
+ * movie header.
+ */
 async function decodeDelivery(path: string): Promise<void> {
   await fs.writeFile(
     path,
@@ -280,4 +292,40 @@ async function decodeDelivery(path: string): Promise<void> {
     status: "uncovered",
     reason: "Decoder exited before EOF",
   });
+
+  const decodeOneFrame = (
+    timeBase: string,
+  ): Promise<IAutoMovieDeliveryContentAudit.IProps["streams"]> =>
+    runAutoMovieDeliveryDecode(
+      "fixture-ffmpeg",
+      path,
+      { frameRate: [1, 1], frameCount: 1 },
+      thresholds,
+      async (): Promise<string> =>
+        [
+          ...headers.slice(0, -1),
+          `[Parsed_showinfo_0 @ abc] config in time_base: ${timeBase}, frame_rate: 1/1`,
+          "[Parsed_showinfo_0 @ abc] n: 0 pts: 0 pts_time:0 duration: 1 duration_time:1 fmt:yuv420p",
+        ].join("\n"),
+    );
+  TestValidator.equals(
+    "one frame covers one exact tick",
+    (await decodeOneFrame("1/1")).video,
+    {
+      status: "decoded",
+      index: 0,
+      start: { ticks: 0, timeBase: [1, 1] },
+      end: { ticks: 1, timeBase: [1, 1] },
+      continuous: true,
+      observations: [],
+    },
+  );
+  TestValidator.equals(
+    "an unsafe time base leaves the frame uncovered",
+    (await decodeOneFrame("9007199254740993/9007199254740992")).video,
+    {
+      status: "uncovered",
+      reason: "Incomplete or invalid decoder frame evidence",
+    },
+  );
 }

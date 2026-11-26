@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { rest } from "../everyday/rest";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_STANCE_ARMS_CROSSED } from "../next/presets/HUMAN_STANCE_ARMS_CROSSED";
 import { HUMAN_STANCE_HANDS_BEHIND_HEAD } from "../next/presets/HUMAN_STANCE_HANDS_BEHIND_HEAD";
 import { HUMAN_STANCE_HANDS_CLASPED } from "../next/presets/HUMAN_STANCE_HANDS_CLASPED";
@@ -22,63 +22,87 @@ export namespace HumanStance {
   /** Arms crossed on the chest. */
   export const armsCrossed: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["armsCrossed"]
-  > = HumanActionRow("armsCrossed", rest, HUMAN_STANCE_ARMS_CROSSED);
+  > = AutoMovieMotionHumanActionRow.of(
+    "armsCrossed",
+    rest,
+    HUMAN_STANCE_ARMS_CROSSED,
+  );
 
   /** Hands on the hips. */
   export const handsOnHips: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsOnHips"]
-  > = HumanActionRow("handsOnHips", rest, HUMAN_STANCE_HANDS_ON_HIPS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "handsOnHips",
+    rest,
+    HUMAN_STANCE_HANDS_ON_HIPS,
+  );
 
   /** Hands in the pockets. */
   export const handsInPockets: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsInPockets"]
-  > = HumanActionRow("handsInPockets", rest, HUMAN_STANCE_HANDS_IN_POCKETS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "handsInPockets",
+    rest,
+    HUMAN_STANCE_HANDS_IN_POCKETS,
+  );
 
   /** Parade rest: the hands clasped behind the back. */
   export const paradeRest: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["paradeRest"]
-  > = HumanActionRow("paradeRest", rest, HUMAN_STANCE_PARADE_REST);
+  > = AutoMovieMotionHumanActionRow.of(
+    "paradeRest",
+    rest,
+    HUMAN_STANCE_PARADE_REST,
+  );
 
   /** The hands clasped in front. */
   export const handsClasped: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsClasped"]
-  > = HumanActionRow("handsClasped", rest, HUMAN_STANCE_HANDS_CLASPED);
+  > = AutoMovieMotionHumanActionRow.of(
+    "handsClasped",
+    rest,
+    HUMAN_STANCE_HANDS_CLASPED,
+  );
 
   /** The hands behind the head. */
   export const handsBehindHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["handsBehindHead"]
-  > = HumanActionRow("handsBehindHead", rest, HUMAN_STANCE_HANDS_BEHIND_HEAD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "handsBehindHead",
+    rest,
+    HUMAN_STANCE_HANDS_BEHIND_HEAD,
+  );
 
   /** The thinker: the chin on one hand, the other arm supporting its elbow. */
   export const thinking: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["thinking"]
-  > = HumanActionRow("thinking", rest, HUMAN_STANCE_THINKING);
+  > = AutoMovieMotionHumanActionRow.of("thinking", rest, HUMAN_STANCE_THINKING);
 
   /** A victory raise of the arms. */
   export const victory: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["victory"]
-  > = HumanActionRow("victory", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("victory", selfAction, {
     kind: "victory",
   });
 
   /** A fist pump. */
   export const fistPump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["fistPump"]
-  > = HumanActionRow("fistPump", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("fistPump", selfAction, {
     kind: "fistPump",
   });
 
   /** A stretch on waking or after sitting long. */
   export const bigStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["bigStretch"]
-  > = HumanActionRow("bigStretch", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("bigStretch", selfAction, {
     kind: "stretch",
   });
 
   /** A roll of a stiff neck. */
   export const neckRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["stance"]["neckRoll"]
-  > = HumanActionRow("neckRoll", selfAction, {
+  > = AutoMovieMotionHumanActionRow.of("neckRoll", selfAction, {
     kind: "neckRoll",
   });
 }

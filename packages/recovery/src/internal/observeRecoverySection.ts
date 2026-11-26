@@ -1,7 +1,8 @@
+import { AutoMovieEnginePlanarArea } from "@automovie/engine";
 import type {
+  AutoMovieVector2Tuple,
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
-  IAutoMovieCubicBezierCurve64,
   IAutoMoviePolylineFit,
   IAutoMovieRecoveryMeshSections,
   IAutoMovieRecoverySectionObservationOperation,
@@ -10,7 +11,7 @@ import type {
 
 import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
-import { signedArea } from "./mesh-observations/signedArea";
+import { to2 } from "./mesh-observations/to2";
 
 /**
  * Observe and fit every contour on one fixed private section. An optional
@@ -36,7 +37,7 @@ export function observeRecoverySection(
     a: number,
     b: number,
   ): string => (a < b ? `${a},${b}` : `${b},${a}`);
-  const loops: { curve: IAutoMovieCubicBezierCurve64; winding: 1 | -1 }[] = [];
+  const loops: IAutoMovieContourLoft64.ISection["loops"][number][] = [];
   const section: IAutoMovieContourLoft64.ISection = { coordinateMm, loops };
   const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
     coordinateMm,
@@ -68,8 +69,8 @@ export function observeRecoverySection(
     let acceptedFit: Accepted | undefined;
     let reversed: boolean = false;
     try {
-      let points: [number, number, number][] = contour.pts.map(
-        (p: (typeof contour.pts)[number]): [number, number, number] => [...p.p],
+      const points: AutoMovieVector3Tuple[] = contour.pts.map(
+        (p: (typeof contour.pts)[number]): AutoMovieVector3Tuple => [...p.p],
       );
       if (points.length < (contour.closed ? 3 : 2)) {
         report.diagnostics.push(
@@ -82,18 +83,15 @@ export function observeRecoverySection(
       let winding: 1 | -1 = 1;
       if (contour.closed) {
         winding = orientation(plane, contour) < 0 ? -1 : 1;
-        const area: number = signedArea(
-          points.map((p: Readonly<AutoMovieVector3Tuple>): [number, number] => [
-            (p[0] - plane.origin[0]) * plane.u[0] +
-              (p[1] - plane.origin[1]) * plane.u[1] +
-              (p[2] - plane.origin[2]) * plane.u[2],
-            (p[0] - plane.origin[0]) * plane.v[0] +
-              (p[1] - plane.origin[1]) * plane.v[1] +
-              (p[2] - plane.origin[2]) * plane.v[2],
-          ]),
+        // Fit closed curves in a common point order while retaining the source material side.
+        const area: number = AutoMovieEnginePlanarArea.measureTuples(
+          points.map(
+            (point: AutoMovieVector3Tuple): AutoMovieVector2Tuple =>
+              to2(plane, point),
+          ),
         );
         if (area < 0) {
-          points = points.reverse();
+          points.reverse();
           reversed = true;
         }
       }

@@ -4,6 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { readInspectionNumber } from "./internal/readInspectionNumber.js";
+import { readInspectionVector } from "./internal/readInspectionVector.js";
+
 /** The accepted forms, quoted in every refusal. */
 const FORMS: string =
   "film; x,y,z:tx,ty,tz in metres, followed by any of @ortho=<metres per pixel> or @up=x,y,z; or a name such as front, followed by any of @ortho, @follow, @focus=<pattern> or @flagged";
@@ -64,9 +67,9 @@ export function parseAutoMovieInspectionView(
   if (head!.includes(":")) {
     const halves: string[] = head!.split(":");
     const position: IAutoMovieVector3 | null =
-      halves.length === 2 ? triple(halves[0]!) : null;
+      halves.length === 2 ? readInspectionVector(halves[0]!) : null;
     const target: IAutoMovieVector3 | null =
-      halves.length === 2 ? triple(halves[1]!) : null;
+      halves.length === 2 ? readInspectionVector(halves[1]!) : null;
     if (position === null || target === null)
       return refuse("is not two finite triples");
     const sight: IAutoMovieVector3 = {
@@ -86,14 +89,14 @@ export function parseAutoMovieInspectionView(
           return refuse(
             "is a fixed camera, whose @ortho states its metres per pixel as @ortho=<m>",
           );
-        const scale: number | null = finite(value);
+        const scale: number | null = readInspectionNumber(value);
         if (scale === null || !(scale > 0))
           return refuse(
             `has @ortho=${value}, which is not a positive number of metres per pixel`,
           );
         metresPerPixel = scale;
       } else if (key === "up" && written.startsWith("up=")) {
-        const direction: IAutoMovieVector3 | null = triple(value);
+        const direction: IAutoMovieVector3 | null = readInspectionVector(value);
         if (direction === null)
           return refuse(`has @up=${value}, which is not a finite triple`);
         up = direction;
@@ -145,40 +148,4 @@ export function parseAutoMovieInspectionView(
       );
   }
   return { type: "named", name: head!, orthographic, follow, focus };
-}
-
-/**
- * The vector a comma-separated triple spells, or null unless it is three finite
- * numbers.
- */
-function triple(text: string): IAutoMovieVector3 | null {
-  const values: number[] = [];
-  for (const part of text.split(",")) {
-    const value: number | null = finite(part);
-    if (value === null) return null;
-    values.push(value);
-  }
-  return values.length === 3
-    ? { x: values[0]!, y: values[1]!, z: values[2]! }
-    : null;
-}
-
-/**
- * A numeric literal as `Number` reads one: decimal with an optional exponent,
- * or a binary, octal or hexadecimal integer.
- */
-const NUMERIC: RegExp =
-  /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
-
-/**
- * The number a text spells, or null for blank, malformed or overflowing text.
- *
- * A spelled number is admitted up to the largest exactly representable integer,
- * 2^53 - 1: it is a metre count, a pixel scale or an integer, and any product of
- * two such numbers stays below 2^106, far inside binary64.
- */
-function finite(text: string): number | null {
-  if (!NUMERIC.test(text)) return null;
-  const value: number = Number(text);
-  return Math.abs(value) <= Number.MAX_SAFE_INTEGER ? value : null;
 }

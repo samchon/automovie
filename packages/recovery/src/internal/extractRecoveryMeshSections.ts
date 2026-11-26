@@ -1,12 +1,10 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
-  IAutoMovieCubicBezierCurve64,
   IAutoMovieMeshCriticalPoints,
   IAutoMovieMeshPlaneCut,
   IAutoMovieMeshSectionOrientation,
   IAutoMoviePlaneFrameConstruction,
-  IAutoMoviePolylineFit,
   IAutoMovieRecoveryCriticalBracketsPreparationOperation,
   IAutoMovieRecoveryInput,
   IAutoMovieRecoveryMeshIncidencePreparationOperation,
@@ -17,16 +15,14 @@ import type {
   IAutoMovieRecoverySourceLineage,
 } from "@automovie/interface";
 
-import { RecoveryBezierFit as F } from "./RecoveryBezierFit";
 import { RecoveryScalarIndex as S } from "./RecoveryScalarIndex";
 import { RecoverySlabGraph as G } from "./RecoverySlabGraph";
-import { collectRecoveryContourFaceSupport } from "./collectRecoveryContourFaceSupport";
 import { createRecoveryObservationPolicy } from "./createRecoveryObservationPolicy";
 import { critical } from "./mesh-observations/critical";
 import { cutExact } from "./mesh-observations/cutExact";
 import { planeFrame } from "./mesh-observations/planeFrame";
-import { signedArea } from "./mesh-observations/signedArea";
 import { sourceOrientation } from "./mesh-observations/sourceOrientation";
+import { observeRecoverySection } from "./observeRecoverySection";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
@@ -80,7 +76,6 @@ export function extractRecoveryMeshSections(
     mesh,
     faceEdges,
     vertexFaces,
-    edgeKey,
   }: ReturnType<IAutoMovieRecoveryMeshIncidencePreparationOperation.Operation> =
     prepareRecoveryMeshIncidence(input, vertices);
   const project: (p: Readonly<AutoMovieVector3Tuple>) => number = (
@@ -160,6 +155,13 @@ export function extractRecoveryMeshSections(
     sectionLimit === undefined
       ? plannedLevels
       : plannedLevels.slice(0, sectionLimit);
+  // Automatic extraction calls this observer without binding a receiver.
+  const publishSourceLineage:
+    | ((observation: IAutoMovieRecoverySourceLineage) => void)
+    | undefined = onSourceLineage
+    ? (observation: IAutoMovieRecoverySourceLineage): void =>
+        onSourceLineage(observation)
+    : undefined;
   progress?.("sections", 0, retainedLevels.length);
   for (const coordinateMm of retainedLevels) {
     const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
@@ -175,161 +177,19 @@ export function extractRecoveryMeshSections(
       coordinateMm,
       scalarIndex.cut(coordinateMm),
     );
-    const loops: { curve: IAutoMovieCubicBezierCurve64; winding: 1 | -1 }[] =
-      [];
-    const section: IAutoMovieContourLoft64.ISection = {
+    const observed = observeRecoverySection({
       coordinateMm,
-      loops,
-    };
-    const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
-      coordinateMm,
-      fits: [],
-      open: [],
-      isolatedContactsMm: [],
-      diagnostics: [],
-    };
-    const supports: Set<number>[] = [];
-    const faces: Set<number>[] = [],
-      defects: Set<number>[] = [];
-    for (let ci: number = 0; ci < contours.length; ci++) {
-      const contour: (typeof contours)[number] = contours[ci]!;
-      const faceSupport: Set<number> = collectRecoveryContourFaceSupport(
-        contour.pts,
-        vertexFaces,
-        faceEdges,
-        edgeKey,
-      );
-      let publication:
-        | IAutoMovieRecoverySourceLineage["publication"]
-        | undefined;
-      try {
-        let points: [number, number, number][] = contour.pts.map(
-          (p: (typeof contour.pts)[number]): [number, number, number] => [
-            ...p.p,
-          ],
-        );
-        if (points.length < (contour.closed ? 3 : 2)) {
-          report.diagnostics.push(
-            "Degenerate contour or isolated contact retained as unsupported",
-          );
-          for (const point of points) report.isolatedContactsMm.push(point);
-          defects.push(faceSupport);
-          continue;
-        }
-        let winding: 1 | -1 = 1;
-        if (contour.closed) {
-          winding = orientation(plane, contour) < 0 ? -1 : 1;
-          const area: number = signedArea(
-            points.map(
-              (p: Readonly<AutoMovieVector3Tuple>): [number, number] => [
-                (p[0] - plane.origin[0]) * plane.u[0] +
-                  (p[1] - plane.origin[1]) * plane.u[1] +
-                  (p[2] - plane.origin[2]) * plane.u[2],
-                (p[0] - plane.origin[0]) * plane.v[0] +
-                  (p[1] - plane.origin[1]) * plane.v[1] +
-                  (p[2] - plane.origin[2]) * plane.v[2],
-              ],
-            ),
-          );
-          if (area < 0) points = points.reverse();
-        }
-        const corners: number[] = [];
-        for (
-          let i: number = contour.closed ? 0 : 1;
-          i < points.length - (contour.closed ? 0 : 1);
-          i++
-        ) {
-          const a: Readonly<AutoMovieVector3Tuple> =
-              points[(i + points.length - 1) % points.length]!,
-            b: Readonly<AutoMovieVector3Tuple> = points[i]!,
-            c: Readonly<AutoMovieVector3Tuple> =
-              points[(i + 1) % points.length]!;
-          const u: number[] = b.map(
-              (x: number, k: number): number => x - a[k]!,
-            ),
-            v: number[] = c.map((x: number, k: number): number => x - b[k]!);
-          const cosine: number =
-            u.reduce(
-              (s: number, x: number, k: number): number => s + x * v[k]!,
-              0,
-            ) /
-            (Math.hypot(...u) * Math.hypot(...v));
-          if (
-            (Math.acos(Math.max(-1, Math.min(1, cosine))) * 180) / Math.PI >=
-            input.cornerDegrees
-          )
-            corners.push(i);
-        }
-        const fit: IAutoMoviePolylineFit = F.fit({
-          name: `section.${coordinateMm}.contour.${ci}`,
-          pointsMm: points,
-          closed: contour.closed,
-          corners,
-          toleranceMm: input.toleranceMm,
-          maxSpans: input.maxSpans,
-          parameterization: "chord",
-        });
-        observations += points.length;
-        spans += fit.curve.spans.length;
-        if (contour.closed) {
-          if (onSourceLineage)
-            publication = {
-              kind: "closed",
-              loopIndex: section.loops.length,
-              curveName: fit.curve.name,
-            };
-          loops.push({
-            curve: fit.curve,
-            winding,
-          });
-          const { curve: _curve, ...quality }: IAutoMoviePolylineFit = fit;
-          report.fits.push(quality);
-          supports.push(
-            new Set(
-              contour.pts.flatMap(
-                (p: (typeof contour.pts)[number]): number[] => [p.a, p.b],
-              ),
-            ),
-          );
-          faces.push(faceSupport);
-        } else {
-          if (onSourceLineage)
-            publication = {
-              kind: "open",
-              reportIndex: report.open.length,
-              curveName: fit.curve.name,
-            };
-          report.open.push(fit);
-          defects.push(faceSupport);
-          report.diagnostics.push(
-            "Open source contour: no surface bridge or cap is authorized for its slab component",
-          );
-        }
-        if (!fit.toleranceMet)
-          report.diagnostics.push(
-            `Fitting tolerance unresolved for ${fit.curve.name}`,
-          );
-      } catch (failure: unknown) {
-        if (onSourceLineage)
-          publication = {
-            kind: "failed",
-            diagnostic:
-              failure instanceof Error ? failure.message : String(failure),
-          };
-        defects.push(faceSupport);
-        report.diagnostics.push(
-          `Contour ${ci} unresolved: ${failure instanceof Error ? failure.message : String(failure)}`,
-        );
-      } finally {
-        onSourceLineage?.({
-          coordinateMm,
-          contourIndex: ci,
-          sourceTriangleIds: [...faceSupport],
-          publication: publication ?? { kind: "degenerate" },
-        });
-      }
-    }
-    cache.set(coordinateMm, { section, report, supports, faces, defects });
+      plane,
+      contours,
+      faceEdges,
+      vertexFaces,
+      orientation,
+      policy: input,
+      onSourceLineage: publishSourceLineage,
+    });
+    observations += observed.observations;
+    spans += observed.spans;
+    cache.set(coordinateMm, observed);
     if (cache.size % 64 === 0 || cache.size === retainedLevels.length)
       progress?.("sections", cache.size, retainedLevels.length);
   }

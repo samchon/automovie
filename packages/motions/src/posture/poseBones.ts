@@ -15,12 +15,13 @@ import type {
  * performance and the capture use, so a law that reads a pose it resolved
  * itself (where a hand hangs, where a thigh lies) sees what is displayed.
  *
- * `createHumanBody` snapshots the canonical FK prerequisites once. Every pose
- * receives full ordered joint admission; a requested set computes only its
- * ancestor closure and returns only those reachable bones. A supplied operation
- * reader shares exact unchanged dependency work with fresh outputs. The prepare
- * companion binds this same body to a snapshot of requested names once, then
- * returns the same fresh map representation for changing poses.
+ * `AutoMovieMotionHumanBody.create` snapshots the canonical FK prerequisites
+ * once. Every pose receives full ordered joint admission; a requested set
+ * computes only its ancestor closure and returns only those reachable bones. A
+ * supplied operation reader shares exact unchanged dependency work with fresh
+ * outputs. The prepare companion binds this same body to a snapshot of
+ * requested names once, then returns the same fresh map representation for
+ * changing poses.
  *
  * @param body The body and its topology for the same, unchanged skeleton.
  * @param pose The pose.

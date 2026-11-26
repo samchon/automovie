@@ -1,15 +1,5 @@
 import type { AutoMovieExternalModelIngestProfile } from "@automovie/interface";
 
-/** Runtime registry whose `Record` type requires exactly the union's keys. */
-const INGEST_PROFILE_REGISTRY: Readonly<
-  Record<AutoMovieExternalModelIngestProfile, true>
-> = {
-  "gltf-static-v1": true,
-  "gltf-humanoid-v1": true,
-  "gltf-motion-v1": true,
-  "vrm-humanoid-v1": true,
-};
-
 /**
  * Every supported ingest profile literal, frozen in declaration order. The
  * complete Record over the closed union supplies exactly four own keys; the
@@ -18,7 +8,13 @@ const INGEST_PROFILE_REGISTRY: Readonly<
  */
 export const AUTO_MOVIE_EXTERNAL_MODEL_INGEST_PROFILES: readonly AutoMovieExternalModelIngestProfile[] =
   Object.freeze(
-    Object.keys(
-      INGEST_PROFILE_REGISTRY,
-    ) as AutoMovieExternalModelIngestProfile[],
+    Object.keys({
+      "gltf-static-v1": true,
+      "gltf-humanoid-v1": true,
+      "gltf-motion-v1": true,
+      "vrm-humanoid-v1": true,
+    } satisfies Record<
+      AutoMovieExternalModelIngestProfile,
+      true
+    >) as AutoMovieExternalModelIngestProfile[],
   );

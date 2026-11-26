@@ -1,13 +1,15 @@
+import { AutoMovieEngineFrameClock } from "@automovie/engine";
 import type {
   IAutoMovieDecodedFrame,
   IAutoMovieDecodedFrameAudit,
+  IAutoMovieDeliveryContentAudit,
 } from "@automovie/interface";
 
 /**
  * Admit a decoder's framemd5 listing against a commissioned half-open frame
  * clock: exactly one stream-zero time base, exactly `expectedFrames` video
  * rows, and frame `i` presenting precisely `[i / fps, (i + 1) / fps)` in that
- * time base, checked by exact BigInt cross products. Adjacent identical images
+ * time base, checked on the exact native tick grid. Adjacent identical images
  * are reported as holds, never rejected. Malformed rows, gaps, overlaps,
  * reordering, excess frames and a nonzero start are refused. This proves
  * presentation continuity of decoded bytes, not motion or quality.
@@ -22,13 +24,18 @@ export function auditAutoMovieDecodedFrames(
   expectedFrames: number,
   fps: number,
 ): IAutoMovieDecodedFrameAudit {
-  if (expectedFrames < 1 || fps < 1)
+  if (
+    !Number.isSafeInteger(expectedFrames) ||
+    expectedFrames < 1 ||
+    !Number.isSafeInteger(fps) ||
+    fps < 1
+  )
     throw new Error(
       "A decoded audit requires a positive integral frame count and rate",
     );
   const frames: IAutoMovieDecodedFrame[] = [];
   const repeatedImages: number[] = [];
-  let timeBase: readonly [number, number] | undefined;
+  let timeBase: IAutoMovieDeliveryContentAudit.Ratio | undefined;
   for (const line of text.split(/\r?\n/u)) {
     const trimmed: string = line.trim();
     if (trimmed.length === 0) continue;
@@ -39,11 +46,13 @@ export function auditAutoMovieDecodedFrames(
       if (match !== null) {
         if (timeBase !== undefined)
           throw new Error("Duplicate decoded time base");
-        const numerator: number = Number(match[1]);
-        const denominator: number = Number(match[2]);
-        if (![numerator, denominator].every((v: number): boolean => v > 0))
+        const ratio: IAutoMovieDeliveryContentAudit.Ratio = [
+          Number(match[1]),
+          Number(match[2]),
+        ];
+        if (!AutoMovieEngineFrameClock.isRatio(ratio))
           throw new Error("Invalid decoded time base");
-        timeBase = [numerator, denominator];
+        timeBase = ratio;
       }
       continue;
     }
@@ -56,36 +65,42 @@ export function auditAutoMovieDecodedFrames(
       !/^[a-f\d]{32}$/iu.test(fields[5]!)
     )
       throw new Error("Malformed decoded video row");
-    const [stream, dts, pts, duration, bytes]: number[] = fields
-      .slice(0, 5)
-      .map(Number);
+    const stream: number = Number(fields[0]);
+    const dts: number = Number(fields[1]);
+    const pts: number = Number(fields[2]);
+    const duration: number = Number(fields[3]);
+    const bytes: number = Number(fields[4]);
     if (
-      ![stream, dts, pts, duration, bytes].every(
-        (v: number | undefined): boolean => v !== undefined,
-      ) ||
       stream !== 0 ||
       dts !== pts ||
-      pts! < 0 ||
-      duration! <= 0 ||
-      bytes! <= 0
+      !Number.isSafeInteger(pts) ||
+      pts < 0 ||
+      !Number.isSafeInteger(duration) ||
+      duration <= 0 ||
+      !Number.isSafeInteger(pts + duration) ||
+      !Number.isSafeInteger(bytes) ||
+      bytes <= 0
     )
       throw new Error("Invalid decoded video timing or raster extent");
     if (frames.length >= expectedFrames)
       throw new Error("Decoded video contains excess frames");
     const md5: string = fields[5]!.toLowerCase();
     if (frames.at(-1)?.md5 === md5) repeatedImages.push(frames.length);
-    frames.push({ stream: stream!, pts: pts!, duration: duration!, md5 });
+    frames.push({ stream, pts, duration, md5 });
   }
   if (timeBase === undefined || frames.length !== expectedFrames)
     throw new Error(
       "Decoded video is missing its time base or commissioned frames",
     );
-  const scale: bigint = BigInt(timeBase[0]) * BigInt(fps);
+  const step: number | null = AutoMovieEngineFrameClock.ticksPerFrame(
+    timeBase,
+    [fps, 1],
+  );
   frames.forEach((frame: IAutoMovieDecodedFrame, index: number): void => {
     if (
-      BigInt(frame.pts) * scale !== BigInt(index) * BigInt(timeBase![1]) ||
-      (BigInt(frame.pts) + BigInt(frame.duration)) * scale !==
-        BigInt(index + 1) * BigInt(timeBase![1])
+      step === null ||
+      frame.pts !== AutoMovieEngineFrameClock.boundary(index, step) ||
+      frame.duration !== step
     )
       throw new Error(
         `Decoded frame ${index} does not cover its exact presentation interval`,

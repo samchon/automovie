@@ -37,7 +37,7 @@ export async function runAutoMovieDeliveryDecode(
       binary,
       planAutoMovieDeliveryDecode(artifact, expected.frameRate, thresholds),
     );
-    const decoded = readAutoMovieDeliveryDecode(log, expected);
+    const decoded = await readAutoMovieDeliveryDecode(log, expected);
     const audio =
       decoded.audioIndex === undefined
         ? decoded.audio

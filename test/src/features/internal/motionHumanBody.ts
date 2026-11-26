@@ -3,7 +3,7 @@ import type {
   IAutoMovieHumanCanonicalBody,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 
 import type { IMotionHumanPerson } from "./people/IMotionHumanPerson";
 import { MOTION_HUMAN_PEOPLE } from "./people/MOTION_HUMAN_PEOPLE";
@@ -32,7 +32,7 @@ export function motionHumanBody(
       mass: person.mass,
       id: name,
     });
-  return createHumanBody(prepared.skeleton, prepared.profile);
+  return AutoMovieMotionHumanBody.create(prepared.skeleton, prepared.profile);
 }
 
 /** Companion types and lists of {@link motionHumanBody}. */

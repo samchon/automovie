@@ -1,4 +1,4 @@
-import { createEvidenceConfig } from "@automovie/evidence";
+import { AutoMovieEvidenceConfig } from "@automovie/evidence";
 import type {
   IEvidenceCheckAnalysis,
   IEvidenceConfig,
@@ -10,14 +10,23 @@ import path from "node:path";
 import { ProductionWorkflowFixture } from "../internal/ProductionWorkflowFixture";
 
 /**
- * A short production composes its brief canon and its scene-file screenplay as native graph duties.
+ * A short production composes its brief canon and its scene-file screenplay as
+ * native graph duties.
  *
  * Scenarios:
- * 1. A complete brief and a screenplay scene file in its film folder, with construction answers and reviews, need no settings, treatment, script or outline population and pass.
+ *
+ * 1. A complete brief and a screenplay scene file in its film folder, with
+ *    construction answers and reviews, need no settings, treatment, script or
+ *    outline population and pass.
  * 2. Editing a reviewed brief decision expires its native review.
- * 3. With the brief closed and turned back to disabled while the screenplay runs, the brief's recorded discovery findings still resolve and the graph passes.
- * 4. Removing the screenplay's citation of its brief decision exposes missing native coverage.
- * 5. The first study activates research on a short. The index, a directory with a Markdown suffix and an explicitly closed research stage leave it inactive.
+ * 3. With the brief closed and turned back to disabled while the screenplay runs,
+ *    the brief's recorded discovery findings still resolve and the graph
+ *    passes.
+ * 4. Removing the screenplay's citation of its brief decision exposes missing
+ *    native coverage.
+ * 5. The first study activates research on a short. The index, a directory with a
+ *    Markdown suffix and an explicitly closed research stage leave it
+ *    inactive.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public short configuration through native Evidence, changes the brief, disables the closed brief stage and removes the actual dependency annotation; checks complete reports and stale-review and missing-acknowledgement diagnostics.
  * @evidence contracts/development/testing.md#independent-expectations The authored one-scene fixture supplies its real brief dependency and current fingerprints; removing that edge or changing reviewed brief bytes must produce native errors, while a closed brief turned back to disabled must not break the running screenplay, as the evidence README promises for a finished layer.
@@ -30,7 +39,7 @@ export async function test_evidence_production_short_brief(): Promise<void> {
   try {
     ProductionWorkflowFixture.complete(root, "short");
     const studies = (research?: "disabled"): boolean =>
-      createEvidenceConfig({
+      AutoMovieEvidenceConfig.create({
         location: root,
         narrative: { mode: "short" },
         research,
@@ -57,7 +66,7 @@ export async function test_evidence_production_short_brief(): Promise<void> {
       "docs/body/scripts",
     ])
       fs.rmSync(path.join(root, relative), { recursive: true });
-    const config: IEvidenceConfig = createEvidenceConfig({
+    const config: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: root,
       narrative: {
         mode: "short",
@@ -89,7 +98,7 @@ export async function test_evidence_production_short_brief(): Promise<void> {
     fs.writeFileSync(brief, original);
     // The brief closes and returns to disabled while the screenplay still
     // runs; the brief's findings in the shared discovery record still resolve.
-    const closed: IEvidenceConfig = createEvidenceConfig({
+    const closed: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: root,
       narrative: {
         mode: "short",

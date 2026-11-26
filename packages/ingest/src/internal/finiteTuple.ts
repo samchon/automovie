@@ -6,15 +6,11 @@
  * must have the same length and finite numeric entries, or throw with the
  * field/index path. Both branches return a fresh array.
  */
-export const finiteTuple: (
+export function finiteTuple(
   value: unknown,
   path: string,
   fallback: readonly number[],
-) => number[] = (
-  value: unknown,
-  path: string,
-  fallback: readonly number[],
-): number[] => {
+): number[] {
   if (value === undefined) return [...fallback];
   if (Array.isArray(value) === false || value.length !== fallback.length)
     throw new Error(
@@ -25,4 +21,4 @@ export const finiteTuple: (
       throw new Error(`${path}[${index}] must be finite.`);
     return entry;
   });
-};
+}

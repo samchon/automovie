@@ -56,9 +56,7 @@ import { accessorValues } from "./internal/accessorValues";
  * @param doc Parsed document; it is only read.
  * @returns New arrays the caller owns, sharing no storage with the document.
  */
-export const ingestDocument: (doc: Document) => IAutoMovieIngestResult = (
-  doc: Document,
-): IAutoMovieIngestResult => {
+export function ingestDocument(doc: Document): IAutoMovieIngestResult {
   const root: Root = doc.getRoot();
   const gltfNodes: GLTFNode[] = root.listNodes();
 
@@ -129,7 +127,7 @@ export const ingestDocument: (doc: Document) => IAutoMovieIngestResult = (
     });
 
   return { nodes, clips };
-};
+}
 
 type AutoMovieNodeTrackPath = "translation" | "rotation" | "scale" | "weights";
 
@@ -148,41 +146,34 @@ const INTERPOLATIONS: Readonly<Record<string, AutoMovieInterpolation>> = {
 };
 
 /** Map each item to its decimal list index. */
-const indexIds: <T>(items: T[]) => Map<T, string> = <T>(
-  items: T[],
-): Map<T, string> => {
+function indexIds<T>(items: T[]): Map<T, string> {
   const map: Map<T, string> = new Map<T, string>();
   items.forEach((item: T, i: number): void => {
     map.set(item, `${i}`);
   });
   return map;
-};
+}
 
-const kindOf: (node: GLTFNode, joints: Set<GLTFNode>) => AutoMovieNodeKind = (
-  node: GLTFNode,
-  joints: Set<GLTFNode>,
-): AutoMovieNodeKind =>
-  joints.has(node)
+function kindOf(node: GLTFNode, joints: Set<GLTFNode>): AutoMovieNodeKind {
+  return joints.has(node)
     ? "bone"
     : node.getMesh() !== null
       ? "mesh"
       : node.getCamera() !== null
         ? "camera"
         : "group";
+}
 
-const toTrack: (
+function toTrack(
   channel: AnimationChannel,
   idByNode: Map<GLTFNode, string>,
-) => IAutoMovieTrack = (
-  channel: AnimationChannel,
-  idByNode: Map<GLTFNode, string>,
-): IAutoMovieTrack => {
+): IAutoMovieTrack {
   const target: GLTFNode | null = channel.getTargetNode();
   if (target === null) throw new Error("animation channel must target a node");
   const targetId: string = idByNode.get(target)!;
-  const fail: (message: string) => never = (message: string): never => {
+  function fail(message: string): never {
     throw new Error(`animation channel for node "${targetId}" ${message}`);
-  };
+  }
 
   const targetPath: string | null = channel.getTargetPath();
   if (targetPath === null || Object.hasOwn(COMPONENTS, targetPath) === false)
@@ -252,4 +243,4 @@ const toTrack: (
     values,
     interpolation,
   };
-};
+}

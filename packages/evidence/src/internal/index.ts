@@ -1,5 +1,4 @@
-// Internal API for this repository's tests and tools; productions import only
-// the package root's `createEvidenceConfig`, and nothing here is stable.
+/** Workspace-only entry for repository tests and tools. */
 export * from "./IContractLocation";
 export * from "./PRODUCTION_CONTRACTS";
 export * from "./SKILLS_ROOT";

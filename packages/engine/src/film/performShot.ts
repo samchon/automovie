@@ -32,9 +32,9 @@ import type {
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { compilePerformance } from "../perform/compilePerformance";
 import { scenePlacements } from "../perform/scenePlacements";
-import { sampleFormationMotion } from "../sampleFormationMotion";
+import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
+import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
 import { compareCodeUnits } from "../text/compareCodeUnits";
-import { transformFormationPoint } from "../transformFormationPoint";
 import { ViolationCollector } from "../validation/ViolationCollector";
 import { admitShotEditorialMarkers } from "../validation/admitShotEditorialMarkers";
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";

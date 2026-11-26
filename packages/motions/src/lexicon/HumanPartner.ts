@@ -9,7 +9,7 @@ import { approach } from "../everyday/approach";
 import { clinch } from "../grappling/clinch";
 import { kuzushi } from "../grappling/kuzushi";
 import { relayPass } from "../handling/relayPass";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GRAPPLE_JUDO_GRIP } from "../next/presets/HUMAN_GRAPPLE_JUDO_GRIP";
 import { HUMAN_TOUCH_PARTNER_DANCE_HOLD } from "../next/presets/HUMAN_TOUCH_PARTNER_DANCE_HOLD";
 import { touch } from "../touch/touch";
@@ -39,7 +39,7 @@ export namespace HumanPartner {
    */
   export const relayIncoming: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["relayIncoming"]
-  > = HumanActionRow("relayIncoming", relayPass, {
+  > = AutoMovieMotionHumanActionRow.of("relayIncoming", relayPass, {
     role: "incoming",
   });
 
@@ -52,7 +52,7 @@ export namespace HumanPartner {
    */
   export const relayOutgoing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["relayOutgoing"]
-  > = HumanActionRow("relayOutgoing", relayPass, {
+  > = AutoMovieMotionHumanActionRow.of("relayOutgoing", relayPass, {
     role: "outgoing",
   });
 
@@ -64,7 +64,7 @@ export namespace HumanPartner {
    */
   export const danceLead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceLead"]
-  > = HumanActionRow("danceLead", walk, {
+  > = AutoMovieMotionHumanActionRow.of("danceLead", walk, {
     pace: "slow",
   });
 
@@ -77,7 +77,7 @@ export namespace HumanPartner {
    */
   export const danceFollow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceFollow"]
-  > = HumanActionRow("danceFollow", approach, {
+  > = AutoMovieMotionHumanActionRow.of("danceFollow", approach, {
     from: "right",
     at: 0.4,
     pace: "slow",
@@ -93,7 +93,11 @@ export namespace HumanPartner {
    */
   export const danceHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceHold"]
-  > = HumanActionRow("danceHold", touch, HUMAN_TOUCH_PARTNER_DANCE_HOLD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "danceHold",
+    touch,
+    HUMAN_TOUCH_PARTNER_DANCE_HOLD,
+  );
 
   /**
    * Judo's grip (kumikata) for a throw: the right hand on the partner's left
@@ -102,7 +106,11 @@ export namespace HumanPartner {
    */
   export const judoGrip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["judoGrip"]
-  > = HumanActionRow("judoGrip", clinch, HUMAN_GRAPPLE_JUDO_GRIP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "judoGrip",
+    clinch,
+    HUMAN_GRAPPLE_JUDO_GRIP,
+  );
 
   /**
    * The receiver of a judo throw drawn off balance forward (`kuzushi`), the
@@ -110,7 +118,7 @@ export namespace HumanPartner {
    */
   export const judoBroken: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["judoBroken"]
-  > = HumanActionRow("judoBroken", kuzushi, {
+  > = AutoMovieMotionHumanActionRow.of("judoBroken", kuzushi, {
     depth: kuzushi.DEPTH,
   });
 

@@ -16,6 +16,7 @@ import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
+import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 
 const DEFAULT_MARGIN: number = 0.02;
 
@@ -68,7 +69,8 @@ const SUPPORT_BONE_REACHABLE: string =
 
 /**
  * Sample FK within valid support windows, project a single-bone or weighted
- * joint-position center onto XZ, and warn beyond the support hull plus margin.
+ * joint-position center onto XZ, and warn beyond the support hull plus a finite
+ * nonnegative margin in metres. Invalid rates and margins give range findings.
  */
 export const validateBalanceSupport: (
   props: IAutoMovieValidateBalanceSupport.IProps,
@@ -79,7 +81,6 @@ export const validateBalanceSupport: (
   const suppressed: boolean = props.physicsIntent !== undefined;
   const sampleRate: number =
     props.sampleRate === undefined ? DEFAULT_SAMPLE_RATE : props.sampleRate;
-  const sampleRateValid: boolean = isPositiveFinite(sampleRate);
   const path: string = props.path ?? "$input";
   const skeletonBones: Set<AutoMovieHumanoidBone> = new Set(
     props.skeleton.bones.map(
@@ -94,13 +95,11 @@ export const validateBalanceSupport: (
     topology,
   );
 
-  if (!sampleRateValid)
-    collector.push(
-      "range",
-      `${path}.sampleRate`,
-      `sampleRate must be a finite number > 0, but was ${sampleRate}`,
-      sampleRate,
-    );
+  const sampleRateValid: boolean = admitMotionSampleRate(
+    collector,
+    path,
+    sampleRate,
+  );
 
   for (const [supportIndex, support] of props.supports.entries()) {
     const sp: string = `${path}.supports[${supportIndex}]`;
@@ -126,7 +125,7 @@ export const validateBalanceSupport: (
       support.end < Infinity &&
       support.end > support.start
     );
-    const marginInvalid: boolean = margin < 0;
+    const marginInvalid: boolean = !Number.isFinite(margin) || margin < 0;
 
     if (centerMissing)
       collector.push(
@@ -283,25 +282,6 @@ const weightedCenterOfMass: (
   }
   return { x: x / mass, y: y / mass, z: z / mass };
 };
-
-/**
- * Require a finite scalar strictly greater than zero.
- *
- * The predicate gates sampling before invoking the shared clock.
- *
- * Zero/negative/nonfinite rates are refused, not defaulted after explicit
- * input.
- *
- * Boolean success identifies a usable positive sample rate.
- *
- * One finite test and comparison take constant work.
- *
- * Window admission uses this same rate decision across all support windows.
- *
- * Only a boolean returns and no rate history is retained.
- */
-const isPositiveFinite: (value: number) => boolean = (value: number): boolean =>
-  value > 0;
 
 /**
  * Round a diagnostic quantity to three decimals with

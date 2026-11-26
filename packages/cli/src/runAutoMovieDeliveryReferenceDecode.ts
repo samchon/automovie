@@ -54,7 +54,7 @@ export async function runAutoMovieDeliveryReferenceDecode(
         ["-framerate", inputs.frameRate],
       ),
     );
-    video = readAutoMovieDeliveryDecode(log, expected).video;
+    video = (await readAutoMovieDeliveryDecode(log, expected)).video;
   } catch (error) {
     video = {
       status: "uncovered",

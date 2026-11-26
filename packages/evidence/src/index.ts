@@ -1,9 +1,8 @@
-// The one entry a production needs: `createEvidenceConfig` and the types of its props.
-export * from "./createEvidenceConfig";
-export type * from "./IAutoMovieDevelopmentProps";
-export type * from "./IAutoMovieEvidenceConfigProps";
-export type * from "./IAutoMovieNarrativeProps";
-export type * from "./IAutoMovieNoNarrativeProps";
-export type * from "./narrative/IProductionConstruction";
-export type * from "./narrative/NarrativeScope";
-export type * from "./narrative/ProductionStage";
+export { AutoMovieEvidenceConfig } from "./AutoMovieEvidenceConfig";
+export type { IAutoMovieDevelopmentProps } from "./IAutoMovieDevelopmentProps";
+export type { IAutoMovieEvidenceConfigProps } from "./IAutoMovieEvidenceConfigProps";
+export type { IAutoMovieNarrativeProps } from "./IAutoMovieNarrativeProps";
+export type { IAutoMovieNoNarrativeProps } from "./IAutoMovieNoNarrativeProps";
+export type { IProductionConstruction } from "./narrative/IProductionConstruction";
+export type { NarrativeScope } from "./narrative/NarrativeScope";
+export type { ProductionStage } from "./narrative/ProductionStage";

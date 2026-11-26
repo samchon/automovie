@@ -16,7 +16,6 @@ import type {
   IAutoMovieWorldSurface,
 } from "@automovie/interface";
 
-import { formationSlotPosition } from "../formationSlotPosition";
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { mixSeed } from "../math/mixSeed";
@@ -24,6 +23,7 @@ import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { canonicalizeAutoMovieJson } from "../text/canonicalizeAutoMovieJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "./constants/AUTOMOVIE_FORMATION_CHUNK_SIZE";
+import { formationSlotPosition } from "./formation/formationSlotPosition";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
 import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
 

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
@@ -25,7 +25,6 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanHand } from "../posture/HumanHand";
 import { beatFlamesBeats } from "./beatFlamesBeats";
-import { rotationBetween } from "./rotationBetween";
 
 /** Seconds of one beat, raised and brought down: provisional. */
 const BEAT: number = 0.6;

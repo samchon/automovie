@@ -44,10 +44,7 @@ export function readTrueTypeCharacterMap(
   }
 
   const map: Map<number, number> = new Map();
-  const assign: (codePoint: number, glyph: number) => void = (
-    codePoint: number,
-    glyph: number,
-  ): void => {
+  function assign(codePoint: number, glyph: number): void {
     if (glyph === 0 || codePoint === 0xffff) return;
     if (glyph >= glyphCount)
       throw new Error(
@@ -58,7 +55,7 @@ export function readTrueTypeCharacterMap(
         `TrueType cmap maps code point ${codePoint}, past U+10FFFF`,
       );
     map.set(codePoint, glyph);
-  };
+  }
 
   if (format12 !== null) {
     const groups: number = reader.u32(format12 + 12, "cmap format 12 header");

@@ -3,7 +3,11 @@ import type {
   IAutoMovieInspectionColorAssignment,
   IAutoMovieInspectionRequest,
   IAutoMovieSectionPlane,
+  IAutoMovieVector3,
 } from "@automovie/interface";
+
+import { readInspectionNumber } from "./internal/readInspectionNumber.js";
+import { readInspectionVector } from "./internal/readInspectionVector.js";
 
 /**
  * Stroke width in output pixels when none is asked: three, which stays visible
@@ -145,36 +149,10 @@ function flag(
 /** A positive finite number, or null when the key is absent. */
 function positive(key: string, text: string | null | undefined): number | null {
   if (text === null || text === undefined) return null;
-  const value: number = finite(text);
-  if (!(value > 0))
+  const value: number | null = readInspectionNumber(text);
+  if (value === null || !(value > 0))
     throw new Error(`Inspection ${key} "${text}" is not a positive number`);
   return value;
-}
-
-/**
- * A numeric literal as `Number` reads one: decimal with an optional exponent,
- * or a binary, octal or hexadecimal integer.
- */
-const NUMERIC: RegExp =
-  /^\s*(?:[+-]?(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?|0x[0-9a-f]+|0o[0-7]+|0b[01]+)\s*$/iu;
-
-/**
- * The number a text spells, NaN for blank, malformed or overflowing text.
- *
- * A spelled number is admitted up to the largest exactly representable integer,
- * 2^53 - 1: counts such as ticks must stay exact integers, and for the metres,
- * seconds and pixels of the other keys any product of two such numbers stays
- * below 2^106, far inside binary64.
- */
-function finite(text: string): number {
-  if (!NUMERIC.test(text)) return Number.NaN;
-  const value: number = Number(text);
-  return Math.abs(value) <= Number.MAX_SAFE_INTEGER ? value : Number.NaN;
-}
-
-/** Whether a text spells a number within the same bound as {@link finite}. */
-function numeric(text: string): boolean {
-  return NUMERIC.test(text) && Math.abs(Number(text)) <= Number.MAX_SAFE_INTEGER;
 }
 
 /** The cut a text spells, in either of its two forms. */
@@ -195,8 +173,8 @@ function section(
     halves[0]!.trim(),
   );
   if (axis !== null) {
-    if (!numeric(halves[1]!)) return refuse();
-    const offset: number = finite(halves[1]!);
+    const offset: number | null = readInspectionNumber(halves[1]!);
+    if (offset === null) return refuse();
     const sign: number = axis[1] === "-" ? -1 : 1;
     return {
       point: {
@@ -213,18 +191,13 @@ function section(
   }
 
   // General form: a point and the direction cut away.
-  const [point, normal]: number[][] = halves.map((half: string): number[] =>
-    half.split(",").map(finite),
-  );
+  const point: IAutoMovieVector3 | null = readInspectionVector(halves[0]!);
+  const normal: IAutoMovieVector3 | null = readInspectionVector(halves[1]!);
   if (
-    halves.some((half: string): boolean => !half.split(",").every(numeric)) ||
-    point!.length !== 3 ||
-    normal!.length !== 3 ||
-    normal!.every((component: number): boolean => component === 0)
+    point === null ||
+    normal === null ||
+    (normal.x === 0 && normal.y === 0 && normal.z === 0)
   )
     return refuse();
-  return {
-    point: { x: point![0]!, y: point![1]!, z: point![2]! },
-    normal: { x: normal![0]!, y: normal![1]!, z: normal![2]! },
-  };
+  return { point, normal };
 }

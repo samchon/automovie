@@ -11,315 +11,21 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import {
-  formationSlotPosition,
-  heightAt,
-  placeFormationSlot,
-  sampleFormationMotion,
-  sampleFormationSlotMotion,
-} from "../index";
+import { formationSlotPosition } from "../populationRuntime/formation/formationSlotPosition";
+import { placeFormationSlot } from "../populationRuntime/formation/placeFormationSlot";
+import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
+import { sampleFormationSlotMotion } from "../populationRuntime/formation/sampleFormationSlotMotion";
+import { heightAt } from "../space/heightAt";
 import { engineDiagnostic } from "./engineDiagnostic";
-
-/**
- * Target travel resolution in metres, subject to the capped step count and cue
- * reach/easing estimation limits.
- */
-const FORMATION_GROUND_SAMPLE_METRES: number = 0.5;
-
-/**
- * Sixteen fixed XZ directions choose actual support members; unsampled
- * members/extrema can still leave the ground.
- */
-const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
-
-/**
- * Pair a zero-based slot with its designed world-space point.
- *
- * Slot identity lets sparse exceptions/removal carry the same member through
- * runtime placement.
- *
- * This sampled point is not a body envelope or all-member ground certificate.
- *
- * Slot and rest-world-point meanings are documented.
- *
- * Each row has constant scalar/point fields and selected population drives
- * storage.
- *
- * Directional selection shares one row per slot across its16 support
- * directions.
- *
- * Rows belong to the one validation that measured them.
- */
-interface IFormationGroundMember {
-  /** Zero-based slot this point belongs to. */
-  slot: number;
-
-  /** Designed world-space position of that slot at rest. */
-  point: IAutoMovieVector3;
-}
-
-/**
- * Scan slots and keep the actual maximizing member in each of16 XZ support
- * directions, deduplicating shared maxima.
- *
- * Measured members replace box corners that may not belong to the formation.
- *
- * Only sampled directional extrema are checked.
- *
- * Returned rows pair slot identity with designed world points.
- *
- * N slots times16 fixed directions cost O(N), returning at most16 distinct
- * members.
- *
- * Each call measures the placement afresh; no row outlives the call.
- */
-const formationGroundMembers: (
-  formation: IAutoMovieFormationPlacement,
-) => IFormationGroundMember[] = (
-  formation: IAutoMovieFormationPlacement,
-): IFormationGroundMember[] => {
-  const looks: { x: number; z: number }[] = Array.from(
-    { length: FORMATION_GROUND_SUPPORT_DIRECTIONS },
-    (_: unknown, index: number): { x: number; z: number } => {
-      const radians: number =
-        (2 * Math.PI * index) / FORMATION_GROUND_SUPPORT_DIRECTIONS;
-      return { x: Math.cos(radians), z: Math.sin(radians) };
-    },
-  );
-  const furthest: number[] = looks.map((): number => Number.NEGATIVE_INFINITY);
-  const outermost: (IFormationGroundMember | null)[] = looks.map(
-    (): IFormationGroundMember | null => null,
-  );
-  // One record per slot rather than per direction, so a formation of a hundred
-  // thousand members is asked for each of them once. A member outermost in
-  // several directions is the same object in each, which is what the set below
-  // dedupes on.
-  for (let slot: number = 0; slot < formation.count; ++slot) {
-    const member: { slot: number; point: IAutoMovieVector3 } = {
-      slot,
-      point: formationSlotPosition(formation, slot),
-    };
-    for (let index: number = 0; index < looks.length; ++index) {
-      const look: { x: number; z: number } = looks[index]!;
-      const reach: number = member.point.x * look.x + member.point.z * look.z;
-      if (reach <= furthest[index]!) continue;
-      furthest[index] = reach;
-      outermost[index] = member;
-    }
-  }
-  // A type predicate rather than a plain test: `filter` does not narrow on
-  // its own, so the null the loop starts from would travel into every
-  // consumer of a member's slot.
-  const members: IFormationGroundMember[] = [
-    ...new Set(
-      outermost.filter(
-        (
-          member: IFormationGroundMember | null,
-        ): member is IFormationGroundMember => member !== null,
-      ),
-    ),
-  ];
-  return members;
-};
-
-/**
- * Maximum subdivided steps per cue; endpoint-inclusive output has at most 361
- * times and the cap coarsens resolution.
- */
-const FORMATION_GROUND_SAMPLE_LIMIT: number = 360;
-
-/**
- * Round a diagnostic quantity to three decimals with
- * Math.round(value*1000)/1000.
- *
- * The validateAutoMovieFormationGround owner applies presentation rounding
- * after its actual predicate.
- *
- * Binary64 rounding is not an exact decimal serialization or decision
- * tolerance.
- *
- * Only displayed metre/second quantities are rounded, leaving comparison
- * arithmetic unchanged.
- *
- * Fixed scalar arithmetic takes constant work.
- *
- * Diagnostics reuse the same presentation rule within
- * validateAutoMovieFormationGround, not cached measurements.
- *
- * Only a number returns and no sampled state is retained.
- */
-const round: (value: number) => number = (value: number): number =>
-  Math.round(value * 1_000) / 1_000;
-
-/**
- * Estimate translation, turn, spacing and reform reach, then choose
- * endpoint-inclusive even-time samples with0.5m target and360-step cap.
- *
- * Cue-aware reach gives the gate a physical sampling policy rather than
- * endpoints alone.
- *
- * The cap coarsens resolution, step easing jumps and sequential layout
- * reach/radius assumptions limit a universal spacing guarantee.
- *
- * Inputs are metre radius/reform reach and a cue's second interval; output is a
- * fresh time array.
- *
- * At most361 times are generated per cue; scalar reach arithmetic is
- * fixed-size.
- *
- * The ground coordinator reuses selected member geometry and passes measured
- * reform reach.
- *
- * The caller owns the bounded time array; no cue or sampling session is
- * retained.
- */
-const formationGroundSampleTimes: (
-  cue: IAutoMovieFormationMotion,
-  radius: number,
-  reformReach: number,
-) => number[] = (
-  cue: IAutoMovieFormationMotion,
-  radius: number,
-  reformReach: number,
-): number[] => {
-  // How many times its design reach a spacing change ever holds a member out
-  // at, so the arc a turn sweeps it through is measured at the radius it really
-  // turns on. Read as a magnitude: a negative scale mirrors a unit rather than
-  // shrinking it past nothing, and a mirrored member travels just as far.
-  const spread: number = Math.max(
-    Math.abs(cue.from.spacingScale.lateral),
-    Math.abs(cue.to.spacingScale.lateral),
-    Math.abs(cue.from.spacingScale.depth),
-    Math.abs(cue.to.spacingScale.depth),
-  );
-  const reach: number =
-    Math.hypot(
-      cue.to.translation.x - cue.from.translation.x,
-      cue.to.translation.z - cue.from.translation.z,
-    ) +
-    ((Math.abs(cue.to.facingOffsetDeg - cue.from.facingOffsetDeg) * Math.PI) /
-      180) *
-      radius *
-      spread +
-    Math.max(
-      Math.abs(cue.to.spacingScale.lateral - cue.from.spacingScale.lateral),
-      Math.abs(cue.to.spacingScale.depth - cue.from.spacingScale.depth),
-    ) *
-      radius +
-    // A re-form moves members without moving the unit, so none of the terms
-    // above sees it: a crowd changing shape in place has zero translation,
-    // zero turn and unit spacing, and would be sampled at its two ends only.
-    // The ground between two arrangements is exactly what an author cannot see
-    // from either of them.
-    reformReach;
-  const steps: number = Math.min(
-    FORMATION_GROUND_SAMPLE_LIMIT,
-    Math.ceil((2 * reach) / FORMATION_GROUND_SAMPLE_METRES),
-  );
-  const span: number = cue.end - cue.start;
-  return [
-    cue.start,
-    ...Array.from(
-      { length: Math.max(0, steps - 1) },
-      (_: unknown, index: number): number =>
-        cue.start + (span * (index + 1)) / steps,
-    ),
-    cue.end,
-  ];
-};
-
-/**
- * Estimate a member's XZ offset displacement and sample its interval at the
- * same capped physical resolution.
- *
- * Member-only turns do not move the point this gate measures.
- *
- * Only endpoint displacement is modeled; the360-step cap and point proxy leave
- * sub-sample/body-envelope gaps.
- *
- * Cue seconds/metre offsets and endpoint-inclusive output are stated.
- *
- * At most361 time scalars are generated per member cue.
- *
- * The helper shares ground sampling constants/policy, not cached mutable cue
- * values.
- *
- * Only a fresh bounded array escapes; no member handle or task remains.
- */
-const formationSlotGroundSampleTimes: (
-  cue: IAutoMovieFormationSlotMotion,
-) => number[] = (cue: IAutoMovieFormationSlotMotion): number[] => {
-  const reach: number = Math.hypot(
-    cue.to.offset.x - cue.from.offset.x,
-    cue.to.offset.z - cue.from.offset.z,
-  );
-  const steps: number = Math.min(
-    FORMATION_GROUND_SAMPLE_LIMIT,
-    Math.ceil((2 * reach) / FORMATION_GROUND_SAMPLE_METRES),
-  );
-  const span: number = cue.end - cue.start;
-  return [
-    cue.start,
-    ...Array.from(
-      { length: Math.max(0, steps - 1) },
-      (_: unknown, index: number): number =>
-        cue.start + (span * (index + 1)) / steps,
-    ),
-    cue.end,
-  ];
-};
-
-/**
- * Absolute one-millimetre sinking policy; smaller discrepancies are not
- * reported by this gate.
- */
-const FORMATION_GROUND_SINK_TOLERANCE_METRES: number = 1e-3;
-
-/**
- * Query heightAt and return a void or a sink beyond1mm, otherwise null.
- *
- * The height owner decides authored support and this helper owns the sinking
- * policy.
- *
- * Standing above support is allowed; a scalar query does not prove whole-body
- * contact.
- *
- * Carried null means void and a numeric carried height identifies sinking.
- *
- * Cost follows heightAt's surface/ring/lattice queries; local arithmetic is
- * constant.
- *
- * All measured members share the canonical height query rather than another
- * polygon classifier.
- *
- * Only a small fault description returns; space and point references are not
- * retained.
- */
-const formationGroundEscape: (
-  space: IAutoMovieSpace,
-  place: IAutoMovieVector3,
-) => { carried: number | null } | null = (
-  space: IAutoMovieSpace,
-  place: IAutoMovieVector3,
-): { carried: number | null } | null => {
-  const carried: number | null = heightAt(space, place.x, place.z);
-  if (carried === null) return { carried: null };
-  return place.y < carried - FORMATION_GROUND_SINK_TOLERANCE_METRES
-    ? { carried }
-    : null;
-};
 
 /**
  * Sample actual placed members against authored space coverage and height,
  * reporting the first void or sink per formation.
  */
-export const validateAutoMovieFormationGround: (
+export function validateAutoMovieFormationGround(
   contract: Pick<IAutoMovieShotContract, "id">,
   value: IAutoMovieValidateFormationGround.IValue,
-) => IAutoMovieDiagnostic[] = (
-  contract: Pick<IAutoMovieShotContract, "id">,
-  value: IAutoMovieValidateFormationGround.IValue,
-): IAutoMovieDiagnostic[] => {
+): IAutoMovieDiagnostic[] {
   const space: IAutoMovieSpace | null | undefined = value.scene.space;
   if (space === undefined || space === null) return [];
   const cues: readonly IAutoMovieFormationMotion[] =
@@ -504,4 +210,285 @@ export const validateAutoMovieFormationGround: (
     );
   }
   return diagnostics;
-};
+}
+
+/**
+ * Target travel resolution in metres, subject to the capped step count and cue
+ * reach/easing estimation limits.
+ */
+const FORMATION_GROUND_SAMPLE_METRES: number = 0.5;
+
+/**
+ * Sixteen fixed XZ directions choose actual support members; unsampled
+ * members/extrema can still leave the ground.
+ */
+const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
+
+/**
+ * Pair a zero-based slot with its designed world-space point.
+ *
+ * Slot identity lets sparse exceptions/removal carry the same member through
+ * runtime placement.
+ *
+ * This sampled point is not a body envelope or all-member ground certificate.
+ *
+ * Slot and rest-world-point meanings are documented.
+ *
+ * Each row has constant scalar/point fields and selected population drives
+ * storage.
+ *
+ * Directional selection shares one row per slot across its16 support
+ * directions.
+ *
+ * Rows belong to the one validation that measured them.
+ */
+interface IFormationGroundMember {
+  /** Zero-based slot this point belongs to. */
+  slot: number;
+
+  /** Designed world-space position of that slot at rest. */
+  point: IAutoMovieVector3;
+}
+
+/**
+ * Scan slots and keep the actual maximizing member in each of16 XZ support
+ * directions, deduplicating shared maxima.
+ *
+ * Measured members replace box corners that may not belong to the formation.
+ *
+ * Only sampled directional extrema are checked.
+ *
+ * Returned rows pair slot identity with designed world points.
+ *
+ * N slots times16 fixed directions cost O(N), returning at most16 distinct
+ * members.
+ *
+ * Each call measures the placement afresh; no row outlives the call.
+ */
+function formationGroundMembers(
+  formation: IAutoMovieFormationPlacement,
+): IFormationGroundMember[] {
+  const looks: { x: number; z: number }[] = Array.from(
+    { length: FORMATION_GROUND_SUPPORT_DIRECTIONS },
+    (_: unknown, index: number): { x: number; z: number } => {
+      const radians: number =
+        (2 * Math.PI * index) / FORMATION_GROUND_SUPPORT_DIRECTIONS;
+      return { x: Math.cos(radians), z: Math.sin(radians) };
+    },
+  );
+  const furthest: number[] = looks.map((): number => Number.NEGATIVE_INFINITY);
+  const outermost: (IFormationGroundMember | null)[] = looks.map(
+    (): IFormationGroundMember | null => null,
+  );
+  // One record per slot rather than per direction, so a formation of a hundred
+  // thousand members is asked for each of them once. A member outermost in
+  // several directions is the same object in each, which is what the set below
+  // dedupes on.
+  for (let slot: number = 0; slot < formation.count; ++slot) {
+    const member: { slot: number; point: IAutoMovieVector3 } = {
+      slot,
+      point: formationSlotPosition(formation, slot),
+    };
+    for (let index: number = 0; index < looks.length; ++index) {
+      const look: { x: number; z: number } = looks[index]!;
+      const reach: number = member.point.x * look.x + member.point.z * look.z;
+      if (reach <= furthest[index]!) continue;
+      furthest[index] = reach;
+      outermost[index] = member;
+    }
+  }
+  // A type predicate rather than a plain test: `filter` does not narrow on
+  // its own, so the null the loop starts from would travel into every
+  // consumer of a member's slot.
+  const members: IFormationGroundMember[] = [
+    ...new Set(
+      outermost.filter(
+        (
+          member: IFormationGroundMember | null,
+        ): member is IFormationGroundMember => member !== null,
+      ),
+    ),
+  ];
+  return members;
+}
+
+/**
+ * Maximum subdivided steps per cue; endpoint-inclusive output has at most 361
+ * times and the cap coarsens resolution.
+ */
+const FORMATION_GROUND_SAMPLE_LIMIT: number = 360;
+
+/**
+ * Round a diagnostic quantity to three decimals with
+ * Math.round(value*1000)/1000.
+ *
+ * The validateAutoMovieFormationGround owner applies presentation rounding
+ * after its actual predicate.
+ *
+ * Binary64 rounding is not an exact decimal serialization or decision
+ * tolerance.
+ *
+ * Only displayed metre/second quantities are rounded, leaving comparison
+ * arithmetic unchanged.
+ *
+ * Fixed scalar arithmetic takes constant work.
+ *
+ * Diagnostics reuse the same presentation rule within
+ * validateAutoMovieFormationGround, not cached measurements.
+ *
+ * Only a number returns and no sampled state is retained.
+ */
+function round(value: number): number {
+  return Math.round(value * 1_000) / 1_000;
+}
+
+/**
+ * Estimate translation, turn, spacing and reform reach, then choose
+ * endpoint-inclusive even-time samples with0.5m target and360-step cap.
+ *
+ * Cue-aware reach gives the gate a physical sampling policy rather than
+ * endpoints alone.
+ *
+ * The cap coarsens resolution, step easing jumps and sequential layout
+ * reach/radius assumptions limit a universal spacing guarantee.
+ *
+ * Inputs are metre radius/reform reach and a cue's second interval; output is a
+ * fresh time array.
+ *
+ * At most361 times are generated per cue; scalar reach arithmetic is
+ * fixed-size.
+ *
+ * The ground coordinator reuses selected member geometry and passes measured
+ * reform reach.
+ *
+ * The caller owns the bounded time array; no cue or sampling session is
+ * retained.
+ */
+function formationGroundSampleTimes(
+  cue: IAutoMovieFormationMotion,
+  radius: number,
+  reformReach: number,
+): number[] {
+  // How many times its design reach a spacing change ever holds a member out
+  // at, so the arc a turn sweeps it through is measured at the radius it really
+  // turns on. Read as a magnitude: a negative scale mirrors a unit rather than
+  // shrinking it past nothing, and a mirrored member travels just as far.
+  const spread: number = Math.max(
+    Math.abs(cue.from.spacingScale.lateral),
+    Math.abs(cue.to.spacingScale.lateral),
+    Math.abs(cue.from.spacingScale.depth),
+    Math.abs(cue.to.spacingScale.depth),
+  );
+  const reach: number =
+    Math.hypot(
+      cue.to.translation.x - cue.from.translation.x,
+      cue.to.translation.z - cue.from.translation.z,
+    ) +
+    ((Math.abs(cue.to.facingOffsetDeg - cue.from.facingOffsetDeg) * Math.PI) /
+      180) *
+      radius *
+      spread +
+    Math.max(
+      Math.abs(cue.to.spacingScale.lateral - cue.from.spacingScale.lateral),
+      Math.abs(cue.to.spacingScale.depth - cue.from.spacingScale.depth),
+    ) *
+      radius +
+    // A re-form moves members without moving the unit, so none of the terms
+    // above sees it: a crowd changing shape in place has zero translation,
+    // zero turn and unit spacing, and would be sampled at its two ends only.
+    // The ground between two arrangements is exactly what an author cannot see
+    // from either of them.
+    reformReach;
+  const steps: number = Math.min(
+    FORMATION_GROUND_SAMPLE_LIMIT,
+    Math.ceil((2 * reach) / FORMATION_GROUND_SAMPLE_METRES),
+  );
+  const span: number = cue.end - cue.start;
+  return [
+    cue.start,
+    ...Array.from(
+      { length: Math.max(0, steps - 1) },
+      (_: unknown, index: number): number =>
+        cue.start + (span * (index + 1)) / steps,
+    ),
+    cue.end,
+  ];
+}
+
+/**
+ * Estimate a member's XZ offset displacement and sample its interval at the
+ * same capped physical resolution.
+ *
+ * Member-only turns do not move the point this gate measures.
+ *
+ * Only endpoint displacement is modeled; the360-step cap and point proxy leave
+ * sub-sample/body-envelope gaps.
+ *
+ * Cue seconds/metre offsets and endpoint-inclusive output are stated.
+ *
+ * At most361 time scalars are generated per member cue.
+ *
+ * The helper shares ground sampling constants/policy, not cached mutable cue
+ * values.
+ *
+ * Only a fresh bounded array escapes; no member handle or task remains.
+ */
+function formationSlotGroundSampleTimes(
+  cue: IAutoMovieFormationSlotMotion,
+): number[] {
+  const reach: number = Math.hypot(
+    cue.to.offset.x - cue.from.offset.x,
+    cue.to.offset.z - cue.from.offset.z,
+  );
+  const steps: number = Math.min(
+    FORMATION_GROUND_SAMPLE_LIMIT,
+    Math.ceil((2 * reach) / FORMATION_GROUND_SAMPLE_METRES),
+  );
+  const span: number = cue.end - cue.start;
+  return [
+    cue.start,
+    ...Array.from(
+      { length: Math.max(0, steps - 1) },
+      (_: unknown, index: number): number =>
+        cue.start + (span * (index + 1)) / steps,
+    ),
+    cue.end,
+  ];
+}
+
+/**
+ * Absolute one-millimetre sinking policy; smaller discrepancies are not
+ * reported by this gate.
+ */
+const FORMATION_GROUND_SINK_TOLERANCE_METRES: number = 1e-3;
+
+/**
+ * Query heightAt and return a void or a sink beyond1mm, otherwise null.
+ *
+ * The height owner decides authored support and this helper owns the sinking
+ * policy.
+ *
+ * Standing above support is allowed; a scalar query does not prove whole-body
+ * contact.
+ *
+ * Carried null means void and a numeric carried height identifies sinking.
+ *
+ * Cost follows heightAt's surface/ring/lattice queries; local arithmetic is
+ * constant.
+ *
+ * All measured members share the canonical height query rather than another
+ * polygon classifier.
+ *
+ * Only a small fault description returns; space and point references are not
+ * retained.
+ */
+function formationGroundEscape(
+  space: IAutoMovieSpace,
+  place: IAutoMovieVector3,
+): { carried: number | null } | null {
+  const carried: number | null = heightAt(space, place.x, place.z);
+  if (carried === null) return { carried: null };
+  return place.y < carried - FORMATION_GROUND_SINK_TOLERANCE_METRES
+    ? { carried }
+    : null;
+}

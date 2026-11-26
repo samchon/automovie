@@ -151,7 +151,10 @@ export interface IAutoMovieMotionHumanActionLaw<P = object> {
   plants?(params: P): IAutoMovieMotionHumanActionLaw.IPlant | undefined;
 }
 
-/** Contracts used by HumanActionRow.of, styled, StrikingHeld.follows. */
+/**
+ * Contracts used by AutoMovieMotionHumanActionRow.of, styled,
+ * StrikingHeld.follows.
+ */
 export namespace IAutoMovieMotionHumanActionLaw {
   /** A grip an earlier action is choosing, as the action asked would hold it. */
   export interface IGrip {

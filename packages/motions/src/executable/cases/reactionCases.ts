@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanRange } from "../../compose/AutoMovieMotionHumanRange";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanColliders } from "../../posture/HumanColliders";
@@ -54,7 +54,7 @@ export function reactionCases(
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
     const man: humanPolygonMan.IPolygonMan = MotionBodies.population(id);
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       man.body.skeleton,
       man.body.profile,
     );

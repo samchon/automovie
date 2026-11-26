@@ -6,9 +6,9 @@ import type {
   IAutoMovieResolvedBone,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   HumanChain,
   HumanPerformance,
-  createHumanBody,
 } from "@automovie/motions";
 import { HUMAN_LEXICON } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -32,7 +32,7 @@ import { vclose } from "../../internal/vclose";
 export async function test_motions_striking_punch_impact_cut(): Promise<void> {
   const fixture: Awaited<ReturnType<typeof humanFixture>> =
     await humanFixture("m-average");
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     fixture.skeleton,
     fixture.profile,
   );

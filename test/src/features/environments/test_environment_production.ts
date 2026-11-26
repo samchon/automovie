@@ -15,7 +15,7 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import { HumanFoot, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
@@ -132,7 +132,7 @@ export function test_environment_production(): void {
   const stagedLeaf: IAutoMovieTransform = compiled.shot.source.scene.nodes.find(
     (node) => node.id === door,
   )!.transform;
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     compiled.body.skeleton,
     compiled.body.profile,
   );

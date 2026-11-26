@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_BLADE_CLUB_STRIKE } from "../next/presets/HUMAN_BLADE_CLUB_STRIKE";
 import { HUMAN_BLADE_CLUB_SWING } from "../next/presets/HUMAN_BLADE_CLUB_SWING";
 import { HUMAN_BLADE_RELOAD } from "../next/presets/HUMAN_BLADE_RELOAD";
@@ -29,24 +29,34 @@ export namespace HumanWeaponMelee {
   /** A club or a bat swung level at a person or a thing. */
   export const clubSwing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubSwing"]
-  > = HumanActionRow("clubSwing", HumanSword.cut, HUMAN_BLADE_CLUB_SWING);
+  > = AutoMovieMotionHumanActionRow.of(
+    "clubSwing",
+    HumanSword.cut,
+    HUMAN_BLADE_CLUB_SWING,
+  );
 
   /** A club or a baton brought down from overhead. */
   export const clubStrike: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["clubStrike"]
-  > = HumanActionRow("clubStrike", HumanSword.cut, HUMAN_BLADE_CLUB_STRIKE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "clubStrike",
+    HumanSword.cut,
+    HUMAN_BLADE_CLUB_STRIKE,
+  );
 
   /** A knife slashed across from the knife hand's side. */
   export const knifeSlash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeSlash"]
-  > = HumanActionRow("knifeSlash", HumanSword.cut, {
+  > = AutoMovieMotionHumanActionRow.of("knifeSlash", HumanSword.cut, {
     from: "forehand",
   });
 
   /** A knife slashed back across from the off side. */
   export const knifeBackslash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeBackslash"]
-  > = HumanActionRow("knifeBackslash", HumanSword.cut, { from: "backhand" });
+  > = AutoMovieMotionHumanActionRow.of("knifeBackslash", HumanSword.cut, {
+    from: "backhand",
+  });
 
   /**
    * A knife driven forward, the point first, with the least advance that
@@ -54,7 +64,11 @@ export namespace HumanWeaponMelee {
    */
   export const knifeStab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["knifeStab"]
-  > = HumanActionRow("knifeStab", HumanSwordThrust.thrust, {});
+  > = AutoMovieMotionHumanActionRow.of(
+    "knifeStab",
+    HumanSwordThrust.thrust,
+    {},
+  );
 
   /**
    * A knife held point down (taken by its `reverseGrip`) and driven down from
@@ -62,7 +76,9 @@ export namespace HumanWeaponMelee {
    */
   export const stabOverhand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["stabOverhand"]
-  > = HumanActionRow("stabOverhand", HumanSword.cut, { from: "above" });
+  > = AutoMovieMotionHumanActionRow.of("stabOverhand", HumanSword.cut, {
+    from: "above",
+  });
 
   /**
    * A reload: the support hand's palm pressed once to the magazine well the
@@ -70,5 +86,9 @@ export namespace HumanWeaponMelee {
    */
   export const reload: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponMelee"]["reload"]
-  > = HumanActionRow("reloadFirearm", touch, HUMAN_BLADE_RELOAD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "reloadFirearm",
+    touch,
+    HUMAN_BLADE_RELOAD,
+  );
 }

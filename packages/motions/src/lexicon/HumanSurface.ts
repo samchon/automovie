@@ -1,5 +1,6 @@
 import type {
   AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanMedium,
   IAutoMovieMotionHumanPlayground,
@@ -10,12 +11,12 @@ import { HumanIceGlide } from "../carrier/HumanIceGlide";
 import { HumanMediumWalk } from "../carrier/HumanMediumWalk";
 import { HumanRoundaboutPush } from "../carrier/HumanRoundaboutPush";
 import { HumanSeesawRide } from "../carrier/HumanSeesawRide";
-import { HumanSnowGlide } from "../carrier/HumanSnowGlide";
 import { HumanSupportStep } from "../carrier/HumanSupportStep";
 import { HumanSurfaceBoard } from "../carrier/HumanSurfaceBoard";
 import { HumanSwingLeap } from "../carrier/HumanSwingLeap";
 import { HumanSwingPump } from "../carrier/HumanSwingPump";
 import { measureSurfaceGlide } from "../carrier/measureSurfaceGlide";
+import { planSnowGlide } from "../carrier/snow/internal/planSnowGlide";
 import { swungArms } from "../carrier/swungArms";
 
 /** The channels a surface carrier leaves to a tool action or a gaze layer. */
@@ -71,9 +72,11 @@ export namespace HumanSurface {
       interrupts: AT_END,
       yields: YIELDS,
       // The pole hand is the stroke's planned arm; only the other hangs.
-      plan: (context: Parameters<typeof HumanSnowGlide>[0]) =>
+      plan: (
+        context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSurface.ISnowGlideParams>,
+      ) =>
         swungArms(
-          HumanSnowGlide(context),
+          planSnowGlide(context),
           context.body,
           (["left", "right"] as const).filter(
             (side: AutoMovieHumanSide): boolean =>

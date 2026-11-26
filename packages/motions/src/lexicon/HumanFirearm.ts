@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { gesture } from "../everyday/gesture";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FIREARM_REACH_HOLSTER } from "../next/presets/HUMAN_FIREARM_REACH_HOLSTER";
 import { HUMAN_FIREARM_SURRENDER } from "../next/presets/HUMAN_FIREARM_SURRENDER";
 import { touch } from "../touch/touch";
@@ -25,36 +25,48 @@ export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */
   export const reachHolster: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["reachHolster"]
-  > = HumanActionRow("reachHolster", touch, HUMAN_FIREARM_REACH_HOLSTER);
+  > = AutoMovieMotionHumanActionRow.of(
+    "reachHolster",
+    touch,
+    HUMAN_FIREARM_REACH_HOLSTER,
+  );
 
   /** Level the weapon at the target and hold the aim. */
   export const takeAim: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["takeAim"]
-  > = HumanActionRow("takeAim", HumanWeaponFirearm.present, {
+  > = AutoMovieMotionHumanActionRow.of("takeAim", HumanWeaponFirearm.present, {
     carriage: "aim",
   });
 
   /** Low ready: the weapon before the body, the muzzle down ahead. */
   export const lowReady: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["lowReady"]
-  > = HumanActionRow("lowReady", HumanWeaponFirearm.present, {
+  > = AutoMovieMotionHumanActionRow.of("lowReady", HumanWeaponFirearm.present, {
     carriage: "lowReady",
   });
 
   /** High ready: the weapon before the chest, the muzzle up. */
   export const highReady: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["highReady"]
-  > = HumanActionRow("highReady", HumanWeaponFirearm.present, {
-    carriage: "highReady",
-  });
+  > = AutoMovieMotionHumanActionRow.of(
+    "highReady",
+    HumanWeaponFirearm.present,
+    {
+      carriage: "highReady",
+    },
+  );
 
   /** One shot: the trigger's press, the muzzle's rise and its return. */
   export const recoil: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["recoil"]
-  > = HumanActionRow("recoil", HumanWeaponFirearm.fire, {});
+  > = AutoMovieMotionHumanActionRow.of("recoil", HumanWeaponFirearm.fire, {});
 
   /** Hands up at gunpoint. */
   export const surrender: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["surrender"]
-  > = HumanActionRow("surrender", gesture, HUMAN_FIREARM_SURRENDER);
+  > = AutoMovieMotionHumanActionRow.of(
+    "surrender",
+    gesture,
+    HUMAN_FIREARM_SURRENDER,
+  );
 }

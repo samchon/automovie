@@ -54,11 +54,9 @@ import { resampleProductionAudio } from "./resampleProductionAudio";
  *   integer.
  * @returns The source facts as declared and new mono samples the caller owns.
  */
-export const decodeProductionAudioAsset: (
+export function decodeProductionAudioAsset(
   props: IAutoMovieDecodedProductionAudioAsset.IProps,
-) => IAutoMovieDecodedProductionAudioAsset = (
-  props: IAutoMovieDecodedProductionAudioAsset.IProps,
-): IAutoMovieDecodedProductionAudioAsset => {
+): IAutoMovieDecodedProductionAudioAsset {
   if (Number.isSafeInteger(props.sampleRate) === false || props.sampleRate <= 0)
     fail(
       props.path,
@@ -357,7 +355,7 @@ export const decodeProductionAudioAsset: (
     },
     samples,
   };
-};
+}
 
 /** One RIFF chunk body: its byte offset in the file and its declared size. */
 interface IChunk {
@@ -392,50 +390,41 @@ const SUBFORMAT_TAIL: Uint8Array = Uint8Array.from([
  * what lets TypeScript narrow after a statement call, so callers need no
  * non-null assertion.
  */
-const fail: (asset: string, reason: string, message: string) => never = (
-  asset: string,
-  reason: string,
-  message: string,
-): never => {
+function fail(asset: string, reason: string, message: string): never {
   throw new Error(`Audio asset "${asset}" [${reason}] ${message}`);
-};
+}
 
-const asciiTag: (bytes: Uint8Array, offset: number) => string = (
-  bytes: Uint8Array,
-  offset: number,
-): string => {
+function asciiTag(bytes: Uint8Array, offset: number): string {
   let text: string = "";
   for (let index: number = offset; index < offset + 4; ++index) {
     const byte: number = bytes[index]!;
     text += byte >= 0x20 && byte <= 0x7e ? String.fromCharCode(byte) : ".";
   }
   return text;
-};
+}
 
-const leadingHex: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
-  `0x${hexBytes(bytes, 0, 4)}`;
+function leadingHex(bytes: Uint8Array): string {
+  return `0x${hexBytes(bytes, 0, 4)}`;
+}
 
 /**
  * Canonical GUID text: the first three fields are little-endian in the file,
  * the last two are byte strings.
  */
-const waveGuid: (bytes: Uint8Array) => string = (bytes: Uint8Array): string =>
-  `${hexBytes(bytes, 3, -1)}-${hexBytes(bytes, 5, 3)}-${hexBytes(bytes, 7, 5)}-${hexBytes(bytes, 8, 10)}-${hexBytes(bytes, 10, 16)}`;
+function waveGuid(bytes: Uint8Array): string {
+  return `${hexBytes(bytes, 3, -1)}-${hexBytes(bytes, 5, 3)}-${hexBytes(bytes, 7, 5)}-${hexBytes(bytes, 8, 10)}-${hexBytes(bytes, 10, 16)}`;
+}
 
 /** Hex digits of `bytes[from]` toward `to` (exclusive), in either direction. */
-const hexBytes: (bytes: Uint8Array, from: number, to: number) => string = (
-  bytes: Uint8Array,
-  from: number,
-  to: number,
-): string => {
+function hexBytes(bytes: Uint8Array, from: number, to: number): string {
   const direction: number = to > from ? 1 : -1;
   let text: string = "";
   for (let index: number = from; index !== to; index += direction)
     text += bytes[index]!.toString(16).padStart(2, "0");
   return text;
-};
+}
 
-const bitCount: (value: number) => number = (value: number): number => {
+function bitCount(value: number): number {
   let remaining: number = value >>> 0;
   let count: number = 0;
   while (remaining !== 0) {
@@ -443,10 +432,12 @@ const bitCount: (value: number) => number = (value: number): number => {
     remaining >>>= 1;
   }
   return count;
-};
+}
 
-const hex4: (value: number) => string = (value: number): string =>
-  value.toString(16).padStart(4, "0");
+function hex4(value: number): string {
+  return value.toString(16).padStart(4, "0");
+}
 
-const hex8: (value: number) => string = (value: number): string =>
-  `0x${(value >>> 0).toString(16).padStart(8, "0")}`;
+function hex8(value: number): string {
+  return `0x${(value >>> 0).toString(16).padStart(8, "0")}`;
+}

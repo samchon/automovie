@@ -2,6 +2,7 @@ import { canonicalRegion } from "@automovie/engine";
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../../internal/nclose";
 import { throwsError } from "../../internal/throwsError";
 
 /**
@@ -20,6 +21,8 @@ import { throwsError } from "../../internal/throwsError";
  *    copies.
  * 3. A two-point outer ring under label "section" is refused with "section outer
  *    ring needs at least three points".
+ * 4. A clockwise square translated by 1e12 m on both axes still reverses and
+ *    encloses one square metre.
  */
 export function test_engine_geometry_canonical_region(): void {
   const ring = (...xy: number[]): IAutoMovieProfilePoint[] =>
@@ -63,4 +66,23 @@ export function test_engine_geometry_canonical_region(): void {
       "section outer ring needs at least three points",
     ),
   );
+
+  // 4.
+  const offset: number = 1e12;
+  const { area, sourceIndices } = canonicalRegion(
+    ring(
+      offset,
+      offset,
+      offset,
+      offset + 1,
+      offset + 1,
+      offset + 1,
+      offset + 1,
+      offset,
+    ),
+    [],
+    "distant square",
+  );
+  TestValidator.predicate("translated area", nclose(area, 1, 0));
+  TestValidator.equals("translated winding", sourceIndices, [3, 2, 1, 0]);
 }

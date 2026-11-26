@@ -13,15 +13,11 @@ import { object } from "./object";
  * caller-owned bounds; the closure borrows the payload and decodes
  * little-endian components, scaling normalized integers by 255 or 65535.
  */
-export const accessorReader: (
+export function accessorReader(
   source: IAccessorSource,
   accessorIndex: number,
   role: string,
-) => IExternalModelAccessorReader = (
-  source: IAccessorSource,
-  accessorIndex: number,
-  role: string,
-): IExternalModelAccessorReader => {
+): IExternalModelAccessorReader {
   const accessor: Record<string, unknown> = object(
     source.accessors[accessorIndex],
     `accessors[${accessorIndex}]`,
@@ -69,4 +65,4 @@ export const accessorReader: (
           : data.getFloat32(offset, true);
     return scale === 1 ? value : value * scale;
   };
-};
+}

@@ -6,7 +6,7 @@ import type {
 import { walk } from "../actions/walk";
 import { carryHang } from "../handling/carryHang";
 import { pushSled } from "../handling/pushSled";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * Loaded carries of strength training, each a row of a shipped law that carries
@@ -23,7 +23,7 @@ export namespace HumanSportCarry {
    */
   export const farmersWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersWalk"]
-  > = HumanActionRow("farmersWalk", walk, {
+  > = AutoMovieMotionHumanActionRow.of("farmersWalk", walk, {
     pace: "slow",
     armSwing: 0,
   });
@@ -35,7 +35,7 @@ export namespace HumanSportCarry {
    */
   export const farmersHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersHold"]
-  > = HumanActionRow("farmersHold", carryHang, {});
+  > = AutoMovieMotionHumanActionRow.of("farmersHold", carryHang, {});
 
   /**
    * A sled push: the handles of a pushed load held in both hands through a slow
@@ -44,5 +44,5 @@ export namespace HumanSportCarry {
    */
   export const sledPush: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["sledPush"]
-  > = HumanActionRow("sledPush", pushSled, {});
+  > = AutoMovieMotionHumanActionRow.of("sledPush", pushSled, {});
 }

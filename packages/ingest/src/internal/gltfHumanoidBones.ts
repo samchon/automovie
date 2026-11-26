@@ -14,13 +14,10 @@ import { requiredArray } from "./requiredArray";
  * Returned slots describe naming correspondence rather than anatomy or positive
  * skin-weight coverage.
  */
-export const gltfHumanoidBones: (
+export function gltfHumanoidBones(
   nodes: unknown[],
   skins: unknown[],
-) => IHumanoidSlot[] = (
-  nodes: unknown[],
-  skins: unknown[],
-): IHumanoidSlot[] => {
+): IHumanoidSlot[] {
   const joints: Set<unknown> = new Set<unknown>(
     skins.flatMap((value: unknown, index: number): unknown[] =>
       requiredArray(
@@ -41,4 +38,4 @@ export const gltfHumanoidBones: (
     slots.push({ bone, node: index });
   });
   return slots;
-};
+}

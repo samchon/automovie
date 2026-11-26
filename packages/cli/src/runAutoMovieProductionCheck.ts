@@ -320,6 +320,10 @@ async function evaluate(props: {
     });
     return { ...outcome, evidence: path.relative(root, file) };
   }
+  const captureCheck: IAutoMovieProductionCheck.ICapture = {
+    ...check,
+    at: admitCaptureTime(check.at),
+  };
   const recordPath: string = path.resolve(root, check.record);
   if (props.execute && check.capture !== undefined) {
     const signature: string = await props.inputScope.identify(check);
@@ -356,7 +360,7 @@ async function evaluate(props: {
       .update(serializedRecord)
       .digest("hex");
     const outcome: IOutcome = await inspectAutoMovieProductionCheckCapture(
-      check,
+      captureCheck,
       JSON.parse(serializedRecord) as unknown,
       root,
       props.hashMedia,
@@ -416,10 +420,55 @@ async function evaluate(props: {
       };
   }
   return inspectAutoMovieProductionCheckCapture(
-    check,
+    captureCheck,
     record,
     root,
     props.hashMedia,
+  );
+}
+
+/** Admit one exact time mode before reading evidence or executing a capture. */
+function admitCaptureTime(
+  value: unknown,
+): IAutoMovieProductionCheck.ICaptureTime {
+  if (value !== null && typeof value === "object" && !Array.isArray(value)) {
+    const fields: Partial<
+      Record<"type" | "second" | "fromFrame" | "endFrame", unknown>
+    > = value;
+    const second: boolean = Object.hasOwn(fields, "second");
+    const fromFrame: boolean = Object.hasOwn(fields, "fromFrame");
+    const endFrame: boolean = Object.hasOwn(fields, "endFrame");
+    const type: unknown = Object.hasOwn(fields, "type")
+      ? fields.type
+      : second
+        ? "second"
+        : "frames";
+    if (
+      type === "second" &&
+      second &&
+      !fromFrame &&
+      !endFrame &&
+      typeof fields.second === "number" &&
+      Number.isFinite(fields.second) &&
+      0 <= fields.second
+    )
+      return { type, second: fields.second };
+    if (
+      type === "frames" &&
+      !second &&
+      fromFrame &&
+      endFrame &&
+      typeof fields.fromFrame === "number" &&
+      typeof fields.endFrame === "number" &&
+      Number.isSafeInteger(fields.fromFrame) &&
+      Number.isSafeInteger(fields.endFrame) &&
+      0 <= fields.fromFrame &&
+      fields.fromFrame < fields.endFrame
+    )
+      return { type, fromFrame: fields.fromFrame, endFrame: fields.endFrame };
+  }
+  throw new Error(
+    "A capture check needs exactly one finite second or nonempty frame interval.",
   );
 }
 

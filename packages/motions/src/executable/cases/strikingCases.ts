@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { DefenceOutcome } from "../../striking/DefenceOutcome";
 import { StrikingRecord } from "../../striking/StrikingRecord";
@@ -77,7 +77,13 @@ export function* strikingCases(
       const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
       return [
         name,
-        { man, body: createHumanBody(man.body.skeleton, man.body.profile) },
+        {
+          man,
+          body: AutoMovieMotionHumanBody.create(
+            man.body.skeleton,
+            man.body.profile,
+          ),
+        },
       ];
     }),
   );

@@ -1,7 +1,5 @@
 /** Decode strict UTF-8 JSON and refuse duplicate decoded member names. */
-export const decodeJson: (bytes: Uint8Array) => unknown = (
-  bytes: Uint8Array,
-): unknown => {
+export function decodeJson(bytes: Uint8Array): unknown {
   try {
     const text: string = new TextDecoder("utf-8", { fatal: true }).decode(
       bytes,
@@ -14,7 +12,7 @@ export const decodeJson: (bytes: Uint8Array) => unknown = (
       `External model JSON is invalid: ${(error as Error).message}.`,
     );
   }
-};
+}
 
 /**
  * Refuse decoded-equivalent member names before last-wins JSON can hide one.
@@ -29,9 +27,7 @@ export const decodeJson: (bytes: Uint8Array) => unknown = (
  * ingress because production sits above ingest in the dependency graph;
  * importing its ingress would reverse that package dependency.
  */
-const assertUniqueJsonObjectMembers: (text: string) => void = (
-  text: string,
-): void => {
+function assertUniqueJsonObjectMembers(text: string): void {
   const scopes: Array<Set<string> | null> = [];
   let expectName: boolean = false;
   let cursor: number = 0;
@@ -71,4 +67,4 @@ const assertUniqueJsonObjectMembers: (text: string) => void = (
     } else if (code === 0x2c) expectName = scopes[scopes.length - 1] !== null;
     ++cursor;
   }
-};
+}

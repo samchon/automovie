@@ -30,8 +30,8 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
  * 3. The point beyond reach is refused under the refusal policy.
  *
  * The body is built whole (`humanFixtureBody`): the reach reads the body's pose
- * rig and arm chain by forward kinematics, records only `createHumanBody`
- * derives from the stored rig and profile.
+ * rig and arm chain by forward kinematics, records only
+ * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
  */
 export async function test_motions_compose_reach_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

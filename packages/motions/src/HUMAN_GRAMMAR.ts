@@ -20,7 +20,8 @@ export const HUMAN_GRAMMAR = {
     },
     {
       name: "action",
-      carriedBy: "HumanActionName, HUMAN_LEXICON, HumanActionRow",
+      carriedBy:
+        "HumanActionName, HUMAN_LEXICON, AutoMovieMotionHumanActionRow.of",
       says: "which action, and which entry of its table",
     },
     {

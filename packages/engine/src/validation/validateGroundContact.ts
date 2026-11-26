@@ -16,6 +16,7 @@ import { sampleTimes } from "../motion/sampleTimes";
 import { groundFunction } from "../space/groundFunction";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
+import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 import { validateCapsule } from "./validateCapsule";
 
 const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
@@ -25,7 +26,8 @@ const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
 
 /**
  * Sample FK and compare configured foot points and valid capsule endpoints to
- * scalar/height-source ground minus tolerance.
+ * scalar/height-source ground minus tolerance. A nonfinite tolerance or a
+ * nonfinite or nonpositive rate yields a range finding before the pose sweep.
  */
 export const validateGroundContact: (
   props: IAutoMovieValidateGroundContact.IProps,
@@ -70,23 +72,16 @@ export const validateGroundContact: (
       ),
   );
 
-  // Guard the sampling clock, matching the sibling sampling validators
-  // (validateFootSkate/SelfIntersection/BalanceSupport): a non-finite or
-  // non-positive rate makes `sampleTimes` yield an empty/NaN clock (which then
-  // throws in the sampler), and a non-finite tolerance makes `minY = ground −
-  // NaN = NaN` so `y < NaN` is always false. Either one would silently drop
-  // every penetration (a #1051/#1082 silent-skip). Surface both as errors and
-  // do not sample against a broken clock.
-  const badRate: boolean = sampleRate <= 0;
-  if (badRate) {
+  const rateValid: boolean = admitMotionSampleRate(collector, path, sampleRate);
+  const toleranceValid: boolean = Number.isFinite(tolerance);
+  if (!toleranceValid)
     collector.push(
       "range",
-      `${path}.sampleRate`,
-      `sampleRate must be a number > 0, but was ${sampleRate}`,
-      sampleRate,
+      `${path}.tolerance`,
+      `tolerance must be finite, but was ${tolerance}`,
+      tolerance,
     );
-    return collector.toValidation();
-  }
+  if (!rateValid || !toleranceValid) return collector.toValidation();
 
   sampleTimes(props.motion.duration, sampleRate).forEach(
     (time: number, index: number): void => {

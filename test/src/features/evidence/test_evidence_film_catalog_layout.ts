@@ -1,4 +1,4 @@
-import { createEvidenceConfig } from "@automovie/evidence";
+import { AutoMovieEvidenceConfig } from "@automovie/evidence";
 import type { IEvidenceConfig } from "@wrtnlabs/evidence";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -29,7 +29,7 @@ export function test_evidence_film_catalog_layout(): void {
   const root: string = ProductionWorkflowFixture.create();
   /** Configure composition and an optional catalog selection. */
   const check = (catalog?: "evidence" | "disabled"): IEvidenceConfig =>
-    createEvidenceConfig({
+    AutoMovieEvidenceConfig.create({
       location: root,
       development: { composition: "evidence", catalog },
     });
@@ -121,7 +121,7 @@ export function test_evidence_film_catalog_layout(): void {
     }
     assert.equal(
       selected(
-        createEvidenceConfig({
+        AutoMovieEvidenceConfig.create({
           location: root,
           development: { catalog: "evidence" },
         }),

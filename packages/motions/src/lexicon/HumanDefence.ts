@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { brace } from "../everyday/brace";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_DEFENCE_CHECK_KICK } from "../next/presets/HUMAN_DEFENCE_CHECK_KICK";
 import { HUMAN_DEFENCE_COVER } from "../next/presets/HUMAN_DEFENCE_COVER";
 import { HUMAN_DEFENCE_ELBOW_BLOCK } from "../next/presets/HUMAN_DEFENCE_ELBOW_BLOCK";
@@ -50,54 +50,78 @@ export namespace HumanDefence {
   /** Both forearms brought up to cover the head. */
   export const cover: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["cover"]
-  > = HumanActionRow("cover", defend, HUMAN_DEFENCE_COVER);
+  > = AutoMovieMotionHumanActionRow.of("cover", defend, HUMAN_DEFENCE_COVER);
 
   /** The incoming fist deflected by the hand. */
   export const handParry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["handParry"]
-  > = HumanActionRow("handParry", defend, HUMAN_DEFENCE_HAND_PARRY);
+  > = AutoMovieMotionHumanActionRow.of(
+    "handParry",
+    defend,
+    HUMAN_DEFENCE_HAND_PARRY,
+  );
 
   /** A body strike taken on the elbow. */
   export const elbowBlock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["elbowBlock"]
-  > = HumanActionRow("elbowBlock", defend, HUMAN_DEFENCE_ELBOW_BLOCK);
+  > = AutoMovieMotionHumanActionRow.of(
+    "elbowBlock",
+    defend,
+    HUMAN_DEFENCE_ELBOW_BLOCK,
+  );
 
   /** A high strike taken on the raised forearm. */
   export const highBlock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["highBlock"]
-  > = HumanActionRow("highBlock", defend, HUMAN_DEFENCE_HIGH_BLOCK);
+  > = AutoMovieMotionHumanActionRow.of(
+    "highBlock",
+    defend,
+    HUMAN_DEFENCE_HIGH_BLOCK,
+  );
 
   /** A kick checked with the raised shin. */
   export const checkKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["checkKick"]
-  > = HumanActionRow("checkKick", defend, HUMAN_DEFENCE_CHECK_KICK);
+  > = AutoMovieMotionHumanActionRow.of(
+    "checkKick",
+    defend,
+    HUMAN_DEFENCE_CHECK_KICK,
+  );
 
   /** The head moved off the line of a straight punch. */
   export const slip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["slip"]
-  > = HumanActionRow("slip", defend, HUMAN_DEFENCE_SLIP);
+  > = AutoMovieMotionHumanActionRow.of("slip", defend, HUMAN_DEFENCE_SLIP);
 
   /** The body rolled under a hook. */
   export const rollUnder: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["rollUnder"]
-  > = HumanActionRow("rollUnder", defend, HUMAN_DEFENCE_ROLL_UNDER);
+  > = AutoMovieMotionHumanActionRow.of(
+    "rollUnder",
+    defend,
+    HUMAN_DEFENCE_ROLL_UNDER,
+  );
 
   /** The trunk swayed back from a strike. */
   export const swayBack: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["swayBack"]
-  > = HumanActionRow("swayBack", defend, HUMAN_DEFENCE_SWAY_BACK);
+  > = AutoMovieMotionHumanActionRow.of(
+    "swayBack",
+    defend,
+    HUMAN_DEFENCE_SWAY_BACK,
+  );
 
   /** The stance widened and lowered for an impact. */
   export const braceImpact: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["braceImpact"]
-  > = HumanActionRow("braceImpact", brace, {
+  > = AutoMovieMotionHumanActionRow.of("braceImpact", brace, {
     kind: "impact",
   });
 
   /** The stance set against a push. */
   export const bracePush: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["defence"]["bracePush"]
-  > = HumanActionRow("bracePush", brace, {
+  > = AutoMovieMotionHumanActionRow.of("bracePush", brace, {
     kind: "push",
   });
 }

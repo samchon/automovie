@@ -11,15 +11,11 @@ import { object } from "./object";
  * whose own gate checks its ranges; this gate does not check component
  * alignment or payload values.
  */
-export const validateAccessorRange: (
+export function validateAccessorRange(
   accessor: Record<string, unknown>,
   index: number,
   bufferViews: unknown[],
-) => void = (
-  accessor: Record<string, unknown>,
-  index: number,
-  bufferViews: unknown[],
-): void => {
+): void {
   if (accessor.bufferView === undefined) {
     if (accessor.sparse === undefined)
       throw new Error(
@@ -47,4 +43,4 @@ export const validateAccessorRange: (
     throw new Error(
       `accessors[${index}] requires ${end} bytes inside a bufferView of ${String(view.byteLength)} bytes.`,
     );
-};
+}

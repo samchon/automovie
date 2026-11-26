@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../../compose/AutoMovieMotionHumanVariation";
@@ -126,14 +126,14 @@ type IBuildTargetsItem = {
 /** Build one body's case. */
 function build(name: string, who: string): IMotionCaptureCase {
   const man: humanPolygonMan.IPolygonMan = MotionBodies.population(who);
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     man.body.skeleton,
     man.body.profile,
   );
   const partner: string =
     who === "m-tall" ? "f-small" : who === "f-small" ? "m-tall" : "m-average";
   const other: humanPolygonMan.IPolygonMan = MotionBodies.population(partner);
-  const struck: IAutoMovieMotionHumanBody = createHumanBody(
+  const struck: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     other.body.skeleton,
     other.body.profile,
   );

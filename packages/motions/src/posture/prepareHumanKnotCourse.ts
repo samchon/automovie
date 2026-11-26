@@ -1,3 +1,5 @@
+import { AutoMovieEngineKeyframeSearch } from "@automovie/engine";
+
 import { HumanKnot } from "./HumanKnot";
 import { HumanKnotTiming } from "./HumanKnotTiming";
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
@@ -129,7 +131,12 @@ export function prepareHumanKnotCourse(
         case "hold":
           return [...span.position];
         case "fixed": {
-          const j: number = segmentAt(span.times, seconds);
+          const j: number = AutoMovieEngineKeyframeSearch.segment(
+            span.times.length,
+            (index: number): number => span.times[index]!,
+            seconds,
+            "next",
+          );
           return HumanQuinticSegment.position(
             span.segments[j]!,
             seconds - span.times[j]!,
@@ -147,7 +154,12 @@ export function prepareHumanKnotCourse(
         case "hold":
           return rest(span.position);
         case "fixed": {
-          const j: number = segmentAt(span.times, seconds);
+          const j: number = AutoMovieEngineKeyframeSearch.segment(
+            span.times.length,
+            (index: number): number => span.times[index]!,
+            seconds,
+            "next",
+          );
           return HumanQuinticSegment.state(
             span.segments[j]!,
             seconds - span.times[j]!,
@@ -272,16 +284,4 @@ interface IOptimalSpan {
 
   /** Its path and time map, from zero at `from`. */
   timed: HumanKnotTiming.ITimed;
-}
-
-/** The knot interval of a fixed piece holding a second, by binary search. */
-function segmentAt(times: readonly number[], seconds: number): number {
-  let low: number = 0;
-  let high: number = times.length - 2;
-  while (low < high) {
-    const middle: number = (low + high + 1) >> 1;
-    if (times[middle]! <= seconds) low = middle;
-    else high = middle - 1;
-  }
-  return low;
 }

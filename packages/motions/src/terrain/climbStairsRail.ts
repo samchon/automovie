@@ -15,7 +15,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanSignature } from "../audit/HumanSignature";
+import { AutoMovieMotionHumanSignature } from "../audit/AutoMovieMotionHumanSignature";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmJointCourse } from "../compose/AutoMovieMotionHumanArmJointCourse";
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
@@ -175,7 +175,10 @@ export function climbStairsRail(
   const project: ReturnType<typeof prepareHumanPostureProjection> =
     prepareHumanPostureProjection(body);
   let miss: number = 0;
-  for (const t of [...HumanSignature.times(transit, release), release]) {
+  for (const t of [
+    ...AutoMovieMotionHumanSignature.times(transit, release),
+    release,
+  ]) {
     const observed: IAutoMovieMotionHumanPosture = posture(t);
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,

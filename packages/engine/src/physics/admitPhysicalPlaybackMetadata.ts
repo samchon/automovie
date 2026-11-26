@@ -3,13 +3,15 @@ import type {
   IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalPlayback,
   IAutoMovieStepPlanner,
-  IAutoMovieVector3,
 } from "@automovie/interface";
+
+import { contactReceiptFault } from "./internal/contactReceiptFault";
 
 /**
  * Refuse inconsistent causal metadata even when an archive has a valid
  * integrity trailer: budgets, references, clocks, orderings, unit normals and
- * allocation residuals.
+ * allocation residuals. Contact episodes must fit the archive's film duration
+ * and name known segments or the floor. Invalid metadata throws.
  */
 export function admitPhysicalPlaybackMetadata(
   header: IAutoMoviePhysicalPlayback.IHeader,
@@ -28,16 +30,11 @@ export function admitPhysicalPlaybackMetadata(
   const ids: Set<string> = new Set();
   const time: (value: number) => boolean = (value: number): boolean =>
     value >= 0 && value <= header.duration;
-  const normal: (value: IAutoMovieVector3) => boolean = (
-    value: IAutoMovieVector3,
-  ): boolean => Math.abs(Math.hypot(value.x, value.y, value.z) - 1) <= 1e-5;
   const identity: (side: IAutoMovieContactReceipt["a"]) => boolean = (
     side: IAutoMovieContactReceipt["a"],
   ): boolean =>
-    !!side.shape.trim() &&
-    !!side.material.trim() &&
-    ((side.body === "floor" && side.bone === "floor") ||
-      segments.has(JSON.stringify([side.body, side.bone])));
+    (side.body === "floor" && side.bone === "floor") ||
+    segments.has(JSON.stringify([side.body, side.bone]));
   if (
     header.ownership.length >
     (3 * header.duration * header.rate + 1) * header.segments.length
@@ -104,41 +101,27 @@ export function admitPhysicalPlaybackMetadata(
   }
   for (const receipt of header.contacts) {
     if (
-      !receipt.id.trim() ||
       ids.has(receipt.id) ||
       !identity(receipt.a) ||
       !identity(receipt.b) ||
       !time(receipt.seconds) ||
-      !time(receipt.endSeconds) ||
-      receipt.endSeconds < receipt.seconds ||
-      !normal(receipt.normal) ||
-      receipt.separation > 0 ||
-      receipt.compression < 0 ||
-      (receipt.source === "geometric"
-        ? receipt.impulse !== null
-        : receipt.impulse === null || receipt.impulse < 0)
+      !time(receipt.endSeconds)
     )
       throw new Error("Malformed physical playback contact episode");
-    ids.add(receipt.id);
-    if (receipt.source === "geometric" && (receipt.samples?.length ?? 0) > 0)
-      throw new Error("Geometric contact cannot assert solved samples");
-    let previous: number = receipt.seconds;
-    for (const sample of receipt.samples ?? []) {
-      if (
-        !time(sample.seconds) ||
-        sample.seconds < previous ||
-        sample.seconds > receipt.endSeconds ||
-        sample.duration <= 0 ||
-        sample.impulse < 0 ||
-        (sample.appliedImpulse !== undefined &&
-          (sample.appliedImpulse.a < 0 || sample.appliedImpulse.b < 0)) ||
-        !normal(sample.normal) ||
-        sample.separation > 0 ||
-        sample.compression < 0
-      )
+    switch (contactReceiptFault(receipt)) {
+      case "identity":
+      case "episode":
+      case "geometric-impulse":
+      case "solver-impulse":
+        throw new Error("Malformed physical playback contact episode");
+      case "geometric-samples":
+        throw new Error("Geometric contact cannot assert solved samples");
+      case "sample":
         throw new Error("Malformed physical playback contact sample");
-      previous = sample.seconds;
+      case null:
+        break;
     }
+    ids.add(receipt.id);
   }
   for (const [body, state] of Object.entries(header.recovery)) {
     const bone: (name: string) => boolean = (name: string): boolean =>

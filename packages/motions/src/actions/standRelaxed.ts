@@ -50,7 +50,8 @@ export namespace standRelaxed {
    * `stand.ELBOW` and the digits in the relaxed shape; wider bodies need wider
    * hanging arms. The depth is measured before any digit clearing changes that
    * shape. Bisection ends at the engine's joint-angle resolution. The body's
-   * record reads it once, on its first use (`createHumanBody`).
+   * record reads it once, on its first use
+   * (`AutoMovieMotionHumanBody.create`).
    *
    * @param body The body.
    * @returns The two arms' and hands' clinical angles.

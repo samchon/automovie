@@ -51,11 +51,9 @@ import { composeLocalTransform } from "./internal/composeLocalTransform";
  * @param props.decision The author's use of one take.
  * @returns A receipt that shares no objects with its inputs.
  */
-export const adoptAutoMovieExternalMotion: (
+export function adoptAutoMovieExternalMotion(
   props: IAutoMovieExternalMotionAdoptionReceipt.IProps,
-) => IAutoMovieExternalMotionAdoptionReceipt = (
-  props: IAutoMovieExternalMotionAdoptionReceipt.IProps,
-): IAutoMovieExternalMotionAdoptionReceipt => {
+): IAutoMovieExternalMotionAdoptionReceipt {
   if (props.inspection.profile !== "gltf-motion-v1")
     throw new Error(
       'External motion adoption requires the "gltf-motion-v1" inspection profile.',
@@ -125,20 +123,13 @@ export const adoptAutoMovieExternalMotion: (
       ...validateRetargetDecision(decision),
     },
   };
-};
+}
 
-const validateMotionBinding: (props: {
+function validateMotionBinding(props: {
   decision: IAutoMovieExternalMotionAdoptionDecision;
   take: IAutoMovieClip;
   nodes: IAutoMovieExternalMotionNodeInspection[];
-}) => Pick<
-  IAutoMovieExternalMotionNativeHandoff,
-  "sourceRig" | "mapping"
-> = (props: {
-  decision: IAutoMovieExternalMotionAdoptionDecision;
-  take: IAutoMovieClip;
-  nodes: IAutoMovieExternalMotionNodeInspection[];
-}): Pick<IAutoMovieExternalMotionNativeHandoff, "sourceRig" | "mapping"> => {
+}): Pick<IAutoMovieExternalMotionNativeHandoff, "sourceRig" | "mapping"> {
   const sourceRig: IAutoMovieSkeleton = props.decision.sourceRig;
   if (sourceRig.id.trim().length === 0)
     throw new Error("External motion source rig id must be non-blank.");
@@ -250,22 +241,18 @@ const validateMotionBinding: (props: {
         ): number => compareCodeUnits(left.node, right.node),
       ),
   };
-};
+}
 
 /**
  * The parent and rest a mapped node implies: walk to the nearest mapped
  * ancestor, then fold every unmapped helper's TRS into the node's own, nearest
  * helper first. A node without a mapped ancestor keeps its local TRS.
  */
-const inspectedBoneBasis: (
+function inspectedBoneBasis(
   node: IAutoMovieExternalMotionNodeInspection,
   nodes: Map<string, IAutoMovieExternalMotionNodeInspection>,
   nodeToBone: Map<string, AutoMovieHumanoidBone>,
-) => { parent: AutoMovieHumanoidBone | null; rest: IAutoMovieTransform } = (
-  node: IAutoMovieExternalMotionNodeInspection,
-  nodes: Map<string, IAutoMovieExternalMotionNodeInspection>,
-  nodeToBone: Map<string, AutoMovieHumanoidBone>,
-): { parent: AutoMovieHumanoidBone | null; rest: IAutoMovieTransform } => {
+): { parent: AutoMovieHumanoidBone | null; rest: IAutoMovieTransform } {
   const helpers: IAutoMovieExternalMotionNodeInspection[] = [];
 
   // An inspector's hierarchy is an acyclic forest, so the walk meets each
@@ -292,17 +279,13 @@ const inspectedBoneBasis: (
     parentId = parent.parent;
   }
   return { parent: null, rest: node.transform };
-};
+}
 
-const assertTransformMatches: (
+function assertTransformMatches(
   bone: AutoMovieHumanoidBone,
   actual: IAutoMovieTransform,
   expected: IAutoMovieTransform,
-) => void = (
-  bone: AutoMovieHumanoidBone,
-  actual: IAutoMovieTransform,
-  expected: IAutoMovieTransform,
-): void => {
+): void {
   const components: Array<[string, number, number]> = [
     ["translation.x", actual.translation.x, expected.translation.x],
     ["translation.y", actual.translation.y, expected.translation.y],
@@ -320,19 +303,14 @@ const assertTransformMatches: (
       throw new Error(
         `External motion source rig bone "${bone}" rest ${path} ${value} does not match inspected value ${inspected}.`,
       );
-};
+}
 
-const validateRetargetDecision: (
-  decision: IAutoMovieExternalMotionRetargetDecision,
-) => Pick<
-  IAutoMovieExternalMotionRetargetHandoff,
-  "target" | "translationScale"
-> = (
+function validateRetargetDecision(
   decision: IAutoMovieExternalMotionRetargetDecision,
 ): Pick<
   IAutoMovieExternalMotionRetargetHandoff,
   "target" | "translationScale"
-> => {
+> {
   if (decision.target.trim().length === 0)
     throw new Error("External motion target identity must be non-blank.");
   if (
@@ -346,70 +324,70 @@ const validateRetargetDecision: (
     target: decision.target,
     translationScale: decision.translationScale,
   };
-};
+}
 
-const cloneClip: (clip: IAutoMovieClip) => IAutoMovieClip = (
-  clip: IAutoMovieClip,
-): IAutoMovieClip => ({
-  ...clip,
-  tracks: clip.tracks.map(
-    (track: IAutoMovieTrack): IAutoMovieTrack => ({
-      ...track,
-      channel: { ...track.channel },
-      times: [...track.times],
-      values: [...track.values],
-    }),
-  ),
-});
-const cloneSkeleton: (skeleton: IAutoMovieSkeleton) => IAutoMovieSkeleton = (
-  skeleton: IAutoMovieSkeleton,
-): IAutoMovieSkeleton => ({
-  id: skeleton.id,
-  bones: skeleton.bones.map(
-    (bone: IAutoMovieBone): IAutoMovieBone => ({
-      ...bone,
-      ...(bone.axes === undefined
-        ? {}
-        : {
-            axes: {
-              ...bone.axes,
-              flexion: { ...bone.axes.flexion },
-              abduction: { ...bone.axes.abduction },
-              twist: { ...bone.axes.twist },
-            },
-          }),
-      rest: {
-        translation: { ...bone.rest.translation },
-        rotation: { ...bone.rest.rotation },
-        scale: { ...bone.rest.scale },
-      },
-      constraint:
-        bone.constraint === null
-          ? null
+function cloneClip(clip: IAutoMovieClip): IAutoMovieClip {
+  return {
+    ...clip,
+    tracks: clip.tracks.map(
+      (track: IAutoMovieTrack): IAutoMovieTrack => ({
+        ...track,
+        channel: { ...track.channel },
+        times: [...track.times],
+        values: [...track.values],
+      }),
+    ),
+  };
+}
+function cloneSkeleton(skeleton: IAutoMovieSkeleton): IAutoMovieSkeleton {
+  return {
+    id: skeleton.id,
+    bones: skeleton.bones.map(
+      (bone: IAutoMovieBone): IAutoMovieBone => ({
+        ...bone,
+        ...(bone.axes === undefined
+          ? {}
           : {
-              ...bone.constraint,
-              ...(bone.constraint.swingTwist === undefined ||
-              bone.constraint.swingTwist === null
-                ? {}
-                : {
-                    swingTwist: {
-                      ...bone.constraint.swingTwist,
-                      twist: { ...bone.constraint.swingTwist.twist },
-                    },
-                  }),
-              flexion:
-                bone.constraint.flexion === null
-                  ? null
-                  : { ...bone.constraint.flexion },
-              abduction:
-                bone.constraint.abduction === null
-                  ? null
-                  : { ...bone.constraint.abduction },
-              twist:
-                bone.constraint.twist === null
-                  ? null
-                  : { ...bone.constraint.twist },
-            },
-    }),
-  ),
-});
+              axes: {
+                ...bone.axes,
+                flexion: { ...bone.axes.flexion },
+                abduction: { ...bone.axes.abduction },
+                twist: { ...bone.axes.twist },
+              },
+            }),
+        rest: {
+          translation: { ...bone.rest.translation },
+          rotation: { ...bone.rest.rotation },
+          scale: { ...bone.rest.scale },
+        },
+        constraint:
+          bone.constraint === null
+            ? null
+            : {
+                ...bone.constraint,
+                ...(bone.constraint.swingTwist === undefined ||
+                bone.constraint.swingTwist === null
+                  ? {}
+                  : {
+                      swingTwist: {
+                        ...bone.constraint.swingTwist,
+                        twist: { ...bone.constraint.swingTwist.twist },
+                      },
+                    }),
+                flexion:
+                  bone.constraint.flexion === null
+                    ? null
+                    : { ...bone.constraint.flexion },
+                abduction:
+                  bone.constraint.abduction === null
+                    ? null
+                    : { ...bone.constraint.abduction },
+                twist:
+                  bone.constraint.twist === null
+                    ? null
+                    : { ...bone.constraint.twist },
+              },
+      }),
+    ),
+  };
+}

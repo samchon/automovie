@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { roll } from "../floor/roll";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * Rolls on the floor, each a row of the roll law. Register the rows a film
@@ -18,7 +18,7 @@ export namespace HumanFloorRoll {
    */
   export const forwardRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorRoll"]["forwardRoll"]
-  > = HumanActionRow("forwardRoll", roll, {
+  > = AutoMovieMotionHumanActionRow.of("forwardRoll", roll, {
     direction: "forward",
   });
 
@@ -29,7 +29,7 @@ export namespace HumanFloorRoll {
    */
   export const backwardRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorRoll"]["backwardRoll"]
-  > = HumanActionRow("backwardRoll", roll, {
+  > = AutoMovieMotionHumanActionRow.of("backwardRoll", roll, {
     direction: "backward",
   });
 }

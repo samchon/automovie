@@ -1,7 +1,10 @@
-import type { IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  AutoMovieVector3Tuple,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 /**
- * Pure vector math over {@link IAutoMovieVector3} (`{ x, y, z }`).
+ * Pure vector math over {@link IAutoMovieVector3} records and Cartesian tuples.
  *
  * Operations return fresh values unless their name explicitly ends in Into;
  * those write only the supplied target after reading every source component.
@@ -9,6 +12,20 @@ import type { IAutoMovieVector3 } from "@automovie/interface";
  * headless without depending on `three.js`.
  */
 export namespace Vector3 {
+  /**
+   * Check whether every coordinate is a finite binary64 number.
+   *
+   * @param value The position or direction to check.
+   * @returns True when all three coordinates are finite, including zero.
+   */
+  export function isFinite(value: Readonly<IAutoMovieVector3>): boolean {
+    return (
+      Number.isFinite(value.x) &&
+      Number.isFinite(value.y) &&
+      Number.isFinite(value.z)
+    );
+  }
+
   /** A new vector from its components, each zero when omitted. */
   export const create: (
     x?: number,
@@ -190,6 +207,24 @@ export namespace Vector3 {
     const len: number = length(value);
     return len === 0 ? create(0, 0, 0) : scale(value, 1 / len);
   };
+
+  /**
+   * Normalize a Cartesian tuple with the same magnitude handling as
+   * {@link normalize}. The caller owns admission of nonfinite coordinates.
+   *
+   * @param value The direction, read in X/Y/Z order.
+   * @returns A fresh unit tuple, or a zero tuple for a zero input.
+   */
+  export function normalizeTuple(
+    value: Readonly<AutoMovieVector3Tuple>,
+  ): AutoMovieVector3Tuple {
+    const result: IAutoMovieVector3 = normalize({
+      x: value[0],
+      y: value[1],
+      z: value[2],
+    });
+    return [result.x, result.y, result.z];
+  }
 
   /**
    * The largest component magnitude when it lies outside `[2^-511, 2^511]`, or

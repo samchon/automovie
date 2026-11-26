@@ -38,6 +38,7 @@ import { nclose, throwsError, vclose } from "../../internal/predicates";
  *    in-plane reference normal; placement refuses a zero forward or normal, a
  *    forward along the normal and a destination that overflows; the prepared
  *    triangle still places at a valid frame afterwards.
+ * 8. A nonfinite optional reference normal cannot choose a normal sign.
  */
 export function test_engine_geometry_surface_frame_place(): void {
   const level = {
@@ -218,4 +219,15 @@ export function test_engine_geometry_surface_frame_place(): void {
   plane.forEach((p: IAutoMovieVector3, i: number): void =>
     TestValidator.predicate(`recovered ${i}`, vclose(recovered[i]!, p)),
   );
+
+  // 8.
+  const admitted: string[] = [];
+  for (const z of [Number.NaN, Number.POSITIVE_INFINITY])
+    if (
+      !throwsError((): IAutoMoviePreparedSurfaceFrame =>
+        prepareAutoMovieSurfaceFrame(plane, { x: 0, y: 0, z }),
+      )
+    )
+      admitted.push(String(z));
+  TestValidator.equals("nonfinite reference refused", admitted, []);
 }

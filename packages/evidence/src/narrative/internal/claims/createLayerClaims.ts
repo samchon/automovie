@@ -57,10 +57,8 @@ export function createLayerClaims(
     scope: props.narrativeScope,
   });
 
-  const parents: (symbol: "file" | "h2") => IEvidenceReference[] = (
-    symbol: "file" | "h2",
-  ): IEvidenceReference[] =>
-    props.mode !== "long"
+  function parents(symbol: "file" | "h2"): IEvidenceReference[] {
+    return props.mode !== "long"
       ? []
       : [
           // A screenplay scene file realizes one script scene, an H2 of its
@@ -72,6 +70,7 @@ export function createLayerClaims(
             ? [createCoverageReference(treatments, symbol)]
             : []),
         ];
+  }
 
   const inherits: string = isCanonLayer(layer)
     ? ""

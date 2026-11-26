@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanTurnOver,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import {
   HumanColliders,
   lieDown,
@@ -44,7 +44,7 @@ export async function test_motions_floor_turn_over(): Promise<void> {
   );
   const fixture: Awaited<ReturnType<typeof humanFixture>> =
     await humanFixture("m-average");
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     fixture.skeleton,
     fixture.profile,
   );

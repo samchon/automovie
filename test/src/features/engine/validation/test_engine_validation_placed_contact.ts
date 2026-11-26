@@ -32,6 +32,16 @@ const CARRIER: IAutoMovieRigidTransform = {
 /**
  * Measure contact in the current moving frame, including independently declared
  * targets for an active rolling point and intentional in-hand motion.
+ *
+ * Scenarios:
+ *
+ * 1. A resting, carried or rolling support stays on its declared target.
+ * 2. Lift, tangential drift and penetration give independent metre findings.
+ * 3. A carried grip follows its hand, including an authored in-hand turn.
+ * 4. A loose grip reports unequivalent position and orientation.
+ * 5. A missing sample is unsupported. Invalid limits, rotation or a nonfinite
+ *    frame origin leave the measurement unavailable and report the input
+ *    field.
  */
 export const test_engine_validation_placed_contact = (): void => {
   const support: ISupportCheck = {
@@ -189,6 +199,26 @@ export const test_engine_validation_placed_contact = (): void => {
       ) &&
       malformed.violations.some(
         ({ path }) => path === "actors.rook.support.maxGap",
+      ),
+  );
+
+  const nonfiniteOrigin: IAutoMoviePlacedContact.IResult =
+    measureAutoMoviePlacedContact({
+      ...support,
+      sample: {
+        ...supportSample,
+        frame: {
+          ...CARRIER,
+          position: { ...CARRIER.position, x: NaN },
+        },
+      },
+    });
+  TestValidator.predicate(
+    "a nonfinite origin makes the support observation invalid",
+    () =>
+      nonfiniteOrigin.status === "invalid" &&
+      nonfiniteOrigin.violations.some(({ path }) =>
+        path.startsWith("actors.rook.support.frame.position"),
       ),
   );
 };

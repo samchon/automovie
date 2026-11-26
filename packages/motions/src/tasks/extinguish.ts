@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
   AutoMovieHumanDigit,
   AutoMovieHumanSide,
@@ -33,7 +33,6 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { extinguishSweep } from "./extinguishSweep";
-import { rotationBetween } from "./rotationBetween";
 
 /**
  * Aim, squeeze and sweep an extinguisher whose pin is already pulled: the A, S
@@ -147,8 +146,8 @@ function plan(
   );
   const fire: IAutoMovieVector3 = context.aim(p.target, context.start).point;
   const aim: IAutoMovieQuaternion = rotationBetween(
-    Vector3.normalize(discharge),
-    Vector3.normalize(Vector3.subtract(fire, outlet)),
+    discharge,
+    Vector3.subtract(fire, outlet),
   );
   const aimed: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(aim, hand.worldRotation),

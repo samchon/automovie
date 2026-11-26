@@ -11,7 +11,7 @@ import {
   IAutoMovieShotParticipant,
 } from "@automovie/interface";
 
-import { autoMovieModelGaits } from "../index";
+import { autoMovieModelGaits } from "../autoMovieModelGaits";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 import { engineDiagnostic } from "./engineDiagnostic";
 
@@ -19,13 +19,10 @@ import { engineDiagnostic } from "./engineDiagnostic";
  * Check bounded formation cues against participating compiled formations,
  * runtime gait repertoire, finite state, layout and nonoverlapping intervals.
  */
-export const validateAutoMovieFormationMotions: (
+export function validateAutoMovieFormationMotions(
   contract: IAutoMovieShotContract,
   value: IAutoMovieCompiledShotSource,
-) => IAutoMovieDiagnostic[] = (
-  contract: IAutoMovieShotContract,
-  value: IAutoMovieCompiledShotSource,
-): IAutoMovieDiagnostic[] => {
+): IAutoMovieDiagnostic[] {
   const diagnostics: IAutoMovieDiagnostic[] = [];
   const fail: (field: string, expectation: string) => void = (
     field: string,
@@ -190,4 +187,4 @@ export const validateAutoMovieFormationMotions: (
     priorByFormation.set(cue.formation, cue);
   }
   return diagnostics;
-};
+}

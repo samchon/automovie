@@ -12,10 +12,11 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
+import { AutoMovieEngineKeyframeSearch } from "../math/AutoMovieEngineKeyframeSearch";
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { Vector3 } from "../math/Vector3";
-import { segmentIndex } from "../math/segmentIndex";
+import { normalizeClipTime } from "../math/internal/normalizeClipTime";
 import { cubicBezierEasing } from "./cubicBezierEasing";
 import { ease } from "./ease";
 
@@ -77,7 +78,7 @@ function readAt<T>(
   if (frames.length === 0)
     throw new Error(`motion "${motion.id}" must have keyframes to sample`);
 
-  const time: number = normalizeTime(seconds, motion.duration, motion.loop);
+  const time: number = normalizeClipTime(seconds, motion.duration, motion.loop);
 
   if (time <= frames[0]!.time) return endpoint(motion, frames[0]!);
   const last: IAutoMovieKeyframe = frames[frames.length - 1]!;
@@ -86,10 +87,11 @@ function readAt<T>(
   // Precondition: the clip has strictly increasing keyframe times (the contract
   // validateMotion enforces), so the binary search lands on a segment with a
   // positive span, and its tie rule matches the old linear scan exactly.
-  const loIdx: number = segmentIndex(
+  const loIdx: number = AutoMovieEngineKeyframeSearch.segment(
     frames.length,
     (i: number): number => frames[i]!.time,
     time,
+    "previous",
   );
   const lo: IAutoMovieKeyframe = frames[loIdx]!;
   const hi: IAutoMovieKeyframe = frames[loIdx + 1]!;
@@ -146,19 +148,6 @@ function between(
     expression: interpolateExpression(lo.expression, hi.expression, t),
   };
 }
-
-const normalizeTime: (
-  seconds: number,
-  duration: number,
-  loop: boolean,
-) => number = (seconds: number, duration: number, loop: boolean): number => {
-  if (duration <= 0) return 0;
-  if (loop) {
-    const m: number = seconds % duration;
-    return m < 0 ? m + duration : m;
-  }
-  return Math.min(duration, Math.max(0, seconds));
-};
 
 const toSample: (
   motion: IAutoMovieMotion,

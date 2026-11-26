@@ -16,17 +16,12 @@ import { requiredArray } from "./requiredArray";
  * coverage of additional joint sets, and does not establish anatomical
  * validity.
  */
-export const validateHumanoidSkinning: (props: {
+export function validateHumanoidSkinning(props: {
   nodes: unknown[];
   meshes: unknown[];
   skins: unknown[];
   source: IAccessorSource;
-}) => Set<number> = (props: {
-  nodes: unknown[];
-  meshes: unknown[];
-  skins: unknown[];
-  source: IAccessorSource;
-}): Set<number> => {
+}): Set<number> {
   let skinnedPrimitiveCount: number = 0;
   const weightedNodes: Set<number> = new Set<number>();
   // Instanced characters bind the same mesh and skin on several nodes; the
@@ -147,4 +142,4 @@ export const validateHumanoidSkinning: (props: {
       "Humanoid profiles require at least one mesh node with a complete skin binding.",
     );
   return weightedNodes;
-};
+}

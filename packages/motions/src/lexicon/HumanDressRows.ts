@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { dress } from "../dressing/dress";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * Putting on a worn item as rows: each item of `dress` under a name of its own,
@@ -22,7 +22,7 @@ export namespace HumanDressRows {
    */
   export const dressHat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperDress"]["dressHat"]
-  > = HumanActionRow("dressHat", dress, { item: "hat" });
+  > = AutoMovieMotionHumanActionRow.of("dressHat", dress, { item: "hat" });
 
   /**
    * `dress` putting on a `glasses`. The same phases as the hat without the turn
@@ -30,7 +30,7 @@ export namespace HumanDressRows {
    */
   export const dressGlasses: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperDress"]["dressGlasses"]
-  > = HumanActionRow("dressGlasses", dress, {
+  > = AutoMovieMotionHumanActionRow.of("dressGlasses", dress, {
     item: "glasses",
   });
 }

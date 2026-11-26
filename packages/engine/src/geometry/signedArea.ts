@@ -1,5 +1,7 @@
 import type { IAutoMovieProfilePoint } from "@automovie/interface";
 
+import { AutoMovieEnginePlanarArea } from "./AutoMovieEnginePlanarArea";
+
 /**
  * Signed area enclosed by a closed planar ring, positive when the ring runs
  * counter-clockwise in its `x, y` plane.
@@ -13,12 +15,5 @@ import type { IAutoMovieProfilePoint } from "@automovie/interface";
  */
 export const signedArea: (
   points: readonly IAutoMovieProfilePoint[],
-) => number = (points: readonly IAutoMovieProfilePoint[]): number => {
-  let total: number = 0;
-  for (let index: number = 0; index < points.length; ++index) {
-    const from: IAutoMovieProfilePoint = points[index]!;
-    const to: IAutoMovieProfilePoint = points[(index + 1) % points.length]!;
-    total += from.x * to.y - to.x * from.y;
-  }
-  return total / 2;
-};
+) => number = (points: readonly IAutoMovieProfilePoint[]): number =>
+  AutoMovieEnginePlanarArea.measure(points);

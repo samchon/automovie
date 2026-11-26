@@ -1,6 +1,7 @@
 import type { IAutoMovieSweepRotation } from "@automovie/interface";
 
 import { QUATERNION_NLERP_DOT_THRESHOLD } from "../../math/constants/QUATERNION_NLERP_DOT_THRESHOLD";
+import { readBasisQuaternion } from "../../math/internal/readBasisQuaternion";
 
 /**
  * Quaternion operations on caller-owned arrays, `[x, y, z, w]` at an offset,
@@ -73,7 +74,9 @@ export namespace AutoMovieSweepRotation {
 
   /**
    * Write the unit quaternion of the rotation taking `+X`, `+Y`, `+Z` to three
-   * orthonormal columns stored at `xi`, `yi` and `zi`.
+   * finite, right-handed orthonormal columns stored at `xi`, `yi` and `zi`. The
+   * caller admits the basis and supplies valid array offsets. The output
+   * receives `[x, y, z, w]` at `oi` and may overlap the input columns.
    */
   export const fromBasis = (
     m: ArrayLike<number>,
@@ -83,43 +86,37 @@ export namespace AutoMovieSweepRotation {
     out: IAutoMovieSweepRotation.IFromBasisOut,
     oi: number,
   ): void => {
-    const m00: number = m[xi]!;
-    const m10: number = m[xi + 1]!;
-    const m20: number = m[xi + 2]!;
-    const m01: number = m[yi]!;
-    const m11: number = m[yi + 1]!;
-    const m21: number = m[yi + 2]!;
-    const m02: number = m[zi]!;
-    const m12: number = m[zi + 1]!;
-    const m22: number = m[zi + 2]!;
-    const trace: number = m00 + m11 + m22;
-    if (trace > 0) {
-      const s: number = Math.sqrt(trace + 1) * 2;
-      out[oi + 3] = s / 4;
-      out[oi] = (m21 - m12) / s;
-      out[oi + 1] = (m02 - m20) / s;
-      out[oi + 2] = (m10 - m01) / s;
-    } else if (m00 > m11 && m00 > m22) {
-      const s: number = Math.sqrt(1 + m00 - m11 - m22) * 2;
-      out[oi + 3] = (m21 - m12) / s;
-      out[oi] = s / 4;
-      out[oi + 1] = (m01 + m10) / s;
-      out[oi + 2] = (m02 + m20) / s;
-    } else if (m11 > m22) {
-      const s: number = Math.sqrt(1 + m11 - m00 - m22) * 2;
-      out[oi + 3] = (m02 - m20) / s;
-      out[oi] = (m01 + m10) / s;
-      out[oi + 1] = s / 4;
-      out[oi + 2] = (m12 + m21) / s;
-    } else {
-      const s: number = Math.sqrt(1 + m22 - m00 - m11) * 2;
-      out[oi + 3] = (m10 - m01) / s;
-      out[oi] = (m02 + m20) / s;
-      out[oi + 1] = (m12 + m21) / s;
-      out[oi + 2] = s / 4;
-    }
-    normalize(out, oi);
+    readBasisQuaternion(
+      m[xi]!,
+      m[xi + 1]!,
+      m[xi + 2]!,
+      m[yi]!,
+      m[yi + 1]!,
+      m[yi + 2]!,
+      m[zi]!,
+      m[zi + 1]!,
+      m[zi + 2]!,
+      writeBasisRotation,
+      out,
+      oi,
+    );
   };
+
+  /** Write and normalize the completed X/Y/Z/W components at the output offset. */
+  function writeBasisRotation(
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    out: IAutoMovieSweepRotation.IFromBasisOut,
+    oi: number,
+  ): void {
+    out[oi + 3] = w;
+    out[oi] = x;
+    out[oi + 1] = y;
+    out[oi + 2] = z;
+    normalize(out, oi);
+  }
 
   /** Write a vector rotated by a unit quaternion. */
   export const rotate = (

@@ -109,9 +109,43 @@ export namespace IAutoMovieProductionCheck {
      * One sample in subject seconds, or consecutive output frame indices with
      * the end exclusive. A still cannot satisfy a multi-frame range.
      */
-    readonly at:
-      | { readonly second: number }
-      | { readonly fromFrame: number; readonly endFrame: number };
+    readonly at: ICaptureTime;
+  }
+
+  /**
+   * Exactly one instant or a consecutive output frame interval for a capture
+   * check.
+   */
+  export type ICaptureTime = ICaptureSecond | ICaptureFrames;
+
+  /** One diagnostic sample on the capture subject's continuous clock. */
+  export interface ICaptureSecond {
+    /** Compare a single moment in seconds. */
+    readonly type: "second";
+
+    /** Nonnegative finite time on the subject clock, including off-grid times. */
+    readonly second: number;
+
+    /** A second selector does not also specify an interval start. */
+    readonly fromFrame?: never;
+
+    /** A second selector does not also specify an interval end. */
+    readonly endFrame?: never;
+  }
+
+  /** A nonempty half-open interval of consecutive output frames. */
+  export interface ICaptureFrames {
+    /** Require every frame in the interval and its diagnostic coverage. */
+    readonly type: "frames";
+
+    /** Zero-based first output frame, inclusive. */
+    readonly fromFrame: number;
+
+    /** Zero-based interval end, exclusive. */
+    readonly endFrame: number;
+
+    /** A frame interval does not also specify a subject second. */
+    readonly second?: never;
   }
 
   /** The published movie and, when required, its control record. */

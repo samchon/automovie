@@ -15,15 +15,11 @@ import { positiveInteger } from "./positiveInteger";
  * payload values are not decoded, and skin/motion readers reject sparse
  * accessors separately.
  */
-export const validateSparseAccessor: (
+export function validateSparseAccessor(
   accessor: Record<string, unknown>,
   index: number,
   bufferViews: unknown[],
-) => void = (
-  accessor: Record<string, unknown>,
-  index: number,
-  bufferViews: unknown[],
-): void => {
+): void {
   if (accessor.sparse === undefined) return;
   const sparse: Record<string, unknown> = object(
     accessor.sparse,
@@ -81,21 +77,15 @@ export const validateSparseAccessor: (
       ),
     `accessors[${index}].sparse.values`,
   );
-};
+}
 
-const validateSubViewRange: (
+function validateSubViewRange(
   bufferViews: unknown[],
   viewIndex: number,
   offset: number,
   length: number,
   path: string,
-) => void = (
-  bufferViews: unknown[],
-  viewIndex: number,
-  offset: number,
-  length: number,
-  path: string,
-): void => {
+): void {
   nonNegativeInteger(offset, `${path}.byteOffset`);
   const view: Record<string, unknown> = object(
     bufferViews[viewIndex],
@@ -103,4 +93,4 @@ const validateSubViewRange: (
   );
   if (offset + length > (view.byteLength as number))
     throw new Error(`${path} exceeds its bufferView range.`);
-};
+}

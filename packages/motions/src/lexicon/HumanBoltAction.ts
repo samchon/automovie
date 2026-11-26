@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { operate } from "../affordance/operate";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { release } from "../throwing/release";
 
 /**
@@ -23,35 +23,35 @@ export namespace HumanBoltAction {
   /** Lift the bolt handle. */
   export const liftBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["liftBolt"]
-  > = HumanActionRow("liftBolt", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("liftBolt", operate, {});
 
   /** Draw the bolt back. */
   export const drawBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["drawBolt"]
-  > = HumanActionRow("drawBolt", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("drawBolt", operate, {});
 
   /** Run the bolt forward. */
   export const closeBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["closeBolt"]
-  > = HumanActionRow("closeBolt", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("closeBolt", operate, {});
 
   /** Turn the bolt handle down. */
   export const lowerBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["lowerBolt"]
-  > = HumanActionRow("lowerBolt", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("lowerBolt", operate, {});
 
   /** Seat a magazine in its well. */
   export const seatMagazine: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["seatMagazine"]
-  > = HumanActionRow("seatMagazine", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("seatMagazine", operate, {});
 
   /** Press the magazine release. */
   export const pressRelease: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["pressRelease"]
-  > = HumanActionRow("pressRelease", operate, {});
+  > = AutoMovieMotionHumanActionRow.of("pressRelease", operate, {});
 
   /** Let the empty magazine drop. */
   export const dropMagazine: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["dropMagazine"]
-  > = HumanActionRow("dropMagazine", release, {});
+  > = AutoMovieMotionHumanActionRow.of("dropMagazine", release, {});
 }

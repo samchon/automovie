@@ -1,11 +1,13 @@
 import type { IAutoMoviePlanViewerFrameTimesRequest } from "@automovie/interface";
 
+import { countEncodedFrames } from "./timing/internal/countEncodedFrames.js";
+
 /**
  * Plan the film seconds whose frames a still capture writes.
  *
  * Give either explicit `at` seconds, or a `from`–`to` range sampled every
  * `every` frames or every `step` seconds. Range samples are aligned to the
- * film's frame grid at `fps`, so each still matches a frame the video encodes;
+ * encoded frame grid at `fps`, so each still matches a frame the video encodes;
  * explicit seconds are kept as given. The result is sorted, without repeats,
  * and every second lies in `[0, durationSeconds]`.
  */
@@ -14,8 +16,9 @@ export function planViewerFrameTimes(
 ): number[] {
   const fps: number = request.fps;
   const durationSeconds: number = request.durationSeconds;
-  if (fps <= 0) throw new Error("fps must be positive and finite");
-  if (durationSeconds <= 0)
+  if (!Number.isFinite(fps) || fps <= 0)
+    throw new Error("fps must be positive and finite");
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0)
     throw new Error("durationSeconds must be positive and finite");
   const inFilm: (seconds: number) => boolean = (seconds: number): boolean =>
     seconds >= 0 && seconds <= durationSeconds;
@@ -50,23 +53,31 @@ export function planViewerFrameTimes(
     );
   if ((every === undefined) === (step === undefined))
     throw new Error("A range needs exactly one of every or step");
-  if (every !== undefined && every <= 0)
+  if (every !== undefined && (!Number.isSafeInteger(every) || every <= 0))
     throw new Error("every must be a positive whole number of frames");
-  if (step !== undefined && step <= 0)
+  if (step !== undefined && (!Number.isFinite(step) || step <= 0))
     throw new Error("step must be positive and finite");
 
-  // Enumerate whole frame indices so the samples stay on the encoded grid.
-  const first: number = Math.ceil(from * fps - 1e-9);
-  const last: number = Math.floor(to * fps + 1e-9);
+  const first: number = Math.max(0, Math.ceil(from * fps - 1e-9));
+  const last: number = Math.min(
+    countEncodedFrames(fps, durationSeconds) - 1,
+    Math.floor(to * fps + 1e-9),
+  );
+  if (first > last) return [];
+
   const frames: number[] = [];
-  if (every !== undefined)
-    for (let index: number = first; index <= last; index += every)
+
+  // Sub-frame intervals reach every rounded frame without adding new instants.
+  if (every !== undefined || (step !== undefined && step * fps < 1)) {
+    const interval: number = every ?? 1;
+    for (let index: number = first; index <= last; index += interval)
       frames.push(index);
-  else
+  } else if (step !== undefined) {
     for (let sample: number = 0; ; sample++) {
-      const index: number = Math.round((from + sample * step!) * fps);
+      const index: number = Math.round((from + sample * step) * fps);
       if (index > last) break;
       if (index >= first && frames.at(-1) !== index) frames.push(index);
     }
+  }
   return frames.map((index: number): number => index / fps);
 }

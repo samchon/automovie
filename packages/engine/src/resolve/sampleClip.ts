@@ -6,13 +6,16 @@ import {
   IAutoMovieTrack,
 } from "@automovie/interface";
 
+import { AutoMovieEngineKeyframeSearch } from "../math/AutoMovieEngineKeyframeSearch";
 import { Quaternion } from "../math/Quaternion";
 import { cubicHermiteValue } from "../math/cubicHermiteValue";
-import { segmentIndex } from "../math/segmentIndex";
+import { normalizeClipTime } from "../math/internal/normalizeClipTime";
 import { clipDurationFault } from "../validation/clipDurationFault";
 import { clipTrackShapeFaults } from "../validation/clipTrackShapeFaults";
 import { channelIsRotation } from "./channelIsRotation";
 import { channelKey } from "./channelKey";
+import { lerpChannelValues } from "./internal/lerpChannelValues";
+import { slerpChannelValues } from "./internal/slerpChannelValues";
 
 /**
  * Sample every admitted track at finite clip-local seconds, clamped or
@@ -29,7 +32,7 @@ export const sampleClip: (
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
   validateSampleTime(clip.duration);
-  const time: number = normalizeTime(seconds, clip.duration, clip.loop);
+  const time: number = normalizeClipTime(seconds, clip.duration, clip.loop);
   const out: Map<string, IAutoMovieSampledChannel> = new Map<
     string,
     IAutoMovieSampledChannel
@@ -39,7 +42,7 @@ export const sampleClip: (
     if (out.has(key)) throw new Error(`duplicate track channel "${key}"`);
     out.set(key, {
       channel: track.channel,
-      value: sampleTrack(track, time, clip.duration),
+      value: sampleTrack(track, key, time, clip.duration),
     });
   }
   return out;
@@ -53,15 +56,16 @@ export const sampleClip: (
  */
 const sampleTrack: (
   track: IAutoMovieTrack,
+  key: string,
   time: number,
   duration: number,
 ) => number[] = (
   track: IAutoMovieTrack,
+  key: string,
   time: number,
   duration: number,
 ): number[] => {
   const { times, values, interpolation, channel }: IAutoMovieTrack = track;
-  const key: string = channelKey(channel);
   validateTrackShape(track, key, duration);
 
   const cubic: boolean = interpolation === "cubicspline";
@@ -81,10 +85,11 @@ const sampleTrack: (
 
   // Strictly increasing times (validateTrackShape) let the binary search land on
   // the straddling segment; its tie rule matches the old linear scan exactly.
-  const lo: number = segmentIndex(
+  const lo: number = AutoMovieEngineKeyframeSearch.segment(
     times.length,
     (i: number): number => times[i]!,
     time,
+    "previous",
   );
   const hi: number = lo + 1;
   const span: number = times[hi]! - times[lo]!;
@@ -98,8 +103,8 @@ const sampleTrack: (
   if (interpolation === "step") return localT >= 1 ? valueAt(hi) : valueAt(lo);
   if (cubic) return cubicHermite(track, lo, hi, span, localT, width, stride);
   return channelIsRotation(channel)
-    ? slerpArray(valueAt(lo), valueAt(hi), localT)
-    : lerpArray(valueAt(lo), valueAt(hi), localT);
+    ? slerpChannelValues(valueAt(lo), valueAt(hi), localT)
+    : lerpChannelValues(valueAt(lo), valueAt(hi), localT);
 };
 
 /**
@@ -136,25 +141,6 @@ const cubicHermite: (
     out[c] = cubicHermiteValue(vLo, bLo, vHi, aHi, span, t);
   }
   return channelIsRotation(channel) ? normalizeQuatArray(out) : out;
-};
-
-const lerpArray: (a: number[], b: number[], t: number) => number[] = (
-  a: number[],
-  b: number[],
-  t: number,
-): number[] => a.map((v: number, i: number): number => v + (b[i]! - v) * t);
-
-const slerpArray: (a: number[], b: number[], t: number) => number[] = (
-  a: number[],
-  b: number[],
-  t: number,
-): number[] => {
-  const q: IAutoMovieQuaternion = Quaternion.slerp(
-    { x: a[0]!, y: a[1]!, z: a[2]!, w: a[3]! },
-    { x: b[0]!, y: b[1]!, z: b[2]!, w: b[3]! },
-    t,
-  );
-  return [q.x, q.y, q.z, q.w];
 };
 
 const normalizeQuatArray: (q: number[]) => number[] = (
@@ -197,18 +183,4 @@ const validateTrackShape: (
     duration,
   )[0];
   if (fault !== undefined) throw new Error(`track "${key}" ${fault.message}`);
-};
-
-/** Clamp (or wrap, when looping) a query time into the clip's duration. */
-const normalizeTime: (
-  seconds: number,
-  duration: number,
-  loop: boolean,
-) => number = (seconds: number, duration: number, loop: boolean): number => {
-  if (duration <= 0) return 0;
-  if (loop) {
-    const m: number = seconds % duration;
-    return m < 0 ? m + duration : m;
-  }
-  return Math.min(duration, Math.max(0, seconds));
 };

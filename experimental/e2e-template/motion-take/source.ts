@@ -22,11 +22,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanBody,
   AutoMovieMotionHumanStance,
   AutoMovieMotionHumanThrowCatch,
   HumanChain,
   HumanObject,
-  createHumanBody,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "../../src/executable/motionTake/IMotionTakeSource";
@@ -211,7 +211,7 @@ export function createMotionTakeSource(): IMotionTakeSource {
       bodyFixture.params as IAutoMovieHumanParameters,
       { mass: bodyFixture.mass, id: "m-average" },
     );
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     prepared.skeleton,
     prepared.profile,
   );

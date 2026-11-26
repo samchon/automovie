@@ -14,7 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -76,7 +76,7 @@ type IJumpCasesSlip = { value: number; where: string };
  */
 export function jumpCases(who: string): IMotionCaptureCase[] {
   const man = MotionBodies.population(who);
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
+  const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
     man.body.skeleton,
     man.body.profile,
   );

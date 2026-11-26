@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { rest } from "../everyday/rest";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_STANCE_ARMS_CROSSED } from "../next/presets/HUMAN_STANCE_ARMS_CROSSED";
 import { HUMAN_STANCE_CHIN_REST } from "../next/presets/HUMAN_STANCE_CHIN_REST";
 import { HUMAN_STANCE_ELBOW_SUPPORT } from "../next/presets/HUMAN_STANCE_ELBOW_SUPPORT";
@@ -32,7 +32,11 @@ export namespace HumanRestRows {
    */
   export const restSide: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restSide"]
-  > = HumanActionRow("restSide", rest, HUMAN_STANCE_REST_SIDE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restSide",
+    rest,
+    HUMAN_STANCE_REST_SIDE,
+  );
 
   /**
    * `rest` with both hands at `pocket`: the hands in the front pockets; idling,
@@ -41,7 +45,11 @@ export namespace HumanRestRows {
    */
   export const restPocket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restPocket"]
-  > = HumanActionRow("restPocket", rest, HUMAN_STANCE_HANDS_IN_POCKETS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restPocket",
+    rest,
+    HUMAN_STANCE_HANDS_IN_POCKETS,
+  );
 
   /**
    * `rest` with both hands at `hip`: the hands on the hips, elbows out;
@@ -50,7 +58,11 @@ export namespace HumanRestRows {
    */
   export const restHip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restHip"]
-  > = HumanActionRow("restHip", rest, HUMAN_STANCE_HANDS_ON_HIPS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restHip",
+    rest,
+    HUMAN_STANCE_HANDS_ON_HIPS,
+  );
 
   /**
    * `rest` with both hands at `crossed`: the arms crossed over the chest;
@@ -59,7 +71,11 @@ export namespace HumanRestRows {
    */
   export const restCrossed: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restCrossed"]
-  > = HumanActionRow("restCrossed", rest, HUMAN_STANCE_ARMS_CROSSED);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restCrossed",
+    rest,
+    HUMAN_STANCE_ARMS_CROSSED,
+  );
 
   /**
    * `rest` with both hands at `claspedFront`: the hands clasped in front;
@@ -68,7 +84,11 @@ export namespace HumanRestRows {
    */
   export const restClaspedFront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restClaspedFront"]
-  > = HumanActionRow("restClaspedFront", rest, HUMAN_STANCE_HANDS_CLASPED);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restClaspedFront",
+    rest,
+    HUMAN_STANCE_HANDS_CLASPED,
+  );
 
   /**
    * `rest` with both hands at `claspedBehind`: the hands clasped behind the
@@ -77,7 +97,11 @@ export namespace HumanRestRows {
    */
   export const restClaspedBehind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restClaspedBehind"]
-  > = HumanActionRow("restClaspedBehind", rest, HUMAN_STANCE_PARADE_REST);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restClaspedBehind",
+    rest,
+    HUMAN_STANCE_PARADE_REST,
+  );
 
   /**
    * `rest` with both hands at `behindHead`: the hands behind the head;
@@ -86,7 +110,11 @@ export namespace HumanRestRows {
    */
   export const restBehindHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restBehindHead"]
-  > = HumanActionRow("restBehindHead", rest, HUMAN_STANCE_HANDS_BEHIND_HEAD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restBehindHead",
+    rest,
+    HUMAN_STANCE_HANDS_BEHIND_HEAD,
+  );
 
   /**
    * `rest` with both hands at `chinRest`: the chin on a fist; thinking,
@@ -95,7 +123,11 @@ export namespace HumanRestRows {
    */
   export const restChinRest: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restChinRest"]
-  > = HumanActionRow("restChinRest", rest, HUMAN_STANCE_CHIN_REST);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restChinRest",
+    rest,
+    HUMAN_STANCE_CHIN_REST,
+  );
 
   /**
    * `rest` with both hands at `elbowSupport`: one elbow supported by the other
@@ -104,5 +136,9 @@ export namespace HumanRestRows {
    */
   export const restElbowSupport: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperRest"]["restElbowSupport"]
-  > = HumanActionRow("restElbowSupport", rest, HUMAN_STANCE_ELBOW_SUPPORT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "restElbowSupport",
+    rest,
+    HUMAN_STANCE_ELBOW_SUPPORT,
+  );
 }

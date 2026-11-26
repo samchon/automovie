@@ -6,7 +6,7 @@ import type {
 
 import { run } from "../../actions/run";
 import { walk } from "../../actions/walk";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
@@ -88,7 +88,10 @@ export function* locomotionCases(
         prepared = {
           men,
           bodies: men.map((man) =>
-            createHumanBody(man.body.skeleton, man.body.profile),
+            AutoMovieMotionHumanBody.create(
+              man.body.skeleton,
+              man.body.profile,
+            ),
           ),
         };
       }

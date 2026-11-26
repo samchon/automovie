@@ -6,10 +6,7 @@
  * complete percent-octet escapes determine bytes, and literal Unicode chunks
  * are encoded as UTF-8.
  */
-export const decodeDataUri: (uri: string, path: string) => Uint8Array = (
-  uri: string,
-  path: string,
-): Uint8Array => {
+export function decodeDataUri(uri: string, path: string): Uint8Array {
   const comma: number = uri.indexOf(",");
   if (comma < 5) throw new Error(`${path} is not a complete data URI.`);
   const metadata: string = uri.slice(5, comma);
@@ -62,4 +59,4 @@ export const decodeDataUri: (uri: string, path: string) => Uint8Array = (
       `${path} has an invalid data payload: ${(error as Error).message}.`,
     );
   }
-};
+}

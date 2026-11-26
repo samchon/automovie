@@ -6,7 +6,7 @@ import type {
 import { jump } from "../actions/jump";
 import { run } from "../actions/run";
 import { kickBall } from "../ballStrike/kickBall";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_BOWLING_DELIVERY } from "../next/presets/HUMAN_BOWLING_DELIVERY";
 import { HUMAN_THROWCATCH_CRICKET_BOWL } from "../next/presets/HUMAN_THROWCATCH_CRICKET_BOWL";
 import { HUMAN_THROWCATCH_GLOVE_CATCH } from "../next/presets/HUMAN_THROWCATCH_GLOVE_CATCH";
@@ -48,7 +48,11 @@ export namespace HumanSportThrow {
    */
   export const pitch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pitch"]
-  > = HumanActionRow("pitch", throwObject, HUMAN_THROWCATCH_PITCH);
+  > = AutoMovieMotionHumanActionRow.of(
+    "pitch",
+    throwObject,
+    HUMAN_THROWCATCH_PITCH,
+  );
 
   /**
    * A softball pitch or a bowling delivery: underarm. The windmill is not
@@ -57,7 +61,7 @@ export namespace HumanSportThrow {
    */
   export const underarmPitch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["underarmPitch"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "underarmPitch",
     throwObject,
     HUMAN_THROWCATCH_UNDERARM_PITCH,
@@ -69,7 +73,7 @@ export namespace HumanSportThrow {
    */
   export const softballWindmill: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["softballWindmill"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "softballWindmill",
     throwObject,
     HUMAN_THROWCATCH_SOFTBALL_WINDMILL,
@@ -82,7 +86,11 @@ export namespace HumanSportThrow {
    */
   export const cricketBowl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cricketBowl"]
-  > = HumanActionRow("cricketBowl", throwObject, HUMAN_THROWCATCH_CRICKET_BOWL);
+  > = AutoMovieMotionHumanActionRow.of(
+    "cricketBowl",
+    throwObject,
+    HUMAN_THROWCATCH_CRICKET_BOWL,
+  );
 
   /** Slide on the supporting foot before a delivery. */
   export const bowlingSlide: IAutoMovieMotionHumanActionLaw<
@@ -96,7 +104,11 @@ export namespace HumanSportThrow {
    */
   export const bowlingDelivery: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["bowlingDelivery"]
-  > = HumanActionRow("bowlingDelivery", throwObject, HUMAN_BOWLING_DELIVERY);
+  > = AutoMovieMotionHumanActionRow.of(
+    "bowlingDelivery",
+    throwObject,
+    HUMAN_BOWLING_DELIVERY,
+  );
 
   /**
    * A one-hand push pass, a free throw or a shot put (the two-hand chest and
@@ -107,7 +119,11 @@ export namespace HumanSportThrow {
    */
   export const pushPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["pushPass"]
-  > = HumanActionRow("pushPass", throwObject, HUMAN_THROWCATCH_PUSH_PASS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "pushPass",
+    throwObject,
+    HUMAN_THROWCATCH_PUSH_PASS,
+  );
 
   /**
    * Rugby pass with a two-hand release to the receiver's mark. Release 18
@@ -115,7 +131,11 @@ export namespace HumanSportThrow {
    */
   export const rugbyPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["rugbyPass"]
-  > = HumanActionRow("rugbyPass", throwObject, HUMAN_THROWCATCH_RUGBY_PASS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "rugbyPass",
+    throwObject,
+    HUMAN_THROWCATCH_RUGBY_PASS,
+  );
 
   /**
    * Overarm gridiron pass. Release 17 degrees after a 0.45 s windup. A farther
@@ -123,7 +143,7 @@ export namespace HumanSportThrow {
    */
   export const gridironPass: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironPass"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "gridironPass",
     throwObject,
     HUMAN_THROWCATCH_GRIDIRON_PASS,
@@ -135,7 +155,7 @@ export namespace HumanSportThrow {
    */
   export const gridironSnap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gridironSnap"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "gridironSnap",
     throwObject,
     HUMAN_THROWCATCH_GRIDIRON_SNAP,
@@ -144,12 +164,16 @@ export namespace HumanSportThrow {
   /** A catch of a fly ball or a thrown ball in one hand. */
   export const gloveCatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["gloveCatch"]
-  > = HumanActionRow("gloveCatch", catchObject, HUMAN_THROWCATCH_GLOVE_CATCH);
+  > = AutoMovieMotionHumanActionRow.of(
+    "gloveCatch",
+    catchObject,
+    HUMAN_THROWCATCH_GLOVE_CATCH,
+  );
 
   /** A goalkeeper's or a receiver's catch in both hands. */
   export const twoHandCatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["twoHandCatch"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "twoHandCatch",
     catchObject,
     HUMAN_THROWCATCH_TWO_HAND_CATCH,
@@ -161,12 +185,20 @@ export namespace HumanSportThrow {
    */
   export const kickRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["kickRight"]
-  > = HumanActionRow("kickRight", kickBall, HUMAN_THROWCATCH_KICK_RIGHT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "kickRight",
+    kickBall,
+    HUMAN_THROWCATCH_KICK_RIGHT,
+  );
 
   /** The same with the left foot. */
   export const kickLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["kickLeft"]
-  > = HumanActionRow("kickLeft", kickBall, HUMAN_THROWCATCH_KICK_LEFT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "kickLeft",
+    kickBall,
+    HUMAN_THROWCATCH_KICK_LEFT,
+  );
 
   /**
    * A rebound, a block, a long jump or a hurdle clearance: a jump to the place
@@ -176,7 +208,7 @@ export namespace HumanSportThrow {
    */
   export const leap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["leap"]
-  > = HumanActionRow("leap", jump, {});
+  > = AutoMovieMotionHumanActionRow.of("leap", jump, {});
 
   /**
    * A box jump: a jump onto a box, landing on its top. The composition gives
@@ -185,7 +217,7 @@ export namespace HumanSportThrow {
    */
   export const boxJump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["boxJump"]
-  > = HumanActionRow("boxJump", jump, {});
+  > = AutoMovieMotionHumanActionRow.of("boxJump", jump, {});
 
   /**
    * A forward salto to the place the composition gives: one turn in the flight,
@@ -193,14 +225,14 @@ export namespace HumanSportThrow {
    */
   export const frontSalto: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["frontSalto"]
-  > = HumanActionRow("frontSalto", salto, {
+  > = AutoMovieMotionHumanActionRow.of("frontSalto", salto, {
     way: "forward",
   });
 
   /** A backward salto to the place the composition gives. */
   export const backSalto: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["backSalto"]
-  > = HumanActionRow("backSalto", salto, {
+  > = AutoMovieMotionHumanActionRow.of("backSalto", salto, {
     way: "backward",
   });
 
@@ -211,7 +243,7 @@ export namespace HumanSportThrow {
    */
   export const cartwheelLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cartwheelLeft"]
-  > = HumanActionRow("cartwheelLeft", cartwheel, {
+  > = AutoMovieMotionHumanActionRow.of("cartwheelLeft", cartwheel, {
     to: "left",
   });
 
@@ -221,7 +253,7 @@ export namespace HumanSportThrow {
    */
   export const au: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["au"]
-  > = HumanActionRow("au", cartwheel, {
+  > = AutoMovieMotionHumanActionRow.of("au", cartwheel, {
     to: "left",
   });
 
@@ -231,7 +263,7 @@ export namespace HumanSportThrow {
    */
   export const cartwheelRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["cartwheelRight"]
-  > = HumanActionRow("cartwheelRight", cartwheel, {
+  > = AutoMovieMotionHumanActionRow.of("cartwheelRight", cartwheel, {
     to: "right",
   });
 
@@ -243,5 +275,5 @@ export namespace HumanSportThrow {
    */
   export const dash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportThrow"]["dash"]
-  > = HumanActionRow("dash", run, { pace: "sprint" });
+  > = AutoMovieMotionHumanActionRow.of("dash", run, { pace: "sprint" });
 }

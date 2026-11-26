@@ -13,10 +13,10 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieMotionHumanMount,
+  AutoMovieMotionHumanSignature,
   HumanChain,
   HumanObject,
   HumanPerformance,
-  HumanSignature,
 } from "@automovie/motions";
 import { HumanFrame, HumanHand } from "@automovie/motions/internal";
 
@@ -246,7 +246,7 @@ export namespace mountedHorseScene {
       ride,
       film,
       body,
-      reader: HumanSignature(film, "rider", body, 0),
+      reader: AutoMovieMotionHumanSignature.read(film, "rider", body, 0),
       seat,
       part,
       place,
@@ -399,9 +399,9 @@ export namespace mountedHorseScene {
    */
   export function joint(
     scene: IScene,
-    bone: Parameters<typeof HumanSignature.joint>[2],
+    bone: Parameters<typeof AutoMovieMotionHumanSignature.joint>[2],
     at: number,
   ): IAutoMovieVector3 {
-    return HumanSignature.joint(scene.reader, at, bone);
+    return AutoMovieMotionHumanSignature.joint(scene.reader, at, bone);
   }
 }

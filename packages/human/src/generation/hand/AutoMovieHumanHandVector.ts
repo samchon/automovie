@@ -1,3 +1,4 @@
+import { AutoMovieEnginePlanarHull, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHandVector,
@@ -52,8 +53,7 @@ export namespace AutoMovieHumanHandVector {
 
   /** Unit vector; zero stays zero. */
   export function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
-    const l: number = norm(a) || 1;
-    return [a[0] / l, a[1] / l, a[2] / l];
+    return Vector3.normalizeTuple(a);
   }
 
   /** The part of a vector across a unit heading, as a unit vector. */
@@ -115,39 +115,8 @@ export namespace AutoMovieHumanHandVector {
    * a girth.
    */
   export function hull(points: IAutoMovieHumanHandVector.HullPoints): number {
-    const p: [number, number][] = [...points].sort(
-      (u: [number, number], v: [number, number]): number =>
-        u[0] - v[0] || u[1] - v[1],
-    );
-    if (p.length < 3) return 0;
-
-    const turn = (
-      o: [number, number],
-      a: [number, number],
-      b: [number, number],
-    ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-    const chain = (list: [number, number][]): [number, number][] => {
-      const out: [number, number][] = [];
-      for (const q of list) {
-        while (
-          out.length >= 2 &&
-          turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0
-        )
-          out.pop();
-        out.push(q);
-      }
-      return out;
-    };
-    const ring: [number, number][] = [
-      ...chain(p).slice(0, -1),
-      ...chain([...p].reverse()).slice(0, -1),
-    ];
-
-    let sum: number = 0;
-    ring.forEach((q: [number, number], i: number): void => {
-      const r: [number, number] = ring[(i + 1) % ring.length]!;
-      sum += Math.hypot(r[0] - q[0], r[1] - q[1]);
-    });
-    return sum;
+    return points.length < 3
+      ? 0
+      : AutoMovieEnginePlanarHull.perimeter(points, 0, 1);
   }
 }

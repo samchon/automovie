@@ -9,7 +9,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import { poseBones } from "../../posture/poseBones";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -85,7 +85,10 @@ export namespace everydayCaseKit {
       props: [...props],
       performers: people.map(([man, at, yaw], i: number) => ({
         subject: i === 0 ? "a" : "b",
-        body: createHumanBody(man.body.skeleton, man.body.profile),
+        body: AutoMovieMotionHumanBody.create(
+          man.body.skeleton,
+          man.body.profile,
+        ),
         at,
         yaw,
         proficiency: { level: "trained" as const },

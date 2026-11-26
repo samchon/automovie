@@ -7,7 +7,7 @@ import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePose,
 } from "@automovie/interface";
-import { createHumanBody } from "@automovie/motions";
+import { AutoMovieMotionHumanBody } from "@automovie/motions";
 import {
   HumanArmGeometry,
   HumanArmTrajectory,
@@ -75,7 +75,7 @@ export namespace armPlannerFixture {
               "utf8",
             ),
           );
-    const body: IAutoMovieMotionHumanBody = createHumanBody(
+    const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
       person.skeleton,
       profile,
     );

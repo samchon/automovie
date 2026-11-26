@@ -48,8 +48,8 @@ const SHIFT: IAutoMovieVector3 = { x: 0, y: 0.15, z: 0.2 };
  *
  * The body is built whole (`humanFixtureBody`): the fit reads the body's
  * prepared limb chains and limb reads, and the resolve its pose rig, topology,
- * ROM projection and settled bones, records only `createHumanBody` derives from
- * the stored rig and profile.
+ * ROM projection and settled bones, records only
+ * `AutoMovieMotionHumanBody.create` derives from the stored rig and profile.
  */
 export async function test_motions_posture_limb_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");

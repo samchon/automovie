@@ -1,6 +1,8 @@
 import { Box3, BufferAttribute, Matrix4, Mesh, Plane, Vector3 } from "three";
 
 import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { clipInspectionPolygon } from "./internal/clipInspectionPolygon.js";
+import { inspectionPlaneRoundingSlack } from "./internal/inspectionPlaneRoundingSlack.js";
 import { isAutoMovieFloat32Point } from "./isAutoMovieFloat32Point.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
@@ -127,7 +129,7 @@ export function measureAutoMovieCameraFrameEdgeSurface(
               reason: "A drawn subject vertex is not finite.",
             };
         }
-        const count: number = clip(corners, 3, near, polygon);
+        const count: number = clipInspectionPolygon(corners, 3, near, polygon);
         if (count < 3) continue;
         if (
           (cut === undefined || (opaque && !cut.opaque)) &&
@@ -139,7 +141,7 @@ export function measureAutoMovieCameraFrameEdgeSurface(
         let kept: number = count;
         for (let k: number = 0; k < count; ++k) inner[k]!.copy(polygon[k]!);
         for (const plane of sides) {
-          kept = clip(inner, kept, plane, scratch);
+          kept = clipInspectionPolygon(inner, kept, plane, scratch);
           if (kept === 0) break;
           for (let k: number = 0; k < kept; ++k) inner[k]!.copy(scratch[k]!);
         }
@@ -237,7 +239,7 @@ function leaves(
     for (const plane of sides)
       if (
         plane.distanceToPoint(polygon[k]!) <
-        -(slack + rounding(plane, polygon[k]!))
+        -(slack + inspectionPlaneRoundingSlack(plane, polygon[k]!))
       )
         return true;
   return false;
@@ -262,41 +264,4 @@ function projectedArea(
     twice += a.x * b.y - b.x * a.y;
   }
   return Math.abs(twice) / 2;
-}
-
-/** Rounding slack of one plane evaluation, 32 ulps of its largest term. */
-function rounding(plane: Plane, point: Vector3): number {
-  return (
-    32 *
-    Number.EPSILON *
-    (1 +
-      Math.abs(plane.normal.x * point.x) +
-      Math.abs(plane.normal.y * point.y) +
-      Math.abs(plane.normal.z * point.z) +
-      Math.abs(plane.constant))
-  );
-}
-
-/**
- * Keep the part of a convex polygon on the plane's inner side
- * (Sutherland-Hodgman). A triangle clipped by the near plane and then the four
- * sides has at most eight vertices.
- */
-function clip(
-  polygon: readonly Vector3[],
-  count: number,
-  plane: Plane,
-  output: Vector3[],
-): number {
-  let written: number = 0;
-  for (let k: number = 0; k < count; ++k) {
-    const current: Vector3 = polygon[k]!;
-    const next: Vector3 = polygon[(k + 1) % count]!;
-    const a: number = plane.distanceToPoint(current);
-    const b: number = plane.distanceToPoint(next);
-    if (a >= 0) output[written++]!.copy(current);
-    if (a >= 0 !== b >= 0)
-      output[written++]!.lerpVectors(current, next, a / (a - b));
-  }
-  return written;
 }

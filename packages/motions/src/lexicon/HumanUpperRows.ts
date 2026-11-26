@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { armPhrase } from "../everyday/armPhrase";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GESTURE_PHRASE_ARM_AT_SIDE } from "../next/presets/HUMAN_GESTURE_PHRASE_ARM_AT_SIDE";
 import { HUMAN_GESTURE_PHRASE_BECKON_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_BECKON_HAND";
 import { HUMAN_GESTURE_PHRASE_CHEEK_IN_HAND } from "../next/presets/HUMAN_GESTURE_PHRASE_CHEEK_IN_HAND";
@@ -86,7 +86,11 @@ export namespace HumanUpperRows {
    */
   export const waveHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["waveHand"]
-  > = HumanActionRow("waveHand", armPhrase, HUMAN_GESTURE_PHRASE_WAVE_HAND);
+  > = AutoMovieMotionHumanActionRow.of(
+    "waveHand",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_WAVE_HAND,
+  );
 
   /**
    * A raised hand: the open hand visits a place above the shoulder, palm
@@ -94,7 +98,7 @@ export namespace HumanUpperRows {
    */
   export const raiseHandHigh: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["raiseHandHigh"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "raiseHandHigh",
     armPhrase,
     HUMAN_GESTURE_PHRASE_RAISE_HAND_HIGH,
@@ -103,7 +107,11 @@ export namespace HumanUpperRows {
   /** A stop sign: the open hand held out ahead at shoulder height, palm forward. */
   export const stopHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["stopHand"]
-  > = HumanActionRow("stopHand", armPhrase, HUMAN_GESTURE_PHRASE_STOP_HAND);
+  > = AutoMovieMotionHumanActionRow.of(
+    "stopHand",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_STOP_HAND,
+  );
 
   /**
    * A point: the forefinger's tip visits a place on the target's line, the hand
@@ -111,37 +119,61 @@ export namespace HumanUpperRows {
    */
   export const pointAt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["pointAt"]
-  > = HumanActionRow("pointAt", armPhrase, HUMAN_GESTURE_PHRASE_POINT_AT);
+  > = AutoMovieMotionHumanActionRow.of(
+    "pointAt",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_POINT_AT,
+  );
 
   /** A tap: the fingertips visit the target with no hold. */
   export const tapOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["tapOn"]
-  > = HumanActionRow("tapOn", armPhrase, HUMAN_GESTURE_PHRASE_TAP_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "tapOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_TAP_ON,
+  );
 
   /** A press: the palm visits the target and holds. */
   export const pressOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["pressOn"]
-  > = HumanActionRow("pressOn", armPhrase, HUMAN_GESTURE_PHRASE_PRESS_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "pressOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_PRESS_ON,
+  );
 
   /** A rub: the palm oscillates across the target. */
   export const rubOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["rubOn"]
-  > = HumanActionRow("rubOn", armPhrase, HUMAN_GESTURE_PHRASE_RUB_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "rubOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_RUB_ON,
+  );
 
   /** A stroke: the palm draws down along the target. */
   export const strokeDown: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["strokeDown"]
-  > = HumanActionRow("strokeDown", armPhrase, HUMAN_GESTURE_PHRASE_STROKE_DOWN);
+  > = AutoMovieMotionHumanActionRow.of(
+    "strokeDown",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_STROKE_DOWN,
+  );
 
   /** Hand on the hip: the palm visits the near hip and stays. */
   export const handOnHip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handOnHip"]
-  > = HumanActionRow("handOnHip", armPhrase, HUMAN_GESTURE_PHRASE_HAND_ON_HIP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "handOnHip",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAND_ON_HIP,
+  );
 
   /** Chin in hand: the fist visits the chin and stays. */
   export const chinOnFist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["chinOnFist"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "chinOnFist",
     armPhrase,
     HUMAN_GESTURE_PHRASE_CHIN_ON_FIST,
@@ -150,7 +182,7 @@ export namespace HumanUpperRows {
   /** Wiping the mouth: the back of the hand draws across the lips. */
   export const wipeMouthAcross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["wipeMouthAcross"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "wipeMouthAcross",
     armPhrase,
     HUMAN_GESTURE_PHRASE_WIPE_MOUTH_ACROSS,
@@ -159,7 +191,11 @@ export namespace HumanUpperRows {
   /** Wiping a surface: the flat palm oscillates across the target. */
   export const wipeAcross: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["wipeAcross"]
-  > = HumanActionRow("wipeAcross", armPhrase, HUMAN_GESTURE_PHRASE_WIPE_ACROSS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "wipeAcross",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_WIPE_ACROSS,
+  );
 
   /**
    * Hammering: the fist that holds the hammer strikes down and back on the
@@ -167,7 +203,7 @@ export namespace HumanUpperRows {
    */
   export const hammerStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hammerStrokes"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "hammerStrokes",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HAMMER_STROKES,
@@ -176,12 +212,16 @@ export namespace HumanUpperRows {
   /** Sawing: the fist that holds the saw draws forward and back over the target. */
   export const sawStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["sawStrokes"]
-  > = HumanActionRow("sawStrokes", armPhrase, HUMAN_GESTURE_PHRASE_SAW_STROKES);
+  > = AutoMovieMotionHumanActionRow.of(
+    "sawStrokes",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_SAW_STROKES,
+  );
 
   /** Stirring: the fist that holds the spoon circles out and in over the pot. */
   export const stirStrokes: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["stirStrokes"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "stirStrokes",
     armPhrase,
     HUMAN_GESTURE_PHRASE_STIR_STROKES,
@@ -190,12 +230,20 @@ export namespace HumanUpperRows {
   /** Putting on a hat: the hand that holds it visits the crown and stays a beat. */
   export const hatOnHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hatOnHead"]
-  > = HumanActionRow("hatOnHead", armPhrase, HUMAN_GESTURE_PHRASE_HAT_ON_HEAD);
+  > = AutoMovieMotionHumanActionRow.of(
+    "hatOnHead",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HAT_ON_HEAD,
+  );
 
   /** Palms up: the open hand held out ahead at waist height, palm up. */
   export const palmUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["palmUp"]
-  > = HumanActionRow("palmUp", armPhrase, HUMAN_GESTURE_PHRASE_PALM_UP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "palmUp",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_PALM_UP,
+  );
 
   /**
    * Pushing up one's glasses: the forefinger's tip visits the bridge of the
@@ -203,12 +251,16 @@ export namespace HumanUpperRows {
    */
   export const glassesUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["glassesUp"]
-  > = HumanActionRow("glassesUp", armPhrase, HUMAN_GESTURE_PHRASE_GLASSES_UP);
+  > = AutoMovieMotionHumanActionRow.of(
+    "glassesUp",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_GLASSES_UP,
+  );
 
   /** Scratching the head: the forefinger's tip oscillates on the crown. */
   export const headScratch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["headScratch"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "headScratch",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HEAD_SCRATCH,
@@ -217,7 +269,7 @@ export namespace HumanUpperRows {
   /** A hand to the cheek: the palm visits the cheek and stays a beat. */
   export const cheekInHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["cheekInHand"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "cheekInHand",
     armPhrase,
     HUMAN_GESTURE_PHRASE_CHEEK_IN_HAND,
@@ -226,7 +278,7 @@ export namespace HumanUpperRows {
   /** A hand in the pocket: the fingertips visit the front pocket and stay. */
   export const handInPocket: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handInPocket"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "handInPocket",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HAND_IN_POCKET,
@@ -235,7 +287,7 @@ export namespace HumanUpperRows {
   /** A hand behind the head: the palm visits the back of the head and stays. */
   export const handBehindHead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handBehindHead"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "handBehindHead",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HAND_BEHIND_HEAD,
@@ -244,7 +296,7 @@ export namespace HumanUpperRows {
   /** A phone to the ear: the hand that holds it visits the ear and stays. */
   export const phoneToEar: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["phoneToEar"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "phoneToEar",
     armPhrase,
     HUMAN_GESTURE_PHRASE_PHONE_TO_EAR,
@@ -256,7 +308,7 @@ export namespace HumanUpperRows {
    */
   export const teethBrushing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["teethBrushing"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "teethBrushing",
     armPhrase,
     HUMAN_GESTURE_PHRASE_TEETH_BRUSHING,
@@ -265,7 +317,7 @@ export namespace HumanUpperRows {
   /** Combing: the hand that holds the comb draws it back over the crown. */
   export const hairCombing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["hairCombing"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "hairCombing",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HAIR_COMBING,
@@ -274,7 +326,11 @@ export namespace HumanUpperRows {
   /** Clapping: both palms meet ahead of the chest and part, out and in. */
   export const clapHands: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["clapHands"]
-  > = HumanActionRow("clapHands", armPhrase, HUMAN_GESTURE_PHRASE_CLAP_HANDS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "clapHands",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_CLAP_HANDS,
+  );
 
   /**
    * Rubbing the hands: both palms together ahead of the chest, sliding up and
@@ -282,12 +338,16 @@ export namespace HumanUpperRows {
    */
   export const rubPalms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["rubPalms"]
-  > = HumanActionRow("rubPalms", armPhrase, HUMAN_GESTURE_PHRASE_RUB_PALMS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "rubPalms",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_RUB_PALMS,
+  );
 
   /** Hands clasped in front: both palms meet before the abdomen and stay. */
   export const handsTogetherFront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handsTogetherFront"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "handsTogetherFront",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HANDS_TOGETHER_FRONT,
@@ -299,7 +359,11 @@ export namespace HumanUpperRows {
    */
   export const cheerHands: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["cheerHands"]
-  > = HumanActionRow("cheerHands", armPhrase, HUMAN_GESTURE_PHRASE_CHEER_HANDS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "cheerHands",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_CHEER_HANDS,
+  );
 
   /**
    * A beckon: the open hand held out ahead, palm up, draws in toward the chest
@@ -307,7 +371,11 @@ export namespace HumanUpperRows {
    */
   export const beckonHand: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["beckonHand"]
-  > = HumanActionRow("beckonHand", armPhrase, HUMAN_GESTURE_PHRASE_BECKON_HAND);
+  > = AutoMovieMotionHumanActionRow.of(
+    "beckonHand",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_BECKON_HAND,
+  );
 
   /**
    * Folding the arms: each hand visits the far arm before the chest, the
@@ -316,12 +384,16 @@ export namespace HumanUpperRows {
    */
   export const foldArms: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["foldArms"]
-  > = HumanActionRow("foldArms", armPhrase, HUMAN_GESTURE_PHRASE_FOLD_ARMS);
+  > = AutoMovieMotionHumanActionRow.of(
+    "foldArms",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_FOLD_ARMS,
+  );
 
   /** Hands clasped behind: both palms meet behind the lower back and stay. */
   export const handsClaspedBehind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["handsClaspedBehind"]
-  > = HumanActionRow(
+  > = AutoMovieMotionHumanActionRow.of(
     "handsClaspedBehind",
     armPhrase,
     HUMAN_GESTURE_PHRASE_HANDS_CLASPED_BEHIND,
@@ -333,22 +405,38 @@ export namespace HumanUpperRows {
    */
   export const armAtSide: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["armAtSide"]
-  > = HumanActionRow("armAtSide", armPhrase, HUMAN_GESTURE_PHRASE_ARM_AT_SIDE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "armAtSide",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_ARM_AT_SIDE,
+  );
 
   /** A pat: the flat palm bounces on the target, up and down. */
   export const patOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["patOn"]
-  > = HumanActionRow("patOn", armPhrase, HUMAN_GESTURE_PHRASE_PAT_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "patOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_PAT_ON,
+  );
 
   /** A squeeze: the hand closes on the target and holds. */
   export const squeezeOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["squeezeOn"]
-  > = HumanActionRow("squeezeOn", armPhrase, HUMAN_GESTURE_PHRASE_SQUEEZE_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "squeezeOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_SQUEEZE_ON,
+  );
 
   /** A hold: the relaxed palm rests on the target and stays. */
   export const holdOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["holdOn"]
-  > = HumanActionRow("holdOn", armPhrase, HUMAN_GESTURE_PHRASE_HOLD_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "holdOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_HOLD_ON,
+  );
 
   /**
    * Drinking: the hand that holds a vessel brings its lip to the mouth and
@@ -356,7 +444,11 @@ export namespace HumanUpperRows {
    */
   export const drinkFrom: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["drinkFrom"]
-  > = HumanActionRow("drinkFrom", armPhrase, HUMAN_GESTURE_PHRASE_DRINK_FROM);
+  > = AutoMovieMotionHumanActionRow.of(
+    "drinkFrom",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_DRINK_FROM,
+  );
 
   /**
    * Eating: the hand that holds a utensil brings the point it names (a fork's
@@ -364,10 +456,18 @@ export namespace HumanUpperRows {
    */
   export const eatWith: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["eatWith"]
-  > = HumanActionRow("eatWith", armPhrase, HUMAN_GESTURE_PHRASE_EAT_WITH);
+  > = AutoMovieMotionHumanActionRow.of(
+    "eatWith",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_EAT_WITH,
+  );
 
   /** A scratch: the fingertips oscillate in short strokes on the target. */
   export const scratchOn: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperPhrase"]["scratchOn"]
-  > = HumanActionRow("scratchOn", armPhrase, HUMAN_GESTURE_PHRASE_SCRATCH_ON);
+  > = AutoMovieMotionHumanActionRow.of(
+    "scratchOn",
+    armPhrase,
+    HUMAN_GESTURE_PHRASE_SCRATCH_ON,
+  );
 }

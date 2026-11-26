@@ -16,7 +16,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { HumanSignature } from "../audit/HumanSignature";
+import { AutoMovieMotionHumanSignature } from "../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";
 import { HumanColliderPlacement } from "../posture/HumanColliderPlacement";
@@ -103,7 +103,7 @@ export function crossingClearance(
     HumanColliderPlacement.preparePlaced(body, names);
   let collision: ICollision | undefined;
   const times: Set<number> = new Set([
-    ...HumanSignature.times(0, plan.duration, options.rate),
+    ...AutoMovieMotionHumanSignature.times(0, plan.duration, options.rate),
     ...(options.marks ?? []),
     plan.duration,
   ]);

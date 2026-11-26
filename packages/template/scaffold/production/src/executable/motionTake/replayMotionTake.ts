@@ -4,8 +4,8 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanContinuation,
   HumanPerformance,
-  compileHumanPerformanceContinuation,
 } from "@automovie/motions";
 
 import type { IMotionTakeSource } from "./IMotionTakeSource";
@@ -52,8 +52,8 @@ export function replayMotionTake(
   if (!parent)
     throw new Error("take-provenance: branch requires its original source");
 
-  const continuation: ReturnType<typeof compileHumanPerformanceContinuation> =
-    compileHumanPerformanceContinuation(
+  const continuation: AutoMovieMotionHumanContinuation.IResult =
+    AutoMovieMotionHumanContinuation.compile(
       input,
       anchor.sourceSeconds,
       source.branch.retainedParts,

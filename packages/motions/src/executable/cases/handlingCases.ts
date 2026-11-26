@@ -18,7 +18,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanChain } from "../../HumanChain";
-import { createHumanBody } from "../../body/createHumanBody";
+import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import { HumanGrip } from "../../handling/HumanGrip";
 import { HumanPerformance } from "../../perform/HumanPerformance";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
@@ -76,7 +76,7 @@ export function handlingCases(
   if (family === undefined || family === "grasp")
     for (const name of ["f-small", "m-average", "m-tall"]) {
       const man: humanPolygonMan.IPolygonMan = MotionBodies.population(name);
-      const body: IAutoMovieMotionHumanBody = createHumanBody(
+      const body: IAutoMovieMotionHumanBody = AutoMovieMotionHumanBody.create(
         man.body.skeleton,
         man.body.profile,
       );

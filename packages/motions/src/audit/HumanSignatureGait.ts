@@ -1,12 +1,13 @@
 import type { IAutoMovieMotionHumanSignature } from "@automovie/interface";
 
-import { HumanSignature } from "./HumanSignature";
+import { AutoMovieMotionHumanSignature } from "./AutoMovieMotionHumanSignature";
 
 /**
- * The gait over a window of steady travel (`HumanSignature.gait`): the share of
- * the window's samples each foot bears on the floor, the footfalls, a foot's
- * contact counted once a stride (`HumanSignature.STRIDE`), and the cadence from
- * the mean interval between them.
+ * The gait over a window of steady travel
+ * (`AutoMovieMotionHumanSignature.gait`): the share of the window's samples
+ * each foot bears on the floor, the footfalls, a foot's contact counted once a
+ * stride (`AutoMovieMotionHumanSignature.STRIDE`), and the cadence from the
+ * mean interval between them.
  *
  * @param reader The performer.
  * @param from The window's start, seconds.
@@ -20,14 +21,20 @@ export function HumanSignatureGait(
   to: number,
   rate: number,
 ): IAutoMovieMotionHumanSignature.IGait {
-  const ts: number[] = HumanSignature.times(from, to, rate);
+  const ts: number[] = AutoMovieMotionHumanSignature.times(from, to, rate);
   const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] = [];
   let bearing: number = 0;
   for (const side of ["left", "right"] as const) {
     let before: boolean | undefined;
     let last: number | undefined;
     for (const t of ts) {
-      const now: boolean = HumanSignature.bears(reader, t, side, 0, from);
+      const now: boolean = AutoMovieMotionHumanSignature.bears(
+        reader,
+        t,
+        side,
+        0,
+        from,
+      );
       if (now) bearing++;
 
       // A foot strikes once a stride: a contact that flickers within a
@@ -36,7 +43,7 @@ export function HumanSignatureGait(
       if (
         before === false &&
         now &&
-        (last === undefined || t - last >= HumanSignature.STRIDE)
+        (last === undefined || t - last >= AutoMovieMotionHumanSignature.STRIDE)
       ) {
         strikes.push({ seconds: t, side });
         last = t;

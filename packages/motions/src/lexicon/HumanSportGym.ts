@@ -5,7 +5,7 @@ import type {
 
 import { workout } from "../exercise/workout";
 import { crawl } from "../floor/crawl";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * The gym's remaining movements under the names a programme uses, each a row of
@@ -27,7 +27,7 @@ export namespace HumanSportGym {
    */
   export const bearCrawl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["bearCrawl"]
-  > = HumanActionRow("bearCrawl", crawl, {
+  > = AutoMovieMotionHumanActionRow.of("bearCrawl", crawl, {
     kind: "bear",
   });
 
@@ -38,7 +38,7 @@ export namespace HumanSportGym {
    */
   export const inchworm: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["inchworm"]
-  > = HumanActionRow("inchworm", crawl, {
+  > = AutoMovieMotionHumanActionRow.of("inchworm", crawl, {
     kind: "inchworm",
   });
 
@@ -48,7 +48,7 @@ export namespace HumanSportGym {
    */
   export const bentOverRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["bentOverRow"]
-  > = HumanActionRow("bentOverRow", workout, {
+  > = AutoMovieMotionHumanActionRow.of("bentOverRow", workout, {
     kind: "bentOverRow",
   });
 
@@ -58,7 +58,7 @@ export namespace HumanSportGym {
    */
   export const curl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["curl"]
-  > = HumanActionRow("curl", workout, {
+  > = AutoMovieMotionHumanActionRow.of("curl", workout, {
     kind: "curl",
   });
 
@@ -68,7 +68,7 @@ export namespace HumanSportGym {
    */
   export const tricepsExtension: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["tricepsExtension"]
-  > = HumanActionRow("tricepsExtension", workout, {
+  > = AutoMovieMotionHumanActionRow.of("tricepsExtension", workout, {
     kind: "tricepsExtension",
   });
 
@@ -78,7 +78,7 @@ export namespace HumanSportGym {
    */
   export const lateralRaise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["lateralRaise"]
-  > = HumanActionRow("lateralRaise", workout, {
+  > = AutoMovieMotionHumanActionRow.of("lateralRaise", workout, {
     kind: "lateralRaise",
   });
 
@@ -88,7 +88,7 @@ export namespace HumanSportGym {
    */
   export const frontRaise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["frontRaise"]
-  > = HumanActionRow("frontRaise", workout, {
+  > = AutoMovieMotionHumanActionRow.of("frontRaise", workout, {
     kind: "frontRaise",
   });
 
@@ -98,7 +98,7 @@ export namespace HumanSportGym {
    */
   export const shrug: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["shrug"]
-  > = HumanActionRow("shrug", workout, {
+  > = AutoMovieMotionHumanActionRow.of("shrug", workout, {
     kind: "shrug",
   });
 
@@ -108,7 +108,7 @@ export namespace HumanSportGym {
    */
   export const calfRaise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["calfRaise"]
-  > = HumanActionRow("calfRaise", workout, {
+  > = AutoMovieMotionHumanActionRow.of("calfRaise", workout, {
     kind: "calfRaise",
   });
 
@@ -118,7 +118,7 @@ export namespace HumanSportGym {
    */
   export const frontSquat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["frontSquat"]
-  > = HumanActionRow("frontSquat", workout, {
+  > = AutoMovieMotionHumanActionRow.of("frontSquat", workout, {
     kind: "frontSquat",
   });
 
@@ -128,7 +128,7 @@ export namespace HumanSportGym {
    */
   export const gobletSquat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["gobletSquat"]
-  > = HumanActionRow("gobletSquat", workout, {
+  > = AutoMovieMotionHumanActionRow.of("gobletSquat", workout, {
     kind: "gobletSquat",
   });
 
@@ -138,7 +138,7 @@ export namespace HumanSportGym {
    */
   export const splitSquat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["splitSquat"]
-  > = HumanActionRow("splitSquat", workout, {
+  > = AutoMovieMotionHumanActionRow.of("splitSquat", workout, {
     kind: "splitSquat",
   });
 
@@ -148,7 +148,7 @@ export namespace HumanSportGym {
    */
   export const wallSit: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["wallSit"]
-  > = HumanActionRow("wallSit", workout, {
+  > = AutoMovieMotionHumanActionRow.of("wallSit", workout, {
     kind: "wallSit",
   });
 
@@ -158,7 +158,7 @@ export namespace HumanSportGym {
    */
   export const romanianDeadlift: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["romanianDeadlift"]
-  > = HumanActionRow("romanianDeadlift", workout, {
+  > = AutoMovieMotionHumanActionRow.of("romanianDeadlift", workout, {
     kind: "romanianDeadlift",
   });
 
@@ -168,7 +168,7 @@ export namespace HumanSportGym {
    */
   export const goodMorning: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["goodMorning"]
-  > = HumanActionRow("goodMorning", workout, {
+  > = AutoMovieMotionHumanActionRow.of("goodMorning", workout, {
     kind: "goodMorning",
   });
 
@@ -179,7 +179,7 @@ export namespace HumanSportGym {
    */
   export const powerClean: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["powerClean"]
-  > = HumanActionRow("powerClean", workout, {
+  > = AutoMovieMotionHumanActionRow.of("powerClean", workout, {
     kind: "powerClean",
   });
 
@@ -190,7 +190,7 @@ export namespace HumanSportGym {
    */
   export const snatch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["snatch"]
-  > = HumanActionRow("snatch", workout, {
+  > = AutoMovieMotionHumanActionRow.of("snatch", workout, {
     kind: "snatch",
   });
 
@@ -200,7 +200,7 @@ export namespace HumanSportGym {
    */
   export const pikePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["pikePushUp"]
-  > = HumanActionRow("pikePushUp", workout, {
+  > = AutoMovieMotionHumanActionRow.of("pikePushUp", workout, {
     kind: "pikePushUp",
   });
 
@@ -210,7 +210,7 @@ export namespace HumanSportGym {
    */
   export const superman: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["superman"]
-  > = HumanActionRow("superman", workout, {
+  > = AutoMovieMotionHumanActionRow.of("superman", workout, {
     kind: "superman",
   });
 
@@ -220,7 +220,7 @@ export namespace HumanSportGym {
    */
   export const birdDog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["birdDog"]
-  > = HumanActionRow("birdDog", workout, {
+  > = AutoMovieMotionHumanActionRow.of("birdDog", workout, {
     kind: "birdDog",
   });
 
@@ -230,7 +230,7 @@ export namespace HumanSportGym {
    */
   export const lyingLegRaise: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["lyingLegRaise"]
-  > = HumanActionRow("lyingLegRaise", workout, {
+  > = AutoMovieMotionHumanActionRow.of("lyingLegRaise", workout, {
     kind: "lyingLegRaise",
   });
 
@@ -240,7 +240,7 @@ export namespace HumanSportGym {
    */
   export const bicycleCrunch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["bicycleCrunch"]
-  > = HumanActionRow("bicycleCrunch", workout, {
+  > = AutoMovieMotionHumanActionRow.of("bicycleCrunch", workout, {
     kind: "bicycleCrunch",
   });
 
@@ -250,7 +250,7 @@ export namespace HumanSportGym {
    */
   export const russianTwist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["russianTwist"]
-  > = HumanActionRow("russianTwist", workout, {
+  > = AutoMovieMotionHumanActionRow.of("russianTwist", workout, {
     kind: "russianTwist",
   });
 
@@ -260,7 +260,7 @@ export namespace HumanSportGym {
    */
   export const deadBug: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["deadBug"]
-  > = HumanActionRow("deadBug", workout, {
+  > = AutoMovieMotionHumanActionRow.of("deadBug", workout, {
     kind: "deadBug",
   });
 
@@ -271,7 +271,7 @@ export namespace HumanSportGym {
    */
   export const stepUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["stepUp"]
-  > = HumanActionRow("stepUp", workout, {
+  > = AutoMovieMotionHumanActionRow.of("stepUp", workout, {
     kind: "stepUp",
   });
 
@@ -282,7 +282,7 @@ export namespace HumanSportGym {
    */
   export const hipThrust: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["hipThrust"]
-  > = HumanActionRow("hipThrust", workout, {
+  > = AutoMovieMotionHumanActionRow.of("hipThrust", workout, {
     kind: "hipThrust",
   });
 
@@ -293,7 +293,7 @@ export namespace HumanSportGym {
    */
   export const inclinePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["inclinePushUp"]
-  > = HumanActionRow("inclinePushUp", workout, {
+  > = AutoMovieMotionHumanActionRow.of("inclinePushUp", workout, {
     kind: "inclinePushUp",
   });
 
@@ -304,7 +304,7 @@ export namespace HumanSportGym {
    */
   export const declinePushUp: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["declinePushUp"]
-  > = HumanActionRow("declinePushUp", workout, {
+  > = AutoMovieMotionHumanActionRow.of("declinePushUp", workout, {
     kind: "declinePushUp",
   });
 
@@ -314,7 +314,7 @@ export namespace HumanSportGym {
    */
   export const dip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportGym"]["dip"]
-  > = HumanActionRow("dip", workout, {
+  > = AutoMovieMotionHumanActionRow.of("dip", workout, {
     kind: "dip",
   });
 }

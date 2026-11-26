@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { dive } from "../floor/dive";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_FALL_GOALKEEPER_DIVE_LEFT } from "../next/presets/HUMAN_FALL_GOALKEEPER_DIVE_LEFT";
 import { HUMAN_FALL_GOALKEEPER_DIVE_RIGHT } from "../next/presets/HUMAN_FALL_GOALKEEPER_DIVE_RIGHT";
 
@@ -21,7 +21,7 @@ export namespace HumanFloorFall {
    */
   export const goalkeeperDiveLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveLeft"]
-  > = HumanActionRow("goalkeeperDiveLeft", dive, {
+  > = AutoMovieMotionHumanActionRow.of("goalkeeperDiveLeft", dive, {
     kind: "dive",
     ...HUMAN_FALL_GOALKEEPER_DIVE_LEFT,
   });
@@ -33,7 +33,7 @@ export namespace HumanFloorFall {
    */
   export const goalkeeperDiveRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveRight"]
-  > = HumanActionRow("goalkeeperDiveRight", dive, {
+  > = AutoMovieMotionHumanActionRow.of("goalkeeperDiveRight", dive, {
     kind: "dive",
     ...HUMAN_FALL_GOALKEEPER_DIVE_RIGHT,
   });
@@ -46,7 +46,7 @@ export namespace HumanFloorFall {
    */
   export const slidingTackle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["slidingTackle"]
-  > = HumanActionRow("slidingTackle", dive, {
+  > = AutoMovieMotionHumanActionRow.of("slidingTackle", dive, {
     kind: "slide",
   });
 }

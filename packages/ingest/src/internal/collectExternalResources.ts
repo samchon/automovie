@@ -3,24 +3,11 @@ import type { IAutoMovieExternalModelResource } from "@automovie/interface";
 import { compareCodeUnits } from "./compareCodeUnits";
 import { object } from "./object";
 
-const externalUri: (value: unknown, path: string) => string | null = (
-  value: unknown,
-  path: string,
-): string | null => {
-  if (value === undefined) return null;
-  if (typeof value !== "string" || value.length === 0)
-    throw new Error(`${path} must be a non-empty URI string.`);
-  return value.startsWith("data:") ? null : value;
-};
-
 /** Collect exact sidecar URI identities without decoding their payloads. */
-export const collectExternalResources: (
+export function collectExternalResources(
   buffers: unknown[],
   images: unknown[],
-) => IAutoMovieExternalModelResource[] = (
-  buffers: unknown[],
-  images: unknown[],
-): IAutoMovieExternalModelResource[] => {
+): IAutoMovieExternalModelResource[] {
   const byUri: Map<string, IAutoMovieExternalModelResource> = new Map<
     string,
     IAutoMovieExternalModelResource
@@ -57,4 +44,11 @@ export const collectExternalResources: (
       right: IAutoMovieExternalModelResource,
     ): number => compareCodeUnits(left.uri, right.uri),
   );
-};
+}
+
+function externalUri(value: unknown, path: string): string | null {
+  if (value === undefined) return null;
+  if (typeof value !== "string" || value.length === 0)
+    throw new Error(`${path} must be a non-empty URI string.`);
+  return value.startsWith("data:") ? null : value;
+}

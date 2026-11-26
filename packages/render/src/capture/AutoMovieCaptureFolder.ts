@@ -5,14 +5,30 @@ import type {
   IAutoMovieCaptureStorage,
 } from "@automovie/interface";
 
+import { AutoMovieRenderCaptureRecord } from "./AutoMovieRenderCaptureRecord.js";
+import { CAPTURE_FILE_NAME } from "./internal/CAPTURE_FILE_NAME.js";
+
 /** The record's file name. */
 const RECORD: string = "record.json";
 
 /** The folder of kept rounds beneath the root. */
 const ROUNDS: string = "rounds";
 
-/** A file name the folder writes: one name, no separator and no relative step. */
-const FILE_NAME: RegExp = /^(?!\.{1,2}$)[^/\\]+$/u;
+/** Data required to hold an already opened capture folder. */
+interface IOpenedFolder {
+  /** Storage already admitted for this capture. */
+  readonly storage: IAutoMovieCaptureStorage;
+  /** Directory where this capture will write. */
+  readonly directory: string;
+  /** Optional path component for the retained round. */
+  readonly round: string | null;
+  /** Name of the comparison round, when requested. */
+  readonly compare: string | null;
+  /** Directory of the comparison round, when requested. */
+  readonly reference: string | null;
+  /** Admitted comparison data, when requested. */
+  readonly earlier: IAutoMovieCaptureRecord.IComparison | null;
+}
 
 /**
  * The folder one capture writes, and the rules of which files it owns and in
@@ -66,11 +82,8 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   /** Round compared against, or null. */
   public readonly compare: string | null;
 
-  /** The compared round's complete record, or null without a comparison. */
-  public readonly earlier: Extract<
-    IAutoMovieCaptureRecord,
-    { state: "complete" }
-  > | null;
+  /** The compared round's admitted observations, or null without a comparison. */
+  public readonly earlier: IAutoMovieCaptureRecord.IComparison | null;
 
   /** Path of the compared round's folder, or null without a comparison. */
   public readonly reference: string | null;
@@ -82,14 +95,7 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
   private readonly written: Set<string>;
 
   /** Hold an opened folder; `open` prepares it. */
-  private constructor(props: {
-    storage: IAutoMovieCaptureStorage;
-    directory: string;
-    round: string | null;
-    compare: string | null;
-    reference: string | null;
-    earlier: Extract<IAutoMovieCaptureRecord, { state: "complete" }> | null;
-  }) {
+  private constructor(props: IOpenedFolder) {
     this.storage = props.storage;
     this.directory = props.directory;
     this.round = props.round;
@@ -126,20 +132,17 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
       );
 
     // 1. The compared round, before anything changes.
-    let earlier: Extract<
-      IAutoMovieCaptureRecord,
-      { state: "complete" }
-    > | null = null;
+    let earlier: IAutoMovieCaptureRecord.IComparison | null = null;
     if (reference !== null) {
-      const record: IAutoMovieCaptureRecord | null = await readRecord(
-        storage,
-        `${reference}/${RECORD}`,
-      ).catch((): null => null);
-      if (record === null || record.state !== "complete")
+      earlier = AutoMovieRenderCaptureRecord.comparison(
+        await readRecord(storage, `${reference}/${RECORD}`).catch(
+          (): null => null,
+        ),
+      );
+      if (earlier === null)
         throw new Error(
           `No finished round "${props.compare}" at ${reference}: its ${RECORD} is missing, unreadable or still running`,
         );
-      earlier = record;
     }
 
     // 2. The folder holds only what its previous record owns.
@@ -160,10 +163,18 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
         );
     }
     const entries: string[] = await storage.readdir(directory);
-    const previous: IAutoMovieCaptureRecord | null = entries.includes(RECORD)
-      ? await readRecord(storage, `${directory}/${RECORD}`)
-      : null;
-    const owned: Set<string> = new Set([RECORD, ...(previous?.files ?? [])]);
+    let previous: readonly string[] = [];
+    if (entries.includes(RECORD)) {
+      const recordPath: string = `${directory}/${RECORD}`;
+      const files: readonly string[] | null =
+        AutoMovieRenderCaptureRecord.ownedFiles(
+          await readRecord(storage, recordPath),
+        );
+      if (files === null)
+        throw new Error(`${recordPath} is not a capture record`);
+      previous = files;
+    }
+    const owned: Set<string> = new Set([RECORD, ...previous]);
     if (props.round === null) owned.add(ROUNDS);
     const foreign: string[] = entries.filter(
       (entry: string): boolean => !owned.has(entry),
@@ -174,8 +185,8 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
       );
 
     // 3. Delete the previous capture's files; its record stays until the next claim replaces it.
-    for (const file of previous?.files ?? [])
-      if (file !== RECORD && FILE_NAME.test(file))
+    for (const file of previous)
+      if (file !== RECORD && !(props.round === null && file === ROUNDS))
         await storage.rm(`${directory}/${file}`, { force: true });
     return new AutoMovieCaptureFolder({
       storage,
@@ -196,7 +207,7 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
    */
   public async claim(names: readonly string[]): Promise<void> {
     for (const name of names) {
-      if (!FILE_NAME.test(name) || name === RECORD)
+      if (!CAPTURE_FILE_NAME.test(name) || name === RECORD)
         throw new Error(`A capture cannot write "${name}" in its folder`);
       this.claimed.add(name);
     }
@@ -242,7 +253,7 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
     name: string,
     earlier: boolean = false,
   ): Promise<Uint8Array> {
-    if (!FILE_NAME.test(name))
+    if (!CAPTURE_FILE_NAME.test(name))
       throw new Error(`A capture cannot read "${name}"`);
     if (earlier && this.reference === null)
       throw new Error("This capture compares against no round");
@@ -278,7 +289,7 @@ export class AutoMovieCaptureFolder implements IAutoMovieCaptureFolder {
 async function readRecord(
   storage: IAutoMovieCaptureStorage,
   path: string,
-): Promise<IAutoMovieCaptureRecord> {
+): Promise<unknown> {
   const text: string = new TextDecoder().decode(await storage.readFile(path));
   try {
     return JSON.parse(text);

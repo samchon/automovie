@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { support } from "../actions/support";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_SUPPORT_SCRAMBLE } from "../next/presets/HUMAN_SUPPORT_SCRAMBLE";
 import { HUMAN_SUPPORT_SLIDE_OFF } from "../next/presets/HUMAN_SUPPORT_SLIDE_OFF";
 
@@ -37,7 +37,11 @@ export namespace HumanSupportRows {
    */
   export const scramble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["scramble"]
-  > = HumanActionRow("scramble", support, HUMAN_SUPPORT_SCRAMBLE);
+  > = AutoMovieMotionHumanActionRow.of(
+    "scramble",
+    support,
+    HUMAN_SUPPORT_SCRAMBLE,
+  );
 
   /**
    * Slide off a table's edge: seated upright on it with the hands beside the
@@ -47,5 +51,9 @@ export namespace HumanSupportRows {
    */
   export const slideOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]
-  > = HumanActionRow("slideOff", support, HUMAN_SUPPORT_SLIDE_OFF);
+  > = AutoMovieMotionHumanActionRow.of(
+    "slideOff",
+    support,
+    HUMAN_SUPPORT_SLIDE_OFF,
+  );
 }

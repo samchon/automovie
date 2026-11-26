@@ -19,6 +19,7 @@ import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { ViolationCollector } from "./ViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
+import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 
@@ -26,7 +27,8 @@ const DEFAULT_MAX_HORIZONTAL_SPEED: number = 0.02;
 
 /**
  * Sample admitted contact windows, resolve FK and warn when adjacent foot XZ
- * displacement divided by elapsed seconds exceeds the declared speed.
+ * displacement divided by elapsed seconds exceeds the declared speed. Rates
+ * must be finite and positive and contact speed limits finite and nonnegative.
  */
 export const validateFootSkate: (
   props: IAutoMovieValidateFootSkate.IProps,
@@ -50,19 +52,19 @@ export const validateFootSkate: (
     topology,
   );
 
-  if (sampleRate <= 0)
-    collector.push(
-      "range",
-      `${path}.sampleRate`,
-      `sampleRate must be a finite number > 0, but was ${sampleRate}`,
-      sampleRate,
-    );
+  const sampleRateValid: boolean = admitMotionSampleRate(
+    collector,
+    path,
+    sampleRate,
+  );
 
   props.contacts.forEach(
     (contact: IAutoMovieFootContactWindow, contactIndex: number): void => {
       const cp: string = `${path}.contacts[${contactIndex}]`;
       const maxHorizontalSpeed: number =
         contact.maxHorizontalSpeed ?? DEFAULT_MAX_HORIZONTAL_SPEED;
+      const speedInvalid: boolean =
+        !Number.isFinite(maxHorizontalSpeed) || maxHorizontalSpeed < 0;
       const temporalInvalid: boolean = !(
         contact.start > -Infinity &&
         contact.end < Infinity &&
@@ -96,7 +98,7 @@ export const validateFootSkate: (
           `contact window must have finite start/end with end > start, but was [${contact.start}, ${contact.end}]`,
           { start: contact.start, end: contact.end },
         );
-      if (maxHorizontalSpeed < 0)
+      if (speedInvalid)
         collector.push(
           "range",
           `${cp}.maxHorizontalSpeed`,
@@ -107,8 +109,8 @@ export const validateFootSkate: (
         !skeletonBones.has(contact.bone) ||
         boneUnreachable ||
         temporalInvalid ||
-        maxHorizontalSpeed < 0 ||
-        sampleRate <= 0
+        speedInvalid ||
+        !sampleRateValid
       )
         return;
 

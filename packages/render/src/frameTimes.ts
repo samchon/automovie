@@ -1,3 +1,5 @@
+import { countEncodedFrames } from "./timing/internal/countEncodedFrames.js";
+
 /**
  * The capture instants, in seconds, of a clip of `durationSeconds` sampled at
  * `fps` frames per second.
@@ -9,14 +11,9 @@
  * from a stochastic diffusion video. A non-finite or non-positive `fps` or
  * duration, or a duration shorter than half a frame, yields no frames.
  */
-export const frameTimes: (fps: number, durationSeconds: number) => number[] = (
-  fps: number,
-  durationSeconds: number,
-): number[] => {
-  if (fps <= 0 || durationSeconds <= 0) return [];
-  const count: number = Math.round(durationSeconds * fps);
+export function frameTimes(fps: number, durationSeconds: number): number[] {
   return Array.from(
-    { length: count },
+    { length: countEncodedFrames(fps, durationSeconds) },
     (_: unknown, index: number): number => index / fps,
   );
-};
+}

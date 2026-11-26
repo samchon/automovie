@@ -1,4 +1,4 @@
-import { createEvidenceConfig } from "@automovie/evidence";
+import { AutoMovieEvidenceConfig } from "@automovie/evidence";
 import { createBriefFiles } from "@automovie/evidence/internal";
 import { TestValidator } from "@nestia/e2e";
 import type { IEvidenceClaim, IEvidenceConfig } from "@wrtnlabs/evidence";
@@ -7,12 +7,22 @@ import os from "node:os";
 import path from "node:path";
 
 /**
- * The short route's brief is canon like settings: its own unit, population and discovery claims, cited by the short screenplay, which alone realizes the instructions.
+ * The short route's brief is canon like settings: its own unit, population and
+ * discovery claims, cited by the short screenplay, which alone realizes the
+ * instructions.
  *
  * Scenarios:
- * 1. A short production with brief decisions in `docs/body/brief/sets/ring.md` and `docs/body/brief/cast/carina.md` and one screenplay scene file builds a configuration whose brief unit claim selects `createBriefFiles`, carries no upstream reference, whose screenplay coverage claim references both brief files and no settings file, and whose instruction relation binds the screenplay and not the brief.
- * 2. The brief selector admits both domain files and not a top-level `brief/ring.md`, which the canon reader refuses as a mixed layout.
- * 3. The brief stage is optional: omitted, the brief claims are disabled; an active brief stage outside the short route is refused.
+ *
+ * 1. A short production with brief decisions in `docs/body/brief/sets/ring.md` and
+ *    `docs/body/brief/cast/carina.md` and one screenplay scene file builds a
+ *    configuration whose brief unit claim selects `createBriefFiles`, carries
+ *    no upstream reference, whose screenplay coverage claim references both
+ *    brief files and no settings file, and whose instruction relation binds the
+ *    screenplay and not the brief.
+ * 2. The brief selector admits both domain files and not a top-level
+ *    `brief/ring.md`, which the canon reader refuses as a mixed layout.
+ * 3. The brief stage is optional: omitted, the brief claims are disabled; an
+ *    active brief stage outside the short route is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a real production tree on disk and reads the claims the public configuration factory returns, so the brief layer is checked through the graph a production actually runs.
  * @evidence contracts/development/testing.md#independent-expectations The expected brief paths, the absence of settings and upstream references and the screenplay-only instruction relation are written from the short route's documented layout and its minimal brief, not taken from the factory's output.
@@ -39,7 +49,7 @@ export function test_evidence_brief_layer(): void {
     );
 
     // 1. Brief claims and the screenplay's brief coverage.
-    const config: IEvidenceConfig = createEvidenceConfig({
+    const config: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: root,
       narrative: {
         mode: "short",
@@ -117,7 +127,7 @@ export function test_evidence_brief_layer(): void {
     );
 
     // 3. Optional stage and route boundary.
-    const omitted: IEvidenceConfig = createEvidenceConfig({
+    const omitted: IEvidenceConfig = AutoMovieEvidenceConfig.create({
       location: root,
       narrative: { mode: "short", construction: { screenplay: "evidence" } },
     });
@@ -132,7 +142,7 @@ export function test_evidence_brief_layer(): void {
     TestValidator.error(
       "brief outside the short route is refused",
       (): IEvidenceConfig =>
-        createEvidenceConfig({
+        AutoMovieEvidenceConfig.create({
           location: root,
           narrative: { mode: "long", construction: { brief: "evidence" } },
         }),

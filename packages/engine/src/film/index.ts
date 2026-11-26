@@ -1,3 +1,4 @@
+export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 export * from "./admitMotionTake";
 export * from "./animatedBaseAt";
 export * from "./assertGrammarPositive";

@@ -1,4 +1,5 @@
 import {
+  AutoMovieEnginePlanarHull,
   AutoMovieLoftRelief,
   AutoMovieNaturalSpline,
   AutoMoviePolarSector,
@@ -81,7 +82,7 @@ export namespace AutoMovieHumanArmTube {
     // The hull perimeter of the normalised section times a scale: a taut tape
     // lies on the hull, and the hull is linear in the scale.
     const hullOf = (s: number, k: number): number =>
-      hull(
+      AutoMovieEnginePlanarHull.perimeter(
         Array.from(
           { length: GIRTH_PHASES },
           (_: unknown, i: number): [number, number] => {
@@ -91,6 +92,8 @@ export namespace AutoMovieHumanArmTube {
             return [r * Math.cos(t), r * Math.sin(t)];
           },
         ),
+        0,
+        1,
       );
 
     // The unit hulls depend on the shape alone, so a rebuild with another
@@ -250,40 +253,4 @@ function cross(
     a[2] * b[0] - a[0] * b[2],
     a[0] * b[1] - a[1] * b[0],
   ];
-}
-
-/** Perimeter of the convex hull of points in a plane (monotone chain): a taut tape. */
-function hull(points: readonly [number, number][]): number {
-  const p: [number, number][] = [...points].sort(
-    (u: [number, number], v: [number, number]): number =>
-      u[0] - v[0] || u[1] - v[1],
-  );
-  if (p.length < 3) return 0;
-  const turn = (
-    o: [number, number],
-    a: [number, number],
-    b: [number, number],
-  ): number => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-  const chain = (list: [number, number][]): [number, number][] => {
-    const out: [number, number][] = [];
-    for (const q of list) {
-      while (
-        out.length >= 2 &&
-        turn(out[out.length - 2]!, out[out.length - 1]!, q) <= 0
-      )
-        out.pop();
-      out.push(q);
-    }
-    return out;
-  };
-  const ring: [number, number][] = [
-    ...chain(p).slice(0, -1),
-    ...chain([...p].reverse()).slice(0, -1),
-  ];
-  let sum: number = 0;
-  ring.forEach((q: [number, number], i: number): void => {
-    const r: [number, number] = ring[(i + 1) % ring.length]!;
-    sum += Math.hypot(r[0] - q[0], r[1] - q[1]);
-  });
-  return sum;
 }

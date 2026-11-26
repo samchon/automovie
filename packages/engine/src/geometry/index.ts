@@ -1,3 +1,4 @@
+export { AutoMovieEnginePlanarArea } from "./AutoMovieEnginePlanarArea";
 export * from "./AutoMovieMeshCrossingGeometry";
 export * from "./AutoMovieMotionBound";
 export * from "./admitAutoMovieBicubicAtlas";

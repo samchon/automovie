@@ -1,6 +1,10 @@
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import type {
+  IAutoMovieQuaternion,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { Quaternion } from "./Quaternion";
+import { readBasisQuaternion } from "./internal/readBasisQuaternion";
 
 /**
  * Unit quaternion of the rotation whose columns are the orthonormal vectors
@@ -14,49 +18,27 @@ export function quaternionFromAutoMovieBasis(
   y: IAutoMovieVector3,
   z: IAutoMovieVector3,
 ): IAutoMovieQuaternion {
-  const m00: number = x.x,
-    m01: number = y.x,
-    m02: number = z.x;
-  const m10: number = x.y,
-    m11: number = y.y,
-    m12: number = z.y;
-  const m20: number = x.z,
-    m21: number = y.z,
-    m22: number = z.z;
-  const trace: number = m00 + m11 + m22;
-  let q: IAutoMovieQuaternion;
-  if (trace > 0) {
-    const s: number = Math.sqrt(trace + 1) * 2;
-    q = {
-      w: s / 4,
-      x: (m21 - m12) / s,
-      y: (m02 - m20) / s,
-      z: (m10 - m01) / s,
-    };
-  } else if (m00 > m11 && m00 > m22) {
-    const s: number = Math.sqrt(1 + m00 - m11 - m22) * 2;
-    q = {
-      w: (m21 - m12) / s,
-      x: s / 4,
-      y: (m01 + m10) / s,
-      z: (m02 + m20) / s,
-    };
-  } else if (m11 > m22) {
-    const s: number = Math.sqrt(1 + m11 - m00 - m22) * 2;
-    q = {
-      w: (m02 - m20) / s,
-      x: (m01 + m10) / s,
-      y: s / 4,
-      z: (m12 + m21) / s,
-    };
-  } else {
-    const s: number = Math.sqrt(1 + m22 - m00 - m11) * 2;
-    q = {
-      w: (m10 - m01) / s,
-      x: (m02 + m20) / s,
-      y: (m12 + m21) / s,
-      z: s / 4,
-    };
-  }
-  return Quaternion.normalize(q);
+  return readBasisQuaternion(
+    x.x,
+    x.y,
+    x.z,
+    y.x,
+    y.y,
+    y.z,
+    z.x,
+    z.y,
+    z.z,
+    normalizedRecord,
+    undefined,
+  );
+}
+
+/** Own and normalize the completed basis quaternion in glTF component order. */
+function normalizedRecord(
+  x: number,
+  y: number,
+  z: number,
+  w: number,
+): IAutoMovieQuaternion {
+  return Quaternion.normalize({ x, y, z, w });
 }

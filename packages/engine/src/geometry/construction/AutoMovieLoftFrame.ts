@@ -1,5 +1,7 @@
 import type { IAutoMovieLoftSectionFrame } from "@automovie/interface";
 
+import { readBasisQuaternion } from "../../math/internal/readBasisQuaternion";
+
 /**
  * Section planes of a chain: where each harmonic section lies in the world.
  *
@@ -231,7 +233,19 @@ export namespace AutoMovieLoftFrame {
   /** Rotation vector (axis times angle, angle in [0, pi]) of a rotation matrix. */
   function logarithm(m: number[][]): [number, number, number] {
     // Through the unit quaternion, which stays accurate for small angles.
-    const q: number[] = quaternionOf(m);
+    const q: [number, number, number, number] = readBasisQuaternion(
+      m[0]![0]!,
+      m[1]![0]!,
+      m[2]![0]!,
+      m[0]![1]!,
+      m[1]![1]!,
+      m[2]![1]!,
+      m[0]![2]!,
+      m[1]![2]!,
+      m[2]![2]!,
+      scalarFirstQuaternion,
+      undefined,
+    );
     const sign: number = q[0]! < 0 ? -1 : 1;
     const x: number = sign * q[1]!;
     const y: number = sign * q[2]!;
@@ -266,8 +280,9 @@ export namespace AutoMovieLoftFrame {
   }
 
   /**
-   * Inverse right Jacobian of the rotation exponential at `p`, applied to x: `x
-   * + (p x x) / 2 + c p x (p x x)`, `c = 1/a^2 - (1 + cos a) / (2 a sin a)`.
+   * Inverse right Jacobian of the rotation exponential at `p`, applied to x.
+   * The expression is `x + (p x x) / 2 + c p x (p x x)` with `c = 1/a^2 - (1 +
+   * cos a) / (2 a sin a)`.
    */
   function inverseJacobian(
     p: readonly [number, number, number],
@@ -305,34 +320,13 @@ export namespace AutoMovieLoftFrame {
     );
   }
 
-  /**
-   * Unit quaternion `[w, x, y, z]` of a rotation matrix, by Shepperd's method:
-   * the largest diagonal combination keeps it stable.
-   */
-  function quaternionOf(m: number[][]): number[] {
-    const m00: number = m[0]![0]!,
-      m01: number = m[0]![1]!,
-      m02: number = m[0]![2]!;
-    const m10: number = m[1]![0]!,
-      m11: number = m[1]![1]!,
-      m12: number = m[1]![2]!;
-    const m20: number = m[2]![0]!,
-      m21: number = m[2]![1]!,
-      m22: number = m[2]![2]!;
-    const trace: number = m00 + m11 + m22;
-    if (trace > 0) {
-      const s: number = 2 * Math.sqrt(trace + 1);
-      return [0.25 * s, (m21 - m12) / s, (m02 - m20) / s, (m10 - m01) / s];
-    }
-    if (m00 > m11 && m00 > m22) {
-      const s: number = 2 * Math.sqrt(1 + m00 - m11 - m22);
-      return [(m21 - m12) / s, 0.25 * s, (m01 + m10) / s, (m02 + m20) / s];
-    }
-    if (m11 > m22) {
-      const s: number = 2 * Math.sqrt(1 + m11 - m00 - m22);
-      return [(m02 - m20) / s, (m01 + m10) / s, 0.25 * s, (m12 + m21) / s];
-    }
-    const s: number = 2 * Math.sqrt(1 + m22 - m00 - m11);
-    return [(m10 - m01) / s, (m02 + m20) / s, (m12 + m21) / s, 0.25 * s];
+  /** Store the logarithm's raw quaternion in scalar-first order. */
+  function scalarFirstQuaternion(
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+  ): [number, number, number, number] {
+    return [w, x, y, z];
   }
 }

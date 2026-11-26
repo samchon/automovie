@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { handToFace } from "../daily/handToFace";
-import { HumanActionRow } from "../law/HumanActionRow";
+import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 
 /**
  * The tasks that bring a hand, or what it holds, to the face as rows: each task
@@ -23,7 +23,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceDrink: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceDrink"]
-  > = HumanActionRow("faceDrink", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceDrink", handToFace, {
     kind: "drink",
   });
 
@@ -34,7 +34,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceSip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceSip"]
-  > = HumanActionRow("faceSip", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceSip", handToFace, {
     kind: "sip",
   });
 
@@ -45,7 +45,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceEat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceEat"]
-  > = HumanActionRow("faceEat", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceEat", handToFace, {
     kind: "eat",
   });
 
@@ -56,7 +56,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceBite: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceBite"]
-  > = HumanActionRow("faceBite", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceBite", handToFace, {
     kind: "bite",
   });
 
@@ -66,7 +66,7 @@ export namespace HumanHandToFaceRows {
    */
   export const facePhone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["facePhone"]
-  > = HumanActionRow("facePhone", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("facePhone", handToFace, {
     kind: "phone",
   });
 
@@ -77,7 +77,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceRead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceRead"]
-  > = HumanActionRow("faceRead", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceRead", handToFace, {
     kind: "read",
   });
 
@@ -88,7 +88,9 @@ export namespace HumanHandToFaceRows {
    */
   export const faceBrushTeeth: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceBrushTeeth"]
-  > = HumanActionRow("faceBrushTeeth", handToFace, { kind: "brushTeeth" });
+  > = AutoMovieMotionHumanActionRow.of("faceBrushTeeth", handToFace, {
+    kind: "brushTeeth",
+  });
 
   /**
    * `handToFace` doing `comb`: 3 strokes at the temple, then 0.2 s,
@@ -97,7 +99,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceComb: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceComb"]
-  > = HumanActionRow("faceComb", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceComb", handToFace, {
     kind: "comb",
   });
 
@@ -108,7 +110,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceWashFace: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceWashFace"]
-  > = HumanActionRow("faceWashFace", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceWashFace", handToFace, {
     kind: "washFace",
   });
 
@@ -119,7 +121,7 @@ export namespace HumanHandToFaceRows {
    */
   export const faceWipeMouth: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["faceWipeMouth"]
-  > = HumanActionRow("faceWipeMouth", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("faceWipeMouth", handToFace, {
     kind: "wipeMouth",
   });
 
@@ -130,7 +132,7 @@ export namespace HumanHandToFaceRows {
    */
   export const facePinchNose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperFace"]["facePinchNose"]
-  > = HumanActionRow("facePinchNose", handToFace, {
+  > = AutoMovieMotionHumanActionRow.of("facePinchNose", handToFace, {
     kind: "pinchNose",
   });
 }
