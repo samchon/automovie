@@ -1,12 +1,12 @@
 # Research
 
-Study the facts and practices a production decision depends on. Cite the study where the writer or maker uses it.
+Study facts and practices that affect a decision. Cite each study where it informs the work.
 
 ## Study scope
 
 ### When to study
 
-Before choosing a direction, study facts that could change it. On a short, the brief or screenplay author owns the study their layer needs. On the long route, settings establish world facts and the first treatment or script to use a practice studies its limits.
+Before choosing a direction, study facts that could change it. On a short, the brief or screenplay author studies what their layer needs. On the long route, settings establish world facts. Study a practice's limits in the first treatment or script that uses it.
 
 A [direct writer](../workflow/routes.md#direct-writing) studies the screenplay's open decisions. With fixed text or a standalone asset, the maker studies the production choices left open.
 
@@ -20,7 +20,7 @@ Study a complete passage at the depicted level and in its relevant cultural, his
 
 ## Sources
 
-Read original rulebooks, teaching texts, measurements, practitioner footage or production accounts. Verify consequential claims in context and cross-check disputes. Index creator, URL, date, locator, rights and use under [document layout](../document-layout.md#documents). Retain permitted originals under the indexed paths. Keep footage in ignored `media/acquired/videos/`.
+Use original rulebooks, teaching texts, measurements, practitioner footage or production accounts. Verify consequential claims in context and cross-check disputes. [Index](../document-layout.md#documents) creator, URL, date, locator, rights and use. Retain permitted originals at indexed paths. Keep footage in ignored `media/acquired/videos/`.
 
 ## Use
 

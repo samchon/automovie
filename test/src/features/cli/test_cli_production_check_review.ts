@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieVerification,
-  runAutoMovieVerification,
-} from "automovie";
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
+import { runAutoMovieProductionCheck } from "automovie";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
@@ -28,12 +26,12 @@ import * as path from "node:path";
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts scoped approval with locator, wrong media, wrong occurrence, fractional interval loss, still scope wider than one frame and changed bytes.
  * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit writes and removes isolated files and launches no browser or decoder.
  */
-export async function test_cli_verification_review(): Promise<void> {
+export async function test_cli_production_check_review(): Promise<void> {
   const root: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-verify-review-"),
   );
   try {
-    const check: IAutoMovieVerification.IReview = {
+    const check: IAutoMovieProductionCheck.IReview = {
       id: "hold",
       title: "Watch the second hold",
       scope: "second occurrence, frames 0–1",
@@ -71,10 +69,10 @@ export async function test_cli_verification_review(): Promise<void> {
       previous: null,
     };
     const evaluate = async (
-      selected: IAutoMovieVerification.IReview,
-    ): Promise<IAutoMovieVerification.IResult> => {
-      const report: IAutoMovieVerification.IReport =
-        await runAutoMovieVerification({
+      selected: IAutoMovieProductionCheck.IReview,
+    ): Promise<IAutoMovieProductionCheck.IResult> => {
+      const report: IAutoMovieProductionCheck.IReport =
+        await runAutoMovieProductionCheck({
           root,
           env: {},
           targets: [{ id: "walk", checks: [selected] }],
@@ -84,8 +82,8 @@ export async function test_cli_verification_review(): Promise<void> {
     };
     const verify = async (
       value: unknown,
-      selected: IAutoMovieVerification.IReview = check,
-    ): Promise<IAutoMovieVerification.IResult["state"]> => {
+      selected: IAutoMovieProductionCheck.IReview = check,
+    ): Promise<IAutoMovieProductionCheck.IResult["state"]> => {
       await fs.writeFile(receipt, JSON.stringify(value));
       return (await evaluate(selected)).state;
     };
@@ -109,7 +107,7 @@ export async function test_cli_verification_review(): Promise<void> {
       },
     };
     assert.equal(await verify(still), "awaiting-review");
-    const stillCheck: IAutoMovieVerification.IReview = {
+    const stillCheck: IAutoMovieProductionCheck.IReview = {
       ...check,
       title: "Inspect the still of the hold",
       scope: "second occurrence, frame 1",
@@ -123,7 +121,7 @@ export async function test_cli_verification_review(): Promise<void> {
     );
     assert.equal((await evaluate(stillCheck)).evidence, check.observation);
     await fs.writeFile(receipt, "{");
-    const malformed: IAutoMovieVerification.IResult =
+    const malformed: IAutoMovieProductionCheck.IResult =
       await evaluate(stillCheck);
     assert.equal(malformed.state, "unobserved");
     assert.equal(malformed.evidence, check.observation);
@@ -149,7 +147,7 @@ export async function test_cli_verification_review(): Promise<void> {
       await verify(accepted, { ...check, file: "other.mp4" }),
       "awaiting-review",
     );
-    const repair: IAutoMovieVerification.IReview = {
+    const repair: IAutoMovieProductionCheck.IReview = {
       ...check,
       observation: "repair.json",
     };
@@ -161,11 +159,11 @@ export async function test_cli_verification_review(): Promise<void> {
         note: "The hold shows a prop jump.",
       }),
     );
-    const earlier: IAutoMovieVerification.IResult = await evaluate(check);
+    const earlier: IAutoMovieProductionCheck.IResult = await evaluate(check);
     assert.equal(earlier.state, "passed");
     assert.equal(earlier.evidence, check.observation);
     assert.match(earlier.message, /playback accepted by Director/u);
-    const later: IAutoMovieVerification.IResult = await evaluate(repair);
+    const later: IAutoMovieProductionCheck.IResult = await evaluate(repair);
     assert.equal(later.state, "failed");
     assert.equal(later.evidence, repair.observation);
     assert.match(later.message, /playback needs-repair by Director/u);

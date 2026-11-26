@@ -6,13 +6,13 @@ Read the existing source and relevant installed APIs before implementing a capab
 
 Build each entity from its settings or brief facts. Compose fragments into capabilities that name what it does and to whom.
 
-Use the person's prepared body, recorded proficiency and scene targets under [composition](../motion/compose/composition.md).
+Use each person's prepared body, recorded proficiency and scene targets to [compose their performance](../motion/compose/composition.md).
 
 Scenes, films and catalog cases compose capabilities and consequences. Keep calculations, constants, geometry, law imports and runtime selection with their owners.
 
 Resolve one immutable schedule per film and evaluate each second from it. Derive all streams from one film seed. Start a continuation from the prior film's final state snapshots.
 
-Use the same capabilities and parameter kinds in the catalog and screenplay. Apply an accepted case to a scene when its recorded inputs, conditions and versions match under the [catalog record](../motion/catalog-cases.md#record).
+Use the same capabilities and parameter kinds in the catalog and screenplay. Reuse an accepted case only when its recorded inputs, conditions and versions match.
 
 The object shell over a functional core is the production's own style; installed packages keep theirs.
 

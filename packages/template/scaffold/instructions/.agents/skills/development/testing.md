@@ -12,7 +12,7 @@ A production law takes the bounded checks [motion verification](../motion/laws/v
 
 Use a stored or synthetic prepared body as the input to motion unit tests.
 
-The installed motion vocabulary tests each action's internal mechanics. Test the choices and coordination the production authors and inspect their performance in the [catalog case](../motion/catalog-cases.md#capture-and-review).
+The installed vocabulary tests each action's mechanics. Test the production's choices and coordination, then inspect them in the catalog case.
 
 ## What a test is not
 
@@ -26,4 +26,4 @@ Run the suite, or a selection of it, with the README's test command. An empty su
 
 ## Finishing a change
 
-Read compile errors from the README's single running checker. Finish source work with the README's lint, Evidence and test commands. Verify preserved and changed behavior through the [actual consumer](../review/source-review.md#the-actual-consumer), using affected stills and user observations where the change requires them.
+Read compile errors from the README's single running checker. Finish source work with the README's lint, Evidence and test commands. Verify preserved and changed behavior in its actual consumer. Use affected stills and user observations where needed.

@@ -1,8 +1,8 @@
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
-import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { readAutoMovieReviewObservation } from "./readAutoMovieReviewObservation";
 import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
 
@@ -15,15 +15,15 @@ import { sameAutoMovieReviewFile } from "./sameAutoMovieReviewFile";
  * @param root The production directory that resolves both source files.
  * @returns The current review outcome and its owning observation.
  */
-export async function inspectAutoMovieVerificationReview(
-  check: IAutoMovieVerification.IReview,
+export async function inspectAutoMovieProductionCheckReview(
+  check: IAutoMovieProductionCheck.IReview,
   root: string,
   hashFile: (file: string) => Promise<string>,
 ): Promise<
-  Pick<IAutoMovieVerification.IResult, "state" | "message" | "evidence">
+  Pick<IAutoMovieProductionCheck.IResult, "state" | "message" | "evidence">
 > {
   const evidence: string = check.observation;
-  const [from, end]: IAutoMovieVerification.IReview["frames"] = check.frames;
+  const [from, end]: IAutoMovieProductionCheck.IReview["frames"] = check.frames;
   if (
     !Number.isSafeInteger(from) ||
     !Number.isSafeInteger(end) ||

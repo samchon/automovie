@@ -1,7 +1,5 @@
-import {
-  type IAutoMovieVerification,
-  runAutoMovieVerification,
-} from "automovie";
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
+import { runAutoMovieProductionCheck } from "automovie";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
@@ -34,7 +32,7 @@ import * as path from "node:path";
  * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, a damaged receipt and its recreated replacement, successful and blocked stages, and isolated and multi-target selection.
  * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit owns an isolated temporary directory and spawns no process or browser.
  */
-export async function test_cli_verification_scopes(): Promise<void> {
+export async function test_cli_production_check_scopes(): Promise<void> {
   const root: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-verify-"),
   );
@@ -45,7 +43,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
     const measurement = (
       name: string,
       minimum: number,
-    ): IAutoMovieVerification.IMeasurement => ({
+    ): IAutoMovieProductionCheck.IMeasurement => ({
       id: "gap",
       kind: "measure",
       title: "The part clears its support",
@@ -60,19 +58,22 @@ export async function test_cli_verification_scopes(): Promise<void> {
         );
       },
     });
-    const chair: IAutoMovieVerification.IMeasurement = measurement("chair", 2);
-    const motion: IAutoMovieVerification.IMeasurement = measurement(
+    const chair: IAutoMovieProductionCheck.IMeasurement = measurement(
+      "chair",
+      2,
+    );
+    const motion: IAutoMovieProductionCheck.IMeasurement = measurement(
       "motion",
       2,
     );
     const run = async (
-      checks: readonly IAutoMovieVerification.Check[],
+      checks: readonly IAutoMovieProductionCheck.Check[],
       run: boolean,
       subjects: readonly string[] = ["chair"],
       only: readonly string[] = [],
       require: string | null = null,
-    ): Promise<IAutoMovieVerification.IReport> =>
-      runAutoMovieVerification({
+    ): Promise<IAutoMovieProductionCheck.IReport> =>
+      runAutoMovieProductionCheck({
         root,
         env: {},
         targets: [
@@ -84,7 +85,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
 
     assert.equal((await run([chair], false)).items[0]?.state, "not-run");
     assert.deepEqual(seen, []);
-    const failed: IAutoMovieVerification.IReport = await run(
+    const failed: IAutoMovieProductionCheck.IReport = await run(
       [chair],
       true,
       ["chair"],
@@ -108,14 +109,14 @@ export async function test_cli_verification_scopes(): Promise<void> {
       /"outcome":\{"state":"failed".+"measurement":1/u,
     );
     await fs.writeFile(receipt, "{broken receipt");
-    const damagedReceipt: IAutoMovieVerification.IResult = (
+    const damagedReceipt: IAutoMovieProductionCheck.IResult = (
       await run([chair], false)
     ).items[0]!;
     assert.equal(damagedReceipt.state, "unobserved");
     assert.equal(damagedReceipt.evidence, path.relative(root, receipt));
-    assert.match(damagedReceipt.message, /verify --run/u);
+    assert.match(damagedReceipt.message, /check --run/u);
     await fs.writeFile(path.join(root, "capture.json"), "{broken capture");
-    const damagedCapture: IAutoMovieVerification.IResult = (
+    const damagedCapture: IAutoMovieProductionCheck.IResult = (
       await run(
         [
           {
@@ -138,7 +139,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
     assert.equal(damagedCapture.state, "unobserved");
     assert.equal(damagedCapture.evidence, "capture.json");
     assert.match(damagedCapture.message, /Restore its record or refresh/u);
-    const passed: IAutoMovieVerification.IReport = await run(
+    const passed: IAutoMovieProductionCheck.IReport = await run(
       [chair],
       true,
       ["chair", "motion"],
@@ -165,12 +166,12 @@ export async function test_cli_verification_scopes(): Promise<void> {
       (await run([{ ...chair, minimum: 4 }], false)).items[0]?.state,
       "stale",
     );
-    const optional: IAutoMovieVerification.IMeasurement = {
+    const optional: IAutoMovieProductionCheck.IMeasurement = {
       ...chair,
       id: "scratch",
       enabled: false,
     };
-    const disabled: IAutoMovieVerification.IReport = await run(
+    const disabled: IAutoMovieProductionCheck.IReport = await run(
       [chair, optional],
       true,
       ["chair"],
@@ -186,7 +187,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
       (await run([chair], false)).items.map((item) => item.id),
       ["gap"],
     );
-    const omitted: IAutoMovieVerification.IReport = await run(
+    const omitted: IAutoMovieProductionCheck.IReport = await run(
       [optional],
       false,
       ["chair"],
@@ -220,7 +221,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
     );
     assert.equal(seen.length, count);
     await assert.rejects(
-      runAutoMovieVerification({
+      runAutoMovieProductionCheck({
         root,
         env: {},
         targets: [{ id: "chair", checks: [chair], required: { handoff: [] } }],
@@ -243,7 +244,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
       releaseProbe = resolve;
     });
     let probing: boolean = false;
-    const concurrent: IAutoMovieVerification.IMeasurement = {
+    const concurrent: IAutoMovieProductionCheck.IMeasurement = {
       ...chair,
       id: "clearance-probe",
       measure: async (directory: string): Promise<number> => {
@@ -256,16 +257,16 @@ export async function test_cli_verification_scopes(): Promise<void> {
         );
       },
     };
-    const pending: Promise<IAutoMovieVerification.IReport> = run(
+    const pending: Promise<IAutoMovieProductionCheck.IReport> = run(
       [concurrent],
       true,
     );
     await probeStarted;
-    const concurrentFailure: IAutoMovieVerification.IReport = await run(
+    const concurrentFailure: IAutoMovieProductionCheck.IReport = await run(
       [concurrent],
       true,
     ).finally(releaseProbe);
-    const concurrentPass: IAutoMovieVerification.IReport = await pending;
+    const concurrentPass: IAutoMovieProductionCheck.IReport = await pending;
     assert.equal(concurrentFailure.items[0]?.state, "failed");
     assert.equal(concurrentPass.items[0]?.state, "passed");
     const concurrentReceipt: string = path.resolve(
@@ -282,10 +283,11 @@ export async function test_cli_verification_scopes(): Promise<void> {
     assert.equal((await run([concurrent], false)).items[0]?.state, "passed");
 
     const beforeDuplicate: number = seen.length;
-    const duplicate: IAutoMovieVerification.IReport = await run([chair], true, [
-      "chair",
-      "chair",
-    ]);
+    const duplicate: IAutoMovieProductionCheck.IReport = await run(
+      [chair],
+      true,
+      ["chair", "chair"],
+    );
     assert.deepEqual(duplicate.targets, ["chair"]);
     assert.equal(duplicate.items.length, 1);
     assert.equal(seen.length, beforeDuplicate + 1);
@@ -304,7 +306,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
         },
       }),
     );
-    const published: IAutoMovieVerification.IDelivery = {
+    const published: IAutoMovieProductionCheck.IDelivery = {
       id: "published-before",
       kind: "delivery",
       title: "The first movie matches the report",
@@ -312,7 +314,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
       report: "render-report.json",
       subject: "chair",
     };
-    const replace: IAutoMovieVerification.IMeasurement = {
+    const replace: IAutoMovieProductionCheck.IMeasurement = {
       ...chair,
       id: "simulate-republish",
       measure: async (): Promise<number> => {
@@ -320,7 +322,7 @@ export async function test_cli_verification_scopes(): Promise<void> {
         return 3;
       },
     };
-    const replaced: IAutoMovieVerification.IReport = await run(
+    const replaced: IAutoMovieProductionCheck.IReport = await run(
       [
         published,
         { ...published, id: "published-also" },

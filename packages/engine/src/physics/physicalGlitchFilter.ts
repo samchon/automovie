@@ -2,7 +2,8 @@
 // ihmc-robotics-toolkit/src/main/java/us/ihmc/robotics/math/filters/
 // GlitchFilteredYoBoolean.java, the constructor's set(false) l.65,
 // set(boolean) l.68-75 and update(boolean) l.77-89; develop moved it, the
-// same, to ihmc-yovariables. See NOTICE.
+// same, to ihmc-yovariables.
+// See vendor/ihmc/NOTICE.
 
 /**
  * One update of a glitch-filtered boolean: the filtered value changes to its

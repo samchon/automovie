@@ -8,7 +8,7 @@ A canon reference fixes a subject's look for later images and video. Make the vi
 
 Model-neutral casting photographs can precede video model selection. Embed each candidate view in its [subject record](../story/document-layout.md#canon-records) and mark it pending until the user accepts it.
 
-When preparing references for a specific video model, follow the [chosen model's](../video/SKILL.md) input limits and required views. Budget its inputs across the subjects each shot needs.
+For model-specific references, use the chosen model's documented limits and required views. Budget its inputs across the subjects in each shot.
 
 Where the commission and guide leave a character's views open, use these defaults. Show one person per image in the canonical wardrobe with flat light, a plain background and an unobstructed face:
 

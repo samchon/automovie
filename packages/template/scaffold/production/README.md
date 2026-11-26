@@ -33,6 +33,6 @@ Use your film's subject name when it is ready. Capture writes stills and `record
 | `pnpm run lint` | Check source and types |
 | `pnpm test` | Run the exported tests |
 | `pnpm run evidence` | Check the production's configured checklists |
-| `pnpm run verify --subject <id>` | Read the current checks for an asset, motion case or film |
+| `pnpm run check --subject <id>` | Read checks defined in [`check.ts`](src/executable/check.ts) |
 
 Consult the [CLI reference](https://samchon.github.io/automovie/reference/cli/) for capture options and the [delivery review]({{skills}}/review/delivery-review.md) for film acceptance. See the [source layout]({{skills}}/development/source-layout.md) for where to put entities, actions and scenes.

@@ -315,12 +315,12 @@ document.documentElement.dataset.sdkSmoke = "ready";
   );
   const executable = path.join(directory, "src", "executable");
   fs.copyFileSync(
-    path.join(import.meta.dirname, "installedParityVerification.ts"),
-    path.join(executable, "installedParityVerification.ts"),
+    path.join(import.meta.dirname, "installedParityCheck.ts"),
+    path.join(executable, "installedParityCheck.ts"),
   );
   fs.writeFileSync(
-    path.join(executable, "verify.ts"),
-    'export { checks as default } from "./installedParityVerification.ts";\n',
+    path.join(executable, "check.ts"),
+    'export { checks as default } from "./installedParityCheck.ts";\n',
   );
 };
 

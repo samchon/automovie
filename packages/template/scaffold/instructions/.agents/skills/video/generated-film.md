@@ -1,14 +1,14 @@
 # Generated film
 
-A video model turns the motion hint into finished picture and, when it can, sound. The hint supplies the performance; image references and prompts supply the look.
+Generate the finished picture and any supported sound. Take performance from the motion hint and appearance from references and prompts.
 
 ## Model and inputs
 
-Choose the model with the user under [video diffusion](diffusion/SKILL.md) and record it in [project context](../production/project-context.md) before preparing model-dependent references, shot frames or control channels. Use its documented input roles and limits.
+Choose the [video model](diffusion/SKILL.md) with the user and record it in [project context](../production/project-context.md) before preparing model-dependent references, shot frames or channels. Follow the model's input roles and limits.
 
 ## Prerequisites
 
-Before submitting requests, use a hint that passed [segment review](../motion/segment-review.md). Close any [required screenplay review](../story/workflow/routes.md#completion).
+Before submission, clear [segment review](../motion/segment-review.md) for the hint and close any [required screenplay review](../story/workflow/routes.md#completion).
 
 ## Steps
 
@@ -20,6 +20,6 @@ The model's accepted inputs and output limits determine how scenes become reques
 4. Prepare any required [shot frames](../image/diffusion/conditioning.md#shot-frames) and control channels.
 5. If the commission includes sound, decide each request's sound under [audio](../audio/generated-sound.md).
 6. Write each request's [prompt](diffusion/prompts.md).
-7. With the prerequisites met, submit, inspect and adopt takes under [generation](generation.md).
+7. [Submit requests](generation.md#submission) and [review takes](generation.md#inspection-and-choice) before adoption.
 8. Repair, upscale, conform and match the accepted takes under [finishing](finishing.md).
 9. Composite clean renders under [compositing](finishing.md#compositing).

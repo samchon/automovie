@@ -6,7 +6,7 @@
 
 Use the long route for causes, setups and payoffs that span many scenes or releases. Use the short route for films of a few minutes whose events fit in one screenplay, including shorts that share a world.
 
-Record the choice in [project context](../../production/project-context.md). In an AutoMovie workspace the production's folder fixes it: `movies/shorts/<name>` runs the short route and `movies/series/<name>` the long route.
+Record the route in `PROJECT.md`. In a workspace, `movies/shorts/<name>` takes the short route and `movies/series/<name>` the long route.
 
 Asset-only work has no narrative: choose its form and scale through [direction](../planning/direction.md), and make the complete work unless the user authorizes a slice.
 
@@ -31,7 +31,7 @@ Settle [undelegated creative choices](../planning/requirements.md#asking-the-use
 
 ## One chain
 
-Trace commissioned video from settings or brief through screenplay, entities, needed motion laws, [verified capabilities](../../motion/catalog-cases.md), scene compositions and film. With no narrative pass, use instructions in place of settings or brief.
+Trace commissioned video from settings or brief through screenplay, entities, needed motion laws, verified capabilities, scene compositions and film. With no narrative pass, use instructions in place of settings or brief.
 
 Cite the preceding decisions each stage realizes.
 

@@ -5,7 +5,8 @@
 // l.605-851 and solve() l.859-883; ICPControllerQPInputCalculator.java
 // l.35-206 and l.216-280; ICPControllerQPConstraintCalculator.java l.29-176;
 // qpInput/ConstraintToConvexRegion.java formulateConstraint() l.167-172 and
-// getInequalityConstraintSize() l.179-198. See NOTICE.
+// getInequalityConstraintSize() l.179-198.
+// See vendor/ihmc/NOTICE.
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { solveDenseActiveSet } from "./solveDenseActiveSet";
 

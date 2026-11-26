@@ -2,7 +2,8 @@
 // src/geometry/java/us/ihmc/euclid/geometry/tools/EuclidGeometryPolygonTools.java
 // (computeConvexPolygon2DArea, lineOfSightStartIndex, lineOfSightEndIndex,
 // canObserverSeeEdge, isPoint2DInsideConvexPolygon2D, signed distance and
-// orthogonal projection), and ConvexPolygon2D.scale. See NOTICE.
+// orthogonal projection), and ConvexPolygon2D.scale.
+// See vendor/ihmc/NOTICE.
 import { physicalPlanarPolygonEdges as Edges } from "./physicalPlanarPolygonEdges";
 
 /**

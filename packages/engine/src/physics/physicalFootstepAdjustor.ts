@@ -2,7 +2,8 @@
 // ihmc-common-walking-control-modules/src/main/java/us/ihmc/
 // commonWalkingControlModules/captureRegion/FootstepAdjustor.java,
 // adjustFootstep l.68-110, projectFootstepInCaptureRegion l.120-147 and
-// calculateTouchdownFootPolygon l.156-166. See NOTICE.
+// calculateTouchdownFootPolygon l.156-166.
+// See vendor/ihmc/NOTICE.
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**

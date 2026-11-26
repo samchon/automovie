@@ -44,6 +44,6 @@ When a reach target changes, one studied model adds a minimum-jerk submovement f
 
 ## Layers
 
-Add gaze, breathing and expression as pose layers. Preserve the action's timing, transitions and contact goals. Use free joints or small trunk offsets that [contact fits](authoring.md#fit-order) absorb.
+Add gaze, breathing and expression as pose layers. Preserve the action's timing, transitions and contact goals. Use free joints or small trunk offsets the contact fits can absorb.
 
-Blend from the layer's current state when it starts, ends or changes target. Take timing and amplitude from its study and vary them by [skill and seed](variation.md).
+Blend from the layer's current state when it starts, ends or changes target. Take timing and amplitude from the study. Vary them by skill and seed within those bounds.

@@ -1,6 +1,6 @@
 # Motion verification
 
-Test each isolated action's own goal with bounded assertions in unit tests. Unit tests answer the [testing contract](../../contracts/development/testing.md). Check:
+Test each isolated action's goal with bounded assertions under the testing contract. Check each applicable bound:
 
 - the distance from effector to target;
 - penetration;

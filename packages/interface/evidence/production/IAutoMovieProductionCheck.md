@@ -1,4 +1,4 @@
-# src/IAutoMovieVerification.ts#IAutoMovieVerification
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -16,7 +16,7 @@ The production keeps checks and required IDs together without storing any observ
 
 Disabling a definition does not change independently chosen stage membership.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.IMeasurement
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.IMeasurement
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -34,7 +34,7 @@ One callback and its limits describe the local measurement. Runtime records its 
 
 The callback reports the observed quantity so the verifier can apply the authored bounds.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.IMeasurement.measure
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.IMeasurement.measure
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -64,7 +64,7 @@ The signature declares a callback and stage receipt reuse belongs to the verifie
 
 The signature holds no resource. The production-owned measurement manages its own input reads.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.ICapture
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.ICapture
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -82,7 +82,7 @@ Uses the capture command and persisted record with a small, explicit scope addre
 
 A still and a multi-frame interval carry separate representations, and the chosen view and pass remain part of the requirement.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.IDelivery
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.IDelivery
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -100,7 +100,7 @@ Names the receiving report owner without duplicating the file and control metada
 
 The selected report must match actual film bytes for a current result.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.IReview
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.IReview
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -118,7 +118,7 @@ Reuse the existing observation record and provide only the scope and identity th
 
 The authored criterion does not declare its own approval.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.Check
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.Check
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -136,7 +136,7 @@ Shared display metadata accompanies only the fields needed by the selected kind.
 
 There is no catch-all Boolean kind.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.IResult
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.IResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -154,7 +154,7 @@ One row serves the console and structured consumers without another persisted ve
 
 An unresolved result stays distinguishable from success even outside a requested gate.
 
-# src/IAutoMovieVerification.ts#IAutoMovieVerification.IReport
+# src/production/IAutoMovieProductionCheck.ts#IAutoMovieProductionCheck.IReport
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

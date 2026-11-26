@@ -28,15 +28,15 @@ pnpm automovie create $unusedProduction --name scaffold-comparison
 
 Merge the generated `AGENTS.md`, `CLAUDE.md` and `.agents/skills/` into `examples/`, preserving local changes. Compare the generated dependency catalogs with examples. Update incompatible shared pins while preserving local catalog choices and the relative links to the target SDK and CLI adapter. Verify [distribution](../scaffold-prompting/verification.md#distribution).
 
-For each affected production, compare the generated runtime files and merge the relevant changes. Check `vite.config.ts`, scripts in `package.json` and `src/executable/verify.ts`. Preserve authored source and production settings.
+Merge relevant changes to `vite.config.ts`, `package.json` scripts and `src/executable/check.ts`. Preserve authored source and settings.
 
 Run `pnpm install` and `pnpm peers check` in `examples/`. To add a production, follow its workspace README. The CLI fills missing catalog entries and leaves existing pins in place.
 
 ## Director process
 
-Start one [director](../../../packages/template/scaffold/instructions/.agents/skills/production/director.md) process per production. Films under one brief share that director. From its directory, send the commission, user decisions and worker requirements. Use a runtime that can dispatch the required workers. Create fresh output paths in the production's ignored `.cache/` for each invocation.
+Start one [director](../../../packages/template/scaffold/instructions/.agents/skills/production/director.md) process per production. Films under one brief share that director. From its directory, send the commission, user decisions and worker requirements. Use a runtime that can dispatch the required workers. Use fresh output paths for each invocation.
 
-Set `$model` and `$effort` from the commission or [Codex run configuration](codex-run.json). The opening `thread.started` event supplies the session ID.
+Take `$model` and `$effort` from the commission or [Codex settings](codex-run.json). Choose `$result` and `$log` paths. `thread.started` gives the session ID.
 
 ```powershell
 $brief | codex exec --sandbox workspace-write --enable multi_agent -m $model -c "model_reasoning_effort=$effort" --json -o $result - > $log
@@ -51,7 +51,7 @@ $brief | claude -p --permission-mode acceptEdits --allowedTools @allowedTools --
 
 ## Monitoring and resumption
 
-Keep the session ID and observed runtime settings in the [run record](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md#actual-state). Relay the director's questions to the user. Return the answer to the same session using its runtime and monitor through handoff.
+Keep the session ID and observed runtime settings in the [run record](../../../packages/template/scaffold/instructions/.agents/skills/production/sustained-runs.md#actual-state). Relay the director's questions to the user. Return the answer to the same session and monitor through handoff.
 
 ```powershell
 # Codex

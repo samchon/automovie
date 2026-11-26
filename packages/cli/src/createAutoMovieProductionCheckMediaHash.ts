@@ -7,7 +7,7 @@ import { hashAutoMovieFile } from "./hashAutoMovieFile";
  * Reuse a media digest within one verification while the file identity is
  * unchanged.
  */
-export function createAutoMovieVerificationMediaHash(): (
+export function createAutoMovieProductionCheckMediaHash(): (
   file: string,
 ) => Promise<string> {
   const cache: Map<string, { stamp: string; digest: string }> = new Map();
@@ -19,7 +19,7 @@ export function createAutoMovieVerificationMediaHash(): (
     const digest: string = await hashAutoMovieFile(file);
     if ((await fingerprint(file)) !== before)
       throw new Error(
-        `The media file changed while verifying its bytes: ${file}. Run verify again.`,
+        `The media file changed while verifying its bytes: ${file}. Run check again.`,
       );
     cache.set(file, { stamp: before, digest });
     return digest;

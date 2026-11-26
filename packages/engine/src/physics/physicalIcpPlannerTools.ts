@@ -11,7 +11,8 @@
 // compute l.622-641; ihmc-robotics-toolkit/src/main/java/us/ihmc/robotics/
 // screwTheory/MovingMidFrameZUpFrame.java updateTransformToParent l.37-60,
 // the mid-feet frame of ihmc-humanoid-robotics/src/main/java/us/ihmc/
-// humanoidRobotics/frames/HumanoidReferenceFrames.java l.141. See NOTICE.
+// humanoidRobotics/frames/HumanoidReferenceFrames.java l.141.
+// See vendor/ihmc/NOTICE.
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**

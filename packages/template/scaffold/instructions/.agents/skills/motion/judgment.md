@@ -4,7 +4,7 @@ Judge the performed action in its catalog case, scene or finished film.
 
 ## Questions
 
-Inspect the complete action at the [planned times](../visual-debugging/capture.md#times). Use [full-size stills](../visual-debugging/capture.md#stills-and-sheets) for spatial detail and continuous playback for pace.
+Use [diagnostic stills](../visual-debugging/capture.md#times) for spatial questions.
 
 ### Form
 
@@ -36,6 +36,6 @@ Record the time or frames, the failed requirement and the repair owner. Trace th
 
 <!-- @source [Disney Animation](https://disneyanimation.com/process/layout/) on staging with the camera. Blender Studio on the [timed edit](https://studio.blender.org/tools/pipeline-overview/pre-production/editorial) and [blocking pass](https://studio.blender.org/tools/artist-guide/shot-production/animation). -->
 
-Stage the passage on which the commission depends with its coarse cast, props and obstacles. Play it at delivery speed in the intended camera and edit, including its lead-in and consequence. Include a temporary line or sound cue if it determines the timing. Judge it under Questions.
+Stage the decisive passage and its lead-in and consequence with coarse cast, props, obstacles and timing cues. Watch it at 1× in the intended view and clear segment review before widening.
 
-If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost to plan the [whole-film render](../production/assembly.md#render) and check new performance conditions as they enter the film.
+If the preview drops frames, use a timed export. Keep the pace judgment open until someone watches the passage at speed. Measure evaluation and capture cost before planning the whole-film render. Check new conditions as they enter the film.

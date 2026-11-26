@@ -6,7 +6,7 @@ Measure positions, depths, timings and other quantities under the subject skill,
 
 ## Inspection
 
-Before editing, inspect the affected subject at all needed scales, views and times, including adjacent parts. Record each defect, cell and conditions.
+Before editing, inspect the subject and adjacent parts at all required scales, views and times. Record each defect, cell and conditions.
 
 ## Causes
 
@@ -18,7 +18,7 @@ Fix all causes at their owners in one change. Judge the assembled subject. Coord
 
 ## Comparing again
 
-Repeat the round and check defects and regressions across parts, views, times, identities, resolutions and states. Account for all findings. Keep the round open while any new or unexplained defect remains.
+Repeat the round for all parts, views, times, identities, resolutions and states. Account for findings and regressions. Keep the round open while new or unexplained defects remain.
 
 When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers.
 
@@ -26,4 +26,4 @@ The inspection findings a capture records are the defects its checks report on t
 
 Open the current capture before accepting it.
 
-In a production with `pnpm run verify`, select the affected target and read its current results. Reuse a useful check or add one beside the affected asset, motion case or shot. In its source comment, state what should happen, where and what observation decides it. Run a reproducible defect check on the old and rebuilt work over the same bounds. Keep recurring checks with their owner and remove one-off definitions when the round ends. Require an agreed stage only at its handoff. Record the director's visual or listening decision on the observed candidate and interval under the existing review route.
+Use `pnpm run check` on the affected target when configured. Compare before and after over the same bounds. Add a regression check at its owner if needed. Require a stage at its handoff.

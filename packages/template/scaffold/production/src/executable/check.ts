@@ -1,4 +1,4 @@
-import type { IAutoMovieVerification } from "automovie";
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 
 /**
  * The model, motion or film targets this production has chosen to verify. Add
@@ -6,6 +6,6 @@ import type { IAutoMovieVerification } from "automovie";
  * the exact views or interval and the evidence used to judge it. The command
  * derives status from measurements and owning records.
  */
-const targets: readonly IAutoMovieVerification[] = [];
+const targets: readonly IAutoMovieProductionCheck[] = [];
 
 export default targets;

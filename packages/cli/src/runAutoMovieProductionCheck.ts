@@ -1,29 +1,29 @@
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { captureAutoMovie } from "./captureAutoMovie";
-import { createAutoMovieVerificationInputScope } from "./createAutoMovieVerificationInputScope";
-import { createAutoMovieVerificationMediaHash } from "./createAutoMovieVerificationMediaHash";
+import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
+import { createAutoMovieProductionCheckMediaHash } from "./createAutoMovieProductionCheckMediaHash";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
-import { inspectAutoMovieVerificationCapture } from "./inspectAutoMovieVerificationCapture";
-import { inspectAutoMovieVerificationDelivery } from "./inspectAutoMovieVerificationDelivery";
-import { inspectAutoMovieVerificationReview } from "./inspectAutoMovieVerificationReview";
+import { inspectAutoMovieProductionCheckCapture } from "./inspectAutoMovieProductionCheckCapture";
+import { inspectAutoMovieProductionCheckDelivery } from "./inspectAutoMovieProductionCheckDelivery";
+import { inspectAutoMovieProductionCheckReview } from "./inspectAutoMovieProductionCheckReview";
+import type { readAutoMovieCheckOptions } from "./readAutoMovieCheckOptions";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 import { readAutoMovieRevision } from "./readAutoMovieRevision";
-import type { readAutoMovieVerifyOptions } from "./readAutoMovieVerifyOptions";
-import { writeAutoMovieVerificationReceipt } from "./writeAutoMovieVerificationReceipt";
+import { writeAutoMovieProductionCheckReceipt } from "./writeAutoMovieProductionCheckReceipt";
 
 /** Settings the evaluator needs after the CLI admitted its arguments. */
 type ISelection = Pick<
-  ReturnType<typeof readAutoMovieVerifyOptions>,
+  ReturnType<typeof readAutoMovieCheckOptions>,
   "subjects" | "only" | "require" | "run"
 >;
 
 /** A scoped result before its identity and stage membership are attached. */
 type IOutcome = Pick<
-  IAutoMovieVerification.IResult,
+  IAutoMovieProductionCheck.IResult,
   "state" | "message" | "evidence"
 >;
 
@@ -36,8 +36,8 @@ interface IReceipt {
 }
 
 /** Lazily resolved boundaries for explicitly named production inputs. */
-type AutoMovieVerificationInputScope = ReturnType<
-  typeof createAutoMovieVerificationInputScope
+type AutoMovieProductionCheckInputScope = ReturnType<
+  typeof createAutoMovieProductionCheckInputScope
 >;
 
 const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
@@ -54,7 +54,7 @@ const DAMAGED_JSON: unique symbol = Symbol("damaged verification JSON");
  * @returns Current results and whether the requested stage is blocked.
  * @throws When target/check IDs or the requested scope are not usable.
  */
-export async function runAutoMovieVerification(props: {
+export async function runAutoMovieProductionCheck(props: {
   /** Absolute production directory, resolving inputs and owned observations. */
   readonly root: string;
 
@@ -62,7 +62,7 @@ export async function runAutoMovieVerification(props: {
   readonly env: Readonly<Record<string, string | undefined>>;
 
   /** Subjects defined by this production. */
-  readonly targets: readonly IAutoMovieVerification[];
+  readonly targets: readonly IAutoMovieProductionCheck[];
 
   /** Explicit workload and optional gate. */
   readonly options: ISelection;
@@ -70,9 +70,9 @@ export async function runAutoMovieVerification(props: {
   readonly measurementSources?: (
     file: string | undefined,
   ) => ReadonlyMap<string, string>;
-}): Promise<IAutoMovieVerification.IReport> {
+}): Promise<IAutoMovieProductionCheck.IReport> {
   const { options, root }: typeof props = props;
-  const targets: Map<string, IAutoMovieVerification> = new Map();
+  const targets: Map<string, IAutoMovieProductionCheck> = new Map();
   for (const target of props.targets) {
     if (
       !target.id?.trim() ||
@@ -80,7 +80,7 @@ export async function runAutoMovieVerification(props: {
       !Array.isArray(target.checks)
     )
       throw new Error(
-        `verify needs a unique ID and a check list for each target: ${target.id}.`,
+        `check needs a unique ID and a check list for each target: ${target.id}.`,
       );
     targets.set(target.id, target);
   }
@@ -99,11 +99,11 @@ export async function runAutoMovieVerification(props: {
   const only: Set<string> = new Set(options.only);
   const found: Set<string> = new Set();
   const plans: {
-    readonly target: IAutoMovieVerification;
+    readonly target: IAutoMovieProductionCheck;
     readonly requirements: readonly string[] | undefined;
   }[] = [];
   for (const id of selected) {
-    const target: IAutoMovieVerification | undefined = targets.get(id);
+    const target: IAutoMovieProductionCheck | undefined = targets.get(id);
     if (target === undefined)
       throw new Error(`No verification target named ${id}.`);
     const requirements: readonly string[] | undefined =
@@ -142,12 +142,12 @@ export async function runAutoMovieVerification(props: {
     if (!found.has(id))
       throw new Error(`No selected verification check named ${id}.`);
 
-  const items: IAutoMovieVerification.IResult[] = [];
+  const items: IAutoMovieProductionCheck.IResult[] = [];
   let revision: string | undefined;
-  const inputScope: AutoMovieVerificationInputScope =
-    createAutoMovieVerificationInputScope(root);
+  const inputScope: AutoMovieProductionCheckInputScope =
+    createAutoMovieProductionCheckInputScope(root);
   const hashMedia: (file: string) => Promise<string> =
-    createAutoMovieVerificationMediaHash();
+    createAutoMovieProductionCheckMediaHash();
   for (const { target, requirements } of plans) {
     const remaining: Set<string> = new Set(requirements);
     for (const check of target.checks) {
@@ -207,7 +207,7 @@ export async function runAutoMovieVerification(props: {
     requiredStage: options.require,
     items,
     blocked: items.some(
-      (item: IAutoMovieVerification.IResult): boolean =>
+      (item: IAutoMovieProductionCheck.IResult): boolean =>
         item.required && item.state !== "passed",
     ),
   };
@@ -218,9 +218,9 @@ async function evaluate(props: {
   readonly root: string;
   readonly env: Readonly<Record<string, string | undefined>>;
   readonly target: string;
-  readonly check: IAutoMovieVerification.Check;
+  readonly check: IAutoMovieProductionCheck.Check;
   readonly execute: boolean;
-  readonly inputScope: AutoMovieVerificationInputScope;
+  readonly inputScope: AutoMovieProductionCheckInputScope;
   readonly measurementSources?: (
     file: string | undefined,
   ) => ReadonlyMap<string, string>;
@@ -229,12 +229,17 @@ async function evaluate(props: {
 }): Promise<IOutcome> {
   const { root, check }: typeof props = props;
   if (check.kind === "delivery")
-    return inspectAutoMovieVerificationDelivery(check, root, props.hashMedia);
+    return inspectAutoMovieProductionCheckDelivery(
+      check,
+      root,
+      props.hashMedia,
+    );
   if (check.kind === "review")
-    return inspectAutoMovieVerificationReview(check, root, props.hashMedia);
+    return inspectAutoMovieProductionCheckReview(check, root, props.hashMedia);
   if (check.kind !== "measure" && check.kind !== "capture")
     throw new Error("Unknown verification check kind.");
 
+  // Retain receipts written before the production command was renamed.
   const file: string = path.join(
     root,
     ".cache",
@@ -250,7 +255,7 @@ async function evaluate(props: {
   if (retained === DAMAGED_JSON)
     return damaged(
       path.relative(root, file),
-      "Run verify --run for this check to rebuild its receipt.",
+      "Run check --run for this check to rebuild its receipt.",
     );
   if (check.kind === "measure") {
     const signature: string = await props.inputScope.identify(
@@ -261,7 +266,7 @@ async function evaluate(props: {
       if (retained === undefined)
         return {
           state: "not-run",
-          message: "Run this measurement with verify --run.",
+          message: "Run this measurement with check --run.",
         };
       if (retained.signature !== signature)
         return {
@@ -350,7 +355,7 @@ async function evaluate(props: {
     const recordSha256: string = createHash("sha256")
       .update(serializedRecord)
       .digest("hex");
-    const outcome: IOutcome = await inspectAutoMovieVerificationCapture(
+    const outcome: IOutcome = await inspectAutoMovieProductionCheckCapture(
       check,
       JSON.parse(serializedRecord) as unknown,
       root,
@@ -406,11 +411,11 @@ async function evaluate(props: {
       return {
         state: "unobserved",
         message:
-          "Capture input identity is unknown. Declare the scoped files and refresh through verify --run.",
+          "Capture input identity is unknown. Declare the scoped files and refresh through check --run.",
         evidence: check.record,
       };
   }
-  return inspectAutoMovieVerificationCapture(
+  return inspectAutoMovieProductionCheckCapture(
     check,
     record,
     root,
@@ -420,10 +425,10 @@ async function evaluate(props: {
 
 /** Derive the status of an actual finite measurement under inclusive limits. */
 function measured(
-  check: IAutoMovieVerification.IMeasurement,
+  check: IAutoMovieProductionCheck.IMeasurement,
   value: number,
 ): IOutcome {
-  const { minimum, maximum }: IAutoMovieVerification.IMeasurement = check;
+  const { minimum, maximum }: IAutoMovieProductionCheck.IMeasurement = check;
   if (
     !Number.isFinite(value) ||
     !check.unit.trim() ||
@@ -479,7 +484,7 @@ function damaged(evidence: string, recovery: string): IOutcome {
 }
 
 function writeReceipt(file: string, latest: IReceipt): Promise<void> {
-  return writeAutoMovieVerificationReceipt(
+  return writeAutoMovieProductionCheckReceipt(
     file,
     `${JSON.stringify(latest)}\n`,
     latest.outcome.state === "failed",

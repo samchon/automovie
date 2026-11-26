@@ -1,9 +1,9 @@
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 
 /**
@@ -15,7 +15,7 @@ import { hashAutoMovieFile } from "./hashAutoMovieFile";
  * @param root The production directory.
  * @returns Lazy production and checkout directories and an input resolver.
  */
-export function createAutoMovieVerificationInputScope(root: string): {
+export function createAutoMovieProductionCheckInputScope(root: string): {
   /** Canonical production directory. */
   readonly project: () => Promise<string>;
   /** Canonical Git worktree containing the project, when there is one. */
@@ -26,8 +26,8 @@ export function createAutoMovieVerificationInputScope(root: string): {
   ) => Promise<void>;
   readonly identify: (
     check:
-      | IAutoMovieVerification.IMeasurement
-      | IAutoMovieVerification.ICapture,
+      | IAutoMovieProductionCheck.IMeasurement
+      | IAutoMovieProductionCheck.ICapture,
     sources?: (file: string | undefined) => ReadonlyMap<string, string>,
   ) => Promise<string>;
 } {
@@ -121,7 +121,7 @@ export function createAutoMovieVerificationInputScope(root: string): {
 
 function changedSource(relative: string): Error {
   return new Error(
-    `Verification source changed after it loaded: ${relative}. Run verify again.`,
+    `Verification source changed after it loaded: ${relative}. Run check again.`,
   );
 }
 

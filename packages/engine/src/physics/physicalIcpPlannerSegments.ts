@@ -6,7 +6,8 @@
 // l.214-289, compute l.305-336, computeFirstSegment l.338-350,
 // computeSecondSegment l.358-365, initializeSpline l.376-381,
 // computeThirdSegment l.383-395, updateSplineBoundaries l.404-418 and the
-// frame interpolations l.423-446. See NOTICE.
+// frame interpolations l.423-446.
+// See vendor/ihmc/NOTICE.
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 

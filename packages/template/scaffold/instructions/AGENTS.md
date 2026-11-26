@@ -1,28 +1,56 @@
 # AGENTS.md
 
-AutoMovie produces screenplays and reproducible 3D motion hints. Follow the [commissioned route](.agents/skills/production/workflow.md#commissioned-outputs) to its delivery.
+AutoMovie lets an LLM write a screenplay and build its reproducible 3D motion hint for diffusion or rendering with commissioned [detail](.agents/skills/development/entities.md#detail). A commission may end at the screenplay, hint or standalone asset.
 
 ## Starting work
 
-The main agent follows the [director role](.agents/skills/production/director.md). Record delivery scope and decision authority at [intake](.agents/skills/production/project-context.md#intake). Workers follow their assigned stage and report to the director.
+The main agent [directs](.agents/skills/production/director.md) every commission. Workers follow their roles and report to the director.
 
-Resolve project paths from the directory containing `PROJECT.md`. Run commands from the directory whose README documents them.
+At [intake](.agents/skills/production/project-context.md#intake), confirm deliverables and reserved or delegated choices. For a screenplay, ask for the [writing route](.agents/skills/story/workflow/routes.md#who-writes-the-screenplay) unless chosen. Record it in `PROJECT.md` before assigning the writer.
+
+Assign narrative drafts and revisions, including direct writing, to a writer subagent. Where required, assign Evidence and independent review to separate subagents at their stages.
+
+Inspect each handoff against the commission and stage skill. Show the responsible worker any defects and check the revision before advancing.
+
+Resolve paths from `PROJECT.md`'s directory. Run commands from their README's directory.
 
 ## Principles
 
-Build [coarse subjects](.agents/skills/development/entities.md#coarse-first) first and [compose motion](.agents/skills/motion/compose/composition.md#choosing-movement) from the screenplay and research.
+Keep subjects simple and motion detailed.
 
-Finish each inspection round before repairing findings together by cause. Follow [delivery review](.agents/skills/review/delivery-review.md#video) for stills, playback and the delivery decision.
+- Use the polygon man from `@automovie/human`.
+- Use `@automovie/archetypes` for objects, or build a coarse form.
+- Compose actions from `@automovie/motions`, reading in its JSDoc what each value and default performs.
 
-Continue independent work while a required decision or observation is pending. Get approval for destructive or outward-facing actions.
+Realize the screenplay in code.
+
+- Take every outcome from the screenplay.
+- [Comment each value](.agents/skills/development/modules.md#documenting-source) with what it realizes and where that comes from.
+- Compute physics only for the response, parts and time the scene needs.
+
+Work from evidence and verify the result.
+
+- [Study skilled performance](.agents/skills/story/planning/research.md#performance-study) even with installed motions. Research other uncertainties and refer unresolved choices to the user.
+- Finish each inspection round before repairing its findings together by cause.
+- Inspect spatial detail on captured frames. Judge pace in continuous playback and [record the observers](.agents/skills/review/delivery-review.md#acceptance-record).
+- [Return story defects exposed by faithful staging](.agents/skills/review/delivery-review.md#repairs) to the story owner. Inspect the revised cut.
+
+Continue independent work while a required decision or viewing is pending. Keep delivery open until required checks finish. Get approval for destructive or outward-facing actions.
 
 ## Attitude
 
-Follow the user's instructions over skills. Widen the scope only with delegation. Answer the user's questions before resuming work, in the user's language.
+Work with the user.
+
+- Follow the request as given. Expand it only with user delegation.
+- Follow user instructions over skills.
+- Answer user questions before resuming work.
+- Write all user-facing material in the user's language.
+
+Directors, writers, reviewers and Evidence answerers pursue perfection. Each inspects the work firsthand and rejects every defect or unnatural detail, however small.
 
 ## Skills
 
-Use the [production workflow](.agents/skills/production/workflow.md#commissioned-outputs) to choose or finish a commissioned route. For work already scoped, start at its skill below. Follow links when the current decision needs their rules or prerequisites.
+[Choose or finish a route](.agents/skills/production/workflow.md#commissioned-outputs). For scoped work, open its skill below and follow relevant links.
 
 | Skill | Use when |
 | --- | --- |
@@ -37,7 +65,7 @@ Use the [production workflow](.agents/skills/production/workflow.md#commissioned
 | [multi-agent](.agents/skills/multi-agent/SKILL.md) | Resume an interrupted worker |
 | [production](.agents/skills/production/SKILL.md) | Choose a delivery route, assemble or hand off |
 | [prompting](.agents/skills/prompting/SKILL.md) | Change agent instructions or skills |
-| [review](.agents/skills/review/SKILL.md) | Review work or decide delivery acceptance |
+| [review](.agents/skills/review/SKILL.md) | Review work, decide acceptance or estimate quality on request |
 | [story](.agents/skills/story/SKILL.md) | Research, plan, write or repair narrative |
 | [video](.agents/skills/video/SKILL.md) | Finish a direct 3D or generated film |
-| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Capture or inspect pictures |
+| [visual-debugging](.agents/skills/visual-debugging/SKILL.md) | Capture or inspect pictures, or repair the viewer or capture |

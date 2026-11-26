@@ -3,7 +3,8 @@
 // commonWalkingControlModules/capturePoint/CapturePointTools.java
 // computeDesiredCapturePointPosition, and capturePoint/
 // CoMIntegrationTools.java integrateCoMPositionWithConstantCMP l.136-170 and
-// integrateCoMPositionOverPolynomial l.355-370. See NOTICE.
+// integrateCoMPositionOverPolynomial l.355-370.
+// See vendor/ihmc/NOTICE.
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import { physicalDisturbanceBranches as Branches } from "./physicalDisturbanceBranches";

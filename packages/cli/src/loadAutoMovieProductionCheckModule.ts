@@ -1,3 +1,4 @@
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import { readFileSync, realpathSync, statSync } from "node:fs";
 import {
@@ -10,17 +11,16 @@ import {
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import type { IAutoMovieVerification } from "./IAutoMovieVerification";
-import { createAutoMovieVerificationInputScope } from "./createAutoMovieVerificationInputScope";
-import { importAutoMovieVerificationEntry } from "./importAutoMovieVerificationEntry.mjs";
+import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
+import { importAutoMovieProductionCheckEntry } from "./importAutoMovieProductionCheckEntry.mjs";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
 
 /** Load check definitions and bind their local sources to the bytes Node loaded. */
-export async function loadAutoMovieVerificationModule(
+export async function loadAutoMovieProductionCheckModule(
   root: string,
   module: string,
 ): Promise<{
-  readonly targets: readonly IAutoMovieVerification[];
+  readonly targets: readonly IAutoMovieProductionCheck[];
   readonly sources: (file: string | undefined) => ReadonlyMap<string, string>;
 }> {
   const directory: string = realpathSync.native(root);
@@ -145,7 +145,7 @@ export async function loadAutoMovieVerificationModule(
     namespace = (
       requireEntry
         ? load(entry)
-        : await importAutoMovieVerificationEntry(entryUrl)
+        : await importAutoMovieProductionCheckEntry(entryUrl)
     ) as typeof namespace;
   } finally {
     hooks.deregister();
@@ -182,7 +182,7 @@ export async function loadAutoMovieVerificationModule(
         );
       if (typeof hash !== "string")
         throw new Error(
-          `Verification source could not be observed: ${reference}. Run verify in a fresh process.`,
+          `Verification source could not be observed: ${reference}. Run check in a fresh process.`,
         );
       measured.set(reference, hash);
       for (const child of edges.get(current)!) visited.add(child);
@@ -193,7 +193,7 @@ export async function loadAutoMovieVerificationModule(
       ),
     );
   };
-  await createAutoMovieVerificationInputScope(directory).verifySources(
+  await createAutoMovieProductionCheckInputScope(directory).verifySources(
     sources(undefined),
   );
   const targets: unknown =

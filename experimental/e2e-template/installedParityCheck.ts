@@ -1,4 +1,4 @@
-import type { IAutoMovieVerification } from "automovie";
+import type { IAutoMovieProductionCheck } from "@automovie/interface";
 
 /** The director's checks for the installed fixture's delivery. */
 export const checks = [
@@ -34,4 +34,4 @@ export const checks = [
     ],
     required: { handoff: ["published"] },
   },
-] satisfies readonly IAutoMovieVerification[];
+] satisfies readonly IAutoMovieProductionCheck[];

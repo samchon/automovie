@@ -10,7 +10,7 @@ Fix broken or missing capabilities at their owner, including needed views, passe
 
 ## Plan
 
-Before capture, write yes-or-no questions for the observation. Answer them from the stills.
+Choose the questions the stills must answer.
 
 Plan one cell per required subject, time or pose, view and [pass](passes.md). Gather all evidence for the round in one run.
 
@@ -43,13 +43,13 @@ Frame a close-up from outside the subject. Reuse its resolved camera in later [c
 
 ### Times
 
-Sample in time order at five to ten stills per second. Sample faster action at the higher rate.
+Review the exact cut in contiguous windows of up to 10 seconds. Include the first and last frames and decode rendered files.
 
-Capture consecutive output frames around contacts, cuts, joins and decisive instants.
+- Inspect at least 10 distinct frames per second, at most 0.1 seconds apart. A 10-second window needs at least 100 frames.
+- Inspect every native frame through decisive movements, contacts, cuts and joins, plus adjacent frames.
+- Match source and delivery times. Record windows and frame indices.
 
-Sample the encoded or generated file at the same times as its source.
-
-Record the sampled times as still-image coverage. Report any continuous viewing separately.
+Use focused stills for diagnosis and separate continuous 1× playback for pace.
 
 ## Stills and sheets
 
