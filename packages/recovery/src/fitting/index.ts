@@ -1,2 +1,1 @@
-export * from "./fitAutoMovieRecoveryImageLoft";
-export * from "./fitAutoMovieRecoveryImageSupportLoft";
+export * from "./AutoMovieRecoveryFitting";

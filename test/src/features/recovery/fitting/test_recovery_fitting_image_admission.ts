@@ -5,8 +5,7 @@ import type {
   IAutoMovieRecoverySupportFitPolicy,
 } from "@automovie/interface";
 import {
-  fitAutoMovieRecoveryImageLoft,
-  fitAutoMovieRecoveryImageSupportLoft,
+  AutoMovieRecoveryFitting,
   observeAutoMovieRecoveryImages,
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
@@ -83,7 +82,7 @@ export function test_recovery_fitting_image_admission(): void {
     ],
     [8, 8, 1, 0],
   );
-  const fitted = fitAutoMovieRecoveryImageSupportLoft(captured.value, support);
+  const fitted = AutoMovieRecoveryFitting.fitSupportLoft(captured.value, support);
   TestValidator.equals(
     "valid image support fit keeps its status and qualified diagnostics",
     [fitted.status, fitted.diagnostics],
@@ -154,7 +153,7 @@ export function test_recovery_fitting_image_admission(): void {
       ...support,
       generation: { ...support.generation, [key]: value },
     };
-    const result = fitAutoMovieRecoveryImageSupportLoft(captured.value, policy);
+    const result = AutoMovieRecoveryFitting.fitSupportLoft(captured.value, policy);
     if (
       result.status !== "refused" ||
       !result.diagnostics.some((message: string): boolean =>
@@ -175,7 +174,7 @@ export function test_recovery_fitting_image_admission(): void {
       "support-vertex-budget-exhausted: no partial mesh transferred",
     ),
   );
-  const exhausted = fitAutoMovieRecoveryImageSupportLoft(captured.value, {
+  const exhausted = AutoMovieRecoveryFitting.fitSupportLoft(captured.value, {
     ...support,
     generation: { ...support.generation, maxVertices: 1 },
   });
@@ -203,7 +202,7 @@ export function test_recovery_fitting_image_admission(): void {
         ...ellipse,
         [key]: invalid,
       };
-      const result = fitAutoMovieRecoveryImageLoft(captured.value, policy);
+      const result = AutoMovieRecoveryFitting.fitImageLoft(captured.value, policy);
       TestValidator.equals(
         `ellipse ${key} ${invalid} refusal`,
         result.status,
@@ -219,7 +218,7 @@ export function test_recovery_fitting_image_admission(): void {
         ...support,
         [key]: invalid,
       };
-      const supportResult = fitAutoMovieRecoveryImageSupportLoft(
+      const supportResult = AutoMovieRecoveryFitting.fitSupportLoft(
         captured.value,
         supportPolicy,
       );
@@ -245,7 +244,7 @@ export function test_recovery_fitting_image_admission(): void {
         ...ellipse,
         [threshold]: invalid,
       };
-      const result = fitAutoMovieRecoveryImageLoft(captured.value, policy);
+      const result = AutoMovieRecoveryFitting.fitImageLoft(captured.value, policy);
       TestValidator.equals(
         `ellipse ${threshold} ${invalid} refusal`,
         result.status,
@@ -262,7 +261,7 @@ export function test_recovery_fitting_image_admission(): void {
       ...ellipse,
       minimumDirectionRatio: invalid,
     };
-    const directionResult = fitAutoMovieRecoveryImageLoft(
+    const directionResult = AutoMovieRecoveryFitting.fitImageLoft(
       captured.value,
       directionPolicy,
     );
@@ -285,7 +284,7 @@ export function test_recovery_fitting_image_admission(): void {
         ...support,
         [threshold]: invalid,
       };
-      const result = fitAutoMovieRecoveryImageSupportLoft(
+      const result = AutoMovieRecoveryFitting.fitSupportLoft(
         captured.value,
         policy,
       );

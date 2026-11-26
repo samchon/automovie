@@ -12,12 +12,12 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
-import { createRecoveryImageDirectionSolver } from "../internal/createRecoveryImageDirectionSolver";
-import { fitRecoveryImageProfiles } from "../internal/fitRecoveryImageProfiles";
-import { isRecoveryPositiveFinite } from "../internal/isRecoveryPositiveFinite";
-import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
-import { isRecoveryUnitInterval } from "../internal/isRecoveryUnitInterval";
-import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
+import { createRecoveryImageDirectionSolver } from "../../internal/createRecoveryImageDirectionSolver";
+import { fitRecoveryImageProfiles } from "../../internal/fitRecoveryImageProfiles";
+import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
+import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
+import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
+import { prepareRecoveryImageSupports } from "../../internal/prepareRecoveryImageSupports";
 
 /**
  * Infer aligned elliptical sections from calibrated horizontal silhouette

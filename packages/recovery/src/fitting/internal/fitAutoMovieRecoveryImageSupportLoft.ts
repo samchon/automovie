@@ -16,11 +16,11 @@ import type {
   IAutoMovieRecoverySupportFitPolicy,
 } from "@automovie/interface";
 
-import { fitRecoveryScalarProfiles } from "../internal/fitRecoveryScalarProfiles";
-import { isRecoveryPositiveFinite } from "../internal/isRecoveryPositiveFinite";
-import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
-import { isRecoveryUnitInterval } from "../internal/isRecoveryUnitInterval";
-import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
+import { fitRecoveryScalarProfiles } from "../../internal/fitRecoveryScalarProfiles";
+import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
+import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
+import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
+import { prepareRecoveryImageSupports } from "../../internal/prepareRecoveryImageSupports";
 
 /**
  * Fit compact continuous support profiles from supplied-camera image envelopes.

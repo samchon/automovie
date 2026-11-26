@@ -12,8 +12,7 @@ import type {
 } from "@automovie/interface";
 import {
   AutoMovieRecoveryCompilation,
-  fitAutoMovieRecoveryImageLoft,
-  fitAutoMovieRecoveryImageSupportLoft,
+  AutoMovieRecoveryFitting,
   observeAutoMovieRecoveryImages,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
@@ -56,9 +55,9 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
   const started: number = performance.now();
   let outcome:
     | ReturnType<typeof observeAutoMovieRecoveryImages>
-    | ReturnType<typeof fitAutoMovieRecoveryImageLoft>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageFit>
     | IAutoMovieRecoveryResult<IAutoMovieRecoveryImageRealization>
-    | ReturnType<typeof fitAutoMovieRecoveryImageSupportLoft>
+    | IAutoMovieRecoveryResult<IAutoMovieRecoverySupportFit>
     | IAutoMovieRecoveryResult<IAutoMovieRecoverySupportRealization>;
   if (command === "observe") {
     const spec: IAutoMovieRecoveryImageFiles =
@@ -122,18 +121,18 @@ export function recoveryImages(args: string[], sourceEpoch: string): void {
     const spec: {
       observation: IAutoMovieRecoveryImageObservation;
       policy:
-        | Parameters<typeof fitAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof fitAutoMovieRecoveryImageSupportLoft>[1];
+        | IAutoMovieRecoveryImageFitPolicy
+        | IAutoMovieRecoverySupportFitPolicy;
     } = document as {
       observation: IAutoMovieRecoveryImageObservation;
       policy:
-        | Parameters<typeof fitAutoMovieRecoveryImageLoft>[1]
-        | Parameters<typeof fitAutoMovieRecoveryImageSupportLoft>[1];
+        | IAutoMovieRecoveryImageFitPolicy
+        | IAutoMovieRecoverySupportFitPolicy;
     };
     outcome =
       spec?.policy?.family === "finite-view-convex-support"
-        ? fitAutoMovieRecoveryImageSupportLoft(spec.observation, spec.policy)
-        : fitAutoMovieRecoveryImageLoft(spec?.observation, spec?.policy);
+        ? AutoMovieRecoveryFitting.fitSupportLoft(spec.observation, spec.policy)
+        : AutoMovieRecoveryFitting.fitImageLoft(spec?.observation, spec?.policy);
   } else {
     const spec: {
       recipe: IAutoMovieRecoveryImageRecipe;
