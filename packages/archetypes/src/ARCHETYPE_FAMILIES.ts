@@ -13,9 +13,10 @@ import * as weapons from "./weapons";
 /**
  * The model-producing families by their package subpaths, in manifest order.
  *
- * The root exports these families' producers and the object gallery groups them
- * by this table. Import builders for complete places from
- * `@automovie/archetypes/environments`.
+ * The root exports these family namespaces and the object gallery groups their
+ * stable producer IDs by this table. A family's namespace owns each canonical
+ * producer; the website maps stable authored IDs to those producers. Import
+ * builders for complete places from `@automovie/archetypes/environments`.
  */
 export const ARCHETYPE_FAMILIES: Readonly<IAutoMovieArchetypeFamilies> = {
   props,

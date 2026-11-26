@@ -1,7 +1,7 @@
 import type { IAutoMovieAffordance } from "@automovie/interface";
 
 import type { AutoMovieArchetype } from "../core";
-import { createCar } from "../vehicles";
+import { AutoMovieArchetypeCar } from "../vehicles";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 
@@ -14,7 +14,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureCarOpenings(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const selected: ReadonlySet<createCar.Affordance> = new Set([
+  const selected: ReadonlySet<AutoMovieArchetypeCar.Affordance> = new Set([
     "rearLeftDoor",
     "rearRightDoor",
     "rearLeftWindow",
@@ -24,9 +24,11 @@ export function archetypeCaptureCarOpenings(): Readonly<
     "tailgate",
   ]);
   const members: Record<string, AutoMovieArchetype> = {};
-  for (const kind of createCar.KINDS) {
-    const car: ReturnType<typeof createCar> = createCar({ kind }, 17);
-    const movements: Partial<Record<createCar.Affordance, number>> = {};
+  for (const kind of AutoMovieArchetypeCar.KINDS) {
+    const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+      AutoMovieArchetypeCar.create({ kind }, 17);
+    const movements: Partial<Record<AutoMovieArchetypeCar.Affordance, number>> =
+      {};
     for (const id of selected) {
       if (
         !car.affordances.some(

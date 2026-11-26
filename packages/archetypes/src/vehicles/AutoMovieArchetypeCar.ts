@@ -14,106 +14,110 @@ import { CarCabin } from "./CarCabin";
 import type { CarDimension } from "./CarDimension";
 import { CarRear } from "./CarRear";
 
-/**
- * A car: a sedan, a hatchback, a panel van or a crew-cab pickup, with doors,
- * windows, a bonnet and a boot, tailgate or sliding door that open, reclining
- * seats, the driver's controls, and road wheels that steer and spin.
- *
- * The car stands on its wheels with the middle of its wheelbase over the
- * origin, its front toward `+Z`. The body is an open frame (a floor, a bonnet,
- * a roof on pillars and low door panels) so the seats and the controls show
- * through it. The driver sits on the side `drive` names; `left` is `+X`.
- * Everything a driver's and a passenger's act reads is an affordance: the
- * doors' hinges with their handles and the openings behind them, the windows
- * that slide down and the openings above them, the seats and their reclining
- * backs, the steering wheel, the accelerator, the bonnet, and what the class
- * carries behind the cabin: a boot's lid and `load` floor, a van's sliding door
- * and `cargo` floor, a pickup's tailgate and `bed`. The front road wheels steer
- * as the steering wheel turns, and every road wheel spins on a `knob` that
- * `driveCar` turns by the distance covered. Getting in by a front door is
- * `HumanTravelCar.getIn`. The opt-in `HumanTravelCarExit.getOut` stages exit
- * from the rear bench through an already-open adjacent rear door. Rear-door
- * entry, sliding doors and tailgates serve static staging (#3498).
- *
- * @param params The class, its read model and tyre, the driving side and any
- *   dimension the author fixes.
- * @param seed The seed that picks the model and its tyre and draws every
- *   dimension left free inside its band; absent, the first model and tyre, and
- *   each dimension the middle of its band.
- * @returns The car.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
- *   one the class lacks, or a model or tyre the class does not offer.
- */
-export function createCar(
-  params: createCar.IParams,
-  seed?: number,
-): AutoMovieArchetype<createCar.Affordance, createCar.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createCar.Dimension> =
-    new AutoMovieArchetypeDrawSession<createCar.Dimension>(
+/** The canonical producer and authoring contract for cars. */
+export namespace AutoMovieArchetypeCar {
+  /**
+   * Builds a car: a sedan, hatchback, panel van or crew-cab pickup, with doors,
+   * windows, a bonnet and a boot, tailgate or sliding door that open, reclining
+   * seats, the driver's controls, and road wheels that steer and spin.
+   *
+   * The car stands on its wheels with the middle of its wheelbase over the
+   * origin, its front toward `+Z`. The driver sits on the side `drive` names;
+   * `left` is `+X`. Its affordances include the doors and openings, windows and
+   * openings, reclining seats, controls, bonnet and class-specific cargo area.
+   * `driveCar` turns the steering and road wheels. `HumanTravelCar.getIn`
+   * stages entry by a front door; `HumanTravelCarExit.getOut` stages exit from
+   * the rear bench through an already-open adjacent rear door. Rear-door entry,
+   * sliding doors and tailgates serve static staging (#3498).
+   *
+   * @param params The class, its read model and tyre, the driving side and any
+   *   dimension the author fixes.
+   * @param seed The seed that picks the model and its tyre and draws every
+   *   dimension left free inside its band; absent, the first model and tyre,
+   *   and each dimension the middle of its band.
+   * @returns The car.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band
+   *   or one the class lacks, or a model or tyre the class does not offer.
+   */
+  export function create(
+    params: AutoMovieArchetypeCar.IParams,
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeCar.Affordance,
+    AutoMovieArchetypeCar.Dimension
+  > {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeCar.Dimension> =
+      new AutoMovieArchetypeDrawSession<AutoMovieArchetypeCar.Dimension>(
+        "car",
+        AutoMovieArchetypeCar.UNITS,
+        seed,
+        params,
+      );
+    const kind: AutoMovieArchetypeCar.Kind = ArchetypeDraw.choice(
       "car",
-      createCar.UNITS,
-      seed,
-      params,
+      "kind",
+      params.kind,
+      AutoMovieArchetypeCar.KINDS,
     );
-  const kind: createCar.Kind = ArchetypeDraw.choice(
-    "car",
-    "kind",
-    params.kind,
-    createCar.KINDS,
-  );
-  const side: number =
-    ArchetypeDraw.choice("car", "drive", params.drive ?? "left", [
-      "left",
-      "right",
-    ]) === "left"
-      ? 1
-      : -1;
-  // One read model of the class, then one of the tyres it is offered on; its own ranges join the class's bands, and its figures are laid over the draw.
-  const model: {
-    name: createCar.Model | undefined;
-    figures: Readonly<Partial<Record<createCar.Dimension, number>>>;
-  } = draw.model<createCar.Model>(
-    "model",
-    params.model,
-    CAR_MODELS.figures[kind],
-  );
-  const fitted: {
-    figures: Readonly<Partial<Record<createCar.Dimension, number>>>;
-  } = draw.model<createCar.Tyre>(
-    "tyre",
-    params.tyre,
-    CAR_MODELS.tyres[model.name!],
-  );
-  const drawn: Partial<Record<createCar.Dimension, number>> = draw.dimensions(
-    { ...createCar.BANDS[kind], ...CAR_MODELS.ranges[model.name!] },
-    createCar.BANDS,
-  );
-  const d: Partial<Record<createCar.Dimension, number>> = {
-    ...drawn,
-    ...model.figures,
-    ...fitted.figures,
-  };
-  const builder: AutoMovieArchetypeBuilder<
-    createCar.Affordance,
-    createCar.Dimension
-  > = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    id: params.id,
-    name: kind,
-    draw,
-  });
-  const layout: CarBody.ILayout = CarBody.layout(kind, side, d);
-  CarBody.shell(builder, layout);
-  CarRear.build(builder, layout);
-  CarBody.wheels(builder, layout);
-  CarCabin.doors(builder, layout);
-  CarCabin.seats(builder, layout);
-  CarCabin.controls(builder, layout);
-  return builder.build(d.mass!, { rests: "rubber", ground: "asphalt" });
-}
+    const side: number =
+      ArchetypeDraw.choice("car", "drive", params.drive ?? "left", [
+        "left",
+        "right",
+      ]) === "left"
+        ? 1
+        : -1;
+    // One read model of the class, then one of the tyres it is offered on; its own ranges join the class's bands, and its figures are laid over the draw.
+    const model: {
+      name: AutoMovieArchetypeCar.Model | undefined;
+      figures: Readonly<
+        Partial<Record<AutoMovieArchetypeCar.Dimension, number>>
+      >;
+    } = draw.model<AutoMovieArchetypeCar.Model>(
+      "model",
+      params.model,
+      CAR_MODELS.figures[kind],
+    );
+    const fitted: {
+      figures: Readonly<
+        Partial<Record<AutoMovieArchetypeCar.Dimension, number>>
+      >;
+    } = draw.model<AutoMovieArchetypeCar.Tyre>(
+      "tyre",
+      params.tyre,
+      CAR_MODELS.tyres[model.name!],
+    );
+    const drawn: Partial<Record<AutoMovieArchetypeCar.Dimension, number>> =
+      draw.dimensions(
+        {
+          ...AutoMovieArchetypeCar.BANDS[kind],
+          ...CAR_MODELS.ranges[model.name!],
+        },
+        AutoMovieArchetypeCar.BANDS,
+      );
+    const d: Partial<Record<AutoMovieArchetypeCar.Dimension, number>> = {
+      ...drawn,
+      ...model.figures,
+      ...fitted.figures,
+    };
+    const builder: AutoMovieArchetypeBuilder<
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
+    > = new AutoMovieArchetypeBuilder({
+      material: "composite",
+      id: params.id,
+      name: kind,
+      draw,
+    });
+    const layout: CarBody.ILayout = CarBody.layout(kind, side, d);
+    CarBody.shell(builder, layout);
+    CarRear.build(builder, layout);
+    CarBody.wheels(builder, layout);
+    CarCabin.doors(builder, layout);
+    CarCabin.seats(builder, layout);
+    CarCabin.controls(builder, layout);
+    return builder.build(d.mass!, { rests: "rubber", ground: "asphalt" });
+  }
 
-/** Companion types, constants and bands of {@link createCar}. */
-export namespace createCar {
   /** The classes of car. */
   export type Kind = "sedan" | "hatchback" | "van" | "pickup";
 

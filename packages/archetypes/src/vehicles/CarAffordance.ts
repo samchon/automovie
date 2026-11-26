@@ -1,6 +1,6 @@
 /**
- * The affordance ids of a car `createCar` builds; a class lacks the ids of the
- * parts it does not have:
+ * The affordance ids of a car `AutoMovieArchetypeCar` builds; a class lacks the
+ * ids of the parts it does not have:
  *
  * - `driverDoor`, `passengerDoor`, and on a sedan, a hatchback and a pickup
  *   `rearLeftDoor`, `rearRightDoor`: the side doors' hinges at their front
@@ -24,10 +24,10 @@
  *   the lock-to-lock turn to either side, positive to the left.
  * - `frontLeftWheel`, `frontRightWheel`: the front road wheels' steering, each
  *   about the upright through its centre, positive to the left, following
- *   `wheel` by its Ackermann angle (`createCar.ackermann`), so the inner wheel
- *   of a turn steers more than the outer; a `wheel` articulation because a road
- *   wheel steers to either side of straight, which a `knob`'s range from 0 does
- *   not allow.
+ *   `wheel` by its Ackermann angle (`AutoMovieArchetypeCar.ackermann`), so the
+ *   inner wheel of a turn steers more than the outer; a `wheel` articulation
+ *   because a road wheel steers to either side of straight, which a `knob`'s
+ *   range from 0 does not allow.
  * - `frontLeftSpin`, `frontRightSpin`, `rearLeftSpin`, `rearRightSpin`: each road
  *   wheel's roll about its axle, a positive travel rolling it forward, the
  *   front pair riding their steering.

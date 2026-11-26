@@ -1,3 +1,4 @@
+import { ArchetypeRegistry } from "../archetypes/ArchetypeRegistry";
 import { playgroundActionParams } from "../playground/data/playgroundActionParams";
 import { playgroundAidWalkAction } from "../playground/package/playgroundAidWalkAction";
 import type { IPlaygroundComposition } from "../playground/structures/IPlaygroundComposition";
@@ -85,13 +86,16 @@ export function formatSceneChain(
     });
 
   for (const o of objects) {
+    const producer: string =
+      ArchetypeRegistry.get(o.producer)?.expression ??
+      `archetypes.${o.producer}`;
     const key: string = names.frames.includes(o.producer)
       ? "frame"
       : names.formats.includes(o.producer)
         ? "format"
         : "kind";
     body.push(
-      `const ${identifier(o.subject)} = archetypes.${o.producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
+      `const ${identifier(o.subject)} = ${producer}(${options(o, key)}${o.seed === undefined ? "" : `, ${JSON.stringify(o.seed)}`});`,
       o.rotation === undefined
         ? `const ${identifier(o.subject)}At = { at: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, yaw: ${o.yaw}${o.fixed === true ? ", fixed: true" : ""} };`
         : `const ${identifier(o.subject)}At = { position: { x: ${o.x}, y: ${o.y ?? 0}, z: ${o.z} }, rotation: ${literal(o.rotation, imports)}${o.fixed === true ? ", fixed: true" : ""} };`,

@@ -3,8 +3,8 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
+import type { AutoMovieArchetypeCar } from "./AutoMovieArchetypeCar";
 import { CAR_MODELS } from "./CAR_MODELS";
-import type { createCar } from "./createCar";
 
 /** A band in degrees. */
 const deg = (
@@ -85,12 +85,14 @@ const SHARED: Readonly<
  * @param dimension The dimension.
  * @returns The least and the greatest figure.
  */
-function hatchbacks(dimension: createCar.Dimension): [number, number] {
+function hatchbacks(
+  dimension: AutoMovieArchetypeCar.Dimension,
+): [number, number] {
   const figures: number[] = Object.values(CAR_MODELS.figures.hatchback)
     .map(
       (
         model:
-          | Readonly<Partial<Record<createCar.Dimension, number>>>
+          | Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>
           | undefined,
       ): number | undefined => model?.[dimension],
     )
@@ -148,18 +150,20 @@ const COMMERCIAL_SEAT: IAutoMovieArchetypeBand = AutoMovieArchetypeBand.metres(
 
 /**
  * The band of each free dimension of a car, by class, with the source it was
- * read at; `createCar.BANDS` is this table. A class lacks the dimensions of the
- * parts it does not have: only the sedan and the hatchback have a boot, only
- * the van a sliding door and a cargo floor, only the pickup a bed. A model's
- * own figures are its read model's (`CAR_MODELS`), not bands; the van's sliding
- * door, step and cargo floor are the L1's read figures, the L2's dealer page
- * giving the same 1,030 mm door and none of the others, so the L2 takes the
- * L1's, the same body section: provisional for the L2.
+ * read at; `AutoMovieArchetypeCar.BANDS` is this table. A class lacks the
+ * dimensions of the parts it does not have: only the sedan and the hatchback
+ * have a boot, only the van a sliding door and a cargo floor, only the pickup a
+ * bed. A model's own figures are its read model's (`CAR_MODELS`), not bands;
+ * the van's sliding door, step and cargo floor are the L1's read figures, the
+ * L2's dealer page giving the same 1,030 mm door and none of the others, so the
+ * L2 takes the L1's, the same body section: provisional for the L2.
  */
 export const CAR_BANDS: Readonly<
   Record<
-    createCar.Kind,
-    Readonly<Partial<Record<createCar.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeCar.Kind,
+    Readonly<
+      Partial<Record<AutoMovieArchetypeCar.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   hatchback: {

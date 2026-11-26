@@ -4,8 +4,8 @@ import {
   type AutoMovieArchetypeBuilder,
   AutoMovieArchetypeFrame,
 } from "../core";
+import { AutoMovieArchetypeCar } from "./AutoMovieArchetypeCar";
 import { CarBody } from "./CarBody";
-import { createCar } from "./createCar";
 
 /**
  * What a car carries behind its cabin, built on `CarBody`'s layout: a sedan's
@@ -21,8 +21,8 @@ export namespace CarRear {
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
@@ -36,8 +36,8 @@ export namespace CarRear {
    */
   function boot(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
@@ -121,8 +121,8 @@ export namespace CarRear {
    */
   function van(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
@@ -182,8 +182,8 @@ export namespace CarRear {
    */
   function bed(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
@@ -234,7 +234,7 @@ export namespace CarRear {
         v(0, 1, 0),
       ),
       extent: null,
-      travel: createCar.TAILGATE,
+      travel: AutoMovieArchetypeCar.TAILGATE,
       parts: ["tailgate"],
     });
     builder.affordance({

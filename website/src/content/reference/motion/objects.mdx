@@ -85,9 +85,9 @@ A door's leaf, a drawer, a lever and a bicycle's crank are parts bound to an art
 A ride moves an archetype along a course of straight legs and turns, from rest to a cruising speed and back to rest:
 
 ```ts
-import { createCar, driveCar } from "@automovie/archetypes";
+import { AutoMovieArchetypeCar, driveCar } from "@automovie/archetypes";
 
-const car = createCar({ kind: "sedan" }, 3);
+const car = AutoMovieArchetypeCar.create({ kind: "sedan" }, 3);
 const ride = driveCar(car, {
   start: { x: 0, z: 0, heading: 0 },
   legs: [{ kind: "straight", length: 30 }, { kind: "turn", radius: 12, angle: 90 }],

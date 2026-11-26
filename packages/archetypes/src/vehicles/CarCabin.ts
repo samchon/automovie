@@ -6,8 +6,8 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
+import { AutoMovieArchetypeCar } from "./AutoMovieArchetypeCar";
 import { CarBody } from "./CarBody";
-import { createCar } from "./createCar";
 
 /**
  * A car's cabin: its doors with their windows and openings, its seats with
@@ -26,8 +26,8 @@ export namespace CarCabin {
    */
   export function doors(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
@@ -91,8 +91,8 @@ export namespace CarCabin {
    */
   export function seats(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
@@ -122,7 +122,9 @@ export namespace CarCabin {
         Vector3.create(
           0,
           l.surface,
-          l.door - createCar.REAR_DOOR + createCar.REAR_SGRP,
+          l.door -
+            AutoMovieArchetypeCar.REAR_DOOR +
+            AutoMovieArchetypeCar.REAR_SGRP,
         ),
         l.d.width! - 0.3,
       );
@@ -138,13 +140,15 @@ export namespace CarCabin {
    */
   export function controls(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: CarBody.ILayout,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
-    const d: Readonly<Partial<Record<createCar.Dimension, number>>> = l.d;
+    const d: Readonly<
+      Partial<Record<AutoMovieArchetypeCar.Dimension, number>>
+    > = l.d;
     const sx: number = l.reference.x;
     const tilt: number = d.steeringAngle! * AutoMovieArchetypeUnits.DEGREE;
     const axis: IAutoMovieVector3 = v(0, Math.sin(tilt), -Math.cos(tilt));
@@ -219,9 +223,9 @@ export namespace CarCabin {
     // Share the accelerator heel's longitudinal station in the front row.
     // The floor never travels, so these points bind no part.
     for (const [id, x] of [
-      ["driverLeftRest", sx + createCar.FOOT],
-      ["passengerLeftRest", -sx + createCar.FOOT],
-      ["passengerRightRest", -sx - createCar.FOOT],
+      ["driverLeftRest", sx + AutoMovieArchetypeCar.FOOT],
+      ["passengerLeftRest", -sx + AutoMovieArchetypeCar.FOOT],
+      ["passengerRightRest", -sx - AutoMovieArchetypeCar.FOOT],
     ] as const)
       builder.affordance({
         id,
@@ -233,7 +237,11 @@ export namespace CarCabin {
     // The accelerator on the pedal plane at the ball of foot under the right foot; its plate faces the sole, out of the plane toward the seat.
     const slope: number = l.pedal * AutoMovieArchetypeUnits.DEGREE;
     const sole: IAutoMovieVector3 = v(0, Math.cos(slope), -Math.sin(slope));
-    const at: IAutoMovieVector3 = v(sx - createCar.FOOT, l.ball.y, l.ball.z);
+    const at: IAutoMovieVector3 = v(
+      sx - AutoMovieArchetypeCar.FOOT,
+      l.ball.y,
+      l.ball.z,
+    );
     builder.box("pedal-accelerator", v(0.05, 0.01, 0.08), at, {
       color: DARK,
       rotation: AutoMovieArchetypeFrame.facing(at, sole, v(1, 0, 0)).rotation,
@@ -289,7 +297,10 @@ const BODY: string = "#3f6c8f";
  * @param pillar Whether a middle pillar stands at its rear edge.
  */
 function door(
-  builder: AutoMovieArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    AutoMovieArchetypeCar.Affordance,
+    AutoMovieArchetypeCar.Dimension
+  >,
   l: CarBody.ILayout,
   role: "driver" | "passenger" | "rearLeft" | "rearRight",
   sign: number,
@@ -309,14 +320,14 @@ function door(
   );
   const handle: IAutoMovieVector3 = v(
     x + sign * 0.03,
-    l.belt - createCar.HANDLE.drop,
-    end + createCar.HANDLE.aft,
+    l.belt - AutoMovieArchetypeCar.HANDLE.drop,
+    end + AutoMovieArchetypeCar.HANDLE.aft,
   );
   builder.rod(
     `door-handle-${PART[role]}`,
     0.01,
-    v(handle.x, handle.y, handle.z + createCar.HANDLE.length / 2),
-    v(handle.x, handle.y, handle.z - createCar.HANDLE.length / 2),
+    v(handle.x, handle.y, handle.z + AutoMovieArchetypeCar.HANDLE.length / 2),
+    v(handle.x, handle.y, handle.z - AutoMovieArchetypeCar.HANDLE.length / 2),
     { color: METAL },
   );
   if (pillar)
@@ -347,7 +358,7 @@ function door(
     extent: null,
     grip: "hook",
     aperture: 0.02,
-    length: createCar.HANDLE.length,
+    length: AutoMovieArchetypeCar.HANDLE.length,
     rides: `${role}Door`,
   });
   builder.affordance({
@@ -431,7 +442,10 @@ function door(
  * @param width The cushion's width.
  */
 function seat(
-  builder: AutoMovieArchetypeBuilder<createCar.Affordance, createCar.Dimension>,
+  builder: AutoMovieArchetypeBuilder<
+    AutoMovieArchetypeCar.Affordance,
+    AutoMovieArchetypeCar.Dimension
+  >,
   l: CarBody.ILayout,
   id: "driverSeat" | "passengerSeat" | "rearSeat",
   name: string,

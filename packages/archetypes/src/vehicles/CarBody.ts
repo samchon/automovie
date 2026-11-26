@@ -6,16 +6,16 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import { createCar } from "./createCar";
+import { AutoMovieArchetypeCar } from "./AutoMovieArchetypeCar";
 
 /**
  * A car's body: the layout every part is placed from, and the shell, bonnet and
  * road wheels built on it; `CarRear` builds the boot, the van body and the
  * pickup bed on the same layout.
  *
- * `createCar` lays the car out once and hands the layout to this module and to
- * `CarCabin`, so every part reads one set of planes: the floor, the belt line,
- * the bulkhead, the pillars and the roof.
+ * `AutoMovieArchetypeCar` lays the car out once and hands the layout to this
+ * module and to `CarCabin`, so every part reads one set of planes: the floor,
+ * the belt line, the bulkhead, the pillars and the roof.
  */
 export namespace CarBody {
   /**
@@ -34,13 +34,13 @@ export namespace CarBody {
   /** The planes a car is built on, metres in the car's space. */
   export interface ILayout {
     /** The class. */
-    kind: createCar.Kind;
+    kind: AutoMovieArchetypeCar.Kind;
 
     /** The driver's side: 1 for `+X`, -1 for `-X`. */
     side: number;
 
     /** The drawn dimensions. */
-    d: Readonly<Partial<Record<createCar.Dimension, number>>>;
+    d: Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>;
 
     /** Half the width. */
     half: number;
@@ -88,17 +88,21 @@ export namespace CarBody {
     heel: IAutoMovieVector3;
 
     /**
-     * The driver's ball of foot, `createCar.BALL` up the pedal plane from the
-     * heel point.
+     * The driver's ball of foot, `AutoMovieArchetypeCar.BALL` up the pedal
+     * plane from the heel point.
      */
     ball: IAutoMovieVector3;
 
-    /** The pedal plane's angle from the floor, degrees (`createCar.pedalPlane`). */
+    /**
+     * The pedal plane's angle from the floor, degrees
+     * (`AutoMovieArchetypeCar.pedalPlane`).
+     */
     pedal: number;
 
     /**
-     * The steering wheel's centre: `createCar.WHEEL_AFT` behind the ball of
-     * foot and `createCar.WHEEL_HEIGHT` above the heel point.
+     * The steering wheel's centre: `AutoMovieArchetypeCar.WHEEL_AFT` behind the
+     * ball of foot and `AutoMovieArchetypeCar.WHEEL_HEIGHT` above the heel
+     * point.
      */
     wheel: IAutoMovieVector3;
 
@@ -118,56 +122,60 @@ export namespace CarBody {
    * @returns The layout.
    */
   export function layout(
-    kind: createCar.Kind,
+    kind: AutoMovieArchetypeCar.Kind,
     side: number,
-    d: Readonly<Partial<Record<createCar.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>,
   ): ILayout {
     const wheelbase: number = d.wheelbase!;
     // A model whose front overhang was read stands on it; any other takes the measured sedan's share of its overhangs.
     const front: number =
       d.frontOverhang === undefined
-        ? wheelbase / 2 + (d.length! - wheelbase) * createCar.OVERHANG
+        ? wheelbase / 2 +
+          (d.length! - wheelbase) * AutoMovieArchetypeCar.OVERHANG
         : wheelbase / 2 + d.frontOverhang;
     const rear: number = front - d.length!;
-    const floor: number = kind === "van" ? d.sideStep! : createCar.FLOOR;
+    const floor: number =
+      kind === "van" ? d.sideStep! : AutoMovieArchetypeCar.FLOOR;
 
     // The front doors from the front axle, the middle pillar their span behind, and the seating reference point just ahead of the pillar, as the measured sedans have them; a pickup takes the same cabin. A van's middle pillar is its bulkhead, which its sheet places by the load length ahead of the rear doors' inner face, their 0.04 m panel inside the rear: a van's cab partition is its B-pillar line, and no source read gives the Transit's front-door or B-pillar station (three searches recorded), so the station is derived from the bulkhead rather than borrowed from the sedans, whose door chain would put the pillar 75.6 mm behind the read bulkhead.
-    const door: number = wheelbase / 2 - createCar.DOOR_AXLE;
+    const door: number = wheelbase / 2 - AutoMovieArchetypeCar.DOOR_AXLE;
     // A van's rear doors' inner face, their 0.04 m panel inside the rear.
     const inside: number = rear + 0.04;
     const pillar: number =
-      kind === "van" ? inside + d.loadLength! : door - createCar.DOOR_SPAN;
-    const sz: number = pillar + createCar.PILLAR_SGRP;
+      kind === "van"
+        ? inside + d.loadLength!
+        : door - AutoMovieArchetypeCar.DOOR_SPAN;
+    const sz: number = pillar + AutoMovieArchetypeCar.PILLAR_SGRP;
     const sy: number = floor + d.seatHeight!;
-    const sx: number = side * createCar.OCCUPANT;
+    const sx: number = side * AutoMovieArchetypeCar.OCCUPANT;
 
     // SAE J1516: the ball of foot lies its tool reference distance ahead of the seating reference point, and the heel point 203 mm back down the pedal plane from it.
-    const pedal: number = createCar.pedalPlane(d.seatHeight!);
+    const pedal: number = AutoMovieArchetypeCar.pedalPlane(d.seatHeight!);
     const slope: number = pedal * AutoMovieArchetypeUnits.DEGREE;
     const ball: IAutoMovieVector3 = Vector3.create(
       sx,
-      floor + createCar.BALL * Math.sin(slope),
-      sz + createCar.seatAft(d.seatHeight!),
+      floor + AutoMovieArchetypeCar.BALL * Math.sin(slope),
+      sz + AutoMovieArchetypeCar.seatAft(d.seatHeight!),
     );
     const heel: IAutoMovieVector3 = Vector3.create(
       sx,
       floor,
-      ball.z - createCar.BALL * Math.cos(slope),
+      ball.z - AutoMovieArchetypeCar.BALL * Math.cos(slope),
     );
 
     // The steering wheel from the ball of foot and the heel point; the firewall ahead of the front doors.
     const wheel: IAutoMovieVector3 = Vector3.create(
       sx,
-      heel.y + createCar.WHEEL_HEIGHT,
-      ball.z - createCar.WHEEL_AFT,
+      heel.y + AutoMovieArchetypeCar.WHEEL_HEIGHT,
+      ball.z - AutoMovieArchetypeCar.WHEEL_AFT,
     );
-    const firewall: number = door + createCar.DOOR_LEAD;
+    const firewall: number = door + AutoMovieArchetypeCar.DOOR_LEAD;
 
     // The belt line from the rocker's lower edge and the windows' top above it, as the measured sedan has them; a pickup's belt is its bed's rail.
     const belt: number =
       kind === "pickup"
         ? d.bedFloor! + d.bedDepth!
-        : createCar.ROCKER + createCar.BELT;
+        : AutoMovieArchetypeCar.ROCKER + AutoMovieArchetypeCar.BELT;
     return {
       kind,
       side,
@@ -177,7 +185,7 @@ export namespace CarBody {
       rear,
       floor,
       belt,
-      window: belt + createCar.WINDOW,
+      window: belt + AutoMovieArchetypeCar.WINDOW,
       top: d.height!,
       firewall,
       pillar,
@@ -186,14 +194,14 @@ export namespace CarBody {
           ? inside
           : kind === "pickup"
             ? rear + d.bedLength!
-            : door - createCar.REAR_DOOR,
+            : door - AutoMovieArchetypeCar.REAR_DOOR,
       reference: Vector3.create(sx, sy, sz),
       heel,
       ball,
       pedal,
       wheel,
       door,
-      surface: sy - createCar.HIP,
+      surface: sy - AutoMovieArchetypeCar.HIP,
     };
   }
 
@@ -207,8 +215,8 @@ export namespace CarBody {
    */
   export function shell(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: ILayout,
   ): void {
@@ -225,7 +233,10 @@ export namespace CarBody {
     // its belt, and the bonnet rising from it to the belt at the
     // windscreen's foot.
     const lead: number =
-      l.belt - (createCar.ROCKER + createCar.BELT - CarBody.LEADING);
+      l.belt -
+      (AutoMovieArchetypeCar.ROCKER +
+        AutoMovieArchetypeCar.BELT -
+        CarBody.LEADING);
     const x: number = width / 2;
     builder.box(
       "bumper",
@@ -306,15 +317,15 @@ export namespace CarBody {
   /**
    * The road wheels: each on a `knob` that spins it about its axle, the front
    * pair's knobs riding their steering, which follows the steering wheel by its
-   * Ackermann angle (`createCar.ackermann`).
+   * Ackermann angle (`AutoMovieArchetypeCar.ackermann`).
    *
    * @param builder The car under construction.
    * @param l The layout.
    */
   export function wheels(
     builder: AutoMovieArchetypeBuilder<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >,
     l: ILayout,
   ): void {
@@ -352,16 +363,26 @@ export namespace CarBody {
             : null;
       if (steer !== null) {
         const angle = (steering: number): number =>
-          createCar.ackermann(steering / ratio, wheelbase, (x * track) / 2);
+          AutoMovieArchetypeCar.ackermann(
+            steering / ratio,
+            wheelbase,
+            (x * track) / 2,
+          );
 
         // Rows each side of straight, so straight ahead is a row and gives straight wheels exactly.
-        const rows: number = Math.ceil(lock / ratio / createCar.STEER_STEP);
+        const rows: number = Math.ceil(
+          lock / ratio / AutoMovieArchetypeCar.STEER_STEP,
+        );
         builder.affordance({
           id: steer,
           kind: "wheel",
           frame: AutoMovieArchetypeFrame.facing(centre, v(0, 1, 0), v(0, 0, 1)),
           extent: null,
-          travel: createCar.ackermann(lock / ratio, wheelbase, track / 2),
+          travel: AutoMovieArchetypeCar.ackermann(
+            lock / ratio,
+            wheelbase,
+            track / 2,
+          ),
           follows: {
             id: "wheel",
             table: Array.from(

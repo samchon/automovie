@@ -7,9 +7,9 @@ import {
   AutoMovieArchetypeRide,
   AutoMovieArchetypeUnits,
 } from "../core";
+import type { AutoMovieArchetypeCar } from "./AutoMovieArchetypeCar";
 import { CarSteering } from "./CarSteering";
 import { CourseWheelTravel } from "./CourseWheelTravel";
-import type { createCar } from "./createCar";
 
 /**
  * A car driven along a course: its root on the path, its steering wheel turned
@@ -24,10 +24,11 @@ import type { createCar } from "./createCar";
  * shortened by half a wheelbase. A left turn turns the wheel to the left, a
  * positive travel; reversing, the same bend of the path needs the wheel turned
  * the other way, because the car then turns about its rear axle backward. The
- * front road wheels follow the steering wheel (`createCar.ackermann`). Every
- * road wheel's phase follows the length of its own Ackermann path. Signed
- * distances accumulate through leg boundaries before wrapping the spin travel
- * into the articulated wheel's range.
+ * front road wheels follow the steering wheel
+ * (`AutoMovieArchetypeCar.ackermann`). Every road wheel's phase follows the
+ * length of its own Ackermann path. Signed distances accumulate through leg
+ * boundaries before wrapping the spin travel into the articulated wheel's
+ * range.
  *
  * @param car The car.
  * @param course The course its root follows, or its plan, such as a timed
@@ -38,9 +39,15 @@ import type { createCar } from "./createCar";
  *   timed course, the sample, or the course is malformed.
  */
 export function driveCar(
-  car: AutoMovieArchetype<createCar.Affordance, createCar.Dimension>,
+  car: AutoMovieArchetype<
+    AutoMovieArchetypeCar.Affordance,
+    AutoMovieArchetypeCar.Dimension
+  >,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
-): AutoMovieArchetypeRide.IRide<createCar.Affordance, createCar.Dimension> {
+): AutoMovieArchetypeRide.IRide<
+  AutoMovieArchetypeCar.Affordance,
+  AutoMovieArchetypeCar.Dimension
+> {
   const wheelbase: number = car.dimensions.wheelbase!;
   const ratio: number = car.dimensions.steeringRatio!;
   const lock: number = car.dimensions.lockTurns! * 180;
@@ -127,9 +134,10 @@ export function driveCar(
     (
       state: AutoMovieArchetypeCourse.IState,
       seconds: number,
-      id?: createCar.Affordance,
-    ): Partial<Record<createCar.Affordance, number>> => {
-      const travels: Partial<Record<createCar.Affordance, number>> = {};
+      id?: AutoMovieArchetypeCar.Affordance,
+    ): Partial<Record<AutoMovieArchetypeCar.Affordance, number>> => {
+      const travels: Partial<Record<AutoMovieArchetypeCar.Affordance, number>> =
+        {};
       if (
         id === undefined ||
         id === "wheel" ||

@@ -1,6 +1,6 @@
 /**
- * The free dimensions of a car `createCar` builds, metres unless stated; a
- * class lacks those of the parts it does not have:
+ * The free dimensions of a car `AutoMovieArchetypeCar` builds, metres unless
+ * stated; a class lacks those of the parts it does not have:
  *
  * - `length`, `width`, `height`, `wheelbase`: the car's overall sizes.
  * - `wheelDiameter`: a road wheel with its tyre.
@@ -24,7 +24,7 @@
  *   height plus its depth, is the pickup's belt line.
  * - `frontOverhang`: the front of the car to the front wheels' centre, where a
  *   model's source gives it; otherwise the layout takes the measured sedan's
- *   share (`createCar.OVERHANG`).
+ *   share (`AutoMovieArchetypeCar.OVERHANG`).
  * - `mass`: kerb mass, kilograms.
  */
 export type CarDimension =

@@ -11,7 +11,7 @@ export namespace ArchetypeRegistry {
 
   /** A factory and only the metadata website consumers use. */
   export interface IFactory {
-    /** Stable package export ID (or parent ID plus variant for a child). */
+    /** Stable authored producer ID, or its parent ID plus a variant. */
     id: string;
     /** Source expression used in generated scene code. */
     expression: string;
@@ -35,6 +35,16 @@ export namespace ArchetypeRegistry {
     values: readonly string[];
   }
 
+  /** Metadata a producer or its owning namespace publishes for dispatch. */
+  interface IFactoryMetadata {
+    KINDS?: readonly string[];
+    FRAMES?: readonly string[];
+    FORMATS?: readonly string[];
+    REFERENCE?: IFactory["reference"];
+    PRODUCERS?: Readonly<Record<string, unknown>>;
+    PRODUCER_VARIANTS?: Readonly<Record<string, string>>;
+  }
+
   /** One family of actual package factories. */
   export interface IFamily {
     /** Stable group ID. */
@@ -46,11 +56,26 @@ export namespace ArchetypeRegistry {
   /** Resolves the package's model-producing family table on demand. */
   export function families(): readonly IFamily[] {
     return Object.entries(archetypes.ARCHETYPE_FAMILIES).map(
-      ([id, exports]: [string, Readonly<Record<string, unknown>>]): IFamily => ({
+      ([id, exports]: [
+        string,
+        Readonly<Record<string, unknown>>,
+      ]): IFamily => ({
         id,
         factories: Object.entries(exports).flatMap(
-          ([name, value]: [string, unknown]): IFactory[] =>
-            /^create[A-Z]/.test(name) && typeof value === "function"
+          ([name, value]: [string, unknown]): IFactory[] => {
+            if (name === "AutoMovieArchetypeCar" && isRecord(value)) {
+              const create: unknown = Reflect.get(value, "create");
+              if (isFactory(create))
+                return [
+                  record(
+                    "createCar",
+                    "archetypes.AutoMovieArchetypeCar.create",
+                    create,
+                    factoryMetadata(value),
+                  ),
+                ];
+            }
+            return /^create[A-Z]/.test(name) && isFactory(value)
               ? [
                   record(
                     name,
@@ -58,13 +83,14 @@ export namespace ArchetypeRegistry {
                     value,
                   ),
                 ]
-              : [],
+              : [];
+          },
         ),
       }),
     );
   }
 
-  /** Resolves a saved producer ID against the installed root exports. */
+  /** Resolves a saved producer ID against the installed package and aliases. */
   export function get(id: string): IFactory | undefined {
     const separator: number = id.indexOf(".");
     if (separator !== -1) {
@@ -73,9 +99,13 @@ export namespace ArchetypeRegistry {
         found = found?.producers[part];
       return found;
     }
-    const value: unknown = (archetypes as Readonly<Record<string, unknown>>)[id];
-    if (typeof value !== "function") return undefined;
-    return record(id, `archetypes.${id}`, value);
+    const value: unknown = (archetypes as Readonly<Record<string, unknown>>)[
+      id
+    ];
+    if (isFactory(value)) return record(id, `archetypes.${id}`, value);
+    return families()
+      .flatMap((family: IFamily) => family.factories)
+      .find((factory: IFactory) => factory.id === id);
   }
 
   /** Every stable root and nested factory ID in the family table. */
@@ -91,14 +121,18 @@ export namespace ArchetypeRegistry {
     );
   }
 
-  /** Root factory IDs exported by the installed package. */
+  /** Stable top-level producer IDs available through the installed package. */
   export function rootIds(): string[] {
-    return Object.entries(archetypes)
+    const roots: string[] = Object.entries(archetypes)
       .filter(
         ([id, value]: [string, unknown]): boolean =>
           /^create[A-Z]/.test(id) && typeof value === "function",
       )
       .map(([id]: [string, unknown]): string => id);
+    for (const family of families())
+      for (const factory of family.factories)
+        if (!roots.includes(factory.id)) roots.push(factory.id);
+    return roots;
   }
 
   /** Builds through the same lookup used for readiness and gallery rendering. */
@@ -189,29 +223,20 @@ export namespace ArchetypeRegistry {
   function record(
     id: string,
     expression: string,
-    value: unknown,
+    factory: IFactory["call"],
+    metadata: IFactoryMetadata = factoryMetadata(factory),
   ): IFactory {
-    const factory = value as ((
-      params: Record<string, unknown>,
-      seed?: number,
-    ) => Model) & {
-      KINDS?: readonly string[];
-      FRAMES?: readonly string[];
-      FORMATS?: readonly string[];
-      REFERENCE?: IFactory["reference"];
-      PRODUCERS?: Readonly<Record<string, unknown>>;
-      PRODUCER_VARIANTS?: Readonly<Record<string, string>>;
-    };
-    const variant: IVariant = Array.isArray(factory.KINDS)
-      ? { key: "kind", values: factory.KINDS }
-      : Array.isArray(factory.FRAMES)
-        ? { key: "frame", values: factory.FRAMES }
-        : Array.isArray(factory.FORMATS)
-          ? { key: "format", values: factory.FORMATS }
-          : { key: "", values: [] };
+    const variant: IVariant =
+      metadata.KINDS !== undefined
+        ? { key: "kind", values: metadata.KINDS }
+        : metadata.FRAMES !== undefined
+          ? { key: "frame", values: metadata.FRAMES }
+          : metadata.FORMATS !== undefined
+            ? { key: "format", values: metadata.FORMATS }
+            : { key: "", values: [] };
     const producers: Record<string, IFactory> = {};
-    for (const [name, child] of Object.entries(factory.PRODUCERS ?? {}))
-      if (typeof child === "function")
+    for (const [name, child] of Object.entries(metadata.PRODUCERS ?? {}))
+      if (isFactory(child))
         producers[name] = record(
           `${id}.${name}`,
           `${expression}.PRODUCERS[${JSON.stringify(name)}]`,
@@ -222,11 +247,74 @@ export namespace ArchetypeRegistry {
       expression,
       call: factory,
       variant,
-      ...(factory.REFERENCE === undefined ? {} : { reference: factory.REFERENCE }),
-      producers,
-      ...(factory.PRODUCER_VARIANTS === undefined
+      ...(metadata.REFERENCE === undefined
         ? {}
-        : { producerVariants: factory.PRODUCER_VARIANTS }),
+        : { reference: metadata.REFERENCE }),
+      producers,
+      ...(metadata.PRODUCER_VARIANTS === undefined
+        ? {}
+        : { producerVariants: metadata.PRODUCER_VARIANTS }),
     };
+  }
+
+  /** A producer the registry can call. */
+  function isFactory(value: unknown): value is IFactory["call"] {
+    return typeof value === "function";
+  }
+
+  /** Reads recognized metadata safely from a producer or producer namespace. */
+  function factoryMetadata(value: unknown): IFactoryMetadata {
+    if (
+      (typeof value !== "function" && typeof value !== "object") ||
+      value === null
+    )
+      return {};
+    const owner: object = value;
+    const kinds: unknown = Reflect.get(owner, "KINDS");
+    const frames: unknown = Reflect.get(owner, "FRAMES");
+    const formats: unknown = Reflect.get(owner, "FORMATS");
+    const reference: unknown = Reflect.get(owner, "REFERENCE");
+    const producers: unknown = Reflect.get(owner, "PRODUCERS");
+    const producerVariants: unknown = Reflect.get(owner, "PRODUCER_VARIANTS");
+    return {
+      ...(isStringArray(kinds) ? { KINDS: kinds } : {}),
+      ...(isStringArray(frames) ? { FRAMES: frames } : {}),
+      ...(isStringArray(formats) ? { FORMATS: formats } : {}),
+      ...(isReference(reference) ? { REFERENCE: reference } : {}),
+      ...(isRecord(producers) ? { PRODUCERS: producers } : {}),
+      ...(isStringRecord(producerVariants)
+        ? { PRODUCER_VARIANTS: producerVariants }
+        : {}),
+    };
+  }
+
+  /** Whether a value is a non-array object with string-keyed properties. */
+  function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null && !Array.isArray(value);
+  }
+
+  /** Whether a value contains only string values. */
+  function isStringArray(value: unknown): value is readonly string[] {
+    return (
+      Array.isArray(value) &&
+      value.every((item: unknown) => typeof item === "string")
+    );
+  }
+
+  /** Whether a value maps string keys to string values. */
+  function isStringRecord(
+    value: unknown,
+  ): value is Readonly<Record<string, string>> {
+    return (
+      isRecord(value) &&
+      Object.values(value).every((item: unknown) => typeof item === "string")
+    );
+  }
+
+  /** Whether a value can be used as a producer's gallery reference. */
+  function isReference(
+    value: unknown,
+  ): value is NonNullable<IFactory["reference"]> {
+    return typeof value === "function" || isRecord(value);
   }
 }

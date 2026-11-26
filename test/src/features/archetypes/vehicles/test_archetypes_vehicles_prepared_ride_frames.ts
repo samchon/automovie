@@ -1,10 +1,10 @@
 import {
+  AutoMovieArchetypeCar,
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
   AutoMovieArchetypeRide,
   createBicycle,
-  createCar,
   createWheelchair,
   driveCar,
   rideBicycle,
@@ -39,7 +39,10 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
     endSpeed: 2,
     legs: [{ kind: "turn", angle: 32, radius: 14 }],
   } as const;
-  const car: ReturnType<typeof createCar> = createCar({ kind: "hatchback" });
+  const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+    AutoMovieArchetypeCar.create({
+      kind: "hatchback",
+    });
   const bike: ReturnType<typeof createBicycle> = createBicycle();
   const chair: ReturnType<typeof createWheelchair> = createWheelchair({
     kind: "selfPropelled",
@@ -52,8 +55,8 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   let full: number = 0;
   const supplied: ReturnType<
     typeof AutoMovieArchetypeRide.along<
-      createCar.Affordance,
-      createCar.Dimension
+      AutoMovieArchetypeCar.Affordance,
+      AutoMovieArchetypeCar.Dimension
     >
   > = AutoMovieArchetypeRide.along(car, course, (state) => ({
     get archetype(): typeof car {
@@ -61,7 +64,9 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
       return car.articulate({ wheel: 45 });
     },
     placement: state.placement,
-    frame: (id: createCar.Affordance): IAutoMovieTransform | undefined =>
+    frame: (
+      id: AutoMovieArchetypeCar.Affordance,
+    ): IAutoMovieTransform | undefined =>
       id === "wheel" ? car.affordance("wheel").frame : undefined,
   }));
   supplied.frame("wheel", 1);
@@ -75,7 +80,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
 
   let fault: unknown;
   try {
-    drive.frame("unknown" as createCar.Affordance, 1);
+    drive.frame("unknown" as AutoMovieArchetypeCar.Affordance, 1);
   } catch (error) {
     fault = error;
   }

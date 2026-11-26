@@ -1,7 +1,7 @@
 import {
+  AutoMovieArchetypeCar,
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeFrame,
-  createCar,
   createWheelchair,
   driveCar,
   rideWheelchair,
@@ -22,7 +22,8 @@ import { qclose } from "../../internal/qclose";
  * 3. A timed wheelchair's differential travel through its heading sweep.
  */
 export function test_archetypes_vehicles_car_wheel_material(): void {
-  const car: ReturnType<typeof createCar> = createCar({ kind: "hatchback" }, 3);
+  const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+    AutoMovieArchetypeCar.create({ kind: "hatchback" }, 3);
   const circumference: number = Math.PI * car.dimensions.wheelDiameter!;
   const length: number = car.dimensions.wheelbase!;
   const radius: number = 12;

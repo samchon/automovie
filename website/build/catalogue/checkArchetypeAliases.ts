@@ -1,9 +1,11 @@
 import {
   AutoMovieArchetype,
+  AutoMovieArchetypeCar,
   AutoMovieArchetypeFrame,
   createQuadruped,
   rideQuadruped,
 } from "@automovie/archetypes";
+import * as archetypes from "@automovie/archetypes";
 import { Quaternion } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
@@ -22,6 +24,7 @@ import { SCENES_PARTNER } from "../../src/scenes/data/SCENES_PARTNER";
 import { formatSceneChain } from "../../src/scenes/formatSceneChain";
 import { SceneArchetype } from "../../src/scenes/package/SceneArchetype";
 import { SceneChainNames } from "../../src/scenes/package/SceneChainNames";
+import { SceneStatus } from "../../src/scenes/package/SceneStatus";
 
 /** A version-two composition encoded by the original lz-string writer. */
 const SAVED_LINK: string =
@@ -33,16 +36,71 @@ export function checkArchetypeAliases(): void {
   const listed = catalogue.groups.flatMap((group) =>
     group.subjects.map((subject) => subject.id),
   );
-  assert.equal(listed.length, 389, "the gallery preserves its stable root IDs");
+  assert.equal(
+    listed.length,
+    355,
+    "the gallery preserves its visible root IDs",
+  );
+  const aliases: readonly NonNullable<typeof catalogue.aliases>[number][] =
+    catalogue.aliases ?? [];
+  assert.equal(aliases.length, 34, "the gallery preserves dispatcher aliases");
+  assert.equal(listed.length + aliases.length, 389);
+  assert.equal(listed.filter((id) => id === "createCar").length, 1);
+  assert(
+    catalogue.groups
+      .find((group) => group.name === "vehicles")!
+      .subjects.some((subject) => subject.id === "createCar"),
+  );
   const factories: string[] = ArchetypeRegistry.factoryIds();
-  assert.equal(factories.length, 405);
-  assert.equal(new Set(factories).size, 405);
+  assert.equal(factories.length, 583);
+  assert.equal(new Set(factories).size, 583);
+  assert.equal(Object.hasOwn(archetypes, "createCar"), false);
+  assert.equal(
+    ArchetypeRegistry.get("createCar")?.call,
+    AutoMovieArchetypeCar.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createCar")?.expression,
+    "archetypes.AutoMovieArchetypeCar.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createCar")?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeCar.KINDS,
+  });
   assert.equal(
     new Set(listed).size,
     listed.length,
     "every displayed producer has exactly one catalogue entry",
   );
-  const aliased = new Set(catalogue.aliases?.map((alias) => alias.id) ?? []);
+  const savedCar: IPlaygroundComposition = {
+    version: 3,
+    seed: "saved-car",
+    performers: [],
+    mutuals: [],
+    objects: [
+      {
+        subject: "car",
+        producer: "createCar",
+        kind: "sedan",
+        seed: 3,
+        x: 0,
+        z: 0,
+        yaw: 0,
+      },
+    ],
+  };
+  assert.deepEqual(SceneStatus.lacks(savedCar), []);
+  assert.deepEqual(
+    SceneArchetype.model(savedCar.objects![0]!),
+    AutoMovieArchetypeCar.create({ kind: "sedan" }, 3),
+  );
+  const savedCarCode: string = formatSceneChain(
+    savedCar,
+    SceneChainNames.read(savedCar),
+  );
+  assert.match(savedCarCode, /archetypes\.AutoMovieArchetypeCar\.create\(/);
+  assert.doesNotMatch(savedCarCode, /archetypes\.createCar\(/);
+  const aliased = new Set(aliases.map((alias) => alias.id));
   assert(
     listed.every((id) => !aliased.has(id)),
     "no saved dispatcher is also listed beside its named forms",
@@ -345,14 +403,12 @@ export function checkArchetypeAliases(): void {
       leadRadius: 0.004,
     },
   };
-  const oldLead = GalleryCatalogue.producer("createQuadruped")!.call(
-    { ...collared, kind: "dog" },
-    dog.seed ?? undefined,
-  ).affordance("lead");
-  const newLead = GalleryCatalogue.producer(dog.subject)!.call(
-    collared,
-    dog.seed ?? undefined,
-  ).affordance("lead");
+  const oldLead = GalleryCatalogue.producer("createQuadruped")!
+    .call({ ...collared, kind: "dog" }, dog.seed ?? undefined)
+    .affordance("lead");
+  const newLead = GalleryCatalogue.producer(dog.subject)!
+    .call(collared, dog.seed ?? undefined)
+    .affordance("lead");
   assert.deepEqual(newLead, oldLead, "the named dog's lead retains its frame");
 
   const restored = PlaygroundAddress.decode(SAVED_LINK)!;

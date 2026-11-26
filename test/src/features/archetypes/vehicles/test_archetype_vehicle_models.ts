@@ -1,7 +1,7 @@
 import {
+  AutoMovieArchetypeCar,
   AutoMovieArchetypeRefusal,
   createBoat,
-  createCar,
   createMotorcycle,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -14,7 +14,10 @@ const IN: number = 0.0254;
 /** A pound, kilograms. */
 const LB: number = 0.45359237;
 
-/** A tyre's outer diameter from its size, metres, worked here: the rim plus twice the width times the aspect ratio. */
+/**
+ * A tyre's outer diameter from its size, metres, worked here: the rim plus
+ * twice the width times the aspect ratio.
+ */
 const tyre = (width: number, aspect: number, rim: number): number =>
   rim * IN + (2 * width * aspect) / 100000;
 
@@ -25,13 +28,24 @@ const figures = (
 ): number[] => names.map((n: string): number => dimensions[n]!);
 
 /**
- * A vehicle is one read model whole: every seed's figures are all one model's, never a mix of two, and every model appears.
+ * A vehicle is one read model whole: every seed's figures are all one model's,
+ * never a mix of two, and every model appears.
  *
  * Scenarios, each over 200 seeds (`archetypeModelSweep`):
- * 1. A hatchback's length, width, height, wheelbase, tyre and lock-to-lock turns are one Jazz or Civic grade's at Honda UK's pages (the Civic Sport and Advance share all of them); a sedan's width and wheelbase the Corolla saloon's or the Camry's; a van's length and wheelbase the Transit Custom L1's or L2's; a pickup's height, curb weight and lift-in height the Ranger 4x2's or 4x4's.
- * 2. A motorcycle's seat height, wheelbase, width, both tyres and mass are the CB500 Hornet's or the MT-07's; a scooter's the PCX125's.
- * 3. A rowboat's length, beam, depth and mass are one of the three designers' boats'; a canoe's length, beam, depth, ends and mass one of its four hulls' in one of that hull's layups.
- * 4. Fixing a dimension the picked model supplies, a hatchback's length, is refused at that dimension, never dropped.
+ *
+ * 1. A hatchback's length, width, height, wheelbase, tyre and lock-to-lock turns
+ *    are one Jazz or Civic grade's at Honda UK's pages (the Civic Sport and
+ *    Advance share all of them); a sedan's width and wheelbase the Corolla
+ *    saloon's or the Camry's; a van's length and wheelbase the Transit Custom
+ *    L1's or L2's; a pickup's height, curb weight and lift-in height the Ranger
+ *    4x2's or 4x4's.
+ * 2. A motorcycle's seat height, wheelbase, width, both tyres and mass are the
+ *    CB500 Hornet's or the MT-07's; a scooter's the PCX125's.
+ * 3. A rowboat's length, beam, depth and mass are one of the three designers'
+ *    boats'; a canoe's length, beam, depth, ends and mass one of its four
+ *    hulls' in one of that hull's layups.
+ * 4. Fixing a dimension the picked model supplies, a hatchback's length, is
+ *    refused at that dimension, never dropped.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each vehicle for 200 seeds and compares the figures it was built at with every read model's; a draw that mixes two models, or a model that never appears, is caught.
  * @evidence contracts/development/testing.md#independent-expectations The models' figures are written here from their sources (Honda UK's pages, the Toyota infoboxes, Ford's Transit Custom and Ranger specifications and a dealer's L2 guide, Yamaha's MT-07 factsheet, the boat designers' and canoe makers' pages), the tyres' diameters worked from their sizes here.
@@ -42,11 +56,11 @@ const figures = (
 export function test_archetype_vehicle_models(): void {
   const car =
     (
-      kind: createCar.Kind,
+      kind: AutoMovieArchetypeCar.Kind,
       names: readonly string[],
     ): ((seed: number) => number[]) =>
     (seed: number): number[] =>
-      figures(createCar({ kind }, seed).dimensions, names);
+      figures(AutoMovieArchetypeCar.create({ kind }, seed).dimensions, names);
   const machine =
     (kind: createMotorcycle.Kind): ((seed: number) => number[]) =>
     (seed: number): number[] =>
@@ -82,7 +96,7 @@ export function test_archetype_vehicle_models(): void {
   // A dimension a picked model supplies is the model's own: fixing it is refused, never dropped.
   let refused: unknown = null;
   try {
-    createCar({ kind: "hatchback", length: 4.2 }, 3);
+    AutoMovieArchetypeCar.create({ kind: "hatchback", length: 4.2 }, 3);
   } catch (error) {
     refused = error;
   }

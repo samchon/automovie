@@ -69,9 +69,9 @@ import {
   createSurfboard,
 } from "../sport";
 import {
+  AutoMovieArchetypeCar,
   createBicycle,
   createBoat,
-  createCar,
   createCart,
   createDeck,
   createMotorcycle,
@@ -126,7 +126,10 @@ export function archetypeCaptureCatalog(): Readonly<
   const suitcase: ReturnType<typeof createBag> = createBag({
     kind: "suitcase",
   });
-  const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" });
+  const car: ReturnType<typeof AutoMovieArchetypeCar.create> =
+    AutoMovieArchetypeCar.create({
+      kind: "sedan",
+    });
   const bicycle: ReturnType<typeof createBicycle> = createBicycle();
   const horse: ReturnType<typeof createHorse> = createHorse();
   const rings: ReturnType<typeof createStillRings> = createStillRings();
@@ -278,8 +281,9 @@ export function archetypeCaptureCatalog(): Readonly<
     vehicles: still({
       ...kinds(
         "car",
-        createCar.KINDS,
-        (kind: createCar.Kind): AutoMovieArchetype => createCar({ kind }),
+        AutoMovieArchetypeCar.KINDS,
+        (kind: AutoMovieArchetypeCar.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeCar.create({ kind }),
       ),
       bicycle,
       ...kinds(

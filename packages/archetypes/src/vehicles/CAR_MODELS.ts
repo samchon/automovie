@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createCar } from "./createCar";
+import type { AutoMovieArchetypeCar } from "./AutoMovieArchetypeCar";
 
 /** The hatchbacks, read at their maker's specification pages. */
 const HONDA: string =
@@ -34,18 +34,21 @@ const tyre: typeof AutoMovieArchetypeUnits.tyre = AutoMovieArchetypeUnits.tyre;
  * The Jazz's body, every grade's but the Crosstar's: 4089 x 1694 x 1526 mm on a
  * 2517 mm wheelbase.
  */
-const JAZZ: Readonly<Partial<Record<createCar.Dimension, number>>> = {
-  length: 4.089,
-  width: 1.694,
-  height: 1.526,
-  wheelbase: 2.517,
-};
+const JAZZ: Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>> =
+  {
+    length: 4.089,
+    width: 1.694,
+    height: 1.526,
+    wheelbase: 2.517,
+  };
 
 /**
  * The Civic's body, every grade's: 4560 x 1802 x 1408 mm on a 2734 mm
  * wheelbase.
  */
-const CIVIC: Readonly<Partial<Record<createCar.Dimension, number>>> = {
+const CIVIC: Readonly<
+  Partial<Record<AutoMovieArchetypeCar.Dimension, number>>
+> = {
   length: 4.56,
   width: 1.802,
   height: 1.408,
@@ -65,7 +68,9 @@ const TRANSIT_NOSE: number = 0.958;
  * The Transit Custom L1's read figures, the L2's load length being derived from
  * them: Ford's specification, p. 3.
  */
-const TRANSIT_L1: Readonly<Partial<Record<createCar.Dimension, number>>> = {
+const TRANSIT_L1: Readonly<
+  Partial<Record<AutoMovieArchetypeCar.Dimension, number>>
+> = {
   length: 5.05,
   width: 2.032,
   wheelbase: 3.1,
@@ -87,8 +92,8 @@ const TRANSIT_L2_LENGTH: number = 5.45;
 const TRANSIT_TYRES: Readonly<
   Partial<
     Record<
-      createCar.Tyre,
-      Readonly<Partial<Record<createCar.Dimension, number>>>
+      AutoMovieArchetypeCar.Tyre,
+      Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>
     >
   >
 > = {
@@ -103,8 +108,8 @@ const TRANSIT_TYRES: Readonly<
 const RANGER_TYRES: Readonly<
   Partial<
     Record<
-      createCar.Tyre,
-      Readonly<Partial<Record<createCar.Dimension, number>>>
+      AutoMovieArchetypeCar.Tyre,
+      Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>
     >
   >
 > = {
@@ -134,12 +139,12 @@ const RANGER_TYRES: Readonly<
 export const CAR_MODELS: Readonly<{
   figures: Readonly<
     Record<
-      createCar.Kind,
+      AutoMovieArchetypeCar.Kind,
       Readonly<
         Partial<
           Record<
-            createCar.Model,
-            Readonly<Partial<Record<createCar.Dimension, number>>>
+            AutoMovieArchetypeCar.Model,
+            Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>
           >
         >
       >
@@ -148,20 +153,24 @@ export const CAR_MODELS: Readonly<{
   ranges: Readonly<
     Partial<
       Record<
-        createCar.Model,
-        Readonly<Partial<Record<createCar.Dimension, IAutoMovieArchetypeBand>>>
+        AutoMovieArchetypeCar.Model,
+        Readonly<
+          Partial<
+            Record<AutoMovieArchetypeCar.Dimension, IAutoMovieArchetypeBand>
+          >
+        >
       >
     >
   >;
   tyres: Readonly<
     Partial<
       Record<
-        createCar.Model,
+        AutoMovieArchetypeCar.Model,
         Readonly<
           Partial<
             Record<
-              createCar.Tyre,
-              Readonly<Partial<Record<createCar.Dimension, number>>>
+              AutoMovieArchetypeCar.Tyre,
+              Readonly<Partial<Record<AutoMovieArchetypeCar.Dimension, number>>>
             >
           >
         >
