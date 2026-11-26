@@ -1,4 +1,4 @@
-import type { IAutoMovieViolationCollector } from "@automovie/interface";
+import type { IAutoMovieViolationAppendSink } from "@automovie/interface";
 
 /**
  * Report each reference in a list that resolves to no declared id or repeats an
@@ -21,7 +21,7 @@ export const validateDeclaredReferences = (
   targets: ReadonlySet<string>,
   path: string,
   label: string,
-  collector: IAutoMovieViolationCollector,
+  collector: IAutoMovieViolationAppendSink,
 ): void => {
   const seen: Set<string> = new Set();
   references.forEach((reference: string, index: number): void => {

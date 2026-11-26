@@ -13,7 +13,7 @@ import {
   type IAutoMoviePropSupportFace,
   IAutoMovieStageSetPiece,
   type IAutoMovieValidatePropPlacementGeometry,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { builtElementRestMatrices } from "../architecture/builtElementRestMatrices";
@@ -129,7 +129,7 @@ function soundBox(box: IAutoMoviePropBox): boolean {
 /** Refuse every declared keep-out volume another staged prop's occupancy enters. */
 function validateClearances(
   staged: readonly IStagedProp[],
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void {
   for (const entry of staged) {
     const declared: readonly IAutoMovieClearanceBox[] | undefined =
@@ -157,7 +157,7 @@ function validateClearances(
 /** Refuse two placed props sharing interior volume without a declared contact. */
 function validateOverlaps(
   staged: readonly IStagedProp[],
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void {
   const contacts: Set<string> = new Set<string>();
   for (const entry of staged)
@@ -203,7 +203,7 @@ function pairKey(left: string, right: string): string {
 function validateSupports(
   staged: readonly IStagedProp[],
   environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void {
   const hosts: Map<string, IStagedProp> = new Map(
     staged.map((entry: IStagedProp): [string, IStagedProp] => [
@@ -296,7 +296,7 @@ function judgedEnvironment(
 function validateOccupancy(
   entry: IStagedProp,
   environment: IAutoMovieBuiltEnvironment,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
   blocked: (bounds: IAutoMoviePropBox) => IAutoMoviePassageBlockage[],
 ): void {
   const path: string = `$input.props[${entry.index}]`;

@@ -6,7 +6,7 @@ import {
   IAutoMovieServicePenetration,
   IAutoMovieServiceSegment,
   IAutoMovieVector3,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { builtEnvironmentContainsPoint } from "../architecture/builtEnvironmentContainsPoint";
@@ -34,7 +34,7 @@ export function appendServiceCrossings(
   environment: IAutoMovieBuiltEnvironment,
   segment: IAutoMovieServiceSegment,
   path: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void {
   const located: IAutoMovieBuiltSpace[] = environment.spaces.filter(
     (space: IAutoMovieBuiltSpace): boolean => space.cells.length > 0,

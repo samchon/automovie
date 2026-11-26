@@ -5,6 +5,7 @@ import {
   IAutoMovieJointPose,
   type IAutoMovieValidatePose,
   type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendRotationSink,
 } from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
@@ -16,11 +17,17 @@ import { validateTransformScalars } from "./validateTransformScalars";
  * Admit skeleton identity, optional root transform, duplicate/undeclared joint
  * bones and effective rig/default ROM.
  */
+export function validatePose<Sink extends IAutoMovieViolationAppendRotationSink>(
+  props: IAutoMovieValidatePose.IInjectedProps<Sink>,
+): Sink;
 export function validatePose(
   props: IAutoMovieValidatePose.IProps,
-): IAutoMovieViolationCollector {
+): IAutoMovieViolationCollector;
+export function validatePose(
+  props: IAutoMovieValidatePose.IInjectedProps<IAutoMovieViolationAppendRotationSink> | IAutoMovieValidatePose.IProps,
+): IAutoMovieViolationAppendRotationSink {
   const path: string = props.path ?? "$input";
-  const collector: IAutoMovieViolationCollector =
+  const collector: IAutoMovieViolationAppendRotationSink =
     props.collector ?? new AutoMovieEngineViolationCollector();
   const byBone: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(
     props.skeleton.bones.map(

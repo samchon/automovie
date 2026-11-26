@@ -1,6 +1,6 @@
 import type { IAutoMovieMaterial } from "../material/IAutoMovieMaterial";
 import type { IAutoMovieModelPart } from "../model/IAutoMovieModelPart";
-import type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendRangeItemsSink } from "./IAutoMovieViolationAppendRangeItemsSink";
 
 /** Data and callback contracts shared by the ValidateMaterialLobes operations. */
 export namespace IAutoMovieValidateMaterialLobes {
@@ -30,6 +30,6 @@ export namespace IAutoMovieValidateMaterialLobes {
     partsPath: string;
 
     /** Collector receiving findings. */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendRangeItemsSink;
   };
 }

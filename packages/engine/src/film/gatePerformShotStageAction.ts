@@ -6,7 +6,7 @@ import {
   type IAutoMovieEnginePerformShotGateContext,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendShotGateSink,
 } from "@automovie/interface";
 
 import { armChainFault } from "../kinematics/armChainFault";
@@ -61,7 +61,7 @@ export function gatePerformShotStageAction(
   index: number,
 ): void {
   const path: string = `${context.base}[${index}]`;
-  const out: IAutoMovieViolationCollector = context.out;
+  const out: IAutoMovieViolationAppendShotGateSink = context.out;
   switch (action.verb) {
     case "locomote": {
       if (context.gaits !== undefined)

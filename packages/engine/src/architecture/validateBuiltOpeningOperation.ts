@@ -6,7 +6,7 @@ import {
   IAutoMovieOperationState,
   IAutoMoviePanelValue,
   type IAutoMovieValidateBuiltOpeningOperation,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendPositiveTextSink,
 } from "@automovie/interface";
 
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
@@ -49,7 +49,7 @@ export function validateBuiltOpeningOperation(
       elements: readonly IAutoMovieBuiltElement[];
       elementIds: ReadonlySet<string>;
       driven: Map<string, string>;
-      collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendPositiveTextSink;
     },
   ][0] = props;
   const operation: IAutoMovieBuiltOpening["operation"] = opening.operation;

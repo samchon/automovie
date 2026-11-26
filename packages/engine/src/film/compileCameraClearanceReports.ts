@@ -17,7 +17,7 @@ import {
   IAutoMovieTransform,
   IAutoMovieValidation,
   IAutoMovieVector3,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { sampleMotion } from "../motion/sampleMotion";
@@ -271,7 +271,7 @@ function measureObstacles(props: {
   motions: Readonly<Record<string, IAutoMovieMotion>>;
   objectMotions: readonly IAutoMovieClip[];
   models: readonly IAutoMovieModel[];
-  out: IAutoMovieViolationCollector;
+  out: IAutoMovieViolationAppendSink;
 }): IMeasuredObstacle[] {
   const models: Map<string, IAutoMovieModel> = new Map(
     props.models.map((model: IAutoMovieModel): [string, IAutoMovieModel] => [
@@ -386,7 +386,7 @@ function movingBounds(
 
 /** Address a take whose clock or evaluation threw. */
 function refuseEvaluation(
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
   take: ITake,
   error: unknown,
 ): void {

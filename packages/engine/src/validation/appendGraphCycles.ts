@@ -1,6 +1,6 @@
 import type {
   IAutoMovieAppendGraphCycles,
-  IAutoMovieViolationCollector,
+  IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 /**
@@ -27,7 +27,7 @@ import type {
 export const appendGraphCycles = (
   nodes: IAutoMovieAppendGraphCycles.INodes,
   message: string,
-  collector: IAutoMovieViolationCollector,
+  collector: IAutoMovieViolationAppendSink,
 ): void => {
   type Node = (typeof nodes)[number];
   const byId: Map<string, Node> = new Map(

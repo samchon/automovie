@@ -2,7 +2,7 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieModelPart,
   IAutoMovieValidateMaterialLobes,
-  IAutoMovieViolationCollector,
+  IAutoMovieViolationAppendRangeItemsSink,
 } from "@automovie/interface";
 
 import { validateColor } from "./validateColor";
@@ -28,7 +28,7 @@ export function validateMaterialLobes(
   }: {
     material: IAutoMovieMaterial;
     path: string;
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendRangeItemsSink;
   } = props;
   const anisotropy: IAutoMovieMaterial["anisotropy"] = material.anisotropy;
   if (anisotropy !== undefined) {

@@ -1,5 +1,5 @@
 import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
-import type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendRotationSink } from "./IAutoMovieViolationAppendRotationSink";
 
 /** Transform and reporting sink for shared TRS scalar admission. */
 export namespace IAutoMovieValidateTransformScalars {
@@ -35,6 +35,6 @@ export namespace IAutoMovieValidateTransformScalars {
      * Borrowed mutable finding sink; its items array and push/unitQuaternion
      * methods receive synchronous appends, and thrown errors propagate.
      */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendRotationSink;
   };
 }

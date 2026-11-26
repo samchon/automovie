@@ -9,6 +9,7 @@ import {
   type IAutoMovieValidateServiceNetwork,
   IAutoMovieValidation,
   IAutoMovieVector3,
+  type IAutoMovieViolationAppendSink,
   type IAutoMovieViolationCollector,
   IAutoMovieWetZone,
 } from "@automovie/interface";
@@ -44,7 +45,8 @@ export function validateServiceNetwork(
   props: IAutoMovieValidateServiceNetwork.IProps,
 ): IAutoMovieValidation {
   const { network, environment }: typeof props = props;
-  const out: IAutoMovieViolationCollector = new AutoMovieEngineViolationCollector();
+  const out: IAutoMovieViolationCollector =
+    new AutoMovieEngineViolationCollector();
   const root: string = "$input";
 
   if (network.version !== 1)
@@ -221,12 +223,12 @@ const collectIds: <T extends { id: string }>(
   records: readonly T[],
   path: string,
   label: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ) => Set<string> = <T extends { id: string }>(
   records: readonly T[],
   path: string,
   label: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): Set<string> => {
   const ids: Set<string> = new Set<string>();
   records.forEach((record: T, index: number): void => {
@@ -251,13 +253,13 @@ const coincident: (
   target: IAutoMovieVector3,
   path: string,
   portId: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ) => void = (
   point: IAutoMovieVector3,
   target: IAutoMovieVector3,
   path: string,
   portId: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void => {
   const gap: number = distance(point, target);
   if (gap > ENDPOINT_EPSILON)
@@ -284,12 +286,12 @@ const positive: (
   value: number,
   path: string,
   label: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void => {
   if (!(value > 0 && value < Infinity))
     out.push(
@@ -305,12 +307,12 @@ const nonNegative: (
   value: number,
   path: string,
   label: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ) => void = (
   value: number,
   path: string,
   label: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void => {
   if (value < 0)
     out.push(

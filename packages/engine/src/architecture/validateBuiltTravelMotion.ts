@@ -1,6 +1,6 @@
 import {
   IAutoMovieTravelMotion,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
@@ -32,7 +32,7 @@ export function validateBuiltTravelMotion(
   motion: IAutoMovieTravelMotion,
   path: string,
   label: string,
-  collector: IAutoMovieViolationCollector,
+  collector: IAutoMovieViolationAppendSink,
 ): void {
   const length: number = Vector3.length(motion.axis);
   if (length <= AXIS_EPSILON)

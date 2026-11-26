@@ -58,3 +58,14 @@ export type { IAutoMovieValidateTransformScalars } from "./IAutoMovieValidateTra
 export type { IAutoMovieValidateUniqueBy } from "./IAutoMovieValidateUniqueBy";
 export type { IAutoMovieValidation } from "./IAutoMovieValidation";
 export type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
+export type { IAutoMovieViolationAppendItemsSink } from "./IAutoMovieViolationAppendItemsSink";
+export type { IAutoMovieViolationAppendPositiveTextSink } from "./IAutoMovieViolationAppendPositiveTextSink";
+export type { IAutoMovieViolationAppendRangeSink } from "./IAutoMovieViolationAppendRangeSink";
+export type { IAutoMovieViolationAppendRangeItemsSink } from "./IAutoMovieViolationAppendRangeItemsSink";
+export type { IAutoMovieViolationAppendRangeTextSink } from "./IAutoMovieViolationAppendRangeTextSink";
+export type { IAutoMovieViolationAppendRotationSink } from "./IAutoMovieViolationAppendRotationSink";
+export type { IAutoMovieViolationAppendShotGateSink } from "./IAutoMovieViolationAppendShotGateSink";
+export type { IAutoMovieViolationAppendSink } from "./IAutoMovieViolationAppendSink";
+export type { IAutoMovieViolationAppendSurfaceItemsSink } from "./IAutoMovieViolationAppendSurfaceItemsSink";
+export type { IAutoMovieViolationAppendTextSink } from "./IAutoMovieViolationAppendTextSink";
+export type { IAutoMovieViolationWarningSink } from "./IAutoMovieViolationWarningSink";

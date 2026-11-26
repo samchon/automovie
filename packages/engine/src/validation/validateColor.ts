@@ -1,6 +1,6 @@
 import type {
   IAutoMovieColor,
-  IAutoMovieViolationCollector,
+  IAutoMovieViolationAppendRangeItemsSink,
 } from "@automovie/interface";
 
 import { linearColorToSrgbHex } from "../math/linearColorToSrgbHex";
@@ -26,7 +26,7 @@ const HEX_COLOR_PATTERN: RegExp = /^#[0-9A-Fa-f]{6}$/;
 export function validateColor(
   color: IAutoMovieColor,
   path: string,
-  collector: IAutoMovieViolationCollector,
+  collector: IAutoMovieViolationAppendRangeItemsSink,
 ): void {
   const beforeRgb: number = collector.items.length;
   for (const channel of ["r", "g", "b"] as const)

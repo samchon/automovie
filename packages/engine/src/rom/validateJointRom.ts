@@ -5,7 +5,7 @@ import {
   type IAutoMovieScanJointRom,
   type IAutoMovieSwingTwistLimit,
   type IAutoMovieValidateJointRom,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { swingTwistRange } from "../kinematics/swingTwistRange";
@@ -30,7 +30,7 @@ export function validateJointRom(
     joint: IAutoMovieJointPose;
     constraint: IAutoMovieJointConstraint;
     path: string;
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendSink;
   } = props;
   // The faults and their distances come from `scanJointRom`, the measure the
   // solvers rank candidates by; only their wording is decided here.

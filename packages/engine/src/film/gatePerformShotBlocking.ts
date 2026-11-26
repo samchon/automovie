@@ -4,7 +4,7 @@ import {
   type IAutoMovieEnginePerformShotGateContext,
   type IAutoMoviePerformShotFrameJob,
   IAutoMoviePerformance,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { performShotActionSpan } from "./performShotActionSpan";
@@ -32,7 +32,7 @@ export function gatePerformShotBlocking(
   stageActions: readonly IAutoMovieActionCall[],
   frames: readonly IAutoMoviePerformShotFrameJob[],
 ): void {
-  const out: IAutoMovieViolationCollector = context.out;
+  const out: IAutoMovieViolationAppendSink = context.out;
   const performance: IAutoMoviePerformance = context.performance;
   const base: string = context.base;
   if (blocking.beat !== performance.beat)

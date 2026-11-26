@@ -1,6 +1,6 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendSink } from "../validation/IAutoMovieViolationAppendSink";
 
 /**
  * One world-space service point and its owning logical-space containment
@@ -60,6 +60,6 @@ export namespace IAutoMovieAppendServiceInsideSpace {
      * Synchronous caller-owned sink receiving an outside-space finding;
      * exceptions propagate.
      */
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendSink;
   };
 }

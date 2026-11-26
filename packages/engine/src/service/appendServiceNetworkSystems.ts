@@ -6,7 +6,7 @@ import {
   IAutoMovieServiceNode,
   IAutoMovieServicePort,
   IAutoMovieServiceSystem,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 const DISCIPLINES: readonly AutoMovieServiceDiscipline[] = [
@@ -76,12 +76,12 @@ const MEDIUM_UNITS: Record<
 export function appendServiceNetworkSystems(
   network: IAutoMovieServiceNetwork,
   root: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
   positive: (
     value: number,
     path: string,
     label: string,
-    out: IAutoMovieViolationCollector,
+    out: IAutoMovieViolationAppendSink,
   ) => void,
 ): void {
   network.systems.forEach(

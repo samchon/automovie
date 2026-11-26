@@ -1,5 +1,5 @@
 import type { IAutoMovieJointConstraint } from "../skeleton/IAutoMovieJointConstraint";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendSink } from "../validation/IAutoMovieViolationAppendSink";
 import type { IAutoMovieJointPose } from "./IAutoMovieJointPose";
 import type { IAutoMovieJointRotationFrame } from "./IAutoMovieJointRotationFrame";
 
@@ -25,7 +25,7 @@ export namespace IAutoMovieValidateJointRom {
     path: string;
 
     /** Caller-owned append-only diagnostic sink, advanced by this validation. */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendSink;
 
     /**
      * The bone's frame as the caller's rig resolves it, for a joint gated by

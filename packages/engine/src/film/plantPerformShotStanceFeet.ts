@@ -15,7 +15,7 @@ import type {
   IAutoMovieStagedSet,
   IAutoMovieTimedGround,
   IAutoMovieVector3,
-  IAutoMovieViolationCollector,
+  IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
@@ -70,7 +70,7 @@ export function plantPerformShotStanceFeet(
   props: IAutoMoviePlantPerformShotStanceFeet.IProps,
   admission?: {
     duration: number;
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendSink;
   },
 ): IAutoMoviePerformedShot.ISuccess["plants"] {
   const plants: IAutoMoviePerformedShot.ISuccess["plants"] = [];
@@ -324,7 +324,7 @@ function checkScopedGaitContacts(props: {
   duration: number;
   plants: readonly IAutoMovieFootPlant[];
   groundEvidence: ReadonlyMap<number, IScopedGaitGround>;
-  out: IAutoMovieViolationCollector;
+  out: IAutoMovieViolationAppendSink;
   path: string;
 }): void {
   if (props.period <= 0) return;

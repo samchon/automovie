@@ -1,7 +1,7 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
 import type { IAutoMovieStageSetPiece } from "../authoring/IAutoMovieStageSetPiece";
 import type { IAutoMoviePropSpec } from "../harness/IAutoMoviePropSpec";
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendSink } from "../validation/IAutoMovieViolationAppendSink";
 
 /**
  * Data and callback contracts shared by the ValidatePropPlacementGeometry
@@ -59,6 +59,6 @@ export namespace IAutoMovieValidatePropPlacementGeometry {
     environments: ReadonlyMap<string, IAutoMovieBuiltEnvironment>;
 
     /** Collector the violations are appended to. */
-    out: IAutoMovieViolationCollector;
+    out: IAutoMovieViolationAppendSink;
   };
 }

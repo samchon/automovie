@@ -5,7 +5,8 @@ import {
   IAutoMovieDesignStamp,
   IAutoMovieDesignVariant,
   type IAutoMovieValidateDesignLineageDerived,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendTextSink,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { appendGraphCycles } from "../validation/appendGraphCycles";
@@ -56,7 +57,7 @@ export function validateDesignLineageDerived(
       phaseIds: ReadonlySet<string>;
       variants: ReadonlyMap<string, IAutoMovieDesignVariant>;
       root: string;
-      out: IAutoMovieViolationCollector;
+  out: IAutoMovieViolationAppendTextSink;
     },
   ][0] = props;
   const derivedIds: Set<string> = collectDeclaredIds(
@@ -221,12 +222,12 @@ const appendCitationDefects: (
   artifact: IAutoMovieDerivedArtifact,
   subjectBytes: ReadonlyMap<string, string>,
   path: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ) => void = (
   artifact: IAutoMovieDerivedArtifact,
   subjectBytes: ReadonlyMap<string, string>,
   path: string,
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
 ): void => {
   const importedInputs: Set<string> = new Set(
     artifact.inputs.filter((input: string): boolean => subjectBytes.has(input)),

@@ -4,7 +4,7 @@ import type {
   IAutoMovieModelPart,
   IAutoMovieProceduralSurface,
   IAutoMovieValidateMaterialProcedural,
-  IAutoMovieViolationCollector,
+  IAutoMovieViolationAppendSurfaceItemsSink,
 } from "@automovie/interface";
 
 import { validateColor } from "./validateColor";
@@ -32,7 +32,7 @@ export function validateMaterialProcedural(
   props: IAutoMovieValidateMaterialProcedural.IProps,
 ): void {
   const material: IAutoMovieMaterial = props.material;
-  const collector: IAutoMovieViolationCollector = props.collector;
+  const collector: IAutoMovieViolationAppendSurfaceItemsSink = props.collector;
   const surface: IAutoMovieProceduralSurface | undefined = material.procedural;
   if (surface === undefined) return;
   const path: string = `${props.path}.procedural`;
@@ -99,7 +99,7 @@ function validatePiece(
   path: string,
   props: IAutoMovieValidateMaterialProcedural.IProps,
 ): void {
-  const collector: IAutoMovieViolationCollector = props.collector;
+  const collector: IAutoMovieViolationAppendSurfaceItemsSink = props.collector;
   const at: string = `${path}.piece`;
   collector.positive(`${at}.tile.u`, piece.tile.u, "piece tile u");
   collector.positive(`${at}.tile.v`, piece.tile.v, "piece tile v");

@@ -1,4 +1,4 @@
-import type { IAutoMovieViolationCollector } from "@automovie/interface";
+import type { IAutoMovieViolationAppendSink } from "@automovie/interface";
 
 /**
  * Collect the ids a list of records declares, reporting each repeated one.
@@ -20,7 +20,7 @@ export const collectDeclaredIds = <Declared extends { id: string }>(
   records: readonly Declared[],
   path: string,
   label: string,
-  collector: IAutoMovieViolationCollector,
+  collector: IAutoMovieViolationAppendSink,
 ): Set<string> => {
   const ids: Set<string> = new Set();
   records.forEach((record: Declared, index: number): void => {

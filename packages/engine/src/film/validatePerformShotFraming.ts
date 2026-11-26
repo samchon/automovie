@@ -1,7 +1,7 @@
 import {
   IAutoMovieCameraAction,
   type IAutoMovieValidatePerformShotFraming,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { describeInvalidValue } from "../validation/describeInvalidValue";
@@ -29,7 +29,7 @@ import { CAMERA_MOVES } from "./constants/CAMERA_MOVES";
  * @returns Whether the framing and the move are each one the grammar accepts.
  */
 export function validatePerformShotFraming(
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendSink,
   path: string,
   framing: unknown,
   move: unknown,

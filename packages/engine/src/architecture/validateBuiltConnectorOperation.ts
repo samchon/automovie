@@ -5,7 +5,7 @@ import {
   IAutoMovieConnectorCarriage,
   IAutoMovieConnectorState,
   type IAutoMovieValidateBuiltConnectorOperation,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendSink,
 } from "@automovie/interface";
 
 import { collectDeclaredIds } from "../validation/collectDeclaredIds";
@@ -56,7 +56,7 @@ export function validateBuiltConnectorOperation(
       elements: readonly IAutoMovieBuiltElement[];
       elementIds: ReadonlySet<string>;
       driven: Map<string, string>;
-      collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendSink;
     },
   ][0] = props;
   const operation: IAutoMovieBuiltConnector["operation"] = connector.operation;

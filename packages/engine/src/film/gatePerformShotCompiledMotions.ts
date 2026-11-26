@@ -3,7 +3,7 @@ import type {
   IAutoMovieMaskedContent,
   IAutoMovieSkeleton,
   IAutoMovieValidation,
-  IAutoMovieViolationCollector,
+  IAutoMovieViolationAppendItemsSink,
 } from "@automovie/interface";
 
 import { validateMotion } from "../validation/validateMotion";
@@ -25,7 +25,7 @@ import { validateMotion } from "../validation/validateMotion";
  * @param skeleton The staged rig of a node, or null for a node without one.
  */
 export function gatePerformShotCompiledMotions(
-  out: IAutoMovieViolationCollector,
+  out: IAutoMovieViolationAppendItemsSink,
   compiled: IAutoMovieCompiledPerformance,
   stageActionPaths: readonly string[],
   skeleton: (node: string) => IAutoMovieSkeleton | null,

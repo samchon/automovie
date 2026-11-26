@@ -4,7 +4,7 @@ import {
   type IAutoMovieResolvePerformShotTarget,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
-  type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendItemsSink,
 } from "@automovie/interface";
 
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
@@ -119,7 +119,7 @@ function validateTargetIds(
   path: string,
   label: string,
 ): boolean {
-  const out: IAutoMovieViolationCollector = context.out;
+  const out: IAutoMovieViolationAppendItemsSink = context.out;
   const initial: number = out.items.length;
   if (target.kind === "bone") {
     validateBoneTarget(context, target.node, target.bone, path);

@@ -3,23 +3,30 @@ import {
   IAutoMovieExpression,
   type IAutoMovieValidateExpression,
   type IAutoMovieViolationCollector,
+  type IAutoMovieViolationAppendRangeSink,
 } from "@automovie/interface";
 
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 
 /** Admit intensity/weight ranges and duplicate ARKit channels. */
+export function validateExpression<Sink extends IAutoMovieViolationAppendRangeSink>(
+  props: IAutoMovieValidateExpression.IInjectedProps<Sink>,
+): Sink;
 export function validateExpression(
   props: IAutoMovieValidateExpression.IProps,
-): IAutoMovieViolationCollector {
+): IAutoMovieViolationCollector;
+export function validateExpression(
+  props: IAutoMovieValidateExpression.IInjectedProps<IAutoMovieViolationAppendRangeSink> | IAutoMovieValidateExpression.IProps,
+): IAutoMovieViolationAppendRangeSink {
   const path: string = props.path ?? "$input";
-  const collector: IAutoMovieViolationCollector =
+  const collector: IAutoMovieViolationAppendRangeSink =
     props.collector ?? new AutoMovieEngineViolationCollector();
   const {
     expression,
   }: {
     expression: IAutoMovieExpression;
     path?: string;
-    collector?: IAutoMovieViolationCollector;
+    collector?: IAutoMovieViolationAppendRangeSink;
   } = props;
 
   collector.range(`${path}.intensity`, expression.intensity, 0, 1, "intensity");

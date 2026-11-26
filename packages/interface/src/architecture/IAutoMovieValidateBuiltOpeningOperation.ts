@@ -1,4 +1,4 @@
-import type { IAutoMovieViolationCollector } from "../validation/IAutoMovieViolationCollector";
+import type { IAutoMovieViolationAppendPositiveTextSink } from "../validation/IAutoMovieViolationAppendPositiveTextSink";
 import type { IAutoMovieBuiltElement } from "./IAutoMovieBuiltElement";
 import type { IAutoMovieBuiltOpening } from "./IAutoMovieBuiltOpening";
 
@@ -55,6 +55,6 @@ export namespace IAutoMovieValidateBuiltOpeningOperation {
      * Synchronous diagnostic sink; appended findings may reference authored
      * records and sink exceptions propagate.
      */
-    collector: IAutoMovieViolationCollector;
+    collector: IAutoMovieViolationAppendPositiveTextSink;
   };
 }
