@@ -23,9 +23,13 @@ export namespace AutoMovieHumanF1RootRails {
 
   /** Named landing contract for the authored root stations, in millimetres. */
   export interface ILanding {
+    /** Landing station for the arm rail. */
     arm: number;
+    /** Landing station for the leg rail. */
     leg: number;
+    /** Landing station for the breast rail. */
     breast: number;
+    /** Landing station for the nose rail. */
     nose: number;
   }
 

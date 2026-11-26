@@ -1,6 +1,6 @@
 import {
+  AutoMovieEngineCanonicalJson,
   autoMovieRenderDigest,
-  canonicalizeAutoMovieJson,
   digestAutoMovieBytes,
 } from "@automovie/engine";
 import type {
@@ -112,7 +112,7 @@ export function admitProductionTtsReceipt(
   );
 
   const cacheKey: string = autoMovieRenderDigest(
-    canonicalizeAutoMovieJson([
+    AutoMovieEngineCanonicalJson.canonicalize([
       receipt.text,
       receipt.model,
       receipt.modelRevision,
