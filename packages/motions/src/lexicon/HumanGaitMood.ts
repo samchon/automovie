@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionManner,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanGait } from "./HumanGait";
 

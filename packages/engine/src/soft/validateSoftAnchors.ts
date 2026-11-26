@@ -9,9 +9,9 @@ import {
 import { SOFT_MAX_ANCHORS } from "./constants/SOFT_MAX_ANCHORS";
 import { SOFT_MAX_STATES } from "./constants/SOFT_MAX_STATES";
 import { validateSoftBounded as bounded } from "./validateSoftBounded";
-import { validateSoftIdentity as identity } from "./validateSoftIdentity";
-import { validateSoftInteger as integer } from "./validateSoftInteger";
-import { validateSoftVector as vector } from "./validateSoftVector";
+import { validateSoftIdentity as identity } from "./internal/validateSoftIdentity";
+import { validateSoftInteger as integer } from "./internal/validateSoftInteger";
+import { validateSoftVector as vector } from "./internal/validateSoftVector";
 
 /**
  * Validate a soft-body domain's anchors and its named states: the anchors'

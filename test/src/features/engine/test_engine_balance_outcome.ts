@@ -1,8 +1,4 @@
-import {
-  AutoMovieGravity,
-  Vector3,
-  resolveAutoMovieBalanceOutcome,
-} from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieVector3,
@@ -71,7 +67,7 @@ export function test_engine_balance_outcome(): void {
     impulse: IAutoMovieVector3,
     at?: IAutoMovieVector3,
   ): IAutoMovieResolveBalanceOutcome.IOutcome =>
-    resolveAutoMovieBalanceOutcome({
+    AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome({
       centre,
       velocity: { x: 0, y: 0, z: 0 },
       mass,
@@ -226,7 +222,7 @@ export function test_engine_balance_outcome(): void {
     ["support", { ...props, support: [] }],
   ] as const)
     TestValidator.error(`a broken ${label} is refused`, (): void => {
-      resolveAutoMovieBalanceOutcome(broken);
+      AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(broken);
     });
 
   TestValidator.predicate(

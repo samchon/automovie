@@ -12,7 +12,7 @@ import type {
 } from "@automovie/interface";
 
 import { channelKey } from "../resolve/channelKey";
-import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../resolve/internal/sampleClipSequence";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 
 /** One declared prop-channel requirement. */

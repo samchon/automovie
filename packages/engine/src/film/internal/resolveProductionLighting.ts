@@ -3,7 +3,7 @@ import {
   type IAutoMovieResolveProductionLighting,
 } from "@automovie/interface";
 
-import { resolveShotLighting } from "../../resolve/resolveShotLighting";
+import { resolveShotLighting } from "../../resolve/internal/resolveShotLighting";
 
 /**
  * The production's lights at one story-clock instant.

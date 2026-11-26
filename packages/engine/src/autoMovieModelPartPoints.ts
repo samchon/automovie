@@ -7,7 +7,7 @@ import {
 
 import { autoMovieModelPartMatrices } from "./autoMovieModelPartMatrices";
 import { transformAutoMovieDrawingPoint } from "./drawing/internal/transformAutoMovieDrawingPoint";
-import { realizeAutoMovieGeometry } from "./geometry/realizeAutoMovieGeometry";
+import { realizeAutoMovieGeometry } from "./geometry/internal/realizeAutoMovieGeometry";
 import { Matrix4 } from "./math/Matrix4";
 
 /**

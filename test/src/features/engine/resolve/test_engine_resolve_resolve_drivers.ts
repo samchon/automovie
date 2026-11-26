@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieChannel,
   IAutoMovieCopyDriver,
@@ -102,7 +102,7 @@ const out: (
   change: Partial<IAutoMovieDrivenDriver>,
 ): number => {
   const sampled: Map<string, IAutoMovieSampledChannel> = sample("/in", source);
-  resolveDrivers([driven(change)], sampled, nodes());
+  AutoMovieEngineResolve.resolveDrivers([driven(change)], sampled, nodes());
   return sampled.get("ptr:/out")!.value[0]!;
 };
 
@@ -123,7 +123,7 @@ const out: (
  */
 export function test_engine_resolve_resolve_drivers(): void {
   const half: Map<string, IAutoMovieSampledChannel> = new Map();
-  resolveDrivers([copy("a", "b", 0.5)], half, nodes());
+  AutoMovieEngineResolve.resolveDrivers([copy("a", "b", 0.5)], half, nodes());
   TestValidator.equals(
     "a half copy",
     half
@@ -134,7 +134,7 @@ export function test_engine_resolve_resolve_drivers(): void {
     [1, 2, 3],
   );
   const chain: Map<string, IAutoMovieSampledChannel> = new Map();
-  resolveDrivers([copy("c", "a", 1), copy("a", "b", 1)], chain, nodes());
+  AutoMovieEngineResolve.resolveDrivers([copy("c", "a", 1), copy("a", "b", 1)], chain, nodes());
   TestValidator.equals(
     "a chain in dependency order",
     chain.get("node:c:translation")!.value,
@@ -168,22 +168,22 @@ export function test_engine_resolve_resolve_drivers(): void {
   };
   TestValidator.predicate(
     "the deferred driver",
-    resolveDrivers([ik], new Map(), nodes())[0] === ik,
+    AutoMovieEngineResolve.resolveDrivers([ik], new Map(), nodes())[0] === ik,
   );
   TestValidator.predicate(
     "refusals",
     throwsError(
-      (): unknown => resolveDrivers([copy("a", "b", 2)], new Map(), nodes()),
+      (): unknown => AutoMovieEngineResolve.resolveDrivers([copy("a", "b", 2)], new Map(), nodes()),
       "influence must be between 0 and 1",
     ) &&
       throwsError(
         (): unknown =>
-          resolveDrivers([copy("a", "missing", 1)], new Map(), nodes()),
+          AutoMovieEngineResolve.resolveDrivers([copy("a", "missing", 1)], new Map(), nodes()),
         'node "missing" was not provided',
       ) &&
       throwsError(
         (): unknown =>
-          resolveDrivers(
+          AutoMovieEngineResolve.resolveDrivers(
             [
               driven({
                 output: { kind: "node", node: "a", path: "translation" },

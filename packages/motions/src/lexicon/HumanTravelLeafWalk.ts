@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkPaced } from "../actions/walkPaced";
 import { HumanSupportCarry } from "../carrier/HumanSupportCarry";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";

@@ -12,7 +12,7 @@ import {
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
-import { reachPose } from "./kinematics/reachPose";
+import { reachPose } from "./kinematics/internal/reachPose";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Quaternion } from "./math/Quaternion";
 import { Transform } from "./math/Transform";

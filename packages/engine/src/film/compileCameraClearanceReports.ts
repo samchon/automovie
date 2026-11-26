@@ -22,7 +22,7 @@ import {
 
 import { sampleMotion } from "../motion/sampleMotion";
 import { channelKey } from "../resolve/channelKey";
-import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../resolve/internal/sampleClipSequence";
 import { validateModel } from "../validation/validateModel";
 import { cameraClearanceDeformationRadius } from "./internal/cameraClearanceDeformationRadius";
 import { cameraClearanceSampleTimes } from "./internal/cameraClearanceSampleTimes";

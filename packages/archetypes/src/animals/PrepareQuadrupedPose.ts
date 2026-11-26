@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  prepareArticulatedRig,
-  validateModel,
-} from "@automovie/engine";
+import { Quaternion, Vector3, validateModel, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieArticulatedRig,
@@ -75,7 +70,7 @@ function prepare<Id extends string, Dimension extends string>(
   const rig: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone> =
     AutoMovieArchetypeQuadrupedSkeleton.of(animal);
   const reader: IAutoMovieArticulatedRigReader<AutoMovieArchetypeQuadrupedBody.Bone> =
-    prepareArticulatedRig(rig);
+    AutoMovieEngineKinematics.prepareArticulatedRig(rig);
   const neutral: ReadonlyMap<
     AutoMovieArchetypeQuadrupedBody.Bone,
     IAutoMovieTransform

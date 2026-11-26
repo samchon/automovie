@@ -14,7 +14,7 @@ import {
 
 import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
 import { instancePrototypeChoices } from "../../populationRuntime/instancePrototypeChoices";
-import { selectInstancePrototype } from "../../populationRuntime/selectInstancePrototype";
+import { selectInstancePrototype } from "../../populationRuntime/internal/selectInstancePrototype";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";

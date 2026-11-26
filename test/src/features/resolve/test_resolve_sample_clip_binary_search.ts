@@ -1,4 +1,4 @@
-import { sampleClip } from "@automovie/engine";
+import { AutoMovieEngineSequence } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieClip,
@@ -53,7 +53,7 @@ const rampClip: () => IAutoMovieClip = (): IAutoMovieClip => {
 };
 
 const xAt: (t: number) => number[] = (t: number): number[] => {
-  const hit: IAutoMovieSampledChannel | undefined = sampleClip(
+  const hit: IAutoMovieSampledChannel | undefined = AutoMovieEngineSequence.sampleClip(
     rampClip(),
     t,
   ).get(KEY);

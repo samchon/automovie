@@ -13,7 +13,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
+import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { quaternionFromAutoMovieBasis } from "../math/internal/quaternionFromAutoMovieBasis";

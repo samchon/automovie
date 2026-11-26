@@ -3,7 +3,7 @@ import type {
   IAutoMovieSolidMeshConstraints,
 } from "@automovie/interface";
 
-import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
+import { orientAutoMovieSolidChart } from "./internal/orientAutoMovieSolidChart";
 
 /** One indexed point in the universal cover of a periodic chart. */
 interface Cut {

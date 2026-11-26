@@ -14,8 +14,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { formationSlotPosition } from "../populationRuntime/formation/formationSlotPosition";
-import { placeFormationSlot } from "../populationRuntime/formation/placeFormationSlot";
+import { formationSlotPosition } from "../populationRuntime/formation/internal/formationSlotPosition";
+import { placeFormationSlot } from "../populationRuntime/formation/internal/placeFormationSlot";
 import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
 import { sampleFormationSlotMotion } from "../populationRuntime/formation/sampleFormationSlotMotion";
 import { autoMovieModelColumns } from "./autoMovieModelColumns";

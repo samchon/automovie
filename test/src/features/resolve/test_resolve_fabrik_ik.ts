@@ -1,4 +1,4 @@
-import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
+import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieIKDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -71,7 +71,7 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
 export function test_resolve_fabrik_ik(): void {
   // 1. reachable goal, exact lengths
   const w1: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([fabrik({})], w1, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([fabrik({})], w1, new Map(), new Map());
   TestValidator.predicate(
     "tip converges onto the goal",
     dist(at(w1, "t"), { x: 1.2, y: 0.5, z: 0 }) <= 1e-3,
@@ -93,7 +93,7 @@ export function test_resolve_fabrik_ik(): void {
 
   // 2. unreachable goal → closed-form full extension along the ray
   const w2: Map<string, number[]> = bentWorld({ x: 0, y: 5, z: 0 });
-  resolveWorldDrivers([fabrik({})], w2, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([fabrik({})], w2, new Map(), new Map());
   TestValidator.predicate(
     "mid on the ray at its cumulative length",
     vclose(at(w2, "m"), { x: 0, y: 1, z: 0 }, 1e-9),
@@ -111,7 +111,7 @@ export function test_resolve_fabrik_ik(): void {
     ["d", W({ x: 3, y: 0, z: 0 })],
     ["g", W({ x: 1.5, y: 1.5, z: 0 })],
   ]);
-  resolveWorldDrivers(
+  AutoMovieEngineResolve.resolveWorldDrivers(
     [fabrik({ chain: ["a", "b", "c", "d"] })],
     w3,
     new Map(),
@@ -147,7 +147,7 @@ export function test_resolve_fabrik_ik(): void {
     ["t", W({ x: 2, y: 0, z: 0 })],
     ["g", W({ x: 1, y: 0, z: 0 })],
   ]);
-  resolveWorldDrivers([fabrik({})], w4, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([fabrik({})], w4, new Map(), new Map());
   TestValidator.equals(
     "degenerate fold terminates with exact lengths",
     namedFacts([
@@ -165,7 +165,7 @@ export function test_resolve_fabrik_ik(): void {
 
   // 5. determinism
   const w5: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([fabrik({})], w5, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([fabrik({})], w5, new Map(), new Map());
   TestValidator.equals(
     "deterministic replay",
     namedFacts([
@@ -177,7 +177,7 @@ export function test_resolve_fabrik_ik(): void {
 
   // 6. influence blend
   const w6: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
-  resolveWorldDrivers([fabrik({ influence: 0.5 })], w6, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([fabrik({ influence: 0.5 })], w6, new Map(), new Map());
   const solvedTip: IAutoMovieVector3 = at(w1, "t");
   TestValidator.predicate(
     "half influence blends the tip linearly",

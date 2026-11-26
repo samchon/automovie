@@ -24,31 +24,7 @@ import type { preparePoseReading } from "./preparePoseReading";
 import { preparePoseResolution } from "./preparePoseResolution";
 import { preparePoseResolutionState } from "./preparePoseResolutionState";
 import { preparePoseTupleScan } from "./preparePoseTupleScan";
-import { skeletonJointAxes } from "./skeletonJointAxes";
-
-/** The immutable node representation shared with the dynamic FK owner. */
-type INode = preparePoseResolutionState.INode;
-
-/** Raw immutable clinical inputs with one shared successful basis admission. */
-type IConvention = preparePoseResolutionState.IConvention;
-
-/** Owned static values cross into runtime binding without their source scope. */
-interface ISnapshot {
-  /** Copied rooted rest graph; no source bone records remain. */
-  nodes: readonly INode[];
-
-  /** Actual copied name-to-node lookup. */
-  indices: ReadonlyMap<AutoMovieHumanoidBone, number>;
-
-  /** Copied clinical prerequisites, admitted lazily at actual use. */
-  conventions: ReadonlyMap<string, IConvention>;
-
-  /** Copied ordinary default clinical convention. */
-  fallback: IConvention;
-
-  /** Public frozen raw-axis snapshot used by same-rig IK. */
-  axes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
-}
+import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 
 /**
  * Snapshot a rig's static FK prerequisites once, then resolve changing poses
@@ -81,6 +57,112 @@ export function prepareSkeletonPoseResolution(
   topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(skeleton),
 ): prepareSkeletonPoseResolution.IRig {
   return bindSnapshot(snapshotRig(skeleton, jointAxes, restFrames, topology));
+}
+
+/** Explicit immutable rig snapshot and its fresh-output demand resolver. */
+export namespace prepareSkeletonPoseResolution {
+  /**
+   * Admit a complete source/root without computing unused output frames, only
+   * through this factory's original own-data map callable. Unknown, copied,
+   * proxied, inherited or replaced readers decline without invoking a
+   * method/getter. A supported call performs the real ordered admission; its
+   * failures propagate and no source-validity flag/result is retained.
+   *
+   * @param rig Genuine fixed rig whose original resolveMap data method is still
+   *   installed.
+   * @param pose Current complete source, with ordinary clinical degrees and
+   *   root placement.
+   * @param operation Same-operation dependency rows, when supplied.
+   * @returns Whether actual factory admission ran; false requires the
+   *   consumer's ordinary reader fallback.
+   *
+   *   Private factory registration and an equal own data-property value prove the
+   *   exact map whose complete admission precedes sparse output demand. An
+   *   empty name set omits unused FK frames while retaining every joint/root
+   *   check. No boolean, structural match or frozen wrapper proves admission.
+   *
+   *   One weak lookup and descriptor check precede unchanged O(J) admission;
+   *   unknown readers decline in constant work. Every supported call reads its
+   *   current source; matching fixed-source consumers own completion reuse and
+   *   raw fallback. The weak registration retains only the original callable;
+   *   descriptor/empty-set temporaries end with this call, without a source
+   *   verdict, result history, strong registry, handle or task. Speedup is
+   *   unmeasured.
+   */
+  export function admitSource(
+    rig: IRig,
+    pose: IAutoMoviePose,
+    operation?: ReturnType<typeof preparePoseResolution>,
+  ): boolean {
+    rig.resolveMap(pose, operation, new Set<AutoMovieHumanoidBone>());
+    return true;
+  }
+
+  /**
+   * Root construction after tuple staging
+   * (`IAutoMovieSkeletonPoseResolution.ITupleRead`).
+   */
+  export type ITupleRead = IAutoMovieSkeletonPoseResolution.ITupleRead;
+
+  /** Staged tuple reader (`IAutoMovieSkeletonPoseResolution.ITupleReader`). */
+  export type ITupleReader = IAutoMovieSkeletonPoseResolution.ITupleReader;
+
+  /**
+   * Return fresh geometric rest frames only from this owner's genuine rig.
+   * Private weak provenance resolves the actual immutable rooted nodes,
+   * independently of public method replacement. Unknown structural rigs throw
+   * before any method is invoked. No external rest map or skeleton pairing is
+   * accepted. The original root-null, no-joint/no-scale FK produces lazy rest
+   * once and shares it with ordinary neutral reads, preserving all arithmetic
+   * grouping. Each O(B) output copy is fresh; private rows live with the rig,
+   * without an operation key, pose, authored callback, output history or strong
+   * registry.
+   */
+  export function rest(rig: IRig): IAutoMovieResolvedBone[] {
+    return rig.resolve({ skeleton: "", root: null, joints: [] });
+  }
+
+  /**
+   * Immutable prepared FK of one fixed rig
+   * (`IAutoMovieSkeletonPoseResolution.IRig`).
+   */
+  export type IRig = IAutoMovieSkeletonPoseResolution.IRig;
+
+  /**
+   * One pose as this rig admitted it
+   * (`IAutoMovieSkeletonPoseResolution.IReading`).
+   */
+  export type IReading = IAutoMovieSkeletonPoseResolution.IReading;
+
+  /**
+   * A rig's fixed requested-bone snapshot
+   * (`IAutoMovieSkeletonPoseResolution.IBoneDemand`).
+   */
+  export type IBoneDemand = IAutoMovieSkeletonPoseResolution.IBoneDemand;
+}
+
+/** The immutable node representation shared with the dynamic FK owner. */
+type INode = preparePoseResolutionState.INode;
+
+/** Raw immutable clinical inputs with one shared successful basis admission. */
+type IConvention = preparePoseResolutionState.IConvention;
+
+/** Owned static values cross into runtime binding without their source scope. */
+interface ISnapshot {
+  /** Copied rooted rest graph; no source bone records remain. */
+  nodes: readonly INode[];
+
+  /** Actual copied name-to-node lookup. */
+  indices: ReadonlyMap<AutoMovieHumanoidBone, number>;
+
+  /** Copied clinical prerequisites, admitted lazily at actual use. */
+  conventions: ReadonlyMap<string, IConvention>;
+
+  /** Copied ordinary default clinical convention. */
+  fallback: IConvention;
+
+  /** Public frozen raw-axis snapshot used by same-rig IK. */
+  axes: Readonly<Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>>;
 }
 
 /** Copy source prerequisites before any long-lived runtime closure is created. */
@@ -387,86 +469,4 @@ function tupleAncestors(
     }
   }
   return names;
-}
-
-/** Explicit immutable rig snapshot and its fresh-output demand resolver. */
-export namespace prepareSkeletonPoseResolution {
-  /**
-   * Admit a complete source/root without computing unused output frames, only
-   * through this factory's original own-data map callable. Unknown, copied,
-   * proxied, inherited or replaced readers decline without invoking a
-   * method/getter. A supported call performs the real ordered admission; its
-   * failures propagate and no source-validity flag/result is retained.
-   *
-   * @param rig Genuine fixed rig whose original resolveMap data method is still
-   *   installed.
-   * @param pose Current complete source, with ordinary clinical degrees and
-   *   root placement.
-   * @param operation Same-operation dependency rows, when supplied.
-   * @returns Whether actual factory admission ran; false requires the
-   *   consumer's ordinary reader fallback.
-   *
-   *   Private factory registration and an equal own data-property value prove the
-   *   exact map whose complete admission precedes sparse output demand. An
-   *   empty name set omits unused FK frames while retaining every joint/root
-   *   check. No boolean, structural match or frozen wrapper proves admission.
-   *
-   *   One weak lookup and descriptor check precede unchanged O(J) admission;
-   *   unknown readers decline in constant work. Every supported call reads its
-   *   current source; matching fixed-source consumers own completion reuse and
-   *   raw fallback. The weak registration retains only the original callable;
-   *   descriptor/empty-set temporaries end with this call, without a source
-   *   verdict, result history, strong registry, handle or task. Speedup is
-   *   unmeasured.
-   */
-  export function admitSource(
-    rig: IRig,
-    pose: IAutoMoviePose,
-    operation?: ReturnType<typeof preparePoseResolution>,
-  ): boolean {
-    rig.resolveMap(pose, operation, new Set<AutoMovieHumanoidBone>());
-    return true;
-  }
-
-  /**
-   * Root construction after tuple staging
-   * (`IAutoMovieSkeletonPoseResolution.ITupleRead`).
-   */
-  export type ITupleRead = IAutoMovieSkeletonPoseResolution.ITupleRead;
-
-  /** Staged tuple reader (`IAutoMovieSkeletonPoseResolution.ITupleReader`). */
-  export type ITupleReader = IAutoMovieSkeletonPoseResolution.ITupleReader;
-
-  /**
-   * Return fresh geometric rest frames only from this owner's genuine rig.
-   * Private weak provenance resolves the actual immutable rooted nodes,
-   * independently of public method replacement. Unknown structural rigs throw
-   * before any method is invoked. No external rest map or skeleton pairing is
-   * accepted. The original root-null, no-joint/no-scale FK produces lazy rest
-   * once and shares it with ordinary neutral reads, preserving all arithmetic
-   * grouping. Each O(B) output copy is fresh; private rows live with the rig,
-   * without an operation key, pose, authored callback, output history or strong
-   * registry.
-   */
-  export function rest(rig: IRig): IAutoMovieResolvedBone[] {
-    return rig.resolve({ skeleton: "", root: null, joints: [] });
-  }
-
-  /**
-   * Immutable prepared FK of one fixed rig
-   * (`IAutoMovieSkeletonPoseResolution.IRig`).
-   */
-  export type IRig = IAutoMovieSkeletonPoseResolution.IRig;
-
-  /**
-   * One pose as this rig admitted it
-   * (`IAutoMovieSkeletonPoseResolution.IReading`).
-   */
-  export type IReading = IAutoMovieSkeletonPoseResolution.IReading;
-
-  /**
-   * A rig's fixed requested-bone snapshot
-   * (`IAutoMovieSkeletonPoseResolution.IBoneDemand`).
-   */
-  export type IBoneDemand = IAutoMovieSkeletonPoseResolution.IBoneDemand;
 }

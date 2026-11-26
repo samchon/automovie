@@ -1,4 +1,4 @@
-import { simulateSoftBody, validateSoftBodyDomain } from "@automovie/engine";
+import { simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -171,7 +171,7 @@ export function test_soft_body_collision(): void {
         "refused",
         (): boolean =>
           hasViolation(
-            validateSoftBodyDomain({ domain: buried }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: buried }),
             "type",
             "colliders[0]",
           ),

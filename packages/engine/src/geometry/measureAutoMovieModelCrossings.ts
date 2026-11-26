@@ -10,7 +10,7 @@ import type {
 import { autoMovieModelPartMatrices } from "../autoMovieModelPartMatrices";
 import { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
-import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
+import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";
 
 /**
  * Report every pair of a model's mesh parts whose surfaces cross, measured

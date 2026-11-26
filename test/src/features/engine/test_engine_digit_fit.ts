@@ -1,13 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Vector3,
-  AutoMovieEngineViolationCollector,
-  fitDigitToTarget,
-  getConstraint,
-  resolveAutoMovieHumanoidSurfaces,
-  validateJointRom,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineViolationCollector, getConstraint, resolveAutoMovieHumanoidSurfaces, validateJointRom, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
@@ -131,7 +122,7 @@ const fit = (
     body.surfaces.regions[
       `${digit.toLowerCase()}Tip${side === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion
     ];
-  return fitDigitToTarget({
+  return AutoMovieEngineKinematics.fitDigitToTarget({
     skeleton: body.skeleton,
     pose: from,
     bones: digitBones(side, digit),

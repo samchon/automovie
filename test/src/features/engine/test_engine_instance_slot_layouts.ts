@@ -1,4 +1,4 @@
-import { instanceSlot } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieInstanceSetPlacement,
   IAutoMovieQuaternion,
@@ -68,17 +68,17 @@ export function test_engine_instance_slot_layouts(): void {
       [
         "firstColumn",
         (): boolean =>
-          vclose(instanceSlot(grid, 0).position, { x: 10, y: 1, z: -3 }, 1e-12),
+          vclose(AutoMovieEnginePopulationRuntime.instanceSlot(grid, 0).position, { x: 10, y: 1, z: -3 }, 1e-12),
       ],
       [
         "secondRowMiddle",
         (): boolean =>
-          vclose(instanceSlot(grid, 4).position, { x: 13, y: 1, z: -5 }, 1e-12),
+          vclose(AutoMovieEnginePopulationRuntime.instanceSlot(grid, 4).position, { x: 13, y: 1, z: -5 }, 1e-12),
       ],
       [
         "node",
         (): boolean =>
-          instanceSlot(grid, 4).node === "instance:trees:slot:000004",
+          AutoMovieEnginePopulationRuntime.instanceSlot(grid, 4).node === "instance:trees:slot:000004",
       ],
     ]),
     { firstColumn: true, secondRowMiddle: true, node: true },
@@ -93,7 +93,7 @@ export function test_engine_instance_slot_layouts(): void {
         "first",
         (): boolean =>
           vclose(
-            instanceSlot(lattice, 0).position,
+            AutoMovieEnginePopulationRuntime.instanceSlot(lattice, 0).position,
             { x: -0.5, y: 0, z: 0 },
             1e-12,
           ),
@@ -102,7 +102,7 @@ export function test_engine_instance_slot_layouts(): void {
         "last",
         (): boolean =>
           vclose(
-            instanceSlot(lattice, 7).position,
+            AutoMovieEnginePopulationRuntime.instanceSlot(lattice, 7).position,
             { x: 0.5, y: 2, z: 3 },
             1e-12,
           ),
@@ -115,12 +115,12 @@ export function test_engine_instance_slot_layouts(): void {
   const level: IAutoMovieVector3[] = Array.from(
     { length: 64 },
     (_: unknown, slot: number): IAutoMovieVector3 =>
-      instanceSlot(scatter(0), slot).position,
+      AutoMovieEnginePopulationRuntime.instanceSlot(scatter(0), slot).position,
   );
   const turned: IAutoMovieVector3[] = Array.from(
     { length: 64 },
     (_: unknown, slot: number): IAutoMovieVector3 =>
-      instanceSlot(scatter(90), slot).position,
+      AutoMovieEnginePopulationRuntime.instanceSlot(scatter(90), slot).position,
   );
   TestValidator.equals(
     "a scatter member stays inside its radius and turns about the anchor",
@@ -157,8 +157,8 @@ export function test_engine_instance_slot_layouts(): void {
   };
   const explicit: IAutoMovieInstanceSetPlacement =
     instanceSlotTestExplicit(quarterAboutX);
-  const oak: ReturnType<typeof instanceSlot> = instanceSlot(explicit, 0);
-  const elm: ReturnType<typeof instanceSlot> = instanceSlot(explicit, 1);
+  const oak: ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> = AutoMovieEnginePopulationRuntime.instanceSlot(explicit, 0);
+  const elm: ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> = AutoMovieEnginePopulationRuntime.instanceSlot(explicit, 1);
   TestValidator.equals(
     "an explicit member keeps what it states and a sibling keeps the set's values",
     namedFacts([
@@ -187,7 +187,7 @@ export function test_engine_instance_slot_layouts(): void {
         "missingSlot",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(explicit, 2),
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> => AutoMovieEnginePopulationRuntime.instanceSlot(explicit, 2),
             "slot 2 has no explicit transform",
           ),
       ],
@@ -223,7 +223,7 @@ export function test_engine_instance_slot_layouts(): void {
         "firstLeg",
         (): boolean =>
           vclose(
-            instanceSlot(route, 0).position,
+            AutoMovieEnginePopulationRuntime.instanceSlot(route, 0).position,
             { x: 3.75, y: 2, z: 0 },
             1e-12,
           ),
@@ -232,7 +232,7 @@ export function test_engine_instance_slot_layouts(): void {
         "secondLeg",
         (): boolean =>
           vclose(
-            instanceSlot(route, 1).position,
+            AutoMovieEnginePopulationRuntime.instanceSlot(route, 1).position,
             { x: 10, y: 2, z: 1.25 },
             1e-12,
           ),
@@ -241,7 +241,7 @@ export function test_engine_instance_slot_layouts(): void {
         "secondLegLater",
         (): boolean =>
           vclose(
-            instanceSlot(route, 2).position,
+            AutoMovieEnginePopulationRuntime.instanceSlot(route, 2).position,
             { x: 10, y: 2, z: 8.75 },
             1e-12,
           ),
@@ -250,7 +250,7 @@ export function test_engine_instance_slot_layouts(): void {
         "finalLeg",
         (): boolean =>
           vclose(
-            instanceSlot(route, 3).position,
+            AutoMovieEnginePopulationRuntime.instanceSlot(route, 3).position,
             { x: 3.75, y: 2, z: 10 },
             1e-12,
           ),
@@ -260,8 +260,8 @@ export function test_engine_instance_slot_layouts(): void {
         (): boolean =>
           [0, 1, 2, 3].every((slot: number): boolean =>
             vclose(
-              instanceSlot(turnedRoute, slot).position,
-              instanceSlot(route, slot).position,
+              AutoMovieEnginePopulationRuntime.instanceSlot(turnedRoute, slot).position,
+              AutoMovieEnginePopulationRuntime.instanceSlot(route, slot).position,
               0,
             ),
           ),
@@ -269,14 +269,14 @@ export function test_engine_instance_slot_layouts(): void {
       [
         "jitterAcrossFirstLeg",
         (): boolean => {
-          const point: IAutoMovieVector3 = instanceSlot(jittered, 0).position;
+          const point: IAutoMovieVector3 = AutoMovieEnginePopulationRuntime.instanceSlot(jittered, 0).position;
           return nclose(point.x, 3.75, 1e-12) && Math.abs(point.z) <= 1;
         },
       ],
       [
         "jitterAcrossSecondLeg",
         (): boolean => {
-          const point: IAutoMovieVector3 = instanceSlot(jittered, 1).position;
+          const point: IAutoMovieVector3 = AutoMovieEnginePopulationRuntime.instanceSlot(jittered, 1).position;
           return nclose(point.z, 1.25, 1e-12) && Math.abs(point.x - 10) <= 1;
         },
       ],
@@ -299,12 +299,12 @@ export function test_engine_instance_slot_layouts(): void {
   TestValidator.equals(
     "an instance member refuses what it cannot place and accepts its twin",
     namedFacts([
-      ["lastSlotAccepted", (): boolean => instanceSlot(grid, 5).slot === 5],
+      ["lastSlotAccepted", (): boolean => AutoMovieEnginePopulationRuntime.instanceSlot(grid, 5).slot === 5],
       [
         "pastCount",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(grid, 6),
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> => AutoMovieEnginePopulationRuntime.instanceSlot(grid, 6),
             "slot 6 is outside 0..5",
           ),
       ],
@@ -312,17 +312,17 @@ export function test_engine_instance_slot_layouts(): void {
         "negative",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> => instanceSlot(grid, -1),
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> => AutoMovieEnginePopulationRuntime.instanceSlot(grid, -1),
             "slot -1 is outside 0..5",
           ),
       ],
-      ["routeAccepted", (): boolean => instanceSlot(route, 0).slot === 0],
+      ["routeAccepted", (): boolean => AutoMovieEnginePopulationRuntime.instanceSlot(route, 0).slot === 0],
       [
         "routeMissing",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(onRoad({ route: null }), 0),
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+              AutoMovieEnginePopulationRuntime.instanceSlot(onRoad({ route: null }), 0),
             unavailable,
           ),
       ],
@@ -330,8 +330,8 @@ export function test_engine_instance_slot_layouts(): void {
         "routeRenamed",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(onRoad({ route: { ...road, id: "lane" } }), 0),
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+              AutoMovieEnginePopulationRuntime.instanceSlot(onRoad({ route: { ...road, id: "lane" } }), 0),
             unavailable,
           ),
       ],
@@ -339,8 +339,8 @@ export function test_engine_instance_slot_layouts(): void {
         "routeOnePoint",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+              AutoMovieEnginePopulationRuntime.instanceSlot(
                 onRoad({ route: { ...road, waypoints: [{ x: 0, z: 0 }] } }),
                 0,
               ),
@@ -351,8 +351,8 @@ export function test_engine_instance_slot_layouts(): void {
         "routeZeroLength",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+              AutoMovieEnginePopulationRuntime.instanceSlot(
                 onRoad({
                   route: {
                     ...road,
@@ -371,8 +371,8 @@ export function test_engine_instance_slot_layouts(): void {
         "emptyPalette",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+              AutoMovieEnginePopulationRuntime.instanceSlot(
                 placement({
                   variation: {
                     scale: { min: 1, max: 1 },
@@ -388,7 +388,7 @@ export function test_engine_instance_slot_layouts(): void {
       [
         "explicitColourSatisfiesEmptyPalette",
         (): boolean =>
-          instanceSlot(
+          AutoMovieEnginePopulationRuntime.instanceSlot(
             placement({
               count: 1,
               variation: { scale: { min: 1, max: 1 }, palette: [], traits: [] },

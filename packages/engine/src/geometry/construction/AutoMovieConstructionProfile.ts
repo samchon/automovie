@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieConstructionProfilePhase } from "./AutoMovieConstructionProfilePhase";
-import { AutoMovieConstructionProfileSurface } from "./AutoMovieConstructionProfileSurface";
+import { AutoMovieConstructionProfileSurface } from "./internal/AutoMovieConstructionProfileSurface";
 import { AutoMovieConstructionProfileTopology } from "./AutoMovieConstructionProfileTopology";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 

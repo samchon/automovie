@@ -1,8 +1,4 @@
-import {
-  AutoMovieEngineSound,
-  materializeCompiledFormation,
-  materializeCompiledInstanceSet,
-} from "@automovie/engine";
+import { AutoMovieEngineSound, materializeCompiledFormation, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieCompiledShotSource,
@@ -179,7 +175,7 @@ const compiled: () => IAutoMovieCompiledShotSource =
         unit("large-unit", LARGE_COUNT, 0.03125),
       ],
       instanceSets: [
-        materializeCompiledInstanceSet({
+        AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
           instanceSet: {
             id: "crowd",
             model: "crowd-model",

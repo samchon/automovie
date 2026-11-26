@@ -155,32 +155,6 @@ export function solveResolvedRate(
   };
 }
 
-/**
- * Accumulate a signed dot; only original residuals also demand the absolute
- * denominator.
- */
-function dot(
-  scratch: Float64Array,
-  row: readonly number[],
-  values: readonly number[],
-  constant: number,
-  magnitude: boolean = true,
-): void {
-  scratch.fill(0);
-  scratch[0] = constant;
-  if (magnitude) scratch[2] = Math.abs(constant);
-  for (let column: number = 0; column < row.length; ++column) {
-    addAutoMovieQuadraticProduct(scratch, 0, row[column]!, values[column]!);
-    if (magnitude)
-      addAutoMovieQuadraticProduct(
-        scratch,
-        1,
-        Math.abs(row[column]!),
-        Math.abs(values[column]!),
-      );
-  }
-}
-
 /** Numerical differential-equality outcomes without curve-admission flags. */
 export namespace solveResolvedRate {
   /**
@@ -228,5 +202,31 @@ export namespace solveResolvedRate {
     componentwiseBackwardError: number;
     /** ||scaledResidual||inf/(||A||inf\*||velocity||inf+||goalRate/rowScale||inf); exact 0/0 is zero. */
     normwiseBackwardError: number;
+  }
+}
+
+/**
+ * Accumulate a signed dot; only original residuals also demand the absolute
+ * denominator.
+ */
+function dot(
+  scratch: Float64Array,
+  row: readonly number[],
+  values: readonly number[],
+  constant: number,
+  magnitude: boolean = true,
+): void {
+  scratch.fill(0);
+  scratch[0] = constant;
+  if (magnitude) scratch[2] = Math.abs(constant);
+  for (let column: number = 0; column < row.length; ++column) {
+    addAutoMovieQuadraticProduct(scratch, 0, row[column]!, values[column]!);
+    if (magnitude)
+      addAutoMovieQuadraticProduct(
+        scratch,
+        1,
+        Math.abs(row[column]!),
+        Math.abs(values[column]!),
+      );
   }
 }

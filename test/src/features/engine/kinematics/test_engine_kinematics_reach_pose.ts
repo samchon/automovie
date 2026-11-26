@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, armChainFault, prepareSkeletonPoseResolution, reachPose, skeletonJointAxes } from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, armChainFault, prepareSkeletonPoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -35,7 +35,7 @@ import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 export async function test_engine_kinematics_reach_pose(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const skeleton: IAutoMovieSkeleton = body.skeleton;
-  const axes = skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
+  const axes = AutoMovieEngineKinematics.skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
   const resolve = (pose: IAutoMoviePose): IAutoMovieResolvedBone[] =>
     AutoMovieEngineKinematics.resolvePose(pose, skeleton, axes, HUMANOID_REST_FRAME);
   const at = (
@@ -66,7 +66,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
 
   // 2.
   const target: IAutoMovieVector3 = Vector3.add(S, { x: 0, y: -0.3, z: 0.3 });
-  const pose: IAutoMoviePose = reachPose(skeleton, "left", target)!;
+  const pose: IAutoMoviePose = AutoMovieEngineKinematics.reachPose(skeleton, "left", target)!;
   TestValidator.predicate(
     "lands",
     Vector3.distance(at(resolve(pose), "leftHand"), target) <= 1e-6,
@@ -78,7 +78,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   );
 
   // 3.
-  const far: IAutoMoviePose = reachPose(
+  const far: IAutoMoviePose = AutoMovieEngineKinematics.reachPose(
     skeleton,
     "left",
     Vector3.add(S, { x: 0, y: 0, z: 5 }),
@@ -94,7 +94,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   // 4.
   TestValidator.equals(
     "missing hand",
-    reachPose(
+    AutoMovieEngineKinematics.reachPose(
       {
         ...skeleton,
         bones: skeleton.bones.filter(

@@ -1,15 +1,4 @@
-import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  boxExcludedSwivels,
-  decomposeJointRotationOnBasis,
-  hingedArmArticulation,
-  jointRomOvershoot,
-  normalizeJointAxes,
-  swingTwistRange,
-} from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, decomposeJointRotationOnBasis, hingedArmArticulation, jointRomOvershoot, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -84,7 +73,7 @@ export function AutoMovieMotionHumanBendSweep(
   if (lowerAxes === undefined) return null;
   const upperRange: IAutoMovieJointConstraint | null =
     prepared.upperDomain.constraint;
-  const upperBasis: IAutoMovieJointAxes = normalizeJointAxes(
+  const upperBasis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
     "AutoMovieMotionHumanBendSearch axes",
   );
@@ -106,7 +95,7 @@ export function AutoMovieMotionHumanBendSweep(
   // The two joints' bases and ranges are the rig's, fixed over the search:
   // admitted and resolved once, as the engine's own candidate scoring
   // reads them, instead of once a candidate.
-  const lowerBasis: IAutoMovieJointAxes = normalizeJointAxes(
+  const lowerBasis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     lowerAxes,
     "AutoMovieMotionHumanBendSearch axes",
   );
@@ -231,7 +220,7 @@ export function AutoMovieMotionHumanBendSweep(
       excluded: (
         upper: (swivel: number) => IAutoMovieQuaternion,
       ): ((low: number, high: number) => boolean) =>
-        boxExcludedSwivels({
+        AutoMovieEngineKinematics.boxExcludedSwivels({
           basis: upperBasis,
           frame: HUMANOID_REST_FRAME[upperBone],
           constraint: upperRange,

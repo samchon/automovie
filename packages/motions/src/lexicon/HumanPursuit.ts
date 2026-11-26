@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { run } from "../actions/run";
+import { run } from "../gait/internal/run";
 import { HumanGaze } from "../everyday/HumanGaze";
 import { HumanProxemics } from "../everyday/HumanProxemics";
 import { approach } from "../everyday/approach";

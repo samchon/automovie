@@ -1,4 +1,4 @@
-import { createAutoMovieEllipticLoftAtlas } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBicubicAtlasGeometry,
   IAutoMovieEllipticLoft,
@@ -74,8 +74,8 @@ export function compileAutoMovieRecoveryImageLoft(
         }),
       ),
     };
-    const atlas: ReturnType<typeof createAutoMovieEllipticLoftAtlas> =
-      createAutoMovieEllipticLoftAtlas({
+    const atlas: ReturnType<typeof AutoMovieEngineGeometry.createEllipticLoftAtlas> =
+      AutoMovieEngineGeometry.createEllipticLoftAtlas({
         loft: scaled,
         topologyDomain: `image-loft:${recipe.objectId}`,
         ...budget,

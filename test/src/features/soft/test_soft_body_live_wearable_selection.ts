@@ -1,8 +1,4 @@
-import {
-  productionSoftBodyUsesMovingBoundary,
-  readProductionLiveWearableSoftBodies,
-  selectProductionLiveWearableSoftBodies,
-} from "@automovie/engine";
+import { selectProductionLiveWearableSoftBodies, AutoMovieEngineSoftBody } from "@automovie/engine";
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -93,17 +89,17 @@ export function test_soft_body_live_wearable_selection(): void {
           },
         ],
       },
-    ].map(productionSoftBodyUsesMovingBoundary),
+    ].map(AutoMovieEngineSoftBody.productionSoftBodyUsesMovingBoundary),
     [true, true, false, false],
   );
 
   TestValidator.equals(
     "the authored list is read in order and refused when malformed",
     {
-      ordered: readProductionLiveWearableSoftBodies(["coat", "cape"]),
-      empty: readProductionLiveWearableSoftBodies([]),
+      ordered: AutoMovieEngineSoftBody.readProductionLiveWearableSoftBodies(["coat", "cape"]),
+      empty: AutoMovieEngineSoftBody.readProductionLiveWearableSoftBodies([]),
       repeated: throwsError(
-        (): string[] => readProductionLiveWearableSoftBodies(["coat", "coat"]),
+        (): string[] => AutoMovieEngineSoftBody.readProductionLiveWearableSoftBodies(["coat", "coat"]),
         'simulation.liveWearableSoftBodies repeats domain id "coat".',
       ),
     },

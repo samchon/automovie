@@ -1,7 +1,7 @@
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { transformAutoMovieDrawingPoint } from "../drawing/internal/transformAutoMovieDrawingPoint";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Carry one part's realized mesh into its model's frame.

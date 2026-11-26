@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, Quaternion, Vector3, heightAt, sampleClipSequence, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineWorld, Quaternion, Vector3, heightAt, sampleMotion, AutoMovieEngineFilm, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionHumanBody,
@@ -111,8 +111,8 @@ export function test_environment_production(): void {
     compiled.shot.source.shot.objectMotions;
   const door: string = "hill/station/ground/entry";
   const channel: string = `node:${door}:rotation`;
-  const before: number[] = sampleClipSequence(motion, 0.65).get(channel)!.value;
-  const after: number[] = sampleClipSequence(motion, 6.65).get(channel)!.value;
+  const before: number[] = AutoMovieEngineSequence.sampleClipSequence(motion, 0.65).get(channel)!.value;
+  const after: number[] = AutoMovieEngineSequence.sampleClipSequence(motion, 6.65).get(channel)!.value;
   const alignment: number = Math.abs(
     before.reduce(
       (sum: number, component: number, index: number): number =>
@@ -139,7 +139,7 @@ export function test_environment_production(): void {
     (time: number): IAutoMovieVector3 => {
       const pose: IAutoMoviePose = actorPose(compiled, "opener", time);
       const wrist = readHand(pose).get("rightHand")!.worldPosition;
-      const turn = sampleClipSequence(motion, time).get(channel)!.value;
+      const turn = AutoMovieEngineSequence.sampleClipSequence(motion, time).get(channel)!.value;
       return Quaternion.rotateVector(
         Quaternion.inverse({
           x: turn[0]!,

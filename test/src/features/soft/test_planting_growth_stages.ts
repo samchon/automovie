@@ -1,4 +1,4 @@
-import { growPlanting } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMoviePlantingState,
   IAutoMovieVector3,
@@ -12,7 +12,7 @@ import { plantingRecipe } from "../internal/softFixtures";
 const at: (stage: number) => IAutoMoviePlantingState = (
   stage: number,
 ): IAutoMoviePlantingState =>
-  growPlanting(plantingRecipe({ growth: { stage, onset: 0.25 } }));
+  AutoMovieEnginePlanting.growPlanting(plantingRecipe({ growth: { stage, onset: 0.25 } }));
 
 /** Length of one derived branch. */
 const span: (start: IAutoMovieVector3, end: IAutoMovieVector3) => number = (
@@ -223,7 +223,7 @@ export function test_planting_growth_stages(): void {
     { count: true, trunkLength: true, reachesSeven: true },
   );
 
-  const single: IAutoMoviePlantingState = growPlanting(
+  const single: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(
     plantingRecipe({
       structure: { ...plantingRecipe().structure, levels: 1 },
       growth: { stage: 0.375, onset: 0 },

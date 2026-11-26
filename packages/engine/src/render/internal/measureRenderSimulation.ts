@@ -25,8 +25,8 @@ import type {
  */
 
 import { fluidDomainBudget } from "../../fluid/fluidDomainBudget";
-import { plantingBudget } from "../../soft/plantingBudget";
-import { softBodyBudget } from "../../soft/softBodyBudget";
+import { plantingBudget } from "../../soft/internal/plantingBudget";
+import { softBodyBudget } from "../../soft/internal/softBodyBudget";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_FLOW_BYTES } from "../constants/AUTOMOVIE_FLOW_BYTES";
 import { AUTOMOVIE_INDEX_BYTES } from "../constants/AUTOMOVIE_INDEX_BYTES";

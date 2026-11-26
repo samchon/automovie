@@ -16,7 +16,7 @@ import { quaternionFromAutoMovieBasis } from "../../math/internal/quaternionFrom
 import { AutoMovieSweepRotation } from "./AutoMovieSweepRotation";
 import { compileAutoMovieSweep } from "./compileAutoMovieSweep";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";
-import { preserveAutoMovieSweepVolume } from "./preserveAutoMovieSweepVolume";
+import { preserveAutoMovieSweepVolume } from "./internal/preserveAutoMovieSweepVolume";
 import { sampleAutoMovieParameterSweep } from "./sampleAutoMovieParameterSweep";
 import { transportAutoMovieSweepSpine } from "./transportAutoMovieSweepSpine";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";

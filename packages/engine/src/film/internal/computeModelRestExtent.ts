@@ -6,7 +6,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { realizeAutoMovieGeometry } from "../../geometry/realizeAutoMovieGeometry";
+import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { placeTransformedPoint } from "./placeTransformedPoint";

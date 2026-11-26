@@ -1,8 +1,4 @@
-import {
-  arrangePlantingCluster,
-  growPlanting,
-  plantingBudget,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import {
   IAutoMoviePlantingArrangement,
   IAutoMoviePlantingCluster,
@@ -73,7 +69,7 @@ const closestPair: (
 export function test_planting_cluster_arrangement(): void {
   const cluster: IAutoMoviePlantingCluster = plantingCluster();
   const arrangement: IAutoMoviePlantingArrangement =
-    arrangePlantingCluster(cluster);
+    AutoMovieEnginePlanting.arrangePlantingCluster(cluster);
   TestValidator.equals(
     "an ordinary cluster places every member inside its rectangle",
     namedFacts([
@@ -103,7 +99,7 @@ export function test_planting_cluster_arrangement(): void {
     },
   );
 
-  const tight: IAutoMoviePlantingArrangement = arrangePlantingCluster(
+  const tight: IAutoMoviePlantingArrangement = AutoMovieEnginePlanting.arrangePlantingCluster(
     plantingCluster({ count: 8, minSpacing: 3 }),
   );
   TestValidator.equals(
@@ -119,7 +115,7 @@ export function test_planting_cluster_arrangement(): void {
       [
         "noRuleRefusesNothing",
         (): boolean => {
-          const packed: IAutoMoviePlantingArrangement = arrangePlantingCluster(
+          const packed: IAutoMoviePlantingArrangement = AutoMovieEnginePlanting.arrangePlantingCluster(
             plantingCluster({
               count: 12,
               minSpacing: 0,
@@ -210,7 +206,7 @@ export function test_planting_cluster_arrangement(): void {
       [
         "identical",
         (): boolean =>
-          arrangePlantingCluster(plantingCluster()).placements.every(
+          AutoMovieEnginePlanting.arrangePlantingCluster(plantingCluster()).placements.every(
             (placement: IAutoMoviePlantingPlacement, index: number): boolean =>
               Object.is(
                 placement.translation.x,
@@ -229,7 +225,7 @@ export function test_planting_cluster_arrangement(): void {
       [
         "reseeded",
         (): boolean =>
-          arrangePlantingCluster(plantingCluster({ seed: 99 })).placements[0]
+          AutoMovieEnginePlanting.arrangePlantingCluster(plantingCluster({ seed: 99 })).placements[0]
             .translation.x !== arrangement.placements[0].translation.x,
       ],
       [
@@ -245,7 +241,7 @@ export function test_planting_cluster_arrangement(): void {
     { identical: true, reseeded: true, identity: true },
   );
 
-  const lone: IAutoMoviePlantingArrangement = arrangePlantingCluster(
+  const lone: IAutoMoviePlantingArrangement = AutoMovieEnginePlanting.arrangePlantingCluster(
     plantingCluster({
       count: 1,
       extent: { x: 0, z: 0 },
@@ -254,7 +250,7 @@ export function test_planting_cluster_arrangement(): void {
       scale: { min: { x: 1, y: 1, z: 1 }, max: { x: 1, y: 1, z: 1 } },
     }),
   );
-  const crowded: IAutoMoviePlantingArrangement = arrangePlantingCluster(
+  const crowded: IAutoMoviePlantingArrangement = AutoMovieEnginePlanting.arrangePlantingCluster(
     plantingCluster({ count: 4, extent: { x: 0, z: 0 }, minSpacing: 1 }),
   );
   TestValidator.equals(
@@ -301,7 +297,7 @@ export function test_planting_cluster_arrangement(): void {
   // Retain the full 4,000-member witness; an independent x-sorted sweep
   // replaces only its quadratic exhaustive spacing oracle. Small populations
   // above still use the original exhaustive closest-pair calculation.
-  const crowd: IAutoMoviePlantingArrangement = arrangePlantingCluster(
+  const crowd: IAutoMoviePlantingArrangement = AutoMovieEnginePlanting.arrangePlantingCluster(
     plantingCluster({
       id: "meadow",
       count: 4_000,
@@ -322,7 +318,7 @@ export function test_planting_cluster_arrangement(): void {
       [
         "reproducible",
         (): boolean => {
-          const again: IAutoMoviePlantingArrangement = arrangePlantingCluster(
+          const again: IAutoMoviePlantingArrangement = AutoMovieEnginePlanting.arrangePlantingCluster(
             plantingCluster({
               id: "meadow",
               count: 4_000,
@@ -352,7 +348,7 @@ export function test_planting_cluster_arrangement(): void {
 
   TestValidator.equals(
     "a bare recipe's cost counts no leaf, however large its cap",
-    plantingBudget({ domain: plantingRecipe(), cluster }),
+    AutoMovieEnginePlanting.plantingBudget({ domain: plantingRecipe(), cluster }),
     {
       domain: "fern",
       worstCaseBranches: 7,
@@ -379,19 +375,19 @@ export function test_planting_cluster_arrangement(): void {
     namedFacts([
       [
         "worstCase",
-        (): boolean => plantingBudget({ domain: leafed }).worstCaseLeaves === 8,
+        (): boolean => AutoMovieEnginePlanting.plantingBudget({ domain: leafed }).worstCaseLeaves === 8,
       ],
-      ["grown", (): boolean => growPlanting(leafed).leaves.length === 8],
+      ["grown", (): boolean => AutoMovieEnginePlanting.growPlanting(leafed).leaves.length === 8],
       [
         "instances",
         (): boolean =>
-          plantingBudget({ domain: leafed, cluster }).worstCaseLeafInstances ===
+          AutoMovieEnginePlanting.plantingBudget({ domain: leafed, cluster }).worstCaseLeafInstances ===
           48,
       ],
       [
         "jitterWidensTheBound",
         (): boolean =>
-          plantingBudget({
+          AutoMovieEnginePlanting.plantingBudget({
             domain: plantingRecipe({
               structure: { ...leafed.structure, lengthJitter: 0.5 },
               foliage: leafed.foliage,

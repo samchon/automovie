@@ -23,7 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkDelayed } from "../actions/walkDelayed";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";

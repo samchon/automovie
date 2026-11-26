@@ -2,14 +2,7 @@ import {
   createEnvironment,
   createTerrain,
 } from "@automovie/archetypes/environments";
-import {
-  AutoMovieEngineWorld,
-  heightAt,
-  instanceSlot,
-  materializeCompiledInstanceSetInventory,
-  prepareSpace,
-  tessellateSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, heightAt, prepareSpace, tessellateSurface, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieSpace,
@@ -114,11 +107,11 @@ export function test_location_terrain(): void {
       JSON.stringify(ground.height) !==
         JSON.stringify(build(2).stage.space!.surfaces[0]!.height),
   );
-  const compiled: ReturnType<typeof materializeCompiledInstanceSetInventory> =
-    materializeCompiledInstanceSetInventory({
+  const compiled: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({
       world: environment.runtime.world,
     });
-  const point: IAutoMovieVector3 = instanceSlot(
+  const point: IAutoMovieVector3 = AutoMovieEnginePopulationRuntime.instanceSlot(
     compiled["relief/land/trees/grove"]!,
     7,
   ).position;

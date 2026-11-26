@@ -1,7 +1,4 @@
-import {
-  AutoMovieGravity,
-  resolveAutoMovieBalanceOutcome,
-} from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieResolveBalanceOutcome,
   IAutoMovieVector3,
@@ -58,13 +55,13 @@ export function test_engine_kinematics_balance_outcome(): void {
     70 * w0 * (0.1 + ((0.6 * a) / (a - 1)) * Math.exp(-w0 * 0.4));
 
   // 1.
-  const bounds = resolveAutoMovieBalanceOutcome(props(1)).bounds;
+  const bounds = AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(props(1)).bounds;
   TestValidator.predicate(
     "bounds",
     Math.abs(bounds.absorb - absorb) <= 1e-9 &&
       Math.abs(bounds.step - stepBound) <= 1e-9,
   );
-  const still = resolveAutoMovieBalanceOutcome(props(0));
+  const still = AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(props(0));
   TestValidator.equals(
     "still",
     [still.outcome, still.bounds.absorb, still.bounds.step],
@@ -73,7 +70,7 @@ export function test_engine_kinematics_balance_outcome(): void {
 
   // 2.
   const j: number = 0.9 * absorb;
-  const absorbed = resolveAutoMovieBalanceOutcome(props(j));
+  const absorbed = AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(props(j));
   TestValidator.equals(
     "absorbed",
     [absorbed.outcome, absorbed.steps],
@@ -87,7 +84,7 @@ export function test_engine_kinematics_balance_outcome(): void {
   );
 
   // 3.
-  const stepped = resolveAutoMovieBalanceOutcome(props(1.1 * absorb));
+  const stepped = AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(props(1.1 * absorb));
   TestValidator.predicate(
     "one step",
     stepped.outcome === "step" &&
@@ -99,8 +96,8 @@ export function test_engine_kinematics_balance_outcome(): void {
   TestValidator.equals(
     "fall",
     [
-      resolveAutoMovieBalanceOutcome(props(2 * stepBound)).outcome,
-      resolveAutoMovieBalanceOutcome(props(2 * stepBound)).steps,
+      AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(props(2 * stepBound)).outcome,
+      AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome(props(2 * stepBound)).steps,
     ],
     ["fall", []],
   );
@@ -109,7 +106,7 @@ export function test_engine_kinematics_balance_outcome(): void {
   TestValidator.predicate(
     "mass",
     throwsError(
-      (): unknown => resolveAutoMovieBalanceOutcome({ ...props(1), mass: 0 }),
+      (): unknown => AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome({ ...props(1), mass: 0 }),
       "positive mass",
     ),
   );
@@ -117,7 +114,7 @@ export function test_engine_kinematics_balance_outcome(): void {
     "support",
     throwsError(
       (): unknown =>
-        resolveAutoMovieBalanceOutcome({ ...props(1), support: [] }),
+        AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome({ ...props(1), support: [] }),
       "support point",
     ),
   );

@@ -1,9 +1,4 @@
-import {
-  simulateAutoMovieWearableSoftBody,
-  simulateSoftBody,
-  simulateSoftBodyWithBoundaries,
-  validateSoftBodyDomain,
-} from "@automovie/engine";
+import { simulateSoftBody, simulateSoftBodyWithBoundaries, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieSoftAnchor,
   IAutoMovieSoftBodyDomain,
@@ -56,16 +51,16 @@ import { wearableSoftBodyTestDomain as domain } from "../internal/wearableSoftBo
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A bone-bound anchor follows its bone to x = 1, the free particle leaves the).
  */
 export function test_engine_wearable_soft_body(): void {
-  const solved: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
-    simulateAutoMovieWearableSoftBody({
+  const solved: ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =
+    AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
       domain: domain(),
       step: 1,
       frames: [actorFrame(0, 0), actorFrame(1, 1)],
       subjectIndex: 0,
       maxSubjects: 1,
     });
-  const again: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
-    simulateAutoMovieWearableSoftBody({
+  const again: ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =
+    AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
       domain: domain(),
       step: 1,
       frames: [actorFrame(0, 0), actorFrame(1, 1)],
@@ -106,8 +101,8 @@ export function test_engine_wearable_soft_body(): void {
     },
     colliders: [],
   };
-  const coupled: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
-    simulateAutoMovieWearableSoftBody({
+  const coupled: ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =
+    AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
       domain: coupledDomain,
       step: 1,
       frames: [actorFrame(0, 0), actorFrame(1, 1)],
@@ -164,23 +159,23 @@ export function test_engine_wearable_soft_body(): void {
       },
     ],
   };
-  const embeddedMovingCapsule: ReturnType<typeof validateSoftBodyDomain> =
-    validateSoftBodyDomain({ domain: domain() });
+  const embeddedMovingCapsule: ReturnType<typeof AutoMovieEngineSoftBody.validateSoftBodyDomain> =
+    AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: domain() });
   TestValidator.equals(
     "validation refuses contradictory bindings but never invents an origin capsule",
     {
       anchorPosition: hasViolation(
-        validateSoftBodyDomain({ domain: invalidAnchor }),
+        AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: invalidAnchor }),
         "type",
         "anchors[0].position",
       ),
       radius: hasViolation(
-        validateSoftBodyDomain({ domain: invalidCapsule }),
+        AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: invalidCapsule }),
         "range",
         "colliders[0].capsule.radius",
       ),
       distinctEndpoints: hasViolation(
-        validateSoftBodyDomain({
+        AutoMovieEngineSoftBody.validateSoftBodyDomain({
           domain: {
             ...invalidCapsule,
             colliders: [
@@ -210,8 +205,8 @@ export function test_engine_wearable_soft_body(): void {
     "missing moving facts and admission overflow are explicit failures",
     {
       budget: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 1,
             frames: [actorFrame(0, 0), actorFrame(1, 1)],
@@ -221,8 +216,8 @@ export function test_engine_wearable_soft_body(): void {
         "budget",
       ),
       actor: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
             frames: [{ step: 0, nodes: [], actors: [] }],
@@ -232,8 +227,8 @@ export function test_engine_wearable_soft_body(): void {
         'missing actor "actor"',
       ),
       rotation: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =>
+          AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
             domain: domain(),
             step: 0,
             frames: [
@@ -342,8 +337,8 @@ export function test_engine_wearable_soft_body(): void {
     bone("hips", 10, 0),
     bone("head", 10, 1),
   ];
-  const farCapsule: ReturnType<typeof simulateAutoMovieWearableSoftBody> =
-    simulateAutoMovieWearableSoftBody({
+  const farCapsule: ReturnType<typeof AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody> =
+    AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
       domain: capsuleOnly,
       step: 0,
       frames: [farCapsuleFrame],
@@ -354,21 +349,21 @@ export function test_engine_wearable_soft_body(): void {
     "node anchors, capsule-only boundaries, and named state inputs remain explicit",
     test12ValuesClose(
       {
-        nodeAnchor: simulateAutoMovieWearableSoftBody({
+        nodeAnchor: AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
           domain: nodeDomain,
           step: 0,
           frames: [nodeFrame],
           subjectIndex: 0,
           maxSubjects: 1,
         }).state.positions[0],
-        capsuleOnly: simulateAutoMovieWearableSoftBody({
+        capsuleOnly: AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
           domain: capsuleOnly,
           step: 0,
           frames: [actorFrame(0, 0)],
           subjectIndex: 0,
           maxSubjects: 1,
         }).budget,
-        namedState: simulateAutoMovieWearableSoftBody({
+        namedState: AutoMovieEngineSoftBody.simulateAutoMovieWearableSoftBody({
           domain: {
             ...domain(),
             states: [{ id: "draped", anchors: [] }],

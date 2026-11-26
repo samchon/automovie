@@ -12,15 +12,15 @@ import {
 } from "@automovie/interface";
 
 import { SOFT_BODY_NEIGHBOURS } from "./SOFT_BODY_NEIGHBOURS";
-import { applySoftBodyFriction } from "./applySoftBodyFriction";
-import { gatherSoftBodyCorrections } from "./gatherSoftBodyCorrections";
+import { applySoftBodyFriction } from "./internal/applySoftBodyFriction";
+import { gatherSoftBodyCorrections } from "./internal/gatherSoftBodyCorrections";
 import { projectSoftBodyContacts } from "./projectSoftBodyContacts";
-import { projectSoftCordSelfContact } from "./projectSoftCordSelfContact";
-import { softBodyHeldLoads } from "./softBodyHeldLoads";
-import { softBodyNeighbourOf } from "./softBodyNeighbourOf";
-import { softBodyParticleDistance } from "./softBodyParticleDistance";
+import { projectSoftCordSelfContact } from "./internal/projectSoftCordSelfContact";
+import { softBodyHeldLoads } from "./internal/softBodyHeldLoads";
+import { softBodyNeighbourOf } from "./internal/softBodyNeighbourOf";
+import { softBodyParticleDistance } from "./internal/softBodyParticleDistance";
 import { softBodyRestBuffer } from "./softBodyRestBuffer";
-import { solveSoftBodyCompliantSweep } from "./solveSoftBodyCompliantSweep";
+import { solveSoftBodyCompliantSweep } from "./internal/solveSoftBodyCompliantSweep";
 
 /**
  * Integrate an admitted cloth lattice from its authored rest boundary to one

@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  rootsAutoMovieCubicBernstein64,
-  tetrahedralizeAutoMovieDelaunay,
-} from "@automovie/engine";
+import { Vector3, tetrahedralizeAutoMovieDelaunay, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieTetrahedralizeDelaunay,
   IAutoMovieVector3,
@@ -190,7 +186,7 @@ export namespace HumanInteractionMeshSide {
       ];
       if (coefficients.every((v: number): boolean => v > 0)) continue;
       const scale: number = Math.max(...coefficients.map(Math.abs));
-      const root: number | undefined = rootsAutoMovieCubicBernstein64(
+      const root: number | undefined = AutoMovieEngineCurve.rootsCubicBernstein64(
         coefficients.map((v: number): number => v / scale),
       )[0];
       if (root !== undefined) fraction *= root;

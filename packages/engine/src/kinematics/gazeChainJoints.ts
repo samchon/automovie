@@ -17,24 +17,6 @@ const HEAD: AutoMovieHumanoidBone = "head";
 const NECK: AutoMovieHumanoidBone = "neck";
 
 /**
- * How much of `need` one joint may legally take on one axis.
- *
- * A `null` range is **immobile**, not unconstrained: `validateJointRom` refuses
- * any non-zero value on an axis whose range is null ("does not move in twist;
- * this axis must be null or 0"), so such a joint's capacity is exactly zero.
- *
- * The share never overshoots and never flips sign, so a range that excludes
- * zero (a rig whose neck rests bent) cannot inject rotation the aim did not ask
- * for: a zero need always yields a zero share.
- */
-function shareOf(need: number, range: IAutoMovieAngleRange | null): number {
-  if (range === null) return 0;
-  return need >= 0
-    ? Math.min(need, Math.max(range.max, 0))
-    : Math.max(need, Math.min(range.min, 0));
-}
-
-/**
  * Distribute one solved aim over the gaze chain, `neck` then `head`, so a gaze
  * the rig's declared ranges can hold compiles inside them.
  *
@@ -137,6 +119,24 @@ export namespace gazeChainJoints {
         : resolved(current, known.head, known.neck);
     };
   }
+}
+
+/**
+ * How much of `need` one joint may legally take on one axis.
+ *
+ * A `null` range is **immobile**, not unconstrained: `validateJointRom` refuses
+ * any non-zero value on an axis whose range is null ("does not move in twist;
+ * this axis must be null or 0"), so such a joint's capacity is exactly zero.
+ *
+ * The share never overshoots and never flips sign, so a range that excludes
+ * zero (a rig whose neck rests bent) cannot inject rotation the aim did not ask
+ * for: a zero need always yields a zero share.
+ */
+function shareOf(need: number, range: IAutoMovieAngleRange | null): number {
+  if (range === null) return 0;
+  return need >= 0
+    ? Math.min(need, Math.max(range.max, 0))
+    : Math.max(need, Math.min(range.min, 0));
 }
 
 /**

@@ -1,4 +1,4 @@
-import { sampleClipSequence } from "@automovie/engine";
+import { AutoMovieEngineSequence } from "@automovie/engine";
 import type { IAutoMovieClip } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -20,5 +20,5 @@ export const applyObjectMotions: (
   seconds: number,
   resolve: (node: string) => THREE.Object3D | undefined,
 ): void => {
-  applySampledObjectMotion(sampleClipSequence(clips, seconds), resolve);
+  applySampledObjectMotion(AutoMovieEngineSequence.sampleClipSequence(clips, seconds), resolve);
 };

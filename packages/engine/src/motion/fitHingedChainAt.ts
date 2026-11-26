@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { alternateRigJointAngles } from "../kinematics/alternateRigJointAngles";
+import { alternateRigJointAngles } from "../kinematics/internal/alternateRigJointAngles";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { Quaternion } from "../math/Quaternion";

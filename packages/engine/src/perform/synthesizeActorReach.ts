@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { reachPose } from "../kinematics/reachPose";
+import { reachPose } from "../kinematics/internal/reachPose";
 import { actorPointInModelSpace } from "./actorPointInModelSpace";
 import { createActorExtendClip } from "./createActorExtendClip";
 import { createActorJabClip } from "./createActorJabClip";

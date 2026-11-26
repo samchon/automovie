@@ -7,7 +7,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { HumanCrowd } from "./HumanCrowd";
 import { HumanManoeuvre } from "./HumanManoeuvre";
 

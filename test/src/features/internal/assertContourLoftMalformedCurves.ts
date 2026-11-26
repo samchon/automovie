@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   IAutoMovieContourLoft64,
@@ -129,7 +129,7 @@ export function assertContourLoftMalformedCurves(
       ...admissionSections.slice(1),
     ];
     const retained: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: changed,
         intervals: complete,
         events: [],

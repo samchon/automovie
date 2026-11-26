@@ -1,4 +1,4 @@
-import { resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieChannelLimit,
@@ -115,7 +115,7 @@ export function test_resolve_frame(): void {
   ];
 
   // 1. null clip → rest pose
-  const rest: IAutoMovieResolveOutput = resolveFrame({
+  const rest: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: null,
     limits,
@@ -129,7 +129,7 @@ export function test_resolve_frame(): void {
   TestValidator.equals("null clip: no violations", rest.violations.length, 0);
 
   // 2-5. resolve the animated frame
-  const out: IAutoMovieResolveOutput = resolveFrame({
+  const out: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip,
     limits,
@@ -216,7 +216,7 @@ export function test_resolve_frame(): void {
     "clip channel rejects missing resolve node",
     throwsError(
       (): IAutoMovieResolveOutput =>
-        resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
+        AutoMovieEngineResolve.resolveFrame({ nodes, clip: ghostClip, limits: [], seconds: 0 }),
       ['sampled channel "node:ghost:translation"', 'missing node "ghost"'],
     ),
   );
@@ -236,7 +236,7 @@ export function test_resolve_frame(): void {
     "driver output rejects a node channel as non-scalar",
     throwsError(
       (): IAutoMovieResolveOutput =>
-        resolveFrame({
+        AutoMovieEngineResolve.resolveFrame({
           nodes,
           clip: null,
           limits: [],
@@ -251,7 +251,7 @@ export function test_resolve_frame(): void {
     ...ghostOutput,
     output: { kind: "pointer", pointer: "/scratch", valueType: "scalar" },
   };
-  const pointerOut: IAutoMovieResolveOutput = resolveFrame({
+  const pointerOut: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: null,
     limits: [],

@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, intersectAutoMovieConvexPolygons, signedArea, surfaceHeightAt, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineSpace, signedArea, surfaceHeightAt, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieFootprint,
   IAutoMovieFootprintRing,
@@ -111,7 +111,7 @@ function stripFits(
         return [x * alongX + z * alongZ, x * acrossX + z * acrossZ];
       },
     );
-    const intersection: [number, number][] = intersectAutoMovieConvexPolygons(
+    const intersection: [number, number][] = AutoMovieEngineGeometry.intersectConvexPolygons(
       local,
       strip,
     );

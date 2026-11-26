@@ -11,23 +11,11 @@ import type {
 
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
-import { AutoMovieBicubicAtlasVertex64 } from "./AutoMovieBicubicAtlasVertex64";
+import { AutoMovieBicubicAtlasVertex64 } from "./internal/AutoMovieBicubicAtlasVertex64";
 import { AutoMovieCanonicalBoundary64 as Q } from "./AutoMovieCanonicalBoundary64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
-import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
+import { triangulateAutoMovieParameterCell64 } from "./internal/triangulateAutoMovieParameterCell64";
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
-
-type Patch = IAutoMovieBicubicAtlas64.Patch;
-
-type Range = IAutoMovieBicubicAtlas64.Range;
-
-type Plan = IAutoMovieBicubicAtlas64.Plan;
-
-type Occurrence = IAutoMovieBicubicAtlas64.Occurrence;
-type Vertex = IAutoMovieBicubicAtlas64.Vertex;
-type Phase = IAutoMovieCanonicalBoundaryPhase64;
-type Sample = IAutoMovieBicubicAtlas64.Sample;
-type Edge = IAutoMovieBicubicAtlas64.Edge;
 
 /**
  * Emit planned atlas patches with unchanged yield, allocation and cleanup
@@ -431,3 +419,15 @@ export function* AutoMovieBicubicAtlasEmit64(
   }
   return summary;
 }
+
+type Patch = IAutoMovieBicubicAtlas64.Patch;
+
+type Range = IAutoMovieBicubicAtlas64.Range;
+
+type Plan = IAutoMovieBicubicAtlas64.Plan;
+
+type Occurrence = IAutoMovieBicubicAtlas64.Occurrence;
+type Vertex = IAutoMovieBicubicAtlas64.Vertex;
+type Phase = IAutoMovieCanonicalBoundaryPhase64;
+type Sample = IAutoMovieBicubicAtlas64.Sample;
+type Edge = IAutoMovieBicubicAtlas64.Edge;

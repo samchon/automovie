@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { walkStation } from "./walkStation";
+import type { walkStation } from "../gait/internal/walkStation";
 
 /** The record of `IWalkTempoLimp`'s site. */
 type IWalkTempoLimp = { side: AutoMovieHumanSide; share: number };

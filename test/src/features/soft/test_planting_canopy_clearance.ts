@@ -1,4 +1,4 @@
-import { validatePlantingInstallations } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import {
   IAutoMoviePlantingCluster,
   IAutoMoviePlantingDomain,
@@ -83,7 +83,7 @@ export function test_planting_canopy_clearance(): void {
         max: { x: xScale, y: 1, z: 1 },
       },
     });
-    return validatePlantingInstallations({
+    return AutoMovieEnginePlanting.validatePlantingInstallations({
       environment: roomEnvironment({ half: 1 / 5, semantic }),
       installations: [plantingInstallation({ irrigation: null })],
       clusters: [cluster],

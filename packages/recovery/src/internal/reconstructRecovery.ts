@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourLoft64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieContourLoft64,
   IAutoMovieModel,
@@ -56,7 +56,7 @@ export function reconstructRecovery(
   const replacements: Map<string, string> = new Map(tensor.replacements);
   for (const [key, id] of analytic.closedGroups) replacements.set(key, id);
   const generated: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64({
+    AutoMovieEngineCurve.tessellateContourLoft64({
       ...bundle.loft,
       intervals: bundle.loft.intervals.map(
         (

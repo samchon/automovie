@@ -16,8 +16,8 @@ import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQue
 import { measureAutoMovieMeshPieces } from "./measureAutoMovieMeshPieces";
 import { measureAutoMovieModelContacts } from "./measureAutoMovieModelContacts";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
-import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Check a form against the expectation written before measuring it, and run the

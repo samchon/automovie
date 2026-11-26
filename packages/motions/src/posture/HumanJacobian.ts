@@ -1,11 +1,4 @@
-import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  clampJointToSkeleton,
-  normalizeJointAxes,
-} from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -154,7 +147,7 @@ export namespace HumanJacobian {
         let reading: IJointReading | undefined = prepared?.get(bone);
         if (reading === undefined) {
           const def: IAutoMovieBone = body.bones.get(bone)!;
-          const basis: IAutoMovieJointAxes = normalizeJointAxes(
+          const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
             body.poseResolution.jointAxes[bone] ?? DEFAULT_JOINT_AXES,
             bone,
           );

@@ -1,4 +1,4 @@
-import { boundAutoMovieTriangleAttachmentContact, createAutoMovieMeshSeparationQuery, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshSeparationQuery,
@@ -81,7 +81,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
     skin: null,
   };
   const query: IAutoMovieMeshSeparationQuery =
-    createAutoMovieMeshSeparationQuery(mesh, "float32");
+    AutoMovieEngineGeometry.createMeshSeparationQuery(mesh, "float32");
   const attachment = { triangle: 0, weights, supports: [0] };
   const caps: number[] = [];
   for (const rise of [0.01, 1e-6]) {
@@ -131,7 +131,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
     TestValidator.predicate(
       label,
       throwsError(
-        (): unknown => boundAutoMovieTriangleAttachmentContact(f, s),
+        (): unknown => AutoMovieEngineGeometry.boundTriangleAttachmentContact(f, s),
         "complete fan",
       ),
     );
@@ -139,7 +139,7 @@ export function test_engine_geometry_triangle_attachment_contact(): void {
     "overflow",
     throwsError(
       (): unknown =>
-        boundAutoMovieTriangleAttachmentContact(fan, [
+        AutoMovieEngineGeometry.boundTriangleAttachmentContact(fan, [
           { x: -Number.MAX_VALUE, y: 0, z: 0 },
           { x: Number.MAX_VALUE, y: 0, z: 0 },
           { x: 0, y: 1, z: 0 },

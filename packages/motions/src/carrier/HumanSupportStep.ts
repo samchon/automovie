@@ -16,7 +16,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanMountPush } from "../lexicon/HumanMountPush";
 import { hipJoints } from "../posture/hipJoints";

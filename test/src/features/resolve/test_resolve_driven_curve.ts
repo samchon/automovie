@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieDrivenCurve,
@@ -90,7 +90,7 @@ export function test_resolve_driven_curve(): void {
   ): number[] => {
     const sampled: Map<string, IAutoMovieSampledChannel> =
       src === undefined ? seed([]) : seed([["ptr:/in", ptr("/in"), [src]]]);
-    resolveDrivers([d], sampled, new Map());
+    AutoMovieEngineResolve.resolveDrivers([d], sampled, new Map());
     return sampled.get("ptr:/out")!.value;
   };
 

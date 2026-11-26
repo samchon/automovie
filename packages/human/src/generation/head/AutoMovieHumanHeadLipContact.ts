@@ -1,9 +1,4 @@
-import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-} from "@automovie/engine";
+import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadLipContact,
@@ -103,8 +98,8 @@ export namespace AutoMovieHumanHeadLipContact {
       const first: number = local.t[0] / local.t[1];
       const second: number =
         (local.tt[0] * local.t[1] - local.t[0] * local.tt[1]) / local.t[1] ** 3;
-      const world: ReturnType<typeof AutoMovieLoftViewWorldJet> =
-        AutoMovieLoftViewWorldJet(source, parent.axis, y, phase);
+      const world: ReturnType<typeof AutoMovieEngineConstruction.loftViewWorldJet> =
+        AutoMovieEngineConstruction.loftViewWorldJet(source, parent.axis, y, phase);
       let derivatives: IField["derivatives"] = null;
       if (typeof world !== "string" && world.v[2] !== 0) {
         const q: number = -world.u[2] / world.v[2];

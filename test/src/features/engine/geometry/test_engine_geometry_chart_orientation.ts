@@ -1,4 +1,4 @@
-import { orientAutoMovieSolidChart } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 type Point = [number, number];
@@ -21,7 +21,7 @@ type Point = [number, number];
  */
 export function test_engine_geometry_chart_orientation(): void {
   const sign = (label: string, a: Point, b: Point, c: Point, s: number): void =>
-    TestValidator.equals(label, orientAutoMovieSolidChart(a, b, c), s);
+    TestValidator.equals(label, AutoMovieEngineConstruction.orientSolidChart(a, b, c), s);
   const N: number = 2 ** 53 - 1;
 
   // 1.

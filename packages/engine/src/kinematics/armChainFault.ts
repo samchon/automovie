@@ -9,7 +9,7 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
-import { skeletonJointAxes } from "./skeletonJointAxes";
+import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 
 /**
  * Sine of the angle below which a hinge counts as parallel to the segment it

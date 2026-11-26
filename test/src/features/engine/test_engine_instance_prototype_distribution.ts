@@ -1,4 +1,4 @@
-import { materializeCompiledInstanceSet } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieInstanceSetDesign } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -105,8 +105,8 @@ export function test_engine_instance_prototype_distribution(): void {
     seed: 12_345,
     variation: crowd().variation,
   };
-  const compiled: ReturnType<typeof materializeCompiledInstanceSet> =
-    materializeCompiledInstanceSet({
+  const compiled: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
       instanceSet: design,
       world: { routes: [] },
     });

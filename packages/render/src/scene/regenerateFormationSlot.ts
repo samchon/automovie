@@ -1,4 +1,4 @@
-import { compiledFormationSlot } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationSlot,
@@ -21,4 +21,4 @@ export const regenerateFormationSlot: (
 ) => IAutoMovieFormationSlot = (
   formation: IAutoMovieCompiledFormation,
   slot: number,
-): IAutoMovieFormationSlot => compiledFormationSlot(formation, slot);
+): IAutoMovieFormationSlot => AutoMovieEnginePopulationRuntime.compiledFormationSlot(formation, slot);

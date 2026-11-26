@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  decomposeJointRotationOnBasis,
-  normalizeJointAxes,
-  rotationBetween,
-} from "@automovie/engine";
+import { Quaternion, Vector3, decomposeJointRotationOnBasis, rotationBetween, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieArticulatedRigReader,
@@ -38,7 +32,7 @@ export function QuadrupedPoseAngles(
   for (const input of rig.bones) {
     const node: typeof input = structuredClone(input);
     node.rest.rotation = Quaternion.normalize(node.rest.rotation);
-    node.axes = normalizeJointAxes(node.axes, `${rig.id}/${node.bone}.axes`);
+    node.axes = AutoMovieEngineKinematics.normalizeJointAxes(node.axes, `${rig.id}/${node.bone}.axes`);
     nodes.set(node.bone, node);
   }
   const order: readonly AutoMovieArchetypeQuadrupedBody.Bone[] = [

@@ -5,7 +5,7 @@ import {
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
-import { realizeAutoMovieGeometry } from "../../geometry/realizeAutoMovieGeometry";
+import { realizeAutoMovieGeometry } from "../../geometry/internal/realizeAutoMovieGeometry";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
 import { AUTOMOVIE_INDEX_BYTES } from "../constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "../constants/AUTOMOVIE_NORMAL_BYTES";

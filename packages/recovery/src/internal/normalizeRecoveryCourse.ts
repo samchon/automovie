@@ -1,4 +1,4 @@
-import { compileAutoMovieNormalizedPhases64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   IAutoMovieCubicBezierCurve64,
@@ -53,7 +53,7 @@ export function normalizeRecoveryCourse(
           ],
         )
     : [...curve.spans];
-  compileAutoMovieNormalizedPhases64(phaseIntervals, spans.length);
+  AutoMovieEngineCurve.compileNormalizedPhases64(phaseIntervals, spans.length);
   return {
     ...curve,
     closed: false,

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, normalizeAutoMovieSurfaceFrame, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSweepFrame,
@@ -76,7 +76,7 @@ export namespace AutoMovieArchetypeFrame {
       (Math.abs(Vector3.normalize(out).x) > 0.9
         ? { x: 0, y: 0, z: 1 }
         : { x: 1, y: 0, z: 0 });
-    const basis: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame({
+    const basis: IAutoMovieSweepFrame = AutoMovieEngineGeometry.normalizeSurfaceFrame({
       origin: at,
       forward: hint,
       normal: out,

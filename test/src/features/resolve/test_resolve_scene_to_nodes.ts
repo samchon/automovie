@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, composeScene, resolveFrame, sceneToNodes, AutoMovieEngineMotionClip } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, AutoMovieEngineMotionClip, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieModel,
   type IAutoMovieMotion,
@@ -112,10 +112,10 @@ export function test_resolve_scene_to_nodes(): void {
     hero: actorModel,
     crate: propModel,
   };
-  const nodes: IAutoMovieNode[] = sceneToNodes({ scene, models });
+  const nodes: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({ scene, models });
 
   // 1. rest structure worlds ≡ declared transforms
-  const rest: Map<string, number[]> = composeScene(nodes);
+  const rest: Map<string, number[]> = AutoMovieEngineResolve.composeScene(nodes);
   const placement: IAutoMovieTransform = scene.nodes[0]!.transform;
   const placementMatrix: number[] = Matrix4.compose(
     placement.translation,
@@ -195,7 +195,7 @@ export function test_resolve_scene_to_nodes(): void {
     skeleton,
     nodePrefix: "actor/",
   });
-  const world: Map<string, number[]> = resolveFrame({
+  const world: Map<string, number[]> = AutoMovieEngineResolve.resolveFrame({
     nodes,
     clip: bridge.clip,
     limits: [],

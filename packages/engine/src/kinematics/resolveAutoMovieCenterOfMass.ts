@@ -45,68 +45,6 @@ export function resolveAutoMovieCenterOfMass(
   );
 }
 
-/**
- * One segmental construction consumes actual fresh rest FK, never a public
- * derived-value flag.
- */
-function fromRest(
-  profile: IAutoMoviePhysicalProfile,
-  frames: readonly IAutoMovieResolvedBone[],
-): IAutoMovieResolveCenterOfMass.IModel {
-  const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
-  for (const frame of frames) rest.set(frame.bone, frame);
-  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
-    profile.segments.map(
-      (
-        s: IAutoMoviePhysicalSegment,
-      ): IAutoMovieResolveCenterOfMass.ISegment => {
-        const bone: IAutoMovieResolvedBone | undefined = rest.get(
-          s.bone as AutoMovieHumanoidBone,
-        );
-        if (bone === undefined)
-          throw new Error(`The mass model needs the rig bone ${s.bone}`);
-        const origin: IAutoMovieVector3 = s.neutral.position;
-        const world: IAutoMovieVector3 = Quaternion.rotateVector(
-          s.neutral.rotation,
-          s.centerOfMass,
-        );
-        world.x = origin.x + world.x;
-        world.y = origin.y + world.y;
-        world.z = origin.z + world.z;
-        const unturn: IAutoMovieQuaternion = Quaternion.inverse(
-          bone.worldRotation,
-        );
-        return {
-          bone: bone.bone,
-          mass: s.mass,
-          point: Quaternion.rotateVector(
-            unturn,
-            Vector3.subtract(world, bone.worldPosition),
-          ),
-          inertia: s.inertia,
-
-          // The principal axes go from the segment's neutral frame to the
-          // bone's rest frame as the centre does, so a pose turns them by
-          // the bone's world rotation alone.
-          axes: Quaternion.normalize(
-            Quaternion.multiply(
-              unturn,
-              Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
-            ),
-          ),
-        };
-      },
-    );
-  const mass: number = segments.reduce(
-    (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
-      sum + s.mass,
-    0,
-  );
-  if (!(mass > 0))
-    throw new Error("The mass model needs a positive total mass");
-  return { mass, segments };
-}
-
 /** Companion types and helpers of {@link resolveAutoMovieCenterOfMass}. */
 export namespace resolveAutoMovieCenterOfMass {
   /**
@@ -297,4 +235,66 @@ export namespace resolveAutoMovieCenterOfMass {
     const distance: number = nearestHullEdge(point, hull).distance;
     return hull.length >= 3 && pointInHull(point, hull) ? distance : -distance;
   }
+}
+
+/**
+ * One segmental construction consumes actual fresh rest FK, never a public
+ * derived-value flag.
+ */
+function fromRest(
+  profile: IAutoMoviePhysicalProfile,
+  frames: readonly IAutoMovieResolvedBone[],
+): IAutoMovieResolveCenterOfMass.IModel {
+  const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map();
+  for (const frame of frames) rest.set(frame.bone, frame);
+  const segments: IAutoMovieResolveCenterOfMass.ISegment[] =
+    profile.segments.map(
+      (
+        s: IAutoMoviePhysicalSegment,
+      ): IAutoMovieResolveCenterOfMass.ISegment => {
+        const bone: IAutoMovieResolvedBone | undefined = rest.get(
+          s.bone as AutoMovieHumanoidBone,
+        );
+        if (bone === undefined)
+          throw new Error(`The mass model needs the rig bone ${s.bone}`);
+        const origin: IAutoMovieVector3 = s.neutral.position;
+        const world: IAutoMovieVector3 = Quaternion.rotateVector(
+          s.neutral.rotation,
+          s.centerOfMass,
+        );
+        world.x = origin.x + world.x;
+        world.y = origin.y + world.y;
+        world.z = origin.z + world.z;
+        const unturn: IAutoMovieQuaternion = Quaternion.inverse(
+          bone.worldRotation,
+        );
+        return {
+          bone: bone.bone,
+          mass: s.mass,
+          point: Quaternion.rotateVector(
+            unturn,
+            Vector3.subtract(world, bone.worldPosition),
+          ),
+          inertia: s.inertia,
+
+          // The principal axes go from the segment's neutral frame to the
+          // bone's rest frame as the centre does, so a pose turns them by
+          // the bone's world rotation alone.
+          axes: Quaternion.normalize(
+            Quaternion.multiply(
+              unturn,
+              Quaternion.multiply(s.neutral.rotation, s.inertiaRotation),
+            ),
+          ),
+        };
+      },
+    );
+  const mass: number = segments.reduce(
+    (sum: number, s: IAutoMovieResolveCenterOfMass.ISegment): number =>
+      sum + s.mass,
+    0,
+  );
+  if (!(mass > 0))
+    throw new Error("The mass model needs a positive total mass");
+  return { mass, segments };
 }

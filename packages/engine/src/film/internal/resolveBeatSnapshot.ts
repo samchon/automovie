@@ -19,7 +19,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { sampleMotion } from "../../motion/sampleMotion";
 import { channelKey } from "../../resolve/channelKey";
-import { sampleClipSequence } from "../../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
 import { VELOCITY_DT } from "../constants/VELOCITY_DT";
 import { foldRoot } from "./foldRoot";

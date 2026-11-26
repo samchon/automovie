@@ -1,4 +1,4 @@
-import { instanceSlot } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieCompiledInstanceSet,
   IAutoMovieInstanceSlot,
@@ -27,4 +27,4 @@ export const regenerateInstanceSlot: (
 ) => IAutoMovieInstanceSlot = (
   instanceSet: IAutoMovieCompiledInstanceSet,
   slot: number,
-): IAutoMovieInstanceSlot => instanceSlot(instanceSet, slot);
+): IAutoMovieInstanceSlot => AutoMovieEnginePopulationRuntime.instanceSlot(instanceSet, slot);

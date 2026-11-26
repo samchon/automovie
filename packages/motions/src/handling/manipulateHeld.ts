@@ -1,12 +1,4 @@
-import {
-  AffordanceArticulation,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Transform,
-  Vector3,
-  fitDigitToTarget,
-  indexSkeletonTopology,
-} from "@automovie/engine";
+import { AffordanceArticulation, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Transform, Vector3, indexSkeletonTopology, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -237,7 +229,7 @@ export function manipulateHeld(
       grip,
       Vector3.add(site.point, Vector3.scale(site.direction, -depth)),
     );
-    const fit: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget({
+    const fit: IAutoMovieFitDigitToTarget.IResult = AutoMovieEngineKinematics.fitDigitToTarget({
       skeleton,
       topology,
       pose: seed,

@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  projectileTrajectory,
-  sampleClip,
-  solveBallisticLaunch,
-} from "@automovie/engine";
+import { Quaternion, projectileTrajectory, solveBallisticLaunch, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieTrack,
@@ -61,7 +56,7 @@ export function test_engine_physics_projectile_trajectory(): void {
   );
   let keyed: boolean = nclose(clip.tracks[0]!.times[30]!, 1);
   for (const t of [0, 0.3, 20 / 30, 1]) {
-    const sampled: number[] = sampleClip(clip, t).get(
+    const sampled: number[] = AutoMovieEngineSequence.sampleClip(clip, t).get(
       "node:arrow:translation",
     )!.value;
     keyed &&= vclose(
@@ -72,7 +67,7 @@ export function test_engine_physics_projectile_trajectory(): void {
   }
   TestValidator.predicate("the keys", keyed);
   const nose = (t: number): IAutoMovieVector3 => {
-    const v: number[] = sampleClip(clip, t).get("node:arrow:rotation")!.value;
+    const v: number[] = AutoMovieEngineSequence.sampleClip(clip, t).get("node:arrow:rotation")!.value;
     return Quaternion.rotateVector(
       { x: v[0]!, y: v[1]!, z: v[2]!, w: v[3]! },
       { x: 0, y: 0, z: 1 },

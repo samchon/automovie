@@ -1,7 +1,4 @@
-import {
-  AutoMovieMeshCourse,
-  tessellateAutoMovieContourStrip64,
-} from "@automovie/engine";
+import { AutoMovieMeshCourse, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanArmF1Lines,
@@ -95,7 +92,7 @@ export namespace AutoMovieHumanArmF1Lines {
       },
     );
     for (let i: number = 1; i < walks.length; ++i)
-      tessellateAutoMovieContourStrip64(
+      AutoMovieEngineCurve.tessellateContourStrip64(
         walks[i - 1]!,
         walks[i]!,
         (
@@ -110,7 +107,7 @@ export namespace AutoMovieHumanArmF1Lines {
           qualified,
           diagnostics,
         }: Parameters<
-          NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>
+          NonNullable<Parameters<typeof AutoMovieEngineCurve.tessellateContourStrip64>[4]>
         >[0]): void => {
           if (!qualified)
             throw new Error(

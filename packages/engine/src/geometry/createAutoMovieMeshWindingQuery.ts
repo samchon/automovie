@@ -3,7 +3,7 @@ import type {
   IAutoMovieMeshWinding,
 } from "@automovie/interface";
 
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Compile any triangle surface into a query that tells solid from empty space

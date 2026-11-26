@@ -1,8 +1,4 @@
-import {
-  simulateSoftBody,
-  softBodyRestConfiguration,
-  softBodyStateDigest,
-} from "@automovie/engine";
+import { simulateSoftBody, softBodyRestConfiguration, AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -80,8 +76,8 @@ export function test_soft_body_rest_exactness(): void {
       [
         "digest",
         (): boolean =>
-          softBodyStateDigest(settled) ===
-          softBodyStateDigest(simulateSoftBody(domain, 256)),
+          AutoMovieEngineSoftBody.softBodyStateDigest(settled) ===
+          AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, 256)),
       ],
     ]),
     {

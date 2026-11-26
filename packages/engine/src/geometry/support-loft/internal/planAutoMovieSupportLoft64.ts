@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 
 import { determinantAutoMovieMatrix3 } from "../../../math/internal/determinantAutoMovieMatrix3";
-import { createAutoMovieSupportSectionQuery } from "../../createAutoMovieSupportSectionQuery";
+import { createAutoMovieSupportSectionQuery } from "../../internal/createAutoMovieSupportSectionQuery";
 import { AutoMovieBernsteinAlgebra64 as B } from "../../curve/AutoMovieBernsteinAlgebra64";
-import { rootsAutoMovieCubicBernstein64 } from "../../curve/rootsAutoMovieCubicBernstein64";
+import { rootsAutoMovieCubicBernstein64 } from "../../curve/internal/rootsAutoMovieCubicBernstein64";
 import type { IAutoMovieSupportLoftPlan64 } from "./IAutoMovieSupportLoftPlan64";
 
 /**

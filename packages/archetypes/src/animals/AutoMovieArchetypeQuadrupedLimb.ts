@@ -1,4 +1,4 @@
-import { Vector3, solveTwoBoneIK } from "@automovie/engine";
+import { Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieTwoBoneIK,
   IAutoMovieVector3,
@@ -259,7 +259,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         );
       let triangle: IAutoMovieTwoBoneIK;
       try {
-        triangle = solveTwoBoneIK(a, lower.lower, distance);
+        triangle = AutoMovieEngineKinematics.solveTwoBoneIK(a, lower.lower, distance);
       } catch (error) {
         throw new RangeError(
           error instanceof Error

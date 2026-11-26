@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanMount } from "./HumanMount";
 import { HumanMountOnFrame } from "./HumanMountOnFrame";

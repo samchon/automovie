@@ -19,7 +19,7 @@ import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { channelKey } from "../resolve/channelKey";
-import { sampleClip } from "../resolve/sampleClip";
+import { sampleClip } from "../resolve/internal/sampleClip";
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { getConstraint } from "../rom/getConstraint";
 import { AutoMovieEngineText } from "../text/AutoMovieEngineText";

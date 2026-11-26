@@ -1,4 +1,4 @@
-import { lowerPlantingInstallation } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMovieFluidDomain,
   IAutoMoviePlantingCluster,
@@ -201,8 +201,8 @@ export function assertPlantingInstallationGeometry(
   const brokenCluster: IAutoMoviePlantingCluster = plantingCluster({
     count: 0,
   });
-  const derived: ReturnType<typeof lowerPlantingInstallation> =
-    lowerPlantingInstallation({
+  const derived: ReturnType<typeof AutoMovieEnginePlanting.lowerPlantingInstallation> =
+    AutoMovieEnginePlanting.lowerPlantingInstallation({
       installation: plantingInstallation(),
       cluster: plantingCluster(),
       domain: plantingRecipe(),
@@ -240,7 +240,7 @@ export function assertPlantingInstallationGeometry(
       [
         "overleafedLowersToNotRun",
         () =>
-          lowerPlantingInstallation({
+          AutoMovieEnginePlanting.lowerPlantingInstallation({
             installation: plantingInstallation(),
             cluster: plantingCluster(),
             domain: overleafed,
@@ -249,8 +249,8 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunRecipe",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> =
-            lowerPlantingInstallation({
+          const frame: ReturnType<typeof AutoMovieEnginePlanting.lowerPlantingInstallation> =
+            AutoMovieEnginePlanting.lowerPlantingInstallation({
               installation: plantingInstallation(),
               cluster: plantingCluster(),
               domain: brokenRecipe,
@@ -266,8 +266,8 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunCluster",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> =
-            lowerPlantingInstallation({
+          const frame: ReturnType<typeof AutoMovieEnginePlanting.lowerPlantingInstallation> =
+            AutoMovieEnginePlanting.lowerPlantingInstallation({
               installation: plantingInstallation(),
               cluster: brokenCluster,
               domain: plantingRecipe(),
@@ -278,8 +278,8 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunMismatch",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> =
-            lowerPlantingInstallation({
+          const frame: ReturnType<typeof AutoMovieEnginePlanting.lowerPlantingInstallation> =
+            AutoMovieEnginePlanting.lowerPlantingInstallation({
               installation: plantingInstallation(),
               cluster: plantingCluster({ domain: "ivy" }),
               domain: plantingRecipe(),
@@ -295,8 +295,8 @@ export function assertPlantingInstallationGeometry(
       [
         "notRunUnplaced",
         () => {
-          const frame: ReturnType<typeof lowerPlantingInstallation> =
-            lowerPlantingInstallation({
+          const frame: ReturnType<typeof AutoMovieEnginePlanting.lowerPlantingInstallation> =
+            AutoMovieEnginePlanting.lowerPlantingInstallation({
               installation: plantingInstallation({ cluster: "roof-bed" }),
               cluster: plantingCluster(),
               domain: plantingRecipe(),

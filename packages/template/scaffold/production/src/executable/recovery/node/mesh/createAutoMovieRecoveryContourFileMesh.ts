@@ -1,4 +1,4 @@
-import { generateAutoMovieContourLoft64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieContourLoft64,
@@ -108,7 +108,7 @@ export function createAutoMovieRecoveryContourFileMesh(
       table(positions);
     const areaTable: ReturnType<typeof createRecoveryFileVectorTable> =
       table(area);
-    emission = generateAutoMovieContourLoft64(input, {
+    emission = AutoMovieEngineCurve.generateContourLoft64(input, {
       vertex: (index: number, point: Readonly<AutoMovieVector3Tuple>): void => {
         if (index !== vertices || vertices >= limits.maxVertices)
           throw new Error(

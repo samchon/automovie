@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
+import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
+import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";

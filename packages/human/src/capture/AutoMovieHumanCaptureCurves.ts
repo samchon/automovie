@@ -1,7 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  markAutoMovieConstructionCurves,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionCurve,
   IAutoMovieHumanF1,
@@ -167,6 +164,6 @@ export namespace AutoMovieHumanCaptureCurves {
             ),
           });
     }
-    return markAutoMovieConstructionCurves(curves, person);
+    return AutoMovieEngineConstruction.markConstructionCurves(curves, person);
   }
 }

@@ -1,4 +1,4 @@
-import { arrangePlantingCluster, growPlanting } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMoviePlantingArrangement,
   IAutoMoviePlantingBranch,
@@ -76,9 +76,9 @@ const FOLIAGE: {
  */
 export function test_render_scene_build_planting_object(): void {
   const domain: IAutoMoviePlantingDomain = plantingRecipe({ foliage: FOLIAGE });
-  const plant: IAutoMoviePlantingState = growPlanting(domain);
+  const plant: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(domain);
   const arrangement: IAutoMoviePlantingArrangement =
-    arrangePlantingCluster(plantingCluster());
+    AutoMovieEnginePlanting.arrangePlantingCluster(plantingCluster());
   const object: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
     plant,
     arrangement,
@@ -308,11 +308,11 @@ export function test_render_scene_build_planting_object(): void {
     ++borrowedDisposals;
   });
   const bare: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
-    plant: growPlanting(plantingRecipe()),
+    plant: AutoMovieEnginePlanting.growPlanting(plantingRecipe()),
     arrangement,
     branchMaterial: borrowed,
   });
-  const cut: IAutoMoviePlantingState = growPlanting(
+  const cut: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(
     plantingRecipe({
       structure: { ...plantingRecipe().structure, length: 2 },
       pruning: {
@@ -371,7 +371,7 @@ export function test_render_scene_build_planting_object(): void {
     { noLeaves: true, oneChild: true, borrowed: true },
   );
   const dormant: ReturnType<typeof buildPlantingObject> = buildPlantingObject({
-    plant: growPlanting(
+    plant: AutoMovieEnginePlanting.growPlanting(
       plantingRecipe({ growth: { stage: 0, onset: 0.25 }, foliage: FOLIAGE }),
     ),
     arrangement,

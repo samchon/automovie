@@ -8,7 +8,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanMountRider } from "../lexicon/HumanMountRider";
 import { readPropGrip } from "./readPropGrip";

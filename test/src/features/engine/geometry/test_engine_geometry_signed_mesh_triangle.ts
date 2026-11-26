@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { closestTriangleDistanceSquaredOracle } from "../../internal/closestTriangleDistanceSquaredOracle";
@@ -23,7 +23,7 @@ export function test_engine_geometry_signed_mesh_triangle(): void {
   const a: number[] = [0, 0, 0];
   const b: number[] = [2, 0, 0];
   const c: number[] = [0, 2, 0];
-  const query = createAutoMovieSignedMeshQuery(
+  const query = AutoMovieEngineGeometry.createSignedMeshQuery(
     {
       positions: [...a, ...b, ...c],
       normals: [0, 0, 1, 0, 0, 1, 0, 0, 1],

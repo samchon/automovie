@@ -13,7 +13,7 @@ import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
-import { resolveAutoMovieMomentumRates } from "./resolveAutoMovieMomentumRates";
+import { resolveAutoMovieMomentumRates } from "./internal/resolveAutoMovieMomentumRates";
 
 /**
  * Snapshot one mass model for a synchronous physical planning operation.

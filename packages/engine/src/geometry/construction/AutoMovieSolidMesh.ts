@@ -6,7 +6,7 @@ import type {
 
 import { AutoMovieSolidMeshTessellate } from "./AutoMovieSolidMeshTessellate";
 import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
-import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
+import { faceAutoMovieSolidMesh } from "./internal/faceAutoMovieSolidMesh";
 
 /** Indexed source surfaces with authoritative shared boundary identities. */
 export namespace AutoMovieSolidMesh {

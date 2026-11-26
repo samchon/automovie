@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 
 /**
  * The race walk: a walk driven to a run's speed without a flight. World

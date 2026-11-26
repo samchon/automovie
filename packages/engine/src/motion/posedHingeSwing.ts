@@ -9,7 +9,7 @@ import type {
 
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
+import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 

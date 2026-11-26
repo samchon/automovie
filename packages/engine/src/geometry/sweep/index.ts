@@ -2,11 +2,11 @@ export * from "./AutoMovieMonotone";
 export * from "./AutoMovieSpline";
 export * from "./AutoMovieSweepRotation";
 export * from "./bufferAutoMovieBones";
-export * from "./checkAutoMovieSweepFeature";
+
 export * from "./compileAutoMovieSweep";
 export * from "./compileAutoMovieSweepFeature";
-export * from "./compileAutoMovieSweepGuide";
-export * from "./compileAutoMovieSweepProfile";
+
+
 export * from "./createAutoMovieBoneMotion";
 export * from "./fitAutoMovieSubdivisionLimit";
 export * from "./frameAutoMovieSweepSpine";
@@ -27,12 +27,12 @@ export * from "./momentAutoMovieSweepSections";
 export * from "./orientAutoMovieSweep";
 export * from "./parameterizeAutoMovieSweepSection";
 export * from "./pathAutoMovieSweepTransport";
-export * from "./planAutoMovieSurfaceRigPatches";
+
 export * from "./poseAutoMovieSurfaceNetwork";
 export * from "./poseAutoMovieSweep";
-export * from "./prepareAutoMovieSurfaceConstruction";
-export * from "./preserveAutoMovieSweepVolume";
-export * from "./reachAutoMovieSurfaceCell";
+
+
+
 export * from "./registerAutoMovieSurfaceVertices";
 export * from "./rigAutoMovieSurfaceBridge";
 export * from "./rigAutoMovieSurfaceCoons";
@@ -46,3 +46,5 @@ export * from "./settleAutoMovieSweepVolume";
 export * from "./solveAutoMovieSubdivisionLimit";
 export * from "./stencilAutoMovieSubdivisionLimit";
 export * from "./transportAutoMovieSweepSpine";
+
+export { AutoMovieEngineSweep } from "./AutoMovieEngineSweep";

@@ -1,8 +1,4 @@
-import {
-  measureAutoMovieGeometry,
-  reachPose,
-  validatePose,
-} from "@automovie/engine";
+import { measureAutoMovieGeometry, validatePose, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieCamera,
@@ -235,7 +231,7 @@ export function test_engine_geometry_query_reach(): void {
   const expectedLeftRom: (target: IAutoMovieVector3) => boolean = (
     target: IAutoMovieVector3,
   ): boolean => {
-    const pose: ReturnType<typeof reachPose> = reachPose(
+    const pose: ReturnType<typeof AutoMovieEngineKinematics.reachPose> = AutoMovieEngineKinematics.reachPose(
       skeleton,
       "left",
       target,

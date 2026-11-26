@@ -1,7 +1,4 @@
-import {
-  buildAutoMovieMeshQueryHierarchy,
-  refitAutoMovieMeshQueryHierarchy,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMeshQueryHierarchy } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -86,19 +83,19 @@ export function test_engine_geometry_mesh_query_hierarchy(): void {
     const input: IBox[] = count(n).map((k: number): IBox => box(k, 0));
     TestValidator.predicate(
       `${n} leaf`,
-      same(buildAutoMovieMeshQueryHierarchy([...input]), leaf(input)),
+      same(AutoMovieEngineGeometry.buildMeshQueryHierarchy([...input]), leaf(input)),
     );
   }
   TestValidator.predicate(
     "empty",
-    same(buildAutoMovieMeshQueryHierarchy([]), {
+    same(AutoMovieEngineGeometry.buildMeshQueryHierarchy([]), {
       low: [Infinity, Infinity, Infinity],
       high: [-Infinity, -Infinity, -Infinity],
       triangles: [],
     }),
   );
   const own: IBox[] = [box(0, 0)];
-  const held = buildAutoMovieMeshQueryHierarchy(own);
+  const held = AutoMovieEngineGeometry.buildMeshQueryHierarchy(own);
   own.push(box(7, 0));
   TestValidator.equals("own array", ids(held), [0, 7]);
 
@@ -108,7 +105,7 @@ export function test_engine_geometry_mesh_query_hierarchy(): void {
     TestValidator.predicate(
       `axis ${axis}`,
       same(
-        buildAutoMovieMeshQueryHierarchy(descending(13, axis)),
+        AutoMovieEngineGeometry.buildMeshQueryHierarchy(descending(13, axis)),
         branch(leaf(sorted.slice(0, 6)), leaf(sorted.slice(6))),
       ),
     );
@@ -125,7 +122,7 @@ export function test_engine_geometry_mesh_query_hierarchy(): void {
   );
   TestValidator.equals(
     "stable",
-    ids(buildAutoMovieMeshQueryHierarchy([...tied])),
+    ids(AutoMovieEngineGeometry.buildMeshQueryHierarchy([...tied])),
     count(13),
   );
   const widths: IBox[] = count(13).map(
@@ -139,13 +136,13 @@ export function test_engine_geometry_mesh_query_hierarchy(): void {
   TestValidator.predicate(
     "x before y",
     same(
-      buildAutoMovieMeshQueryHierarchy([...widths].reverse()),
+      AutoMovieEngineGeometry.buildMeshQueryHierarchy([...widths].reverse()),
       branch(leaf(widths.slice(0, 6)), leaf(widths.slice(6))),
     ),
   );
 
   // 4.
-  const deep = buildAutoMovieMeshQueryHierarchy(descending(25, 2));
+  const deep = AutoMovieEngineGeometry.buildMeshQueryHierarchy(descending(25, 2));
   const z: IBox[] = count(25).map((k: number): IBox => box(k, 2));
   TestValidator.predicate(
     "deep",
@@ -169,8 +166,8 @@ export function test_engine_geometry_mesh_query_hierarchy(): void {
   TestValidator.predicate(
     "refit",
     same(
-      refitAutoMovieMeshQueryHierarchy(
-        buildAutoMovieMeshQueryHierarchy(descending(13, 0)),
+      AutoMovieEngineGeometry.refitMeshQueryHierarchy(
+        AutoMovieEngineGeometry.buildMeshQueryHierarchy(descending(13, 0)),
         shift,
       ),
       branch(leaf(moved.slice(0, 6)), leaf(moved.slice(6))),

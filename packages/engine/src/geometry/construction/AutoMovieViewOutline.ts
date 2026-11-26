@@ -13,8 +13,8 @@ import { AutoMovieNaturalSpline } from "./AutoMovieNaturalSpline";
 import { AutoMovieViewHermite } from "./AutoMovieViewHermite";
 import { AutoMovieViewOutlineRead } from "./AutoMovieViewOutlineRead";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
-import { distanceAutoMovieViewOutline } from "./distanceAutoMovieViewOutline";
-import { supportAutoMovieViewOutline } from "./supportAutoMovieViewOutline";
+import { distanceAutoMovieViewOutline } from "./internal/distanceAutoMovieViewOutline";
+import { supportAutoMovieViewOutline } from "./internal/supportAutoMovieViewOutline";
 
 /**
  * The scalar source shared by lofting, origin placement and inspection: a

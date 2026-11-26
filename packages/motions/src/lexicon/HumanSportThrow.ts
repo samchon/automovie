@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { jump } from "../actions/jump";
-import { run } from "../actions/run";
+import { run } from "../gait/internal/run";
 import { kickBall } from "../ballStrike/kickBall";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_BOWLING_DELIVERY } from "../next/presets/HUMAN_BOWLING_DELIVERY";

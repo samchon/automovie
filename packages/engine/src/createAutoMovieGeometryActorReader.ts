@@ -16,7 +16,7 @@ import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES"
 import { resolvePose } from "./kinematics/resolvePose";
 import { Transform } from "./math/Transform";
 import { sampleMotion } from "./motion/sampleMotion";
-import { sampleClipSequence } from "./resolve/sampleClipSequence";
+import { sampleClipSequence } from "./resolve/internal/sampleClipSequence";
 
 /**
  * Read actor roots, bones and pose summaries from borrowed compiled shots at

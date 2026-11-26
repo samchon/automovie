@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourPath64 as T } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type { IAutoMovieModel } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -41,7 +41,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
     frame: string;
     condition: string;
     observationsHash: string;
-    subjects: (Parameters<typeof T>[0] & {
+    subjects: (Parameters<typeof AutoMovieEngineCurve.tessellateContourPath64>[0] & {
       id: string;
       unsupportedPairCount: number;
     })[];
@@ -51,7 +51,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
     frame: string;
     condition: string;
     observationsHash: string;
-    subjects: (Parameters<typeof T>[0] & {
+    subjects: (Parameters<typeof AutoMovieEngineCurve.tessellateContourPath64>[0] & {
       id: string;
       unsupportedPairCount: number;
     })[];
@@ -88,7 +88,7 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
   const started: number = performance.now(),
     results: object[] = [];
   for (const subject of input.subjects) {
-    const generated: ReturnType<typeof T> = T({
+    const generated: ReturnType<typeof AutoMovieEngineCurve.tessellateContourPath64> = AutoMovieEngineCurve.tessellateContourPath64({
       ...subject,
       topologyDomain: `contour-path.${inputSha256}.${subject.id}`,
     });

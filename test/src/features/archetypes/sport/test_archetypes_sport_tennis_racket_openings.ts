@@ -1,5 +1,5 @@
 import { buildTennisRacketHead } from "@automovie/archetypes/internal";
-import { createAutoMovieMeshRayCaster } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMeshRayCaster } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,8 +29,8 @@ export function test_archetypes_sport_tennis_racket_openings(): void {
     -0.34,
     0.03,
   );
-  const rim: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(head.rim);
-  const strings: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(
+  const rim: IAutoMovieMeshRayCaster = AutoMovieEngineGeometry.createMeshRayCaster(head.rim);
+  const strings: IAutoMovieMeshRayCaster = AutoMovieEngineGeometry.createMeshRayCaster(
     head.strings,
   );
 

@@ -17,8 +17,8 @@ import {
 
 import { channelKey } from "../../resolve/channelKey";
 import { placementNodePrefix } from "../../resolve/placementNodePrefix";
-import { resolveFrame } from "../../resolve/resolveFrame";
-import { sceneToNodes } from "../../resolve/sceneToNodes";
+import { resolveFrame } from "../../resolve/internal/resolveFrame";
+import { sceneToNodes } from "../../resolve/internal/sceneToNodes";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { pushViolation } from "../../validation/pushViolation";
 import { validateClipArtifact } from "../../validation/validateClipArtifact";

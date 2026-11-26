@@ -1,8 +1,4 @@
-import {
-  autoMovieFeatureEdgeDistance,
-  measureAutoMovieFeatureEdges,
-  tessellate,
-} from "@automovie/engine";
+import { tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeasureFeatureEdges,
   IAutoMovieTessellation,
@@ -42,13 +38,13 @@ export function test_engine_geometry_feature_edges(): void {
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const measure = (mesh: { positions: number[]; indices: number[] }, reach: number = 0.05) =>
-    measureAutoMovieFeatureEdges({ positions: mesh.positions, indices: mesh.indices, reach });
+    AutoMovieEngineGeometry.measureFeatureEdges({ positions: mesh.positions, indices: mesh.indices, reach });
   const convex = (
     mesh: { positions: number[]; indices: number[] },
     edges: IAutoMovieMeasureFeatureEdges.IResult,
     point: IAutoMovieVector3,
   ): number =>
-    autoMovieFeatureEdgeDistance({
+    AutoMovieEngineGeometry.featureEdgeDistance({
       edges,
       triangle: surfaceTriangleOf(mesh.positions, mesh.indices, point),
       point,

@@ -1,4 +1,4 @@
-import { compileAttach, sampleClip } from "@automovie/engine";
+import { compileAttach, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompileAttach,
@@ -59,7 +59,7 @@ export function test_engine_film_attachment_local_offset(): void {
   TestValidator.predicate(
     "the bone-local offset is already in the correct world frame at each end",
     [0.5, 1.5].every((seconds: number): boolean => {
-      const channels: ReturnType<typeof sampleClip> = sampleClip(clip, seconds);
+      const channels: ReturnType<typeof AutoMovieEngineSequence.sampleClip> = AutoMovieEngineSequence.sampleClip(clip, seconds);
       return (
         matches(channels.get("node:lantern:translation")!.value, [3, 1, -1]) &&
         matches(
@@ -78,11 +78,11 @@ export function test_engine_film_attachment_local_offset(): void {
   TestValidator.predicate(
     "a ridden frame replaces the staged parent only where its reader supplies one",
     matches(
-      sampleClip(ridden, 0.5).get("node:lantern:translation")!.value,
+      AutoMovieEngineSequence.sampleClip(ridden, 0.5).get("node:lantern:translation")!.value,
       [3, 1, -1],
     ) &&
       matches(
-        sampleClip(ridden, 1.5).get("node:lantern:translation")!.value,
+        AutoMovieEngineSequence.sampleClip(ridden, 1.5).get("node:lantern:translation")!.value,
         [0, 3, -1],
       ),
   );

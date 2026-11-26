@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { simulateSoftBody } from "./simulateSoftBody";
-import { softBodyStepAt } from "./softBodyStepAt";
+import { softBodyStepAt } from "./internal/softBodyStepAt";
 
 /**
  * Sample the static cloth trajectory at a shot second by snapping to its

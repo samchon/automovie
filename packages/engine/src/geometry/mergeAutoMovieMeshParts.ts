@@ -7,7 +7,7 @@ import {
 
 import { mergeAutoMovieMeshes } from "./mergeAutoMovieMeshes";
 import { transformAutoMovieMesh } from "./transformAutoMovieMesh";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Place rigid members, merge them, and report the index range each one owns.

@@ -1,9 +1,4 @@
-import {
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  measureAutoMovieCurveLength64,
-} from "@automovie/engine";
+import { AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadTapeSource,
@@ -224,14 +219,14 @@ export namespace AutoMovieHumanHeadTapeSource {
     const sources: IAutoMovieHumanHeadTapeStation.IOutput =
       AutoMovieHumanHeadTapeStation.create(reader, plane.range);
 
-    return measureAutoMovieCurveLength64(
+    return AutoMovieEngineCurve.measureCurveLength64(
       sites
         .slice(1)
         .map(
           (
             high: number,
             index: number,
-          ): Parameters<typeof measureAutoMovieCurveLength64>[0][number] => ({
+          ): Parameters<typeof AutoMovieEngineCurve.measureCurveLength64>[0][number] => ({
             domain: [sites[index]!, high],
             derivative: (phase: number): AutoMovieVector3Tuple =>
               course(reader, plane, phase, sources).derivative,

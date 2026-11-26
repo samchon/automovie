@@ -15,21 +15,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { boxExcludedSwivels } from "../kinematics/boxExcludedSwivels";
-import { boxLeastSwivels } from "../kinematics/boxLeastSwivels";
-import { clinicalDeviation } from "../kinematics/clinicalDeviation";
+import { boxExcludedSwivels } from "../kinematics/internal/boxExcludedSwivels";
+import { boxLeastSwivels } from "../kinematics/internal/boxLeastSwivels";
+import { clinicalDeviation } from "../kinematics/internal/clinicalDeviation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { distalEndSwivelAdmitted } from "../kinematics/distalEndSwivelAdmitted";
-import { distalEndSwivelArcs } from "../kinematics/distalEndSwivelArcs";
-import { distalEndSwivelMiss } from "../kinematics/distalEndSwivelMiss";
-import { distalEndSwivelNearest } from "../kinematics/distalEndSwivelNearest";
+import { distalEndSwivelArcs } from "../kinematics/internal/distalEndSwivelArcs";
+import { distalEndSwivelMiss } from "../kinematics/internal/distalEndSwivelMiss";
+import { distalEndSwivelNearest } from "../kinematics/internal/distalEndSwivelNearest";
 import { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
 import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRange";
 import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
-import { hingedSwivelFeasible } from "../kinematics/hingedSwivelFeasible";
-import { immobileAxisSwivels } from "../kinematics/immobileAxisSwivels";
+import { hingedSwivelFeasible } from "../kinematics/internal/hingedSwivelFeasible";
+import { immobileAxisSwivels } from "../kinematics/internal/immobileAxisSwivels";
 import { readsSwingTwistFrame } from "../kinematics/readsSwingTwistFrame";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { swivelArcs } from "../kinematics/swivelArcs";

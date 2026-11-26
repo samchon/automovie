@@ -1,4 +1,4 @@
-import { measureAutoMovieFeatureEdges } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMaterialWear,
   IAutoMovieMeasureFeatureEdges,
@@ -62,7 +62,7 @@ export const applyMaterialWear: (
     );
   const reach: number = Math.max(wear.edge?.width ?? 0, wear.grime?.width ?? 0);
   const measured: IAutoMovieMeasureFeatureEdges.IResult =
-    measureAutoMovieFeatureEdges({
+    AutoMovieEngineGeometry.measureFeatureEdges({
       positions: position.array,
       indices,
       reach,

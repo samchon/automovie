@@ -4,9 +4,9 @@ export * from "./AutoMovieBernsteinGrid64";
 export * from "./AutoMovieBernsteinRational64";
 export * from "./AutoMovieBernsteinSubdivision64";
 export * from "./AutoMovieBicubicAtlasEmit64";
-export * from "./AutoMovieBicubicAtlasPlan64";
-export * from "./AutoMovieBicubicAtlasRegistry64";
-export * from "./AutoMovieBicubicAtlasVertex64";
+
+
+
 export * from "./AutoMovieCanonicalBoundary64";
 export * from "./AutoMovieContourLoftCurves64";
 export * from "./AutoMovieContourSlit64";
@@ -17,38 +17,40 @@ export * from "./AutoMovieEngineCurveParentContext";
 export * from "./AutoMovieLocalHermiteField64";
 export * from "./AutoMovieEnginePchip64";
 export * from "./AutoMovieEnginePchipField64";
-export * from "./admitAutoMovieContourEvents64";
-export * from "./admitAutoMovieContourIntervals64";
-export * from "./assertAutoMovieCurve64";
-export * from "./assertAutoMovieCurveBoundary64";
-export * from "./compileAutoMovieNormalizedPhases64";
-export * from "./computeAutoMovieContourNormals64";
-export * from "./evaluateAutoMovieBernstein64";
-export * from "./evaluateAutoMovieCurve64";
-export * from "./evaluateAutoMovieHermiteGregory64";
-export * from "./evaluateAutoMovieImplicitProjection64";
-export * from "./generateAutoMovieContourLoft64";
+
+
+
+
+
+
+
+
+
+
+
 export * from "./AutoMovieEngineCurveAssembly64";
-export * from "./generateAutoMovieSupportCurve64";
-export * from "./measureAutoMovieContourFace64";
-export * from "./measureAutoMovieCubicCurveLength64";
-export * from "./measureAutoMovieCurveLength64";
-export * from "./planAutoMovieContourSlabs64";
-export * from "./planAutoMovieContourWalks64";
-export * from "./planAutoMovieLocalHermite64";
-export * from "./prepareAutoMovieBicubicAtlasBoundary64";
-export * from "./prepareAutoMovieContourBoundaries64";
-export * from "./prepareAutoMovieContourDocument64";
-export * from "./refineAutoMovieContourInteractions64";
-export * from "./rootsAutoMovieCubicBernstein64";
-export * from "./sampleAutoMovieContourRing64";
-export * from "./splitAutoMovieContourLeaf64";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./tessellateAutoMovieBicubicAtlas64";
-export * from "./tessellateAutoMovieContourLoft64";
-export * from "./tessellateAutoMovieContourPath64";
-export * from "./tessellateAutoMovieContourStrip64";
+
+
+
 export * from "./tessellateAutoMovieLocalHermite64";
-export * from "./tessellateAutoMovieParametricAtlas64";
-export * from "./triangulateAutoMovieParameterCell64";
+
+
 
 export * from "./AutoMovieEngineCurveGrid64";
+
+export { AutoMovieEngineCurve } from "./AutoMovieEngineCurve";

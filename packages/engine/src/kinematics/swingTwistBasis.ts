@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 
 /**
  * The frame a ball joint's swing and twist are read in: its unit axes, the

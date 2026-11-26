@@ -13,7 +13,7 @@ import type {
 import type { walkFoot } from "../actions/walkFoot";
 import { walkLeg } from "../actions/walkLeg";
 import { walkLegCapsules } from "../actions/walkLegCapsules";
-import { walkLegClearance } from "../actions/walkLegClearance";
+import { walkLegClearance } from "../gait/internal/walkLegClearance";
 import { walkReach } from "../actions/walkReach";
 import { walkReachGround } from "../actions/walkReachGround";
 import { readHumanBone } from "../body/readHumanBone";

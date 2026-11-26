@@ -8,7 +8,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { aimRotation } from "./aimRotation";
-import { solveTwoBoneIK } from "./solveTwoBoneIK";
+import { solveTwoBoneIK } from "./internal/solveTwoBoneIK";
 
 /** World-down, the direction the default bend displaces the mid joint toward. */
 const POLE: IAutoMovieVector3 = { x: 0, y: -1, z: 0 };

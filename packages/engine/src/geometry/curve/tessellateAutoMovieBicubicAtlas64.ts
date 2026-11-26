@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieBicubicAtlasEmit64 } from "./AutoMovieBicubicAtlasEmit64";
-import { AutoMovieBicubicAtlasPlan64 } from "./AutoMovieBicubicAtlasPlan64";
-import { AutoMovieBicubicAtlasRegistry64 } from "./AutoMovieBicubicAtlasRegistry64";
+import { AutoMovieBicubicAtlasPlan64 } from "./internal/AutoMovieBicubicAtlasPlan64";
+import { AutoMovieBicubicAtlasRegistry64 } from "./internal/AutoMovieBicubicAtlasRegistry64";
 
 const SIDES: readonly (readonly number[])[] = [
   [0, 1, 2, 3],

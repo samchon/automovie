@@ -1,4 +1,4 @@
-import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieContourLoft64,
   IAutoMovieModel,
@@ -183,7 +183,7 @@ export function realizeAutoMovieRecoveryTensorFamilies(
     construction: IAutoMovieRecoveryTensorRealization["construction"] = [];
   const reports: IAutoMovieRecoveryTensorRealization["reports"] = [];
   for (const family of bundle.tensorFamilies ?? []) {
-    const generated: IAutoMovieRecoveryAtlasGeneration = realize(
+    const generated: IAutoMovieRecoveryAtlasGeneration = AutoMovieEngineGeometry.realizeBicubicAtlas64(
       family.geometry,
     );
     if (generated.mesh.indices!.length)

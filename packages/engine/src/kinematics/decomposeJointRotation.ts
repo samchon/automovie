@@ -8,7 +8,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { decomposeJointRotationOnBasis } from "./decomposeJointRotationOnBasis";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 
 /**
  * Recover a joint's flexion, abduction and twist, in degrees, from its

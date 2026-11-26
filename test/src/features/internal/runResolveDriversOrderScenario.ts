@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieAimDriver,
   IAutoMovieDrivenDriver,
@@ -29,7 +29,7 @@ export function runResolveDriversOrderScenario(): void {
   const sampled: Map<string, IAutoMovieSampledChannel> = seed([
     ["ptr:/x", ptr("/x"), [1]],
   ]);
-  resolveDrivers([b, a], sampled, new Map());
+  AutoMovieEngineResolve.resolveDrivers([b, a], sampled, new Map());
   TestValidator.predicate(
     "chain resolves A before B",
     sameValues(sampled.get("ptr:/z")!.value, [4]),
@@ -69,7 +69,7 @@ export function runResolveDriversOrderScenario(): void {
     worldUp: { x: 0, y: 1, z: 0 },
     influence: 1,
   };
-  const deferred: IAutoMovieDriver[] = resolveDrivers(
+  const deferred: IAutoMovieDriver[] = AutoMovieEngineResolve.resolveDrivers(
     [sb, sc, sa, aim],
     sampled2,
     new Map(),

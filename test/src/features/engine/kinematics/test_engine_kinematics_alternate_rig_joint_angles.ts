@@ -1,4 +1,4 @@
-import { alternateRigJointAngles } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -16,7 +16,7 @@ export function test_engine_kinematics_alternate_rig_joint_angles(): void {
   const rig = { flexion: 10, abduction: 20, twist: 30 };
 
   // 1.
-  TestValidator.equals("distal", alternateRigJointAngles(rig, "distal", 1), {
+  TestValidator.equals("distal", AutoMovieEngineKinematics.alternateRigJointAngles(rig, "distal", 1), {
     flexion: 170,
     abduction: 200,
     twist: 210,
@@ -25,10 +25,10 @@ export function test_engine_kinematics_alternate_rig_joint_angles(): void {
   // 2.
   TestValidator.equals(
     "proximal",
-    alternateRigJointAngles(rig, "proximal", 1),
+    AutoMovieEngineKinematics.alternateRigJointAngles(rig, "proximal", 1),
     { flexion: 190, abduction: 160, twist: 210 },
   );
-  TestValidator.equals("absent", alternateRigJointAngles(rig, undefined, 1), {
+  TestValidator.equals("absent", AutoMovieEngineKinematics.alternateRigJointAngles(rig, undefined, 1), {
     flexion: 190,
     abduction: 160,
     twist: 210,
@@ -37,7 +37,7 @@ export function test_engine_kinematics_alternate_rig_joint_angles(): void {
   // 3.
   TestValidator.equals(
     "left",
-    alternateRigJointAngles(rig, "distal", -1).twist,
+    AutoMovieEngineKinematics.alternateRigJointAngles(rig, "distal", -1).twist,
     -150,
   );
 }

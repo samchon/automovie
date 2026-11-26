@@ -19,7 +19,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";

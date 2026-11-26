@@ -1,83 +1,83 @@
 export { AutoMovieEnginePlanarArea } from "./AutoMovieEnginePlanarArea";
 export * from "./AutoMovieMotionBound";
-export * from "./admitAutoMovieBicubicAtlas";
+
 export * from "./admitSubdivisionCage";
-export * from "./assertAutoMovieDeformedTriangles";
-export * from "./autoMovieFeatureEdgeDistance";
-export * from "./boundAutoMovieConvexSeparation";
-export * from "./boundAutoMovieMeshQueryPoint";
-export * from "./boundAutoMovieProjectionSeparation";
-export * from "./boundAutoMovieTriangleAttachmentContact";
+
+
+
+
+
+
 export * from "./buildAutoMovieConvexHull";
-export * from "./buildAutoMovieMeshQueryHierarchy";
+
 export * from "./buildAutoMoviePolyhedron";
 export * from "./buildAutoMovieWall";
 export * from "./buildSubdivisionTopology";
 export * from "./checkAutoMovieFormExpectation";
-export * from "./collectAutoMovieSpatialQueryCandidates";
+
 export * from "./constants";
 export * from "./construction";
 export * from "./countAtLeast";
 export * from "./countAutoMovieMeshComponents";
-export * from "./createAutoMovieEllipticLoftAtlas";
-export * from "./createAutoMovieMeshDeformer";
-export * from "./createAutoMovieMeshDepthSampler";
-export * from "./createAutoMovieMeshRayCaster";
-export * from "./createAutoMovieMeshSeparationQuery";
+
+
+
+
+
 export * from "./createAutoMovieMeshWindingQuery";
-export * from "./createAutoMovieSignedMeshQuery";
-export * from "./createAutoMovieSupportSectionQuery";
+
+
 export * from "./curve";
 export * from "./decaySubdivisionSharpness";
 export * from "./displaceAutoMovieSurface";
 export * from "./emptyMeshTarget";
-export * from "./evaluateAutoMovieSupportSection";
-export * from "./evaluateSubdivisionLevel";
+
+
 export * from "./extract";
 export * from "./extrudeAutoMovieProfile";
-export * from "./fitAutoMovieSubdivisionDomain";
-export * from "./fitAutoMovieSubdivisionRegions";
+
+
 export * from "./inspectAutoMovieMeshTopology";
-export * from "./integrateAutoMovieRadialField";
-export * from "./intersectAutoMovieConvexPolygons";
+
+
 export * from "./limitSubdivisionLevel";
 export * from "./limitSubdivisionRing";
-export * from "./markAutoMovieMeshClearance";
-export * from "./measureAutoMovieFeatureEdges";
-export * from "./measureAutoMovieMeshClearance";
+
+
+
 export * from "./measureAutoMovieMeshDefects";
 export * from "./measureAutoMovieMeshPieces";
 export * from "./measureAutoMovieModelContacts";
 export * from "./measureAutoMovieModelCrossings";
-export * from "./measureAutoMovieProjectionIntervals";
+
 export * from "./mergeAutoMovieMeshParts";
 export * from "./mergeAutoMovieMeshes";
 export { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 export * from "./meshOf";
-export * from "./minimizeAutoMovieMeshClearance";
-export * from "./normalizeAutoMovieSurfaceFrame";
-export * from "./placeAutoMovieSurfaceFrame";
+
+
+
 export { AutoMovieEnginePlanarRegion } from "./planar-region/AutoMovieEnginePlanarRegion";
 export * from "./planarCross";
 export * from "./planarSegmentsMeet";
 export * from "./pointInPlanarRing";
 export * from "./positive";
-export * from "./prepareAutoMovieSurfaceFrame";
+
 export * from "./pushFlatTriangle";
-export * from "./realizeAutoMovieBicubicAtlas64";
-export * from "./realizeAutoMovieGeometry";
+
+
 export * from "./refineSubdivisionLevel";
 export * from "./refineSubdivisionPoints";
-export * from "./refineSubdivisionStencils";
+
 export * from "./refineSubdivisionUvs";
-export * from "./refitAutoMovieMeshQueryHierarchy";
+
 export * from "./revolveAutoMovieProfile";
-export * from "./selectAutoMovieTriangleRegion";
+
 export * from "./separateAutoMovieMeshSequence";
 export * from "./signedArea";
 export * from "./stepSubdivisionRing";
 export * from "./subdivideAutoMovieSurface";
-export * from "./subdivisionBendingRows";
+
 export * from "./subdivisionEdgeSmoothness";
 export * from "./subdivisionRingEigenbasis";
 export * from "./subdivisionVertexMask";
@@ -87,5 +87,7 @@ export * from "./tessellate";
 export * from "./tessellateSurface";
 export * from "./tessellateToMesh";
 export * from "./transformAutoMovieMesh";
-export * from "./triangleIndicesOf";
+
 export * from "./weldedDegenerateTriangles";
+
+export { AutoMovieEngineGeometry } from "./AutoMovieEngineGeometry";

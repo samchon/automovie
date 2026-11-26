@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  prepareArticulatedRig,
-  rotationBetween,
-} from "@automovie/engine";
+import { Quaternion, Vector3, rotationBetween, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -147,7 +142,7 @@ export namespace EquineBodyPose {
     const rest: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
-    > = prepareArticulatedRig(
+    > = AutoMovieEngineKinematics.prepareArticulatedRig(
       AutoMovieArchetypeQuadrupedSkeleton.of(animal),
     ).read();
     const lengths: Map<string, number> = new Map(

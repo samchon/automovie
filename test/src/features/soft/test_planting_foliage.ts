@@ -1,4 +1,4 @@
-import { growPlanting } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type {
   IAutoMoviePlantingFoliage,
   IAutoMoviePlantingState,
@@ -17,7 +17,7 @@ const leafed: (
   foliage: IAutoMoviePlantingFoliage | null,
   axis: IAutoMovieVector3 = { x: 0, y: 1, z: 0 },
 ): IAutoMoviePlantingState =>
-  growPlanting(
+  AutoMovieEnginePlanting.growPlanting(
     plantingRecipe({
       structure: { ...plantingRecipe().structure, axis },
       foliage,

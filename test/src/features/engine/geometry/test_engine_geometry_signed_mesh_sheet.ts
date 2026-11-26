@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -31,7 +31,7 @@ import { nclose, throwsError } from "../../internal/predicates";
 export function test_engine_geometry_signed_mesh_sheet(): void {
   const solid: IAutoMovieMesh = createSignedOctahedron();
   const cap: IAutoMovieMesh = { ...solid, indices: solid.indices!.slice(0, 12) };
-  const sheet = createAutoMovieSignedMeshQuery(cap, { boundary: "open" });
+  const sheet = AutoMovieEngineGeometry.createSignedMeshQuery(cap, { boundary: "open" });
 
   // 1.
   TestValidator.predicate("under", sheet([0, 0.5, 0]).signedDistance < 0);
@@ -54,7 +54,7 @@ export function test_engine_geometry_signed_mesh_sheet(): void {
   // 2.
   TestValidator.predicate(
     "closed contract",
-    throwsError((): unknown => createAutoMovieSignedMeshQuery(cap), "paired oppositely wound"),
+    throwsError((): unknown => AutoMovieEngineGeometry.createSignedMeshQuery(cap), "paired oppositely wound"),
   );
   const reversed: number[] = [...cap.indices!];
   [reversed[0], reversed[1]] = [reversed[1]!, reversed[0]!];
@@ -62,14 +62,14 @@ export function test_engine_geometry_signed_mesh_sheet(): void {
     TestValidator.predicate(
       "open still pairs",
       throwsError(
-        (): unknown => createAutoMovieSignedMeshQuery({ ...cap, indices }, { boundary: "open" }),
+        (): unknown => AutoMovieEngineGeometry.createSignedMeshQuery({ ...cap, indices }, { boundary: "open" }),
         "singly or oppositely paired",
       ),
     );
 
   // 3.
-  const closed = createAutoMovieSignedMeshQuery(solid);
-  const open = createAutoMovieSignedMeshQuery(solid, { boundary: "open" });
+  const closed = AutoMovieEngineGeometry.createSignedMeshQuery(solid);
+  const open = AutoMovieEngineGeometry.createSignedMeshQuery(solid, { boundary: "open" });
   for (const p of [
     [0, 0, 0],
     [2, 0, 0],

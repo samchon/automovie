@@ -1,4 +1,4 @@
-import { simulateSoftBodyCore, softBodyBudget } from "@automovie/engine";
+import { simulateSoftBodyCore, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyObserver,
@@ -375,7 +375,7 @@ export function test_soft_cord_xpbd(): void {
   );
   check(
     "the budget counts every pair of segments that share no particle",
-    softBodyBudget(coil).worstCaseSelfContactPairs ===
+    AutoMovieEngineSoftBody.softBodyBudget(coil).worstCaseSelfContactPairs ===
       (((turns - 1) * (turns - 2)) / 2) *
         coil.solver.iterations *
         coil.solver.maxSteps,

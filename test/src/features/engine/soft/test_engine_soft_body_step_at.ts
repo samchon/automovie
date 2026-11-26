@@ -1,4 +1,4 @@
-import { softBodyStepAt } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -17,12 +17,12 @@ import { softPanel } from "../../internal/softFixtures";
  */
 export function test_engine_soft_body_step_at(): void {
   const domain: IAutoMovieSoftBodyDomain = softPanel({ columns: 2, rows: 2 });
-  TestValidator.equals("on a boundary", softBodyStepAt(domain, 0.5), 32);
-  TestValidator.equals("inside a step", softBodyStepAt(domain, 0.51), 32);
+  TestValidator.equals("on a boundary", AutoMovieEngineSoftBody.softBodyStepAt(domain, 0.5), 32);
+  TestValidator.equals("inside a step", AutoMovieEngineSoftBody.softBodyStepAt(domain, 0.51), 32);
   TestValidator.equals(
     "just below a boundary",
-    softBodyStepAt(domain, 0.5 - 1e-15),
+    AutoMovieEngineSoftBody.softBodyStepAt(domain, 0.5 - 1e-15),
     32,
   );
-  TestValidator.equals("before the start", softBodyStepAt(domain, -1), 0);
+  TestValidator.equals("before the start", AutoMovieEngineSoftBody.softBodyStepAt(domain, -1), 0);
 }

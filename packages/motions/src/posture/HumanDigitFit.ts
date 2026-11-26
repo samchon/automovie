@@ -1,13 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  ROM_TOLERANCE,
-  Vector3,
-  fitDigitToTarget,
-  physicalShapeSegmentDistance,
-  preparePoseResolution,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, ROM_TOLERANCE, Vector3, physicalShapeSegmentDistance, preparePoseResolution, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -115,7 +106,7 @@ export namespace HumanDigitFit {
         goal.on === undefined
           ? goal
           : carried(body, out, goal.on, goal, workspace);
-      const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget({
+      const result: IAutoMovieFitDigitToTarget.IResult = AutoMovieEngineKinematics.fitDigitToTarget({
         skeleton: body.skeleton,
         pose: out,
         topology: body.topology,

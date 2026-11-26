@@ -14,7 +14,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanWater } from "../perform/HumanWater";

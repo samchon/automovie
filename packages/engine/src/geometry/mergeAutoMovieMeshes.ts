@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Concatenate rigid meshes into one, rebasing each member's indices in declared

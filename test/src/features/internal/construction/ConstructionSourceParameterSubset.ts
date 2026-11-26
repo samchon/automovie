@@ -1,14 +1,4 @@
-import {
-  AutoMovieLoftChain,
-  AutoMovieLoftJet,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-  AutoMovieViewAxis,
-  AutoMovieViewCurves,
-  AutoMovieViewLoft,
-  AutoMovieViewOutline,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieLoftJet, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieViewAxis, AutoMovieViewCurves, AutoMovieViewLoft, AutoMovieViewOutline, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionOutlineParameter,
   IAutoMovieLoftChain,
@@ -230,8 +220,8 @@ function subset(
         "original cap2",
       );
       const phase: number = (q * Math.PI) / 2;
-      const actual: ReturnType<typeof AutoMovieLoftViewWorldJet> =
-        AutoMovieLoftViewWorldJet(source.source, part.axis, station, phase);
+      const actual: ReturnType<typeof AutoMovieEngineConstruction.loftViewWorldJet> =
+        AutoMovieEngineConstruction.loftViewWorldJet(source.source, part.axis, station, phase);
       if (typeof actual === "string") throw new Error(actual);
       const expected: IAutoMovieLoftSurfaceJet = world(q, station);
       jets(

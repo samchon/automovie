@@ -1,14 +1,4 @@
-import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  decomposeJointRotationOnBasis,
-  getConstraint,
-  jointToQuaternionOnBasis,
-  normalizeJointAxes,
-  swingTwistRange,
-} from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, decomposeJointRotationOnBasis, getConstraint, jointToQuaternionOnBasis, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -123,7 +113,7 @@ function frameOf(
   axes: IAutoMovieJointAxes | undefined,
   constraint: IAutoMovieJointConstraint | null,
 ): IFrame {
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     axes ?? DEFAULT_JOINT_AXES,
     "jointToQuaternion axes",
   );

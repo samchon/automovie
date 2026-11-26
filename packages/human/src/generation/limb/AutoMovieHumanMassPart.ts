@@ -1,7 +1,4 @@
-import {
-  AutoMovieLoftViewWorldJet,
-  AutoMovieSolidVector,
-} from "@automovie/engine";
+import { AutoMovieSolidVector, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanMassPart,
@@ -122,7 +119,7 @@ export namespace AutoMovieHumanMassPart {
     const j: IAutoMovieSolidSurface.IJet | string | undefined =
       input.originalSource === undefined
         ? input.host?.jet(input.centre[0], input.centre[1])
-        : AutoMovieLoftViewWorldJet(
+        : AutoMovieEngineConstruction.loftViewWorldJet(
             input.originalSource.source,
             input.originalSource.part.axis,
             input.centre[0],

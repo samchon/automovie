@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, prepareArticulatedRig, samplePoseVelocity, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, samplePoseVelocity, AutoMovieEngineMotionSampling, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieQuaternion,
@@ -51,7 +51,7 @@ export function QuadrupedWorldPose<Id extends string, D extends string>(
   const neutral: ReadonlyMap<
     AutoMovieArchetypeQuadrupedBody.Bone,
     IAutoMovieTransform
-  > = prepareArticulatedRig(rig).read();
+  > = AutoMovieEngineKinematics.prepareArticulatedRig(rig).read();
   const bones: readonly QuadrupedWorldPose.ILink[] = rig.bones.map(
     (
       bone: IAutoMovieArticulatedRig<AutoMovieArchetypeQuadrupedBody.Bone>["bones"][number],

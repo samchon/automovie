@@ -9,19 +9,8 @@ import type {
 import { AutoMovieBernsteinAlgebra64 as B } from "./AutoMovieBernsteinAlgebra64";
 import { AutoMovieBernsteinGrid64 as G } from "./AutoMovieBernsteinGrid64";
 import { AutoMovieCurveMath64 as V } from "./AutoMovieCurveMath64";
-import { planAutoMovieLocalHermite64 } from "./planAutoMovieLocalHermite64";
-import { triangulateAutoMovieParameterCell64 } from "./triangulateAutoMovieParameterCell64";
-
-type Plan = ReturnType<IAutoMoviePlanLocalHermite64.IResult["plan"]>;
-type Leaf = Plan["leaves"][number];
-type Vertex = {
-  index: number;
-  position: AutoMovieVector3Tuple;
-  normal: AutoMovieVector3Tuple;
-  identity: string;
-};
-type Counts = IAutoMovieLocalHermiteStream64.Chunk["counts"];
-type FaceRange = IAutoMovieLocalHermiteStream64.Chunk["faceRanges"][number];
+import { planAutoMovieLocalHermite64 } from "./internal/planAutoMovieLocalHermite64";
+import { triangulateAutoMovieParameterCell64 } from "./internal/triangulateAutoMovieParameterCell64";
 
 /**
  * Stream a conforming open mesh of the local linear physical Hermite field.
@@ -394,3 +383,14 @@ export function* tessellateAutoMovieLocalHermite64(
   }
   return summary;
 }
+
+type Plan = ReturnType<IAutoMoviePlanLocalHermite64.IResult["plan"]>;
+type Leaf = Plan["leaves"][number];
+type Vertex = {
+  index: number;
+  position: AutoMovieVector3Tuple;
+  normal: AutoMovieVector3Tuple;
+  identity: string;
+};
+type Counts = IAutoMovieLocalHermiteStream64.Chunk["counts"];
+type FaceRange = IAutoMovieLocalHermiteStream64.Chunk["faceRanges"][number];

@@ -1,4 +1,4 @@
-import { simulateSoftBody, softBodySurfaceGeometry } from "@automovie/engine";
+import { simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodySurface,
@@ -62,7 +62,7 @@ const rug: (columns: number, rows: number) => IAutoMovieSoftBodyDomain = (
  */
 export function test_soft_body_surface_geometry(): void {
   const flat: IAutoMovieSoftBodyDomain = rug(3, 3);
-  const surface: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const surface: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: flat,
     state: simulateSoftBody(flat, 0),
   });
@@ -120,7 +120,7 @@ export function test_soft_body_surface_geometry(): void {
     rows: 3,
     overrides: { id: "drape" },
   });
-  const hanging: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const hanging: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: curtain,
     state: simulateSoftBody(curtain, 0),
   });
@@ -149,7 +149,7 @@ export function test_soft_body_surface_geometry(): void {
     rows: 4,
     overrides: { id: "cord" },
   });
-  const thread: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const thread: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: cord,
     state: simulateSoftBody(cord, 0),
   });
@@ -178,7 +178,7 @@ export function test_soft_body_surface_geometry(): void {
     rows: 1,
     overrides: { id: "batten" },
   });
-  const rail: IAutoMovieSoftBodySurface = softBodySurfaceGeometry({
+  const rail: IAutoMovieSoftBodySurface = AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain: batten,
     state: simulateSoftBody(batten, 0),
   });

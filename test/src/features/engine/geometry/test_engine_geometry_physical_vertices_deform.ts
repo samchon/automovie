@@ -1,4 +1,4 @@
-import { createAutoMovieMeshDeformer, mergeAutoMovieMeshes, transformAutoMovieMesh, AutoMovieEngineMath } from "@automovie/engine";
+import { mergeAutoMovieMeshes, transformAutoMovieMesh, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,7 +36,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   );
   const vertices = (m: IAutoMovieMesh): number[] =>
     AutoMovieEngineMath.resolveMeshPhysicalVertices(m).vertices;
-  const deform = createAutoMovieMeshDeformer([
+  const deform = AutoMovieEngineGeometry.createMeshDeformer([
     {
       center: { x: 0, y: 0, z: 0 },
       radius: { x: 2, y: 2, z: 2 },

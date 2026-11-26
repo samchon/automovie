@@ -1,4 +1,4 @@
-import { rootsAutoMovieViewPolynomial } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieCubicCriticalParameters,
@@ -91,13 +91,13 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
   const collinear: boolean = d0 === 0 && e0 === 0 && f === 0;
   const zeroCurvature: number[] = collinear
     ? []
-    : rootsAutoMovieViewPolynomial([d0, e0, f / 2]);
+    : AutoMovieEngineConstruction.rootsViewPolynomial([d0, e0, f / 2]);
   const affineCritical: number[] = collinear
     ? []
     : [
         ...new Set([
-          ...rootsAutoMovieViewPolynomial([e0, f]),
-          ...rootsAutoMovieViewPolynomial([
+          ...AutoMovieEngineConstruction.rootsViewPolynomial([e0, f]),
+          ...AutoMovieEngineConstruction.rootsViewPolynomial([
             4 * e0 * e0 - 9 * f * d0,
             -f * e0,
             (-f * f) / 2,
@@ -123,7 +123,7 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
     (Math.abs(coefficients[0]!) +
       Math.abs(t * coefficients[1]!) +
       Math.abs(t * t * coefficients[2]!));
-  const stationary: number[] = rootsAutoMovieViewPolynomial(primary).filter(
+  const stationary: number[] = AutoMovieEngineConstruction.rootsViewPolynomial(primary).filter(
     (t: number): boolean =>
       Math.abs(residual(vx, t)) <= allowance(vx, t) &&
       Math.abs(residual(vy, t)) <= allowance(vy, t),

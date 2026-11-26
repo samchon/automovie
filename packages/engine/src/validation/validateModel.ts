@@ -22,8 +22,8 @@ import type {
  * the author.
  */
 
-import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
-import { validateJointAxesBasis } from "../kinematics/validateJointAxesBasis";
+import { admitAutoMovieBicubicAtlas } from "../geometry/internal/admitAutoMovieBicubicAtlas";
+import { validateJointAxesBasis } from "../kinematics/internal/validateJointAxesBasis";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";

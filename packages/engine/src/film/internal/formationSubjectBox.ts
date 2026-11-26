@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
-import { transformFormationBounds } from "../../populationRuntime/formation/transformFormationBounds";
+import { transformFormationBounds } from "../../populationRuntime/formation/internal/transformFormationBounds";
 
 /**
  * The world-space box, in metres, that one formation's members occupy at a

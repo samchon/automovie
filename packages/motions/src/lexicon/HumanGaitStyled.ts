@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanWalkGait,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 
 /**
  * A walk in a gait of its own, under a name: the walk's cuts and yields,

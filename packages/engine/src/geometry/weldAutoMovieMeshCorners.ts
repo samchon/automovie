@@ -5,7 +5,7 @@ import type {
 
 import { MESH_WELD_GRID } from "../constants/MESH_WELD_GRID";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Weld a mesh's triangle corners into the identities its topology is measured

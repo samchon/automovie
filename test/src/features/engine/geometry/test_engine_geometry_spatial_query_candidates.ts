@@ -1,7 +1,4 @@
-import {
-  buildAutoMovieMeshQueryHierarchy,
-  collectAutoMovieSpatialQueryCandidates,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSpatialQueryEntry } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -38,13 +35,13 @@ export function test_engine_geometry_spatial_query_candidates(): void {
     cube(1, 2.2),
     cube(2, 5),
   ];
-  const tree = buildAutoMovieMeshQueryHierarchy([...entries]);
+  const tree = AutoMovieEngineGeometry.buildMeshQueryHierarchy([...entries]);
   const subject: IAutoMovieSpatialQueryEntry = cube(-1, 1);
   const ordinals = (
     population: "overlap" | "shared-cell",
     cell: number,
   ): number[] =>
-    collectAutoMovieSpatialQueryCandidates(tree, subject, cell, population).map(
+    AutoMovieEngineGeometry.collectSpatialQueryCandidates(tree, subject, cell, population).map(
       (e: IAutoMovieSpatialQueryEntry): number => e.ordinal,
     );
 
@@ -52,7 +49,7 @@ export function test_engine_geometry_spatial_query_candidates(): void {
   TestValidator.equals("overlap", ordinals("overlap", 1), [0, 3]);
   TestValidator.predicate(
     "by reference",
-    collectAutoMovieSpatialQueryCandidates(tree, subject, 1, "overlap")[0] ===
+    AutoMovieEngineGeometry.collectSpatialQueryCandidates(tree, subject, 1, "overlap")[0] ===
       entries[1],
   );
 
@@ -72,7 +69,7 @@ export function test_engine_geometry_spatial_query_candidates(): void {
       `cell ${cell}`,
       throwsError(
         (): unknown =>
-          collectAutoMovieSpatialQueryCandidates(
+          AutoMovieEngineGeometry.collectSpatialQueryCandidates(
             tree,
             subject,
             cell,

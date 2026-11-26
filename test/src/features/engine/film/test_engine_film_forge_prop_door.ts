@@ -1,4 +1,4 @@
-import { resolveFrame, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieClip,
   type IAutoMovieForgedProp,
@@ -77,7 +77,7 @@ export function test_engine_film_forge_prop_door(): void {
   if (forged.success !== true) return;
 
   const articulation: IAutoMoviePropArticulation = forged.prop.articulation!;
-  const open: IAutoMovieResolveOutput = resolveFrame({
+  const open: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: articulation.nodes,
     clip: swing(90),
     limits: [],
@@ -95,7 +95,7 @@ export function test_engine_film_forge_prop_door(): void {
     (): boolean => nclose(mirrorX[0], 0) && nclose(mirrorX[2], -1),
   );
 
-  const slammed: IAutoMovieResolveOutput = resolveFrame({
+  const slammed: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: articulation.nodes,
     clip: swing(150),
     limits: [],

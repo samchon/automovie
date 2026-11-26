@@ -14,10 +14,10 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { checkAutoMovieSweepFeature } from "./checkAutoMovieSweepFeature";
+import { checkAutoMovieSweepFeature } from "./internal/checkAutoMovieSweepFeature";
 import { compileAutoMovieSweepFeature } from "./compileAutoMovieSweepFeature";
-import { compileAutoMovieSweepGuide } from "./compileAutoMovieSweepGuide";
-import { compileAutoMovieSweepProfile } from "./compileAutoMovieSweepProfile";
+import { compileAutoMovieSweepGuide } from "./internal/compileAutoMovieSweepGuide";
+import { compileAutoMovieSweepProfile } from "./internal/compileAutoMovieSweepProfile";
 import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 import { loadAutoMovieSweepSpine } from "./loadAutoMovieSweepSpine";
 import { orientAutoMovieSweep } from "./orientAutoMovieSweep";

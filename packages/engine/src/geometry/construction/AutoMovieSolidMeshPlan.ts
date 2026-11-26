@@ -7,13 +7,13 @@ import type {
 
 import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 import { AutoMovieSolidMeshIncidence } from "./AutoMovieSolidMeshIncidence";
-import { insertAutoMovieSolidMeshPoints } from "./insertAutoMovieSolidMeshPoints";
-import { legalizeAutoMovieSolidMesh } from "./legalizeAutoMovieSolidMesh";
-import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
-import { probeAutoMovieSolidMesh } from "./probeAutoMovieSolidMesh";
+import { insertAutoMovieSolidMeshPoints } from "./internal/insertAutoMovieSolidMeshPoints";
+import { legalizeAutoMovieSolidMesh } from "./internal/legalizeAutoMovieSolidMesh";
+import { orientAutoMovieSolidChart } from "./internal/orientAutoMovieSolidChart";
+import { probeAutoMovieSolidMesh } from "./internal/probeAutoMovieSolidMesh";
 import { regionAutoMovieSolidMesh } from "./regionAutoMovieSolidMesh";
-import { triangulateAutoMovieSolidBoundary } from "./triangulateAutoMovieSolidBoundary";
-import { witnessAutoMovieSolidChartTriangle } from "./witnessAutoMovieSolidChartTriangle";
+import { triangulateAutoMovieSolidBoundary } from "./internal/triangulateAutoMovieSolidBoundary";
+import { witnessAutoMovieSolidChartTriangle } from "./internal/witnessAutoMovieSolidChartTriangle";
 
 /**
  * One possible straight visibility edge, ordered by original endpoint IDs and

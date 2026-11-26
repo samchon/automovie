@@ -9,7 +9,7 @@ import type {
 import { AutoMovieBernsteinSubdivision64 as S } from "./AutoMovieBernsteinSubdivision64";
 import { AutoMovieContourSlit64 as Slit } from "./AutoMovieContourSlit64";
 import { AutoMovieCurveMath64 as M } from "./AutoMovieCurveMath64";
-import { assertAutoMovieCurve64 } from "./assertAutoMovieCurve64";
+import { assertAutoMovieCurve64 } from "./internal/assertAutoMovieCurve64";
 
 /** Local vector aliases preserve the engine's complete binary64 arithmetic. */
 const add: typeof M.add = M.add,

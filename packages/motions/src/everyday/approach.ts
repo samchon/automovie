@@ -15,10 +15,10 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkClear } from "../actions/walkClear";
 import { walkDelayed } from "../actions/walkDelayed";
-import { walkStation } from "../actions/walkStation";
+import { walkStation } from "../gait/internal/walkStation";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanEffort } from "./HumanEffort";

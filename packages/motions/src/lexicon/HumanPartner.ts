@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanMutual,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { approach } from "../everyday/approach";
 import { clinch } from "../grappling/clinch";
 import { kuzushi } from "../grappling/kuzushi";

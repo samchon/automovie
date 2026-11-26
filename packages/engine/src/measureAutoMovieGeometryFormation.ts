@@ -22,14 +22,14 @@ import { placeTransformedPoint } from "./film/internal/placeTransformedPoint";
 import { projectToNdc } from "./film/internal/projectToNdc";
 import { resolveAutoMovieDeliveryCrop } from "./film/internal/resolveAutoMovieDeliveryCrop";
 import { resolveCameraAt } from "./film/internal/resolveCameraAt";
-import { composeFormationHeroTransform } from "./populationRuntime/formation/composeFormationHeroTransform";
-import { formationSlotPosition } from "./populationRuntime/formation/formationSlotPosition";
-import { placeFormationSlot } from "./populationRuntime/formation/placeFormationSlot";
+import { composeFormationHeroTransform } from "./populationRuntime/formation/internal/composeFormationHeroTransform";
+import { formationSlotPosition } from "./populationRuntime/formation/internal/formationSlotPosition";
+import { placeFormationSlot } from "./populationRuntime/formation/internal/placeFormationSlot";
 import { sampleFormationMotion } from "./populationRuntime/formation/sampleFormationMotion";
 import { sampleFormationSlotMotion } from "./populationRuntime/formation/sampleFormationSlotMotion";
 import { selectFormationLod } from "./populationRuntime/formation/selectFormationLod";
-import { transformFormationBounds } from "./populationRuntime/formation/transformFormationBounds";
-import { transformFormationPoint } from "./populationRuntime/formation/transformFormationPoint";
+import { transformFormationBounds } from "./populationRuntime/formation/internal/transformFormationBounds";
+import { transformFormationPoint } from "./populationRuntime/formation/internal/transformFormationPoint";
 import { readAutoMovieGeometryGround } from "./readAutoMovieGeometryGround";
 
 /**

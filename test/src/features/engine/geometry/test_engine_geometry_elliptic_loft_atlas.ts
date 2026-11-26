@@ -1,13 +1,10 @@
-import {
-  createAutoMovieEllipticLoftAtlas,
-  realizeAutoMovieBicubicAtlas64,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieEllipticLoft } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
 
-type Input = Parameters<typeof createAutoMovieEllipticLoftAtlas>[0];
+type Input = Parameters<typeof AutoMovieEngineGeometry.createEllipticLoftAtlas>[0];
 
 /**
  * `createAutoMovieEllipticLoftAtlas` turns cubic ellipse profiles into an open
@@ -49,8 +46,8 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
     maxCells: 20_000,
     maxVertices: 30_000,
   });
-  const result: ReturnType<typeof createAutoMovieEllipticLoftAtlas> =
-    createAutoMovieEllipticLoftAtlas(make());
+  const result: ReturnType<typeof AutoMovieEngineGeometry.createEllipticLoftAtlas> =
+    AutoMovieEngineGeometry.createEllipticLoftAtlas(make());
   const patches = result.geometry.patches;
 
   // 1.
@@ -78,8 +75,8 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
   );
 
   // 3.
-  const actual: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
-    realizeAutoMovieBicubicAtlas64(result.geometry);
+  const actual: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> =
+    AutoMovieEngineGeometry.realizeBicubicAtlas64(result.geometry);
   TestValidator.predicate(
     "complete",
     actual.complete &&
@@ -108,9 +105,9 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
   // 4.
   const crease: Input = make();
   crease.loft.spans[1]!.radiusX = [0.02, 0.025, 0.025, 0.03];
-  const joined: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
-    realizeAutoMovieBicubicAtlas64(
-      createAutoMovieEllipticLoftAtlas(crease).geometry,
+  const joined: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> =
+    AutoMovieEngineGeometry.realizeBicubicAtlas64(
+      AutoMovieEngineGeometry.createEllipticLoftAtlas(crease).geometry,
     );
   const jp: number[] = joined.mesh.positions;
   const limits: number[] = [];
@@ -140,12 +137,12 @@ export function test_engine_geometry_elliptic_loft_atlas(): void {
     edit(input);
     TestValidator.predicate(
       label,
-      throwsError((): unknown => createAutoMovieEllipticLoftAtlas(input)),
+      throwsError((): unknown => AutoMovieEngineGeometry.createEllipticLoftAtlas(input)),
     );
   }
   TestValidator.equals(
     "one cell",
-    realizeAutoMovieBicubicAtlas64({ ...result.geometry, maxCells: 1 })
+    AutoMovieEngineGeometry.realizeBicubicAtlas64({ ...result.geometry, maxCells: 1 })
       .complete,
     false,
   );

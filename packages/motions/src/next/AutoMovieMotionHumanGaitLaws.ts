@@ -1,9 +1,9 @@
-import { run as runLaw } from "../actions/run";
-import { walk as walkLaw } from "../actions/walk";
-import { walkCadence as walkCadenceLaw } from "../actions/walkCadence";
-import { walkLegClearance as walkLegClearanceLaw } from "../actions/walkLegClearance";
-import { walkStation as walkStationLaw } from "../actions/walkStation";
-import { walkSteps as walkStepsLaw } from "../actions/walkSteps";
+import { run as runLaw } from "../gait/internal/run";
+import { walk as walkLaw } from "../gait/internal/walk";
+import { walkCadence as walkCadenceLaw } from "../gait/internal/walkCadence";
+import { walkLegClearance as walkLegClearanceLaw } from "../gait/internal/walkLegClearance";
+import { walkStation as walkStationLaw } from "../gait/internal/walkStation";
+import { walkSteps as walkStepsLaw } from "../gait/internal/walkSteps";
 import { carry as carryLaw } from "../carrying/carry";
 import { approach as approachLaw } from "../everyday/approach";
 import { HumanAidWalk as HumanAidWalkLaw } from "../lexicon/HumanAidWalk";

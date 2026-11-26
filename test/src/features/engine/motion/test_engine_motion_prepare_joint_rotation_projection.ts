@@ -1,10 +1,4 @@
-import {
-  clampJointRom,
-  clampJointToSkeleton,
-  jointToQuaternionOnBasis,
-  normalizeJointAxes,
-  prepareJointRotationProjection,
-} from "@automovie/engine";
+import { clampJointRom, clampJointToSkeleton, jointToQuaternionOnBasis, prepareJointRotationProjection, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
@@ -58,7 +52,7 @@ export function test_engine_motion_prepare_joint_rotation_projection(): void {
     abduction: null,
     twist: null,
   };
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     {
       flexion: { x: 1, y: 0, z: 0 },
       abduction: { x: 0, y: 1, z: 0 },
@@ -287,7 +281,7 @@ function turn(degrees: number): IAutoMovieQuaternion {
  *    Conflating null with clinical0 must not trigger a false unchanged gate.
  */
 function nullAffineFrames(): void {
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     {
       flexion: { x: 1, y: 0, z: 0 },
       abduction: { x: 0, y: 1, z: 0 },

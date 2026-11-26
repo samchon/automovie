@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk, prepareArticulatedRig } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieAffordance, IAutoMovieModelPart, IAutoMovieTransform, IAutoMovieVector3 } from "@automovie/interface";
 import { type AutoMovieArchetype, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, type AutoMovieArchetypeRide } from "../core";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
@@ -95,7 +95,7 @@ export namespace AutoMovieArchetypeEquineExpression {
     const rest: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
-    > = prepareArticulatedRig(
+    > = AutoMovieEngineKinematics.prepareArticulatedRig(
       AutoMovieArchetypeQuadrupedSkeleton.of(animal),
     ).read();
     const nodding: ReadonlySet<string> = new Set(species.nodding);
@@ -228,7 +228,7 @@ export namespace AutoMovieArchetypeEquineExpression {
       const current: ReadonlyMap<
         AutoMovieArchetypeQuadrupedBody.Bone,
         IAutoMovieTransform
-      > = prepareArticulatedRig(
+      > = AutoMovieEngineKinematics.prepareArticulatedRig(
         AutoMovieArchetypeQuadrupedSkeleton.of(base.archetype),
       ).read();
       if (turning !== undefined)

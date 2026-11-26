@@ -1,4 +1,4 @@
-import { plantingContainsPoint } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import type { IAutoMoviePruningEnvelope } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_soft_planting_contains_point(): void {
   TestValidator.predicate(
     "no envelope",
-    plantingContainsPoint({ kind: "none" }, { x: 100, y: 100, z: 100 }),
+    AutoMovieEnginePlanting.plantingContainsPoint({ kind: "none" }, { x: 100, y: 100, z: 100 }),
   );
   const box: IAutoMoviePruningEnvelope = {
     kind: "box",
@@ -25,8 +25,8 @@ export function test_engine_soft_planting_contains_point(): void {
   };
   TestValidator.predicate(
     "the closed box",
-    plantingContainsPoint(box, { x: 1, y: 1, z: 1 }) &&
-      !plantingContainsPoint(box, { x: 1.5, y: 0.5, z: 0.5 }),
+    AutoMovieEnginePlanting.plantingContainsPoint(box, { x: 1, y: 1, z: 1 }) &&
+      !AutoMovieEnginePlanting.plantingContainsPoint(box, { x: 1.5, y: 0.5, z: 0.5 }),
   );
   const sphere: IAutoMoviePruningEnvelope = {
     kind: "sphere",
@@ -35,7 +35,7 @@ export function test_engine_soft_planting_contains_point(): void {
   };
   TestValidator.predicate(
     "the closed sphere",
-    plantingContainsPoint(sphere, { x: 0.6, y: 0.8, z: 0 }) &&
-      !plantingContainsPoint(sphere, { x: 1, y: 1, z: 0 }),
+    AutoMovieEnginePlanting.plantingContainsPoint(sphere, { x: 0.6, y: 0.8, z: 0 }) &&
+      !AutoMovieEnginePlanting.plantingContainsPoint(sphere, { x: 1, y: 1, z: 0 }),
   );
 }

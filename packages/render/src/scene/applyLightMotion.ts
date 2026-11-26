@@ -1,4 +1,4 @@
-import { resolveShotLighting } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieLight } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -42,7 +42,7 @@ export const applyLightMotion: (
   seconds: number,
   resolve: (light: string) => THREE.Light | undefined,
 ): void => {
-  for (const light of resolveShotLighting({ lights, clips, seconds })) {
+  for (const light of AutoMovieEngineResolve.resolveShotLighting({ lights, clips, seconds })) {
     const target: THREE.Light | undefined = resolve(light.id);
     if (target === undefined) continue;
     applyLightState(target, light);

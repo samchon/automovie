@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  normalizeJointAxes,
-  swivelArcs,
-} from "@automovie/engine";
+import { Quaternion, Vector3, swivelArcs, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieAngleRange,
   IAutoMovieAxisFrame,
@@ -328,7 +323,7 @@ function wristOf(
   unit: IAutoMovieVector3,
 ): IWrist | null {
   if (props.handAxes === undefined || props.handRange === null) return null;
-  const basis: IAutoMovieJointAxes = normalizeJointAxes(
+  const basis: IAutoMovieJointAxes = AutoMovieEngineKinematics.normalizeJointAxes(
     props.handAxes,
     "AutoMovieMotionHumanBendUnmadeBound axes",
   );

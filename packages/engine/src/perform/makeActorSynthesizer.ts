@@ -20,7 +20,7 @@ import type {
   IAutoMovieYawPitch,
 } from "@automovie/interface";
 
-import { aimYawPitch } from "../kinematics/aimYawPitch";
+import { aimYawPitch } from "../kinematics/internal/aimYawPitch";
 import { gazeChainJoints } from "../kinematics/gazeChainJoints";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";

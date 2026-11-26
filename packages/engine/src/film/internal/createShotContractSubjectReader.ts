@@ -18,9 +18,9 @@ import {
 
 import { sampleMotion } from "../../motion/sampleMotion";
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
-import { transformFormationPoint } from "../../populationRuntime/formation/transformFormationPoint";
+import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { channelKey } from "../../resolve/channelKey";
-import { sampleClipSequence } from "../../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { computeModelRestExtent } from "./computeModelRestExtent";
 import { computeRestHeight } from "./computeRestHeight";
 import { foldRoot } from "./foldRoot";

@@ -4,8 +4,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { run } from "../../actions/run";
-import { walk } from "../../actions/walk";
+import { run } from "../../gait/internal/run";
+import { walk } from "../../gait/internal/walk";
 import { AutoMovieMotionHumanBody } from "../../body/AutoMovieMotionHumanBody";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";

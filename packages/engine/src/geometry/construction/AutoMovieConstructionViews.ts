@@ -15,7 +15,7 @@ import type {
 import { AutoMovieViewAxis } from "./AutoMovieViewAxis";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParallelAxis } from "./AutoMovieViewParallelAxis";
-import { rollAutoMovieViewAxis } from "./rollAutoMovieViewAxis";
+import { rollAutoMovieViewAxis } from "./internal/rollAutoMovieViewAxis";
 
 /**
  * A construction tree's view part as the view-to-section operator's input

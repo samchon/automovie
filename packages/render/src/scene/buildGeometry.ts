@@ -1,4 +1,4 @@
-import { realizeAutoMovieBicubicAtlas64, tessellate } from "@automovie/engine";
+import { tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieGeometry,
   IAutoMovieMesh,
@@ -54,8 +54,8 @@ export const buildGeometry: (
       }
       let mesh: IAutoMovieMesh;
       if (geometry.type === "bicubic-atlas") {
-        const realized: ReturnType<typeof realizeAutoMovieBicubicAtlas64> =
-          realizeAutoMovieBicubicAtlas64(geometry);
+        const realized: ReturnType<typeof AutoMovieEngineGeometry.realizeBicubicAtlas64> =
+          AutoMovieEngineGeometry.realizeBicubicAtlas64(geometry);
         mesh = realized.mesh;
         geo.userData.automovieAtlasRealization = {
           complete: realized.complete,

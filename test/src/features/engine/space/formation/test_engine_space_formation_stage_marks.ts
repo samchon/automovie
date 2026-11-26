@@ -1,12 +1,4 @@
-import {
-  Transform,
-  compileFormationStageMarks,
-  formationSlotPosition,
-  placeFormationSlot,
-  sampleFormationMotion,
-  sampleFormationSlotMotion,
-  validateAutoMovieFormationSlotMotions,
-} from "@automovie/engine";
+import { Transform, sampleFormationMotion, sampleFormationSlotMotion, validateAutoMovieFormationSlotMotions, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type {
   IAutoMovieFormationDesign,
   IAutoMovieFormationSlotPlacement,
@@ -72,15 +64,15 @@ const second: IAutoMovieFormationStageMarkSet = {
  * @evidence contracts/development/common.md#meaningful-documentation States the staged unit and which data the reference positions use.
  */
 export function test_engine_space_formation_stage_marks(): void {
-  const motions = compileFormationStageMarks(design, [first, second]);
+  const motions = AutoMovieEnginePopulationFormation.compileFormationStageMarks(design, [first, second]);
   const at = (
     slot: number,
     time: number,
     unitDesign: IAutoMovieFormationDesign = design,
     cues: typeof motions = motions,
   ): IAutoMovieFormationSlotPlacement =>
-    placeFormationSlot({
-      position: formationSlotPosition(unitDesign, slot),
+    AutoMovieEnginePopulationFormation.placeFormationSlot({
+      position: AutoMovieEnginePopulationFormation.formationSlotPosition(unitDesign, slot),
       anchor: unitDesign.anchor,
       facingDeg: unitDesign.facingDeg,
       baseFacingDeg: unitDesign.facingDeg,
@@ -146,7 +138,7 @@ export function test_engine_space_formation_stage_marks(): void {
       },
     ],
   };
-  const blockedMotion = compileFormationStageMarks(blocked, [
+  const blockedMotion = AutoMovieEnginePopulationFormation.compileFormationStageMarks(blocked, [
     { ...first, marks: [{ slot: 0, lateral: 3, depth: 8 }] },
   ]);
   TestValidator.predicate(
@@ -208,6 +200,6 @@ export function test_engine_space_formation_stage_marks(): void {
   for (const [index, sets] of refused.entries())
     TestValidator.predicate(
       `malformed stage marks ${index}`,
-      throwsError(() => compileFormationStageMarks(design, sets)),
+      throwsError(() => AutoMovieEnginePopulationFormation.compileFormationStageMarks(design, sets)),
     );
 }

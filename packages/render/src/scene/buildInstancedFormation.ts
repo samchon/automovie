@@ -1,4 +1,4 @@
-import { composeFormationHeroTransform, formationCadenceSegments, formationSlotPosition, rotateFormationLocalOffset, sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod, AutoMovieEngineFilm } from "@automovie/engine";
+import { sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod, AutoMovieEngineFilm, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormationHero,
   IAutoMovieCompiledFormationLod,
@@ -348,7 +348,7 @@ export const buildInstancedFormation: (
           // intervals against its own figure's strides, because a near stickman and
           // a far one cover ground with the same feet.
           const cadence: IAutoMovieFormationCadenceSegment[] =
-            formationCadenceSegments(
+            AutoMovieEnginePopulationFormation.formationCadenceSegments(
               input.motions ?? [],
               input.formation.id,
               time ?? 0,
@@ -388,7 +388,7 @@ export const buildInstancedFormation: (
                       ? slot
                       : {
                           ...slot,
-                          position: formationSlotPosition(
+                          position: AutoMovieEnginePopulationFormation.formationSlotPosition(
                             input.formation,
                             slot.slot,
                             reform,
@@ -448,14 +448,14 @@ export const buildInstancedFormation: (
                 exception.slot,
                 time ?? 0,
               );
-            const offset: IAutoMovieVector3 = rotateFormationLocalOffset(
+            const offset: IAutoMovieVector3 = AutoMovieEnginePopulationFormation.rotateFormationLocalOffset(
               state.offset,
               input.formation.facingDeg,
             );
             const position: THREE.Vector3 = formationSpacingOffset(
               reform === null
                 ? exception.designed.position
-                : formationSlotPosition(
+                : AutoMovieEnginePopulationFormation.formationSlotPosition(
                     input.formation,
                     exception.slot,
                     reform,
@@ -527,7 +527,7 @@ export const buildInstancedFormation: (
             const source: IAutoMovieTransform = (heroSources?.get(hero.actor) ??
               initialHeroSources.get(hero.actor))!;
             const transformed: IAutoMovieTransform =
-              composeFormationHeroTransform(
+              AutoMovieEnginePopulationFormation.composeFormationHeroTransform(
                 hero.transform,
                 source,
                 input.formation.anchor,

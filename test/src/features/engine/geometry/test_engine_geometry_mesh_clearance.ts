@@ -1,4 +1,4 @@
-import { measureAutoMovieMeshClearance } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -63,7 +63,7 @@ export function test_engine_geometry_mesh_clearance(): void {
     ...back,
     positions: back.positions.map((v: number, i: number): number => (i % 3 === 2 ? back.positions[i - 2]! : v)),
   };
-  reads("crossed edge", measureAutoMovieMeshClearance(front, sloped, "z"), [-4 / 3]);
+  reads("crossed edge", AutoMovieEngineGeometry.measureMeshClearance(front, sloped, "z"), [-4 / 3]);
 
   // 2.
   for (const axis of ["x", "y", "z"] satisfies ("x" | "y" | "z")[]) {
@@ -78,15 +78,15 @@ export function test_engine_geometry_mesh_clearance(): void {
       for (const indices of [null, [2, 1, 0]])
         reads(
           `${axis} lift ${lift}`,
-          measureAutoMovieMeshClearance(mesh(permute(front, lift), indices), mesh(permute(back, 0), indices), axis),
+          AutoMovieEngineGeometry.measureMeshClearance(mesh(permute(front, lift), indices), mesh(permute(back, 0), indices), axis),
           [lift - 1],
         );
   }
   TestValidator.equals("inputs kept", JSON.stringify([front, back]), before);
 
   // 3.
-  TestValidator.equals("empty back", measureAutoMovieMeshClearance(front, mesh([]), "z"), []);
-  TestValidator.equals("empty front", measureAutoMovieMeshClearance(mesh([]), back, "z"), []);
+  TestValidator.equals("empty back", AutoMovieEngineGeometry.measureMeshClearance(front, mesh([]), "z"), []);
+  TestValidator.equals("empty front", AutoMovieEngineGeometry.measureMeshClearance(mesh([]), back, "z"), []);
   for (const [dx, dy] of [
     [10, 0],
     [0, 10],
@@ -95,7 +95,7 @@ export function test_engine_geometry_mesh_clearance(): void {
   ])
     TestValidator.equals(
       `aside ${dx},${dy}`,
-      measureAutoMovieMeshClearance(
+      AutoMovieEngineGeometry.measureMeshClearance(
         front,
         { ...back, positions: back.positions.map((v: number, i: number): number => v + [dx!, dy!, 0][i % 3]!) },
         "z",
@@ -107,8 +107,8 @@ export function test_engine_geometry_mesh_clearance(): void {
     [1, 0, 0],
     [0, 0, 1],
   ]);
-  TestValidator.equals("parallel front", measureAutoMovieMeshClearance(parallel, back, "z"), []);
-  TestValidator.equals("parallel back", measureAutoMovieMeshClearance(front, parallel, "z"), []);
+  TestValidator.equals("parallel front", AutoMovieEngineGeometry.measureMeshClearance(parallel, back, "z"), []);
+  TestValidator.equals("parallel back", AutoMovieEngineGeometry.measureMeshClearance(front, parallel, "z"), []);
 
   // 4.
   const patch = (x: number, y: number, z: number): number[][] => [
@@ -122,16 +122,16 @@ export function test_engine_geometry_mesh_clearance(): void {
     const patches: number[][][] = Array.from({ length: 13 }, (_: unknown, k: number) => at(k - 6, k - 6 + 10));
     const population: IAutoMovieMesh = mesh(patches.flat());
     for (let i: number = -6; i <= 6; i++)
-      reads(`${spread} patch ${i}`, measureAutoMovieMeshClearance(mesh(at(i, 30)), population, "z"), [20 - i]);
-    TestValidator.equals("gap", measureAutoMovieMeshClearance(mesh(patch(2, 2, 30)), population, "z"), []);
-    reads("vertex contact", measureAutoMovieMeshClearance(mesh(patch(1, 0, 30)), population, "z"), [20]);
+      reads(`${spread} patch ${i}`, AutoMovieEngineGeometry.measureMeshClearance(mesh(at(i, 30)), population, "z"), [20 - i]);
+    TestValidator.equals("gap", AutoMovieEngineGeometry.measureMeshClearance(mesh(patch(2, 2, 30)), population, "z"), []);
+    reads("vertex contact", AutoMovieEngineGeometry.measureMeshClearance(mesh(patch(1, 0, 30)), population, "z"), [20]);
     const enclosing: IAutoMovieMesh = mesh([
       [-100, -100, 30],
       [100, -100, 30],
       [0, 100, 30],
     ]);
     for (const resident of [population, mesh([...patches].reverse().flat())])
-      reads("enclosing", measureAutoMovieMeshClearance(enclosing, resident, "z"), [14]);
+      reads("enclosing", AutoMovieEngineGeometry.measureMeshClearance(enclosing, resident, "z"), [14]);
   }
 
   // 5.
@@ -143,7 +143,7 @@ export function test_engine_geometry_mesh_clearance(): void {
     ],
     [0, 1, 2],
   );
-  reads("contact", measureAutoMovieMeshClearance(unit, unit, "z"), [0]);
+  reads("contact", AutoMovieEngineGeometry.measureMeshClearance(unit, unit, "z"), [0]);
   for (const bad of [
     { ...unit, positions: [0, 0] },
     { ...unit, indices: [0, 1] },
@@ -152,7 +152,7 @@ export function test_engine_geometry_mesh_clearance(): void {
   ])
     TestValidator.predicate(
       "buffers",
-      throwsError((): unknown => measureAutoMovieMeshClearance(bad, unit, "z"), "triangle buffers"),
+      throwsError((): unknown => AutoMovieEngineGeometry.measureMeshClearance(bad, unit, "z"), "triangle buffers"),
     );
   const scaled = (f: (v: number, i: number) => number): IAutoMovieMesh => ({
     ...unit,
@@ -161,7 +161,7 @@ export function test_engine_geometry_mesh_clearance(): void {
   TestValidator.predicate(
     "area overflow",
     throwsError(
-      (): unknown => measureAutoMovieMeshClearance({ ...unit, positions: [0, 0, 0, 1e308, 0, 0, 0, 1e308, 0] }, unit, "z"),
+      (): unknown => AutoMovieEngineGeometry.measureMeshClearance({ ...unit, positions: [0, 0, 0, 1e308, 0, 0, 0, 1e308, 0] }, unit, "z"),
       "projected area",
     ),
   );
@@ -169,7 +169,7 @@ export function test_engine_geometry_mesh_clearance(): void {
     "depth overflow",
     throwsError(
       (): unknown =>
-        measureAutoMovieMeshClearance(
+        AutoMovieEngineGeometry.measureMeshClearance(
           scaled((v: number, i: number) => (i % 3 === 2 ? 1e308 : v)),
           scaled((v: number, i: number) => (i % 3 === 2 ? -1e308 : v)),
           "z",
@@ -181,7 +181,7 @@ export function test_engine_geometry_mesh_clearance(): void {
     "clipping overflow",
     throwsError(
       (): unknown =>
-        measureAutoMovieMeshClearance(
+        AutoMovieEngineGeometry.measureMeshClearance(
           { ...unit, positions: [-1e308, 0, 0, 0, 0, 0, -1e308, 1e-308, 0] },
           { ...unit, positions: [0, 0, 0, 1e308, 0, 0, 1e308, 1e-308, 0] },
           "z",

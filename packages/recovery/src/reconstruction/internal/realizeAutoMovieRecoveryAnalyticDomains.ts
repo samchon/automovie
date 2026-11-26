@@ -1,4 +1,4 @@
-import { realizeAutoMovieBicubicAtlas64 as realize } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieContourLoft64,
   IAutoMovieRecoveryAnalyticDomainsRealizationOperation,
@@ -259,7 +259,7 @@ export function realizeAutoMovieRecoveryAnalyticDomains(
       continue;
     }
     try {
-      const generated: IAutoMovieRecoveryAtlasGeneration = realize(
+      const generated: IAutoMovieRecoveryAtlasGeneration = AutoMovieEngineGeometry.realizeBicubicAtlas64(
         domain.geometry,
       );
       if (generated.mesh.indices!.length)

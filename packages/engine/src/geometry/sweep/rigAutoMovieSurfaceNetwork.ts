@@ -20,9 +20,9 @@ import {
 
 import { bufferAutoMovieBones } from "./bufferAutoMovieBones";
 import { holdAutoMovieSurfaceGirths } from "./holdAutoMovieSurfaceGirths";
-import { planAutoMovieSurfaceRigPatches } from "./planAutoMovieSurfaceRigPatches";
-import { prepareAutoMovieSurfaceConstruction } from "./prepareAutoMovieSurfaceConstruction";
-import { reachAutoMovieSurfaceCell } from "./reachAutoMovieSurfaceCell";
+import { planAutoMovieSurfaceRigPatches } from "./internal/planAutoMovieSurfaceRigPatches";
+import { prepareAutoMovieSurfaceConstruction } from "./internal/prepareAutoMovieSurfaceConstruction";
+import { reachAutoMovieSurfaceCell } from "./internal/reachAutoMovieSurfaceCell";
 import { registerAutoMovieSurfaceVertices } from "./registerAutoMovieSurfaceVertices";
 import { rigAutoMovieSurfaceCurve } from "./rigAutoMovieSurfaceCurve";
 import { rigAutoMovieSweep } from "./rigAutoMovieSweep";

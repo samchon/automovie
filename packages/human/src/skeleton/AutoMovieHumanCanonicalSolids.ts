@@ -1,4 +1,4 @@
-import { Vector3, physicalHullFaces, physicalHullNearest, resolveAutoMovieHumanoidRingModules, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Vector3, physicalHullFaces, physicalHullNearest, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieHumanCanonicalSolids,
@@ -73,7 +73,7 @@ export namespace AutoMovieHumanCanonicalSolids {
       );
     };
     const solids: IAutoMovieHumanCanonicalSolids.ISolid[] = [];
-    for (const module of resolveAutoMovieHumanoidRingModules(
+    for (const module of AutoMovieEngineKinematics.resolveAutoMovieHumanoidRingModules(
       [...joints.entries()].map(
         ([bone, joint]): IAutoMovieResolveHumanoidRingModules.IBone => ({
           bone,

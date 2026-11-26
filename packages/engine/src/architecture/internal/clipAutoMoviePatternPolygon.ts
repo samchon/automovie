@@ -1,6 +1,6 @@
 import type { IAutoMoviePatternPoint } from "@automovie/interface";
 
-import { intersectAutoMovieConvexPolygons } from "../../geometry/intersectAutoMovieConvexPolygons";
+import { intersectAutoMovieConvexPolygons } from "../../geometry/internal/intersectAutoMovieConvexPolygons";
 
 /**
  * Clip a convex face-local pattern outline by its canonical counter-clockwise

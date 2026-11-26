@@ -619,36 +619,6 @@ export function hingedArmArticulation(
   return answer(chosen!);
 }
 
-/**
- * A legal candidate a placed pole's walk reached and its distance from the
- * pole, degrees (`hingedArmArticulation.IProps.placed`).
- */
-interface IPlacedEdge {
-  /** The candidate at the pole or at the legality edge nearest it. */
-  candidate: IScored;
-
-  /** Degrees from the pole's swivel, 0 at the pole. */
-  distance: number;
-}
-
-/** One bend branch with its index (`hingedArmCandidate.IBranch`). */
-type IBranch = hingedArmCandidate.IBranch;
-
-/** Completed work on one branch (`hingedArmCandidate.ISweep`). */
-type ISweep = hingedArmCandidate.ISweep;
-
-/** One scored candidate (`hingedArmCandidate.IScored`). */
-type IScored = hingedArmCandidate.IScored;
-
-/**
- * One branch as a sweep pass reads it, with its poser and its completed-work
- * record.
- */
-type IPass = hingedSwivelSwept.IBranch<IScored> & {
-  posed: ISweep["posed"];
-  record: ISweep;
-};
-
 /** Companion types of {@link hingedArmArticulation}. */
 export namespace hingedArmArticulation {
   /**
@@ -824,3 +794,33 @@ export namespace hingedArmArticulation {
     prepared?: hingedArmSwivel.IPreparedTarget;
   }
 }
+
+/**
+ * A legal candidate a placed pole's walk reached and its distance from the
+ * pole, degrees (`hingedArmArticulation.IProps.placed`).
+ */
+interface IPlacedEdge {
+  /** The candidate at the pole or at the legality edge nearest it. */
+  candidate: IScored;
+
+  /** Degrees from the pole's swivel, 0 at the pole. */
+  distance: number;
+}
+
+/** One bend branch with its index (`hingedArmCandidate.IBranch`). */
+type IBranch = hingedArmCandidate.IBranch;
+
+/** Completed work on one branch (`hingedArmCandidate.ISweep`). */
+type ISweep = hingedArmCandidate.ISweep;
+
+/** One scored candidate (`hingedArmCandidate.IScored`). */
+type IScored = hingedArmCandidate.IScored;
+
+/**
+ * One branch as a sweep pass reads it, with its poser and its completed-work
+ * record.
+ */
+type IPass = hingedSwivelSwept.IBranch<IScored> & {
+  posed: ISweep["posed"];
+  record: ISweep;
+};

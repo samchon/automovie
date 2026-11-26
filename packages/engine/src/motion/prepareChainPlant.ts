@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
+import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";

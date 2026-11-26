@@ -1,4 +1,4 @@
-import { Quaternion, resolveShotLighting } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -118,7 +118,7 @@ const lampAt: (clips: IAutoMovieClip[], seconds: number) => IAutoMovieLight = (
   clips: IAutoMovieClip[],
   seconds: number,
 ): IAutoMovieLight =>
-  lightOf(resolveShotLighting({ lights: LIGHTS, clips, seconds }), "lamp");
+  lightOf(AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips, seconds }), "lamp");
 
 /** A lamp turning a quarter turn about Y across the beat. */
 const SWING: IAutoMovieClip = clip(
@@ -298,7 +298,7 @@ export function test_resolve_light_transform_channel(): void {
   ): boolean =>
     throwsError(
       (): IAutoMovieLight[] =>
-        resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
+        AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
       [fragment],
     );
   TestValidator.equals(

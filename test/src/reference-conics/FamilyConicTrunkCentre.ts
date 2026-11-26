@@ -1,11 +1,4 @@
-import {
-  AutoMovieConstructionPortAddress,
-  AutoMovieLoftChain,
-  AutoMovieNaturalSpline,
-  AutoMoviePeriodicCubic,
-  AutoMovieViewChain,
-  AutoMovieViewLoft,
-} from "@automovie/engine";
+import { AutoMovieLoftChain, AutoMovieNaturalSpline, AutoMoviePeriodicCubic, AutoMovieViewChain, AutoMovieViewLoft, AutoMovieEngineConstruction } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as H,
   AutoMovieHumanConicRecentre as Recentre,
@@ -234,7 +227,7 @@ namespace FamilyConicTrunkCentre {
 
   /** A loop's column addresses, `[station mm, phase rad]`. */
   const columnsOf = (loop: IAutoMovieConstructionPortLoop): [number, number][] =>
-    (loop.shape ?? []).map((share: number, k: number, all: number[]): [number, number] => AutoMovieConstructionPortAddress(loop, (2 * Math.PI * k) / all.length, share));
+    (loop.shape ?? []).map((share: number, k: number, all: number[]): [number, number] => AutoMovieEngineConstruction.constructionPortAddress(loop, (2 * Math.PI * k) / all.length, share));
 
   /**
    * The engine's angle premise of a port's correspondence (`AutoMovieConstructionPortCurve`, `phases`): the loop's columns, read as

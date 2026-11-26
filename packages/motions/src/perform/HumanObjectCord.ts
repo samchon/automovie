@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  SOFT_MAX_PARTICLES,
-  Vector3,
-  validateSoftBodyDomain,
-} from "@automovie/engine";
+import { Quaternion, SOFT_MAX_PARTICLES, Vector3, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMotionHumanObject,
@@ -132,7 +127,7 @@ export function HumanObjectCord(
     selfCollision: props.selfCollision ?? false,
     contact: { thickness: declaration.radius, friction: props.friction },
   };
-  const validation: IAutoMovieValidation = validateSoftBodyDomain({ domain });
+  const validation: IAutoMovieValidation = AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain });
   if (!validation.success)
     throw new HumanRefusal({
       kind: "parameter",

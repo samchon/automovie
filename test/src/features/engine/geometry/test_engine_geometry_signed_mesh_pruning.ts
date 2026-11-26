@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -32,7 +32,7 @@ export function test_engine_geometry_signed_mesh_pruning(): void {
       for (let z: number = 0; z < 2; z++) cells.push([x, y, z]);
   const mesh: IAutoMovieMesh = createSignedVoxelUnion(cells);
   const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
-    createAutoMovieSignedMeshQuery(mesh);
+    AutoMovieEngineGeometry.createSignedMeshQuery(mesh);
   const corners: number[][][] = Array.from(
     { length: mesh.indices!.length / 3 },
     (_: unknown, triangle: number): number[][] =>

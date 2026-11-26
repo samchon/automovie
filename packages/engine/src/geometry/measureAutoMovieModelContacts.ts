@@ -12,8 +12,8 @@ import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQue
 import { measureAutoMovieMeshGap } from "./measureAutoMovieMeshGap";
 import { AutoMovieEngineMeshCrossingQuery } from "./mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
-import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { realizeAutoMovieGeometry } from "./internal/realizeAutoMovieGeometry";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Report how every pair of a model's parts meets: crossing, contained, touching

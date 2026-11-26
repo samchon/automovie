@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE } from "./AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE";
-import { rootsAutoMovieViewPolynomial } from "./rootsAutoMovieViewPolynomial";
+import { rootsAutoMovieViewPolynomial } from "./internal/rootsAutoMovieViewPolynomial";
 
 /**
  * Explicit C2 source jets and sufficient scalar-range filtering of shared

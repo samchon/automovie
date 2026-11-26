@@ -1,9 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  compileAttach,
-  sampleClip,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, compileAttach, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompileAttach,
@@ -27,7 +22,7 @@ function observe(
   seconds: number,
   expected: readonly number[],
 ): void {
-  const point: number[] = sampleClip(clip, seconds).get(
+  const point: number[] = AutoMovieEngineSequence.sampleClip(clip, seconds).get(
     "node:marker:translation",
   )!.value;
   assert.ok(
@@ -66,7 +61,7 @@ export function test_engine_film_motion_attachment_frames(): void {
   }
   observe(rest, args.start, [1, 1.4, 1.25]);
   observe(rest, args.start + args.duration, [1, 1.4, 1.25]);
-  const q: number[] = sampleClip(rest, args.start).get(
+  const q: number[] = AutoMovieEngineSequence.sampleClip(rest, args.start).get(
     "node:marker:rotation",
   )!.value;
   assert.ok(

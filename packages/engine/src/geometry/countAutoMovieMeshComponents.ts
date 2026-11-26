@@ -1,6 +1,6 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Count components of used triangle vertices under their exact index identity.

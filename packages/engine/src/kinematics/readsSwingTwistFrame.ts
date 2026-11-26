@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 
 /**
  * Whether a caller's basis and rest frame are a swing-twist range's own, so

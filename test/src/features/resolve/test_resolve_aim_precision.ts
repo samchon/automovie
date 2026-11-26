@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, resolveWorldDrivers } from "@automovie/engine";
+import { Matrix4, Quaternion, AutoMovieEngineResolve } from "@automovie/engine";
 import { IAutoMovieAimDriver, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -49,7 +49,7 @@ const runAim: (
     ["o", W(0, 0, 0)],
     ["t", W(targetPos.x, targetPos.y, targetPos.z)],
   ]);
-  resolveWorldDrivers([d], world, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([d], world, new Map(), new Map());
   return world;
 };
 

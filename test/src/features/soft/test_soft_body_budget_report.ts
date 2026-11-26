@@ -1,10 +1,4 @@
-import {
-  simulateSoftBody,
-  softBodyBudget,
-  softBodySurfaceGeometry,
-  softBodyTravelNumber,
-  validateSoftBodyDomain,
-} from "@automovie/engine";
+import { simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
@@ -68,7 +62,7 @@ export function test_soft_body_budget_report(): void {
     rows: 4,
     overrides: { id: "drape" },
   });
-  const budget: ReturnType<typeof softBodyBudget> = softBodyBudget(domain);
+  const budget: ReturnType<typeof AutoMovieEngineSoftBody.softBodyBudget> = AutoMovieEngineSoftBody.softBodyBudget(domain);
   TestValidator.equals(
     "every cost is the hand computation over the lattice",
     {
@@ -97,8 +91,8 @@ export function test_soft_body_budget_report(): void {
     },
   );
 
-  const drawn: ReturnType<typeof softBodySurfaceGeometry> =
-    softBodySurfaceGeometry({
+  const drawn: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> =
+    AutoMovieEngineSoftBody.softBodySurfaceGeometry({
       domain,
       state: simulateSoftBody(domain, 0),
     });
@@ -119,9 +113,9 @@ export function test_soft_body_budget_report(): void {
             overrides: { id: "cord" },
           });
           return (
-            softBodyBudget(cord).triangles === 0 &&
+            AutoMovieEngineSoftBody.softBodyBudget(cord).triangles === 0 &&
             (
-              softBodySurfaceGeometry({
+              AutoMovieEngineSoftBody.softBodySurfaceGeometry({
                 domain: cord,
                 state: simulateSoftBody(cord, 0),
               }).mesh.indices ?? []
@@ -137,13 +131,13 @@ export function test_soft_body_budget_report(): void {
     "the travel number is the documented ratio and the panel is accepted",
     namedFacts([
       ["travel", () => Object.is(budget.travel, 0.25)],
-      ["function", () => Object.is(softBodyTravelNumber(domain), 0.25)],
-      ["accepted", () => validateSoftBodyDomain({ domain }).success === true],
+      ["function", () => Object.is(AutoMovieEngineSoftBody.softBodyTravelNumber(domain), 0.25)],
+      ["accepted", () => AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain }).success === true],
     ]),
     { travel: true, function: true, accepted: true },
   );
 
-  const strip: ReturnType<typeof softBodyBudget> = softBodyBudget(
+  const strip: ReturnType<typeof AutoMovieEngineSoftBody.softBodyBudget> = AutoMovieEngineSoftBody.softBodyBudget(
     softPanel({ columns: 2, rows: 1, overrides: { id: "strip" } }),
   );
   TestValidator.equals(
@@ -176,12 +170,12 @@ export function test_soft_body_budget_report(): void {
   TestValidator.equals(
     "a step that could cross a constraint is refused by name",
     namedFacts([
-      ["travel", () => nclose(softBodyTravelNumber(hasty), 4)],
+      ["travel", () => nclose(AutoMovieEngineSoftBody.softBodyTravelNumber(hasty), 4)],
       [
         "refused",
         () =>
           hasViolation(
-            validateSoftBodyDomain({ domain: hasty }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: hasty }),
             "range",
             "solver.fixedStepSeconds",
           ),
@@ -189,7 +183,7 @@ export function test_soft_body_budget_report(): void {
       [
         "overshoot",
         () => {
-          const validation: IAutoMovieValidation = validateSoftBodyDomain({
+          const validation: IAutoMovieValidation = AutoMovieEngineSoftBody.validateSoftBodyDomain({
             domain: hasty,
           });
           return (
@@ -213,13 +207,13 @@ export function test_soft_body_budget_report(): void {
   TestValidator.equals(
     "a lattice nobody could walk is measured without walking it",
     namedFacts([
-      ["travel", () => Object.is(softBodyTravelNumber(absurd), 0)],
-      ["budget", () => Object.is(softBodyBudget(absurd).travel, 0)],
+      ["travel", () => Object.is(AutoMovieEngineSoftBody.softBodyTravelNumber(absurd), 0)],
+      ["budget", () => Object.is(AutoMovieEngineSoftBody.softBodyBudget(absurd).travel, 0)],
       [
         "refused",
         () =>
           hasViolation(
-            validateSoftBodyDomain({ domain: absurd }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: absurd }),
             "range",
             "$input.lattice",
           ),
@@ -228,7 +222,7 @@ export function test_soft_body_budget_report(): void {
         "lengthNamed",
         () =>
           hasViolation(
-            validateSoftBodyDomain({ domain: absurd }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: absurd }),
             "type",
             "$input.rest",
           ),
@@ -245,13 +239,13 @@ export function test_soft_body_budget_report(): void {
   TestValidator.equals(
     "a single particle has no constraint to cross, and is refused for it",
     namedFacts([
-      ["travel", () => Object.is(softBodyTravelNumber(lone), 0)],
-      ["structural", () => softBodyBudget(lone).structural === 0],
+      ["travel", () => Object.is(AutoMovieEngineSoftBody.softBodyTravelNumber(lone), 0)],
+      ["structural", () => AutoMovieEngineSoftBody.softBodyBudget(lone).structural === 0],
       [
         "refused",
         () =>
           hasViolation(
-            validateSoftBodyDomain({ domain: lone }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: lone }),
             "range",
             "lattice",
           ),

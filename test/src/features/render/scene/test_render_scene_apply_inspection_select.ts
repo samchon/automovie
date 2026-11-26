@@ -1,4 +1,4 @@
-import { markAutoMovieConstructionCurves } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieMark } from "@automovie/interface";
 import {
   type IAutoMovieInspectionHandle,
@@ -34,7 +34,7 @@ export function test_render_scene_apply_inspection_select(): void {
     points: [0, 0, z, 1, 0, z, 0, 1, z],
     flagged: false,
   });
-  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
+  const marks: IAutoMovieMark[] = AutoMovieEngineConstruction.markConstructionCurves(
     [ring(0, 0), ring(1, 1), ring(2, 2)],
     "hero",
   );

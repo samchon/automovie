@@ -1,11 +1,4 @@
-import {
-  AutoMovieEngineWorld,
-  compiledFormationSlot,
-  createAutoMovieSourceOracle,
-  instanceSlot,
-  materializeCompiledFormation,
-  materializeCompiledInstanceSet,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, createAutoMovieSourceOracle, materializeCompiledFormation, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,8 +40,8 @@ const formation: ReturnType<typeof materializeCompiledFormation> =
   });
 
 /** A crowd whose design table, default excluded, is tall 2 and short 1. */
-const crowd: ReturnType<typeof materializeCompiledInstanceSet> =
-  materializeCompiledInstanceSet({
+const crowd: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet> =
+  AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSet({
     instanceSet: {
       id: "crowd",
       model: "body",
@@ -107,14 +100,14 @@ export function test_engine_source_oracle(): void {
       formationRuntime: { unit: formation },
       instanceSetRuntime: { crowd },
     });
-  const members: ReturnType<typeof instanceSlot>[] = Array.from(
+  const members: ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot>[] = Array.from(
     { length: COUNT },
-    (_: unknown, slot: number): ReturnType<typeof instanceSlot> =>
+    (_: unknown, slot: number): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
       oracle.instanceSlot("crowd", slot),
   );
   const share: (prototype: string) => number = (prototype: string): number =>
     members.filter(
-      (member: ReturnType<typeof instanceSlot>): boolean =>
+      (member: ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot>): boolean =>
         member.prototype === prototype,
     ).length / COUNT;
 
@@ -123,13 +116,13 @@ export function test_engine_source_oracle(): void {
     test12ValuesClose(
       Array.from(
         { length: 12 },
-        (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> =>
+        (_: unknown, slot: number): ReturnType<typeof AutoMovieEnginePopulationRuntime.compiledFormationSlot> =>
           oracle.formationSlot("unit", slot),
       ),
       Array.from(
         { length: 12 },
-        (_: unknown, slot: number): ReturnType<typeof compiledFormationSlot> =>
-          compiledFormationSlot(formation, slot),
+        (_: unknown, slot: number): ReturnType<typeof AutoMovieEnginePopulationRuntime.compiledFormationSlot> =>
+          AutoMovieEnginePopulationRuntime.compiledFormationSlot(formation, slot),
       ),
     ),
   );
@@ -139,8 +132,8 @@ export function test_engine_source_oracle(): void {
       members,
       Array.from(
         { length: COUNT },
-        (_: unknown, slot: number): ReturnType<typeof instanceSlot> =>
-          instanceSlot(crowd, slot),
+        (_: unknown, slot: number): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+          AutoMovieEnginePopulationRuntime.instanceSlot(crowd, slot),
       ),
     ),
   );
@@ -177,10 +170,10 @@ export function test_engine_source_oracle(): void {
             (
               _: unknown,
               slot: number,
-            ): ReturnType<typeof compiledFormationSlot> =>
+            ): ReturnType<typeof AutoMovieEnginePopulationRuntime.compiledFormationSlot> =>
               oracle.formationSlot("unit", slot),
           ).some(
-            (member: ReturnType<typeof compiledFormationSlot>): boolean =>
+            (member: ReturnType<typeof AutoMovieEnginePopulationRuntime.compiledFormationSlot>): boolean =>
               Math.abs(member.position.y - 1) > 0.3,
           ),
       ],
@@ -209,7 +202,7 @@ export function test_engine_source_oracle(): void {
         "unknownFormation",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof compiledFormationSlot> =>
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.compiledFormationSlot> =>
               oracle.formationSlot("missing", 0),
             'Formation "missing" is unavailable.',
           ),
@@ -218,7 +211,7 @@ export function test_engine_source_oracle(): void {
         "inheritedFormation",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof compiledFormationSlot> =>
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.compiledFormationSlot> =>
               oracle.formationSlot("toString", 0),
             'Formation "toString" is unavailable.',
           ),
@@ -227,7 +220,7 @@ export function test_engine_source_oracle(): void {
         "unknownInstanceSet",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
               oracle.instanceSlot("missing", 0),
             'Instance set "missing" is unavailable.',
           ),
@@ -236,7 +229,7 @@ export function test_engine_source_oracle(): void {
         "inheritedInstanceSet",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
               oracle.instanceSlot("constructor", 0),
             'Instance set "constructor" is unavailable.',
           ),

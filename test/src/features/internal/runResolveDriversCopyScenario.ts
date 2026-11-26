@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieChannel,
   IAutoMovieDriver,
@@ -37,7 +37,7 @@ export function runResolveDriversCopyScenario(): void {
     scale: { x: 4, y: 4, z: 4 },
   });
   const sampled: Map<string, IAutoMovieSampledChannel> = seed([]);
-  const deferred: IAutoMovieDriver[] = resolveDrivers(
+  const deferred: IAutoMovieDriver[] = AutoMovieEngineResolve.resolveDrivers(
     [copy({ translation: true, rotation: true, scale: true })],
     sampled,
     byId(owner, source),
@@ -73,7 +73,7 @@ export function runResolveDriversCopyScenario(): void {
       [20, 0, 0],
     ],
   ]);
-  resolveDrivers(
+  AutoMovieEngineResolve.resolveDrivers(
     [copy({ owner: "o2", source: "s2", translation: true, influence: 0.5 })],
     sampled2,
     byId(node("o2"), node("s2")),
@@ -93,7 +93,7 @@ export function runResolveDriversCopyScenario(): void {
     "copy driver rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [copy({ translation: true, influence: -0.1 })],
           seed([]),
           validNodes,
@@ -105,7 +105,7 @@ export function runResolveDriversCopyScenario(): void {
     "copy driver rejects influence above one",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [copy({ translation: true, influence: 1.1 })],
           seed([]),
           validNodes,
@@ -122,7 +122,7 @@ export function runResolveDriversCopyScenario(): void {
     "copy driver rejects missing sampled owner node",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [copy({ owner: "ghost", source: "s", translation: true })],
           seed([ghostTranslation]),
           byId(node("s")),
@@ -134,7 +134,7 @@ export function runResolveDriversCopyScenario(): void {
     "copy driver rejects missing sampled source node",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [copy({ owner: "o", source: "ghost", translation: true })],
           seed([ghostTranslation]),
           byId(node("o")),
@@ -146,7 +146,7 @@ export function runResolveDriversCopyScenario(): void {
     "copy driver rejects short sampled source translation",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [copy({ translation: true })],
           seed([
             [
@@ -164,7 +164,7 @@ export function runResolveDriversCopyScenario(): void {
     "copy driver rejects extra sampled source rotation component",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [copy({ rotation: true })],
           seed([
             [

@@ -1,12 +1,4 @@
-import {
-  AutoMovieIllinois,
-  AutoMovieLoftSectionNative,
-  AutoMovieLoftViewRead,
-  AutoMovieLoftViewSource,
-  AutoMovieLoftViewWorldJet,
-  AutoMovieSolidVector,
-  AutoMovieViewOutline,
-} from "@automovie/engine";
+import { AutoMovieIllinois, AutoMovieLoftSectionNative, AutoMovieLoftViewRead, AutoMovieLoftViewSource, AutoMovieSolidVector, AutoMovieViewOutline, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanGlutealCut,
@@ -170,8 +162,8 @@ export namespace AutoMovieHumanGlutealCut {
           return `${part.name}: the level cut collapses to its actual axis point at phase ${phi}.`;
         if (Math.abs(read.point[1] - y) > TOLERANCE)
           return `${part.name}: level cut has no admitted height residual.`;
-        const jet: ReturnType<typeof AutoMovieLoftViewWorldJet> =
-          AutoMovieLoftViewWorldJet(source, part.axis, s, phi);
+        const jet: ReturnType<typeof AutoMovieEngineConstruction.loftViewWorldJet> =
+          AutoMovieEngineConstruction.loftViewWorldJet(source, part.axis, s, phi);
         if (typeof jet === "string")
           return `${part.name}: level cut transversality is unavailable: ${jet}`;
         if (

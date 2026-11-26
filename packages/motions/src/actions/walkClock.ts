@@ -10,9 +10,9 @@ import type {
 import { HUMAN_ATTRIBUTE_EFFECTS } from "../ensemble/HUMAN_ATTRIBUTE_EFFECTS";
 import { HumanAttribute } from "../ensemble/HumanAttribute";
 import { HumanSkill } from "../skill/HumanSkill";
-import { walkCadence } from "./walkCadence";
-import { walkStation } from "./walkStation";
-import { walkSteps } from "./walkSteps";
+import { walkCadence } from "../gait/internal/walkCadence";
+import { walkStation } from "../gait/internal/walkStation";
+import { walkSteps } from "../gait/internal/walkSteps";
 import { walkTempo } from "./walkTempo";
 import { walkWindows } from "./walkWindows";
 

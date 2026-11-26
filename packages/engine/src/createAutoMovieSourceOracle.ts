@@ -5,8 +5,8 @@ import {
   IAutoMovieSourceOracle,
 } from "@automovie/interface";
 
-import { compiledFormationSlot } from "./populationRuntime/compiledFormationSlot";
-import { instanceSlot } from "./populationRuntime/instanceSlot";
+import { compiledFormationSlot } from "./populationRuntime/internal/compiledFormationSlot";
+import { instanceSlot } from "./populationRuntime/internal/instanceSlot";
 import { readGroundHeight } from "./space/world/internal/readGroundHeight";
 
 /**

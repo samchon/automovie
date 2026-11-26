@@ -4,7 +4,7 @@ import type {
   IAutoMovieSolidMeshIncidence,
 } from "@automovie/interface";
 
-import { orientAutoMovieSolidChart } from "./orientAutoMovieSolidChart";
+import { orientAutoMovieSolidChart } from "./internal/orientAutoMovieSolidChart";
 
 /** A directed incidence, including its endpoint's explicit cover image. */
 interface Halfedge {

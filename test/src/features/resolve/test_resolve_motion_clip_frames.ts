@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, resolveFrame, sampleMotion, sceneToNodes, stageScene, AutoMovieEngineMotionClip } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, sampleMotion, stageScene, AutoMovieEngineMotionClip, AutoMovieEngineResolve } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +28,7 @@ export function test_resolve_motion_clip_frames(): void {
   if (!staged.success) throw new Error("stage admission failed");
   const skeleton = createSkeleton(),
     model = createModel(skeleton);
-  const nodes = sceneToNodes({
+  const nodes = AutoMovieEngineResolve.sceneToNodes({
     scene: staged.scene,
     models: {
       stickman: { ...model, id: "stickman" },
@@ -60,7 +60,7 @@ export function test_resolve_motion_clip_frames(): void {
   const times = bakeTimes(clip.duration);
   TestValidator.equals("endpoint included", times.at(-1), 2);
   for (const seconds of times) {
-    const world = resolveFrame({ nodes, clip, limits: [], seconds }).world;
+    const world = AutoMovieEngineResolve.resolveFrame({ nodes, clip, limits: [], seconds }).world;
     for (const [actor, motion] of players) {
       const placement = staged.scene.nodes.find(
         (node) => node.id === actor,

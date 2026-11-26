@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, ROM_TOLERANCE, fitDigitToTarget, prepareSkeletonPoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics, ROM_TOLERANCE, prepareSkeletonPoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -88,7 +88,7 @@ export function test_engine_digit_prepared_baseline(): void {
         z: witness.worldPosition.z }, wanted.point, 1e-12) &&
       vclose({ x: -Math.sin(witnessAngle), y: Math.cos(witnessAngle), z: 0 }, wanted.normal, 1e-12));
     for (const [prepared, rate] of [[true, undefined], [true, 5000], [false, undefined], [false, 5000]] as const) {
-      const result: IAutoMovieFitDigitToTarget.IResult = fitDigitToTarget({
+      const result: IAutoMovieFitDigitToTarget.IResult = AutoMovieEngineKinematics.fitDigitToTarget({
         skeleton, pose, bones: names,
         effector: { bone: names[2]!, point: { x: 1, y: 0, z: 0 }, normal: { x: 0, y: 1, z: 0 } },
         target: wanted.point, normal: wanted.normal,
@@ -136,7 +136,7 @@ export function test_engine_digit_prepared_baseline(): void {
   };
 
   TestValidator.predicate("positive-rate prepared source fits the valid digit",
-    fitDigitToTarget({ ...good, rate: 5000 }).residual <= 5e-4);
+    AutoMovieEngineKinematics.fitDigitToTarget({ ...good, rate: 5000 }).residual <= 5e-4);
 }
 
 /** Construct one plain kernel bone; only finger flexion is mobile. */

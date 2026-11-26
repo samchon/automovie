@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieDrivenDriver,
   IAutoMovieDriver,
@@ -33,7 +33,7 @@ export function runResolveDriversDrivenScenario(): void {
       source === undefined
         ? seed([])
         : seed([["ptr:/in", ptr("/in"), [source]]]);
-    resolveDrivers([driver], sampled, new Map());
+    AutoMovieEngineResolve.resolveDrivers([driver], sampled, new Map());
     return sampled.get("ptr:/out")!.value;
   };
   TestValidator.predicate(
@@ -159,7 +159,7 @@ export function runResolveDriversDrivenScenario(): void {
     "driven driver rejects empty source value",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [driven({})],
           seed([["ptr:/in", ptr("/in"), []]]),
           new Map(),
@@ -171,7 +171,7 @@ export function runResolveDriversDrivenScenario(): void {
     "driven driver rejects vector source value",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [driven({})],
           seed([["ptr:/in", ptr("/in"), [5, 99]]]),
           new Map(),

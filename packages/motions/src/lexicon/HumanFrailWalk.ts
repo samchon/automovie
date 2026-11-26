@@ -7,9 +7,9 @@ import type {
   IAutoMovieMotionHumanWalkParams,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkFoot } from "../actions/walkFoot";
-import { walkSteps } from "../actions/walkSteps";
+import { walkSteps } from "../gait/internal/walkSteps";
 import { HumanBound } from "../law/HumanBound";
 
 /**

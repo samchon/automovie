@@ -8,14 +8,8 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 import { resolvePoseBone } from "./resolvePoseBone";
-
-/**
- * Raw ordered FK operations and the identity lent to immutable prepared rigs:
- * the interface contract.
- */
-type IReader = IAutoMoviePoseResolution;
 
 /** The factory's reader: its two methods as own data properties. */
 const READER: IReader = {
@@ -46,3 +40,9 @@ const READER: IReader = {
 export function preparePoseResolution(): IReader {
   return { joint: READER.joint, bone: READER.bone };
 }
+
+/**
+ * Raw ordered FK operations and the identity lent to immutable prepared rigs:
+ * the interface contract.
+ */
+type IReader = IAutoMoviePoseResolution;

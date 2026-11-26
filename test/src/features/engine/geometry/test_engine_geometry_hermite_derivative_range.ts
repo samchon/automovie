@@ -1,8 +1,4 @@
-import {
-  AutoMovieViewHermite as Hermite,
-  AutoMovieNaturalSpline as Natural,
-  AutoMovieViewHermiteDerivativeRange as derivativeRange,
-} from "@automovie/engine";
+import { AutoMovieViewHermite as Hermite, AutoMovieNaturalSpline as Natural, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieNaturalCubicSpline,
   IAutoMovieViewHermite,
@@ -205,7 +201,7 @@ export function test_engine_geometry_hermite_derivative_range(): void {
         ),
       );
     const result: readonly [number, number] | string =
-      derivativeRange(prepared);
+      AutoMovieEngineConstruction.viewHermiteDerivativeRange(prepared);
     TestValidator.equals(
       `${entry.name} leaves the curve`,
       JSON.stringify(prepared),

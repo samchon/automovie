@@ -1,4 +1,4 @@
-import { simulateSoftBody, validateSoftBodyDomain } from "@automovie/engine";
+import { simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   AutoMovieViolationKind,
   IAutoMovieSoftBodyDomain,
@@ -71,7 +71,7 @@ const refuses: (
   path: string,
 ): boolean =>
   hasViolation(
-    validateSoftBodyDomain({ domain: sound(overrides) }),
+    AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: sound(overrides) }),
     kind,
     path,
   );
@@ -124,7 +124,7 @@ const refuses: (
 export function test_soft_body_validation(): void {
   TestValidator.equals(
     "a complete panel validates clean",
-    validateSoftBodyDomain({ domain: sound() }).success,
+    AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: sound() }).success,
     true,
   );
 
@@ -153,7 +153,7 @@ export function test_soft_body_validation(): void {
         "tooMany",
         (): boolean =>
           hasViolation(
-            validateSoftBodyDomain({ domain: oversized }),
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: oversized }),
             "range",
             "$input.lattice",
           ),
@@ -162,7 +162,7 @@ export function test_soft_body_validation(): void {
         "tooFew",
         (): boolean =>
           hasViolation(
-            validateSoftBodyDomain({
+            AutoMovieEngineSoftBody.validateSoftBodyDomain({
               domain: softPanel({ columns: 1, rows: 1 }),
             }),
             "range",

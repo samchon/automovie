@@ -13,7 +13,7 @@ import type {
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
+import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import { Quaternion } from "../math/Quaternion";
 import { prepareChainFitRig } from "./prepareChainFitRig";

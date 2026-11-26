@@ -1,11 +1,4 @@
-import {
-  AutoMovieEngineWorld,
-  formationSlotPosition,
-  heightAt,
-  spaceGround,
-  stageScene,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, heightAt, spaceGround, stageScene, surfaceHeightAt, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import {
   type IAutoMovieFormationPlacement,
   IAutoMovieSpace,
@@ -166,7 +159,7 @@ export function test_motion_relief_height_authority(): void {
   }
   const formation = rank([world], 0);
   for (let i = 0; i < formation.count; i++) {
-    const point = formationSlotPosition(formation, i);
+    const point = AutoMovieEnginePopulationFormation.formationSlotPosition(formation, i);
     TestValidator.equals(
       "slot stands on staged ground",
       point.y,

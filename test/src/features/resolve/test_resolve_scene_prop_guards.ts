@@ -1,4 +1,4 @@
-import { sceneToNodes } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieModel,
   type IAutoMovieNode,
@@ -66,7 +66,7 @@ export function test_resolve_scene_prop_guards(): void {
   const door: IAutoMoviePropSpec = createDoorPropSpec();
   const hero: IAutoMovieModel = { ...createModel(), id: "hero" };
 
-  const mixed: IAutoMovieNode[] = sceneToNodes({
+  const mixed: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: scene([
       ["frontDoor", "door"],
       ["knight", "hero"],
@@ -99,7 +99,7 @@ export function test_resolve_scene_prop_guards(): void {
     "an id in both registries throws the contradiction",
     throwsError(
       (): IAutoMovieNode[] =>
-        sceneToNodes({
+        AutoMovieEngineResolve.sceneToNodes({
           scene: scene([["frontDoor", "door"]]),
           props: { door },
           models: { door: { ...createModel(null), id: "door" } },
@@ -112,7 +112,7 @@ export function test_resolve_scene_prop_guards(): void {
     "a placement outside the union throws",
     throwsError(
       (): IAutoMovieNode[] =>
-        sceneToNodes({
+        AutoMovieEngineResolve.sceneToNodes({
           scene: scene([
             ["frontDoor", "door"],
             ["knight", "hero"],
@@ -125,7 +125,7 @@ export function test_resolve_scene_prop_guards(): void {
 
   TestValidator.equals(
     "both registries omitted lowers placements only",
-    sceneToNodes({ scene: scene([["frontDoor", "door"]]) }).length,
+    AutoMovieEngineResolve.sceneToNodes({ scene: scene([["frontDoor", "door"]]) }).length,
     1,
   );
 }

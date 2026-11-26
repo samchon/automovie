@@ -4,7 +4,7 @@ import type {
   IAutoMovieMotionHumanTiming,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkFoot } from "../actions/walkFoot";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 

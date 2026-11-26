@@ -10,23 +10,6 @@ import type {
 import { HUMANOID_REST_FRAME } from "../rom/constants/HUMANOID_REST_FRAME";
 import { HUMANOID_JOINT_AXES } from "./constants/HUMANOID_JOINT_AXES";
 
-/** Current axes and limits already selected by the ordinary arm scorer. */
-interface IAutoMoviePreparedBendClinical {
-  upperBone: AutoMovieHumanoidBone;
-  lowerBone: AutoMovieHumanoidBone;
-  handBone: AutoMovieHumanoidBone;
-  upperBasis: IAutoMovieJointAxes;
-  lowerBasis: IAutoMovieJointAxes;
-  lowerAxes: IAutoMovieJointAxes;
-  handAxes: IAutoMovieJointAxes;
-  upperRange: IAutoMovieJointConstraint | null;
-  lowerRange: IAutoMovieJointConstraint | null;
-  handRange: IAutoMovieJointConstraint | null;
-}
-
-/** Flat words with explicit absence and record boundaries. */
-type AutoMovieClinicalWords = (number | string | null | undefined)[];
-
 /** Clinical directions and channels in their comparison order. */
 const AXES = ["flexion", "abduction", "twist"] as const;
 
@@ -62,6 +45,23 @@ export function readPreparedBendClinical(
   }
   return words;
 }
+
+/** Current axes and limits already selected by the ordinary arm scorer. */
+interface IAutoMoviePreparedBendClinical {
+  upperBone: AutoMovieHumanoidBone;
+  lowerBone: AutoMovieHumanoidBone;
+  handBone: AutoMovieHumanoidBone;
+  upperBasis: IAutoMovieJointAxes;
+  lowerBasis: IAutoMovieJointAxes;
+  lowerAxes: IAutoMovieJointAxes;
+  handAxes: IAutoMovieJointAxes;
+  upperRange: IAutoMovieJointConstraint | null;
+  lowerRange: IAutoMovieJointConstraint | null;
+  handRange: IAutoMovieJointConstraint | null;
+}
+
+/** Flat words with explicit absence and record boundaries. */
+type AutoMovieClinicalWords = (number | string | null | undefined)[];
 
 /** Append the three direction vectors and optional basis conventions. */
 function axes(value: IAutoMovieJointAxes, words: AutoMovieClinicalWords): void {

@@ -1,4 +1,4 @@
-import { softBodyBudget } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type { IAutoMovieSoftBodyBudget } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -18,7 +18,7 @@ import { softPanel } from "../../internal/softFixtures";
  * 2. A 2 × 2 panel has no bend constraint.
  */
 export function test_engine_soft_body_budget(): void {
-  const budget: IAutoMovieSoftBodyBudget = softBodyBudget(
+  const budget: IAutoMovieSoftBodyBudget = AutoMovieEngineSoftBody.softBodyBudget(
     softPanel({ columns: 3, rows: 3 }),
   );
   TestValidator.equals(
@@ -37,7 +37,7 @@ export function test_engine_soft_body_budget(): void {
   );
   TestValidator.equals(
     "a 2 x 2 panel bends nowhere",
-    softBodyBudget(softPanel({ columns: 2, rows: 2 })).bend,
+    AutoMovieEngineSoftBody.softBodyBudget(softPanel({ columns: 2, rows: 2 })).bend,
     0,
   );
 }

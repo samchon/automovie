@@ -1,11 +1,4 @@
-import {
-  AutoMovieConstructionProfile,
-  AutoMovieConstructionProfileBody,
-  AutoMovieConstructionProfileSkin,
-  AutoMovieSolidBody,
-  AutoMovieSolidMesh,
-  AutoMovieViewAxis,
-} from "@automovie/engine";
+import { AutoMovieConstructionProfile, AutoMovieConstructionProfileBody, AutoMovieSolidBody, AutoMovieSolidMesh, AutoMovieViewAxis, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
@@ -328,7 +321,7 @@ export namespace ConstructionProfileRealization {
       ),
       neighbours: [],
     });
-    AutoMovieConstructionProfileSkin(
+    AutoMovieEngineConstruction.constructionProfileSkin(
       body,
       ends,
       open,

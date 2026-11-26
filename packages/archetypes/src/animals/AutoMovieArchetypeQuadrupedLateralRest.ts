@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  minimumJerk,
-  prepareArticulatedRig,
-} from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieModelPart,
   IAutoMovieQuaternion,
@@ -83,7 +78,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   const neutral: ReadonlyMap<
     AutoMovieArchetypeQuadrupedBody.Bone,
     IAutoMovieTransform
-  > = prepareArticulatedRig(
+  > = AutoMovieEngineKinematics.prepareArticulatedRig(
     AutoMovieArchetypeQuadrupedSkeleton.of(held.animal),
   ).read();
   const partCarriers: AutoMovieArchetypeQuadrupedRestPlan.IParams["parts"] = {

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, curlChainUntilContact, fitDigitToTarget, skeletonJointAxes } from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, curlChainUntilContact } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieFitDigitToTarget,
@@ -33,7 +33,7 @@ import { throwsError } from "../../internal/throwsError";
 export async function test_engine_kinematics_digit_fit(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
   const skeleton = body.skeleton;
-  const jointAxes = skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
+  const jointAxes = AutoMovieEngineKinematics.skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
   const bones: AutoMovieHumanoidBone[] = [
     "leftIndexProximal",
     "leftIndexIntermediate",
@@ -76,7 +76,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
   };
 
   // 1.
-  const fitted = fitDigitToTarget(input);
+  const fitted = AutoMovieEngineKinematics.fitDigitToTarget(input);
   TestValidator.predicate(
     "reached",
     fitted.residual <= 1e-5 &&
@@ -87,14 +87,14 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
   TestValidator.predicate(
     "no joints",
     throwsError(
-      (): unknown => fitDigitToTarget({ ...input, bones: [] }),
+      (): unknown => AutoMovieEngineKinematics.fitDigitToTarget({ ...input, bones: [] }),
       "needs the digit's joints",
     ),
   );
   TestValidator.predicate(
     "rate",
     throwsError(
-      (): unknown => fitDigitToTarget({ ...input, rate: 0 }),
+      (): unknown => AutoMovieEngineKinematics.fitDigitToTarget({ ...input, rate: 0 }),
       "rate must be finite and positive",
     ),
   );

@@ -1,4 +1,4 @@
-import { normalizeAutoMovieSurfaceFrame } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceFrame,
   IAutoMovieSweepFrame,
@@ -47,13 +47,13 @@ export function test_engine_geometry_normalize_surface_frame(): void {
   const N: IAutoMovieVector3 = { x: 0, y: 0.6, z: 0.8 };
 
   // 1.
-  const result: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(request);
+  const result: IAutoMovieSweepFrame = AutoMovieEngineGeometry.normalizeSurfaceFrame(request);
   TestValidator.predicate("basis", vclose(result.origin, origin) && basis(result, X, Y, N));
   for (const k of [1e-300, 1, 1e300])
     TestValidator.predicate(
       `scaled ${k}`,
       basis(
-        normalizeAutoMovieSurfaceFrame({
+        AutoMovieEngineGeometry.normalizeSurfaceFrame({
           origin,
           forward: { x: 4 * k, y: 6 * k, z: 8 * k },
           normal: { x: 0, y: 3 * k, z: 4 * k },
@@ -68,7 +68,7 @@ export function test_engine_geometry_normalize_surface_frame(): void {
   TestValidator.predicate(
     "reversed normal",
     basis(
-      normalizeAutoMovieSurfaceFrame({ ...request, normal: { x: 0, y: -3, z: -4 } }),
+      AutoMovieEngineGeometry.normalizeSurfaceFrame({ ...request, normal: { x: 0, y: -3, z: -4 } }),
       X,
       { x: 0, y: -0.8, z: 0.6 },
       { x: 0, y: -0.6, z: -0.8 },
@@ -80,7 +80,7 @@ export function test_engine_geometry_normalize_surface_frame(): void {
     TestValidator.predicate(
       `near parallel ${x}`,
       basis(
-        normalizeAutoMovieSurfaceFrame({
+        AutoMovieEngineGeometry.normalizeSurfaceFrame({
           origin,
           forward: { x, y: 0, z: 1 },
           normal: { x: 0, y: 0, z: 1 },
@@ -100,7 +100,7 @@ export function test_engine_geometry_normalize_surface_frame(): void {
   ])
     TestValidator.predicate(
       "refused",
-      throwsError((): IAutoMovieSweepFrame => normalizeAutoMovieSurfaceFrame(frame)),
+      throwsError((): IAutoMovieSweepFrame => AutoMovieEngineGeometry.normalizeSurfaceFrame(frame)),
     );
 
   // 5.
@@ -114,10 +114,10 @@ export function test_engine_geometry_normalize_surface_frame(): void {
       vclose(forward, { x: 4, y: 6, z: 8 }) &&
       vclose(normal, { x: 0, y: 3, z: 4 }),
   );
-  const retained: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(request);
+  const retained: IAutoMovieSweepFrame = AutoMovieEngineGeometry.normalizeSurfaceFrame(request);
   origin.y = 7;
   forward.x = -4;
-  const changed: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(request);
+  const changed: IAutoMovieSweepFrame = AutoMovieEngineGeometry.normalizeSurfaceFrame(request);
   TestValidator.predicate(
     "reads current records",
     vclose(retained.origin, { x: 3, y: -2, z: 5 }) &&
@@ -133,7 +133,7 @@ export function test_engine_geometry_normalize_surface_frame(): void {
     for (const x of [Number.NaN, Number.POSITIVE_INFINITY])
       if (
         !throwsError((): IAutoMovieSweepFrame =>
-          normalizeAutoMovieSurfaceFrame({
+          AutoMovieEngineGeometry.normalizeSurfaceFrame({
             ...request,
             [field]: { ...request[field], x },
           }),

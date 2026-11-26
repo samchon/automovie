@@ -1,4 +1,4 @@
-import { growPlanting } from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import {
   IAutoMoviePlantingBranch,
   IAutoMoviePlantingDomain,
@@ -45,7 +45,7 @@ const childAxis: (domain: IAutoMoviePlantingDomain) => {
   y: number;
   z: number;
 } = (domain: IAutoMoviePlantingDomain): { x: number; y: number; z: number } => {
-  const child: IAutoMoviePlantingBranch = growPlanting(domain).branches[1];
+  const child: IAutoMoviePlantingBranch = AutoMovieEnginePlanting.growPlanting(domain).branches[1];
   const length: number = Math.sqrt(
     (child.end.x - child.start.x) ** 2 +
       (child.end.y - child.start.y) ** 2 +
@@ -104,7 +104,7 @@ export function test_planting_direction_frame(): void {
     { axial: true, diagonal: true },
   );
 
-  const lying: IAutoMoviePlantingState = growPlanting(
+  const lying: IAutoMoviePlantingState = AutoMovieEnginePlanting.growPlanting(
     oriented({ axis: { x: 0, y: 0, z: -1 } }),
   );
   TestValidator.equals(

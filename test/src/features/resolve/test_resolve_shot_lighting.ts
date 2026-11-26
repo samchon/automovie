@@ -1,4 +1,4 @@
-import { resolveShotLighting } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   AutoMovieChannelValueType,
   IAutoMovieChannel,
@@ -148,7 +148,7 @@ export function test_resolve_shot_lighting(): void {
   // 1. S-03, at the instants that decide the beat.
   const at: (seconds: number) => number = (seconds: number): number =>
     intensityOf(
-      resolveShotLighting({ lights: LIGHTS, clips: [BLOWOUT], seconds }),
+      AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips: [BLOWOUT], seconds }),
       "candleGlow",
     );
   TestValidator.predicate(
@@ -172,7 +172,7 @@ export function test_resolve_shot_lighting(): void {
     sameValues(
       [0, 1.7, 3].map((seconds: number): number =>
         intensityOf(
-          resolveShotLighting({ lights: LIGHTS, clips: [held], seconds }),
+          AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips: [held], seconds }),
           "candleGlow",
         ),
       ),
@@ -181,7 +181,7 @@ export function test_resolve_shot_lighting(): void {
   );
 
   // 2. the negative twin: untouched lights are the SAME objects.
-  const resolved: IAutoMovieLight[] = resolveShotLighting({
+  const resolved: IAutoMovieLight[] = AutoMovieEngineResolve.resolveShotLighting({
     lights: LIGHTS,
     clips: [BLOWOUT],
     seconds: 3,
@@ -197,13 +197,13 @@ export function test_resolve_shot_lighting(): void {
   );
   TestValidator.predicate(
     "and a shot with no light clips changes nothing at all",
-    resolveShotLighting({ lights: LIGHTS, clips: [], seconds: 1.7 }).every(
+    AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips: [], seconds: 1.7 }).every(
       (light: IAutoMovieLight, i: number): boolean => light === LIGHTS[i],
     ),
   );
 
   // 3. four authored value properties, on kinds that carry them.
-  const ramp: IAutoMovieLight = resolveShotLighting({
+  const ramp: IAutoMovieLight = AutoMovieEngineResolve.resolveShotLighting({
     lights: LIGHTS,
     clips: [
       clip(
@@ -231,7 +231,7 @@ export function test_resolve_shot_lighting(): void {
       rampColorHex: true,
     },
   );
-  const widened: IAutoMovieLight[] = resolveShotLighting({
+  const widened: IAutoMovieLight[] = AutoMovieEngineResolve.resolveShotLighting({
     lights: LIGHTS,
     clips: [
       clip(
@@ -258,7 +258,7 @@ export function test_resolve_shot_lighting(): void {
   // The directional and spot kinds rebuild, including the one with no falloff at
   // all: a sunset dims the directional light, and a spot dimmed without a cone
   // track keeps the cone it was staged with.
-  const dusk: IAutoMovieLight[] = resolveShotLighting({
+  const dusk: IAutoMovieLight[] = AutoMovieEngineResolve.resolveShotLighting({
     lights: LIGHTS,
     clips: [
       clip(
@@ -293,7 +293,7 @@ export function test_resolve_shot_lighting(): void {
   );
 
   // 4. two tracks, one light.
-  const both: IAutoMovieLight = resolveShotLighting({
+  const both: IAutoMovieLight = AutoMovieEngineResolve.resolveShotLighting({
     lights: LIGHTS,
     clips: [
       BLOWOUT,
@@ -319,7 +319,7 @@ export function test_resolve_shot_lighting(): void {
   ): boolean =>
     throwsError(
       (): IAutoMovieLight[] =>
-        resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
+        AutoMovieEngineResolve.resolveShotLighting({ lights: LIGHTS, clips, seconds: 1 }),
       [fragment],
     );
   TestValidator.equals(

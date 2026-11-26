@@ -1,4 +1,4 @@
-import { prepareArticulatedRig } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieArticulatedRig,
   IAutoMovieJointPose,
@@ -31,8 +31,8 @@ type Rotation = Pick<IAutoMovieJointPose, "flexion" | "abduction" | "twist">;
 export function test_engine_kinematics_prepare_articulated_rig(): void {
   const findings: string[] = [];
   const source: IAutoMovieArticulatedRig<Bone> = rig();
-  const reader: ReturnType<typeof prepareArticulatedRig<Bone>> =
-    prepareArticulatedRig(source);
+  const reader: ReturnType<typeof AutoMovieEngineKinematics.prepareArticulatedRig<Bone>> =
+    AutoMovieEngineKinematics.prepareArticulatedRig(source);
   const joints: Map<Bone, Rotation> = new Map();
   points("neutral", reader.read(), [
     [0, 0],
@@ -120,7 +120,7 @@ export function test_engine_kinematics_prepare_articulated_rig(): void {
   ]) {
     const invalid: IAutoMovieArticulatedRig<Bone> = rig();
     damage(invalid);
-    refuses("malformed rig", (): unknown => prepareArticulatedRig(invalid));
+    refuses("malformed rig", (): unknown => AutoMovieEngineKinematics.prepareArticulatedRig(invalid));
   }
   TestValidator.equals("named articulated FK and admission", findings, []);
 

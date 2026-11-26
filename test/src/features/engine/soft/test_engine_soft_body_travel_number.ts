@@ -1,4 +1,4 @@
-import { softBodyTravelNumber } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,14 +18,14 @@ export function test_engine_soft_body_travel_number(): void {
   TestValidator.predicate(
     "the worked travel",
     nclose(
-      softBodyTravelNumber(softPanel({ columns: 2, rows: 2 })),
+      AutoMovieEngineSoftBody.softBodyTravelNumber(softPanel({ columns: 2, rows: 2 })),
       0.25,
       1e-15,
     ),
   );
   TestValidator.equals(
     "no edge, no travel",
-    softBodyTravelNumber(softPanel({ columns: 1, rows: 1 })),
+    AutoMovieEngineSoftBody.softBodyTravelNumber(softPanel({ columns: 1, rows: 1 })),
     0,
   );
 }

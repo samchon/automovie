@@ -1,4 +1,4 @@
-import { createAutoMovieSignedMeshQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSignedMeshQueryHit,
@@ -54,11 +54,11 @@ export function test_engine_geometry_signed_mesh_refusals(): void {
   invalid.forEach((mesh: IAutoMovieMesh, index: number): void => {
     TestValidator.predicate(
       `surface ${index}`,
-      throwsError(() => createAutoMovieSignedMeshQuery(mesh), ["Signed"]),
+      throwsError(() => AutoMovieEngineGeometry.createSignedMeshQuery(mesh), ["Signed"]),
     );
   });
   const sample: (point: readonly number[]) => IAutoMovieSignedMeshQueryHit =
-    createAutoMovieSignedMeshQuery(source);
+    AutoMovieEngineGeometry.createSignedMeshQuery(source);
   const queries: number[][] = [[], [0, 0], [0, 0, 0, 0], [1e308, 0, 0]];
   queries.forEach((point: number[], index: number): void => {
     TestValidator.predicate(

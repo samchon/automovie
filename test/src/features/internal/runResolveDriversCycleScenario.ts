@@ -1,4 +1,4 @@
-import { resolveDrivers } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieDriver,
   type IAutoMovieNode,
@@ -21,7 +21,7 @@ export function runResolveDriversCycleScenario(): void {
   TestValidator.predicate(
     "cyclic drivers throw their dependency diagnostic",
     throwsError(
-      (): IAutoMovieDriver[] => resolveDrivers(cyclic, seed([]), nodes),
+      (): IAutoMovieDriver[] => AutoMovieEngineResolve.resolveDrivers(cyclic, seed([]), nodes),
       "driver dependency cycle",
     ),
   );

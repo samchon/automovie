@@ -1,4 +1,4 @@
-import { triangulateAutoMovieSolidBoundary } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type { IAutoMovieSolidMeshPlan } from "@automovie/interface";
 
 import { nclose } from "../nclose";
@@ -21,7 +21,7 @@ export namespace ConstructionMeshSelectionGeometry {
         [3, [0, 1]],
       ]);
       const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-        triangulateAutoMovieSolidBoundary(
+        AutoMovieEngineConstruction.triangulateSolidBoundary(
           vertices,
           { vertices: [0, 1, 2, 3], lifts: [0, 0, 0, 0], winding: 0 },
           undefined,
@@ -80,7 +80,7 @@ export namespace ConstructionMeshSelectionGeometry {
             (_: Point, id: number): number => id,
           );
           const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-            triangulateAutoMovieSolidBoundary(
+            AutoMovieEngineConstruction.triangulateSolidBoundary(
               vertices,
               {
                 vertices: [...ring.slice(first), ...ring.slice(0, first)],
@@ -165,7 +165,7 @@ export namespace ConstructionMeshSelectionGeometry {
     const ring: number[] = [1, 2, 3, 0, 4];
     const before: string = JSON.stringify([...vertices]);
     const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-      triangulateAutoMovieSolidBoundary(vertices, {
+      AutoMovieEngineConstruction.triangulateSolidBoundary(vertices, {
         vertices: ring,
         lifts: [0, 0, 0, 0, 0],
         winding: 0,
@@ -244,7 +244,7 @@ export namespace ConstructionMeshSelectionGeometry {
             .map((_point: Point, id: number): number => id)
             .reverse();
           const made: IAutoMovieSolidMeshPlan.ITriangle[] | string =
-            triangulateAutoMovieSolidBoundary(
+            AutoMovieEngineConstruction.triangulateSolidBoundary(
               vertices,
               {
                 vertices: [...ring.slice(first), ...ring.slice(0, first)],

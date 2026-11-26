@@ -1,8 +1,4 @@
-import {
-  lowerSoftFurnishing,
-  simulateSoftBody,
-  softBodySurfaceGeometry,
-} from "@automovie/engine";
+import { simulateSoftBody, AutoMovieEngineSoftFurnishing, AutoMovieEngineSoftBody } from "@automovie/engine";
 import { buildSoftBodyObject } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -13,9 +9,9 @@ import { singleMaterial } from "../../internal/singleMaterial";
 import { softFurnishing, softPanel } from "../../internal/softFixtures";
 
 /** A hanging panel and its derived surface at one step. */
-const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
+const drape: (step: number) => ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> = (
   step: number,
-): ReturnType<typeof softBodySurfaceGeometry> => {
+): ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> => {
   const domain: ReturnType<typeof softPanel> = softPanel({
     columns: 4,
     rows: 4,
@@ -27,7 +23,7 @@ const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
       ],
     },
   });
-  return softBodySurfaceGeometry({
+  return AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain,
     state: simulateSoftBody(domain, step),
   });
@@ -71,7 +67,7 @@ const drape: (step: number) => ReturnType<typeof softBodySurfaceGeometry> = (
  *    cannot skip independent current-geometry/default-material close.
  */
 export function test_render_scene_build_soft_body_object(): void {
-  const surface: ReturnType<typeof softBodySurfaceGeometry> = drape(64);
+  const surface: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> = drape(64);
   const object: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
     surface,
     status: "solved",
@@ -140,7 +136,7 @@ export function test_render_scene_build_soft_body_object(): void {
     },
   );
 
-  const bounds: ReturnType<typeof softBodySurfaceGeometry>["bounds"] =
+  const bounds: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry>["bounds"] =
     surface.bounds;
   TestValidator.equals(
     "the bounding sphere is the engine's extent, not a recomputed one",
@@ -241,7 +237,7 @@ export function test_render_scene_build_soft_body_object(): void {
     overrides: { id: "cord" },
   });
   const thread: ReturnType<typeof buildSoftBodyObject> = buildSoftBodyObject({
-    surface: softBodySurfaceGeometry({
+    surface: AutoMovieEngineSoftBody.softBodySurfaceGeometry({
       domain: cord,
       state: simulateSoftBody(cord, 0),
     }),
@@ -326,8 +322,8 @@ export function test_render_scene_build_soft_body_object(): void {
   );
   borrowed.dispose();
 
-  const unsupported: ReturnType<typeof lowerSoftFurnishing> =
-    lowerSoftFurnishing({
+  const unsupported: ReturnType<typeof AutoMovieEngineSoftFurnishing.lowerSoftFurnishing> =
+    AutoMovieEngineSoftFurnishing.lowerSoftFurnishing({
       furnishing: softFurnishing({ domain: "self" }),
       domain: softPanel({
         columns: 3,
@@ -458,7 +454,7 @@ export function test_render_scene_build_soft_body_object(): void {
 }
 
 /** The existing sparse triangle case expressed for geometry-shape transitions. */
-function sparseSurface(): ReturnType<typeof softBodySurfaceGeometry> {
+function sparseSurface(): ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> {
   return {
     domain: "sparse",
     step: 0,

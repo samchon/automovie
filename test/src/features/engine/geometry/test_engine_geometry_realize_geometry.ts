@@ -1,9 +1,4 @@
-import {
-  createAutoMovieEllipticLoftAtlas,
-  realizeAutoMovieBicubicAtlas64,
-  realizeAutoMovieGeometry,
-  tessellateToMesh,
-} from "@automovie/engine";
+import { tessellateToMesh, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +25,7 @@ export function test_engine_geometry_realize_geometry(): void {
   const shape: IAutoMoviePrimitiveShape = { type: "box", width: 1, height: 1, depth: 1 };
   TestValidator.equals(
     "primitive",
-    realizeAutoMovieGeometry({ type: "primitive", shape }),
+    AutoMovieEngineGeometry.realizeGeometry({ type: "primitive", shape }),
     {
       mesh: tessellateToMesh(shape),
       complete: true,
@@ -48,19 +43,19 @@ export function test_engine_geometry_realize_geometry(): void {
   };
   TestValidator.predicate(
     "borrowed",
-    realizeAutoMovieGeometry({ type: "mesh", mesh }).mesh === mesh,
+    AutoMovieEngineGeometry.realizeGeometry({ type: "mesh", mesh }).mesh === mesh,
   );
 
   // 3.
   const plane = createBicubicPlaneRecipe();
   TestValidator.equals(
     "atlas",
-    realizeAutoMovieGeometry(plane),
-    realizeAutoMovieBicubicAtlas64(plane),
+    AutoMovieEngineGeometry.realizeGeometry(plane),
+    AutoMovieEngineGeometry.realizeBicubicAtlas64(plane),
   );
 
   // 4.
-  const starved = createAutoMovieEllipticLoftAtlas({
+  const starved = AutoMovieEngineGeometry.createEllipticLoftAtlas({
     loft: {
       spans: [0, 1].map((i: number) => ({
         interval: [i * 0.05, (i + 1) * 0.05] satisfies [number, number],
@@ -87,13 +82,13 @@ export function test_engine_geometry_realize_geometry(): void {
   }).geometry;
   TestValidator.equals(
     "display",
-    realizeAutoMovieGeometry(starved).complete,
+    AutoMovieEngineGeometry.realizeGeometry(starved).complete,
     false,
   );
   TestValidator.predicate(
     "complete",
     throwsError(
-      (): unknown => realizeAutoMovieGeometry(starved, "complete"),
+      (): unknown => AutoMovieEngineGeometry.realizeGeometry(starved, "complete"),
       "Bicubic atlas processing is incomplete",
     ),
   );

@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { weldMeshVertices } from "../math/internal/weldMeshVertices";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * Original ordinals of the triangles whose corners repeat a vertex on the

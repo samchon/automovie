@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { run } from "../actions/run";
+import { run } from "../gait/internal/run";
 import { stand } from "../actions/stand";
 import { exercise } from "../exercise/exercise";
 import { workout } from "../exercise/workout";

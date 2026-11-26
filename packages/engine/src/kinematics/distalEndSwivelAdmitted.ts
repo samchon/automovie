@@ -1,6 +1,6 @@
 import type { IAutoMovieSwivelArcs } from "@automovie/interface";
 
-import { distalEndSwivelNearest } from "./distalEndSwivelNearest";
+import { distalEndSwivelNearest } from "./internal/distalEndSwivelNearest";
 import type { distalTwistSwivelRange } from "./distalTwistSwivelRange";
 
 /**

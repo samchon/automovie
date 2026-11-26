@@ -13,10 +13,10 @@ import {
 } from "@automovie/interface";
 
 import { jointToQuaternion } from "../../kinematics/jointToQuaternion";
-import { skeletonJointAxes } from "../../kinematics/skeletonJointAxes";
+import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { Quaternion } from "../../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../../resolve/constants/MOTION_ROOT_NODE_ID";
-import { lowerSkeletonNodes } from "../../resolve/lowerSkeletonNodes";
+import { lowerSkeletonNodes } from "../../resolve/internal/lowerSkeletonNodes";
 import { sampleMotion } from "../sampleMotion";
 import { sampleTimes } from "./sampleTimes";
 

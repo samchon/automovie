@@ -18,8 +18,8 @@ import {
 
 import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "../../kinematics/resolvePose";
-import { skeletonJointAxes } from "../../kinematics/skeletonJointAxes";
-import { validateJointAxesBasis } from "../../kinematics/validateJointAxesBasis";
+import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
+import { validateJointAxesBasis } from "../../kinematics/internal/validateJointAxesBasis";
 import { HUMANOID_REST_FRAME } from "../../rom/constants/HUMANOID_REST_FRAME";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";

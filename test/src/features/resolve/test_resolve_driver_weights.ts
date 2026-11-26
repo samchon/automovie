@@ -1,4 +1,4 @@
-import { resolveDrivers, resolveFrame } from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieChannel,
   IAutoMovieDrivenDriver,
@@ -73,7 +73,7 @@ const driven: (
  */
 export function test_resolve_driver_weights(): void {
   // 1. unsampled weights: the driver creates the scalar channel and it folds
-  const out: IAutoMovieResolveOutput = resolveFrame({
+  const out: IAutoMovieResolveOutput = AutoMovieEngineResolve.resolveFrame({
     nodes: [node("k")],
     clip: null,
     limits: [],
@@ -91,7 +91,7 @@ export function test_resolve_driver_weights(): void {
     string,
     IAutoMovieSampledChannel
   >([["node:k:weights", { channel: weightsChannel("k"), value: [0.2] }]]);
-  resolveDrivers([driven({})], single, new Map([["k", node("k")]]));
+  AutoMovieEngineResolve.resolveDrivers([driven({})], single, new Map([["k", node("k")]]));
   TestValidator.predicate(
     "a width-1 sampled weights channel takes the driven value",
     single.get("node:k:weights")!.value.length === 1 &&
@@ -109,7 +109,7 @@ export function test_resolve_driver_weights(): void {
     "multi-morph sampled weights refuse a scalar driven write",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers([driven({})], multi, new Map([["k", node("k")]])),
+        AutoMovieEngineResolve.resolveDrivers([driven({})], multi, new Map([["k", node("k")]])),
       ["node:k:weights", "3 morph targets", "narrow"],
     ),
   );
@@ -119,7 +119,7 @@ export function test_resolve_driver_weights(): void {
     "a TRS output still rejects as non-scalar",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveDrivers(
+        AutoMovieEngineResolve.resolveDrivers(
           [driven({ output: { kind: "node", node: "k", path: "scale" } })],
           new Map(),
           new Map([["k", node("k")]]),

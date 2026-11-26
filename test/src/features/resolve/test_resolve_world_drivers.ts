@@ -1,9 +1,4 @@
-import {
-  Matrix4,
-  Quaternion,
-  childrenIndex,
-  resolveWorldDrivers,
-} from "@automovie/engine";
+import { Matrix4, Quaternion, childrenIndex, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieAimDriver,
   type IAutoMovieDriver,
@@ -70,7 +65,7 @@ const runAim: (
     ["o", W(ownerPos.x, ownerPos.y, ownerPos.z)],
     ["t", W(targetPos.x, targetPos.y, targetPos.z)],
   ]);
-  resolveWorldDrivers([d], world, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([d], world, new Map(), new Map());
   return world;
 };
 
@@ -196,7 +191,7 @@ export function test_resolve_world_drivers(): void {
     string,
     IAutoMovieTransform
   >([["c", trs(0, 2, 0)]]);
-  resolveWorldDrivers([aim({})], world, localById, childrenIndex(nodes));
+  AutoMovieEngineResolve.resolveWorldDrivers([aim({})], world, localById, childrenIndex(nodes));
   const childPos: IAutoMovieVector3 = Matrix4.position(world.get("c")!);
   TestValidator.predicate(
     "child recomposed off the rotated owner",
@@ -213,7 +208,7 @@ export function test_resolve_world_drivers(): void {
     iterations: null,
     influence: 1,
   };
-  const deferred: IAutoMovieDriver[] = resolveWorldDrivers(
+  const deferred: IAutoMovieDriver[] = AutoMovieEngineResolve.resolveWorldDrivers(
     [aim({}), ik],
     new Map([
       ["o", W(0, 0, 0)],
@@ -229,7 +224,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ influence: -0.1 })],
           new Map(),
           new Map(),
@@ -242,7 +237,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects influence above one",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ influence: 1.1 })],
           new Map(),
           new Map(),
@@ -255,7 +250,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects zero aim axis",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ aimAxis: { x: 0, y: 0, z: 0 } })],
           new Map(),
           new Map(),
@@ -268,7 +263,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects zero up axis",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ upAxis: { x: 0, y: 0, z: 0 } })],
           new Map(),
           new Map(),
@@ -281,7 +276,7 @@ export function test_resolve_world_drivers(): void {
     "aim rejects zero world up",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ worldUp: { x: 0, y: 0, z: 0 } })],
           new Map(),
           new Map(),
@@ -307,7 +302,7 @@ export function test_resolve_world_drivers(): void {
     "missing aim owner rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ owner: "missing" })],
           new Map([["t", W(1, 0, 0)]]),
           new Map(),
@@ -320,7 +315,7 @@ export function test_resolve_world_drivers(): void {
     "missing aim target rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({ target: "missing" })],
           new Map([["o", W(0, 0, 0)]]),
           new Map(),
@@ -333,7 +328,7 @@ export function test_resolve_world_drivers(): void {
     "missing child local rejects incomplete recomposition map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [aim({})],
           new Map([
             ["o", W(0, 0, 0)],

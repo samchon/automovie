@@ -1,14 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  clampJointToSkeleton,
-  decomposeJointRotation,
-  getConstraint,
-  skeletonJointAxes,
-  swingTwistRange,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, decomposeJointRotation, getConstraint, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -224,7 +214,7 @@ function wrist(
     found?.rest.rotation ?? Quaternion.identity(),
   );
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-    skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
+    AutoMovieEngineKinematics.skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
   const domain: IAutoMovieJointRotationDomain = {
     bone: hand,
     constraint: getConstraint(hand, found?.constraint ?? null),

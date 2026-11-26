@@ -1,9 +1,4 @@
-import {
-  AutoMovieEngineMaterial,
-  autoMovieFeatureEdgeDistance,
-  measureAutoMovieFeatureEdges,
-  tessellate,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial, tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMaterialWear,
   IAutoMovieMeasureFeatureEdges,
@@ -85,7 +80,7 @@ export function test_render_scene_apply_material_wear(): void {
   const worn: { geometry: THREE.BufferGeometry; texture: THREE.DataTexture } =
     applyMaterialWear(geometry, material, wear);
   const measured: IAutoMovieMeasureFeatureEdges.IResult =
-    measureAutoMovieFeatureEdges({
+    AutoMovieEngineGeometry.measureFeatureEdges({
       positions: geometry.getAttribute("position").array,
       indices: box.indices,
       reach: 0.03,
@@ -137,7 +132,7 @@ export function test_render_scene_apply_material_wear(): void {
     const t: number = surfaceTriangleOf(box.positions, box.indices, point);
     agree &&= nclose(
       decode(data, list.getX(3 * t), list.getY(3 * t), point, 0.03),
-      autoMovieFeatureEdgeDistance({ edges: measured, triangle: t, point })
+      AutoMovieEngineGeometry.featureEdgeDistance({ edges: measured, triangle: t, point })
         .convex,
       1e-6,
     );

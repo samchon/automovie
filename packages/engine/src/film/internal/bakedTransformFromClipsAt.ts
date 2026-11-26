@@ -4,7 +4,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { sampleClipSequence } from "../../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
 
 /**

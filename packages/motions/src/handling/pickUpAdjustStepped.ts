@@ -8,7 +8,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkReach } from "../actions/walkReach";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";

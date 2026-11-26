@@ -26,7 +26,7 @@ import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieViewChain } from "./AutoMovieViewChain";
-import { AutoMovieViewLoftInputs } from "./AutoMovieViewLoftInputs";
+import { AutoMovieViewLoftInputs } from "./internal/AutoMovieViewLoftInputs";
 import { AutoMovieViewSection } from "./AutoMovieViewSection";
 
 /** Existing ordered quarter layout shared with the view input owner. */

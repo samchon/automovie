@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, resolveFrame, sampleMotion, AutoMovieEngineMotionClip } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, sampleMotion, AutoMovieEngineMotionClip, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
@@ -57,7 +57,7 @@ export const clipWorldParity: (props: {
       props.jointAxes,
       props.restFrames,
     );
-    const world: Map<string, number[]> = resolveFrame({
+    const world: Map<string, number[]> = AutoMovieEngineResolve.resolveFrame({
       nodes: bridge.nodes,
       clip: bridge.clip,
       limits: [],

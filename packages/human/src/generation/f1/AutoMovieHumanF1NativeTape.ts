@@ -1,5 +1,5 @@
 import { AutoMovieHumanF1NativeCalibration } from "./AutoMovieHumanF1NativeCalibration";
-import { AutoMovieConstructionNativeProfile, AutoMovieLoftViewFullSource as Full, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieLoftViewFullSource as Full, AutoMovieEngineMath, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieHumanF1Engineering,
   IAutoMovieLoftViewFullSource,
@@ -48,7 +48,7 @@ export namespace AutoMovieHumanF1NativeTape {
       stationPreparations: number = 0;
     try {
       const prepare = (part: IAutoMovieViewPart) => {
-        const native = AutoMovieConstructionNativeProfile(part, {
+        const native = AutoMovieEngineConstruction.constructionNativeProfile(part, {
           material: "f1.provisional.bare",
           binding: revision + ":" + part.name,
           revisions: {

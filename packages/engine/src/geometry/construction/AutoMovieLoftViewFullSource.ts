@@ -14,7 +14,7 @@ import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
-import { AutoMovieLoftViewWorldJet } from "./AutoMovieLoftViewWorldJet";
+import { AutoMovieLoftViewWorldJet } from "./internal/AutoMovieLoftViewWorldJet";
 
 /** A fresh world coordinate or derivative vector. */
 type V = AutoMovieVector3Tuple;

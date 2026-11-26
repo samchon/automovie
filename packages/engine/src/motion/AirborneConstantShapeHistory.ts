@@ -12,7 +12,7 @@ import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
-import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMomentumRates";
+import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { physicalInertiaFactor } from "../physics/physicalInertiaFactor";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
 import { AirborneShapeInertia } from "./AirborneShapeInertia";

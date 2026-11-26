@@ -3,7 +3,7 @@ import {
   type IAutoMovieResolvedPhysicalVertices,
 } from "@automovie/interface";
 
-import { triangleIndicesOf } from "../../geometry/triangleIndicesOf";
+import { triangleIndicesOf } from "../../geometry/internal/triangleIndicesOf";
 import { weldedDegenerateTriangles } from "../../geometry/weldedDegenerateTriangles";
 import { resolveAutoMovieMeshPhysicalVertices } from "./resolveAutoMovieMeshPhysicalVertices";
 

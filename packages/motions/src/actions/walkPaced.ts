@@ -5,7 +5,7 @@ import type {
   IAutoMovieMotionHumanPosture,
 } from "@automovie/interface";
 
-import type { walkStation } from "./walkStation";
+import type { walkStation } from "../gait/internal/walkStation";
 
 /**
  * A stepping plan played on a tabulated clock: at each film second the body is

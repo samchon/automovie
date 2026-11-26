@@ -10,49 +10,8 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
 import { toRigAngle } from "../rom/toRigAngle";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
-
-/** The three clinical coordinates, read in their existing admission order. */
-
-/** Fixed-basis composition with an optional current-call clinical frame. */
-type IComposition = (
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  currentFrame?: IAutoMovieRestFrame,
-) => IAutoMovieQuaternion;
-
-/**
- * Actual completed raw components; no caller/query input is retained by a
- * reader.
- */
-type IRawReader = <Result, Context>(
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  read: (
-    x: number,
-    y: number,
-    z: number,
-    w: number,
-    context: Context,
-  ) => Result,
-  context: Context,
-) => Result;
-
-/**
- * The same raw owner also accepts a call-local frame for ordinary mutable
- * composition.
- */
-type IRawComposition = <Result, Context>(
-  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
-  read: (
-    x: number,
-    y: number,
-    z: number,
-    w: number,
-    context: Context,
-  ) => Result,
-  context: Context,
-  currentFrame?: IAutoMovieRestFrame,
-) => Result;
 
 /** Preserve null rest, angle admission and the caller's clinical frame map. */
 const readAngle: (
@@ -215,6 +174,47 @@ export namespace jointToQuaternionOnBasis {
     return (): IRawReader => scalarComposition(basis, frame, operation);
   }
 }
+
+/** The three clinical coordinates, read in their existing admission order. */
+
+/** Fixed-basis composition with an optional current-call clinical frame. */
+type IComposition = (
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  currentFrame?: IAutoMovieRestFrame,
+) => IAutoMovieQuaternion;
+
+/**
+ * Actual completed raw components; no caller/query input is retained by a
+ * reader.
+ */
+type IRawReader = <Result, Context>(
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  read: (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    context: Context,
+  ) => Result,
+  context: Context,
+) => Result;
+
+/**
+ * The same raw owner also accepts a call-local frame for ordinary mutable
+ * composition.
+ */
+type IRawComposition = <Result, Context>(
+  joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
+  read: (
+    x: number,
+    y: number,
+    z: number,
+    w: number,
+    context: Context,
+  ) => Result,
+  context: Context,
+  currentFrame?: IAutoMovieRestFrame,
+) => Result;
 
 /** Fixed-rig metadata shared with the single scalar factor owner. */
 type IOperationState = prepareJointRotationFactor.IOperation;

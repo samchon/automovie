@@ -7,7 +7,7 @@ import type {
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { walkReach } from "./walkReach";
-import type { walkStation } from "./walkStation";
+import type { walkStation } from "../gait/internal/walkStation";
 
 /**
  * Prepare the displayed root's horizontal path for speed matching.

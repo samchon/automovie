@@ -1,8 +1,4 @@
-import {
-  admitSubdivisionCage,
-  refineSubdivisionPoints,
-  refineSubdivisionStencils,
-} from "@automovie/engine";
+import { admitSubdivisionCage, refineSubdivisionPoints, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -85,7 +81,7 @@ export function test_engine_geometry_refine_subdivision(): void {
   // 3.
   const unit = (n: number): Map<number, number>[] =>
     Array.from({ length: n }, (_: unknown, i: number) => new Map([[i, 1]]));
-  const rows: Map<number, number>[] = refineSubdivisionStencils(
+  const rows: Map<number, number>[] = AutoMovieEngineGeometry.refineSubdivisionStencils(
     square.topology,
     unit(4),
   );
@@ -118,7 +114,7 @@ export function test_engine_geometry_refine_subdivision(): void {
   );
 
   // 4.
-  const stencils: Map<number, number>[] = refineSubdivisionStencils(
+  const stencils: Map<number, number>[] = AutoMovieEngineGeometry.refineSubdivisionStencils(
     grid.topology,
     unit(9),
   );

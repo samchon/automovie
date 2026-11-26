@@ -1,4 +1,4 @@
-import { Matrix4, createSpringState, stepSpring } from "@automovie/engine";
+import { Matrix4, stepSpring, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieSpringDriver,
   type IAutoMovieSpringState,
@@ -64,7 +64,7 @@ const run: (steps: number) => Map<string, number[]> = (
     ["j1", W({ x: 1, y: 0, z: 0 })],
     ["j2", W({ x: 2, y: 0, z: 0 })],
   ]);
-  const state: IAutoMovieSpringState = createSpringState();
+  const state: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
   for (let s: number = 0; s < steps; ++s)
     stepSpring(spring, world, state, 1 / 60, local);
   return world;
@@ -146,7 +146,7 @@ export function test_resolve_spring(): void {
           stepSpring(
             { ...spring, ...over },
             new Map(),
-            createSpringState(),
+            AutoMovieEngineResolve.createSpringState(),
             dt,
             local,
           ),
@@ -209,7 +209,7 @@ export function test_resolve_spring(): void {
     ["root", W({ x: 0, y: 0, z: 0 })],
     ["j1", W({ x: 1, y: 0, z: 0 })],
   ]);
-  const centeredState: IAutoMovieSpringState = createSpringState();
+  const centeredState: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
   stepSpring(centeredSpring, centeredWorld, centeredState, 1 / 60, local);
   centeredWorld.set("center", W({ x: 0, y: 10, z: 0 }));
   centeredWorld.set("root", W({ x: 0, y: 10, z: 0 }));
@@ -229,7 +229,7 @@ export function test_resolve_spring(): void {
       ["otherRoot", W({ x: 0, y: 0, z: 2 })],
       ["otherJoint", W({ x: 1, y: 0, z: 2 })],
     ]);
-    const state: ReturnType<typeof createSpringState> = createSpringState();
+    const state: ReturnType<typeof AutoMovieEngineResolve.createSpringState> = AutoMovieEngineResolve.createSpringState();
     const sharedLocal: Map<string, IAutoMovieTransform> = new Map([
       ...local,
       ["otherJoint", trs(1, 0, 0)],
@@ -264,7 +264,7 @@ export function test_resolve_spring(): void {
         stepSpring(
           { ...spring, center: "missing" },
           new Map(),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           local,
         ),
@@ -279,7 +279,7 @@ export function test_resolve_spring(): void {
         stepSpring(
           spring,
           new Map([["j1", W({ x: 1, y: 0, z: 0 })]]),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           local,
         ),
@@ -293,7 +293,7 @@ export function test_resolve_spring(): void {
         stepSpring(
           spring,
           new Map([["root", W({ x: 0, y: 0, z: 0 })]]),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           local,
         ),
@@ -310,7 +310,7 @@ export function test_resolve_spring(): void {
             ["root", W({ x: 0, y: 0, z: 0 })],
             ["j1", W({ x: 1, y: 0, z: 0 })],
           ]),
-          createSpringState(),
+          AutoMovieEngineResolve.createSpringState(),
           1 / 60,
           new Map(),
         ),

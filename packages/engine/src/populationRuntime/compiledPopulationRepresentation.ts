@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { productionRuntimeModelId } from "../model/internal/productionRuntimeModelId";
-import { compiledLodModelDigest } from "./compiledLodModelDigest";
+import { compiledLodModelDigest } from "./internal/compiledLodModelDigest";
 
 /**
  * The compiled tiers and measured or fallback radius of one population

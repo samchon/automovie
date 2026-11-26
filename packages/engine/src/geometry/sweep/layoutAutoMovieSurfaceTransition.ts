@@ -1,8 +1,5 @@
 import type { IAutoMovieSurfaceCoordinate } from "@automovie/interface";
 
-/** A corner of a band quad in the band's own coordinates. */
-type ICorner = Pick<IAutoMovieSurfaceCoordinate, "s" | "t">;
-
 /**
  * Lay out the quads of a band that changes a sweep's column count, in the
  * band's own coordinates: `s` round the band from 0 to 1, `t` from the start
@@ -161,3 +158,6 @@ export const layoutAutoMovieSurfaceTransition: (
     );
   return quads;
 };
+
+/** A corner of a band quad in the band's own coordinates. */
+type ICorner = Pick<IAutoMovieSurfaceCoordinate, "s" | "t">;

@@ -33,7 +33,7 @@ import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonP
 import { compilePerformance } from "../../perform/compilePerformance";
 import { scenePlacements } from "../../perform/scenePlacements";
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
-import { transformFormationPoint } from "../../populationRuntime/formation/transformFormationPoint";
+import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { admitShotEditorialMarkers } from "../../validation/admitShotEditorialMarkers";

@@ -1,7 +1,4 @@
-import {
-  boundAutoMovieConvexSeparation,
-  boundAutoMovieProjectionSeparation,
-} from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -36,13 +33,13 @@ export function test_engine_geometry_convex_separation(): void {
   const lifted: IAutoMovieVector3[] = [p(0, 0, 1), p(2, 0, 1), p(0, 2, 1)];
 
   // 1.
-  decided("parallel", boundAutoMovieConvexSeparation(a, lifted), 1);
-  decided("sufficient target", boundAutoMovieConvexSeparation(a, lifted, 0.5), 1);
+  decided("parallel", AutoMovieEngineGeometry.boundConvexSeparation(a, lifted), 1);
+  decided("sufficient target", AutoMovieEngineGeometry.boundConvexSeparation(a, lifted, 0.5), 1);
   const shift = (v: IAutoMovieVector3): IAutoMovieVector3 => p(v.x + 16, v.y - 8, v.z + 32);
-  decided("translated", boundAutoMovieConvexSeparation(a.map(shift), lifted.map(shift)), 1);
+  decided("translated", AutoMovieEngineGeometry.boundConvexSeparation(a.map(shift), lifted.map(shift)), 1);
   decided(
     "Float32",
-    boundAutoMovieConvexSeparation(a, lifted.map((v) => p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)))),
+    AutoMovieEngineGeometry.boundConvexSeparation(a, lifted.map((v) => p(Math.fround(v.x), Math.fround(v.y), Math.fround(v.z)))),
     1,
   );
 
@@ -50,13 +47,13 @@ export function test_engine_geometry_convex_separation(): void {
   for (const s of [1e-6, 1, 1e6]) {
     const first: IAutoMovieVector3[] = [p(-5 * s, 0, 0), p(5 * s, 0, 0)];
     const second: IAutoMovieVector3[] = [p(0, -5 * s, s), p(0, 5 * s, s)];
-    decided(`segments ${s}`, boundAutoMovieConvexSeparation(first, second), s);
-    decided(`reversed ${s}`, boundAutoMovieConvexSeparation([...second].reverse(), [...first].reverse()), s);
+    decided(`segments ${s}`, AutoMovieEngineGeometry.boundConvexSeparation(first, second), s);
+    decided(`reversed ${s}`, AutoMovieEngineGeometry.boundConvexSeparation([...second].reverse(), [...first].reverse()), s);
   }
   let work: number = 0;
   decided(
     "counted",
-    boundAutoMovieConvexSeparation([p(-5e-6, 0, 0), p(5e-6, 0, 0)], [p(0, -5e-6, 1e-6), p(0, 5e-6, 1e-6)], 0.5e-6, (): void => {
+    AutoMovieEngineGeometry.boundConvexSeparation([p(-5e-6, 0, 0), p(5e-6, 0, 0)], [p(0, -5e-6, 1e-6), p(0, 5e-6, 1e-6)], 0.5e-6, (): void => {
       work++;
     }),
     1e-6,
@@ -65,22 +62,22 @@ export function test_engine_geometry_convex_separation(): void {
 
   // 3.
   for (const other of [a, [p(0, 0, 0)], [p(0.5, 0.5, -1), p(0.5, 0.5, 1), p(2, 2, 1)]])
-    TestValidator.equals("contact", boundAutoMovieConvexSeparation(a, other), 0);
+    TestValidator.equals("contact", AutoMovieEngineGeometry.boundConvexSeparation(a, other), 0);
 
   // 4.
-  decided("points", boundAutoMovieConvexSeparation([p(0, 0, 0)], [p(3, 4, 0)]), 5);
-  decided("collapsed", boundAutoMovieConvexSeparation([p(0, 0, 0), p(0, 0, 0), p(0, 0, 0)], [p(1, 0, 0)]), 1);
-  decided("coplanar apart", boundAutoMovieConvexSeparation(a, a.map((v) => p(v.x + 3, v.y, v.z))), 1);
+  decided("points", AutoMovieEngineGeometry.boundConvexSeparation([p(0, 0, 0)], [p(3, 4, 0)]), 5);
+  decided("collapsed", AutoMovieEngineGeometry.boundConvexSeparation([p(0, 0, 0), p(0, 0, 0), p(0, 0, 0)], [p(1, 0, 0)]), 1);
+  decided("coplanar apart", AutoMovieEngineGeometry.boundConvexSeparation(a, a.map((v) => p(v.x + 3, v.y, v.z))), 1);
 
   // 5.
   const cube: IAutoMovieVector3[] = [-1, 1].flatMap((x: number) =>
     [-1, 1].flatMap((y: number) => [-1, 1].map((z: number) => p(x, y, z))),
   );
-  TestValidator.equals("centre", boundAutoMovieConvexSeparation(cube, [p(0, 0, 0)]), 0);
-  decided("face gap", boundAutoMovieConvexSeparation(cube, [p(0, 0, 3)]), 2);
+  TestValidator.equals("centre", AutoMovieEngineGeometry.boundConvexSeparation(cube, [p(0, 0, 0)]), 0);
+  decided("face gap", AutoMovieEngineGeometry.boundConvexSeparation(cube, [p(0, 0, 3)]), 2);
 
   // 6.
-  TestValidator.equals("zero direction", boundAutoMovieProjectionSeparation(a, lifted, p(0, 0, 0)), 0);
-  TestValidator.equals("wrong direction", boundAutoMovieProjectionSeparation(a, lifted, p(1, 0, 0)), 0);
-  TestValidator.predicate("target 0", boundAutoMovieConvexSeparation(a, lifted, 0) <= 1);
+  TestValidator.equals("zero direction", AutoMovieEngineGeometry.boundProjectionSeparation(a, lifted, p(0, 0, 0)), 0);
+  TestValidator.equals("wrong direction", AutoMovieEngineGeometry.boundProjectionSeparation(a, lifted, p(1, 0, 0)), 0);
+  TestValidator.predicate("target 0", AutoMovieEngineGeometry.boundConvexSeparation(a, lifted, 0) <= 1);
 }

@@ -10,10 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { run } from "../actions/run";
-import { walk } from "../actions/walk";
-import { walkCadence } from "../actions/walkCadence";
-import { walkStation } from "../actions/walkStation";
+import { run } from "../gait/internal/run";
+import { walk } from "../gait/internal/walk";
+import { walkCadence } from "../gait/internal/walkCadence";
+import { walkStation } from "../gait/internal/walkStation";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";
 import { HUMAN_GAIT_HURRY } from "../next/presets/HUMAN_GAIT_HURRY";
 import { HUMAN_GAIT_STROLL } from "../next/presets/HUMAN_GAIT_STROLL";

@@ -1,12 +1,4 @@
-import {
-  AutoMovieEngineCurveGrid64,
-  AutoMovieEngineCurveParentContext,
-  AutoMovieEnginePchip64,
-  AutoMovieEnginePchipField64,
-  assertAutoMovieCurve64,
-  assertAutoMovieCurveBoundary64,
-  tessellateAutoMovieParametricAtlas64,
-} from "@automovie/engine";
+import { AutoMovieEngineCurveGrid64, AutoMovieEngineCurveParentContext, AutoMovieEnginePchip64, AutoMovieEnginePchipField64, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieCurveBoundaryEdge64,
@@ -106,28 +98,28 @@ export function test_engine_geometry_curve_owners(): void {
         AutoMovieEngineCurveGrid64.tessellate({ ...input, maxVertices: 4.5 }),
       ) &&
       throwsError((): unknown =>
-        tessellateAutoMovieParametricAtlas64({
+        AutoMovieEngineCurve.tessellateParametricAtlas64({
           domain: "empty-atlas",
           patches: [],
           maxVertices: Number.NaN,
         }),
       ) &&
       throwsError((): unknown =>
-        tessellateAutoMovieParametricAtlas64({
+        AutoMovieEngineCurve.tessellateParametricAtlas64({
           domain: "empty-atlas",
           patches: [],
           maxVertices: Number.POSITIVE_INFINITY,
         }),
       ) &&
       throwsError((): unknown =>
-        tessellateAutoMovieParametricAtlas64({
+        AutoMovieEngineCurve.tessellateParametricAtlas64({
           domain: "empty-atlas",
           patches: [],
           maxVertices: 1.5,
         }),
       ) &&
       throwsError((): unknown =>
-        tessellateAutoMovieParametricAtlas64({
+        AutoMovieEngineCurve.tessellateParametricAtlas64({
           domain: "empty-atlas",
           patches: [],
           maxVertices: Number.MAX_SAFE_INTEGER + 1,
@@ -152,11 +144,11 @@ export function test_engine_geometry_curve_owners(): void {
   );
 
   const finite: IAutoMovieCubicBezierCurve64 = course(0);
-  assertAutoMovieCurve64(finite);
+  AutoMovieEngineCurve.assertCurve64(finite);
   TestValidator.predicate(
     "primitive rejects nonfinite positions",
     throwsError((): void =>
-      assertAutoMovieCurve64({
+      AutoMovieEngineCurve.assertCurve64({
         ...finite,
         spans: [[[0, 0, 0], [1, 0, 0], [2, Number.NaN, 0], [3, 0, 0]]],
       }),
@@ -174,11 +166,11 @@ export function test_engine_geometry_curve_owners(): void {
     longitudinalUnit: "mm",
     longitudinalAxis: [0, 1, 0],
   };
-  assertAutoMovieCurveBoundary64(boundary);
+  AutoMovieEngineCurve.assertCurveBoundary64(boundary);
   TestValidator.predicate(
     "boundary rejects nonfinite fullJ",
     throwsError((): void =>
-      assertAutoMovieCurveBoundary64({
+      AutoMovieEngineCurve.assertCurveBoundary64({
         ...boundary,
         fullJ: [[[0, 0, 0], [0, Number.NaN, 0], [0, 0, 0], [0, 0, 0]]],
       }),

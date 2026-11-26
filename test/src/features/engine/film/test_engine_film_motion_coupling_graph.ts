@@ -1,9 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  coupleObjects,
-  sampleClip,
-} from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, coupleObjects, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieAttachJob,
   IAutoMovieClip,
@@ -61,7 +56,7 @@ function marker(
       ),
   );
   assert.ok(clip);
-  return sampleClip(clip, t).get(`node:${child}:translation`)!.value;
+  return AutoMovieEngineSequence.sampleClip(clip, t).get(`node:${child}:translation`)!.value;
 }
 function point(actual: readonly number[], expected: readonly number[]): void {
   assert.equal(actual.length, expected.length);

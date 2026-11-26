@@ -1,4 +1,4 @@
-import { Matrix4, applyIterativeIK } from "@automovie/engine";
+import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieIKDriver,
   IAutoMovieQuaternion,
@@ -102,7 +102,7 @@ const place: (
 export function test_engine_resolve_apply_iterative_ik(): void {
   for (const solver of ["fabrik", "ccd"] as const) {
     const moved: Map<string, number[]> = world();
-    applyIterativeIK(driver({ solver }), moved, local(), CHILDREN);
+    AutoMovieEngineResolve.applyIterativeIK(driver({ solver }), moved, local(), CHILDREN);
     const root: IAutoMovieVector3 = place(moved, "root");
     const mid: IAutoMovieVector3 = place(moved, "mid");
     const tip: IAutoMovieVector3 = place(moved, "tip");
@@ -125,7 +125,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     );
   }
   const still: Map<string, number[]> = world();
-  applyIterativeIK(driver({ influence: 0 }), still, local(), CHILDREN);
+  AutoMovieEngineResolve.applyIterativeIK(driver({ influence: 0 }), still, local(), CHILDREN);
   TestValidator.predicate(
     "no influence",
     vclose(place(still, "tip"), { x: 2, y: 0, z: 0 }, LENGTH),
@@ -134,7 +134,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     "refusals",
     throwsError(
       (): void =>
-        applyIterativeIK(
+        AutoMovieEngineResolve.applyIterativeIK(
           driver({ chain: ["root"] }),
           world(),
           local(),
@@ -144,7 +144,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
     ) &&
       throwsError(
         (): void =>
-          applyIterativeIK(
+          AutoMovieEngineResolve.applyIterativeIK(
             driver({ iterations: 0 }),
             world(),
             local(),
@@ -154,7 +154,7 @@ export function test_engine_resolve_apply_iterative_ik(): void {
       ) &&
       throwsError(
         (): void =>
-          applyIterativeIK(
+          AutoMovieEngineResolve.applyIterativeIK(
             driver({ chain: ["root", "root"] }),
             world(),
             local(),

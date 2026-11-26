@@ -1,4 +1,4 @@
-import { normalizeJointAxes } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type { IAutoMovieJointAxes } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,7 +23,7 @@ const BASIS: IAutoMovieJointAxes = {
  * 2. A zero axis throws, naming its path.
  */
 export function test_engine_kinematics_normalize_joint_axes(): void {
-  TestValidator.equals("unit axes", normalizeJointAxes(BASIS, "joint"), {
+  TestValidator.equals("unit axes", AutoMovieEngineKinematics.normalizeJointAxes(BASIS, "joint"), {
     flexion: { x: 1, y: 0, z: 0 },
     abduction: { x: 0, y: 1, z: 0 },
     twist: { x: 0, y: 0, z: 1 },
@@ -33,7 +33,7 @@ export function test_engine_kinematics_normalize_joint_axes(): void {
     "a zero axis",
     throwsError(
       () =>
-        normalizeJointAxes({ ...BASIS, twist: { x: 0, y: 0, z: 0 } }, "joint"),
+        AutoMovieEngineKinematics.normalizeJointAxes({ ...BASIS, twist: { x: 0, y: 0, z: 0 } }, "joint"),
       "joint.twist",
     ),
   );

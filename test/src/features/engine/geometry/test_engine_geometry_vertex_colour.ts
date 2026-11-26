@@ -1,8 +1,4 @@
-import {
-  createAutoMovieMeshDeformer,
-  mergeAutoMovieMeshes,
-  transformAutoMovieMesh,
-} from "@automovie/engine";
+import { mergeAutoMovieMeshes, transformAutoMovieMesh, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -56,7 +52,7 @@ export function test_engine_geometry_vertex_colour(): void {
   TestValidator.equals("wholly bare", mergeAutoMovieMeshes([bare]).colors, undefined);
 
   // 3.
-  const deformed: IAutoMovieMesh = createAutoMovieMeshDeformer([
+  const deformed: IAutoMovieMesh = AutoMovieEngineGeometry.createMeshDeformer([
     {
       center: { x: 0, y: 0, z: 0 },
       radius: { x: 2, y: 2, z: 2 },

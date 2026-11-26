@@ -13,7 +13,7 @@ import type {
 
 import { DEFAULT_JOINT_AXES } from "../kinematics/constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
+import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { Quaternion } from "../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolveBoneMap } from "./resolveBoneMap";

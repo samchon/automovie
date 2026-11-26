@@ -19,7 +19,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { sampleClipSequence } from "../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../resolve/internal/sampleClipSequence";
 import { animatedBaseAt } from "./internal/animatedBaseAt";
 import { bakedTransformFromChannels } from "./internal/bakedTransformFromChannels";
 import { computeModelRestExtent } from "./internal/computeModelRestExtent";

@@ -1,9 +1,4 @@
-import {
-  AutoMovieContourLoftCurves64 as Curves,
-  AutoMovieBernsteinSubdivision64 as S,
-  splitAutoMovieContourLeaf64,
-  tessellateAutoMovieContourLoft64,
-} from "@automovie/engine";
+import { AutoMovieContourLoftCurves64 as Curves, AutoMovieBernsteinSubdivision64 as S, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
@@ -47,8 +42,8 @@ export function assertContourLoftBoundaryCore(): {
     depth: 0,
   };
 
-  const restriction: ReturnType<typeof splitAutoMovieContourLeaf64> =
-    splitAutoMovieContourLeaf64(leaf, 0.25, 0.25);
+  const restriction: ReturnType<typeof AutoMovieEngineCurve.splitContourLeaf64> =
+    AutoMovieEngineCurve.splitContourLeaf64(leaf, 0.25, 0.25);
 
   const childLeaves: IAutoMovieContourLoftCurves64.Leaf[] = [
     ...restriction.before,
@@ -127,16 +122,16 @@ export function assertContourLoftBoundaryCore(): {
   TestValidator.predicate(
     "source splitting retains the limit on additional adaptive subdivision",
     throwsError(
-      (): ReturnType<typeof splitAutoMovieContourLeaf64> =>
-        splitAutoMovieContourLeaf64({ ...leaf, depth: 30 }, 0.25, 0.25),
+      (): ReturnType<typeof AutoMovieEngineCurve.splitContourLeaf64> =>
+        AutoMovieEngineCurve.splitContourLeaf64({ ...leaf, depth: 30 }, 0.25, 0.25),
     ),
   );
 
   const straight: O.V[] = [0, 1, 2, 3].map((x: number): O.V => [x, 0, 0]);
 
   for (const depth of [0, 29, 30, 31]) {
-    const exact: ReturnType<typeof splitAutoMovieContourLeaf64> =
-      splitAutoMovieContourLeaf64(
+    const exact: ReturnType<typeof AutoMovieEngineCurve.splitContourLeaf64> =
+      AutoMovieEngineCurve.splitContourLeaf64(
         { net: straight, start: 0, end: 1, depth },
         0.25,
         0.25,
@@ -175,8 +170,8 @@ export function assertContourLoftBoundaryCore(): {
     TestValidator.predicate(
       "an unresolved or noninterior split phase refuses",
       throwsError(
-        (): ReturnType<typeof splitAutoMovieContourLeaf64> =>
-          splitAutoMovieContourLeaf64(leaf, phase, 0.25),
+        (): ReturnType<typeof AutoMovieEngineCurve.splitContourLeaf64> =>
+          AutoMovieEngineCurve.splitContourLeaf64(leaf, phase, 0.25),
         "strict interior",
       ),
     );
@@ -221,7 +216,7 @@ export function assertContourLoftBoundaryCore(): {
   };
 
   const result: IAutoMovieContourLoft64.IResult =
-    tessellateAutoMovieContourLoft64(input);
+    AutoMovieEngineCurve.tessellateContourLoft64(input);
 
   TestValidator.equals(
     "ordinary supported intervals resolve",
@@ -324,7 +319,7 @@ export function assertContourLoftBoundaryCore(): {
       },
     );
     const prism: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: prismSections,
         events: [],
         chordToleranceMm: 0.25,
@@ -374,7 +369,7 @@ export function assertContourLoftBoundaryCore(): {
       },
     ];
     const composition: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: compositionSections,
         events: [
           {

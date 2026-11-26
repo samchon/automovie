@@ -1,8 +1,4 @@
-import {
-  composeScene,
-  lowerSkeletonNodes,
-  sceneToNodes,
-} from "@automovie/engine";
+import { AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieModel,
   IAutoMovieNode,
@@ -66,7 +62,7 @@ const scene: (nodeId: string, modelRef: string) => IAutoMovieScene = (
 export function test_resolve_scene_to_nodes_guards(): void {
   const model: IAutoMovieModel = { ...createModel(), id: "hero" };
 
-  const bare: IAutoMovieNode[] = sceneToNodes({
+  const bare: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: scene("actor", "hero"),
   });
   TestValidator.equals(
@@ -75,7 +71,7 @@ export function test_resolve_scene_to_nodes_guards(): void {
     1,
   );
 
-  const lowered: IAutoMovieNode[] = sceneToNodes({
+  const lowered: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: scene("actor", "hero"),
     models: { hero: model },
   });
@@ -88,7 +84,7 @@ export function test_resolve_scene_to_nodes_guards(): void {
     "missing model ref throws",
     throwsError(
       (): IAutoMovieNode[] =>
-        sceneToNodes({
+        AutoMovieEngineResolve.sceneToNodes({
           scene: scene("actor", "ghost"),
           models: { hero: model },
         }),
@@ -104,19 +100,19 @@ export function test_resolve_scene_to_nodes_guards(): void {
       ...scene("actor/hips", "hero").nodes,
     ],
   };
-  const nodes: IAutoMovieNode[] = sceneToNodes({
+  const nodes: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: colliding,
     models: { hero: model },
   });
   TestValidator.predicate(
     "id collisions are rejected downstream by composeScene",
     throwsError(
-      (): Map<string, number[]> => composeScene(nodes),
+      (): Map<string, number[]> => AutoMovieEngineResolve.composeScene(nodes),
       ["duplicated"],
     ),
   );
 
-  const defaults: IAutoMovieNode[] = lowerSkeletonNodes({
+  const defaults: IAutoMovieNode[] = AutoMovieEngineResolve.lowerSkeletonNodes({
     skeleton: model.skeleton!,
   });
   TestValidator.equals(
@@ -138,7 +134,7 @@ export function test_resolve_scene_to_nodes_guards(): void {
     ]),
     { defaultsSomeNode: true, defaultsSomeNode2: true },
   );
-  const independent: ReturnType<typeof lowerSkeletonNodes> = lowerSkeletonNodes(
+  const independent: ReturnType<typeof AutoMovieEngineResolve.lowerSkeletonNodes> = AutoMovieEngineResolve.lowerSkeletonNodes(
     { skeleton: model.skeleton! },
   );
   defaults[0]!.transform.translation.x = 9;
@@ -146,7 +142,7 @@ export function test_resolve_scene_to_nodes_guards(): void {
   defaults[0]!.transform.scale.y = 7;
   for (const loweredRoots of [
     independent,
-    lowerSkeletonNodes({ skeleton: model.skeleton! }),
+    AutoMovieEngineResolve.lowerSkeletonNodes({ skeleton: model.skeleton! }),
   ]) {
     TestValidator.predicate(
       "root vectors belong to one lowering result",

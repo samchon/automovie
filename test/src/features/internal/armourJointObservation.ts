@@ -1,5 +1,5 @@
 import type { createArmour } from "@automovie/archetypes";
-import { Quaternion, Vector3, intersectAutoMovieConvexPolygons, physicalHullFaces, signedArea, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, physicalHullFaces, signedArea, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -139,7 +139,7 @@ export namespace armourJointObservation {
   ): number {
     const one: [number, number][] = section(first);
     const two: [number, number][] = section(second);
-    const intersection: [number, number][] = intersectAutoMovieConvexPolygons(
+    const intersection: [number, number][] = AutoMovieEngineGeometry.intersectConvexPolygons(
       one,
       two,
     );

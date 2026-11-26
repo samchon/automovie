@@ -12,9 +12,9 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { AutoMovieHumanoidDigitSurfaces } from "./AutoMovieHumanoidDigitSurfaces";
+import { AutoMovieHumanoidDigitSurfaces } from "./internal/AutoMovieHumanoidDigitSurfaces";
 import type { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";
-import { AutoMovieHumanoidSurfaceExtents } from "./AutoMovieHumanoidSurfaceExtents";
+import { AutoMovieHumanoidSurfaceExtents } from "./internal/AutoMovieHumanoidSurfaceExtents";
 import { AutoMovieHumanoidSurfacePlacement } from "./AutoMovieHumanoidSurfacePlacement";
 import { AutoMovieHumanoidSurfaceRays } from "./AutoMovieHumanoidSurfaceRays";
 import { AutoMovieHumanoidSurfaceRegions } from "./AutoMovieHumanoidSurfaceRegions";

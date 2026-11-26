@@ -9,7 +9,7 @@ import type {
 
 import { toRigAngle } from "../rom/toRigAngle";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 import type { preparePoseResolutionChanges } from "./preparePoseResolutionChanges";
 
 /**

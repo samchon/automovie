@@ -1,9 +1,5 @@
 import { createPourVessel } from "@automovie/archetypes";
-import {
-  Quaternion,
-  createAutoMovieMeshRayCaster,
-  physicalShapeSegmentDistance,
-} from "@automovie/engine";
+import { Quaternion, physicalShapeSegmentDistance, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -253,7 +249,7 @@ function downwardMeshTravel(
       );
       positions.push(world.x, world.y, world.z);
     }
-    const hit: number | null = createAutoMovieMeshRayCaster({
+    const hit: number | null = AutoMovieEngineGeometry.createMeshRayCaster({
       ...mesh,
       positions,
     }).nearest([from.x, from.y, from.z], [0, -1, 0], from.y + 0.001);

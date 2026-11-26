@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourStrip64 as strip } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieRegisteredPlanarCurvePiece,
@@ -185,7 +185,7 @@ export namespace CompactCurveLoft {
         ),
       ]);
       try {
-        strip(
+        AutoMovieEngineCurve.tessellateContourStrip64(
           ap,
           bp,
           (

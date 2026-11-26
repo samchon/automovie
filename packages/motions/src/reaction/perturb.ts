@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  resolveAutoMovieBalanceOutcome,
-  resolveAutoMovieCenterOfMass,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieCenterOfMass, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -225,7 +221,7 @@ export namespace perturb {
     ) => IAutoMovieResolveBalanceOutcome.IOutcome = (
       first: number,
     ): IAutoMovieResolveBalanceOutcome.IOutcome =>
-      resolveAutoMovieBalanceOutcome({
+      AutoMovieEngineKinematics.resolveAutoMovieBalanceOutcome({
         centre,
         velocity: entry.velocity.linear,
         mass: model.mass,

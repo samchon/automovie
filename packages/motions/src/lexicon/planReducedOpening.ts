@@ -20,7 +20,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { AutoMovieMotionHumanSignature } from "../audit/AutoMovieMotionHumanSignature";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanSegmentPlant } from "../perform/HumanSegmentPlant";

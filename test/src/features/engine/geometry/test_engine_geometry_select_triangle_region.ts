@@ -1,4 +1,4 @@
-import { selectAutoMovieTriangleRegion } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/predicates";
@@ -29,7 +29,7 @@ export function test_engine_geometry_select_triangle_region(): void {
     0, 1, 2, 0, 2, 3, 4, 5, 1, 4, 1, 0, 5, 6, 2, 5, 2, 1, 6, 7, 3, 6, 3, 2, 7, 4, 0, 7, 0, 3,
   ];
   const select = (source: number[], boundary: number[]): number[] =>
-    selectAutoMovieTriangleRegion({ indices: source, boundary });
+    AutoMovieEngineGeometry.selectTriangleRegion({ indices: source, boundary });
   const refused = (label: string, source: number[], boundary: number[], message: string): void =>
     TestValidator.predicate(label, throwsError((): unknown => select(source, boundary), message));
 

@@ -18,7 +18,7 @@ import { indexSkeletonTopology } from "./indexSkeletonTopology";
 import { jointToQuaternion } from "./jointToQuaternion";
 import { preparePoseResolution } from "./preparePoseResolution";
 import { resolvePoseBone } from "./resolvePoseBone";
-import { skeletonJointAxes } from "./skeletonJointAxes";
+import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 
 /**
  * Only the direct pure FK path borrows these defaults; no callback or output

@@ -3,8 +3,8 @@ import type {
   IAutoMovieMeshQueryHierarchy,
 } from "@automovie/interface";
 
-import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { buildAutoMovieMeshQueryHierarchy } from "./internal/buildAutoMovieMeshQueryHierarchy";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /**
  * The least Euclidean distance between two triangle surfaces in one metre

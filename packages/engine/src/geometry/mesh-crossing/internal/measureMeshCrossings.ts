@@ -5,7 +5,7 @@ import type {
   IAutoMovieMeshQueryHierarchy,
 } from "@automovie/interface";
 
-import { collectAutoMovieSpatialQueryCandidates } from "../../collectAutoMovieSpatialQueryCandidates";
+import { collectAutoMovieSpatialQueryCandidates } from "../../internal/collectAutoMovieSpatialQueryCandidates";
 import { AutoMovieMeshCrossingGeometry } from "./AutoMovieMeshCrossingGeometry";
 import type { IAutoMovieMeshCrossingTriangle } from "./IAutoMovieMeshCrossingTriangle";
 

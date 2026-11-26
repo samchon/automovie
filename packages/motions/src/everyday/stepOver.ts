@@ -15,7 +15,7 @@ import type {
 
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { walkFoot } from "../actions/walkFoot";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";

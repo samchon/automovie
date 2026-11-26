@@ -1,4 +1,4 @@
-import { placementChildNode, sceneToNodes, AutoMovieEngineFilm } from "@automovie/engine";
+import { placementChildNode, AutoMovieEngineFilm, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   type IAutoMovieForgedProp,
@@ -74,7 +74,7 @@ export function test_engine_film_forge_prop_articulation_mesh(): void {
     forged.success,
     true,
   );
-  const lowered: IAutoMovieNode[] = sceneToNodes({
+  const lowered: IAutoMovieNode[] = AutoMovieEngineResolve.sceneToNodes({
     scene: {
       id: "hall",
       name: null,

@@ -1,9 +1,4 @@
-import {
-  boxExcludedSwivels,
-  boxLeastSwivels,
-  hingedSwivelFeasible,
-  immobileAxisSwivels,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
@@ -50,13 +45,13 @@ export function test_engine_kinematics_box_swivels(): void {
   };
 
   // 1.
-  const refused = boxExcludedSwivels({ basis, constraint: box, rotation });
+  const refused = AutoMovieEngineKinematics.boxExcludedSwivels({ basis, constraint: box, rotation });
   TestValidator.equals(
     "refused",
     [refused(60, 120), refused(-10, 10)],
     [true, false],
   );
-  const feasible = hingedSwivelFeasible({ basis, constraint: box, rotation });
+  const feasible = AutoMovieEngineKinematics.hingedSwivelFeasible({ basis, constraint: box, rotation });
   TestValidator.predicate(
     "feasible",
     feasible !== "all" &&
@@ -66,7 +61,7 @@ export function test_engine_kinematics_box_swivels(): void {
   );
 
   // 2.
-  const neutral: number[] | null = immobileAxisSwivels({
+  const neutral: number[] | null = AutoMovieEngineKinematics.immobileAxisSwivels({
     basis,
     constraint: { ...box, twist: null },
     rotation,
@@ -84,19 +79,19 @@ export function test_engine_kinematics_box_swivels(): void {
   // 3.
   TestValidator.equals(
     "free refuses nothing",
-    boxExcludedSwivels({ basis, constraint: null, rotation })(0, 360),
+    AutoMovieEngineKinematics.boxExcludedSwivels({ basis, constraint: null, rotation })(0, 360),
     false,
   );
   TestValidator.equals(
     "free feasible",
-    hingedSwivelFeasible({ basis, constraint: null, rotation }),
+    AutoMovieEngineKinematics.hingedSwivelFeasible({ basis, constraint: null, rotation }),
     "all",
   );
   TestValidator.equals(
     "no analysis",
     [
-      immobileAxisSwivels({ basis, constraint: null, rotation }),
-      boxLeastSwivels({ basis, constraint: null, rotation }),
+      AutoMovieEngineKinematics.immobileAxisSwivels({ basis, constraint: null, rotation }),
+      AutoMovieEngineKinematics.boxLeastSwivels({ basis, constraint: null, rotation }),
     ],
     [null, null],
   );

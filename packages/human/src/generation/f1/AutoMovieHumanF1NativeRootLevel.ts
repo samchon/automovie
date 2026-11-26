@@ -1,4 +1,4 @@
-import { AutoMovieConstructionPortAddress, AutoMovieConstructionPortRadialRange, AutoMovieSolidVector as Vector, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieSolidVector as Vector, AutoMovieEngineMath, AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionPortLoop,
@@ -173,7 +173,7 @@ export namespace AutoMovieHumanF1NativeRootLevel {
       };
       try {
         function at(q: number): [number, number] {
-          return AutoMovieConstructionPortAddress(oldLoop, c, q);
+          return AutoMovieEngineConstruction.constructionPortAddress(oldLoop, c, q);
         }
         function value(q: number, stage: string): number {
           observation.stage = stage;
@@ -287,7 +287,7 @@ export namespace AutoMovieHumanF1NativeRootLevel {
             facing + Math.PI / 2,
           ];
           observation.phaseDomain = phaseDomain;
-          const maximum: number = AutoMovieConstructionPortRadialRange(
+          const maximum: number = AutoMovieEngineConstruction.constructionPortRadialRange(
             oldLoop,
             c,
             reader.domain,

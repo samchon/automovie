@@ -1,4 +1,4 @@
-import { Vector3, boundAutoMovieProjectionSeparation, physicalShapeGjk, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, physicalShapeGjk, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /** An interval of material-axis translation, metres. */
@@ -53,7 +53,7 @@ export function mountCastObstruction(
       result.upper > 0 &&
       (faces?.some(
         (normal: IAutoMovieVector3): boolean =>
-          boundAutoMovieProjectionSeparation(
+          AutoMovieEngineGeometry.boundProjectionSeparation(
             solid.points,
             obstacle.points,
             normal,

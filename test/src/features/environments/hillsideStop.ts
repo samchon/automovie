@@ -6,7 +6,7 @@ import {
   createTerrain,
 } from "@automovie/archetypes/environments";
 import { createDrinkware } from "@automovie/archetypes/props";
-import { Quaternion, Vector3, sampleClipSequence } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineSequence } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentModule,
@@ -181,7 +181,7 @@ export function hillsideStop(): compileEnvironmentExample.IInput {
   )!.model;
   const leaf = environment.stage.set!.find((piece) => piece.node === doorId)!;
   const doorAt = (time: number): IAutoMovieMotionHumanObject.Placement => {
-    const value = sampleClipSequence(
+    const value = AutoMovieEngineSequence.sampleClipSequence(
       environment.runtime.objectMotions,
       time,
     ).get(`node:${doorId}:rotation`)?.value;

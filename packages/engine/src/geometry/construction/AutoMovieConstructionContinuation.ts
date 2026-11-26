@@ -4,7 +4,7 @@ import type {
   IAutoMovieLoftSectionSource,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionBoundary } from "./AutoMovieConstructionBoundary";
+import { AutoMovieConstructionBoundary } from "./internal/AutoMovieConstructionBoundary";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";

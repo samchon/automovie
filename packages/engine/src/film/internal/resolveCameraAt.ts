@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { channelKey } from "../../resolve/channelKey";
-import { sampleClip } from "../../resolve/sampleClip";
+import { sampleClip } from "../../resolve/internal/sampleClip";
 
 /**
  * A camera's world placement at shot-local `time`: its staged base transform

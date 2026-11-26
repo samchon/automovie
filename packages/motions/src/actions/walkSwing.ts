@@ -11,7 +11,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { WALK_TICK } from "./WALK_TICK";
 import { walkFoot } from "./walkFoot";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
-import { walkSteps } from "./walkSteps";
+import { walkSteps } from "../gait/internal/walkSteps";
 
 /** The alternatives of `Swing2`'s site. */
 type Swing2 = "off" | "on";

@@ -1,7 +1,4 @@
-import {
-  AutoMovieEngineConvexSupportLoft,
-  createAutoMovieSupportSectionQuery,
-} from "@automovie/engine";
+import { AutoMovieEngineConvexSupportLoft, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieConvexSupportLoft,
   IAutoMovieRealizeConvexSupportLoft,
@@ -93,8 +90,8 @@ export function fitAutoMovieRecoveryImageSupportLoft(
         ],
       ),
     ];
-    const query: ReturnType<typeof createAutoMovieSupportSectionQuery> =
-      createAutoMovieSupportSectionQuery({
+    const query: ReturnType<typeof AutoMovieEngineGeometry.createSupportSectionQuery> =
+      AutoMovieEngineGeometry.createSupportSectionQuery({
         normals,
         minimumDirectionSine: policy.generation.minimumDirectionSine,
       });

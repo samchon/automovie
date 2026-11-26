@@ -15,7 +15,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { channelKey } from "../../resolve/channelKey";
 import { LIGHT_CHANNEL_PROPERTIES } from "../../resolve/constants/LIGHT_CHANNEL_PROPERTIES";
 import { formatLightPointer } from "../../resolve/formatLightPointer";
-import { sampleClipSequence } from "../../resolve/sampleClipSequence";
+import { sampleClipSequence } from "../../resolve/internal/sampleClipSequence";
 import { placeTransformedPoint } from "./placeTransformedPoint";
 
 /** Model-local forward axis of an emitter's contact frame. */

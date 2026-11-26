@@ -9,7 +9,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { instanceSlot } from "../../populationRuntime/instanceSlot";
+import { instanceSlot } from "../../populationRuntime/internal/instanceSlot";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 import { autoMovieSubjectPlacedBounds } from "./autoMovieSubjectPlacedBounds";

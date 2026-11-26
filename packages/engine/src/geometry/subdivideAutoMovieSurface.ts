@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { admitSubdivisionCage } from "./admitSubdivisionCage";
-import { evaluateSubdivisionLevel } from "./evaluateSubdivisionLevel";
+import { evaluateSubdivisionLevel } from "./internal/evaluateSubdivisionLevel";
 import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
 /**

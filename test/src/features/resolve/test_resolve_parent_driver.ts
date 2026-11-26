@@ -1,4 +1,4 @@
-import { Matrix4, resolveWorldDrivers } from "@automovie/engine";
+import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import {
   type IAutoMovieDriver,
   IAutoMovieParentDriver,
@@ -82,7 +82,7 @@ export function test_resolve_parent_driver(): void {
   const children: Map<string, string[]> = new Map<string, string[]>([
     ["o", ["c"]],
   ]);
-  resolveWorldDrivers(
+  AutoMovieEngineResolve.resolveWorldDrivers(
     [parent({ translation: true, rotation: true, scale: true })],
     world,
     localById,
@@ -115,7 +115,7 @@ export function test_resolve_parent_driver(): void {
     ["o", W({ x: 3, y: 4, z: 5 })],
     ["p", W({ x: 10, y: 0, z: 0 }, parentRot, parentScale)],
   ]);
-  resolveWorldDrivers([parent({})], world2, new Map(), new Map());
+  AutoMovieEngineResolve.resolveWorldDrivers([parent({})], world2, new Map(), new Map());
   TestValidator.predicate(
     "all flags off leaves the owner put",
     vclose(Matrix4.position(world2.get("o")!), { x: 3, y: 4, z: 5 }, 1e-5),
@@ -125,7 +125,7 @@ export function test_resolve_parent_driver(): void {
     "missing parent-driver owner rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [parent({ owner: "missing", translation: true })],
           new Map([["p", W({ x: 10, y: 0, z: 0 })]]),
           new Map(),
@@ -138,7 +138,7 @@ export function test_resolve_parent_driver(): void {
     "missing parent-driver parent rejects incomplete world map",
     throwsError(
       (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
+        AutoMovieEngineResolve.resolveWorldDrivers(
           [parent({ parent: "missing", translation: true })],
           new Map([["o", W({ x: 0, y: 0, z: 0 })]]),
           new Map(),

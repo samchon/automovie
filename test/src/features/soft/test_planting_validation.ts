@@ -1,7 +1,4 @@
-import {
-  validatePlantingCluster,
-  validatePlantingDomain,
-} from "@automovie/engine";
+import { AutoMovieEnginePlanting } from "@automovie/engine";
 import {
   AutoMovieViolationKind,
   IAutoMoviePlantingCluster,
@@ -20,7 +17,7 @@ const refuses: Parameters<typeof assertPlantingValidationLimits>[0] = (
   path: string,
 ): boolean =>
   hasViolation(
-    validatePlantingDomain({ domain: plantingRecipe(overrides) }),
+    AutoMovieEnginePlanting.validatePlantingDomain({ domain: plantingRecipe(overrides) }),
     kind,
     path,
   );
@@ -32,7 +29,7 @@ const refusesCluster: Parameters<typeof assertPlantingValidationLimits>[1] = (
   path: string,
 ): boolean =>
   hasViolation(
-    validatePlantingCluster({ cluster: plantingCluster(overrides) }),
+    AutoMovieEnginePlanting.validatePlantingCluster({ cluster: plantingCluster(overrides) }),
     kind,
     path,
   );
@@ -100,12 +97,12 @@ export function test_planting_validation(): void {
       [
         "recipe",
         () =>
-          validatePlantingDomain({ domain: plantingRecipe() }).success === true,
+          AutoMovieEnginePlanting.validatePlantingDomain({ domain: plantingRecipe() }).success === true,
       ],
       [
         "cluster",
         () =>
-          validatePlantingCluster({ cluster: plantingCluster() }).success ===
+          AutoMovieEnginePlanting.validatePlantingCluster({ cluster: plantingCluster() }).success ===
           true,
       ],
     ]),
@@ -312,7 +309,7 @@ export function test_planting_validation(): void {
       [
         "reachable",
         () =>
-          validatePlantingDomain({
+          AutoMovieEnginePlanting.validatePlantingDomain({
             domain: plantingRecipe({ growth: { stage: 1, onset: 0.49 } }),
           }).success === true,
       ],

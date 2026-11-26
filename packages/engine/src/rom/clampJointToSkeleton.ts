@@ -10,7 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
+import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { clampJointRom } from "./clampJointRom";
 import { clampJointRomValues } from "./clampJointRomValues";

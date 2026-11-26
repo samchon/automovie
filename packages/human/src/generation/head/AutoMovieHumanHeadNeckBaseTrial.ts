@@ -1,9 +1,4 @@
-import {
-  AutoMovieNativeCoordinate,
-  AutoMovieViewOutline,
-  AutoMovieViewSection,
-  measureAutoMovieCurveLength64,
-} from "@automovie/engine";
+import { AutoMovieNativeCoordinate, AutoMovieViewOutline, AutoMovieViewSection, AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   IAutoMovieHumanHeadNeckBaseTrial,
   IAutoMovieHumanHeadNeckCurves,
@@ -177,15 +172,15 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
     );
     const turn: number = (2 * Math.PI) / family.clock;
     if (work !== undefined) work.baseMeasurements++;
-    const measured: ReturnType<typeof measureAutoMovieCurveLength64> =
-      measureAutoMovieCurveLength64(
+    const measured: ReturnType<typeof AutoMovieEngineCurve.measureCurveLength64> =
+      AutoMovieEngineCurve.measureCurveLength64(
         partition
           .slice(1)
           .map(
             (
               end: number,
               i: number,
-            ): Parameters<typeof measureAutoMovieCurveLength64>[0][number] => ({
+            ): Parameters<typeof AutoMovieEngineCurve.measureCurveLength64>[0][number] => ({
               domain: [partition[i]!, end],
               derivative(s: number): [number, number, number] {
                 if (work !== undefined) {

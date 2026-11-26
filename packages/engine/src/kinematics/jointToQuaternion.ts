@@ -8,7 +8,7 @@ import {
 
 import { DEFAULT_JOINT_AXES } from "./constants/DEFAULT_JOINT_AXES";
 import { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 
 /**
  * Convert a joint's clinical flexion, abduction and twist, in degrees, into one

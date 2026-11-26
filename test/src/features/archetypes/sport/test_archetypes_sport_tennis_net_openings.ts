@@ -1,5 +1,5 @@
 import { buildTennisNet } from "@automovie/archetypes/internal";
-import { createAutoMovieMeshRayCaster } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMeshRayCaster } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,8 +24,8 @@ export function test_archetypes_sport_tennis_net_openings(): void {
     0.008,
     0.05,
   );
-  const twine: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(net.twine);
-  const tape: IAutoMovieMeshRayCaster = createAutoMovieMeshRayCaster(net.tape);
+  const twine: IAutoMovieMeshRayCaster = AutoMovieEngineGeometry.createMeshRayCaster(net.twine);
+  const tape: IAutoMovieMeshRayCaster = AutoMovieEngineGeometry.createMeshRayCaster(net.tape);
 
   // A 450 mm half span gives ten cells at the 45 mm mesh pitch.
   const pitch: number = halfSpan / 10;

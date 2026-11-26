@@ -1,4 +1,4 @@
-import { validateSoftBodyDomain } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   AutoMovieViolationKind,
   IAutoMovieSoftBodyDomain,
@@ -230,7 +230,7 @@ export function assertSoftBodyBoundaryRefusals(
       [
         "clearOnlyOnOneAxis",
         (): boolean =>
-          validateSoftBodyDomain({
+          AutoMovieEngineSoftBody.validateSoftBodyDomain({
             domain: sound({
               colliders: [
                 {
@@ -336,7 +336,7 @@ export function assertSoftBodyBoundaryRefusals(
       [
         "absent",
         (): boolean =>
-          validateSoftBodyDomain({ domain: sound({ wind: null }) }).success ===
+          AutoMovieEngineSoftBody.validateSoftBodyDomain({ domain: sound({ wind: null }) }).success ===
           true,
       ],
     ]),

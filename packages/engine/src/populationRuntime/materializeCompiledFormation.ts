@@ -23,9 +23,9 @@ import { autoMovieRenderDigest } from "../render/internal/autoMovieRenderDigest"
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "./constants/AUTOMOVIE_FORMATION_CHUNK_SIZE";
-import { formationSlotPosition } from "./formation/formationSlotPosition";
-import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";
-import { summarizeCompiledSlotRange } from "./summarizeCompiledSlotRange";
+import { formationSlotPosition } from "./formation/internal/formationSlotPosition";
+import { summarizeCompiledSlotChunks } from "./internal/summarizeCompiledSlotChunks";
+import { summarizeCompiledSlotRange } from "./internal/summarizeCompiledSlotRange";
 
 /**
  * Compile one formation design into its compact, regenerable runtime record.

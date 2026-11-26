@@ -11,51 +11,12 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { nearestAngleAlias } from "../math/internal/nearestAngleAlias";
 import { toClinicalAngle } from "../rom/toClinicalAngle";
-import { alternateRigJointAngles } from "./alternateRigJointAngles";
+import { alternateRigJointAngles } from "./internal/alternateRigJointAngles";
 import { jointRomOvershoot } from "./jointRomOvershoot";
-import { normalizeJointAxes } from "./normalizeJointAxes";
+import { normalizeJointAxes } from "./internal/normalizeJointAxes";
 
 /** Degrees per radian for the closed-form angle extraction. */
 const RAD2DEG: number = 180 / Math.PI;
-
-/**
- * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells
- * from `offset`.
- */
-function rotateInto(
-  q: IAutoMovieQuaternion,
-  v: IAutoMovieVector3,
-  columns: Float64Array,
-  offset: number,
-): void {
-  const tx: number = 2 * (q.y * v.z - q.z * v.y);
-  const ty: number = 2 * (q.z * v.x - q.x * v.z);
-  const tz: number = 2 * (q.x * v.y - q.y * v.x);
-  columns[offset] = v.x + q.w * tx + (q.y * tz - q.z * ty);
-  columns[offset + 1] = v.y + q.w * ty + (q.z * tx - q.x * tz);
-  columns[offset + 2] = v.z + q.w * tz + (q.x * ty - q.y * tx);
-}
-
-/** Original dot read/multiply/add order against one completed private column. */
-function columnDot(
-  axis: IAutoMovieVector3,
-  columns: Float64Array,
-  offset: number,
-): number {
-  return (
-    axis.x * columns[offset]! +
-    axis.y * columns[offset + 1]! +
-    axis.z * columns[offset + 2]!
-  );
-}
-
-/** Three lazy successful affine readings, independent of every quaternion/chart. */
-type IClinicalReaders = Readonly<
-  Record<
-    keyof IAutoMovieResolvedJointAngles,
-    ReturnType<typeof toClinicalAngle.prepare>
-  >
->;
 
 /**
  * Projected cosine at or below which the gimbal convention pins one outer
@@ -107,6 +68,109 @@ export function decomposeJointRotationOnBasis(
 ): IAutoMovieResolvedJointAngles {
   return extract(q, basis, frame, domain);
 }
+
+/** Fixed-rig metadata for independent inverse queries. */
+export namespace decomposeJointRotationOnBasis {
+  /**
+   * Borrow one unchanged admitted basis/frame/domain and return independent
+   * stateless readers. Construction reads no numerical input. Every actual q
+   * still receives finite admission, extraction and principal/alternate
+   * clinical conversion in the original order; only successful affine metadata
+   * is shared. A fixed operation may reuse its stateless reader; release it
+   * with the source. Outputs remain fresh and local, with no target-specific
+   * state in a reader.
+   */
+  export function prepareQueries(
+    basis: IAutoMovieJointAxes,
+    frame?: IAutoMovieRestFrame,
+    domain?: IAutoMovieJointRotationDomain,
+  ): () => (q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles {
+    const readers: IClinicalReaders = {
+      flexion: toClinicalAngle.prepare(),
+      abduction: toClinicalAngle.prepare(),
+      twist: toClinicalAngle.prepare(),
+    };
+    return (): ((q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles) =>
+      (q: IAutoMovieQuaternion): IAutoMovieResolvedJointAngles =>
+        extract(q, basis, frame, domain, readers);
+  }
+
+  /**
+   * The same decomposition with the ROM overshoot its chart choice scored for
+   * the reading it returns, written into `into`: the gate's own sum
+   * (`jointRomOvershoot`) of the returned angles under the domain's constraint,
+   * which a caller ranking the reading by that sum need not scan again.
+   * Undefined where the choice scored no such sum: no domain or a null
+   * constraint, or a constraint gated by swing and twist, whose readings are
+   * ranked by its box alone.
+   *
+   * @param q Bone-local articulation rotation; unit length expected.
+   * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes`
+   *   returns it.
+   * @param frame Rest frame lifting rest-relative angles to clinical ones.
+   * @param domain Bone and resolved ROM that choose among equivalent charts.
+   * @param into Receives the overshoot, degrees, or undefined.
+   * @returns The angles `decomposeJointRotationOnBasis` returns.
+   */
+  export function scored(
+    q: IAutoMovieQuaternion,
+    basis: IAutoMovieJointAxes,
+    frame: IAutoMovieRestFrame | undefined,
+    domain: IAutoMovieJointRotationDomain | undefined,
+    into: IScore,
+  ): IAutoMovieResolvedJointAngles {
+    into.overshoot = undefined;
+    return extract(q, basis, frame, domain, undefined, into);
+  }
+
+  /**
+   * Where `scored` collects the reading's overshoot: degrees, undefined where
+   * the chart choice scored none.
+   */
+  export interface IScore {
+    /** The overshoot, degrees, or undefined. */
+    overshoot: number | undefined;
+  }
+}
+
+/**
+ * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells
+ * from `offset`.
+ */
+function rotateInto(
+  q: IAutoMovieQuaternion,
+  v: IAutoMovieVector3,
+  columns: Float64Array,
+  offset: number,
+): void {
+  const tx: number = 2 * (q.y * v.z - q.z * v.y);
+  const ty: number = 2 * (q.z * v.x - q.x * v.z);
+  const tz: number = 2 * (q.x * v.y - q.y * v.x);
+  columns[offset] = v.x + q.w * tx + (q.y * tz - q.z * ty);
+  columns[offset + 1] = v.y + q.w * ty + (q.z * tx - q.x * tz);
+  columns[offset + 2] = v.z + q.w * tz + (q.x * ty - q.y * tx);
+}
+
+/** Original dot read/multiply/add order against one completed private column. */
+function columnDot(
+  axis: IAutoMovieVector3,
+  columns: Float64Array,
+  offset: number,
+): number {
+  return (
+    axis.x * columns[offset]! +
+    axis.y * columns[offset + 1]! +
+    axis.z * columns[offset + 2]!
+  );
+}
+
+/** Three lazy successful affine readings, independent of every quaternion/chart. */
+type IClinicalReaders = Readonly<
+  Record<
+    keyof IAutoMovieResolvedJointAngles,
+    ReturnType<typeof toClinicalAngle.prepare>
+  >
+>;
 
 /**
  * All actual quaternion admission, extraction, clinical lift and chart
@@ -254,70 +318,6 @@ function extract(
     readers,
     into,
   );
-}
-
-/** Fixed-rig metadata for independent inverse queries. */
-export namespace decomposeJointRotationOnBasis {
-  /**
-   * Borrow one unchanged admitted basis/frame/domain and return independent
-   * stateless readers. Construction reads no numerical input. Every actual q
-   * still receives finite admission, extraction and principal/alternate
-   * clinical conversion in the original order; only successful affine metadata
-   * is shared. A fixed operation may reuse its stateless reader; release it
-   * with the source. Outputs remain fresh and local, with no target-specific
-   * state in a reader.
-   */
-  export function prepareQueries(
-    basis: IAutoMovieJointAxes,
-    frame?: IAutoMovieRestFrame,
-    domain?: IAutoMovieJointRotationDomain,
-  ): () => (q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles {
-    const readers: IClinicalReaders = {
-      flexion: toClinicalAngle.prepare(),
-      abduction: toClinicalAngle.prepare(),
-      twist: toClinicalAngle.prepare(),
-    };
-    return (): ((q: IAutoMovieQuaternion) => IAutoMovieResolvedJointAngles) =>
-      (q: IAutoMovieQuaternion): IAutoMovieResolvedJointAngles =>
-        extract(q, basis, frame, domain, readers);
-  }
-
-  /**
-   * The same decomposition with the ROM overshoot its chart choice scored for
-   * the reading it returns, written into `into`: the gate's own sum
-   * (`jointRomOvershoot`) of the returned angles under the domain's constraint,
-   * which a caller ranking the reading by that sum need not scan again.
-   * Undefined where the choice scored no such sum: no domain or a null
-   * constraint, or a constraint gated by swing and twist, whose readings are
-   * ranked by its box alone.
-   *
-   * @param q Bone-local articulation rotation; unit length expected.
-   * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes`
-   *   returns it.
-   * @param frame Rest frame lifting rest-relative angles to clinical ones.
-   * @param domain Bone and resolved ROM that choose among equivalent charts.
-   * @param into Receives the overshoot, degrees, or undefined.
-   * @returns The angles `decomposeJointRotationOnBasis` returns.
-   */
-  export function scored(
-    q: IAutoMovieQuaternion,
-    basis: IAutoMovieJointAxes,
-    frame: IAutoMovieRestFrame | undefined,
-    domain: IAutoMovieJointRotationDomain | undefined,
-    into: IScore,
-  ): IAutoMovieResolvedJointAngles {
-    into.overshoot = undefined;
-    return extract(q, basis, frame, domain, undefined, into);
-  }
-
-  /**
-   * Where `scored` collects the reading's overshoot: degrees, undefined where
-   * the chart choice scored none.
-   */
-  export interface IScore {
-    /** The overshoot, degrees, or undefined. */
-    overshoot: number | undefined;
-  }
 }
 
 /** Lift the three numerical rig angles through the unchanged clinical frame. */

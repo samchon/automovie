@@ -1,7 +1,7 @@
 import { IAutoMovieSoftBodyDomain } from "@automovie/interface";
 
-import { productionSoftBodyUsesMovingBoundary } from "./productionSoftBodyUsesMovingBoundary";
-import { readProductionLiveWearableSoftBodies } from "./readProductionLiveWearableSoftBodies";
+import { productionSoftBodyUsesMovingBoundary } from "./internal/productionSoftBodyUsesMovingBoundary";
+import { readProductionLiveWearableSoftBodies } from "./internal/readProductionLiveWearableSoftBodies";
 
 /**
  * Resolve a shot's share of the authored production-wide live-soft order.

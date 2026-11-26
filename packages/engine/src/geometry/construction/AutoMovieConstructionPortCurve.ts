@@ -6,7 +6,7 @@ import type {
   IAutoMovieConstructionSplitBand,
 } from "@automovie/interface";
 
-import { AutoMovieConstructionPortAddress } from "./AutoMovieConstructionPortAddress";
+import { AutoMovieConstructionPortAddress } from "./internal/AutoMovieConstructionPortAddress";
 import { AutoMovieConstructionPortField as Field } from "./AutoMovieConstructionPortField";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";

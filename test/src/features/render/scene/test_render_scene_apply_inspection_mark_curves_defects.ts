@@ -1,4 +1,4 @@
-import { markAutoMovieConstructionCurves } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieConstructionCurve,
   IAutoMovieMark,
@@ -74,7 +74,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
     [0, 0, -1, 0, 0, 1],
     true,
   );
-  const marks: IAutoMovieMark[] = markAutoMovieConstructionCurves(
+  const marks: IAutoMovieMark[] = AutoMovieEngineConstruction.markConstructionCurves(
     [ring, guide, axis],
     "panel",
   );
@@ -127,7 +127,7 @@ export function test_render_scene_apply_inspection_mark_curves_defects(): void {
   );
   TestValidator.equals(
     "a form at the root anchors to the empty path",
-    markAutoMovieConstructionCurves([guide], "").map((mark: IAutoMovieMark) => [
+    AutoMovieEngineConstruction.markConstructionCurves([guide], "").map((mark: IAutoMovieMark) => [
       mark.path,
       mark.anchor,
     ]),

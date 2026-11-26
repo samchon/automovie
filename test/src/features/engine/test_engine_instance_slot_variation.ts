@@ -1,4 +1,4 @@
-import { instanceSlot } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieInstanceSetPlacement } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,7 +43,7 @@ export function test_engine_instance_slot_variation(): void {
     ],
   });
   // 1. Legacy and enhanced shapes.
-  const legacy: ReturnType<typeof instanceSlot> = instanceSlot(crowd(), 0);
+  const legacy: ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> = AutoMovieEnginePopulationRuntime.instanceSlot(crowd(), 0);
   const enhanced: Array<[string, IAutoMovieInstanceSetPlacement]> = [
     [
       "prototypes",
@@ -123,7 +123,7 @@ export function test_engine_instance_slot_variation(): void {
           [
             name,
             (): boolean =>
-              keysOf(instanceSlot(placement, 0)).join(",") ===
+              keysOf(AutoMovieEnginePopulationRuntime.instanceSlot(placement, 0)).join(",") ===
               [...LEGACY_KEYS, "prototype", "rotation", "scale3", "visible"]
                 .sort((left: string, right: string): number =>
                   left < right ? -1 : left > right ? 1 : 0,
@@ -168,14 +168,14 @@ export function test_engine_instance_slot_variation(): void {
     namedFacts([
       [
         "named",
-        (): boolean => instanceSlot(named("short"), 0).model === "short-body",
+        (): boolean => AutoMovieEnginePopulationRuntime.instanceSlot(named("short"), 0).model === "short-body",
       ],
       [
         "missing",
         (): boolean =>
           throwsError(
-            (): ReturnType<typeof instanceSlot> =>
-              instanceSlot(named("ghost"), 0),
+            (): ReturnType<typeof AutoMovieEnginePopulationRuntime.instanceSlot> =>
+              AutoMovieEnginePopulationRuntime.instanceSlot(named("ghost"), 0),
             'slot 0 references missing prototype "ghost"',
           ),
       ],

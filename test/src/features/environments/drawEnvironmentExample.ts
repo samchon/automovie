@@ -1,4 +1,4 @@
-import { materializeCompiledInstanceSetInventory, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
+import { sampleMotion, AutoMovieEngineFilm, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieCamera,
@@ -139,7 +139,7 @@ export function drawEnvironmentExample(
       );
   }
   const instances: IAutoMovieInstanceSetViewerObject[] = Object.values(
-    materializeCompiledInstanceSetInventory({
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({
       world,
       models: modelTable,
       projectionRadii,

@@ -1,4 +1,4 @@
-import { formationSlotPosition, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type {
   IAutoMovieFormationLayout,
   IAutoMovieMotionHumanActionContext,
@@ -155,7 +155,7 @@ export namespace HumanFormation {
     const block: IAutoMovieMotionHumanFormation.IBlock = formation.blocks[b]!;
 
     // The block's own point: the engine's x is lateral, and its z, which grows rank by rank, is read as the depth toward the rear, so rank 0 is the front.
-    const point: IAutoMovieVector3 = formationSlotPosition(
+    const point: IAutoMovieVector3 = AutoMovieEnginePopulationFormation.formationSlotPosition(
       {
         id: `block${b}`,
         count: block.count,

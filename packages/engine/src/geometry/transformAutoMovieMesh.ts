@@ -9,7 +9,7 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/internal/resolveAutoMovieMeshPhysicalVertices";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 
 /** Largest admitted distance of a placement rotation's norm from one. */
 const UNIT_QUATERNION_EPSILON: number = 1e-6;

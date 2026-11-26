@@ -10,7 +10,7 @@ import type {
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidTraceObservation as Observation } from "./AutoMovieSolidTraceObservation";
-import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
+import { AutoMovieSolidTraceTrial } from "./internal/AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 type Vec3 = AutoMovieVector3Tuple;

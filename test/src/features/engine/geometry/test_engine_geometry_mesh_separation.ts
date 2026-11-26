@@ -1,4 +1,4 @@
-import { createAutoMovieMeshSeparationQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshSeparationQuery,
@@ -41,7 +41,7 @@ import { throwsError } from "../../internal/throwsError";
 export function test_engine_geometry_mesh_separation(): void {
   const p = (x: number, y: number, z: number): IAutoMovieVector3 => ({ x, y, z });
   const mesh: IAutoMovieMesh = { positions: [0, 0, 0, 2, 0, 0, 0, 2, 0], indices: [0, 1, 2], normals: [], uvs: [], skin: null };
-  const query: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery(mesh);
+  const query: IAutoMovieMeshSeparationQuery = AutoMovieEngineGeometry.createMeshSeparationQuery(mesh);
   const budget = { remaining: 100 };
   const above: IAutoMovieVector3[] = [p(0, 0, 1), p(2, 0, 1), p(0, 2, 1)];
 
@@ -70,7 +70,7 @@ export function test_engine_geometry_mesh_separation(): void {
   TestValidator.equals("owned snapshot", query(above, { clearance: 0.5, budget }).certified, true);
   TestValidator.equals(
     "collapsed resident",
-    createAutoMovieMeshSeparationQuery({ ...mesh, positions: [0, 0, 0, 0, 0, 0, 0, 0, 0], indices: [0, 1, 2] })(
+    AutoMovieEngineGeometry.createMeshSeparationQuery({ ...mesh, positions: [0, 0, 0, 0, 0, 0, 0, 0, 0], indices: [0, 1, 2] })(
       [p(1, 0, 0)],
       { clearance: 0.5, budget },
     ).certified,
@@ -84,7 +84,7 @@ export function test_engine_geometry_mesh_separation(): void {
     sheets.positions.push(0, 0, z, 2, 0, z, 0, 2, z);
     sheets.indices!.push(3 * at, 3 * at + 1, 3 * at + 2);
   }
-  const multi: IAutoMovieMeshSeparationResult = createAutoMovieMeshSeparationQuery(sheets)([p(0.25, 0.25, 0.5)], {
+  const multi: IAutoMovieMeshSeparationResult = AutoMovieEngineGeometry.createMeshSeparationQuery(sheets)([p(0.25, 0.25, 0.5)], {
     clearance: 1,
     budget: { remaining: 100 },
   });
@@ -94,7 +94,7 @@ export function test_engine_geometry_mesh_separation(): void {
   );
 
   // 5.
-  const resident: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery({
+  const resident: IAutoMovieMeshSeparationQuery = AutoMovieEngineGeometry.createMeshSeparationQuery({
     positions: [0, 0, 0, 2, 0, 0, 0, 2, 0],
     indices: [0, 1, 2],
     normals: null,
@@ -124,7 +124,7 @@ export function test_engine_geometry_mesh_separation(): void {
     throwsError((): unknown => resident(fan, attach({ ...own, supports: [1] })), "attachment"),
   );
   TestValidator.predicate("incomplete fan", throwsError((): unknown => resident(fan.slice(1), attach(own)), "attachment"));
-  const double: IAutoMovieMeshSeparationQuery = createAutoMovieMeshSeparationQuery({
+  const double: IAutoMovieMeshSeparationQuery = AutoMovieEngineGeometry.createMeshSeparationQuery({
     positions: [0, 0, 0, 2, 0, 0, 0, 2, 0, 2, 2, 0],
     indices: [0, 1, 2, 1, 3, 2],
     normals: null,

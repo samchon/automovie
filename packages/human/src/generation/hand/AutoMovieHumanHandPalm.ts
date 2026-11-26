@@ -1,7 +1,4 @@
-import {
-  tessellateAutoMovieContourLoft64,
-  tessellateAutoMovieContourStrip64,
-} from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type {
   AutoMovieCubicBezierControls3,
   AutoMovieVector3Tuple,
@@ -314,7 +311,7 @@ export namespace AutoMovieHumanHandPalm {
       });
     }
     const ordinary: IAutoMovieContourLoft64.IResult =
-      tessellateAutoMovieContourLoft64({
+      AutoMovieEngineCurve.tessellateContourLoft64({
         sections: rows,
         events,
         chordToleranceMm: 0.1,
@@ -550,7 +547,7 @@ export namespace AutoMovieHumanHandPalm {
       },
     );
     const tiles: number[] = [];
-    tessellateAutoMovieContourStrip64(
+    AutoMovieEngineCurve.tessellateContourStrip64(
       rings[0]!,
       rings[1]!,
       (
@@ -565,7 +562,7 @@ export namespace AutoMovieHumanHandPalm {
       ({
         qualified,
       }: Parameters<
-        NonNullable<Parameters<typeof tessellateAutoMovieContourStrip64>[4]>
+        NonNullable<Parameters<typeof AutoMovieEngineCurve.tessellateContourStrip64>[4]>
       >[0]): void => {
         if (!qualified)
           throw new Error(

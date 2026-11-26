@@ -1,4 +1,4 @@
-import { tessellateAutoMovieContourStrip64 } from "@automovie/engine";
+import { AutoMovieEngineCurve } from "@automovie/engine";
 import type { IAutoMovieContourLoft64 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -47,7 +47,7 @@ export function test_engine_geometry_contour_strip(): void {
   ) => {
     const tiles: O.Triangle[] = [];
     let record: Observation | undefined;
-    tessellateAutoMovieContourStrip64(
+    AutoMovieEngineCurve.tessellateContourStrip64(
       a,
       b,
       (p: O.V, q: O.V, r: O.V): void => {
@@ -221,7 +221,7 @@ export function test_engine_geometry_contour_strip(): void {
   ] satisfies O.V[][])
     TestValidator.predicate(
       `boundary ${boundary.length}`,
-      silent((emit) => tessellateAutoMovieContourStrip64(boundary, top, emit)),
+      silent((emit) => AutoMovieEngineCurve.tessellateContourStrip64(boundary, top, emit)),
     );
   for (const identity of [
     (): undefined => undefined,
@@ -230,7 +230,7 @@ export function test_engine_geometry_contour_strip(): void {
     TestValidator.predicate(
       "identity refused",
       silent(
-        (emit) => tessellateAutoMovieContourStrip64(lower, top, emit, identity),
+        (emit) => AutoMovieEngineCurve.tessellateContourStrip64(lower, top, emit, identity),
         "identity",
       ),
     );

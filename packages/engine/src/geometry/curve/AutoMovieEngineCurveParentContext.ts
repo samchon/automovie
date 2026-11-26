@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { Matrix4 } from "../../math/Matrix4";
-import { assertAutoMovieCurveBoundary64 } from "./assertAutoMovieCurveBoundary64";
+import { assertAutoMovieCurveBoundary64 } from "./internal/assertAutoMovieCurveBoundary64";
 import { assertFiniteCurveVector } from "./internal/assertFiniteCurveVector";
 import { freezeCurveBoundary } from "./internal/freezeCurveBoundary";
 import { isDenseFinite } from "./internal/isDenseFinite";

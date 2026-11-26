@@ -1,4 +1,4 @@
-import { transformFormationPoint } from "@automovie/engine";
+import { AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieVector3,
@@ -39,7 +39,7 @@ export const formationSpacingOffset: (
   spacing: { lateral: number; depth: number },
   baseFacingDeg: number,
 ): THREE.Vector3 => {
-  const placed: IAutoMovieVector3 = transformFormationPoint(
+  const placed: IAutoMovieVector3 = AutoMovieEnginePopulationFormation.transformFormationPoint(
     {
       x: point.x - anchor.x,
       y: point.y - anchor.y,

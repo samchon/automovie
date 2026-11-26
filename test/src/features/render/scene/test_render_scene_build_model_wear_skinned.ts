@@ -1,4 +1,4 @@
-import { measureAutoMovieFeatureEdges } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
   IAutoMovieMaterialWear,
@@ -80,7 +80,7 @@ export function test_render_scene_build_model_wear_skinned(): void {
   if (source.type !== "mesh") throw new Error("Expected a mesh part");
   const record: IAutoMovieMesh = source.mesh;
   const expected: IAutoMovieMeasureFeatureEdges.IResult =
-    measureAutoMovieFeatureEdges({
+    AutoMovieEngineGeometry.measureFeatureEdges({
       positions: new Float32Array(record.positions),
       indices: record.indices!,
       reach: 0.02,

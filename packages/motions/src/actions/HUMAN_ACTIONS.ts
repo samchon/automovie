@@ -68,10 +68,10 @@ import { kiss } from "../touch/kiss";
 import { selfAction } from "../touch/selfAction";
 import { touch } from "../touch/touch";
 import { jump } from "./jump";
-import { run } from "./run";
+import { run } from "../gait/internal/run";
 import { stand } from "./stand";
 import { support } from "./support";
-import { walk } from "./walk";
+import { walk } from "../gait/internal/walk";
 
 /**
  * Every action law by name: the closed table a performance dispatches through.

@@ -1,7 +1,7 @@
 import { IAutoMovieMesh } from "@automovie/interface";
 
-import { measureAutoMovieMeshClearance } from "./measureAutoMovieMeshClearance";
-import { triangleIndicesOf } from "./triangleIndicesOf";
+import { measureAutoMovieMeshClearance } from "./internal/measureAutoMovieMeshClearance";
+import { triangleIndicesOf } from "./internal/triangleIndicesOf";
 import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 
 /**

@@ -1,10 +1,4 @@
-import {
-  HUMANOID_REST_FRAME,
-  Transform,
-  Vector3,
-  prepareChainPlant,
-  skeletonJointAxes,
-} from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Transform, Vector3, prepareChainPlant, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBend,
@@ -61,7 +55,7 @@ export function AutoMovieMotionHumanBendChain(
   source?: AutoMovieMotionHumanBendChain.IPrepared,
 ): AutoMovieMotionHumanBendChain.IChain | null {
   const shared: AutoMovieMotionHumanBendChain.IPrepared | undefined = source;
-  const axes: ReturnType<typeof skeletonJointAxes> =
+  const axes: ReturnType<typeof AutoMovieEngineKinematics.skeletonJointAxes> =
     body.poseResolution.jointAxes;
   const pose: IAutoMoviePose = shared?.pose ?? {
     skeleton: body.skeleton.id,
@@ -161,7 +155,7 @@ export namespace AutoMovieMotionHumanBendChain {
     span: number;
 
     /** The rig's clinical axes by bone. */
-    axes: ReturnType<typeof skeletonJointAxes>;
+    axes: ReturnType<typeof AutoMovieEngineKinematics.skeletonJointAxes>;
 
     /** The trunk's placed colliders, world metres. */
     shapes: IAutoMovieMotionHumanColliders.IPlaced[];

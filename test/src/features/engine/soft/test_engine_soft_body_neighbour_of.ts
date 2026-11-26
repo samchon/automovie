@@ -1,4 +1,4 @@
-import { softBodyNeighbourOf } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,12 +15,12 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_soft_body_neighbour_of(): void {
   TestValidator.equals(
     "neighbours on the lattice",
-    [1, 7, 9].map((at: number): number => softBodyNeighbourOf(4, 3, 1, 1, at)),
+    [1, 7, 9].map((at: number): number => AutoMovieEngineSoftBody.softBodyNeighbourOf(4, 3, 1, 1, at)),
     [6, 10, 7],
   );
   TestValidator.equals(
     "neighbours off the lattice",
-    [8, 10].map((at: number): number => softBodyNeighbourOf(4, 3, 1, 1, at)),
+    [8, 10].map((at: number): number => AutoMovieEngineSoftBody.softBodyNeighbourOf(4, 3, 1, 1, at)),
     [-1, -1],
   );
 }

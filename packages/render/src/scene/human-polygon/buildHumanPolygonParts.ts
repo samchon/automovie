@@ -1,4 +1,4 @@
-import { resolveAutoMovieHumanoidRingModules } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieHumanBindBone,
   IAutoMovieHumanSkeleton,
@@ -30,7 +30,7 @@ export function buildHumanPolygonParts(
   const three = (value: IAutoMovieVector3): THREE.Vector3 =>
     new THREE.Vector3(value.x, value.y, value.z);
   let headObject: THREE.Group | undefined;
-  for (const module of resolveAutoMovieHumanoidRingModules(output.bones)) {
+  for (const module of AutoMovieEngineKinematics.resolveAutoMovieHumanoidRingModules(output.bones)) {
     const group: THREE.Group = add(
       boneAt(module.bone),
       module.rings.map(

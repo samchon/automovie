@@ -11,7 +11,7 @@ import type {
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
 import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
-import { resolveAutoMovieMomentumRates } from "../kinematics/resolveAutoMovieMomentumRates";
+import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { physicalInertiaFactor } from "../physics/physicalInertiaFactor";

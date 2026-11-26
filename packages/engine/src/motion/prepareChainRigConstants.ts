@@ -17,8 +17,8 @@ import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES
 import { hingedArmSpan } from "../kinematics/hingedArmSpan";
 import { jointRomOvershoot } from "../kinematics/jointRomOvershoot";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
-import { skeletonJointAxes } from "../kinematics/skeletonJointAxes";
+import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
+import { skeletonJointAxes } from "../kinematics/internal/skeletonJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { Quaternion } from "../math/Quaternion";
 import { clampJointToSkeleton } from "../rom/clampJointToSkeleton";

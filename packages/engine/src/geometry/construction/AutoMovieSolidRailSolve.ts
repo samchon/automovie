@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
-import { AutoMovieSolidTraceTrial } from "./AutoMovieSolidTraceTrial";
+import { AutoMovieSolidTraceTrial } from "./internal/AutoMovieSolidTraceTrial";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
 
 /** Existing vector arithmetic shared by both rail equations. */

@@ -2,11 +2,7 @@ import {
   createEnvironment,
   createTerrain,
 } from "@automovie/archetypes/environments";
-import {
-  instanceSlot,
-  materializeCompiledInstanceSetInventory,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { surfaceHeightAt, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieExplicitInstanceTransform,
@@ -147,8 +143,8 @@ export function test_location_terrain_woods(): void {
   });
   const rule: IAutoMovieHeightRule = trail.stage.space!.surfaces[0]!.height!;
   const anchor: IAutoMovieInstanceSetDesign["anchor"] = woodsOf(trail).anchor;
-  const compiled: ReturnType<typeof materializeCompiledInstanceSetInventory> =
-    materializeCompiledInstanceSetInventory({ world: trail.runtime.world });
+  const compiled: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory> =
+    AutoMovieEnginePopulationRuntime.materializeCompiledInstanceSetInventory({ world: trail.runtime.world });
   const facts: Record<string, boolean> = namedFacts([
     [
       "the wood plants trees with every trunk pair at least the spacing apart",
@@ -256,7 +252,7 @@ export function test_location_terrain_woods(): void {
         anchor.y === 0 &&
         planted.every(
           (t: IAutoMovieExplicitInstanceTransform, slot: number): boolean => {
-            const position: { x: number; y: number; z: number } = instanceSlot(
+            const position: { x: number; y: number; z: number } = AutoMovieEnginePopulationRuntime.instanceSlot(
               compiled["forest/land/woods/stand"]!,
               slot,
             ).position;

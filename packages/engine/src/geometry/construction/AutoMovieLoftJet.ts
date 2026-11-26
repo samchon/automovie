@@ -15,7 +15,7 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
-import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
+import { AutoMovieLoftWorldJet } from "./internal/AutoMovieLoftWorldJet";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 

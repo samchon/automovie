@@ -3,7 +3,7 @@ import type {
   IAutoMovieMotionHumanLexiconParams,
 } from "@automovie/interface";
 
-import { walk } from "../actions/walk";
+import { walk } from "../gait/internal/walk";
 import { carryHang } from "../handling/carryHang";
 import { pushSled } from "../handling/pushSled";
 import { AutoMovieMotionHumanActionRow } from "../law/AutoMovieMotionHumanActionRow";

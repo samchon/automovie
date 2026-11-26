@@ -1,8 +1,8 @@
 import type { IAutoMovieMesh } from "@automovie/interface";
 
-import { buildAutoMovieMeshQueryHierarchy } from "../../buildAutoMovieMeshQueryHierarchy";
-import { refitAutoMovieMeshQueryHierarchy } from "../../refitAutoMovieMeshQueryHierarchy";
-import { triangleIndicesOf } from "../../triangleIndicesOf";
+import { buildAutoMovieMeshQueryHierarchy } from "../../internal/buildAutoMovieMeshQueryHierarchy";
+import { refitAutoMovieMeshQueryHierarchy } from "../../internal/refitAutoMovieMeshQueryHierarchy";
+import { triangleIndicesOf } from "../../internal/triangleIndicesOf";
 import type { IAutoMovieMeshCrossingSnapshot } from "./IAutoMovieMeshCrossingSnapshot";
 import type { IAutoMovieMeshCrossingTriangle } from "./IAutoMovieMeshCrossingTriangle";
 

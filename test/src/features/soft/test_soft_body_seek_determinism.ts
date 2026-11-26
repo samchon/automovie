@@ -1,8 +1,4 @@
-import {
-  sampleSoftBody,
-  simulateSoftBody,
-  softBodyStateDigest,
-} from "@automovie/engine";
+import { sampleSoftBody, simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -97,7 +93,7 @@ export function test_soft_body_seek_determinism(): void {
   const ascending: string[] = Array.from(
     { length: 17 },
     (_: unknown, step: number): string =>
-      softBodyStateDigest(simulateSoftBody(domain, step)),
+      AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, step)),
   );
   const scrambled: number[] = [
     13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14,
@@ -110,7 +106,7 @@ export function test_soft_body_seek_determinism(): void {
         (): boolean =>
           scrambled.every(
             (step: number): boolean =>
-              softBodyStateDigest(simulateSoftBody(domain, step)) ===
+              AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, step)) ===
               ascending[step],
           ),
       ],
@@ -140,7 +136,7 @@ export function test_soft_body_seek_determinism(): void {
       ["contacts", (): boolean => once.contacts === twice.contacts],
       [
         "digest",
-        (): boolean => softBodyStateDigest(once) === softBodyStateDigest(twice),
+        (): boolean => AutoMovieEngineSoftBody.softBodyStateDigest(once) === AutoMovieEngineSoftBody.softBodyStateDigest(twice),
       ],
     ]),
     {
@@ -164,13 +160,13 @@ export function test_soft_body_seek_determinism(): void {
       [
         "differs",
         (): boolean =>
-          softBodyStateDigest(gathered) !== softBodyStateDigest(once),
+          AutoMovieEngineSoftBody.softBodyStateDigest(gathered) !== AutoMovieEngineSoftBody.softBodyStateDigest(once),
       ],
       [
         "stable",
         (): boolean =>
-          softBodyStateDigest(simulateSoftBody(domain, 48, "gathered")) ===
-          softBodyStateDigest(gathered),
+          AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, 48, "gathered")) ===
+          AutoMovieEngineSoftBody.softBodyStateDigest(gathered),
       ],
       ["named", (): boolean => gathered.state === "gathered"],
       ["default", (): boolean => once.state === null],
@@ -189,7 +185,7 @@ export function test_soft_body_seek_determinism(): void {
       [
         "sameAsSeek",
         (): boolean =>
-          softBodyStateDigest(sampleSoftBody(domain, dt * 9.75)) ===
+          AutoMovieEngineSoftBody.softBodyStateDigest(sampleSoftBody(domain, dt * 9.75)) ===
           ascending[9],
       ],
       [

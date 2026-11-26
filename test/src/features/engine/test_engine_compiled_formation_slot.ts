@@ -1,9 +1,4 @@
-import {
-  AutoMovieEngineWorld,
-  compiledFormationSlot,
-  formationSlot,
-  materializeCompiledFormation,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, materializeCompiledFormation, AutoMovieEnginePopulationRuntime, AutoMovieEnginePopulationFormation } from "@automovie/engine";
 import type {
   IAutoMovieCompiledFormation,
   IAutoMovieFormationDesign,
@@ -86,7 +81,7 @@ export function test_engine_compiled_formation_slot(): void {
   const regenerated: IAutoMovieFormationSlot[] = Array.from(
     { length: design.count },
     (_: unknown, slot: number): IAutoMovieFormationSlot =>
-      compiledFormationSlot(compiled, slot),
+      AutoMovieEnginePopulationRuntime.compiledFormationSlot(compiled, slot),
   );
 
   TestValidator.predicate(
@@ -96,7 +91,7 @@ export function test_engine_compiled_formation_slot(): void {
       Array.from(
         { length: design.count },
         (_: unknown, slot: number): IAutoMovieFormationSlot =>
-          formationSlot({ ...design, ground: compiled.ground }, slot),
+          AutoMovieEnginePopulationFormation.formationSlot({ ...design, ground: compiled.ground }, slot),
       ),
     ),
   );
@@ -140,7 +135,7 @@ export function test_engine_compiled_formation_slot(): void {
         "flatWithoutTerrain",
         (): boolean =>
           nclose(
-            formationSlot(design, upTheBank.slot).position.y,
+            AutoMovieEnginePopulationFormation.formationSlot(design, upTheBank.slot).position.y,
             design.anchor.y,
             1e-12,
           ),
@@ -148,20 +143,20 @@ export function test_engine_compiled_formation_slot(): void {
       [
         "designHero",
         (): boolean =>
-          formationSlot(design, 7).node === "captain" &&
-          formationSlot(design, 7).actor === "captain",
+          AutoMovieEnginePopulationFormation.formationSlot(design, 7).node === "captain" &&
+          AutoMovieEnginePopulationFormation.formationSlot(design, 7).actor === "captain",
       ],
       [
         "designAnonymous",
         (): boolean =>
-          formationSlot(design, 3).node === "formation:levy:slot:000003" &&
-          formationSlot(design, 3).actor === null,
+          AutoMovieEnginePopulationFormation.formationSlot(design, 3).node === "formation:levy:slot:000003" &&
+          AutoMovieEnginePopulationFormation.formationSlot(design, 3).actor === null,
       ],
       [
         "outside",
         (): boolean =>
           throwsError(
-            (): IAutoMovieFormationSlot => compiledFormationSlot(compiled, 30),
+            (): IAutoMovieFormationSlot => AutoMovieEnginePopulationRuntime.compiledFormationSlot(compiled, 30),
             'Formation "levy" slot 30 is outside 0..29',
           ),
       ],

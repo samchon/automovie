@@ -25,14 +25,14 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieConstructionAdmission } from "./AutoMovieConstructionAdmission";
-import { AutoMovieConstructionContinuationRealize } from "./AutoMovieConstructionContinuationRealize";
-import { AutoMovieConstructionPortRealize } from "./AutoMovieConstructionPortRealize";
-import { AutoMovieConstructionProfileRealize } from "./AutoMovieConstructionProfileRealize";
-import { AutoMovieConstructionProfileSkin } from "./AutoMovieConstructionProfileSkin";
+import { AutoMovieConstructionContinuationRealize } from "./internal/AutoMovieConstructionContinuationRealize";
+import { AutoMovieConstructionPortRealize } from "./internal/AutoMovieConstructionPortRealize";
+import { AutoMovieConstructionProfileRealize } from "./internal/AutoMovieConstructionProfileRealize";
+import { AutoMovieConstructionProfileSkin } from "./internal/AutoMovieConstructionProfileSkin";
 import { AutoMovieConstructionSeeds } from "./AutoMovieConstructionSeeds";
 import { AutoMovieConstructionSharedLoop } from "./AutoMovieConstructionSharedLoop";
 import { AutoMovieConstructionSkin } from "./AutoMovieConstructionSkin";
-import { AutoMovieConstructionSplitRealize } from "./AutoMovieConstructionSplitRealize";
+import { AutoMovieConstructionSplitRealize } from "./internal/AutoMovieConstructionSplitRealize";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieConstructionWidths } from "./AutoMovieConstructionWidths";
@@ -43,7 +43,7 @@ import { AutoMovieSolidIntersection } from "./AutoMovieSolidIntersection";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidTrim } from "./AutoMovieSolidTrim";
 import { AutoMovieViewLoft } from "./AutoMovieViewLoft";
-import { fairAutoMovieSolidMesh } from "./fairAutoMovieSolidMesh";
+import { fairAutoMovieSolidMesh } from "./internal/fairAutoMovieSolidMesh";
 
 /**
  * Realize operator and boundary records with no final skin when explicitly

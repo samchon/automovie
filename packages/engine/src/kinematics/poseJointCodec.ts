@@ -14,7 +14,7 @@ import type {
 import { getConstraint } from "../rom/getConstraint";
 import { decomposeJointRotation } from "./decomposeJointRotation";
 import { jointToQuaternion } from "./jointToQuaternion";
-import { skeletonJointAxes } from "./skeletonJointAxes";
+import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 
 /**
  * The two maps between a joint's clinical angles and its bone-local rotation on
@@ -95,27 +95,6 @@ export function poseJointCodec(
   };
 }
 
-/**
- * Whether an admitted axis interval has nonzero freedom, preserving null
- * immobility.
- */
-function mobile(range: IAutoMovieAngleRange | null): boolean {
-  return range !== null && range.max > range.min;
-}
-
-/**
- * One fresh clinical tuple and its bone, preserving the pose's source read
- * order.
- */
-function entry(
-  joint: IAutoMovieJointPose,
-): [AutoMovieHumanoidBone, [number, number, number]] {
-  return [
-    joint.bone,
-    [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0],
-  ];
-}
-
 /** Companion types of {@link poseJointCodec}. */
 export namespace poseJointCodec {
   /**
@@ -147,4 +126,25 @@ export namespace poseJointCodec {
   ): Map<AutoMovieHumanoidBone, [number, number, number]> {
     return new Map(pose.joints.map(entry));
   }
+}
+
+/**
+ * Whether an admitted axis interval has nonzero freedom, preserving null
+ * immobility.
+ */
+function mobile(range: IAutoMovieAngleRange | null): boolean {
+  return range !== null && range.max > range.min;
+}
+
+/**
+ * One fresh clinical tuple and its bone, preserving the pose's source read
+ * order.
+ */
+function entry(
+  joint: IAutoMovieJointPose,
+): [AutoMovieHumanoidBone, [number, number, number]] {
+  return [
+    joint.bone,
+    [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0],
+  ];
 }

@@ -1,4 +1,4 @@
-import { probeAutoMovieSolidMesh } from "@automovie/engine";
+import { AutoMovieEngineConstruction } from "@automovie/engine";
 import type {
   IAutoMovieSolidMeshConstraints,
   IAutoMovieSolidMeshIncidence,
@@ -60,7 +60,7 @@ export function test_engine_geometry_solid_mesh_probe(): void {
       lifts: [0, 0, 0, 0],
       winding: 0,
     };
-    const probe: readonly [number, number] | string = probeAutoMovieSolidMesh(
+    const probe: readonly [number, number] | string = AutoMovieEngineConstruction.probeSolidMesh(
       vertices,
       edges,
       walk,
