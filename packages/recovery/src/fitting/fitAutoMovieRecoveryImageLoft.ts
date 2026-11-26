@@ -14,6 +14,9 @@ import type {
 
 import { createRecoveryImageDirectionSolver } from "../internal/createRecoveryImageDirectionSolver";
 import { fitRecoveryImageProfiles } from "../internal/fitRecoveryImageProfiles";
+import { isRecoveryPositiveFinite } from "../internal/isRecoveryPositiveFinite";
+import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
+import { isRecoveryUnitInterval } from "../internal/isRecoveryUnitInterval";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
 
 /**
@@ -68,13 +71,12 @@ export function fitAutoMovieRecoveryImageLoft(
       ) ||
       !policy ||
       policy.family !== "aligned-elliptical-sections" ||
-      ![policy.maxViews, policy.maxRows, policy.maxSpans].every(
-        (value: number): boolean => value > 0,
-      ) ||
-      policy.maximumResidualPx <= 0 ||
-      ![policy.minimumDirectionRatio, policy.minimumSplineRatio].every(
-        (value: number): boolean => value > 0 && value < 1,
-      ) ||
+      !isRecoveryPositiveSafeInteger(policy.maxViews) ||
+      !isRecoveryPositiveSafeInteger(policy.maxRows) ||
+      !isRecoveryPositiveSafeInteger(policy.maxSpans) ||
+      !isRecoveryPositiveFinite(policy.maximumResidualPx) ||
+      !isRecoveryUnitInterval(policy.minimumDirectionRatio) ||
+      !isRecoveryUnitInterval(policy.minimumSplineRatio) ||
       observation.views.length < 3 ||
       observation.views.length > policy.maxViews
     )

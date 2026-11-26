@@ -17,6 +17,9 @@ import type {
 } from "@automovie/interface";
 
 import { fitRecoveryScalarProfiles } from "../internal/fitRecoveryScalarProfiles";
+import { isRecoveryPositiveFinite } from "../internal/isRecoveryPositiveFinite";
+import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
+import { isRecoveryUnitInterval } from "../internal/isRecoveryUnitInterval";
 import { prepareRecoveryImageSupports } from "../internal/prepareRecoveryImageSupports";
 
 /**
@@ -59,10 +62,11 @@ export function fitAutoMovieRecoveryImageSupportLoft(
     if (
       !policy ||
       policy.family !== "finite-view-convex-support" ||
-      policy.maxSpans < 1 ||
-      policy.maximumResidualPx <= 0 ||
-      policy.minimumSplineRatio <= 0 ||
-      policy.minimumSplineRatio >= 1 ||
+      !isRecoveryPositiveSafeInteger(policy.maxViews) ||
+      !isRecoveryPositiveSafeInteger(policy.maxRows) ||
+      !isRecoveryPositiveSafeInteger(policy.maxSpans) ||
+      !isRecoveryPositiveFinite(policy.maximumResidualPx) ||
+      !isRecoveryUnitInterval(policy.minimumSplineRatio) ||
       !policy.generation ||
       ![
         policy.generation.maxPlanes,

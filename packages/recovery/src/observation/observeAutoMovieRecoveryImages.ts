@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { assertRecoveryImageChart } from "../internal/assertRecoveryImageChart";
+import { isRecoveryPositiveSafeInteger } from "../internal/isRecoveryPositiveSafeInteger";
 
 /**
  * Measure opaque row supports using a supplied fixed RGB background and
@@ -43,11 +44,31 @@ export function observeAutoMovieRecoveryImages(
 
     // The caller's budget bounds the views, their pixels and the occupied
     // rows the scan retains.
+    if (
+      !input.budget ||
+      !isRecoveryPositiveSafeInteger(input.budget.maxViews) ||
+      !isRecoveryPositiveSafeInteger(input.budget.maxPixels) ||
+      !isRecoveryPositiveSafeInteger(input.budget.maxRows)
+    )
+      throw new Error(
+        "invalid-capture: positive safe-integer view, pixel and row budgets required",
+      );
     if (input.views.length > input.budget.maxViews)
       throw new Error("invalid-capture: views exceed the view budget");
     let pixels: number = 0;
     for (const view of input.views) {
+      if (
+        !isRecoveryPositiveSafeInteger(view.width) ||
+        !isRecoveryPositiveSafeInteger(view.height)
+      )
+        throw new Error(
+          "invalid-capture: positive safe-integer image dimensions required",
+        );
       const count: number = view.width * view.height;
+      if (!Number.isSafeInteger(count))
+        throw new Error(
+          "invalid-capture: image pixel count is not a safe integer",
+        );
       pixels += count;
       if (pixels > input.budget.maxPixels)
         throw new Error(

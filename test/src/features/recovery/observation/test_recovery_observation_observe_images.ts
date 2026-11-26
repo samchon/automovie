@@ -218,6 +218,51 @@ export function test_recovery_observation_observe_images(): void {
       ),
     );
   }
+  for (const invalid of [
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    1.5,
+    Number.MAX_SAFE_INTEGER + 1,
+    0,
+  ]) {
+    const malformed: IAutoMovieRecoveryImageInput = recoveryImageFixture();
+    malformed.budget.maxPixels = invalid;
+    TestValidator.equals(
+      `invalid pixel budget ${invalid} refuses before scanning`,
+      observeAutoMovieRecoveryImages(malformed).status,
+      "refused",
+    );
+  }
+  for (const invalid of [
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    1.5,
+    Number.MAX_SAFE_INTEGER + 1,
+    0,
+  ]) {
+    const malformed: IAutoMovieRecoveryImageInput = recoveryImageFixture();
+    malformed.budget.maxViews = invalid;
+    TestValidator.equals(
+      `invalid view budget ${invalid} refuses before scanning`,
+      observeAutoMovieRecoveryImages(malformed).status,
+      "refused",
+    );
+  }
+  for (const invalid of [
+    Number.NaN,
+    Number.POSITIVE_INFINITY,
+    1.5,
+    Number.MAX_SAFE_INTEGER + 1,
+    0,
+  ]) {
+    const malformed: IAutoMovieRecoveryImageInput = recoveryImageFixture();
+    malformed.budget.maxRows = invalid;
+    TestValidator.equals(
+      `invalid row budget ${invalid} refuses before scanning`,
+      observeAutoMovieRecoveryImages(malformed).status,
+      "refused",
+    );
+  }
   for (const offset of [1e20, Number.MAX_VALUE]) {
     const overflow: IAutoMovieRecoveryImageInput = recoveryImageFixture();
     overflow.views[0].camera.principalPointPx[0] = offset;

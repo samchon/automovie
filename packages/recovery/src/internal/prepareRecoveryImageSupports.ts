@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { assertRecoveryImageChart } from "./assertRecoveryImageChart";
+import { isRecoveryPositiveSafeInteger } from "./isRecoveryPositiveSafeInteger";
 
 /**
  * Admit measured image supports and prepare their common physical row chart.
@@ -25,7 +26,8 @@ export function prepareRecoveryImageSupports(
     !["analytic", "photograph", "inconsistent-stress"].includes(
       observation.cohort,
     ) ||
-    ![limits.maxViews, limits.maxRows].every((n: number): boolean => n > 0) ||
+    !isRecoveryPositiveSafeInteger(limits.maxViews) ||
+    !isRecoveryPositiveSafeInteger(limits.maxRows) ||
     observation.views.length < 3 ||
     observation.views.length > limits.maxViews
   )
