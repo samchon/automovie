@@ -238,6 +238,16 @@ Prepared quarters serve every diagnostic read.
 
 Returns one string or null with no retained query state.
 
+# src/geometry/construction/AutoMovieViewSection.ts#AutoMovieViewSection.geometryFault
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Admits the actual prepared source using the same curvature, support and finite-jet rules as a measured section. Callers measuring another metric can check the geometry before they measure it.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One delegation examines the prepared section directly and performs no length quadrature.
+
 # src/geometry/construction/AutoMovieViewSection.ts#AutoMovieViewSection.range
 
 ## @evidence contracts/development/implementation.md#principled-implementation

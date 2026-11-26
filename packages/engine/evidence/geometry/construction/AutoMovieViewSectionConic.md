@@ -87,3 +87,13 @@ Reads the section's prepared source without rebuilding its quarters.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns one string or null and retains no input.
+
+# src/geometry/construction/AutoMovieViewSectionConic.ts#AutoMovieViewSectionConic.geometryFault
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The prepared rational source supplies the actual radius and its derivatives. Finite positive jets, the polar curvature numerator and the original section supports give the geometry checks independently of any girth observation.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One pass reads at most 388 supported native jets. It builds no derivative table and keeps no results after returning.
