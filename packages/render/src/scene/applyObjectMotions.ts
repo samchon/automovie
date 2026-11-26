@@ -2,7 +2,7 @@ import { AutoMovieEngineSequence } from "@automovie/engine";
 import type { IAutoMovieClip } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { applySampledObjectMotion } from "./applySampledObjectMotion.js";
+import { applySampledObjectMotion } from "./internal/applySampledObjectMotion.js";
 
 /**
  * Apply a shot's object clips under the engine's per-channel authority rule. A

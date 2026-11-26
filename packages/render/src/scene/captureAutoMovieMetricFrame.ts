@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { assertAutoMovieMetricRasterBudget } from "./assertAutoMovieMetricRasterBudget.js";
+import { assertAutoMovieMetricRasterBudget } from "./internal/assertAutoMovieMetricRasterBudget.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 

@@ -16,7 +16,7 @@ import { renderWithAutoMovieInspectionDiagnostics } from "../scene/inspection/re
 import { resolveAutoMovieInspectionView } from "../scene/inspection/resolveAutoMovieInspectionView.js";
 import type { IAutoMovieViewerSubjectBounds } from "../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
-import { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
+import { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty.js";
 import { AutoMovieDrawFilm } from "./AutoMovieDrawFilm.js";
 import { AutoMovieDrawPlacement } from "./AutoMovieDrawPlacement.js";
 import type { AutoMovieDrawSubjects } from "./AutoMovieDrawSubjects.js";
@@ -28,7 +28,7 @@ import type { IAutoMovieDrawSubject } from "./IAutoMovieDrawSubject.js";
 import { describeAutoMovieDrawScene } from "./describeAutoMovieDrawScene.js";
 import { isAutoMoviePlainBeautyRequest } from "./isAutoMoviePlainBeautyRequest.js";
 import { observeAutoMoviePlacedInspection } from "./observeAutoMoviePlacedInspection.js";
-import { readAutoMovieDrawResult } from "./readAutoMovieDrawResult.js";
+import { readAutoMovieDrawResult } from "./internal/readAutoMovieDrawResult.js";
 import { selectAutoMovieDrawSubject } from "./selectAutoMovieDrawSubject.js";
 
 /**

@@ -2,7 +2,7 @@ import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import type * as THREE from "three";
 
-import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import type { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
 import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 import { renderFadeToBlackFrame } from "./renderFadeToBlackFrame.js";
 import { resolveAutoMovieFilmBeautyComposition } from "./resolveAutoMovieFilmBeautyComposition.js";

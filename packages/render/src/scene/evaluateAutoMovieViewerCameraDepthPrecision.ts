@@ -1,7 +1,7 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
 
-import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
+import { AUTOMOVIE_FLOAT32_MAX } from "./internal/AUTOMOVIE_FLOAT32_MAX.js";
 import type { IAutoMovieDepthPrecisionRenderer } from "./IAutoMovieDepthPrecisionRenderer.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 

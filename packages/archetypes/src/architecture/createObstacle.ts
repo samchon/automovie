@@ -5,11 +5,11 @@ import {
 } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { OBSTACLE_BANDS } from "./OBSTACLE_BANDS";
-import { createCrosstie } from "./createCrosstie";
-import { createCrowdBarrier } from "./createCrowdBarrier";
-import { createJerseyBarrier } from "./createJerseyBarrier";
-import { createRopeStanchions } from "./createRopeStanchions";
-import { createSandbag } from "./createSandbag";
+import { AutoMovieArchetypeCrosstie } from "./AutoMovieArchetypeCrosstie";
+import { AutoMovieArchetypeCrowdBarrier } from "./AutoMovieArchetypeCrowdBarrier";
+import { AutoMovieArchetypeJerseyBarrier } from "./AutoMovieArchetypeJerseyBarrier";
+import { AutoMovieArchetypeRopeStanchions } from "./AutoMovieArchetypeRopeStanchions";
+import { AutoMovieArchetypeSandbag } from "./AutoMovieArchetypeSandbag";
 
 /**
  * Read a saved obstacle recipe and call the corresponding fixed producer.
@@ -142,7 +142,7 @@ export namespace createObstacle {
    * The angle of a concrete barrier's lower face from the ground, degrees, as
    * FHWA-RD-89-036 Figure 1 gives it.
    */
-  export const LOWER_FACE: number = createJerseyBarrier.LOWER_FACE;
+  export const LOWER_FACE: number = AutoMovieArchetypeJerseyBarrier.LOWER_FACE;
 
   /**
    * The construction sizes no source read gives, metres, each an estimate no
@@ -158,8 +158,8 @@ export namespace createObstacle {
     picket: number;
     plate: number;
   }> = {
-    ...createCrowdBarrier.ESTIMATES,
-    plate: createRopeStanchions.BASE_THICKNESS,
+    ...AutoMovieArchetypeCrowdBarrier.ESTIMATES,
+    plate: AutoMovieArchetypeRopeStanchions.BASE_THICKNESS,
   };
 
   /** The band of each free dimension, by kind. */
@@ -169,11 +169,11 @@ export namespace createObstacle {
 
   /** The fixed producer of each saved kind. */
   export const PRODUCERS = {
-    crosstie: createCrosstie,
-    sandbag: createSandbag,
-    jerseyBarrier: createJerseyBarrier,
-    crowdBarrier: createCrowdBarrier,
-    ropeAndPosts: createRopeStanchions,
+    crosstie: AutoMovieArchetypeCrosstie.create,
+    sandbag: AutoMovieArchetypeSandbag.create,
+    jerseyBarrier: AutoMovieArchetypeJerseyBarrier.create,
+    crowdBarrier: AutoMovieArchetypeCrowdBarrier.create,
+    ropeAndPosts: AutoMovieArchetypeRopeStanchions.create,
   } as const satisfies Readonly<
     Record<Kind, (...args: never[]) => AutoMovieArchetype>
   >;

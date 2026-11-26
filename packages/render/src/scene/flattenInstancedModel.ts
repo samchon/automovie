@@ -10,7 +10,7 @@ import type { IBakeFormationCycleProps } from "./IBakeFormationCycleProps.js";
 import { bakeFormationCycle } from "./bakeFormationCycle.js";
 import { buildModel } from "./buildModel.js";
 import { collectAutoMovieOwnedResources } from "./collectAutoMovieOwnedResources.js";
-import { flattenRigidParts } from "./flattenRigidParts.js";
+import { flattenRigidParts } from "./internal/flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
 

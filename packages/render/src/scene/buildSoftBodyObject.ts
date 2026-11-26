@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieSoftBodyObject } from "./IAutoMovieSoftBodyObject.js";
-import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
+import type { IBuildSoftBodyObjectProps } from "./internal/IBuildSoftBodyObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 

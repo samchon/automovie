@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
+import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./internal/AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 
 /**
  * Construct a native camera for a supplied horizontal metric pixel chart. Pixel

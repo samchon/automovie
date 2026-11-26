@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
-import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
+import { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
+import { isAutoMovieDisplayBlendWeight } from "./internal/isAutoMovieDisplayBlendWeight.js";
 
 /**
  * Fade one directly resolved display frame over opaque black, or with

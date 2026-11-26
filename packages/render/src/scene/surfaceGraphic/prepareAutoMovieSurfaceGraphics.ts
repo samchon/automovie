@@ -16,7 +16,7 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
-import { decodeAutoMovieImage } from "../decodeAutoMovieImage.js";
+import { decodeAutoMovieImage } from "../internal/decodeAutoMovieImage.js";
 import { AutoMovieFilmResponseStage } from "../filmResponse/AutoMovieFilmResponseStage.js";
 import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieFilmResponseRenderer.js";
 import { AUTOMOVIE_SURFACE_GRAPHIC_KEY } from "./AUTOMOVIE_SURFACE_GRAPHIC_KEY.js";

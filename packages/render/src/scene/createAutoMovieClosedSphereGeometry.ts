@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AUTOMOVIE_FLOAT32_MAX } from "./AUTOMOVIE_FLOAT32_MAX.js";
+import { AUTOMOVIE_FLOAT32_MAX } from "./internal/AUTOMOVIE_FLOAT32_MAX.js";
 
 /**
  * Create a complete sphere with one exact positional sample at its periodic

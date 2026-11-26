@@ -14,7 +14,7 @@ import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
 import { invalidateAutoMovieSkinnedPose } from "./invalidateAutoMovieSkinnedPose.js";
-import { morphTargetDriversOf } from "./morphTargetDriversOf.js";
+import { morphTargetDriversOf } from "./internal/morphTargetDriversOf.js";
 
 /**
  * Apply a {@link IAutoMoviePose} to a built model by running the engine's

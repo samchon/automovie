@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import type { IAutoMoviePlantingObject } from "./IAutoMoviePlantingObject.js";
-import type { IBuildPlantingObjectProps } from "./IBuildPlantingObjectProps.js";
+import type { IBuildPlantingObjectProps } from "./internal/IBuildPlantingObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 

@@ -2,7 +2,7 @@ import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
+import { readAutoMovieTextureUploadFormat } from "./internal/readAutoMovieTextureUploadFormat.js";
 
 /**
  * Read a host-owned 2D target's complete attachment profile before drawing.

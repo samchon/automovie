@@ -1,9 +1,9 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { FixtureDraw } from "./FixtureDraw";
 import { ServiceCabinet } from "./ServiceCabinet";
-import { createAtm } from "./createAtm";
-import { createPayStation } from "./createPayStation";
-import { createVendingMachine } from "./createVendingMachine";
+import { AutoMovieArchetypeAtm } from "./AutoMovieArchetypeAtm";
+import { AutoMovieArchetypePayStation } from "./AutoMovieArchetypePayStation";
+import { AutoMovieArchetypeVendingMachine } from "./AutoMovieArchetypeVendingMachine";
 
 /**
  * Read a saved machine recipe and call the corresponding fixed producer.
@@ -106,9 +106,9 @@ export namespace createMachine {
 
   /** The fixed producer of each saved kind. */
   export const PRODUCERS = {
-    vendingMachine: createVendingMachine,
-    payStation: createPayStation,
-    atm: createAtm,
+    vendingMachine: AutoMovieArchetypeVendingMachine.create,
+    payStation: AutoMovieArchetypePayStation.create,
+    atm: AutoMovieArchetypeAtm.create,
   } as const satisfies Readonly<
     Record<Kind, (...args: never[]) => AutoMovieArchetype>
   >;

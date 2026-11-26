@@ -14,7 +14,7 @@ import type {
 import { AutoMovieRenderPicture } from "../picture/AutoMovieRenderPicture.js";
 import { AutoMovieRenderRasterSheet } from "../picture/AutoMovieRenderRasterSheet.js";
 import { diffAutoMovieCaptureFindings } from "./diffAutoMovieCaptureFindings.js";
-import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
+import { markAutoMovieCaptureCell } from "./internal/markAutoMovieCaptureCell.js";
 import { planAutoMovieCaptureLayout } from "./planAutoMovieCaptureLayout.js";
 
 /** The sides shown on one comparison row and any reason they could not pair. */

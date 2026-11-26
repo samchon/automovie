@@ -1,7 +1,7 @@
 import type { AutoMovieArchetype } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { CatBody } from "./CatBody";
-import { createCohortQuadruped } from "./createCohortQuadruped";
+import { createCohortQuadruped } from "./internal/createCohortQuadruped";
 
 /**
  * Build one bare adult domestic-cat prototype for ordinary walking shots.

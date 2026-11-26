@@ -1,6 +1,6 @@
 import type { IAutoMovieInstancedModelRepresentation } from "./IAutoMovieInstancedModelRepresentation.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
-import { flattenRigidParts } from "./flattenRigidParts.js";
+import { flattenRigidParts } from "./internal/flattenRigidParts.js";
 import { instancedModelParts } from "./instancedModelParts.js";
 
 /**

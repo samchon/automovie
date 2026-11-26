@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import type { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import type { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
 import { renderCrossDissolveFrames } from "./renderCrossDissolveFrames.js";
 
 /**

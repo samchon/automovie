@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieDisplayCompositor } from "./AutoMovieDisplayCompositor.js";
+import { AutoMovieDisplayCompositor } from "./internal/AutoMovieDisplayCompositor.js";
 import { AUTOMOVIE_FILM_RESPONSE_SHADERS } from "./filmResponse/AUTOMOVIE_FILM_RESPONSE_SHADERS.js";
 import { renderAutoMovieFilmFrame } from "./renderAutoMovieFilmFrame.js";
 

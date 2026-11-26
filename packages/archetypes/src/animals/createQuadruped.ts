@@ -20,7 +20,7 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { buildCamelBody } from "./camel/internal/buildCamelBody";
 import { createCamel } from "./createCamel";
 import { createCat } from "./createCat";
-import type { createCohortQuadruped } from "./createCohortQuadruped";
+import type { createCohortQuadruped } from "./internal/createCohortQuadruped";
 import { createDeer } from "./createDeer";
 import { createDog } from "./createDog";
 import { createDonkey } from "./createDonkey";

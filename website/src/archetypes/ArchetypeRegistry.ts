@@ -30,6 +30,23 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypeShot: "createShot",
   AutoMovieArchetypeShuttlecock: "createShuttlecock",
   AutoMovieArchetypeSphericalBall: "createSphericalBall",
+
+  AutoMovieArchetypeBeerTap: "createBeerTap",
+  AutoMovieArchetypeKerb: "createKerb",
+  AutoMovieArchetypeValve: "createValve",
+  AutoMovieArchetypeAtm: "createAtm",
+  AutoMovieArchetypeBollard: "createBollard",
+  AutoMovieArchetypeCrosstie: "createCrosstie",
+  AutoMovieArchetypeCrowdBarrier: "createCrowdBarrier",
+  AutoMovieArchetypeFireHydrant: "createFireHydrant",
+  AutoMovieArchetypeJerseyBarrier: "createJerseyBarrier",
+  AutoMovieArchetypeLampPost: "createLampPost",
+  AutoMovieArchetypePayStation: "createPayStation",
+  AutoMovieArchetypeRopeStanchions: "createRopeStanchions",
+  AutoMovieArchetypeSandbag: "createSandbag",
+  AutoMovieArchetypeSignPost: "createSignPost",
+  AutoMovieArchetypeTrafficCone: "createTrafficCone",
+  AutoMovieArchetypeVendingMachine: "createVendingMachine",
 };
 
 /** The website's local resolver for the installed archetype package. */

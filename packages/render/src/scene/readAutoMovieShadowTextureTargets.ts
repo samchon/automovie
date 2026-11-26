@@ -8,8 +8,8 @@ import * as THREE from "three";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import type { IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
-import { matchesAutoMovieShadowTextureProfile } from "./matchesAutoMovieShadowTextureProfile.js";
-import { planAutoMovieShadowTextureTarget } from "./planAutoMovieShadowTextureTarget.js";
+import { matchesAutoMovieShadowTextureProfile } from "./internal/matchesAutoMovieShadowTextureProfile.js";
+import { planAutoMovieShadowTextureTarget } from "./internal/planAutoMovieShadowTextureTarget.js";
 import { readAutoMovieRenderTextureTarget } from "./readAutoMovieRenderTextureTarget.js";
 import { readAutoMovieShadowLightSource } from "./readAutoMovieShadowLightSource.js";
 

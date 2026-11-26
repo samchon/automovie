@@ -9,7 +9,7 @@ import type { IAutoMovieRenderModeHandle } from "../scene/IAutoMovieRenderModeHa
 import { applyRenderMode } from "../scene/applyRenderMode.js";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
-import type { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
+import type { AutoMovieDrawBeauty } from "./internal/AutoMovieDrawBeauty.js";
 import type { IAutoMovieDrawScene } from "./IAutoMovieDrawScene.js";
 import { placeAutoMovieDrawLayer } from "./placeAutoMovieDrawLayer.js";
 import { AutoMovieRenderDraw } from "./AutoMovieRenderDraw.js";

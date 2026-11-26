@@ -3,7 +3,7 @@ import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
+import { createAutoMovieSurfaceVertexAdapter } from "./internal/createAutoMovieSurfaceVertexAdapter.js";
 import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 /** The largest finite binary32 magnitude a GPU vertex attribute can hold. */

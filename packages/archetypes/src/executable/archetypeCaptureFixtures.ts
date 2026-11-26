@@ -1,30 +1,4 @@
-import {
-  createAppliance,
-  createBar,
-  createBeerTap,
-  createBin,
-  createBoard,
-  createCellFront,
-  createControl,
-  createDoor,
-  createElevator,
-  createGate,
-  createHandhold,
-  createHatch,
-  createLadder,
-  createMachine,
-  createMirror,
-  createObstacle,
-  createRamp,
-  createSaloonDoor,
-  createSanitary,
-  createStairs,
-  createStreetFixture,
-  createSwitch,
-  createValve,
-  createWall,
-  createWindow,
-} from "../architecture";
+import { createAppliance, createBar, createBin, createBoard, createCellFront, createControl, createDoor, createElevator, createGate, createHandhold, createHatch, createLadder, createMachine, createMirror, createObstacle, createRamp, createSaloonDoor, createSanitary, createStairs, createStreetFixture, createSwitch, createWall, createWindow, AutoMovieArchetypeBeerTap, AutoMovieArchetypeValve } from "../architecture";
 import type { AutoMovieArchetype } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -67,7 +41,7 @@ export function archetypeCaptureFixtures(
           createControl({ kind }),
       ),
       hatch: createHatch(),
-      beerTap: createBeerTap(),
+      beerTap: AutoMovieArchetypeBeerTap.create(),
     }),
     climbing: still({
       stairs: createStairs({ steps: 8 }),
@@ -134,7 +108,7 @@ export function archetypeCaptureFixtures(
         (kind: createMachine.Kind): AutoMovieArchetype =>
           createMachine({ kind }),
       ),
-      valve: createValve(),
+      valve: AutoMovieArchetypeValve.create(),
       elevator: createElevator(),
       ...kinds(
         "handhold",

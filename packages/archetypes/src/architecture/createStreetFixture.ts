@@ -6,11 +6,11 @@ import {
 import { FixtureDraw } from "./FixtureDraw";
 import { STREET_FIXTURE_BANDS } from "./STREET_FIXTURE_BANDS";
 import { STREET_FIXTURE_MODELS } from "./STREET_FIXTURE_MODELS";
-import { createBollard } from "./createBollard";
-import { createFireHydrant } from "./createFireHydrant";
-import { createLampPost } from "./createLampPost";
-import { createSignPost } from "./createSignPost";
-import { createTrafficCone } from "./createTrafficCone";
+import { AutoMovieArchetypeBollard } from "./AutoMovieArchetypeBollard";
+import { AutoMovieArchetypeFireHydrant } from "./AutoMovieArchetypeFireHydrant";
+import { AutoMovieArchetypeLampPost } from "./AutoMovieArchetypeLampPost";
+import { AutoMovieArchetypeSignPost } from "./AutoMovieArchetypeSignPost";
+import { AutoMovieArchetypeTrafficCone } from "./AutoMovieArchetypeTrafficCone";
 
 /**
  * Read a saved streetFixture recipe and call the corresponding fixed producer.
@@ -49,11 +49,11 @@ export function createStreetFixture(
       ) => AutoMovieArchetype<createStreetFixture.Affordance, createStreetFixture.Dimension>
     >
   > = {
-    trafficCone: (p, s) => createTrafficCone({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["cone 18 in", "cone 28 in"] as const) }, s),
-    bollard: (p, s) => createBollard({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["R-1007-04", "R-1007-06", "R-1007-08", "R-1007-10"] as const) }, s),
-    hydrant: ({ model: _model, ...rest }, s) => createFireHydrant(rest, s),
-    lampPost: ({ model: _model, ...rest }, s) => createLampPost(rest, s),
-    signPost: (p, s) => createSignPost({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["STOP 30 in", "STOP 36 in"] as const) }, s),
+    trafficCone: (p, s) => AutoMovieArchetypeTrafficCone.create({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["cone 18 in", "cone 28 in"] as const) }, s),
+    bollard: (p, s) => AutoMovieArchetypeBollard.create({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["R-1007-04", "R-1007-06", "R-1007-08", "R-1007-10"] as const) }, s),
+    hydrant: ({ model: _model, ...rest }, s) => AutoMovieArchetypeFireHydrant.create(rest, s),
+    lampPost: ({ model: _model, ...rest }, s) => AutoMovieArchetypeLampPost.create(rest, s),
+    signPost: (p, s) => AutoMovieArchetypeSignPost.create({ ...p, model: ArchetypeDraw.admit("streetFixture", "model", p.model, ["STOP 30 in", "STOP 36 in"] as const) }, s),
   };
   return variants[kind](params, seed);
 }
@@ -173,11 +173,11 @@ export namespace createStreetFixture {
 
   /** The fixed producer of each saved kind. */
   export const PRODUCERS = {
-    trafficCone: createTrafficCone,
-    bollard: createBollard,
-    hydrant: createFireHydrant,
-    lampPost: createLampPost,
-    signPost: createSignPost,
+    trafficCone: AutoMovieArchetypeTrafficCone.create,
+    bollard: AutoMovieArchetypeBollard.create,
+    hydrant: AutoMovieArchetypeFireHydrant.create,
+    lampPost: AutoMovieArchetypeLampPost.create,
+    signPost: AutoMovieArchetypeSignPost.create,
   } as const satisfies Readonly<
     Record<Kind, (...args: never[]) => AutoMovieArchetype>
   >;

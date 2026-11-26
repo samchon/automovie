@@ -3,7 +3,7 @@ import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadru
 import { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 import { CamelCohorts } from "./camel/internal/CamelCohorts";
 import { buildCamelBody } from "./camel/internal/buildCamelBody";
-import { createCohortQuadruped } from "./createCohortQuadruped";
+import { createCohortQuadruped } from "./internal/createCohortQuadruped";
 
 /**
  * A coarse single-hump dromedary reference with an explicitly authored pack or

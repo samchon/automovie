@@ -17,7 +17,7 @@ import { AutoMovieRenderRasterSheet } from "../picture/AutoMovieRenderRasterShee
 import { reduceAutoMovieInspectionEpisodes } from "../scene/inspection/reduceAutoMovieInspectionEpisodes.js";
 import { compareAutoMovieCaptureRounds } from "./compareAutoMovieCaptureRounds.js";
 import { formatAutoMovieCapturePlanRequest } from "./formatAutoMovieCapturePlanRequest.js";
-import { markAutoMovieCaptureCell } from "./markAutoMovieCaptureCell.js";
+import { markAutoMovieCaptureCell } from "./internal/markAutoMovieCaptureCell.js";
 import { scaleAutoMovieCaptureLabels } from "./scaleAutoMovieCaptureLabels.js";
 
 /**

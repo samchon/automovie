@@ -7,7 +7,7 @@ import {
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "./AutoMovieArchetypeQuadrupedHeadAttachment";
-import { createCohortQuadruped } from "./createCohortQuadruped";
+import { createCohortQuadruped } from "./internal/createCohortQuadruped";
 import { DeerCohorts } from "./deer/internal/DeerCohorts";
 import { buildDeerBody } from "./deer/internal/buildDeerBody";
 

@@ -10,7 +10,7 @@ import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResou
 import { applyDetailNormal } from "./detailNormalShading/index.js";
 import { applyMaterialOverlays } from "./materialOverlayShading/index.js";
 import { applyProceduralSurface } from "./proceduralShading/index.js";
-import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
+import { resolveAutoMovieMaterialTexture } from "./internal/resolveAutoMovieMaterialTexture.js";
 import { applySubsurfaceShading } from "./subsurfaceShading/index.js";
 
 /**

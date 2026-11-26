@@ -18,24 +18,24 @@ import * as THREE from "three";
 import type { IAutoMovieFormationCycle } from "./IAutoMovieFormationCycle.js";
 import type { IAutoMovieFormationViewerObject } from "./IAutoMovieFormationViewerObject.js";
 import type { IAutoMovieFormationViewerStats } from "./IAutoMovieFormationViewerStats.js";
-import type { IBuildInstancedFormationProps } from "./IBuildInstancedFormationProps.js";
-import type { IChunkObject } from "./IChunkObject.js";
-import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
-import type { ISlotException } from "./ISlotException.js";
-import { bindFormationTierCycle } from "./bindFormationTierCycle.js";
+import type { IBuildInstancedFormationProps } from "./internal/IBuildInstancedFormationProps.js";
+import type { IChunkObject } from "./internal/IChunkObject.js";
+import type { IFormationTierRepresentation } from "./internal/IFormationTierRepresentation.js";
+import type { ISlotException } from "./internal/ISlotException.js";
+import { bindFormationTierCycle } from "./internal/bindFormationTierCycle.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { createFormationRepresentations } from "./createFormationRepresentations.js";
+import { createFormationRepresentations } from "./internal/createFormationRepresentations.js";
 import { readAutoMovieDeliveryCrop } from "./deliveryCrop.js";
-import { describeFormationTextureSources } from "./describeFormationTextureSources.js";
-import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
+import { describeFormationTextureSources } from "./internal/describeFormationTextureSources.js";
+import { disposeFormationRepresentations } from "./internal/disposeFormationRepresentations.js";
 import { applyFormationCycleCadence } from "./formationCycle/index.js";
-import { formationSpacingOffset } from "./formationSpacingOffset.js";
+import { formationSpacingOffset } from "./internal/formationSpacingOffset.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
-import { objectTransform } from "./objectTransform.js";
+import { objectTransform } from "./internal/objectTransform.js";
 import { regenerateFormationSlot } from "./regenerateFormationSlot.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
-import { slotMatrix } from "./slotMatrix.js";
-import { vector } from "./vector.js";
+import { slotMatrix } from "./internal/slotMatrix.js";
+import { vector } from "./internal/vector.js";
 
 /**
  * Build one compact formation as chunked instance batches.

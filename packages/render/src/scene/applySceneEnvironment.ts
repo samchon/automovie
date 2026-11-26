@@ -1,8 +1,8 @@
 import type { IAutoMovieSceneEnvironment } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieEnvironmentTextureOwnership } from "./AutoMovieEnvironmentTextureOwnership.js";
-import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
+import { AutoMovieEnvironmentTextureOwnership } from "./internal/AutoMovieEnvironmentTextureOwnership.js";
+import { readAutoMovieEnvironmentColorSpace } from "./internal/readAutoMovieEnvironmentColorSpace.js";
 
 /**
  * Apply image lighting and background without adding scene-graph children.

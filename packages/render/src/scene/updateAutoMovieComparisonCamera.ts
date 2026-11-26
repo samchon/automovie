@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
+import { AUTOMOVIE_MATRIX_ELEMENT_LIMIT } from "./internal/AUTOMOVIE_MATRIX_ELEMENT_LIMIT.js";
 
 /**
  * Update a matched parallel comparison from a standalone centred camera. The

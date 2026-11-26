@@ -11,7 +11,7 @@ import { buildSoftBodyObject } from "./buildSoftBodyObject.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { softPropCordSurface } from "./softPropCordSurface.js";
+import { softPropCordSurface } from "./internal/softPropCordSurface.js";
 
 /**
  * Own a scene's soft props without retaining film samples. Each update supplies

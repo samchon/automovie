@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { AUTOMOVIE_FLOAT32_MAX } from "../AUTOMOVIE_FLOAT32_MAX.js";
+import { AUTOMOVIE_FLOAT32_MAX } from "../internal/AUTOMOVIE_FLOAT32_MAX.js";
 
 /**
  * Whether every coordinate of a computed point survives the GPU's float32

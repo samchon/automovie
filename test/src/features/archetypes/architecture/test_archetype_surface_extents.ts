@@ -1,19 +1,4 @@
-import {
-  type AutoMovieArchetype,
-  createAtm,
-  createBoard,
-  AutoMovieArchetypeCamera,
-  createClipboard,
-  createLaptop,
-  createMachine,
-  createPaper,
-  AutoMovieArchetypePhone,
-  createScenicParadeBanner,
-  createScenicStandard,
-  createSignPost,
-  AutoMovieArchetypeTablet,
-  createWatch,
-} from "@automovie/archetypes";
+import { type AutoMovieArchetype, createBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, createScenicParadeBanner, createScenicStandard, AutoMovieArchetypeTablet, createWatch, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
@@ -121,7 +106,7 @@ const LISTED: readonly IListed[] = [
     surface: "screen",
     top: "upright",
     builds: () => [
-      ...seeded((seed) => createAtm({}, seed)),
+      ...seeded((seed) => AutoMovieArchetypeAtm.create({}, seed)),
       ...seeded((seed) => createMachine({ kind: "atm" }, seed)),
     ],
   },
@@ -172,7 +157,7 @@ const LISTED: readonly IListed[] = [
     top: "upright",
     builds: () =>
       (["STOP 30 in", "STOP 36 in"] as const).flatMap((model) =>
-        seeded((seed) => createSignPost({ model }, seed)),
+        seeded((seed) => AutoMovieArchetypeSignPost.create({ model }, seed)),
       ),
   },
 ];
@@ -223,7 +208,7 @@ export function test_archetype_surface_extents(): void {
     [],
   );
 
-  const atm: IAutoMovieAffordance = createAtm({}, 1).affordance("screen");
+  const atm: IAutoMovieAffordance = AutoMovieArchetypeAtm.create({}, 1).affordance("screen");
   const width: number = atm.width! * 1000;
   const depth: number = atm.depth! * 1000;
   TestValidator.predicate(

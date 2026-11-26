@@ -3,7 +3,7 @@ import type {
   IAutoMovieFilmBeautyLayer,
 } from "@automovie/interface";
 
-import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
+import { isAutoMovieDisplayBlendWeight } from "./internal/isAutoMovieDisplayBlendWeight.js";
 
 /**
  * Resolve a builder-sampled beauty layer list into one explicit compositor.

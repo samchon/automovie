@@ -1,7 +1,7 @@
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "./AUTOMOVIE_HUMANOID_BONE_SLOTS.js";
+import { AUTOMOVIE_HUMANOID_BONE_SLOTS } from "./internal/AUTOMOVIE_HUMANOID_BONE_SLOTS.js";
 import type { IAutoMovieImportedModelOptions } from "./IAutoMovieImportedModelOptions.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 

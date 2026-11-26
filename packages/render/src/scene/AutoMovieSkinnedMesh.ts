@@ -1,8 +1,8 @@
 import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
-import { AutoMovieSkinPose } from "./AutoMovieSkinPose.js";
+import { AutoMovieSkinBlend } from "./internal/AutoMovieSkinBlend.js";
+import { AutoMovieSkinPose } from "./internal/AutoMovieSkinPose.js";
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 

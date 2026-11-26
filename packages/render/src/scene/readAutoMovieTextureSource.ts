@@ -5,8 +5,8 @@ import type {
 import * as THREE from "three";
 
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { readAutoMovieEnvironmentColorSpace } from "./readAutoMovieEnvironmentColorSpace.js";
-import { readAutoMovieTextureUploadFormat } from "./readAutoMovieTextureUploadFormat.js";
+import { readAutoMovieEnvironmentColorSpace } from "./internal/readAutoMovieEnvironmentColorSpace.js";
+import { readAutoMovieTextureUploadFormat } from "./internal/readAutoMovieTextureUploadFormat.js";
 
 /**
  * Observe positive two-dimensional decoded texture extents and current

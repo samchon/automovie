@@ -1,4 +1,4 @@
-import { isAutoMovieDisplayBlendWeight } from "./isAutoMovieDisplayBlendWeight.js";
+import { isAutoMovieDisplayBlendWeight } from "./internal/isAutoMovieDisplayBlendWeight.js";
 
 /**
  * Mix two straight-alpha RGBA byte pixels at a weight, as
