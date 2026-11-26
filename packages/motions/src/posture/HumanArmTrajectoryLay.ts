@@ -46,11 +46,7 @@ export function HumanArmTrajectoryLay(
     ],
   );
   const path = (a: number, share: number): number[] => {
-    const out: number[] = HumanArmTrajectoryLay.blend(
-      ends[a]![0],
-      ends[a]![1],
-      share,
-    );
+    const out: number[] = mix(ends[a]![0], ends[a]![1], share);
     for (const detour of detours) {
       const w: number = Clear.bump(share, detour.share);
       if (w > 0)
@@ -164,24 +160,6 @@ export function HumanArmTrajectoryLay(
 
 /** A laid transport's course and result. */
 export namespace HumanArmTrajectoryLay {
-  /**
-   * The undetoured joint path at a share of its transport.
-   *
-   * @param from The arm's first coordinates.
-   * @param to The arm's last coordinates.
-   * @param share The share between the two held boundaries.
-   * @returns The coordinates at that share, before range projection.
-   */
-  export function blend(
-    from: readonly number[],
-    to: readonly number[],
-    share: number,
-  ): number[] {
-    return from.map(
-      (value: number, d: number): number => value + (to[d]! - value) * share,
-    );
-  }
-
   /** The course a transport is laid into and what it is read on. */
   export interface IScope {
     /** The context of the course's waypoints. */
@@ -206,6 +184,11 @@ export namespace HumanArmTrajectoryLay {
     /** The transport follows a straight wrist path in the carrier frame. */
     effector: boolean;
   }
+}
+
+/** A blend of two coordinate lists by a share. */
+function mix(p: readonly number[], q: readonly number[], w: number): number[] {
+  return p.map((v: number, d: number): number => v + (q[d]! - v) * w);
 }
 
 /**

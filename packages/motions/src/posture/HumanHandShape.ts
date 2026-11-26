@@ -23,9 +23,6 @@ import type {
 import { HumanColliders } from "./HumanColliders";
 import { poseBones } from "./poseBones";
 
-/** The working fist and folded emblem fingers share these clinical angles. */
-const FOLDED_FLEXION = { Proximal: 85, Intermediate: 95, Distal: 70 } as const;
-
 /** The alternatives of `TipSide`'s site. */
 type TipSide = "Left" | "Right";
 
@@ -64,8 +61,12 @@ export function HumanHandShape(
   for (const digit of ["Index", "Middle", "Ring", "Little"]) {
     const curled: boolean =
       form === "fist" || (form === "point" && digit !== "Index");
-    for (const segment of ["Proximal", "Intermediate", "Distal"] as const) {
-      if (curled) set(`${digit}${segment}`, FOLDED_FLEXION[segment]);
+    for (const segment of ["Proximal", "Intermediate", "Distal"]) {
+      if (curled)
+        set(
+          `${digit}${segment}`,
+          segment === "Proximal" ? 85 : segment === "Intermediate" ? 95 : 90,
+        );
       else if (form !== "relaxed") set(`${digit}${segment}`, 0);
       // The position of rest on a finger whose zero is straight: the
       // body's rest pose no longer carries a curl of its own.
@@ -145,7 +146,7 @@ export namespace HumanHandShape {
               : Number(form.slice(5));
     digits.forEach((digit: string, index: number): void => {
       const open: boolean = index < straight;
-      for (const segment of ["Proximal", "Intermediate", "Distal"] as const) {
+      for (const segment of ["Proximal", "Intermediate", "Distal"]) {
         const bone: AutoMovieHumanoidBone =
           `${side}${digit}${segment}` as AutoMovieHumanoidBone;
 
@@ -174,7 +175,11 @@ export namespace HumanHandShape {
                   : 60
                 : open
                   ? 0
-                  : FOLDED_FLEXION[segment];
+                  : segment === "Proximal"
+                    ? 85
+                    : segment === "Intermediate"
+                      ? 95
+                      : 90;
         out[bone] = [hooked, lean, 0];
       }
     });

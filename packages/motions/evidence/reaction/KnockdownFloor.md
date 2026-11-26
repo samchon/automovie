@@ -1,33 +1,3 @@
-# src/reaction/KnockdownFloor.ts#KnockdownFloor.fitProneKnee
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Returns a terminal clinical knee angle in degrees, measured against the body's placed distal and trunk support geometry.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Compares the minimum height of the distal leg colliders with the minimum from the rest of the body at the same prone pose. An angular bracket finds the first supported trial from below.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-The fit reads one fixed pose per trial. The collapse fold uses its returned knee angle during the lay phase.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-The trial interval stays inside both knees' flexion ranges and ends at most one quarter turn from its initial angle. The original angle is retained if it already clears or the upper trial cannot establish a bracket.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Two bracket readings and at most sixteen bisections use fixed preparation inputs. No pose sequence is evaluated during the fit.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Uses the existing posture, forward-kinematics and collider minima readers on the same physical profile used for floor contact.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-One scalar angle escapes. The pose projection and minima readers are local to the fit.
-
 # src/reaction/KnockdownFloor.ts#KnockdownFloor.IFold
 
 ## @evidence contracts/development/common.md#meaningful-documentation

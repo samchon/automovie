@@ -75,13 +75,10 @@ type OffsetSide = "Left" | "Right";
  *   surface);
  * - `point`: the index straight, the other fingers curled as the fist and the
  *   thumb folded over them;
- * - `fist`: proximal phalanges 85, the middle 95 and the distal 70 degrees, and
- *   the thumb's proximal 40 and distal 50 degrees across the curled fingers.
- *   The common distal angle is an ESTIMATE from the approximately 67–74 degree
- *   endpoints of active closure in Figure 3 of
- *   https://doi.org/10.3390/biomimetics8020244. Section 6 of
- *   https://doi.org/10.1155/2013/910961 measures 70 degrees in the index during
- *   repeated fist closure.
+ * - `fist`: proximal phalanges 85, the middle 95 and the distal 90 degrees, the
+ *   distal at the end of its range (80 to 90 in every located norm,
+ *   `DEFAULT_HUMANOID_ROM`), and the thumb's proximal 40 and distal 50 degrees
+ *   across the curled fingers;
  * - `bridge`: a sprinter's set hand, every finger straight and the thumb at its
  *   neutral, standing palmar of the knuckles' plane and spread from the
  *   forefinger, so the hand stands on the forefinger's and the thumb's tips

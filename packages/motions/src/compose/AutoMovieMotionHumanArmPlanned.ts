@@ -274,7 +274,7 @@ export namespace AutoMovieMotionHumanArmPlanned {
    */
   export function planned(
     body: IAutoMovieMotionHumanBody,
-    span: AutoMovieMotionHumanArmPlannedProblem.IScope["span"],
+    span: IAutoMovieMotionHumanArmPlanned.ISpan,
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[],
     before: IAutoMovieMotionHumanActionPlan["posture"],
     plan?: Pick<IAutoMovieMotionHumanArmPlanned.ITogether, PlannedPlan>,

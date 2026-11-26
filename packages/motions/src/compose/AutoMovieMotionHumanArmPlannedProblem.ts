@@ -8,7 +8,6 @@ import type {
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import type { HumanArmTrajectoryModel } from "../posture/HumanArmTrajectoryModel";
 import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
@@ -167,8 +166,6 @@ export function AutoMovieMotionHumanArmPlannedProblem(
   ): HumanArmTrajectory.IProblem => ({
     body,
     times: waypoints,
-    ...(span.fixedSelf === undefined ? {} : { fixedSelf: span.fixedSelf }),
-    ...(span.holdTempo === undefined ? {} : { holdTempo: span.holdTempo }),
     ...(carries.some((arm) => arm.on !== undefined)
       ? {
           material: { at: base, bones: carries.map((arm) => arm.on) },
@@ -276,12 +273,7 @@ export namespace AutoMovieMotionHumanArmPlannedProblem {
     body: IAutoMovieMotionHumanBody;
 
     /** The span's instants. */
-    span: IAutoMovieMotionHumanArmPlanned.ISpan & {
-      /** A body-held source interval and its fixed digit angles. */
-      fixedSelf?: HumanArmTrajectoryModel.FixedSelf;
-      /** The hold's elapsed-time multiplier when it differs from transport. */
-      holdTempo?: number;
-    };
+    span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
     /** The arms. */
     carries: readonly IAutoMovieMotionHumanArmPlanned.IPlanned[];

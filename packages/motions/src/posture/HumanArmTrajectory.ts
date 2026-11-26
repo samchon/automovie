@@ -77,10 +77,6 @@ export namespace HumanArmTrajectory {
     bases: readonly G.IBase[];
     /** Native body geometry for the authored hand support, when present. */
     material?: M.IMaterialSource;
-    /** An authored interval with fixed self geometry and digit placement. */
-    fixedSelf?: M.FixedSelf;
-    /** The explicit replan's hold clock scale, when separate from transport. */
-    holdTempo?: number;
     /** The arms, one or two. */
     arms: readonly IArm[];
     /**

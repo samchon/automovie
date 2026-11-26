@@ -14,7 +14,6 @@ const ACTOR = "a";
 /** The wave's transport rates and the shoulder level of the displayed stop palm. */
 export function test_motions_everyday_gesture_geometry(): void {
   const { body }: FamilyCaseKit.IBody = FamilyCaseKit.body("m-average");
-  const findings: string[] = [];
   for (const side of ["right", "left"] as const) {
     const wave: HumanPerformance = perform(body, {
       kind: "wave",
@@ -26,10 +25,10 @@ export function test_motions_everyday_gesture_geometry(): void {
     const start: number = FamilyCaseKit.event(wave, "strokeStart");
     const end: number = FamilyCaseKit.event(wave, "strokeEnd");
     const retract: number = FamilyCaseKit.event(wave, "retract");
-    if (!(Math.abs(end - start - 1.2) < 1e-9))
-      findings.push(
-        `${side} wave stroke is ${end - start} s at [${start}, ${end}], expected 1.2 s`,
-      );
+    TestValidator.predicate(
+      `${side} wave retains its stroke`,
+      () => Math.abs(end - start - 1.2) < 1e-9,
+    );
     for (const joint of ["LowerArm", "Hand"] as const) {
       const bone = `${side}${joint}` as const;
       const step = 1 / 120;
@@ -41,25 +40,20 @@ export function test_motions_everyday_gesture_geometry(): void {
         let peak: number = 0;
         for (let t: number = a; t + step <= b + 1e-9; t += step)
           peak = Math.max(peak, Vector3.distance(at(t), at(t + step)) / step);
-        if (!(peak <= gesture.WAVE_TRANSPORT_SPEED))
-          findings.push(
-            `${bone} transport at [${a}, ${b}] peaks at ${peak} m/s, above ${gesture.WAVE_TRANSPORT_SPEED} m/s`,
-          );
+        TestValidator.predicate(
+          `${bone} transport stays within its rate`,
+          () => peak <= gesture.WAVE_TRANSPORT_SPEED,
+        );
       }
     }
-    const palm = stopPalm(body, side);
-    if (!(Math.abs(palm.height) <= 0.01 && palm.forward > 0.98))
-      findings.push(
-        `${side} stop palm is ${palm.height} m from shoulder height and its forward normal is ${palm.forward}`,
-      );
+    stopPalm(body, side);
   }
-  TestValidator.equals("gesture timing and display geometry", findings, []);
 }
 
 function stopPalm(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
-): { height: number; forward: number } {
+): void {
   const take: HumanPerformance = perform(body, {
     kind: "stopPalm",
     hand: side,
@@ -69,7 +63,10 @@ function stopPalm(
   const bones = take.bones(ACTOR, (start + end) / 2);
   const palm = HumanHand.frame(body, bones, side, "palm", "flat");
   const shoulder = bones.get(`${side}UpperArm`)!.worldPosition;
-  return { height: palm.point.y - shoulder.y, forward: palm.normal.z };
+  TestValidator.predicate(
+    `${side} palm at the displayed shoulder level`,
+    () => Math.abs(palm.point.y - shoulder.y) <= 0.01 && palm.normal.z > 0.98,
+  );
 }
 
 function perform(

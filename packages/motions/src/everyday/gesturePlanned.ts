@@ -162,13 +162,7 @@ export function gesturePlanned(
       ? undefined
       : gestureHands.planned(
           body,
-          {
-            start: 0,
-            ready: prepare,
-            relax: retractAt,
-            end: duration,
-            ...(p.kind === "wave" ? { holdTempo: 1 } : {}),
-          },
+          { start: 0, ready: prepare, relax: retractAt, end: duration },
           sides,
           begin,
           rest,

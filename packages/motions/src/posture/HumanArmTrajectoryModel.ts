@@ -185,15 +185,10 @@ export namespace HumanArmTrajectoryModel {
     frame(a: number, seconds: number): IAutoMovieMotionHumanArmGeometry.IFrame;
   }
 
-  /** A source interval with fixed self geometry in each driving arm's frame. */
-  export type FixedSelf = readonly [from: number, to: number];
-
   /** What a solve reads, built once (`HumanArmTrajectoryContext.of`). */
   export interface IContext {
     /** Native self-contact geometry at an interior material encounter. */
     material?: IMaterial;
-    /** The authored fixed self interval, including its held digit shape. */
-    fixedSelf?: FixedSelf;
     /** The number of waypoints. */
     n: number;
     /**
@@ -351,8 +346,6 @@ export namespace HumanArmTrajectoryModel {
 
   /** An iterate's reading. */
   export interface IEvaluation {
-    /** Between-frame self-clearance witnesses on the authored fixed interval. */
-    curved?: readonly ICurveWitness[];
     /** Each arm placed at each waypoint. */
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced[][];
     /** The objective. */
@@ -399,18 +392,6 @@ export namespace HumanArmTrajectoryModel {
      * sweep is.
      */
     failing: boolean[];
-  }
-
-  /** A point on the played curve for which self clearance is not certified. */
-  export interface ICurveWitness {
-    /** The native frame interval's first index. */
-    k: number;
-    /** The witness instant in seconds. */
-    time: number;
-    /** The measured or bounded excess beyond the pair's allowance, millimetres. */
-    value: number;
-    /** The pair or uncertified bound named to the caller. */
-    what: string;
   }
 
   /**

@@ -45,9 +45,8 @@ export function HumanArmTrajectoryPaced(
   if (!Stretch.met(loose)) return undefined;
   const at: readonly number[] = loose.context.times;
   const span: number = at[at.length - 1]! - at[0]!;
-  const paced: M.IContext = { ...loose.grid.fine, speed: grid.fine.speed };
   const timing: HumanArmTrajectoryRetime.ITiming =
-    HumanArmTrajectoryRetime.timing(paced, loose.played.x);
+    HumanArmTrajectoryRetime.timing(grid.fine, loose.played.x);
   const least: number =
     timing.status === "ok" ? timing.timed.times.at(-1)! : Infinity;
   told.state = { times: [...at], x: loose.x, penalty: loose.penalty };
@@ -58,7 +57,7 @@ export function HumanArmTrajectoryPaced(
     feasible: {
       kind: "range",
       minimum: Pace.duration(
-        Math.max(least, span * Pace.slower(paced, loose.played.x)),
+        Math.max(least, span * Pace.slower(grid.fine, loose.played.x)),
       ),
       maximum: null,
       unit: "s",

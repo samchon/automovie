@@ -5,8 +5,7 @@ import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmSeed } from "./HumanArmSeed";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
-import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
-import { HumanArmTrajectoryFixedKnotRates } from "./HumanArmTrajectoryFixedKnotRates";
+import type { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
@@ -71,8 +70,6 @@ export namespace HumanArmTrajectoryStretch {
    * grid.
    */
   export interface ISolved extends IKnots {
-    /** The actual admission grid, including any witnessed curve instants. */
-    grid: IGrid;
     /** Each arm's coordinates at each knot. */
     x: number[][][];
 
@@ -170,7 +167,6 @@ export namespace HumanArmTrajectoryStretch {
     pinned?: HumanArmSeed.IHolds,
   ): ISolved {
     let at: IKnots = from;
-    let addedCurveWitnesses: boolean = false;
     let solved: ReturnType<typeof HumanArmOptimiser.optimise> =
       HumanArmOptimiser.optimise(
         at.context,
@@ -189,85 +185,29 @@ export namespace HumanArmTrajectoryStretch {
       // The SQP reads contact pairs only at its knots. Certify the candidate's
       // point and reverse-corner contacts before admitting it or attributing
       // the refusal only to its pace.
-      let evaluation: M.IEvaluation =
+      const evaluation: M.IEvaluation =
         knotted && solved.evaluation.placement.value <= M.TOLERANCE
           ? M.evaluate(grid.fine, x)
           : solved.evaluation;
-      if (grid.fine.fixedSelf !== undefined && evaluation.worst.value <= M.TOLERANCE)
-        evaluation = Admission.continuous(
-          grid.fine,
-          at.context.times,
-          solved.x,
-          solved.rates ?? Knots.bounded(at.context, solved.x),
-          evaluation,
-        );
       played = { x, evaluation };
-      if (evaluation.worst.value <= M.TOLERANCE) break;
-      let next: IKnots;
-      if (evaluation.curved !== undefined) {
-        if (addedCurveWitnesses) break;
-        const alternative = HumanArmTrajectoryFixedKnotRates(
-          grid.fine,
-          x,
-          at.context.times,
-          solved.x,
-          solved.rates ?? Knots.bounded(at.context, solved.x),
-        );
-        if (alternative !== undefined) {
-          const candidate: IKnots = on(grid, snap(grid.grid, alternative.times));
-          const checked: Admission.IReading = Admission.read(
-            candidate.context,
-            grid.fine,
-            alternative.x,
-            alternative.rates,
-          );
-          if (checked.evaluation.worst.value <= M.TOLERANCE) {
-            at = candidate;
-            solved = { ...solved, x: alternative.x, rates: alternative.rates, evaluation: checked.evaluation };
-            played = checked;
-            break;
-          }
-        }
-        const witnessed: number[] = evaluation.curved
-          .map((w) => w.time)
-          .filter(
-            (t) =>
-              t > grid.grid[0]! &&
-              t < grid.grid.at(-1)! &&
-              !grid.grid.includes(t),
-          );
-        if (witnessed.length === 0) break;
-        addedCurveWitnesses = true;
-        const times: number[] = [...new Set([...grid.grid, ...witnessed])].sort(
-          (a, b) => a - b,
-        );
-        grid = {
-          ...grid,
-          grid: times,
-          fine: grid.contextOf(grid.reading(times), grid.fine),
-        };
-        const targets: number[] = [...at.context.times, ...witnessed].sort((a, b) => a - b);
-        next = on(grid, snap(times, targets));
-      } else {
-        if (!knotted) break;
-        const knots: number[] = at.knots;
-        // Each interval whose course fails between its knots past the
-        // tolerance: one of whose sweeps fails (the reading keeps an
-        // interval's sweeps by its first knot), or one with a failing frame
-        // strictly inside it. One of a single frame cannot be split.
-        const affected: Set<number> = new Set();
-        knots.forEach((g: number, i: number): void => {
-          if (i + 1 >= knots.length || knots[i + 1]! - g < 2) return;
-          for (const arm of evaluation.swept)
-            for (const sweep of arm[g] ?? [])
-              if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE)
-                affected.add(i);
-          for (let h: number = g + 1; h < knots[i + 1]!; ++h)
-            if (evaluation.failing[h]) affected.add(i);
-        });
-        if (affected.size === 0) break;
-        next = on(grid, HumanArmRefine.split(knots, [...affected]));
-      }
+      if (!knotted || evaluation.worst.value <= M.TOLERANCE) break;
+      const knots: number[] = at.knots;
+      // Each interval whose course fails between its knots past the
+      // tolerance: one of whose sweeps fails (the reading keeps an
+      // interval's sweeps by its first knot), or one with a failing frame
+      // strictly inside it. One of a single frame cannot be split.
+      const affected: Set<number> = new Set();
+      knots.forEach((g: number, i: number): void => {
+        if (i + 1 >= knots.length || knots[i + 1]! - g < 2) return;
+        for (const arm of evaluation.swept)
+          for (const sweep of arm[g] ?? [])
+            if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE)
+              affected.add(i);
+        for (let h: number = g + 1; h < knots[i + 1]!; ++h)
+          if (evaluation.failing[h]) affected.add(i);
+      });
+      if (affected.size === 0) break;
+      const next: IKnots = on(grid, HumanArmRefine.split(knots, [...affected]));
       // The solution carried onto the new knots: each new knot's position,
       // velocity and acceleration read on the old knots' quintics, so the
       // course the solve continues from is the one it ended on.
@@ -321,7 +261,6 @@ export namespace HumanArmTrajectoryStretch {
     return {
       ...at,
       ...solved,
-      grid,
       played,
       ...(pinned === undefined ? {} : { pinned }),
     };
@@ -486,7 +425,7 @@ export namespace HumanArmTrajectoryStretch {
     );
     const solved: ISolved = optimise(grid, from, seed);
     if (met(solved)) return played(solved);
-    const refusal: HumanRefusal = refused(solved.grid, solved, { flip });
+    const refusal: HumanRefusal = refused(grid, solved, { flip });
     throw flip ? Mirror.refusal(refusal) : refusal;
   }
 }

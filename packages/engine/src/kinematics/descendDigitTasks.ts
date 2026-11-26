@@ -191,15 +191,14 @@ export function descendDigitTasks(
       secondary: J2f,
     }: ILinearization = linearization;
 
-    // The damped complement can move the point. Use it for the secondary
-    // direction only after the existing primary admission has been met.
+    // The primary's damped step and its damped null space.
     const A1: number[][] = damped(G, mu);
     const solvePrimary: ((right: readonly number[]) => number[]) | null =
       prepareLinearSystem(A1);
     if (solvePrimary === null) break;
     const h1: number[] = solvePrimary(right);
     let h: number[] = h1;
-    if (served) {
+    if (J2.length !== 0) {
       const P: number[][] = free.map((_c: number, c: number): number[] =>
         solvePrimary(G.map((row: number[]): number => row[c]!)),
       );
@@ -268,13 +267,7 @@ export function descendDigitTasks(
       accepted = !served
         ? squared(t1) < squared(r1)
         : Math.sqrt(squared(t1)) <= met && squared(t2) < squared(r2);
-      if (
-        accepted ||
-        !served ||
-        J2.length === 0 ||
-        !Number.isFinite(maximum) ||
-        !(maximum / 2 > step)
-      )
+      if (accepted || !served || J2.length === 0 || !(maximum / 2 > step))
         break;
       scale /= 2;
       maximum /= 2;
@@ -324,12 +317,11 @@ interface ILinearization {
   secondary: number[][];
 }
 
-/** Completed task data of one descent. */
+/** Completed task data of one descent, with no caller admission flag. */
 export namespace descendDigitTasks {
   /**
-   * Actual final accepted point and its primary data. The public descent
-   * wrapper returns the point. Digit continuation also reads its primary
-   * residual and feasible-probe Jacobian for the restart test.
+   * Actual final accepted point and primary data, retained until its caller
+   * releases them.
    */
   export interface IResult {
     /** Final projected variables, in the original variable units and order. */

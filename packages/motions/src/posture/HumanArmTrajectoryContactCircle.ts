@@ -281,14 +281,7 @@ export function HumanArmTrajectoryContactCircle(
       rejectsPair,
     ).values())
       if (rejectsPair(pair.short)) return undefined;
-    for (const pair of P.embedded(
-      c,
-      a,
-      k,
-      placed,
-      refuses,
-      rejectsPair,
-    ).values())
+    for (const pair of P.embedded(c, a, k, placed, refuses).values())
       if (rejectsPair(pair.short)) return undefined;
     // One frame step, read as its chord, as the frame grid reads it.
     if (start !== undefined && end !== undefined)

@@ -8,20 +8,19 @@ import { descendDigitTasks } from "./descendDigitTasks";
  * couple) bettered only in what the primary leaves free, inside the range the
  * projection keeps.
  *
- * The primary direction is its damped least-squares step, h1 = -(J1'J1 + mu
- * I)^-1 J1'r1. Once the primary meets its tolerance, add the secondary task's
- * damped step in the regularized null complement, N = I - (J1'J1 + mu I)^-1
- * J1'J1. This damped complement is not an exact null projector; actual primary
- * admission below keeps the task priority. The direction follows the
- * task-priority inverse kinematics of Nakamura, Hanafusa and Yoshikawa 1987
- * ("Task-priority based redundancy control of robot manipulators", IJRR
- * 6(2):3-15) in the damped form of Chiaverini 1997 ("Singularity-robust
- * task-priority redundancy resolution", IEEE TRA 13(3):398-410). A variable
- * standing on a bound its descent pushes against (the projection undoes a
- * resolution's move along the negative gradient) is held for the step, the
- * active set of a projected Newton method (Bertsekas 1982); the gradient is the
- * primary's while the primary is unmet, so the secondary never holds a joint
- * the primary needs.
+ * Each step is the damped least-squares step of the primary task, h1 = -(J1'J1
+ * + mu I)^-1 J1'r1, plus the secondary task's damped step taken in the
+ * regularized null complement, N = I - (J1'J1 + mu I)^-1 J1'J1. This damped
+ * complement is not an exact null projector; actual primary admission below
+ * keeps the task priority. The direction follows the task-priority inverse
+ * kinematics of Nakamura, Hanafusa and Yoshikawa 1987 ("Task-priority based
+ * redundancy control of robot manipulators", IJRR 6(2):3-15) in the damped form
+ * of Chiaverini 1997 ("Singularity-robust task-priority redundancy resolution",
+ * IEEE TRA 13(3):398-410). A variable standing on a bound its descent pushes
+ * against (the projection undoes a resolution's move along the negative
+ * gradient) is held for the step, the active set of a projected Newton method
+ * (Bertsekas 1982); the gradient is the primary's while the primary is unmet,
+ * so the secondary never holds a joint the primary needs.
  *
  * A trial is accepted lexicographically: while the primary is unmet, only when
  * it lowers the primary; once met (within the effector's motion for one

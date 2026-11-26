@@ -17,7 +17,6 @@ import type {
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "./AutoMovieMotionHumanArm";
-import type { AutoMovieMotionHumanArmPlannedProblem } from "./AutoMovieMotionHumanArmPlannedProblem";
 import { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { composeAutoMovieMotionHumanAction } from "./composeAutoMovieMotionHumanAction";
 import { courseArmGoalBase } from "./courseArmGoalBase";
@@ -345,7 +344,7 @@ export namespace courseArmGoal {
      * `start` to `ready`, the hold on the plan's goal to `relax`, the return to
      * `end`.
      */
-    span: AutoMovieMotionHumanArmPlannedProblem.IScope["span"];
+    span: IAutoMovieMotionHumanArmPlanned.ISpan;
 
     /**
      * The other arm, laid in the same course as one trajectory problem: a

@@ -277,10 +277,7 @@ export namespace HumanArmTrajectoryOverlap {
    *   millimetres (`HumanArmTrajectoryPairs.CUT` where the reading's users need
    *   no more; negative, how little past it, for a reader that refuses only
    *   past a slack); every pair in reach is read when absent.
-   * @param stop A predicate on an exact depth that stays true as the pair grows
-   *   deeper, for a reader that needs one rejecting witness.
-   * @returns The pairs by body part and arm shape, through the first such
-   *   witness if any.
+   * @returns The pairs by body part and arm shape.
    */
   export function embedded(
     c: M.IContext,
@@ -288,7 +285,6 @@ export namespace HumanArmTrajectoryOverlap {
     k: number,
     placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
     cut: number = Infinity,
-    stop?: (short: number) => boolean,
   ): Map<number, IEmbedded> {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IEmbedded> = new Map();
@@ -325,7 +321,7 @@ export namespace HumanArmTrajectoryOverlap {
       corner: IAutoMovieMotionHumanArmGeometry.IFrame["body"][number],
       i: number,
       certified: readonly (number | undefined)[],
-    ): boolean => {
+    ): void => {
       const close: Record<Owner, boolean> = {
         upper:
           Vector3.length(Vector3.subtract(corner.point, centres.upper)) -
@@ -340,18 +336,15 @@ export namespace HumanArmTrajectoryOverlap {
             frame.bounds.hand.radius <
           T.REACH,
       };
-      if (!close.upper && !close.lower && !close.hand) return false;
-      return mine.some(
-        (
-          shape: IAutoMovieMotionHumanArmGeometry.IShape,
-          j: number,
-        ): boolean => {
-          if (!close[owners[j]!]) return false;
+      if (!close.upper && !close.lower && !close.hand) return;
+      mine.forEach(
+        (shape: IAutoMovieMotionHumanArmGeometry.IShape, j: number): void => {
+          if (!close[owners[j]!]) return;
           const apart: number =
             Vector3.length(Vector3.subtract(corner.point, shape.centre)) -
             shape.radius;
-          if (apart >= T.REACH) return false;
-          if (frame.related[corner.part]?.[shape.part] === true) return false;
+          if (apart >= T.REACH) return;
+          if (frame.related[corner.part]?.[shape.part] === true) return;
           const key: number = corner.part * mine.length + j;
           const own: EmbeddedVisitOwn =
             owners[j] === "upper"
@@ -373,7 +366,7 @@ export namespace HumanArmTrajectoryOverlap {
                 short: -1000 * least,
                 rested: false,
               });
-            return false;
+            return;
           }
           const known: IEmbedded | undefined = out.get(key);
           const allowance: number = c.inside(a, k, i, j);
@@ -385,7 +378,7 @@ export namespace HumanArmTrajectoryOverlap {
             1000 *
             (allowance -
               Math.max(apart, HumanArmShapeBox(shape, corner.point)));
-          if (known !== undefined && bound <= known.short) return false;
+          if (known !== undefined && bound <= known.short) return;
           if (bound < -cut && !rested) {
             if (known === undefined)
               out.set(key, {
@@ -397,7 +390,7 @@ export namespace HumanArmTrajectoryOverlap {
                 short: bound,
                 rested: false,
               });
-            return false;
+            return;
           }
           const distance: number = physicalShapeSegmentDistance(
             shape.pose,
@@ -416,9 +409,7 @@ export namespace HumanArmTrajectoryOverlap {
               short,
               rested,
             });
-            if (stop?.(short)) return true;
           }
-          return false;
         },
       );
     };
@@ -480,7 +471,7 @@ export namespace HumanArmTrajectoryOverlap {
         }
       }
       for (let i: number = cluster.start; i < cluster.end; ++i)
-        if (visit(frame.body[i]!, i, certificates)) return out;
+        visit(frame.body[i]!, i, certificates);
     }
     return out;
   }
