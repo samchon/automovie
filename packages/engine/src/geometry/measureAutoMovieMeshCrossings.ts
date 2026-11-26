@@ -54,7 +54,5 @@ export function measureAutoMovieMeshCrossings(
   second: IAutoMovieMesh,
   options?: IAutoMovieMeshCrossingOptions,
 ): IAutoMovieMeshCrossing[] {
-  return first === second
-    ? createAutoMovieMeshCrossingQuery.within(first, options)
-    : createAutoMovieMeshCrossingQuery(second)(first, options);
+  return createAutoMovieMeshCrossingQuery(second)(first, options);
 }

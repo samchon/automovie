@@ -11,7 +11,7 @@ import type { IAutoMovieHumanLegWalk } from "./IAutoMovieHumanLegWalk";
 export namespace IAutoMovieHumanLegSourceFamily {
   /** Regional and full demands of the same production family. */
   export interface IOutput {
-    /** Independent base before explicit attachment to the trunk. */
+    /** Latest actual coupled definition, or the base before explicit assembly. */
     current(): IAutoMovieHumanLegWalk.IDefinition;
 
     /**
@@ -21,16 +21,14 @@ export namespace IAutoMovieHumanLegSourceFamily {
     ankle(): IAnkle;
 
     /**
-     * Author a proximal prefix against this parent at station in calibration
-     * millimetres.
+     * Replace the current coupled definition with a trial or final proximal
+     * prefix against this parent at station in calibration millimetres; binding
+     * alone does not complete the parent.
      */
     bind(
       parent: IAutoMovieHumanSourceDefinition,
       station: number,
     ): IAutoMovieHumanLegWalk.IDefinition;
-
-    /** Prepare the independent base once for an explicit parent fitting scope. */
-    prepareBinding(): IOutput["bind"];
   }
 
   /** Exact retained region with the actual explicit full-resolver capability. */
@@ -62,9 +60,9 @@ export namespace IAutoMovieHumanLegSourceFamily {
     gap: number;
 
     /**
-     * Return the final leg from its owning trunk on explicit full demand, or
-     * throw its failure.
+     * Successfully complete the owning trunk before full demand, or throw its
+     * failure; binding a trial alone is not completion.
      */
-    complete?: IAutoMovieHumanFootSource.FromRegionResolve;
+    complete?: () => void;
   }
 }

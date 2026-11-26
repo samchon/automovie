@@ -13,8 +13,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
-import { AutoMovieHumanArmscyeOpening } from "../arm/AutoMovieHumanArmscyeOpening";
-import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkAxis } from "./AutoMovieHumanTrunkAxis";
 import { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
@@ -23,18 +21,19 @@ import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFa
 /**
  * The trunk base as a part lofted from its own views (campaign #3044,
  * construction step 1; #3047): the chain `trunk` from the perineum's pole to
- * the neck, every station a level section that touches the box of the front
- * view's half breadth and the side view's two profiles.
+ * the neck, every station a level section that touches
+ * the box of the front view's half breadth and the side view's two profiles.
  *
- * Views to the kernel's chart. The planes are level. TrunkAxis adds the actual
- * back and AP radius in their common root/angle source parameter, retaining
- * both jets at their combined knots; world Y stays physical height. `u` forward
- * and `v` left, so the kernel's `front` pair (the extremes along `u`) is the
- * anatomical side view and its `side` pair (along `v`) the anatomical front
- * view. Every edge is given relative to the axis's origin, the mid-depth `c =
- * (front + back) / 2` at each named site: its profiles become `+-(front - back)
- * / 2`, and the lateral outline `+-half`, the right side the left's reflection
- * (J6). At the perineum all four meet and the chain closes there by its pole.
+ * Views to the kernel's chart. The planes are level. TrunkAxis adds the
+ * actual back and AP radius in their common root/angle source parameter,
+ * retaining both jets at their combined knots; world Y stays physical height.
+ * `u` forward and `v` left, so the kernel's `front` pair (the extremes along
+ * `u`) is the anatomical side view and its `side` pair (along `v`) the
+ * anatomical front view. Every edge is given relative to the axis's origin,
+ * the mid-depth `c = (front + back) / 2` at each named site: its profiles become
+ * `+-(front - back) / 2`, and the lateral outline `+-half`, the right side the
+ * left's reflection (J6). At the perineum all four meet and the chain closes
+ * there by its pole.
  *
  * Fullness and stations follow `AutoMovieHumanSiteViewPart`: a tape's site
  * solves its common conic shoulder on its own box, so every trunk tape reads
@@ -42,44 +41,35 @@ import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFa
  * symmetric along `u` about the mid-depth, so one common shoulder serves the
  * four quarters with no departure until a sourced law of the front and back
  * quarters lands. The head supplies the same upper scalar-support datum as
- * before, preserving the original angle parameter and lower polynomials. A
- * shared neck ends the actual part at its regular connection: the support above
- * that end is not a lofted cap. Signed scalar hull ranges retain the original
- * noncrossing support span. Its upper support tangent is the secant from the
- * last neck radius to the pole in the shared angle parameter, with zero second
- * parameter derivative. It is nonzero; a range filter must not flatten a
- * wrong-way pole tangent to zero. Physical station derivatives remain singular
- * there, and this source condition is not a final-surface G2 proof.
+ * before, preserving the original angle parameter and lower polynomials.
+ * A shared neck ends the actual part at its regular connection: the support
+ * above that end is not a lofted cap. Signed scalar hull ranges retain the
+ * original noncrossing support span. Its upper support tangent is the secant from
+ * the last neck radius to the pole in the shared angle parameter, with zero
+ * second parameter derivative. It is nonzero; a range filter must not flatten
+ * a wrong-way pole tangent to zero. Physical station derivatives remain
+ * singular there, and this source condition is not a final-surface G2 proof.
  */
 export namespace AutoMovieHumanTrunkViewPart {
   /** The trunk's chain name. */
   export const NAME: string = "trunk";
 
-  /**
-   * Control points of every section: 256, the trunk's density
-   * (`generalization.md`, Trunk), a multiple of 4 so each guide stands on a
-   * knot.
-   */
+  /** Control points of every section: 256, the trunk's density (`generalization.md`, Trunk), a multiple of 4 so each guide stands on a knot. */
   export const ORDER: number = 256;
 
   /** Uniform phases of the chain's rings: two per control point. */
   export const SAMPLES: number = 512;
 
-  /**
-   * Maximum distance between layers in millimetres, from the shared trunk row
-   * rule.
-   */
+  /** Maximum distance between layers in millimetres, from the shared trunk row rule. */
   export const GAP: number = AutoMovieHumanTrunkRows.MAX_GAP;
 
   /**
    * Build the trunk base from its views.
    *
    * @param views The perineum and the sites' knots.
-   * @param top Optional upper source support. A shared neck restricts the
-   *   actual part to its regular end; standalone callers can explicitly retain
-   *   the closure.
-   * @returns The part, its loft and the diagnostics; generation keeps going on
-   *   a null loft, whose diagnostics say why.
+   * @param top Optional upper source support. A shared neck restricts the actual part to its regular end; standalone callers can explicitly retain the closure.
+   * @returns The part, its loft and the diagnostics; generation keeps going on a null loft, whose diagnostics say why.
+   *
    * @evidence contracts/common.md#principled-implementation Named values and the derived pole/axis remain fixed. Signed scalar hulls author noncrossing closed-span edges; the top secant and zero second derivative are normalized angle jets, not finite physical-station jets. This supplies an internal cap without certifying final-surface G2.
    * @evidence contracts/common.md#clear-and-simple-design Converts the trunk's anatomical view record into the shared body view builder; the optional pole is an internal closure point owned by the head/trunk connection.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts The pole has no person selector or fitted position; its caller derives it from the neck section and the head's defining axis. Malformed sites and a closure outside its station order produce diagnostics.
@@ -95,10 +85,7 @@ export namespace AutoMovieHumanTrunkViewPart {
     return AutoMovieHumanSiteViewPart.loft(define(views, top));
   }
 
-  /**
-   * Prepare the identical original outlines, fullness, canonical neck and axis
-   * before raw lofting.
-   */
+  /** Prepare the identical original outlines, fullness, canonical neck and axis before raw lofting. */
   export function define(
     views: IAutoMovieHumanTrunkViews,
     top?: IAutoMovieHumanTrunkViewPart.ITop,
@@ -239,30 +226,19 @@ export namespace AutoMovieHumanTrunkViewPart {
 
     const definition: Pick<
       IAutoMovieHumanSectionSource,
-      | "sites"
-      | "pole"
-      | "poleJets"
-      | "ranges"
-      | "fullnessRange"
-      | "fullnessPoleJets"
+      "sites" | "pole" | "poleJets" | "ranges" | "fullnessRange"
     > = {
-      // The three chest rows constrain the value of one continuous wall
-      // course. Let the bounded Hermite reader derive their shared jets from
-      // the original tape values. Stopping both derivatives at every chest row
-      // concentrates the curvature on either side of the measured chest.
-      // The actual neck replaces its own two-jet.
+      // Native shoulder values must stay in (0,1) between their named sites.
+      // The existing C2 hull law prepares automatic jets here, before the
+      // connection transfers those real derivatives into explicit quarters.
+      // Positive endpoint values and this closed control hull keep every
+      // interior shoulder positive without clamping an evaluated source.
       fullnessRange: { minimum: 0, maximum: 1 },
-      fullnessPoleJets: {
-        bottom: { first: 0, second: 0 },
-        ...(top === undefined ? {} : { top: { first: 0, second: 0 } }),
-      },
       sites: views.sites.map(
         (s: IAutoMovieHumanTrunkViews.ISite): IAutoMovieHumanSectionSite => {
           const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
-          const chest: boolean =
-            s.site === "underbust" || s.site === "chest" || s.site === "axilla";
           return {
             site: s.site,
             station: plane.y,
@@ -272,10 +248,7 @@ export namespace AutoMovieHumanTrunkViewPart {
               -plane.box.extents[2]!,
               -plane.box.extents[3]!,
             ],
-            fullness: {
-              ...fullness.get(s.site)!,
-              ...(chest ? {} : { jet: { first: 0, second: 0 } }),
-            },
+            fullness: fullness.get(s.site)!,
           };
         },
       ),
@@ -362,40 +335,8 @@ export namespace AutoMovieHumanTrunkViewPart {
       ...built,
       diagnostics: [...diagnostics, ...built.diagnostics],
     };
-    const connected: IAutoMovieHumanSourceDefinition =
-      views.connection === undefined
-        ? prepared
-        : AutoMovieHumanTrunkConnection.apply(prepared, views.connection);
-    if (
-      views.shoulder === undefined ||
-      connected.part === null ||
-      connected.view === null
-    )
-      return connected;
-    try {
-      const part: IAutoMovieViewPart = AutoMovieHumanArmscyeOpening.torso(
-        connected.part,
-        views.shoulder,
-      );
-      return {
-        ...connected,
-        part,
-        view: AutoMovieHumanConstructionView.of(part, connected.view.axis),
-      };
-    } catch (error: unknown) {
-      return {
-        part: null,
-        view: null,
-        diagnostics: [
-          ...connected.diagnostics,
-          {
-            producer: `view.${NAME}`,
-            level: 2,
-            contract: "canonical armscye source",
-            detail: error instanceof Error ? error.message : String(error),
-          },
-        ],
-      };
-    }
+    return views.connection === undefined
+      ? prepared
+      : AutoMovieHumanTrunkConnection.apply(prepared, views.connection);
   }
 }

@@ -96,7 +96,7 @@ Required fields are `chains`, `bodies`, `diagnostics`; callers supply the comple
 
 The actual production tree and source diagnostics, before any solid realization.
 
-## @evidence contracts/development/design.md#principled-representation `sourceParts`: Actual immutable millimetre originals resolved by source leaves during this realization. When present, `loopSources` supplies paired original charts indexed by this invocation's source-backed join references. These charts accompany the head subtree into the same realization. `handAttachments`: Actual consumed hand contact records, retaining the same parent original and anatomical joint separately. `root`: The assembled production tree; null when its trunk definition failed.
+## @evidence contracts/development/design.md#principled-representation `sourceParts`: Actual immutable millimetre originals resolved by source leaves during this realization. `handAttachments`: Actual consumed hand contact records, retaining the same parent original and anatomical joint separately. `root`: The assembled production tree; null when its trunk definition failed.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -104,4 +104,4 @@ Returned by AutoMovieHumanBodyLane.define. Read by AutoMovieHumanBodyLane.realiz
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `sourceParts`, `handAttachments`, `root`, `limits`, `diagnostics`, `sources`. A defined head supplies `loopSources` to resolve its source-backed joins.
+Required fields are `sourceParts`, `handAttachments`, `root`, `limits`, `diagnostics`, `sources`; callers supply the complete record.

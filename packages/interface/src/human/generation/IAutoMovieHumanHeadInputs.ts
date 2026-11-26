@@ -14,8 +14,9 @@ export interface IAutoMovieHumanHeadInputs {
   height: number;
 
   /**
-   * Vertical span from the resolved side neck point to menton, mm, for the
-   * optional neck exterior display.
+   * Derived requested-height control for the optional neck exterior display,
+   * mm; not a public neck-length measurement or the head plan's stature
+   * closure.
    */
   neckLength: number;
 

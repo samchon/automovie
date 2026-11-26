@@ -8,7 +8,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMeshCrossingGeometry as Geometry } from "./AutoMovieMeshCrossingGeometry";
-import { AutoMovieSpatialCandidates } from "./AutoMovieSpatialCandidates";
 import { collectAutoMovieSpatialQueryCandidates } from "./collectAutoMovieSpatialQueryCandidates";
 
 /**
@@ -49,42 +48,8 @@ export function createAutoMovieMeshCrossingQuery(
   return createQuery(Geometry.prepare(second));
 }
 
-/**
- * One-shot self inspection using the same admitted triangle snapshot on both
- * sides.
- */
-export namespace createAutoMovieMeshCrossingQuery {
-  /**
-   * Report a mesh's strict crossings in the ordinary census order. A pure
-   * per-triangle census compares the order of actual witnesses only.
-   *
-   * @param mesh Indexed or implicit triangles in metres.
-   * @param options Witness multiplicity, interior tolerance and classification.
-   * @returns Strict crossings with their original triangle ordinals.
-   */
-  export function within(
-    mesh: IAutoMovieMesh,
-    options?: IAutoMovieMeshCrossingOptions,
-  ): IAutoMovieMeshCrossing[] {
-    const snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot =
-      Geometry.prepare(mesh);
-    return prepareWalk(snapshot, true)(
-      (): IIndexed[] => snapshot.triangles,
-      options,
-      false,
-    );
-  }
-}
-
 /** A copied triangle in the shared internal geometry owner. */
 type IIndexed = IAutoMovieMeshCrossingGeometry.ITriangle;
-
-/** The admitted target's traversal over one ordered read of the subjects. */
-type Walk = (
-  subject: () => IIndexed[],
-  options: IAutoMovieMeshCrossingOptions | undefined,
-  stopAtFirst: boolean,
-) => IAutoMovieMeshCrossing[];
 
 /**
  * Bind the one existing narrow phase to one independent current-geometry
@@ -93,29 +58,6 @@ type Walk = (
 function createQuery(
   snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot,
 ): IAutoMovieMeshCrossingQuery {
-  const walk: Walk = prepareWalk(snapshot);
-  const query: IAutoMovieMeshCrossingQuery = (
-    first: IAutoMovieMesh,
-    options?: IAutoMovieMeshCrossingOptions,
-  ): IAutoMovieMeshCrossing[] =>
-    walk((): IIndexed[] => Geometry.index(first), options, false);
-  query.crosses = (
-    first: IAutoMovieMesh,
-    options?: IAutoMovieMeshCrossingOptions,
-  ): boolean =>
-    walk((): IIndexed[] => Geometry.index(first), options, true).length > 0;
-  query.withPositions = (
-    positions: readonly number[],
-  ): IAutoMovieMeshCrossingQuery =>
-    createQuery(Geometry.withPositions(snapshot, positions));
-  return query;
-}
-
-/** Prepare the target hierarchy's traversal independently of subject ownership. */
-function prepareWalk(
-  snapshot: IAutoMovieMeshCrossingGeometry.ISnapshot,
-  self: boolean = false,
-): Walk {
   const theirs: IIndexed[] = snapshot.triangles;
   const hierarchy: IAutoMovieMeshQueryHierarchy<IIndexed> | undefined =
     snapshot.hierarchy;
@@ -134,33 +76,34 @@ function prepareWalk(
         ) / theirs.length;
   const cell: number = span > 0 ? span : 1;
 
-  return (
-    subject: () => IIndexed[],
+  /** One narrow-phase walk owns both the complete report and existential result. */
+  const walk: (
+    first: IAutoMovieMesh,
+    options: IAutoMovieMeshCrossingOptions | undefined,
+    stopAtFirst: boolean,
+  ) => IAutoMovieMeshCrossing[] = (
+    first: IAutoMovieMesh,
     options: IAutoMovieMeshCrossingOptions | undefined,
     stopAtFirst: boolean,
   ): IAutoMovieMeshCrossing[] => {
     const allPairs: boolean = options?.allPairs === true;
     const tolerance: number = options?.interiorTolerance ?? 0;
-    if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance >= 0.5)
+    if (tolerance < 0 || tolerance >= 0.5)
       throw new Error(
         "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
       );
-    const ours: IIndexed[] = subject();
+    const ours: IIndexed[] = Geometry.index(first);
     if (ours.length === 0 || hierarchy === undefined) return [];
     const acceptTransverse: IAutoMovieMeshCrossingOptions["acceptTransversePoint"] =
       options?.acceptTransversePoint;
-    const rankWitnesses: boolean =
-      self && !allPairs && !stopAtFirst && acceptTransverse === undefined;
     const crossings: IAutoMovieMeshCrossing[] = [];
     for (const triangle of ours) {
-      const candidates: IIndexed[] = rankWitnesses
-        ? AutoMovieSpatialCandidates.read(hierarchy, triangle)
-        : collectAutoMovieSpatialQueryCandidates(
-            hierarchy,
-            triangle,
-            cell,
-            "overlap",
-          );
+      const candidates: IIndexed[] = collectAutoMovieSpatialQueryCandidates(
+        hierarchy,
+        triangle,
+        cell,
+        "overlap",
+      );
       let pierced: IIndexed | undefined;
       let flat: IIndexed | undefined;
       for (const candidate of candidates) {
@@ -191,18 +134,8 @@ function prepareWalk(
             });
             continue;
           }
-          if (
-            pierced === undefined ||
-            AutoMovieSpatialCandidates.compare(
-              triangle,
-              cell,
-              candidate,
-              pierced,
-            ) < 0
-          )
-            pierced = candidate;
-          if (!rankWitnesses) break;
-          continue;
+          pierced = candidate;
+          break;
         }
         if (allPairs || stopAtFirst) {
           if (sharePlaneAndOverlap(triangle.corners, candidate.corners)) {
@@ -221,16 +154,8 @@ function prepareWalk(
             });
           }
         } else if (
-          pierced === undefined &&
-          (flat === undefined || rankWitnesses) &&
-          sharePlaneAndOverlap(triangle.corners, candidate.corners) &&
-          (flat === undefined ||
-            AutoMovieSpatialCandidates.compare(
-              triangle,
-              cell,
-              candidate,
-              flat,
-            ) < 0)
+          flat === undefined &&
+          sharePlaneAndOverlap(triangle.corners, candidate.corners)
         )
           flat = candidate;
       }
@@ -245,6 +170,19 @@ function prepareWalk(
     }
     return crossings;
   };
+  const query: IAutoMovieMeshCrossingQuery = (
+    first: IAutoMovieMesh,
+    options?: IAutoMovieMeshCrossingOptions,
+  ): IAutoMovieMeshCrossing[] => walk(first, options, false);
+  query.crosses = (
+    first: IAutoMovieMesh,
+    options?: IAutoMovieMeshCrossingOptions,
+  ): boolean => walk(first, options, true).length > 0;
+  query.withPositions = (
+    positions: readonly number[],
+  ): IAutoMovieMeshCrossingQuery =>
+    createQuery(Geometry.withPositions(snapshot, positions));
+  return query;
 }
 
 /**

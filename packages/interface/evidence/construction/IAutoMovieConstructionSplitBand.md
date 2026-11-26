@@ -52,24 +52,6 @@ Column values are the ones the strip interpolates, not resampled.
 
 States each array's indexing and unit.
 
-# src/construction/IAutoMovieConstructionSplitBand.ts#IAutoMovieConstructionSplitBand.IPreparedStrip
-
-## @evidence contracts/development/design.md#principled-representation
-
-One regular split surface, its millimetre course span, and corresponding parent, shared seam and child rail columns. Length and station order, finite phases and agreement of all three owning curves remain runtime checks.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The curve preparer supplies the continuous surface and the existing regular loft metadata. The incidence assembler uses the shared loop and both phase lists to publish their exact source identities.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The same contract serves any admitted split with original-point ownership. Geometry is evaluated from the supplied chart and validated against its living parent and child fields.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States physical units, what each chart array addresses and who provides the continuous surface.
-
 # src/construction/IAutoMovieConstructionSplitBand.ts#IAutoMovieConstructionSplitBand.IStrip
 
 ## @evidence contracts/development/design.md#principled-representation

@@ -5,7 +5,6 @@ import type {
   IAutoMovieLoftSurfaceJet,
   IAutoMovieSolidBlendChain,
   IAutoMovieSolidJoin,
-  IAutoMovieSolidRail,
 } from "@automovie/interface";
 
 import { AutoMovieLoftJet } from "./AutoMovieLoftJet";
@@ -30,7 +29,8 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
  * by the same quintic rule (`IAutoMovieLoftChain.ILayer.liftCurvatures`). In
  * phase every quantity is the periodic cubic B-spline through the columns at
  * `count` uniform curve parameters from the trace's seed, the chain's phase `t
- * - seed`.
+ *
+ * - Seed`.
  *
  * So at every column the chain is the blend exactly (to the B-spline
  * interpolation filter's rounding), including both ribbons' 2-jets, and between
@@ -54,34 +54,20 @@ export namespace AutoMovieSolidBlendChain {
     join: IAutoMovieSolidJoin.IJoin,
     count: number,
   ): IAutoMovieSolidBlendChain.IBlend | null {
-    if (!Number.isInteger(count) || count < 8 || count % 4 !== 0) return null;
+    if (count < 8 || count % 4 !== 0) return null;
     const seed: number = join.curve.points[0]!.t;
     const columns: IAutoMovieSolidJoin.IColumn[] = [];
 
-    /**
-     * Each published ribbon component and outward source must have finite
-     * arithmetic.
-     */
-    const finite: (v: readonly number[]) => boolean = (
-      v: readonly number[],
-    ): boolean => v.every(Number.isFinite);
     for (let k: number = 0; k < count; k++) {
       const c: IAutoMovieSolidJoin.IColumn | null = join.column(
         seed + (2 * Math.PI * k) / count,
       );
       if (c === null) return null;
 
-      // A column with a non-finite rail or ribbon (a solve that failed
+      // A column with a vanishing outward source (a solve that failed
       // silently) is refused, never published into a chain.
       if (
         !(
-          finite(c.start.point) &&
-          finite(c.start.first) &&
-          finite(c.start.second) &&
-          finite(c.end.point) &&
-          finite(c.end.first) &&
-          finite(c.end.second) &&
-          finite(c.outward) &&
           Math.hypot(...c.outward) > 0
         )
       )
@@ -94,11 +80,6 @@ export namespace AutoMovieSolidBlendChain {
       strip(name, columns, r0.outward);
     if (published === null) return null;
     const { chain, length: L } = published;
-    const widths: ReturnType<IAutoMovieSolidJoin.IJoin["widths"]>[] =
-      columns.map(
-        (_, k: number): ReturnType<IAutoMovieSolidJoin.IJoin["widths"]> =>
-          join.widths(seed + (2 * Math.PI * k) / count),
-      );
 
     // A part's rail that does not wind round its phase encloses a region of
     // its chart; the part keeps the side its rail stands toward from the
@@ -133,9 +114,6 @@ export namespace AutoMovieSolidBlendChain {
       chain,
       length: L,
       seed,
-      rails: columns.map(
-        (c: IAutoMovieSolidJoin.IColumn): IAutoMovieSolidRail.IRail => c.rail,
-      ),
       host: {
         kind:
           join.curve.winding === 0
@@ -173,8 +151,14 @@ export namespace AutoMovieSolidBlendChain {
         ],
       ),
       widths: {
-        host: widths.map((width): number => width.host),
-        part: widths.map((width): number | null => width.part),
+        host: columns.map(
+          (_: IAutoMovieSolidJoin.IColumn, k: number): number =>
+            join.widths(seed + (2 * Math.PI * k) / count).host,
+        ),
+        part: columns.map(
+          (_: IAutoMovieSolidJoin.IColumn, k: number): number | null =>
+            join.widths(seed + (2 * Math.PI * k) / count).part,
+        ),
       },
       parameter: join.curve.parameter.kind,
       sigma: r0.rail.sigma > 0 ? 1 : -1,
@@ -213,8 +197,6 @@ export namespace AutoMovieSolidBlendChain {
    * @param outward The start surface's outward normal at column 0.
    * @param inner Interior cross sections in increasing share `t` in `(0, 1)`,
    *   each with one jet per column; absent, none.
-   * @param orientation Optional exact chart orientation inherited from an
-   *   oriented owner arc.
    * @returns The chain and its station span `L`, mm, or null for a nonpositive
    *   or nonfinite span or an unusable orientation anchor.
    */
@@ -223,7 +205,6 @@ export namespace AutoMovieSolidBlendChain {
     columns: IAutoMovieSolidBlendChain.IStripColumns,
     outward: AutoMovieVector3Tuple,
     inner: IAutoMovieSolidBlendChain.IStripInner = [],
-    orientation?: 1 | -1,
   ): IAutoMovieSolidBlendChain.IStripResult {
     const count: number = columns.length;
 
@@ -236,7 +217,7 @@ export namespace AutoMovieSolidBlendChain {
         ),
       );
     const L: number = chord / count;
-    if (!(Number.isFinite(L) && L > 0)) return null;
+    if (!(L > 0)) return null;
 
     /**
      * Every layer uses the same physical chord clock, with station derivatives
@@ -352,14 +333,12 @@ export namespace AutoMovieSolidBlendChain {
     // Its rail continues the start surface's oriented surface. A regular
     // connected strip keeps that sign; one anchor is not a global
     // certificate for the periodic interpolation between columns.
-    if (orientation !== undefined)
-      return { chain: { ...chain, orientation }, length: L };
     const edge: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, 0, 0);
     const facing: number = AutoMovieSolidVector.dot(
       AutoMovieSolidVector.cross(edge.s, edge.t),
       outward,
     );
-    if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+    if (!(Math.abs(facing) > 0)) return null;
     chain.orientation = facing > 0 ? 1 : -1;
     return { chain, length: L };
   }

@@ -17,8 +17,8 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
  * breadths; heights over the floor in millimetres, given by the caller as a
  * share of the foot length or of the lateral malleolus height, whichever the
  * landmark's basis is. The ankle's centre stands at the origin of the plan
- * (`AutoMovieHumanFootPrior.PRIOR.ankle`), and the foot axis is rotated by
- * the preferred quiet-stance toe-out angle from McIlroy and Maki (1997),
+ * (ANSUR II's ankle place, `AutoMovieHumanFootPrior.PRIOR.ankle`), and the
+ * foot axis is turned out of forward by the prior's yaw (reference median),
  * the left foot lateral toward +Z.
  */
 export namespace AutoMovieHumanFootFrame {

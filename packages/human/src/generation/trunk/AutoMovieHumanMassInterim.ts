@@ -1,38 +1,36 @@
 import type {
   IAutoMovieHumanBodyMeasures,
+  IAutoMovieHumanReferenceOutlineTypes,
   IAutoMovieHumanTrunkBuild,
   IAutoMovieHumanTrunkSolution,
   IAutoMovieHumanTrunkViewLaws,
 } from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
-import { AutoMovieHumanChestWall } from "../AutoMovieHumanChestWall";
-import { AutoMovieHumanLumbarSection } from "../AutoMovieHumanLumbarSection";
-import { AutoMovieHumanTrunkLandmarks } from "../AutoMovieHumanTrunkLandmarks";
+import { AutoMovieHumanGlutealDome } from "../AutoMovieHumanGlutealDome";
+import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 
 /**
- * Trunk mass footprints from the person's chest, bust and hip dimensions and
- * adjacent bare-wall estimates. The actual source wall and the declared apex
- * define each mass's attachment projection.
+ * The trunk masses' laws: the left breast and gluteal mass, their footprints
+ * and bare-wall setbacks from the reference set's mass footprints
+ * (`AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT`, `GLUTEAL_FOOTPRINT`,
+ * per stature, estimated from the private reference set: no published source
+ * gives a mass's base on its wall; the owner's rule follows the reference
+ * where data is short), their profiles today's dome. Public width/depth and
+ * the shared generating height define each AP apex; the actual local wall
+ * source then defines its projection. The retained wall setback is not that
+ * local projection, and the old relief's displaced X/Z is not reused.
  */
 export namespace AutoMovieHumanMassInterim {
   /**
-   * Half the female corpus sterni breadth at the fourth to fifth costal
-   * notches, 27.8 mm across in 103 women (Atesoglu et al. 2018, Table 1).
-   * Transfer the bony lateral edge to the medial breast footprint where the
-   * person supplies no sternal breadth.
-   */
-  const STERNUM_HALF_MM: number = 27.8 / 2;
-
-  /**
-   * The profile of today's trunk masses as the mass part's knots: today's domes
-   * rise as the bump `h = A (1 - rho^2)^3` over their footprint
+   * The profile of today's trunk masses as the mass part's knots: today's
+   * domes rise as the bump `h = A (1 - rho^2)^3` over their footprint
    * (`AutoMovieHumanTrunkFeatureProfile.bump`), so at the share `a` of the
    * amplitude the footprint's radius has shrunk to `rho = sqrt(1 - a^(1/3))`,
    * the same share on every edge. These named samples are the current source
-   * constraints. MassPart's bounded C2 interpolation is not exact analytic bump
-   * replay: the inverse radius has an infinite AP derivative at a=0, whereas
-   * this finite regular-wall construction holds its internal section.
+   * constraints. MassPart's bounded C2 interpolation is not exact analytic
+   * bump replay: the inverse radius has an infinite AP derivative at a=0,
+   * whereas this finite regular-wall construction holds its internal section.
    */
   const DOME: IAutoMovieHumanTrunkBuild.IMassLaw["profile"] = [
     0.25, 0.5, 0.75, 0.95,
@@ -42,64 +40,58 @@ export namespace AutoMovieHumanMassInterim {
   });
 
   /**
-   * The positive difference between whole chest depth and the chest wall's
-   * depth estimated from the same person's underbust tape. ESTIMATE: transfer
-   * the underbust depth to the neighbouring chest station. The separate breast
-   * operator uses the true projection onto the local wall.
+   * The breast's retained bare-wall setback, calibration mm: the reference set's projection
+   * of the bust point over the chest wall's line, per stature; none for a
+   * man (the reading finds no mass on the men's chests). It sizes the bare
+   * wall only; the actual mass amplitude is the AP apex minus its own local
+   * source wall, not this difference between whole-depth boxes.
    *
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
-   * @returns The median bare-wall setback, mm, zero where no breast projection
-   *   is specified.
+   * @returns The retained bare-wall setback, mm, zero where there is no breast.
    */
   export function breastAmplitude(
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
   ): number {
     if (measures.sex !== AutoMovieHumanSex.Female) return 0;
-    const depth: number = AutoMovieHumanChestWall.box(
-      measures,
-      measures.underbustCircumference,
-    ).depth;
-    return Math.max(0, measures.chestDepth - depth) * scale;
+    return (
+      AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT.values.amplitude *
+      measures.stature *
+      scale
+    );
   }
 
   /**
-   * The positive difference between the person's buttock depth and the
-   * unprojected depth of their high-hip section. ESTIMATE: use the adjacent
-   * high-hip section's depth as the bare pelvic wall at the buttock level.
+   * The gluteal mass's retained bare-wall setback, calibration mm: the reference set's
+   * projection of the buttock's most posterior point over the sacral wall's
+   * line, per stature, women and men apart. Actual mass amplitude is solved
+   * separately from the declared posterior apex and its local source wall.
    *
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
-   * @returns The median bare-wall setback, mm.
+   * @returns The retained bare-wall setback, mm.
    */
   export function glutealAmplitude(
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
   ): number {
-    const depth: number = AutoMovieHumanLumbarSection.box(
-      measures,
-      measures.highHipCircumference,
-    ).depth;
-    return Math.max(0, measures.buttockDepth - depth) * scale;
+    return glutealTable(measures).values.amplitude * measures.stature * scale;
   }
 
   /**
    * The left breast's law: the AP apex at the same height as the chest tape,
-   * its Z half the person's bust-point width and its X the back plus whole
-   * chest depth. ESTIMATE: the vertical base reaches two interspaces to either
-   * side of that station, reusing the trunk's named fold drop. The medial edge
-   * stands at the lateral sternum. The lateral edge meets the axilla's
-   * horizontal support when that support is beyond the apex, or the measured
-   * chest half-breadth otherwise.
+   * its Z exactly half the public bust-point width and its X the back source
+   * plus whole chest depth. The old relieved point's displaced X/Z is not
+   * transferred. Its four footprint edges retain the reference ratios and
+   * its profile today's dome. The table's lateral edge is where the skin falls back by the
+   * amplitude, so it is the base's near bound (the chest wall curves away
+   * beyond it). None for a man.
    *
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
    * @param laws The shared source height and back line, calibration mm.
    * @param fold The fold's radius, calibration mm.
-   * @param crotch The person's crotch level, calibration mm.
-   * @param setback The already resolved median bare-wall setback, calibration
-   *   mm.
    * @returns The law, or null where there is no breast.
    */
   export function breast(
@@ -107,26 +99,20 @@ export namespace AutoMovieHumanMassInterim {
     scale: number,
     laws: IAutoMovieHumanTrunkViewLaws.ILaws,
     fold: number,
-    crotch: number,
-    setback: number,
   ): IAutoMovieHumanTrunkBuild.IMassLaw | null {
-    if (measures.sex !== AutoMovieHumanSex.Female || !(setback > 0))
-      return null;
+    if (measures.sex !== AutoMovieHumanSex.Female) return null;
+    const v: IAutoMovieHumanReferenceOutlineTypes.IFootprint["values"] =
+      AutoMovieHumanReferenceOutlines.BREAST_FOOTPRINT.values;
+    const s: number = measures.stature * scale;
     const y: number = laws.chest;
-    const z: number = (measures.bustPointWidth * scale) / 2;
-    const chest: number = (measures.chestBreadth * scale) / 2;
-    const axilla: number =
-      laws.upper.find(({ site }): boolean => site === "axilla")?.half ?? chest;
-    const lateral: number = Math.min(chest, axilla > z ? axilla : chest) - z;
-    const medial: number = z - STERNUM_HALF_MM * scale;
-    const height: number =
-      AutoMovieHumanTrunkLandmarks.FOLD_DROP *
-      (measures.cervicaleHeight * scale - crotch);
-    if (!(lateral > 0 && medial > 0 && height > 0)) return null;
     return {
-      target: [laws.back(y) + measures.chestDepth * scale, y, z],
+      target: [
+        laws.back(y) + measures.chestDepth * scale,
+        y,
+        (measures.bustPointWidth * scale) / 2,
+      ],
       up: [0, 1, 0],
-      footprint: [height, lateral, height, medial],
+      footprint: [v.up * s, v.lateral * s, v.down * s, v.medial * s],
       profile: DOME,
       shoulder: Math.SQRT2 - 1,
       fold,
@@ -134,51 +120,60 @@ export namespace AutoMovieHumanMassInterim {
   }
 
   /**
-   * The left gluteal mass's law: its target the gluteal apex (the trunk's back
-   * line at the buttock point's height, `AutoMovieHumanTrunkLaws`), across at
-   * the centre of its pelvic half. ESTIMATE: leave one fold radius of clearance
-   * to either transverse boundary. The vertical base reaches the crotch and the
-   * iliocristale level from the person's trunk landmarks. Actual contact is
-   * read from the trunk-plus-leg parent.
+   * The left gluteal mass's law: its target the gluteal apex (the trunk's
+   * back line at the buttock point's height, `AutoMovieHumanTrunkLaws`),
+   * across at today's apex share of the same public hip half breadth
+   * (`AutoMovieHumanGlutealDome.LATERAL`), its four edges from the
+   * reference set's footprint for the sex scaled by stature, the lower edge
+   * cut off at crotch height as a retained internal module footprint. This is
+   * not the public lowest gluteal-furrow datum or an anatomical fold claim;
+   * actual contact is read from the same trunk-plus-leg parent source.
    *
-   * @param landmarks The person's buttock and crotch heights, calibration mm.
+   * @param solution The old trunk's solve, for the retained buttock/crotch heights only.
    * @param measures The person's measures, world mm.
    * @param scale Calibration millimetres per world millimetre.
    * @param laws The trunk's laws, for the back line.
    * @param fold The fold's radius, calibration mm.
-   * @param setback The already resolved median bare-wall setback, calibration
-   *   mm.
    * @returns The law, or null where the amplitude leaves none.
    */
   export function gluteal(
-    landmarks: Pick<
-      IAutoMovieHumanTrunkSolution["landmarks"],
-      "buttock" | "crotch"
-    >,
+    solution: IAutoMovieHumanTrunkSolution,
     measures: IAutoMovieHumanBodyMeasures,
     scale: number,
     laws: IAutoMovieHumanTrunkViewLaws.ILaws,
     fold: number,
-    setback: number,
   ): IAutoMovieHumanTrunkBuild.IMassLaw | null {
-    if (!(setback > 0)) return null;
-    const z: number = (measures.hipBreadth * scale) / 4;
-    const half: number = z - fold;
-    const iliocristale: number = AutoMovieHumanTrunkLandmarks.at(
-      landmarks.crotch,
-      measures.cervicaleHeight * scale,
-      AutoMovieHumanTrunkLandmarks.ILIOCRISTALE,
-    );
-    const up: number = iliocristale - landmarks.buttock;
-    const down: number = landmarks.buttock - landmarks.crotch;
-    if (!(half > 0 && up > 0 && down > 0)) return null;
+    if (!(glutealAmplitude(measures, scale) > 0)) return null;
+    const l: IAutoMovieHumanTrunkSolution["landmarks"] = solution.landmarks;
+    const v: IAutoMovieHumanReferenceOutlineTypes.IFootprint["values"] =
+      glutealTable(measures).values;
+    const s: number = measures.stature * scale;
+    const width: number = (measures.hipBreadth * scale) / 2;
     return {
-      target: [laws.back(landmarks.buttock), landmarks.buttock, z],
+      target: [
+        laws.back(l.buttock),
+        l.buttock,
+        AutoMovieHumanGlutealDome.LATERAL * width,
+      ],
       up: [0, 1, 0],
-      footprint: [up, half, down, half],
+      footprint: [
+        v.up * s,
+        v.lateral * s,
+        Math.min(v.down * s, l.buttock - l.crotch),
+        v.medial * s,
+      ],
       profile: DOME,
       shoulder: Math.SQRT2 - 1,
       fold,
     };
+  }
+
+  /** The gluteal footprint for the person's sex. */
+  function glutealTable(
+    measures: IAutoMovieHumanBodyMeasures,
+  ): IAutoMovieHumanReferenceOutlineTypes.IFootprint {
+    return measures.sex === AutoMovieHumanSex.Female
+      ? AutoMovieHumanReferenceOutlines.GLUTEAL_FOOTPRINT.female
+      : AutoMovieHumanReferenceOutlines.GLUTEAL_FOOTPRINT.male;
   }
 }

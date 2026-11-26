@@ -6,7 +6,7 @@ export namespace IAutoMovieSolidMeshLoop {
   export type Classifier = (
     u: number,
     v: number,
-    jet: IAutoMovieSolidSurface.IFirst,
+    jet: IAutoMovieSolidSurface.IJet,
     margin: number,
   ) => boolean;
 }

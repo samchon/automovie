@@ -4,6 +4,7 @@ export * from "./AutoMovieHumanDigitInterim";
 export * from "./AutoMovieHumanDigitWalk";
 export * from "./AutoMovieHumanMassPart";
 export * from "./AutoMovieHumanMassSource";
+export * from "./AutoMovieHumanSiteConstraints";
 export * from "./AutoMovieHumanSiteControls";
 export * from "./AutoMovieHumanSiteDefinition";
 export * from "./AutoMovieHumanSiteRegionControls";

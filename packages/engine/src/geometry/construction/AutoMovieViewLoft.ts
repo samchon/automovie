@@ -19,7 +19,6 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftContract } from "./AutoMovieLoftContract";
 import { AutoMovieLoftFrameSource } from "./AutoMovieLoftFrameSource";
 import { AutoMovieLoftSectionNative } from "./AutoMovieLoftSectionNative";
-import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 import { AutoMovieLoftViewSource } from "./AutoMovieLoftViewSource";
@@ -40,7 +39,7 @@ type Quarters<T> = IAutoMovieViewPart.IQuarters<T>;
 interface Row {
   station: number;
   frame: IAutoMovieLoftSectionFrame;
-  point: (phi: number) => [number, number];
+  radius: (phi: number) => number;
   view: IAutoMovieLoftChain.IView | undefined;
 }
 
@@ -160,26 +159,6 @@ export namespace AutoMovieViewLoft {
     }
     const direct: IAutoMovieLoftViewSource.ISource | null =
       admitted?.source ?? null;
-    const directRead: ReturnType<typeof AutoMovieLoftViewRead.prepare> | null =
-      direct === null ? null : AutoMovieLoftViewRead.prepare(direct);
-    const field = part.originalSection;
-    if (field !== undefined) {
-      const fault = AutoMovieLoftSectionOriginal.fault(
-        field,
-        first,
-        last,
-        closes.length !== 0,
-      );
-      if (fault !== null || direct === null || (closes.includes("bottom") && field.interior !== true)) {
-        report("original section", fault ?? "a bounded original section needs a direct regular proximal field and a retained native tail");
-        return empty();
-      }
-      const compatibility = AutoMovieLoftSectionOriginal.compatibility(field, direct, directRead!, part.order);
-      if (compatibility !== null) {
-        report("original section", compatibility);
-        return empty();
-      }
-    }
     const inputs: IAutoMovieViewLoftInputsInputs | null =
       AutoMovieViewLoftInputs(part, direct, report);
     if (inputs === null) return empty();
@@ -338,15 +317,10 @@ export namespace AutoMovieViewLoft {
 
     const sections: IAutoMovieViewLoft.IStation[] = [];
     const chains: IAutoMovieViewLoft.IChainStation[] = [];
-    const original: NonNullable<IAutoMovieViewLoft.IResult["original"]> = [];
     for (const s of stations) {
-      if (AutoMovieLoftSectionOriginal.active(field, s)) {
-        original.push({ station: s, frame: part.axis.at(s), field: field! });
-        continue;
-      }
       const at: string = `station ${s} mm`;
       const actual: IAutoMovieLoftViewRead.IValues | string | null =
-        directRead === null ? null : directRead.values(s);
+        direct === null ? null : AutoMovieLoftViewRead.values(direct, s);
       if (typeof actual === "string") {
         report("outline", actual);
         continue;
@@ -447,7 +421,7 @@ export namespace AutoMovieViewLoft {
       if (section === null) continue;
       sections.push({ station: s, frame: part.axis.at(s), section });
     }
-    const emitted: number = sections.length + chains.length + original.length;
+    const emitted: number = sections.length + chains.length;
     if (emitted < 2) {
       report(
         "stations",
@@ -467,7 +441,8 @@ export namespace AutoMovieViewLoft {
         (st: IAutoMovieViewLoft.IStation): Row => ({
           station: st.station,
           frame: st.frame,
-          point: (phi: number): [number, number] => polar(AutoMovieViewSection.radius(st.section, phi)[0], phi),
+          radius: (phi: number): number =>
+            AutoMovieViewSection.radius(st.section, phi)[0],
           view: {
             extents: [...st.section.box.extents],
             shoulders: [...st.section.shoulders],
@@ -482,18 +457,11 @@ export namespace AutoMovieViewLoft {
         (st: IAutoMovieViewLoft.IChainStation): Row => ({
           station: st.station,
           frame: st.frame,
-          point: (phi: number): [number, number] => polar(AutoMovieViewChain.radius(st.chain, phi), phi),
+          radius: (phi: number): number =>
+            AutoMovieViewChain.radius(st.chain, phi),
           view: undefined,
         }),
       ),
-      ...original.map((row): Row => ({
-        station: row.station,
-        frame: row.frame,
-        point:
-          row.field.pointAt?.(row.station) ??
-          ((phi) => row.field.point(row.station, phi)),
-        view: undefined,
-      })),
     ].sort((a: Row, b: Row): number => a.station - b.station);
     const layers: IAutoMovieLoftChain.ILayer[] = [];
     for (const row of rows) {
@@ -501,7 +469,8 @@ export namespace AutoMovieViewLoft {
         { length: N },
         (_: unknown, m: number): [number, number] => {
           const phi: number = (2 * Math.PI * m) / N;
-          return row.point(phi);
+          const r: number = row.radius(phi);
+          return [r * Math.cos(phi), r * Math.sin(phi)];
         },
       );
       const coefficients: number[] = AutoMovieSplineCurve.interpolate(points);
@@ -555,14 +524,11 @@ export namespace AutoMovieViewLoft {
     chain = AutoMovieSeamStation.continuous(source);
     if (direct !== null)
       chain = AutoMovieLoftSectionSource.retain(chain, direct);
-    if (field !== undefined) chain = { ...chain, originalSection: field };
     chain = AutoMovieLoftCapSource.retain(chain, part.axis);
     // The part's reliefs ride on the chain it returns, as its owner composes
     // them (`{ ...chain, reliefs }`), so the surface and every reader of the
     // chain, a realized construction face included, carry them.
     if (part.reliefs !== undefined) chain = { ...chain, reliefs: part.reliefs };
-    if (part.originalGraphs !== undefined)
-      chain = { ...chain, originalGraphs: part.originalGraphs };
     // Declared ring phases ride on it the same way; a list that is not `samples` phases strictly increasing within one turn is refused.
     if (part.phases !== undefined) {
       const phases: number[] = part.phases;
@@ -595,20 +561,12 @@ export namespace AutoMovieViewLoft {
       surface,
       sections,
       chains,
-      ...(field === undefined ? {} : { original }),
       diagnostics,
       continuity:
-        chains.length === 0 && field?.regular !== true
-          ? CONTINUITY
-          : { phase: "C1", station: "C1" },
+        chains.length === 0 ? CONTINUITY : { phase: "C1", station: "C1" },
     };
   }
 }
-
-function polar(r: number, phi: number): [number, number] {
-  return [r * Math.cos(phi), r * Math.sin(phi)];
-}
-
 
 /** The continuity every four-quarter chain carries. */
 const CONTINUITY: IAutoMovieViewLoft.IResult["continuity"] = {

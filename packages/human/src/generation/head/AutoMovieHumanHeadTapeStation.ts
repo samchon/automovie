@@ -17,90 +17,89 @@ import type {
 /** Call-owned exact-station numeric preparation for actual head-tape queries. */
 export namespace AutoMovieHumanHeadTapeStation {
   /**
-   * Prepare the original frame and numeric conics at one requested station.
-   * Point and phase evaluations share that geometry. Physical derivatives
-   * remain a separate request from the tape course.
+   * Own the actual scalar values once; numeric conics remain a lazy explicit
+   * point/phase operation after the original axis callback. Available frames
+   * and every physical2 requirement stay with their real consumers.
    */
   export function prepare(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
     station: number,
   ): IAutoMovieHumanHeadTapeStation.IPrepared {
-    return section(
-      reader,
-      station,
-      AutoMovieLoftViewRead.values(reader.source, station),
-    );
-  }
-
-  /** Place the conics from one original scalar reading in its world frame. */
-  function section(
-    reader: IAutoMovieHumanHeadTapeSource.IReader,
-    station: number,
-    inputs: IAutoMovieLoftViewRead.IValues | string,
-  ): IAutoMovieHumanHeadTapeStation.IPrepared {
+    const inputs: IAutoMovieLoftViewRead.IValues | string =
+      AutoMovieLoftViewRead.values(reader.source, station);
     if (typeof inputs === "string")
       throw new Error(`Head tape original value: ${inputs}`);
-    const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
-    const native: IAutoMovieLoftSectionNative.ICurve =
-      AutoMovieLoftSectionNative.curve(inputs);
+    let curve: IAutoMovieLoftSectionNative.ICurve | undefined;
+    let pointReader: ((phase: number) => AutoMovieVector3Tuple) | undefined;
 
-    /** Express a native section point in the prepared world frame. */
-    const place = (
-      local: IAutoMovieHumanHeadTapeStation.VectorLocal,
-    ): AutoMovieVector3Tuple =>
-      vector(frame, local).map(
-        (x: number, i: number): number => x + frame.origin[i]!,
-      ) as AutoMovieVector3Tuple;
+    /** Only an explicit actual evaluation constructs this immutable numeric station. */
+    const native: () => IAutoMovieLoftSectionNative.ICurve =
+      (): IAutoMovieLoftSectionNative.ICurve => {
+        curve ??= AutoMovieLoftSectionNative.curve(inputs);
+        return curve;
+      };
     return {
       reader,
       station,
       point(phase: number): AutoMovieVector3Tuple {
-        return place(native.point(phase));
+        if (pointReader !== undefined) return pointReader(phase);
+        const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
+        const read: (phi: number) => AutoMovieVector3Tuple = (
+          phi: number,
+        ): AutoMovieVector3Tuple =>
+          vector(frame, native().point(phi)).map(
+            (x: number, i: number): number => x + frame.origin[i]!,
+          ) as AutoMovieVector3Tuple;
+        const value: AutoMovieVector3Tuple = read(phase);
+        pointReader = read;
+        return value;
       },
       value(phase: number): IAutoMovieHumanHeadTapeStation.IReading {
+        const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
         const local: IAutoMovieHumanHeadTapeStation.IReading["local"] =
-          native.phase(phase);
-        return { point: place(local.p), frame, local };
+          native().phase(phase);
+        const point: AutoMovieVector3Tuple = vector(frame, local.p).map(
+          (x: number, i: number): number => x + frame.origin[i]!,
+        ) as AutoMovieVector3Tuple;
+        return { point, frame, local };
       },
     };
   }
 
   /**
-   * Prepare the supplied integration endpoints before reading phases. An
-   * individual course query can omit that range and prepares only the
-   * stations its inverse actually evaluates. A selected trial directly
-   * supplies its final phase reading in either case.
+   * Share only exact unchanged endpoints, and carry an arbitrary selected
+   * bracket trial directly into its final phase read. No trial-station map,
+   * failed preparation, whole part or physical Hessian is cached.
    */
   export function create(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
-    ends?: IAutoMovieHumanHeadTapeStation.CreateEnds,
+    ends: IAutoMovieHumanHeadTapeStation.CreateEnds,
   ): IAutoMovieHumanHeadTapeStation.IOutput {
-    const field = AutoMovieLoftViewRead.prepare(reader.source);
-    const read = (station: number): IAutoMovieHumanHeadTapeStation.IPrepared =>
-      section(reader, station, field.values(station));
-    const low: IAutoMovieHumanHeadTapeStation.IPrepared | undefined =
-      ends === undefined ? undefined : read(ends[0]);
-    const high: IAutoMovieHumanHeadTapeStation.IPrepared | undefined =
-      ends === undefined || ends[1] === ends[0]
-        ? low
-        : read(ends[1]);
+    const endpoints: Map<number, IAutoMovieHumanHeadTapeStation.IPrepared> =
+      new Map();
 
-    /** Prepare each interior trial from the same original source. */
+    /** A new arbitrary station is transient until a successful endpoint query. */
     const at: (station: number) => IAutoMovieHumanHeadTapeStation.IPrepared = (
       station: number,
-    ): IAutoMovieHumanHeadTapeStation.IPrepared => {
-      if (low?.station === station) return low;
-      if (high?.station === station) return high;
-      return read(station);
+    ): IAutoMovieHumanHeadTapeStation.IPrepared =>
+      endpoints.get(station) ?? prepare(reader, station);
+
+    /** Retention follows successful evaluation and is bounded by the two actual endpoints. */
+    const retain: (source: IAutoMovieHumanHeadTapeStation.IPrepared) => void = (
+      source: IAutoMovieHumanHeadTapeStation.IPrepared,
+    ): void => {
+      if (source.station === ends[0] || source.station === ends[1])
+        endpoints.set(source.station, source);
     };
     return {
-      jets: field.jets,
       point(
         station: number,
         phase: number,
       ): IAutoMovieHumanHeadTapeStation.IValue {
         const source: IAutoMovieHumanHeadTapeStation.IPrepared = at(station);
-        return { point: source.point(phase), source };
+        const point: AutoMovieVector3Tuple = source.point(phase);
+        retain(source);
+        return { point, source };
       },
       value(
         station: number,
@@ -113,7 +112,10 @@ export namespace AutoMovieHumanHeadTapeStation {
           throw new Error(
             "Head tape selected station belongs to another source trial",
           );
-        return source.value(phase);
+        const value: IAutoMovieHumanHeadTapeStation.IReading =
+          source.value(phase);
+        retain(source);
+        return value;
       },
     };
   }

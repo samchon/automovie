@@ -22,41 +22,4 @@ export namespace FamilyConicCaptureViews {
     ];
     return native ? [...legacy, "top"] : legacy;
   }
-
-  /**
-   * Plan regional comparison directions from the requested views. A twin
-   * exchanges left and right in the same plan. An underside is a below view.
-   */
-  export function comparison(
-    zone: string,
-    original: (zone: string) => string[],
-  ): string[] {
-    const name: string = zone.replace(/\.twin$/, "");
-    if (name === "nose")
-      return [
-        "front",
-        "left",
-        "right",
-        "high-oblique",
-        "low-oblique",
-        "low-oblique-other-side",
-        "underside",
-      ];
-    const requested: string[] = original(name);
-    const regions: readonly string[] = [
-      "head", "hand", "foot", "shoulder", "ear", "neck", "hip", "chest",
-    ];
-    const planned: string[] = regions.includes(name)
-      ? [...new Set([...requested, "front", "back", "left", "high-oblique", "low-oblique"])]
-      : requested;
-    return planned.map((view: string): string =>
-      zone.endsWith(".twin")
-        ? view === "left"
-          ? "right"
-          : view === "right"
-            ? "left"
-            : view
-        : view,
-    );
-  }
 }

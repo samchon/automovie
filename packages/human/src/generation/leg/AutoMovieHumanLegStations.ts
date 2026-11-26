@@ -42,8 +42,12 @@ export namespace AutoMovieHumanLegStations {
     "hip.flexion": [-17.75, 132.1],
   };
 
-  /** Estimate of the farthest spacing between shape samples, world mm. */
-  export const COARSEST: number = 10;
+  /**
+   * The coarsest layer spacing, world mm: below the 10 mm step of the
+   * reference pack's leg curves, so a leg holds at least as many layers as the
+   * references (72 on f1).
+   */
+  export const COARSEST: number = 9.5;
 
   /** Integration step of the layer density, mm. */
   export const DENSITY_STEP: number = 0.25;

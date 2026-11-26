@@ -12,10 +12,7 @@ import { AutoMovieHumanSiteRegionControls } from "../limb/AutoMovieHumanSiteRegi
 
 /** Anatomical hand-domain selection over a common original C2 scalar owner. */
 export namespace AutoMovieHumanArmHandControls {
-  /**
-   * Close only forearm/wrist/palm constraints before either original is
-   * published.
-   */
+  /** Close only forearm/wrist/palm constraints before either original is published. */
   export function create(
     frame: IAutoMovieHumanArmFrame.IOutput,
   ): IAutoMovieHumanArmHandControls.IOutput {
@@ -29,7 +26,6 @@ export namespace AutoMovieHumanArmHandControls {
       AutoMovieHumanSiteRegionControls.create(frame.source.input, "forearm");
     return {
       hand: region(shared.local, wrist.station),
-      field: shared.field,
       connect: shared.connect,
       prepare(
         input: IAutoMovieHumanSectionSource,
@@ -40,10 +36,7 @@ export namespace AutoMovieHumanArmHandControls {
   }
 }
 
-/**
- * Contact coordinates visit only the known hand domain; scalar support remains
- * shared.
- */
+/** Contact coordinates visit only the known hand domain; scalar support remains shared. */
 function region(
   prepared: IAutoMovieHumanSiteControls.IOutput,
   wrist: number,

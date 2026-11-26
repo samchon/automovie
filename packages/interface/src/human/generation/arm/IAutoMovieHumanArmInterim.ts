@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
-
 /**
  * Type contracts exchanged by AutoMovieHumanArmInterim; runtime evaluation
  * remains in Human.
@@ -22,20 +20,11 @@ export namespace IAutoMovieHumanArmInterim {
    */
   export type ISitesPlacement = {
     /**
-     * Vertical separation of the person's acromion and GH centre, calibration
-     * millimetres.
+     * Glenohumeral centre's lateral projection from the body's median plane,
+     * calibration millimetres.
      */
     projection: number;
     /** Rigid shoulder-to-elbow centre distance, calibration millimetres. */
     humerus: number;
-
-    /**
-     * The person's resolved distal limb calipers, world millimetres before
-     * calibration scale.
-     */
-    calipers?: Pick<
-      IAutoMovieHumanBodyMeasures,
-      "forearmBreadth" | "forearmDepth" | "wristSkinBreadth" | "wristDepth"
-    >;
   };
 }

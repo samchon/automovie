@@ -12,7 +12,7 @@ Read by AutoMovieHumanGlutealConnection.create.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The input gives the identical original parents, the fixed public apex, the proposed footprint, its shoulder, side orientation and the existing `fold` reach in calibration millimetres. The reach sets the resolution when resolving an unmeasured footprint from actual contacts.
+Required fields are `trunk`, `leg`, `target`, `footprint`, `shoulder`, `lateral`; callers supply the complete record.
 
 # src/human/generation/trunk/IAutoMovieHumanGlutealConnection.ts#IAutoMovieHumanGlutealConnection.IContact
 
@@ -40,8 +40,8 @@ Parent-supported placement candidate and the local field that determined it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`AutoMovieHumanGlutealConnection.create` returns the admitted footprint and the AP interval supported by every phase in its final nested grid. The mass construction and root contact reader both use that footprint.
+Returned by AutoMovieHumanGlutealConnection.create.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The footprint has anatomical up, lateral, down and medial dimensions. The AP root stays behind the anterior bounds and ahead of the posterior bounds at all admitted phases. The root reader checks the same support on demand away from the sampled grid.
+Required fields are `parent`, `wall`, `normal`, `amplitude`, `root`, `embed`, `rootInterval`, `phases`; callers supply the complete record.

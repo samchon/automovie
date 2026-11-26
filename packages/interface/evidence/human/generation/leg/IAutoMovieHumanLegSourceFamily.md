@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Regional and full demands of the same production family. A binding operation borrows the already prepared independent base for the caller's tape scope.
+Regional and full demands of the same production family.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -46,6 +46,4 @@ Invocation-owned production inputs and its optional full-parent completion seam.
 
 Read by AutoMovieHumanLegSourceFamily.create.
 
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The explicit complete callback returns the actual final leg of the owning trunk, or throws its recorded failure. A binding trial edits no other original.
+## @evidence contracts/development/design.md#prohibited-design-shortcuts `complete`: Successfully complete the owning trunk before full demand, or throw its failure; binding a trial alone is not completion.

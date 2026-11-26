@@ -270,13 +270,7 @@ export function realizeAutoMovieConstruction(
       const prepared:
         | IAutoMovieConstructionSharedLoop.IPrepared
         | IAutoMovieConstructionSharedLoop.IRefusal =
-        AutoMovieConstructionSharedLoop.create(
-          node,
-          partSurface,
-          atlas,
-          face,
-          props.loopSources,
-        );
+        AutoMovieConstructionSharedLoop.create(node, partSurface, atlas, face);
       if (!("join" in prepared))
         return fail(prepared.contract, prepared.detail);
       input = prepared.join;
@@ -341,10 +335,6 @@ export function realizeAutoMovieConstruction(
       };
     }
     if (node.kind === "diff") body.faces[partIndex]!.inverted = true;
-    const source =
-      node.loop !== undefined && "source" in node.loop
-        ? props.loopSources?.get(node.loop.source)
-        : undefined;
     const merged: IAutoMovieSolidBody.IMerged = AutoMovieSolidBody.merge(body, {
       name: node.name,
       kind: node.kind,
@@ -352,11 +342,6 @@ export function realizeAutoMovieConstruction(
       join: input,
       count: node.count,
       rows: node.rows,
-      ...(node.loop === undefined && node.nativeRailChord !== undefined
-        ? { railChord: node.nativeRailChord * S, nativeRailBoundaries: true }
-        : source?.kind === "ready" && source.railChord !== undefined
-          ? { railChord: source.railChord }
-          : {}),
     });
     absorb(node.name, merged.diagnostics);
     if (merged.blend === null || merged.join === null)
@@ -474,11 +459,6 @@ export function realizeAutoMovieConstruction(
           state,
           walk,
           report,
-          props.splitValleys?.get(node.name),
-          props.splitParentCuts?.get(node.name),
-          props.splitLineProbes?.get(node.name),
-          props.splitChildRails?.get(node.name),
-          props.splitPrepared?.get(node.name),
         );
       case "port":
         return AutoMovieConstructionPortRealize(
@@ -538,17 +518,11 @@ export function realizeAutoMovieConstruction(
     for (const [k, fill] of (construction.fills ?? []).entries()) {
       const scale: number = AutoMovieConstructionViews.SCALE;
       const radius: number = fill.radius * scale;
-      if (
-        !(
-          fill.point.every(Number.isFinite) &&
-          radius > 0 &&
-          Number.isFinite(radius)
-        )
-      ) {
+      if (!(radius > 0)) {
         report(
           construction.name,
           "fill",
-          `fill ${k}: its point is not finite or its radius not positive`,
+          `fill ${k}: its radius is not positive`,
         );
         continue;
       }

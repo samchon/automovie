@@ -4,9 +4,15 @@ import type {
   IAutoMoviePlanarCurveSource,
 } from "@automovie/interface";
 import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
+import { createHash } from "node:crypto";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-/** Explicit section-curve inputs and their exact cubic chart evaluation. */
+/** Private observation reader; only index rows explicitly marked closed enter the experiment. */
 export namespace ConicPaperInput {
+  /** Weak source-identity reuse shares exact preprocessing between the two methods without retaining source curves. */
+  const criticalCache: WeakMap<Span, IAutoMovieCubicCriticalParameters> =
+    new WeakMap();
   /** Spatial coefficients retain the saved millimetre, +X forward/+Y up/+Z left chart. */
   export type V = readonly [number, number, number];
   /** Four actual Bernstein controls, not interpolated display points. */
@@ -76,9 +82,124 @@ export namespace ConicPaperInput {
     selectedBreaks: number;
     /** Roots lost to a source endpoint or another root after ordinal mapping; these refuse the chart. */
     collapsedBreaks: number;
-    /** Source preparation and critical-boundary mapping time, in milliseconds. */
+    /** Charts whose source coefficients were newly processed. */
+    computedCharts: number;
+    /** Charts reusing preprocessing of the identical unchanged source span. */
+    cachedCharts: number;
+    /** Source-critical evaluation, mapping and cache lookup time, in milliseconds. */
     milliseconds: number;
   }
+  /** Minimal discovery shape; column positions are read by name, never assumed. */
+  interface Index {
+    loopColumns: string[];
+    files: { file: string }[];
+    sections: {
+      index: number;
+      coordinateMm: number;
+      inTopologyGap: boolean;
+      loops: unknown[][];
+    }[];
+  }
+  /** Region file wrapper, resolved using index file ordinals and source section/curve ordinals. */
+  interface Region {
+    sections: {
+      index: number;
+      curves: { kind: string; ordinal: number; curve: Curve }[];
+    }[];
+  }
+
+  /** Read every closed loop, including suspect/broken observations, without importing reference bytes into source. */
+  export async function load(root: string): Promise<Packet> {
+    const started: number = performance.now();
+    const directory: string = path.join(root, ".references/curves/bezier/f1");
+    const hashes: Packet["hashes"] = [];
+    const read = async (file: string): Promise<Buffer> => {
+      const bytes: Buffer = await fs.readFile(path.join(directory, file));
+      hashes.push({
+        file,
+        bytes: bytes.length,
+        sha256: createHash("sha256").update(bytes).digest("hex"),
+      });
+      return bytes;
+    };
+    const index: Index = JSON.parse(
+      (await read("index.json")).toString("utf8"),
+    ) as Index;
+    const column = (name: string): number => {
+      const value: number = index.loopColumns.indexOf(name);
+      if (value < 0) throw new Error("Missing saved index column " + name);
+      return value;
+    };
+    const closed: Map<
+      number,
+      { section: Index["sections"][number]; row: unknown[] }[]
+    > = new Map();
+    for (const section of index.sections)
+      for (const row of section.loops)
+        if (row[column("kind")] === "closed") {
+          const file: number = row[column("file")] as number;
+          const entries: {
+            section: Index["sections"][number];
+            row: unknown[];
+          }[] = closed.get(file) ?? [];
+          entries.push({ section, row });
+          closed.set(file, entries);
+        }
+
+    const loops: Loop[] = [];
+    for (const [ordinal, entries] of closed) {
+      const record: Region = JSON.parse(
+        (await read(index.files[ordinal]!.file)).toString("utf8"),
+      ) as Region;
+      const lookup: Map<string, Curve> = new Map();
+      for (const section of record.sections)
+        for (const item of section.curves)
+          if (item.kind === "closed")
+            lookup.set(section.index + ":" + item.ordinal, item.curve);
+      for (const { section, row } of entries) {
+        const number: number = row[column("ordinal")] as number;
+        const key: string = section.index + ":" + number;
+        const curve: Curve | undefined = lookup.get(key);
+        if (
+          curve === undefined ||
+          curve.type !== "cubicBezier" ||
+          !curve.closed ||
+          curve.spans.length !== row[column("spans")]
+        )
+          throw new Error("Index/coefficient disagreement at " + key);
+        loops.push({
+          key,
+          section: section.index,
+          ordinal: number,
+          heightMm: section.coordinateMm,
+          region: row[column("region")] as string,
+          component: row[column("meshComponent")] as number,
+          quality: (row[column("quality")] as { status: string }).status,
+          below: row[column("below")] as number[],
+          above: row[column("above")] as number[],
+          curve,
+        });
+      }
+    }
+    loops.sort(
+      (a: Loop, b: Loop): number =>
+        a.section - b.section || a.ordinal - b.ordinal,
+    );
+    if (
+      new Set(loops.map((loop: Loop): string => loop.key)).size !== loops.length
+    )
+      throw new Error("Duplicate final loft loop identity");
+    return {
+      loops,
+      sections: index.sections.length,
+      topologyGapSections: index.sections.filter(
+        (s: Index["sections"][number]): boolean => s.inTopologyGap,
+      ).length,
+      hashes,
+      loadMs: performance.now() - started,
+    };
+  }
+
   /** Evaluate one cubic's exact Bernstein derivatives; derivatives four and five vanish inside its chart. */
   export function value(
     span: Span,
@@ -86,48 +207,59 @@ export namespace ConicPaperInput {
     order: 0 | 1 | 2 | 3 | 4 | 5,
   ): Readonly<AutoMovieVector2Tuple> {
     if (order >= 4) return [0, 0];
-    let controls: readonly Readonly<AutoMovieVector2Tuple>[] = project(span);
-    for (let k: number = 0; k < order; ++k) controls = differentiate(controls);
-    return bernstein(controls, u);
+    let controls: Readonly<AutoMovieVector2Tuple>[] = span.map(
+      (p: V): Readonly<AutoMovieVector2Tuple> => [p[0], p[2]],
+    );
+    for (let k: number = 0; k < order; ++k) {
+      const degree: number = controls.length - 1;
+      controls = controls
+        .slice(1)
+        .map(
+          (
+            p: Readonly<AutoMovieVector2Tuple>,
+            i: number,
+          ): Readonly<AutoMovieVector2Tuple> => [
+            degree * (p[0] - controls[i]![0]),
+            degree * (p[1] - controls[i]![1]),
+          ],
+        );
+    }
+    while (controls.length > 1)
+      controls = controls
+        .slice(1)
+        .map(
+          (
+            p: Readonly<AutoMovieVector2Tuple>,
+            i: number,
+          ): Readonly<AutoMovieVector2Tuple> => [
+            (1 - u) * controls[i]![0] + u * p[0],
+            (1 - u) * controls[i]![1] + u * p[1],
+          ],
+        );
+    return controls[0]!;
   }
 
-  /**
-   * Prepare one fixed cubic for either paper's critical-boundary rule.
-   * The projected controls, derivative polygons and exact critical candidates
-   * are shared by the chart readers created within this span's scope.
-   */
-  export function prepareChart(
+  /** Exact critical boundaries split the original cubic without changing its values, jets, controls or phase registration. */
+  export function chart(
     span: Span,
     ordinal: number,
-  ): (
-    query: () => void,
-    method: "ahn" | "ghosh",
-    report: (summary: CriticalSummary, diagnostics: readonly string[]) => void,
-  ) => IAutoMoviePlanarCurveSource {
-    const started: number = performance.now();
-    const controls: ReturnType<typeof project> = project(span);
-    const first: ReturnType<typeof differentiate> = differentiate(controls);
-    const second: ReturnType<typeof differentiate> = differentiate(first);
-    const third: ReturnType<typeof differentiate> = differentiate(second);
-    const derivatives = [controls, first, second, third] as const;
-    const critical: IAutoMovieCubicCriticalParameters =
-      C.cubicCriticalParameters(controls);
-    const preparation: number = performance.now() - started;
-    return (query, method, report): IAutoMoviePlanarCurveSource =>
-      chart(ordinal, derivatives, critical, preparation, query, method, report);
-  }
-
-  /** Select and map critical boundaries without changing the original cubic. */
-  function chart(
-    ordinal: number,
-    derivatives: readonly (readonly Readonly<AutoMovieVector2Tuple>[])[],
-    critical: IAutoMovieCubicCriticalParameters,
-    preparation: number,
     query: () => void,
     method: "ahn" | "ghosh",
     report: (summary: CriticalSummary, diagnostics: readonly string[]) => void,
   ): IAutoMoviePlanarCurveSource {
     const started: number = performance.now();
+    let critical: IAutoMovieCubicCriticalParameters | undefined =
+      criticalCache.get(span);
+    const cached: boolean = critical !== undefined;
+    if (critical === undefined) {
+      critical = C.cubicCriticalParameters([
+        [span[0][0], span[0][2]],
+        [span[1][0], span[1][2]],
+        [span[2][0], span[2][2]],
+        [span[3][0], span[3][2]],
+      ]);
+      criticalCache.set(span, critical);
+    }
     const selected: number[] = [
       ...new Set([
         ...critical.stationary,
@@ -149,7 +281,9 @@ export namespace ConicPaperInput {
         collinearCharts: Number(critical.collinear),
         selectedBreaks: selected.length,
         collapsedBreaks: collapsed,
-        milliseconds: preparation + (performance.now() - started),
+        computedCharts: Number(!cached),
+        cachedCharts: Number(cached),
+        milliseconds: performance.now() - started,
       },
       critical.diagnostics,
     );
@@ -167,54 +301,15 @@ export namespace ConicPaperInput {
       closed: false,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => {
         query();
-        return bernstein(derivatives[0]!, t - ordinal);
+        return value(span, t - ordinal, 0);
       },
       derivative: (
         t: number,
         order: 1 | 2 | 3 | 4 | 5,
       ): Readonly<AutoMovieVector2Tuple> => {
         query();
-        return order >= 4 ? [0, 0] : bernstein(derivatives[order]!, t - ordinal);
+        return value(span, t - ordinal, order);
       },
     };
-  }
-
-  /** The four controls in the section's XZ plane, in millimetres. */
-  function project(
-    span: Span,
-  ): [AutoMovieVector2Tuple, AutoMovieVector2Tuple, AutoMovieVector2Tuple, AutoMovieVector2Tuple] {
-    return [
-      [span[0][0], span[0][2]],
-      [span[1][0], span[1][2]],
-      [span[2][0], span[2][2]],
-      [span[3][0], span[3][2]],
-    ];
-  }
-
-  /** Differentiate the Bernstein polygon by its degree times first differences. */
-  function differentiate(
-    controls: readonly Readonly<AutoMovieVector2Tuple>[],
-  ): Readonly<AutoMovieVector2Tuple>[] {
-    const degree: number = controls.length - 1;
-    return controls.slice(1).map(
-      (p: Readonly<AutoMovieVector2Tuple>, i: number): Readonly<AutoMovieVector2Tuple> =>
-        [degree * (p[0] - controls[i]![0]), degree * (p[1] - controls[i]![1])],
-    );
-  }
-
-  /** Evaluate an already prepared polygon by de Casteljau interpolation. */
-  function bernstein(
-    controls: readonly Readonly<AutoMovieVector2Tuple>[],
-    u: number,
-  ): Readonly<AutoMovieVector2Tuple> {
-    let level: readonly Readonly<AutoMovieVector2Tuple>[] = controls;
-    while (level.length > 1) {
-      const prior: readonly Readonly<AutoMovieVector2Tuple>[] = level;
-      level = prior.slice(1).map(
-        (p: Readonly<AutoMovieVector2Tuple>, i: number): Readonly<AutoMovieVector2Tuple> =>
-          [(1 - u) * prior[i]![0] + u * p[0], (1 - u) * prior[i]![1] + u * p[1]],
-      );
-    }
-    return level[0]!;
   }
 }

@@ -5,29 +5,9 @@ import type {
   IAutoMovieViewSection,
 } from "@automovie/interface";
 
-/**
- * Common world-Y section definitions, authored before the trunk and its
- * differently oriented attached originals.
- */
+/** Common world-Y section definitions, authored before the trunk and its differently oriented attached originals. */
 export namespace AutoMovieHumanTrunkSectionFamily {
-  /**
-   * Prepare the independent tape results shared by the two passes and their
-   * trials.
-   */
-  export function prepare(
-    views: IAutoMovieHumanTrunkViews,
-  ): ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane> {
-    return new Map(
-      [...define(views)].map(([site, plane]) => {
-        if (!("girth" in plane.fullness)) return [site, plane];
-        const result: IAutoMovieHumanTrunkSectionFamily.IFullness =
-          plane.resolve();
-        return [site, { ...plane, resolve: () => result }];
-      }),
-    );
-  }
-
-  /** Retain each original site and any exactly matching supplied preparation. */
+  /** Retain each original site, sharing only an exactly equal native box/fullness input from this caller's previous trial. */
   export function define(
     views: IAutoMovieHumanTrunkViews,
     previous?: ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane>,
@@ -44,10 +24,7 @@ export namespace AutoMovieHumanTrunkSectionFamily {
     return planes;
   }
 
-  /**
-   * A moved plane keeps its new frame; only identical local box/fullness data
-   * may share a scalar solve or its original failure.
-   */
+  /** A moved plane keeps its new frame; only identical local box/fullness data may share a scalar solve or its original failure. */
   export function at(
     site: IAutoMovieHumanTrunkViews.ISite,
     previous?: IAutoMovieHumanTrunkSectionFamily.IPlane,
@@ -59,22 +36,29 @@ export namespace AutoMovieHumanTrunkSectionFamily {
             extents: [depth, site.half, depth, site.half],
           }
         : { extents: [...site.sectionBox.extents] };
-    const matched: IAutoMovieHumanTrunkSectionFamily.IPlane | undefined =
+    const sameBox: boolean =
       previous !== undefined &&
       previous.site === site.site &&
       box.extents.every(
         (value: number, index: number): boolean =>
           value === previous.box.extents[index],
-      )
-        ? previous
-        : undefined;
+      );
     const equivalent: boolean =
-      matched !== undefined &&
+      sameBox &&
+      previous !== undefined &&
       ("shoulder" in site.fullness
-        ? "shoulder" in matched.fullness &&
-          site.fullness.shoulder === matched.fullness.shoulder
-        : "girth" in matched.fullness &&
-          site.fullness.girth === matched.fullness.girth);
+        ? "shoulder" in previous.fullness &&
+          site.fullness.shoulder === previous.fullness.shoulder
+        : "girth" in previous.fullness &&
+          site.fullness.girth === previous.fullness.girth);
+    let prior: IAutoMovieHumanTrunkSectionFamily.IPlane | undefined = equivalent
+      ? previous
+      : undefined;
+    const priorRange:
+      | IAutoMovieHumanTrunkSectionFamily.IPlane["range"]
+      | undefined = sameBox ? previous?.range : undefined;
+    let reach: IAutoMovieViewSection.IRange | null | undefined;
+    let resolved: IAutoMovieHumanTrunkSectionFamily.IFullness | undefined;
     return {
       site: site.site,
       y: site.y,
@@ -87,36 +71,49 @@ export namespace AutoMovieHumanTrunkSectionFamily {
       back: site.back,
       box,
       fullness: site.fullness,
-      range: matched?.range ?? (() => AutoMovieViewSection.range(box)),
+      range:
+        priorRange ??
+        ((): IAutoMovieViewSection.IRange | null => {
+          if (reach === undefined) reach = AutoMovieViewSection.range(box);
+          return reach;
+        }),
       resolve(): IAutoMovieHumanTrunkSectionFamily.IFullness {
-        if (matched !== undefined && equivalent) return matched.resolve();
+        if (resolved !== undefined) return resolved;
+        if (prior !== undefined) {
+          resolved = prior.resolve();
+          prior = undefined;
+          return resolved;
+        }
         if ("shoulder" in site.fullness)
-          return { fullness: site.fullness, diagnostics: [] };
-        const solved: IAutoMovieViewSection.ISolved =
-          AutoMovieViewSection.solve(
-            `view.trunk ${site.site}`,
-            box,
-            site.fullness.girth,
-          );
-        return {
-          fullness:
-            solved.section === null
-              ? null
-              : { shoulder: solved.section.shoulders[0] },
-          diagnostics: [
-            ...solved.diagnostics,
-            ...(solved.section === null
-              ? [
-                  {
-                    producer: "view.trunk",
-                    level: 2 as const,
-                    contract: "fullness",
-                    detail: `site ${site.site}: no section fits the tape ${site.fullness.girth} mm`,
-                  },
-                ]
-              : []),
-          ],
-        };
+          resolved = { fullness: site.fullness, diagnostics: [] };
+        else {
+          const solved: IAutoMovieViewSection.ISolved =
+            AutoMovieViewSection.solve(
+              `view.trunk ${site.site}`,
+              box,
+              site.fullness.girth,
+            );
+          resolved = {
+            fullness:
+              solved.section === null
+                ? null
+                : { shoulder: solved.section.shoulders[0] },
+            diagnostics: [
+              ...solved.diagnostics,
+              ...(solved.section === null
+                ? [
+                    {
+                      producer: "view.trunk",
+                      level: 2 as const,
+                      contract: "fullness",
+                      detail: `site ${site.site}: no section fits the tape ${site.fullness.girth} mm`,
+                    },
+                  ]
+                : []),
+            ],
+          };
+        }
+        return resolved;
       },
       section(shoulder: number): IAutoMovieViewSection.ISection {
         return AutoMovieViewSection.bare(box, [

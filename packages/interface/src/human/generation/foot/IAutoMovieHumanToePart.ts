@@ -61,9 +61,6 @@ export namespace IAutoMovieHumanToePart {
      */
     law: IAutoMovieHumanDigitWalk.IInput["law"];
 
-    /** Independent transverse half-breadths, mm, at the positive and negative chart guides. */
-    halfBreadths?: readonly [positive: number, negative: number];
-
     /** Optional closed scalar source bounds in that same up/across chart. */
     ranges: IAutoMovieHumanSectionSource["ranges"];
 

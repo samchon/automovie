@@ -1,20 +1,39 @@
-import type { AutoMovieVector3Tuple, IAutoMovieHumanSkinCutLoop } from "@automovie/interface";
-
 /**
  * A join's loop as a face's skin cut by a declared surface: the shares of a port loop (`IAutoMovieConstructionPort.ILoop.shape`) at
  * which the skin, followed outward from the loop's centre along each column's ray of the chart, crosses the surface.
  *
  * The surface is a signed measure of a point, negative on the part's side and zero on the surface, fixed in a frame of the skeleton
  * (a plane, a cylinder about an axis, a wedge about a line), so the loop follows the person and the pose and is never a table read off
- * one figure (see Human construction, Connections). The loop it gives is star-shaped about the centre by construction: one
+ * one figure (`.agents/skills/human/construction.md`, Ports). The loop it gives is star-shaped about the centre by construction: one
  * crossing a ray, the first from the centre.
  */
 export namespace AutoMovieHumanSkinCutLoop {
-  /** A figure-space point, in millimetres. */
-  export type V3 = AutoMovieVector3Tuple;
+  /** A point, mm. */
+  export type V3 = [number, number, number];
 
-  /** The source and signed constraint read by a cut. */
-  export type IInput = IAutoMovieHumanSkinCutLoop.IInput;
+  /** What the cut is read from. */
+  export interface IInput {
+    /** The face's skin at a chart point. */
+    point: (u: number, v: number) => V3;
+
+    /** The loop's centre on the chart, on the part's side of the surface. */
+    centre: [number, number];
+
+    /** The ellipse the shares scale, in the chart's own units, positive. */
+    semi: [number, number];
+
+    /** +1 or -1: the second chart coordinate's sense of increasing clock, as the loop's. */
+    sense: 1 | -1;
+
+    /** Columns: the shares are read at the clocks `2 pi k / count`. */
+    count: number;
+
+    /** The surface: negative on the part's side, zero on it. */
+    side: (p: V3) => number;
+
+    /** The largest share a crossing is sought at. */
+    reach: number;
+  }
 
   /** Steps a ray is walked in before the crossing is bracketed. */
   const STEPS: number = 256;

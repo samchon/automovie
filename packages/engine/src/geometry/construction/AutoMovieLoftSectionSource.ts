@@ -19,15 +19,12 @@ export namespace AutoMovieLoftSectionSource {
     chain: IAutoMovieLoftChain,
     data: IAutoMovieLoftViewSource.ISource,
   ): IAutoMovieLoftChain {
-    const reader: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
-      AutoMovieLoftViewRead.prepare(data);
     const rows: IAutoMovieLoftSectionSourceBinding[] = chain.layers.map(
       (
         layer: IAutoMovieLoftChain.ILayer,
       ): IAutoMovieLoftSectionSourceBinding => {
-        const jets: IAutoMovieLoftViewRead.IJets | string = reader.jets(
-          layer.y,
-        );
+        const jets: IAutoMovieLoftViewRead.IJets | string =
+          AutoMovieLoftViewRead.jets(data, layer.y);
         return remember(layer, typeof jets === "string" ? jets : null);
       },
     );
@@ -43,87 +40,35 @@ export namespace AutoMovieLoftSectionSource {
     lo: number,
     hi: number,
   ): IAutoMovieLoftSectionSource.ISource | null {
-    for (const index of [lo, hi])
-      endpoint(chain.layers[index]!, 2 * chain.order);
-    const source: IAutoMovieLoftSectionSource.ISource | null = original(chain);
-    if (source !== null)
-      for (const index of [lo, hi]) checkOriginal(chain, source, index);
-    return source;
-  }
-
-  /**
-   * Validate all layers at the boundary of an immutable chain reading. The
-   * closure publishes the admitted original owner without comparing each
-   * compatibility snapshot again when a bracket is read.
-   */
-  export function prepare(
-    chain: IAutoMovieLoftChain,
-  ): (lo: number, hi: number) => IAutoMovieLoftSectionSource.ISource | null {
-    const source: IAutoMovieLoftSectionSource.ISource | null = original(chain);
-    const invalid: ({ error: unknown } | null)[] = chain.layers.map(
-      (
-        layer: IAutoMovieLoftChain.ILayer,
-        index: number,
-      ): { error: unknown } | null => {
-        try {
-          endpoint(layer, 2 * chain.order);
-          if (source !== null) checkOriginal(chain, source, index);
-          return null;
-        } catch (error: unknown) {
-          return { error };
-        }
-      },
-    );
-    return (
-      lo: number,
-      hi: number,
-    ): IAutoMovieLoftSectionSource.ISource | null => {
-      for (const index of [lo, hi]) {
-        const entry: { error: unknown } | null = invalid[index]!;
-        if (entry !== null) throw entry.error;
-      }
-      return source;
-    };
-  }
-
-  /** Validate the original source's shape independently of a layer bracket. */
-  function original(
-    chain: IAutoMovieLoftChain,
-  ): IAutoMovieLoftSectionSource.ISource | null {
     const source: IAutoMovieLoftSectionSource.ISource | undefined =
       chain.nativeSource;
+    for (const index of [lo, hi])
+      endpoint(chain.layers[index]!, 2 * chain.order);
     if (source === undefined) return null;
     if (
       source === null ||
       source.kind !== "view" ||
       source.data === null ||
       source.data?.kind !== "view" ||
-      !Array.isArray(source.rows) ||
       chain.basis !== "spline" ||
       chain.rule !== "polar"
     )
       throw new Error(
         `The present native source of ${chain.name} is malformed or has a changed basis/rule.`,
       );
-    return source;
-  }
-
-  /** Compare one principal row with the original snapshot at the same station. */
-  function checkOriginal(
-    chain: IAutoMovieLoftChain,
-    source: IAutoMovieLoftSectionSource.ISource,
-    index: number,
-  ): void {
-    const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
-    if (layer.sectionSource !== undefined) return;
-    const binding: IAutoMovieLoftSectionSourceBinding | null = find(
-      source.rows,
-      layer.y,
-    );
-    if (binding === null || !fits(layer, binding, 2 * chain.order))
-      throw new Error(
-        `Native compatibility rows of ${chain.name} at ${layer.y} were rewritten without re-expressing their source.`,
+    for (const index of [lo, hi]) {
+      const layer: IAutoMovieLoftChain.ILayer = chain.layers[index]!;
+      if (layer.sectionSource !== undefined) continue;
+      const binding: IAutoMovieLoftSectionSourceBinding | null = find(
+        source.rows,
+        layer.y,
       );
+      if (binding === null || !fits(layer, binding, 2 * chain.order))
+        throw new Error(
+          `Native compatibility rows of ${chain.name} at ${layer.y} were rewritten without re-expressing their source.`,
+        );
+    }
+    return source;
   }
 
   /** Read a changed endpoint's explicit family or its genuine absence. */
@@ -172,11 +117,7 @@ export namespace AutoMovieLoftSectionSource {
     const source: IAutoMovieLoftSectionSource.ISource | undefined =
       chain.nativeSource;
     if (source === undefined) return true;
-    if (
-      source === null ||
-      source.kind !== "view" ||
-      !Array.isArray(source.rows)
-    )
+    if (source === null || source.kind !== "view")
       throw new Error("The present native availability record is malformed.");
     return chain.layers.every(
       (layer: IAutoMovieLoftChain.ILayer, index: number): boolean =>
@@ -216,30 +157,24 @@ function fits(
 ): boolean {
   if (binding === null || binding === undefined || binding.station !== layer.y)
     return false;
-  const value: unknown = layer.coefficients;
+  const value: number[] = layer.coefficients;
   const valueSnapshot: unknown = binding.value;
   if (
-    !Array.isArray(value) ||
     value.length === 0 ||
     value.length % 2 !== 0 ||
     (expectedWidth !== undefined && value.length !== expectedWidth) ||
     !same(value, valueSnapshot, true)
   )
     return false;
-  const slope: unknown = layer.slopes;
+  const slope: number[] = layer.slopes;
   const slopeSnapshot: unknown = binding.slope;
-  if (
-    !Array.isArray(slope) ||
-    slope.length !== value.length ||
-    !same(slope, slopeSnapshot, true)
-  )
+  if (slope.length !== value.length || !same(slope, slopeSnapshot, true))
     return false;
-  const curvature: unknown = layer.curvatures ?? null;
+  const curvature: number[] | null = layer.curvatures ?? null;
   const curvatureSnapshot: unknown = binding.curvature;
   return curvature === null
     ? curvatureSnapshot === null
-    : Array.isArray(curvature) &&
-        curvature.length === value.length &&
+    : curvature.length === value.length &&
         same(curvature, curvatureSnapshot, true);
 }
 
@@ -266,21 +201,17 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
     return (
-      Number.isInteger(value.order) &&
       value.order > 0 &&
-      Array.isArray(value.rows) &&
       value.rows.length === 3 &&
       [0, 1, 2].every(
         (q: number): boolean =>
           Object.hasOwn(value.rows, q) &&
-          finiteRow(value.rows[q], 2 * value.order),
+          finiteRow(value.rows[q]!, 2 * value.order),
       )
     );
   return (
     value.kind === "native" &&
     value.inputs !== null &&
-    Array.isArray(value.inputs?.extents) &&
-    Array.isArray(value.inputs.shoulders) &&
     value.inputs.extents.length === 4 &&
     value.inputs.shoulders.length === 4 &&
     [0, 1, 2, 3].every(
@@ -290,10 +221,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
     ) &&
     [...value.inputs.extents, ...value.inputs.shoulders].every(
       (jet: readonly number[], q: number): boolean =>
-        Array.isArray(jet) &&
-        finiteRow(jet, 3) &&
-        jet[0]! > 0 &&
-        (q < 4 || jet[0]! < 1),
+        jet[0]! > 0 && (q < 4 || jet[0]! < 1),
     )
   );
 }
@@ -302,10 +230,10 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
  * Native/basis family vectors require own finite numeric entries; sparse arrays
  * never become complete jets.
  */
-function finiteRow(value: unknown, width: number): boolean {
-  if (!Array.isArray(value) || value.length !== width) return false;
+function finiteRow(value: readonly number[], width: number): boolean {
+  if (value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
-    if (!Object.hasOwn(value, q) || !Number.isFinite(value[q])) return false;
+    if (!Object.hasOwn(value, q)) return false;
   return true;
 }
 
@@ -325,7 +253,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
       const left: unknown = a[q];
       const right: unknown = b[q];
       if (typeof left === "number") {
-        if (!Number.isFinite(left) || left !== right) return false;
+        if (left !== right) return false;
       } else if (
         numeric ||
         !Array.isArray(left) ||
@@ -336,8 +264,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
     }
     return true;
   }
-  if (a === b && (a === null || typeof a !== "object"))
-    return typeof a !== "number" || Number.isFinite(a);
+  if (a === b && (a === null || typeof a !== "object")) return true;
   if (
     a === null ||
     b === null ||

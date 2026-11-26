@@ -3,7 +3,6 @@ import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLof
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanBodyTree } from "../IAutoMovieHumanBodyTree";
-import type { IAutoMovieHumanMammaryJoin } from "../IAutoMovieHumanMammaryJoin";
 import type { IAutoMovieHumanMassPart } from "../limb/IAutoMovieHumanMassPart";
 import type { IAutoMovieHumanNamedSource } from "../limb/IAutoMovieHumanNamedSource";
 import type { IAutoMovieHumanSourceDefinition } from "../limb/IAutoMovieHumanSourceDefinition";
@@ -58,17 +57,8 @@ export namespace IAutoMovieHumanTrunkBuild {
     /** The breasts' law, or null where the amplitude leaves none. */
     breast: IMassLaw | null;
 
-    /** Actual breast landmarks and original arm readers on the production trunk. */
-    mammary?: IAutoMovieHumanMammaryJoin.IPlacement;
-
     /** The gluteal masses' law, or null. */
     gluteal: IMassLaw | null;
-
-    /**
-     * Use the native radial pelvis and prepare the rear trunk field when a mass
-     * law exists.
-     */
-    nativeGluteal?: boolean;
   }
 
   /** A mass's law on the left side, in calibration mm. */
@@ -103,11 +93,6 @@ export namespace IAutoMovieHumanTrunkBuild {
 
   /** What the build publishes. */
   export interface IOutput {
-    /**
-     * Both legs bound to the published trunk; absent when a final parent is
-     * unavailable.
-     */
-    legs?: IInput["legs"];
     /** Common original measurement planes consumed by both preparation passes. */
     sections: ReadonlyMap<string, IAutoMovieHumanTrunkSectionFamily.IPlane>;
     /** The base's view node, or null when it cannot be lofted. */

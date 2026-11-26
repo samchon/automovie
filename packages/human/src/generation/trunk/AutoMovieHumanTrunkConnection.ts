@@ -184,18 +184,23 @@ export namespace AutoMovieHumanTrunkConnection {
       const second: IAutoMovieLoftSectionFrame =
         connection.boundary.frameCurvatures;
 
-      // The view's origin partition is in metres. Match the neck station in
-      // that same conversion and transfer its derivatives before replacement.
-      const metres: number = AutoMovieHumanConstructionView.METRES;
+      // Keep the actual asymmetric origin; back+anterior radius would recenter it.
+      const oldX: IAutoMovieViewPart.IOutline = AutoMovieViewOutline.scale(
+        view.axis.origin.x,
+        1000,
+        1000,
+      );
       const axis: typeof view.axis = {
         ...view.axis,
         origin: {
           ...view.axis.origin,
-          x: replace(view.axis.origin.x, {}, at * metres, [
-            frame.origin[0] * metres,
-            first.origin[0],
-            second.origin[0] / metres,
-          ]),
+          x: AutoMovieHumanConstructionView.length(
+            replace(oldX, {}, at, [
+              frame.origin[0],
+              first.origin[0],
+              second.origin[0],
+            ]),
+          ),
         },
       };
       const evaluated: ReturnType<typeof AutoMovieConstructionViews.frame> =
@@ -269,9 +274,7 @@ function replace(
       (k: IAutoMovieViewPart.IKnot): boolean => k.station === at,
     )
   )
-    throw new Error(
-      `Connection ${at} is not an existing source partition (${prepared.knots.map(({ site, station }) => `${site}=${station}`).join(", ")})`,
-    );
+    throw new Error("Connection is not an existing source partition");
   const span: number =
     AutoMovieViewParameter.at(prepared.parameter, prepared.domain[1]) -
     AutoMovieViewParameter.at(prepared.parameter, prepared.domain[0]);

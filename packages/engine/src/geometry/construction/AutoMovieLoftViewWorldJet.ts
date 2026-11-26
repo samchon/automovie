@@ -1,6 +1,5 @@
 import type {
   IAutoMovieAxis,
-  IAutoMovieLoftSectionConnect,
   IAutoMovieLoftSectionJet,
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
@@ -22,28 +21,18 @@ import { AutoMovieLoftWorldJet } from "./AutoMovieLoftWorldJet";
  * owned-domain proof. Closed-pole/source failures and absent axis2 return a
  * named string. Exceptions from the actual axis callback or its returned
  * getters keep their identity.
- *
- * @param sourceJet A reader prepared from the same immutable scalar source.
  */
 export function AutoMovieLoftViewWorldJet(
   source: IAutoMovieLoftViewSource.ISource,
   axis: IAutoMovieAxis,
   station: number,
   phase: number,
-  original?: IAutoMovieLoftSectionConnect.IOriginal,
-  sourceJet?: ReturnType<typeof AutoMovieLoftViewRead.prepare>["jets"],
 ): IAutoMovieSolidSurface.IJet | string {
-  if (!Number.isFinite(station) || !Number.isFinite(phase))
-    return "Original view world2 requires a finite station and phase.";
-  if (axis === null || typeof axis !== "object")
-    return "Original view world2 has no actual axis owner.";
   const readAxis: IAutoMovieAxis["jet"] = axis.jet;
-  if (typeof readAxis !== "function")
+  if (readAxis === undefined)
     return "Original view world2 requires actual axis2, not frame values alone.";
-  const inputs: IAutoMovieLoftViewRead.IJets | string | null =
-    original === undefined
-      ? (sourceJet?.(station) ?? AutoMovieLoftViewRead.jets(source, station))
-      : null;
+  const inputs: IAutoMovieLoftViewRead.IJets | string =
+    AutoMovieLoftViewRead.jets(source, station);
   if (typeof inputs === "string") return `Original view world2: ${inputs}`;
 
   // Foreign code and getters remain outside the numeric admission boundary.
@@ -51,12 +40,11 @@ export function AutoMovieLoftViewWorldJet(
   const rows: number[][] | null = frameRows(frame);
   if (rows === null)
     return `Original view world2 has no complete finite axis2 at station ${station} mm.`;
-  const authored = original?.jet(station, phase);
 
   // Both callees below read only the freshly owned numeric arrays above.
   try {
     const local: ReturnType<(phi: number) => IAutoMovieLoftSectionJet> =
-      authored ?? AutoMovieLoftSectionNative.jet(inputs!)(phase);
+      AutoMovieLoftSectionNative.jet(inputs)(phase);
     const world: IAutoMovieLoftWorldJetWorld = AutoMovieLoftWorldJet(
       local,
       rows,
@@ -92,8 +80,7 @@ function frameRows(value: unknown): number[][] | null {
       if (!Array.isArray(vector) || vector.length !== 3) return null;
       for (const index of [0, 1, 2]) {
         const component: unknown = vector[index];
-        if (typeof component !== "number" || !Number.isFinite(component))
-          return null;
+        if (typeof component !== "number") return null;
         row.push(component);
       }
     }

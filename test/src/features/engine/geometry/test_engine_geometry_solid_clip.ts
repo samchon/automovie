@@ -41,7 +41,7 @@ export function test_engine_geometry_solid_clip(): void {
       fixture.join,
       fixture.blend,
       fixture.index,
-      phases(fixture.count),
+      fixture.count,
     );
   if (typeof rail === "string") throw new Error(`rail: ${rail}`);
   TestValidator.equals("points", rail.length, 48);
@@ -108,7 +108,7 @@ export function test_engine_geometry_solid_clip(): void {
       across.join,
       across.blend,
       across.index,
-      phases(across.count),
+      across.count,
     );
   if (typeof crossing === "string") throw new Error(`rail across: ${crossing}`);
   TestValidator.equals("across points", crossing.length, 50);
@@ -132,9 +132,7 @@ export function test_engine_geometry_solid_clip(): void {
     );
     TestValidator.equals(
       "both faces",
-      [...fork.chart.keys()].sort(
-        (left: number, right: number): number => left - right,
-      ),
+      [...fork.chart.keys()].sort((left: number, right: number): number => left - right),
       [0, 1],
     );
     TestValidator.predicate(
@@ -238,12 +236,4 @@ export function test_engine_geometry_solid_clip(): void {
       ],
       [true, true],
     );
-}
-
-/** Sample the fixture's declared uniform column clock. */
-function phases(count: number): number[] {
-  return Array.from(
-    { length: count },
-    (_, index: number): number => (2 * Math.PI * index) / count,
-  );
 }

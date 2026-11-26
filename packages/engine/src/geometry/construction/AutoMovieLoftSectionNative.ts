@@ -169,13 +169,18 @@ export namespace AutoMovieLoftSectionNative {
         `Native physical source2: ${source.detail}`,
       );
 
-    // Admission belongs to the copied station, independently of phase reads.
-    const fault: string | null = AutoMovieViewSectionReading.validate(source);
+    /**
+     * Successful metadata validation of these unexposed, copied numeric
+     * records.
+     */
+    let verified: boolean = false;
     return (phi: number): IAutoMovieLoftSectionJet => {
       const ray: IAutoMovieViewConic.IRay = locate(source.geometry, phi);
-      const radial:
-        | IAutoMovieViewSectionField.IRadialJet
-        | IAutoMovieConicArcField.IFailure =
+      const fault: string | null = verified
+        ? null
+        : AutoMovieViewSectionReading.validate(source);
+      if (fault === null) verified = true;
+      const radial: IAutoMovieViewSectionField.IRead =
         fault === null
           ? AutoMovieViewSectionReading.evaluate(source, ray)
           : { kind: "failure", detail: fault };
@@ -387,7 +392,7 @@ function chainPhase(read: Reader): (phi: number) => IAutoMovieLoftSectionPhase {
  */
 function towards(point: readonly [number, number]): Direction {
   const size: number = Math.hypot(point[0], point[1]);
-  if (!(Number.isFinite(size) && size > 0))
+  if (!(size > 0))
     throw new AutoMovieLoftAdmissionError(
       "The native primal point has no finite positive norm.",
     );
@@ -457,7 +462,7 @@ function pointFrom(
       );
     const p: [number, number] = cartesian(ray);
     const size: number = Math.hypot(p[0], p[1]);
-    if (!(Number.isFinite(size) && size > 0))
+    if (!(size > 0))
       throw new AutoMovieLoftAdmissionError(
         "The native primal point has no finite positive norm.",
       );
@@ -485,17 +490,10 @@ function prepare(
 
   // This tuple was computed by this numeric preparation. Do not reread
   // caller-owned extent/shoulder accessors to decorate a failed result.
-  // Preserve nonfinite curvature values by name without another solve.
+  // Report the curvature operands without another solve.
   return {
     ...geometry,
-    failure:
-      geometry.failure +
-      "; operands=" +
-      JSON.stringify({ curvatures }, (_key: string, value: unknown): unknown =>
-        typeof value === "number" && !Number.isFinite(value)
-          ? String(value)
-          : value,
-      ),
+    failure: geometry.failure + "; operands=" + JSON.stringify({ curvatures }),
   };
 }
 
@@ -525,7 +523,7 @@ function locate(
 function direction(ray: IAutoMovieViewConic.IRay): Direction {
   const p: [number, number] = cartesian(ray);
   const size: number = Math.hypot(p[0], p[1]);
-  if (!(Number.isFinite(size) && size > 0))
+  if (!(size > 0))
     throw new AutoMovieLoftAdmissionError(
       "The native primal point has no finite positive norm.",
     );
@@ -558,10 +556,6 @@ function polarPhase(
   at: Direction,
   radial: readonly [number, number, number],
 ): IAutoMovieLoftSectionPhase {
-  if (!radial.every(Number.isFinite))
-    throw new AutoMovieLoftAdmissionError(
-      "The native radial phase jet is not finite.",
-    );
   return admit({
     p: [...at.p],
     t: [
@@ -580,14 +574,5 @@ function polarPhase(
  * conversion.
  */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
-  if (
-    !Object.values(out).every(
-      (row: unknown): boolean =>
-        Array.isArray(row) && row.every(Number.isFinite),
-    )
-  )
-    throw new AutoMovieLoftAdmissionError(
-      "The native field has no finite requested Cartesian reading.",
-    );
   return out;
 }

@@ -141,21 +141,3 @@ Corresponding columns, positive rows and coherent source domains are caller prem
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 Names blend station length in mm and paired phase-column semantics.
-
-# src/construction/IAutoMovieSolidMesh.ts#IAutoMovieSolidMesh.IGridReport
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the actual source, prepared derivative reader, row and phase counts, accepted samples, trim edges and milliseconds.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One face's report describes its rectangular source census through geometric trim classification before residual triangulation.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The requested observer receives counts and timings from the same actual tessellator.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Kernel and body diagnostics determine realization. This record describes only the measured scope.

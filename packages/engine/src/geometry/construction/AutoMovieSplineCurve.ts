@@ -1,12 +1,3 @@
-/** A spline row or a reader that combines only the controls in the queried span. */
-type Row = readonly number[] | ((index: number) => number);
-
-/** Value and first/second phase derivatives of a scalar spline. */
-type ScalarJet = [number, number, number];
-
-/** Two coordinate values, two first derivatives and two second derivatives. */
-type PlanarJet = [number, number, number, number, number, number];
-
 /**
  * Closed planar curve written as a uniform periodic cubic B-spline.
  *
@@ -48,7 +39,7 @@ export namespace AutoMovieSplineCurve {
    * @returns `[x, z, dx/dt, dz/dt]` in mm and mm per radian.
    */
   export function evaluate(
-    coefficients: Row,
+    coefficients: readonly number[],
     count: number,
     t: number,
   ): [number, number, number, number] {
@@ -70,23 +61,22 @@ export namespace AutoMovieSplineCurve {
     const j1: number = i % count;
     const j2: number = (i + 1) % count;
     const j3: number = (i + 2) % count;
-    const c: (index: number) => number = reader(coefficients);
-    const x0: number = c(j0);
-    const x1: number = c(j1);
-    const x2: number = c(j2);
-    const x3: number = c(j3);
-    const z0: number = c(count + j0);
-    const z1: number = c(count + j1);
-    const z2: number = c(count + j2);
-    const z3: number = c(count + j3);
+    const c: readonly number[] = coefficients;
 
     // Chain rule: du/dt = N / 2pi.
     const scale: number = count / (2 * Math.PI);
     return [
-      w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3,
-      w0 * z0 + w1 * z1 + w2 * z2 + w3 * z3,
-      (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale,
-      (d0 * z0 + d1 * z1 + d2 * z2 + d3 * z3) * scale,
+      w0 * c[j0]! + w1 * c[j1]! + w2 * c[j2]! + w3 * c[j3]!,
+      w0 * c[count + j0]! +
+        w1 * c[count + j1]! +
+        w2 * c[count + j2]! +
+        w3 * c[count + j3]!,
+      (d0 * c[j0]! + d1 * c[j1]! + d2 * c[j2]! + d3 * c[j3]!) * scale,
+      (d0 * c[count + j0]! +
+        d1 * c[count + j1]! +
+        d2 * c[count + j2]! +
+        d3 * c[count + j3]!) *
+        scale,
     ];
   }
 
@@ -130,38 +120,11 @@ export namespace AutoMovieSplineCurve {
    * @param t Phase in radians, any real value.
    * @returns `[x, z, dx/dt, dz/dt, d2x/dt2, d2z/dt2]`.
    */
-  export function jet(coefficients: Row, count: number, t: number): PlanarJet {
-    return differential(coefficients, count, t, false);
-  }
-
-  /** Read a single periodic control row and its first two phase derivatives. */
-  export function scalarJet(
-    coefficients: Row,
+  export function jet(
+    coefficients: readonly number[],
     count: number,
     t: number,
-  ): ScalarJet {
-    return differential(coefficients, count, t, true);
-  }
-
-  /** Both jet layouts use the same cubic basis and derivative weights. */
-  function differential(
-    coefficients: Row,
-    count: number,
-    t: number,
-    scalar: true,
-  ): ScalarJet;
-  function differential(
-    coefficients: Row,
-    count: number,
-    t: number,
-    scalar: false,
-  ): PlanarJet;
-  function differential(
-    coefficients: Row,
-    count: number,
-    t: number,
-    scalar: boolean,
-  ): ScalarJet | PlanarJet {
+  ): [number, number, number, number, number, number] {
     const u: number = ((((t / (2 * Math.PI)) % 1) + 1) % 1) * count;
     const i: number = Math.min(count - 1, Math.floor(u));
     const f: number = u - i;
@@ -184,28 +147,23 @@ export namespace AutoMovieSplineCurve {
     const j1: number = i % count;
     const j2: number = (i + 1) % count;
     const j3: number = (i + 2) % count;
-    const c: (index: number) => number = reader(coefficients);
-    const x0: number = c(j0);
-    const x1: number = c(j1);
-    const x2: number = c(j2);
-    const x3: number = c(j3);
+    const c: readonly number[] = coefficients;
+    const x0: number = c[j0]!;
+    const x1: number = c[j1]!;
+    const x2: number = c[j2]!;
+    const x3: number = c[j3]!;
+    const z0: number = c[count + j0]!;
+    const z1: number = c[count + j1]!;
+    const z2: number = c[count + j2]!;
+    const z3: number = c[count + j3]!;
     const scale: number = count / (2 * Math.PI);
     const scale2: number = scale * scale;
-    const x: number = w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3;
-    const dx: number = (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale;
-    const ddx: number = (e0 * x0 + e1 * x1 + e2 * x2 + e3 * x3) * scale2;
-    if (scalar) return [x, dx, ddx];
-
-    const z0: number = c(count + j0);
-    const z1: number = c(count + j1);
-    const z2: number = c(count + j2);
-    const z3: number = c(count + j3);
     return [
-      x,
+      w0 * x0 + w1 * x1 + w2 * x2 + w3 * x3,
       w0 * z0 + w1 * z1 + w2 * z2 + w3 * z3,
-      dx,
+      (d0 * x0 + d1 * x1 + d2 * x2 + d3 * x3) * scale,
       (d0 * z0 + d1 * z1 + d2 * z2 + d3 * z3) * scale,
-      ddx,
+      (e0 * x0 + e1 * x1 + e2 * x2 + e3 * x3) * scale2,
       (e0 * z0 + e1 * z1 + e2 * z2 + e3 * z3) * scale2,
     ];
   }
@@ -332,13 +290,6 @@ export namespace AutoMovieSplineCurve {
   }
 }
 
-/** Read only the active control indices, whether the row is dense or factored. */
-function reader(coefficients: Row): (index: number) => number {
-  return typeof coefficients === "function"
-    ? coefficients
-    : (index: number): number => coefficients[index]!;
-}
-
 /** Cosine and sine of `2 pi q k / N`, row q of N entries each. */
 interface ITurns {
   /** Row-major cos(2pi_q_k/N), N entries per frequency row. */
@@ -348,7 +299,10 @@ interface ITurns {
   sin: Float64Array;
 }
 
-/** Prepare one projection's shared transform basis. */
+/**
+ * Compute the two N-by-N turn arrays for a control count, once per fit; sample
+ * values and cutoff do not affect them.
+ */
 function turnsOf(count: number): ITurns {
   const cos: Float64Array = new Float64Array(count * count);
   const sin: Float64Array = new Float64Array(count * count);

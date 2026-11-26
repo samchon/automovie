@@ -51,12 +51,14 @@ export namespace AutoMovieHumanBindingInputs {
     // The neutral posture reads anatomy at heights, so it takes the published
     // chains whose stations are heights (`AutoMovieHumanNeutral.LEVEL`), as the
     // skeleton's own neutral does.
-    const neutralRings: IAutoMovieHumanChainRings[] = skin.filter(
-      (chain: IAutoMovieHumanChainRings): boolean =>
-        AutoMovieHumanNeutral.LEVEL.test(chain.chain),
+    const neutralRings: IAutoMovieHumanChainRings[] = rings(
+      calibration,
+      AutoMovieHumanNeutral.LEVEL,
     );
-    const neutral: IAutoMovieHumanNeutral.IOutput =
-      AutoMovieHumanNeutral.derive(neutralRings, joints);
+    const neutral: IAutoMovieHumanNeutral.IOutput = AutoMovieHumanNeutral.of(
+      calibration,
+      (): IAutoMovieHumanNeutral.ISource => ({ rings: neutralRings, joints }),
+    );
     return {
       scale,
       stature: calibration.stature,

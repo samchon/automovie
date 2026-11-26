@@ -3,7 +3,6 @@ import type { IAutoMovieBlendColumn } from "./IAutoMovieBlendColumn";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
 import type { IAutoMovieSolidIntersection } from "./IAutoMovieSolidIntersection";
 import type { IAutoMovieSolidMesh } from "./IAutoMovieSolidMesh";
-import type { IAutoMovieSolidRail } from "./IAutoMovieSolidRail";
 
 /**
  * Periodic ribbon strips and their source-rail correspondence for solid
@@ -29,14 +28,8 @@ export namespace IAutoMovieSolidBlendChain {
      */
     seed: number;
 
-    /** Exact sample phases when the shared rails use a nonuniform partition. */
-    readonly phases?: readonly number[];
-
     /** The host's rail at the columns, as a trim of the host's face. */
     host: IAutoMovieSolidMesh.ILoopChart;
-
-    /** Actual input rails for the uniform blend columns, carried by the native blend producer in phase order. */
-    readonly rails?: readonly IAutoMovieSolidRail.IRail[];
 
     /** The part's rail at the columns, as a trim of the part's face. */
     part: IAutoMovieSolidMesh.ILoopChart;

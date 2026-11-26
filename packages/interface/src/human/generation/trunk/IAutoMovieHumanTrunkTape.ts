@@ -22,9 +22,6 @@ export namespace IAutoMovieHumanTrunkTape {
      */
     plane: IAutoMovieHumanTrunkSectionFamily.IPlane;
 
-    /** Section law over this trial's immutable original chest curve. */
-    contour?(original: (phase: number) => [number, number]): (phase: number) => [number, number];
-
     /** The original masses whose common-level side cuts the tape also wraps. */
     masses: IMass[];
     /**
@@ -61,9 +58,6 @@ export namespace IAutoMovieHumanTrunkTape {
      * remain explicit and the final caller retains that source pair.
      */
     parentsAt?(shoulder: number): NonNullable<IInput["parents"]>;
-
-    /** Original section and coupled cuts from the same fully authored trial. */
-    completeCutsAt?(shoulder: number): NonNullable<IInput["parents"]>;
 
     /** The tape, mm. */
     tape: number;

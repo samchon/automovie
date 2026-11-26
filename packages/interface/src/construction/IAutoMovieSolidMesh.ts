@@ -1,5 +1,4 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
-import type { IAutoMovieSolidCycle } from "./IAutoMovieSolidCycle";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** Data and callback contracts shared by the SolidMesh operations. */
@@ -23,9 +22,6 @@ export namespace IAutoMovieSolidMesh {
 
     /** Flat `[owner, a, b]` per vertex. */
     coordinates: number[];
-
-    /** Optional parallel analytic normals, with NaN for a point without a grid jet. */
-    normals?: number[];
 
     /** Owners by index. */
     owners: IAutoMovieSolidMesh.IOwner[];
@@ -71,21 +67,6 @@ export namespace IAutoMovieSolidMesh {
      * loop.
      */
     chart: [number, number][];
-
-    /** Sample this split end and its nearest kept row on one angular partition. */
-    partition?: true;
-
-    /**
-     * A winding cut's exact station at each phase when the source owns the
-     * entire curve.
-     */
-    along?: (v: number) => number;
-
-    /**
-     * A clip's edits to a structured cut, which no longer owns one complete
-     * curve.
-     */
-    segments?: IAutoMovieSolidCycle.ICycle["segments"];
   }
 
   /** A published source rail before indexed seam insertion. */
@@ -105,37 +86,6 @@ export namespace IAutoMovieSolidMesh {
      */
     faces?: number[];
   }
-
-  /** First-order face and the native positions of its receiving loop. */
-  export interface ITerminalSource {
-    /** Original positions in world mm in the face's end cycle order. */
-    receiving: readonly AutoMovieVector3Tuple[];
-
-    /** Indexed reader using the actual parent and receiving loops. */
-    prepare: ITerminal;
-  }
-
-  /** Prepared first-order face using two exact, already-indexed terminal loops. */
-  export type ITerminal = (
-    parent: readonly number[],
-    receiver: readonly number[],
-    firstVertex: number,
-    orientation: 1 | -1,
-  ) =>
-    | {
-        /**
-         * Contiguous new world positions and unit outward normals in vertex
-         * index order.
-         */
-        vertices: readonly {
-          point: AutoMovieVector3Tuple;
-          normal: AutoMovieVector3Tuple;
-        }[];
-
-        /** Outward triangles, including the two existing loops. */
-        triangles: readonly [number, number, number][];
-      }
-    | string;
 
   /** One coherent source face and its finite ordered sampling domain. */
   export interface IFace {
@@ -173,32 +123,8 @@ export namespace IAutoMovieSolidMesh {
      */
     inverted?: boolean;
 
-    /** First-order terminal chart requiring both original loops in full. */
-    terminal?: ITerminal;
-
     /** Receive a named planning refusal or partial endpoint diagnostic. */
     onFailure?: (detail: string) => void;
-
-    /** Observe the exact grid population after the trim's geometric classification. */
-    onGrid?: (report: IGridReport) => void;
-  }
-
-  /** Actual scope of one source grid query, before triangulation. */
-  export interface IGridReport {
-    /** Exact source and prepared capability used. */
-    name: string;
-    /** Row or column preparation with the available derivative order. */
-    reader: "column1" | "column2" | "row2" | "point2";
-    /** Number of complete evaluated stations and phase lines. */
-    rows: number;
-    /** Number of phase lines at each evaluated station. */
-    columns: number;
-    /** Grid samples admitted after trim and margin testing. */
-    kept: number;
-    /** Number of input trim edges. */
-    trimEdges: number;
-    /** Total elapsed milliseconds through source metric and trim classification. */
-    milliseconds: number;
   }
 
   /** A drawn boundary carrying its actual face occurrences and closing turn. */

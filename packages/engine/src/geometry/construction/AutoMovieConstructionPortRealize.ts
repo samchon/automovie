@@ -20,12 +20,10 @@ import type {
 import { AutoMovieConstructionPortBand } from "./AutoMovieConstructionPortBand";
 import { AutoMovieConstructionPortCurve } from "./AutoMovieConstructionPortCurve";
 import { AutoMovieConstructionPortField as PortField } from "./AutoMovieConstructionPortField";
-import { AutoMovieConstructionPortMeridian } from "./AutoMovieConstructionPortMeridian";
 import { AutoMovieConstructionSplitBand } from "./AutoMovieConstructionSplitBand";
 import { AutoMovieConstructionState } from "./AutoMovieConstructionState";
 import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import { AutoMovieSolidBody } from "./AutoMovieSolidBody";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -53,10 +51,7 @@ type Vec3 = AutoMovieVector3Tuple;
  * realization's chains and surfaces.
  *
  * A broken premise restores the checkpoint and records one diagnostic under the
- * port's name; a foreign error restores it and propagates unchanged. A recess
- * owns one retained, pole-closed lining face with inward winding. Its centre
- * and sampled aperture must lie in the kept host region. The band starts with
- * the original host's outward orientation.
+ * port's name; a foreign error restores it and propagates unchanged.
  *
  * One owner per seam, read between the columns as well as at them: the port
  * curve (`AutoMovieConstructionPortCurve.curve`, the loop's ellipse with its
@@ -108,13 +103,6 @@ export function AutoMovieConstructionPortRealize(
     if (index === undefined || index < snapshot.faces || chain === undefined)
       return fail(`the part face ${node.partFace} was not realized`);
     const kind: "start" | "end" = node.partEnd === "bottom" ? "start" : "end";
-    if (node.recess === true) {
-      if (body.faces.length !== snapshot.faces + 1)
-        return fail("a recess needs one lining face");
-      const far = node.partEnd === "bottom" ? "top" : "bottom";
-      if (chain.pole?.end !== far && chain.opposite?.end !== far)
-        return fail("a recess lining must close at its retained end");
-    }
     if (
       body.faces[index]!.cycles.some(
         (c: IAutoMovieSolidCycle.ICycle): boolean => c.kind === kind,
@@ -174,27 +162,6 @@ export function AutoMovieConstructionPortRealize(
     if (typeof portCurve === "string") return fail(portCurve);
     const { addresses: chart, inward }: IAutoMovieConstructionPortCurve.ICurve =
       portCurve;
-    if (node.recess === true) {
-      const parent = body.faces[hostIndex]!;
-      const [low, high] = host.domain ?? [-Infinity, Infinity];
-      const retained = ([u, v]: [number, number]): boolean =>
-        u >= low && u <= high && AutoMovieSolidBody.kept(parent, u, v);
-      const centre: [number, number] = [
-        node.loop.centre[0] * S,
-        node.loop.centre[1],
-      ];
-      if (
-        !retained(centre) ||
-        chart.some(
-          (c, k) =>
-            !retained(c) || !retained(portCurve.at(clock(k + 0.5)).point),
-        ) ||
-        parent.cycles.some((cycle) =>
-          cycle.chart.some(([u, v]) => portCurve.inside(u, v)),
-        )
-      )
-        return fail("the recess aperture meets an existing host boundary");
-    }
     const jets: IAutoMovieSolidSurface.IJet[] = chart.map(
       (c: [number, number]): IAutoMovieSolidSurface.IJet =>
         host.jet(c[0], c[1]),
@@ -294,7 +261,7 @@ export function AutoMovieConstructionPortRealize(
             exact.surface,
           );
     if (typeof shaped === "string") return fail(`band ${node.band}: ${shaped}`);
-    const unguided: IAutoMovieSolidSurface =
+    const surface: IAutoMovieSolidSurface =
       shaped === null
         ? exact.surface
         : AutoMovieConstructionPortBand.carried(
@@ -302,14 +269,6 @@ export function AutoMovieConstructionPortRealize(
             shaped.surface,
             band.surface,
           );
-    // Resolve the guide's section within a micron in the original world chart.
-    const surface: IAutoMovieSolidSurface | string =
-      node.meridian === undefined
-        ? unguided
-        : AutoMovieConstructionPortMeridian(unguided, node.meridian, S, 0.001);
-    if (typeof surface === "string")
-      return fail(`band ${node.band}: ${surface}`);
-    if (node.recess === true) body.faces[index]!.inverted = true;
     const published: IAutoMovieLoftChain =
       shaped === null ? band.chain : shaped.chain;
 
@@ -334,14 +293,11 @@ export function AutoMovieConstructionPortRealize(
         surface,
         stations: Array.from(
           { length: node.rows + 1 },
-          (_: unknown, i: number): number =>
-            i === node.rows ? band.length : (band.length * i) / node.rows,
+          (_: unknown, i: number): number => (band.length * i) / node.rows,
         ),
         phases: Array.from({ length: n }, (_: unknown, k: number): number =>
           clock(k),
         ),
-        // A curved rail between columns is owned by the analytic band.
-        ...(profile === undefined ? {} : { retainSurface: true }),
         cycles: [],
       }) - 1;
 

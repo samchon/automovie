@@ -150,15 +150,9 @@ export namespace AutoMovieSolidTraceSolve {
     ];
     const initialA: IJet | null = AutoMovieSolidDomain.jet(part, x[0], x[1]);
     if (initialA === null)
-      return Observation.fail(
-        observation,
-        AutoMovieSolidDomain.contains(part, x[0], x[1])
-          ? "part-jet-unavailable"
-          : "part-chart-outside",
-        x,
-        face,
-        { budget: budget.left },
-      );
+      return Observation.fail(observation, "part-jet-unavailable", x, face, {
+        budget: budget.left,
+      });
     const initialB: IAutoMovieSolidTraceTrialTrial | null =
       AutoMovieSolidTraceTrial(
         host,
@@ -223,9 +217,7 @@ export namespace AutoMovieSolidTraceSolve {
         if (ay === null) {
           Observation.reject(
             observation,
-            AutoMovieSolidDomain.contains(part, y[0], y[1])
-              ? "part-jet-unavailable"
-              : "part-chart-outside",
+            "part-jet-unavailable",
             y,
             currentFace,
           );
@@ -491,7 +483,7 @@ export namespace AutoMovieSolidTraceSolve {
       ]);
       const t: number =
         Math.abs(target - current.t - step) === 0 ? target : current.t + step;
-      if (!Number.isFinite(t) || t === current.t) return null;
+      if (t === current.t) return null;
       const next: IAutoMovieSolidIntersection.IPoint | null = solve(
         part,
         host,

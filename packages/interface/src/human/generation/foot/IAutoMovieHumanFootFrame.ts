@@ -18,9 +18,6 @@ export namespace IAutoMovieHumanFootFrame {
 
     /** Height of the lateral malleolus. */
     ankle: number;
-
-    /** Optional positive length ratio for all toe phalanges. Metatarsal positions and ankle height retain their original measures. */
-    phalangealLengthScale?: number;
   }
 
   /** A foot's frame: its scales and the map from normalised coordinates. */

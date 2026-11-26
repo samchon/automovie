@@ -41,8 +41,7 @@ import { AutoMovieConstructionViews } from "./AutoMovieConstructionViews";
  * A curve left with fewer than two points is not returned. Every curve of a
  * chain whose name equals a diagnostic's `node` is flagged. Curves come chain
  * by chain in the realization's order: sections in layer order, guides 0 to 3,
- * then the axis. A terminal multi-chart face publishes its two true section
- * loops, evaluated in the original owners' charts, without an artificial loft.
+ * then the axis.
  *
  * It throws a named `Error` for `phases` that is not a whole number of at least
  * 8 that four divides, for `steps` that is not a positive whole number, for a
@@ -60,8 +59,7 @@ export function sampleAutoMovieConstructionCurves(
   realization: Pick<
     IAutoMovieConstructionRealization.IRealization,
     "chains" | "surfaces" | "diagnostics"
-  > &
-    Partial<Pick<IAutoMovieConstructionRealization.IRealization, "body">>,
+  >,
   options?: IAutoMovieSampleConstructionCurves.IOptions,
 ): IAutoMovieConstructionCurve[] {
   /** Samples per ring. */
@@ -94,45 +92,7 @@ export function sampleAutoMovieConstructionCurves(
 
   /** Every chain's curves, in the realization's chain order. */
   const curves: IAutoMovieConstructionCurve[] = [];
-  const body = realization.body;
   for (const chain of realization.chains) {
-    const terminal = body?.faces.find(
-      ({ chain: name, terminal }) =>
-        name === chain.name && terminal !== undefined,
-    );
-    if (terminal !== undefined && body !== undefined) {
-      for (const [index, cycle] of terminal.cycles.entries()) {
-        const points: number[] = [];
-        let flagged = blamed.has(chain.name);
-        for (const id of cycle.points) {
-          const {
-            chain: owner,
-            chart: [u, v],
-          } = body.points[id]!;
-          const surface = surfaces.get(owner);
-          const point = surface?.point?.(u, v) ?? surface?.jet(u, v).p;
-          if (point === undefined || !point.every(Number.isFinite)) {
-            flagged = true;
-            continue;
-          }
-          points.push(
-            point[0] / AutoMovieConstructionViews.SCALE,
-            point[1] / AutoMovieConstructionViews.SCALE,
-            point[2] / AutoMovieConstructionViews.SCALE,
-          );
-        }
-        if (points.length >= 6)
-          curves.push({
-            id: chain.name + "/section/" + index,
-            part: chain.name,
-            kind: "section",
-            points,
-            closed: true,
-            flagged,
-          });
-      }
-      continue;
-    }
     /** The chain's lofted surface. */
     const surface: IAutoMovieSolidSurface | undefined = surfaces.get(
       chain.name,

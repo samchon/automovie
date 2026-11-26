@@ -6,11 +6,11 @@ The composed head's canonical inputs, source context and raw results.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One closed layout supplies all original parts. Source leaves preserve exact millimetre definitions, and the mass leaf uses the analytic regions of that same head chart.
+One closed layout supplies all original parts; source leaves bind those exact millimetre definitions at realization.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The original definition owns the canonical source map and lazy raw supplier. Composition passes the actual analytic mass to both the tree and its raw reader. Source-edge and already-requested original raw diagnostics remain observable without creating geometry.
+The original definition owns the source map and lazy raw supplier; source-edge and already-requested raw diagnostics remain observable without creating geometry.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -56,11 +56,11 @@ It is not a fallback, proxy or successful partial head tree.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-A placed original part, its source leaf, optional analytic section owner and explicit raw demand.
+A placed original part, its source leaf and lazy raw demand.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The explicit raw getter retains the feature original. A spatial join uses that original's leaf, while a region of an analytic parent section retains the section owner actually used by the parent.
+The leaf and explicit raw getter resolve the same retained feature part.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

@@ -56,7 +56,7 @@ Retains the original declaration on the prepared axis so serialization does not 
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The prepared axis owns its copied declaration through its private serialization closure.
+One copied declaration belongs to each live axis through a WeakMap key; failed preparations retain nothing and dead axes release their metadata.
 
 # src/geometry/construction/AutoMovieViewParallelAxis.ts#AutoMovieViewParallelAxis.source
 
@@ -86,4 +86,4 @@ Uses the retained authoritative source; it does not rerun interpolation or frame
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Returns a fresh declaration owned by the caller. The original belongs to the prepared axis.
+Returns a fresh declaration owned by the caller; the WeakMap retains no strong axis key.

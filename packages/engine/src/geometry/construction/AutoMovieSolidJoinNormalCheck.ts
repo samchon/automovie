@@ -24,7 +24,6 @@ type IFailure = {
  * @param columns Already admitted columns, in their original traversal order.
  * @param column The same join's reader; each column reads its two neighbours
  *   once.
- * @param explain Why either neighbouring column could not be read.
  * @param period Original curve-parameter turn, radians.
  * @param curve Original borrowed curve; its names identify curve provenance and
  *   its point count sets the neighbour step. Join's diagnostic producer already
@@ -38,7 +37,6 @@ type IFailure = {
 export function AutoMovieSolidJoinNormalCheck(
   columns: readonly IAutoMovieSolidJoin.IColumn[],
   column: IAutoMovieSolidJoin.IJoin["column"],
-  explain: (t: number) => string,
   period: number,
   curve: IAutoMovieSolidIntersection.ICurve,
   shares: number,
@@ -54,17 +52,17 @@ export function AutoMovieSolidJoinNormalCheck(
     AutoMovieSolidVector;
   const step: number = period / (16 * curve.points.length);
   for (const c of columns) {
-    const low: number = c.rail.curve.t - step;
-    const high: number = c.rail.curve.t + step;
-    const before: IAutoMovieSolidJoin.IColumn | null = column(low);
-    const after: IAutoMovieSolidJoin.IColumn | null = column(high);
-    if (before === null || after === null) {
-      const missing: number = before === null ? low : high;
+    const before: IAutoMovieSolidJoin.IColumn | null = column(
+      c.rail.curve.t - step,
+    );
+    const after: IAutoMovieSolidJoin.IColumn | null = column(
+      c.rail.curve.t + step,
+    );
+    if (before === null || after === null)
       return {
         contract: "rails",
-        detail: `no rail beside t ${c.rail.curve.t} at t ${missing}: ${explain(missing)}`,
+        detail: `no rail beside t ${c.rail.curve.t}`,
       };
-    }
     let previous: Vec3 | null = null;
     let previousAlong: Vec3 | null = null;
     let previousFirst: Vec3 | null = null;
@@ -80,21 +78,12 @@ export function AutoMovieSolidJoinNormalCheck(
         const alignment: number = dot(previous, n);
         if (!(alignment > 0)) {
           /**
-           * Preserve every finite value and name nonfinite values before JSON
-           * serialization.
-           */
-          const scalar: (value: number) => number | string = (
-            value: number,
-          ): number | string =>
-            Number.isFinite(value) ? value : String(value);
-
-          /**
            * Encode only this failed observation's three already evaluated
            * components.
            */
-          const vector: (value: Readonly<Vec3>) => (number | string)[] = (
+          const vector: (value: Readonly<Vec3>) => number[] = (
             value: Readonly<Vec3>,
-          ): (number | string)[] => value.map(scalar);
+          ): number[] => [...value];
 
           /**
            * Identify actual kept-rail addresses without reevaluating either
@@ -104,30 +93,27 @@ export function AutoMovieSolidJoinNormalCheck(
             value: IAutoMovieSolidRail.IRail,
           ): object => ({
             contact: {
-              t: scalar(value.curve.t),
-              part: [scalar(value.curve.s), scalar(value.curve.phi)],
+              t: value.curve.t,
+              part: [value.curve.s, value.curve.phi],
               hostFace: value.curve.face,
-              host: [scalar(value.curve.y), scalar(value.curve.theta)],
+              host: [value.curve.y, value.curve.theta],
               point: vector(value.curve.point),
             },
             part: {
-              address: [scalar(value.s), scalar(value.phi)],
+              address: [value.s, value.phi],
               point: vector(value.partPoint),
-              across: value.partAcross.map(scalar),
-              side: scalar(value.sigma),
+              across: value.partAcross.slice(),
+              side: value.sigma,
             },
             host: {
               face: value.hostFace,
-              address: value.host.map(scalar),
+              address: value.host.slice(),
               point: vector(value.hostPoint),
-              across: value.across.map(scalar),
+              across: value.across.slice(),
             },
           });
 
-          /**
-           * A normal and its exact operands keep finite components separate
-           * from a finite norm.
-           */
+          /** A normal with its exact operands and norm. */
           const observation: (
             share: number,
             alongVector: Vec3,
@@ -145,32 +131,19 @@ export function AutoMovieSolidJoinNormalCheck(
               along: vector(alongVector),
               first: vector(firstVector),
               normal: vector(normal),
-              norm: scalar(length),
-              finite: {
-                along: alongVector.every(Number.isFinite),
-                first: firstVector.every(Number.isFinite),
-                normal: normal.every(Number.isFinite),
-                norm: Number.isFinite(length),
-              },
+              norm: length,
             };
           };
-          const classification: "negative-dot" | "zero-dot" | "nonfinite-dot" =
-            !Number.isFinite(alignment)
-              ? "nonfinite-dot"
-              : alignment < 0
-                ? "negative-dot"
-                : "zero-dot";
+          const classification: "negative-dot" | "zero-dot" =
+            alignment < 0 ? "negative-dot" : "zero-dot";
           const reason: string =
             classification === "negative-dot"
               ? "reverses"
-              : classification === "zero-dot"
-                ? "has zero consecutive-normal dot"
-                : "has a nonfinite consecutive-normal dot";
+              : "has zero consecutive-normal dot";
           const detail: string = JSON.stringify({
             predicate: "dot(previous.normal,current.normal)>0",
             classification,
-            dot: scalar(alignment),
-            finiteDot: Number.isFinite(alignment),
+            dot: alignment,
             curveSources: { part: curve.part, host: curve.host },
             parameter: {
               kind: curve.parameter.kind,

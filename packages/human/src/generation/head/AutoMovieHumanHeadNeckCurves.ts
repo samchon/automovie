@@ -7,15 +7,15 @@ import type {
 import { AutoMovieHumanHeadNeckBase } from "./AutoMovieHumanHeadNeckBase";
 
 /**
- * Original lower-head curves for two distinct neck measurements. The normal
- * band borrows the generated plane origin and estimated axis orientation from
- * the registered neck source. A constant conic-template band closes the
- * axis-normal tape. A separate named-height course lies on the same homothetic
- * native-conic source below it. The adopted affine axis continues below the
- * unchanged normal band. Base front X follows the explicitly closed common
- * radius family, rather than a whole-section maximum relabelled as a
- * midsagittal jugular notch. Neither choice identifies the palpated thyroid
- * point or taut tape contact.
+ * Original lower-head curves for two distinct neck measurements.
+ * The retained mean height is an axis-plane centre proxy and the retained
+ * posterior skin secant supplies a pose slope, not a measured neck axis.
+ * A constant conic-template band closes the axis-normal tape. A separate
+ * named-height course lies on the same homothetic native-conic source below it.
+ * The adopted affine axis continues below the unchanged normal band. Base
+ * front X follows the explicitly closed common radius family, rather than
+ * a whole-section maximum relabelled as a midsagittal jugular notch.
+ * Neither choice identifies the palpated thyroid point or taut tape contact.
  *
  * @evidence contracts/common.md#principled-implementation Declares original shared-jet radius and physical-station origin curves, then measures their actual composed three-dimensional base derivative through the engine's source-length owner.
  * @evidence contracts/common.md#clear-and-simple-design One radius, one origin and one named-height course supply the actual mass author and both measurement readers; no independent neck skin or floating target tape is constructed.
@@ -29,15 +29,15 @@ export namespace AutoMovieHumanHeadNeckCurves {
   /**
    * Author a generalized-cylinder band and its named-height base course.
    * Constant radius and affine origin hold as functions, through explicit
-   * shared jets in their respective root and physical-station parameters. Its
-   * scalar radius is affine in the lower radius and the axis is fixed. The side
-   * AP-plane inverse, height spans and integral partition depend on that same
-   * trial, so the complete world derivative is not declared affine or convex in
-   * radius. Only an actually sampled finite continuous opposite-sign bracket
-   * selects a branch; exhaustion is not impossibility. C7 must lie inside the
-   * constant band so its existing posterior X and public height remain the same
-   * point. The final positive radius and computed target residual are admitted
-   * separately from K/K2 accuracy.
+   * shared jets in their respective root and physical-station parameters.
+   * Its scalar radius is affine in the lower radius and the axis is fixed.
+   * The side AP-plane inverse, height spans and integral partition depend
+   * on that same trial, so the complete world derivative is not declared
+   * affine or convex in radius. Only an actually sampled finite continuous
+   * opposite-sign bracket selects a branch; exhaustion is not impossibility.
+   * C7 must lie inside the constant band so its existing posterior X and
+   * public height remain the same point. The final positive radius and
+   * computed target residual are admitted separately from K/K2 accuracy.
    *
    * @evidence contracts/common.md#principled-implementation Retains the mean origin X and posterior C7 point, then solves the independent anterior support on the actual conic's normal-plane metric. A circle-equivalent lateral scale is an explicit shape convention, not a circularity claim. The same conic polar source and original lower scale/origin give the base course's full world derivative.
    * @evidence contracts/common.md#clear-and-simple-design Returns the original declarations that the mass must consume, not a sampled replacement or an unrelated measurement curve.
@@ -54,10 +54,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
     return close(define(input, work), work);
   }
 
-  /**
-   * Prepare only the independently determined normal band; lower-radius closure
-   * is a separate request.
-   */
+  /** Prepare only the independently determined normal band; lower-radius closure is a separate request. */
   export function define(
     input: IAutoMovieHumanHeadNeckCurves.IInputs,
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
@@ -68,12 +65,20 @@ export namespace AutoMovieHumanHeadNeckCurves {
     const yc: number = input.neck.level;
     const back: number =
       input.neck.x + m * (input.base.cervicaleHeight - yc) - input.neck.back;
-    /** An admitted native section and its measured normal-plane tape. */
-    type Trial = {
-      section: IAutoMovieViewSection.ISection;
-      measured: ReturnType<typeof AutoMovieViewSection.measure>;
-    };
-    const normal = (front: number): Trial => {
+    const trials: Map<
+      number,
+      {
+        section: IAutoMovieViewSection.ISection;
+        measured: ReturnType<typeof AutoMovieViewSection.measure>;
+      }
+    > = new Map();
+    const normal: (
+      front: number,
+    ) => ReturnType<typeof AutoMovieViewSection.measure> = (
+      front: number,
+    ): ReturnType<typeof AutoMovieViewSection.measure> => {
+      const previous: ReturnType<typeof trials.get> = trials.get(front);
+      if (previous !== undefined) return previous.measured;
       const source: IAutoMovieViewSection.ISection = section(
         [front, r, back, r],
         work,
@@ -85,7 +90,8 @@ export namespace AutoMovieHumanHeadNeckCurves {
         work.normalMetric += performance.now() - started;
         work.normalTrials++;
       }
-      return { section: source, measured };
+      trials.set(front, { section: source, measured });
+      return measured;
     };
     if (
       !(
@@ -100,55 +106,45 @@ export namespace AutoMovieHumanHeadNeckCurves {
         "Neck mean origin has no positive finite posterior/lateral source support",
       );
     const frontLo: number = back;
+    let frontHi: number = 2 * r;
     const normalTarget: number = 2 * Math.PI * r;
-    const normalTolerance: number = 128 * Number.EPSILON * normalTarget;
-    const low: Trial = normal(frontLo);
-    const lowResidual: number = low.measured.lengthMm - normalTarget;
-    let front: number = frontLo;
-    let selected: Trial = low;
-    if (Math.abs(lowResidual) > normalTolerance) {
-      let frontHi: number = Math.max(frontLo, 2 * r);
-      let highResidual: number =
-        normal(frontHi).measured.lengthMm - normalTarget;
-      for (let i: number = 0; highResidual < 0 && i < 64; i++) {
-        frontHi *= 2;
-        highResidual = normal(frontHi).measured.lengthMm - normalTarget;
-      }
-      if (!(Number.isFinite(frontHi) && lowResidual < 0 && highResidual >= 0))
-        throw new Error(
-          "Neck normal conic has no selected positive anterior-reach bracket",
-        );
-      const root: number | null = AutoMovieIllinois.root(
-        (candidate: number): number =>
-          candidate === frontLo
-            ? lowResidual
-            : candidate === frontHi
-              ? highResidual
-              : normal(candidate).measured.lengthMm - normalTarget,
-        frontLo,
-        frontHi,
-        normalTolerance,
-        64,
+    for (
+      let i: number = 0;
+      normal(frontHi).lengthMm < normalTarget && i < 64;
+      i++
+    )
+      frontHi *= 2;
+    if (
+      !(
+        Number.isFinite(frontHi) &&
+        normal(frontLo).lengthMm <= normalTarget &&
+        normal(frontHi).lengthMm >= normalTarget
+      )
+    )
+      throw new Error(
+        "Neck normal conic has no selected positive anterior-reach bracket",
       );
-      if (root === null || !Number.isFinite(root))
-        throw new Error(
-          "Neck normal conic has no selected finite anterior-reach root",
-        );
-      front = root;
-      selected = normal(front);
-    }
+    const front: number | null = AutoMovieIllinois.root(
+      (candidate: number): number => normal(candidate).lengthMm - normalTarget,
+      frontLo,
+      frontHi,
+      128 * Number.EPSILON * normalTarget,
+      64,
+    );
+    if (front === null || !Number.isFinite(front))
+      throw new Error(
+        "Neck normal conic has no selected finite anterior-reach root",
+      );
     const extents: [number, number, number, number] = [front, r, back, r];
-    const { measured: normalMeasured, section: template }: Trial = selected;
+    const normalMeasured: ReturnType<typeof AutoMovieViewSection.measure> =
+      normal(front);
+    const template: IAutoMovieViewSection.ISection = trials.get(front)!.section;
     const projected: [number, number] = [
       yc - (m * front) / (h * h),
       yc + (m * back) / (h * h),
     ];
     const lower: number = Math.min(...projected);
-    // The shared placement sets the upper datum first. Its positive slope
-    // m = tan(angle) and posterior support r / cos(angle) project back to
-    // yc + r sin(angle), algebraically that same datum. Keep its original
-    // binary64 identity when the radius and base-height sources share it.
-    const upper: number = input.neck.normalBandUpper ?? Math.max(...projected);
+    const upper: number = Math.max(...projected);
     const first: number = Math.min(
       input.bottom - r,
       input.menton - input.spacing,
@@ -192,10 +188,7 @@ export namespace AutoMovieHumanHeadNeckCurves {
     };
   }
 
-  /**
-   * Close the unresolved lower-radius family, preserving refusal without
-   * replacing the available normal original.
-   */
+  /** Close the unresolved lower-radius family, preserving refusal without replacing the available normal original. */
   export function close(
     definition: IAutoMovieHumanHeadNeckCurves.IDefinition,
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
@@ -207,8 +200,6 @@ export namespace AutoMovieHumanHeadNeckCurves {
       bottom: first,
       band: [lower, upper],
     }: IAutoMovieHumanHeadNeckCurves.IDefinition = definition;
-    const heightTolerance: number =
-      128 * Number.EPSILON * Math.max(1, Math.abs(lower), Math.abs(upper));
     if (
       ![
         first,
@@ -221,9 +212,9 @@ export namespace AutoMovieHumanHeadNeckCurves {
         input.base.girth > 0 &&
         first < lower &&
         input.base.suprasternaleHeight < lower &&
-        input.base.cervicaleHeight >= lower - heightTolerance &&
+        input.base.cervicaleHeight >= lower &&
         Math.max(input.base.cervicaleHeight, input.base.sideNeckPointHeight) <=
-          upper + heightTolerance
+          upper
       )
     )
       throw new Error(
@@ -280,10 +271,10 @@ export namespace AutoMovieHumanHeadNeckCurves {
   }
 
   /**
-   * Read the unchanged native conic in the exact fixed normal-plane metric. Its
-   * original derivative [du/(1+m²), -m*du/(1+m²), dv] has norm
-   * hypot(du/hypot(1,m), dv). Two native targets supply a real difference; this
-   * is not the former polar GL8 K/2K observation. Numeric refusal throws.
+   * Read the unchanged native conic in the exact fixed normal-plane metric.
+   * Its original derivative [du/(1+m²), -m*du/(1+m²), dv] has norm
+   * hypot(du/hypot(1,m), dv). Two native targets supply a real difference;
+   * this is not the former polar GL8 K/2K observation. Numeric refusal throws.
    */
   function normalLength(
     source: IAutoMovieViewSection.ISection,

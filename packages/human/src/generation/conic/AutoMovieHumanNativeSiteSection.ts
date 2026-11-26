@@ -8,7 +8,6 @@ import {
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicSection,
-  IAutoMovieHumanNativeSiteSection,
 } from "@automovie/interface";
 
 /**
@@ -27,10 +26,28 @@ import type {
  */
 export namespace AutoMovieHumanNativeSiteSection {
   /** A site's measures as the section takes them. */
-  export type ISite = IAutoMovieHumanNativeSiteSection.ISite;
+  export interface ISite {
+    /** The point the reaches are measured from, in the section's chart, mm: where the skeleton crosses the section's plane. */
+    centre: AutoMovieVector2Tuple;
+
+    /** The reaches the given section was laid at. */
+    from: Reaches.IReaches;
+
+    /** The person's reaches. */
+    to: Reaches.IReaches;
+
+    /** The person's girth at the site, a taut tape's length, mm; absent, the shares stay. */
+    girth?: number;
+  }
 
   /** A section solved at its site. */
-  export type ISolved = IAutoMovieHumanNativeSiteSection.ISolved;
+  export interface ISolved {
+    /** The section's field vector on the same layout. The given array itself when nothing moved. */
+    values: readonly number[];
+
+    /** The scalar the girth added to every fullness share's logit; zero where no girth was given or the tape already measured it. */
+    fullness: number;
+  }
 
   /**
    * The section at a site.

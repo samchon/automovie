@@ -95,65 +95,42 @@ export namespace AutoMovieSolidJoin {
         ? "station"
         : "square";
 
-    // Admission follows the curve's traversal. Its exact request addresses
-    // can have nonuniform spacing and need not match the returned phase.
-    const columns: IAutoMovieSolidJoin.IColumn[] = [];
-    const addresses: number[] = curve.points
-      .map((_, i: number): number => i)
-      .sort(
-        (i: number, j: number): number =>
-          curve.points[i]!.t - curve.points[j]!.t,
-      );
+    // Rails by parameter, solved once: the join's checks, the blend's columns and the clip ask for the same
+    // parameters (the traced points' and the columns', bitwise the same values), and callers only read them.
+    const rails: Map<number, IAutoMovieSolidRail.IRail | null> = new Map();
 
-    /** Resolve the exact predeclared trace column at t, if it is one. */
-    const tracedColumn = (
-      t: number,
-    ): IAutoMovieSolidJoin.IColumn | undefined => {
-      let low: number = 0;
-      let high: number = addresses.length;
-      while (low < high) {
-        const middle: number = (low + high) >>> 1;
-        if (curve.points[addresses[middle]!]!.t < t) low = middle + 1;
-        else high = middle;
-      }
-      const index: number | undefined = addresses[low];
-      return index !== undefined && curve.points[index]!.t === t
-        ? columns[index]
-        : undefined;
-    };
-
-    /** Solve one rail against the actual surfaces and the prepared laws. */
-    const readRail: IAutoMovieSolidJoin.IJoin["rail"] = (
+    /**
+     * Map numeric-key equality reuses a rail or null failure for this join's
+     * lifetime.
+     */
+    const rail: IAutoMovieSolidJoin.IJoin["rail"] = (
       t: number,
     ): IAutoMovieSolidRail.IRail | null => {
+      const known: IAutoMovieSolidRail.IRail | null | undefined = rails.get(t);
+      if (known !== undefined) return known;
       const p: IAutoMovieSolidIntersection.IPoint | null = curve.at(t);
 
       // A declared loop's sides where it supplies them; a point at which it cannot name them has no rail.
       const sides: IAutoMovieSolidRail.IToward | null | undefined =
         p === null ? null : input.toward?.(p);
-      return p === null || sides === null
-        ? null
-        : AutoMovieSolidRail.at(
-            input.part,
-            host,
-            p,
-            keep,
-            typeof input.width.part === "function"
-              ? input.width.part(t)
-              : input.width.part,
-            input.width.host(t),
-            mode,
-            sides,
-          );
+      const solved: IAutoMovieSolidRail.IRail | null =
+        p === null || sides === null
+          ? null
+          : AutoMovieSolidRail.at(
+              input.part,
+              host,
+              p,
+              keep,
+              typeof input.width.part === "function"
+                ? input.width.part(t)
+                : input.width.part,
+              input.width.host(t),
+              mode,
+              sides,
+            );
+      rails.set(t, solved);
+      return solved;
     };
-
-    /**
-     * Read the rail at an authored trace column or solve the requested
-     * parameter.
-     */
-    const rail: IAutoMovieSolidJoin.IJoin["rail"] = (
-      t: number,
-    ): IAutoMovieSolidRail.IRail | null => tracedColumn(t)?.rail ?? readRail(t);
 
     /** The same solve as `rail`, explained. */
     const explain: IAutoMovieSolidJoin.IJoin["explain"] = (
@@ -194,20 +171,18 @@ export namespace AutoMovieSolidJoin {
         : `${read.refusal} (${numbers})`;
     };
 
-    /** Prepare both actual surface ribbons at one parameter. */
-    const readColumn: IAutoMovieSolidJoin.IJoin["column"] = (
+    /**
+     * Rebuild both surface ribbons at the cached rail; columns themselves are
+     * not cached.
+     */
+    const column: IAutoMovieSolidJoin.IJoin["column"] = (
       t: number,
     ): IAutoMovieSolidJoin.IColumn | null => {
-      const r: IAutoMovieSolidRail.IRail | null = readRail(t);
+      const r: IAutoMovieSolidRail.IRail | null = rail(t);
       return r === null
         ? null
         : ribbons(input.part, host.faces[r.hostFace]!, r);
     };
-
-    /** Each late query borrows a declared column or reads only its own ribbons. */
-    const column: IAutoMovieSolidJoin.IJoin["column"] = (
-      t: number,
-    ): IAutoMovieSolidJoin.IColumn | null => tracedColumn(t) ?? readColumn(t);
 
     /** Read the host rail loop at uniform curve parameters from the seed. */
     const loop: IAutoMovieSolidJoin.IJoin["loop"] = (
@@ -225,8 +200,9 @@ export namespace AutoMovieSolidJoin {
     };
 
     // Every traced point carries both rails.
+    const columns: IAutoMovieSolidJoin.IColumn[] = [];
     for (const p of curve.points) {
-      const c: IAutoMovieSolidJoin.IColumn | null = readColumn(p.t);
+      const c: IAutoMovieSolidJoin.IColumn | null = column(p.t);
       if (c === null)
         return fail(
           "rails",
@@ -249,7 +225,7 @@ export namespace AutoMovieSolidJoin {
       (c: IAutoMovieSolidJoin.IColumn): boolean =>
         c.rail.hostFace === columns[0]!.rail.hostFace,
     );
-    const crossing: [number, number] | null = !single
+    const crossing: string | null = !single
       ? null
       : AutoMovieSolidJoinCrossing(
           columns.map(
@@ -257,27 +233,17 @@ export namespace AutoMovieSolidJoin {
           ),
           curve.winding === 0,
         );
-    if (crossing !== null) {
-      const edges: string = crossing
-        .map((i: number): string => {
-          const a: IAutoMovieSolidJoin.IColumn = columns[i]!;
-          const b: IAutoMovieSolidJoin.IColumn =
-            columns[(i + 1) % columns.length]!;
-          return `${i}=[${a.rail.host}]-[${b.rail.host}], contact=[${a.rail.curve.y},${a.rail.curve.theta}]-[${b.rail.curve.y},${b.rail.curve.theta}]`;
-        })
-        .join("; ");
+    if (crossing !== null)
       return fail(
         "simple rail",
-        `the host's rail crosses itself between edges ${crossing[0]} and ${crossing[1]} (${edges})`,
+        `the host's rail crosses itself ${crossing}; a width passes the rail's radius of curvature`,
       );
-    }
 
     // Preserve the sampled predicate while reporting its already read operands.
     const normalCheck: ReturnType<typeof AutoMovieSolidJoinNormalCheck> =
       AutoMovieSolidJoinNormalCheck(
         columns,
         column,
-        missing,
         period,
         curve,
         FOLD_SHARES,

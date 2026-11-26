@@ -8,7 +8,7 @@ One auricle, measured on the living head held in the Frankfort plane.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Read by AutoMovieHumanEarPlace.aboveTragion and AutoMovieHumanHeadCanonical.of. Also types AutoMovieHumanHeadAnatomy.EAR and AutoMovieHumanHeadPose.top.
+Read by AutoMovieHumanEarPlace.aboveTragion, AutoMovieHumanEarPlace.concha, AutoMovieHumanHeadCanonical.of. Also types AutoMovieHumanHeadAnatomy.EAR, AutoMovieHumanHeadPose.top.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

@@ -21,7 +21,14 @@ import type { FamilyConicSection as C } from "./FamilyConicSection";
  */
 export namespace FamilyConicFair {
   /**
-   * ESTIMATE: 20 mm gives the default pass a five-cell wavelength on the 4 mm body sampling grid. The spectral filter halves it and leaves much longer waves largely unchanged. Supply a region's independently measured feature width when available.
+   * Fairing cutoff of a trunk section before its conversion, mm of girth: the wavelength the fairing halves. lofting.md: "fair each section to
+   * the scale of the form, which means removing the ripples smaller than the features the form keeps". f1's ripple is its facets': the
+   * sections' turning per unit arclength peaks at 9 to 14 mm of wavelength on the trunk (the median of each 100 mm stretch). The narrowest
+   * grooves the form keeps, the linea alba's and the sternal groove's, are 12 to 20 mm wide. A cutoff at the grooves' upper width takes a
+   * 14 mm ripple to a fifth while the front median and back grooves keep their inflections on the chest (450 to 600 mm), and on the abdomen (300 to 400 mm) it leaves
+   * 2.4 inflections on a side's back quarter where the least-squares cubic B-spline with a control every 6 mm left 11.8: that ripple, cut
+   * by the converter into arcs at every inflection, spent its arc budget and the rest of the turn was dropped (a partial conversion).
+   * Another region sets its own cutoff from its own narrowest kept feature (`FamilyConicConvert.cutoff`).
    */
   export const FAIR_MM: number = 20;
 
@@ -31,19 +38,15 @@ export namespace FamilyConicFair {
    * A star-shaped section meets every ray once. Where a faceted source meets
    * it more than once the outermost hit is returned and `folds` counts the
    * event, so the caller reports the non-star interval instead of losing it.
-   * When edge custody is supplied, a winning edge without measured support
-   * leaves the radius unobserved. It does not select a different crossing.
    */
   export function radius(
     points: readonly C.P[],
     phi: number,
     folds?: { count: number },
-    retained?: (start: C.P, end: C.P) => boolean,
   ): number {
     const d: C.P = [Math.cos(phi), Math.sin(phi)];
     let best: number = NaN;
     let hits: number = 0;
-    let observed: boolean = true;
     for (let i: number = 0; i < points.length; ++i) {
       const a: C.P = points[i]!;
       const b: C.P = points[(i + 1) % points.length]!;
@@ -55,13 +58,10 @@ export namespace FamilyConicFair {
         (1 - t) * (a[0] * d[0] + a[1] * d[1]) + t * (b[0] * d[0] + b[1] * d[1]);
       if (!(r > 0)) continue;
       ++hits;
-      if (!(best >= r)) {
-        best = r;
-        observed = retained?.(a, b) ?? true;
-      }
+      if (!(best >= r)) best = r;
     }
     if (hits > 1 && folds !== undefined) ++folds.count;
-    return observed ? best : NaN;
+    return best;
   }
 
   /** One converted arc on the faired section. */
@@ -171,7 +171,9 @@ export namespace FamilyConicFair {
   };
 
   /**
-   * Section conversion starts midway through the first quadrant so the seam does not bisect a median feature.
+   * The closed curve's seam, where the converter starts and ends, at an eighth of a turn: started on the median line (phase 0), the
+   * converter cut dozens of short arcs there whose bends flipped sign, a concavity and inflections on the front median of a section with
+   * none (f1's made falling groove at 0 mm).
    */
   const SEAM: number = Math.PI / 4;
 
@@ -199,7 +201,8 @@ export namespace FamilyConicFair {
       );
     // The periodic smoothing spline that penalises the radius's second derivative is, in the trigonometric basis, each harmonic n of the
     // data shrunk by 1 / (1 + lambda n^4) (Wahba, Spline Models for Observational Data, 1990, ch. 2, the periodic space W2), a roll-off that
-    // passes the form and halves the harmonic whose wavelength is the cutoff: lambda = (fairMm / girth)^4.
+    // passes the form and halves the harmonic whose wavelength is the cutoff: lambda = (fairMm / girth)^4. A least-squares spline on
+    // fixed controls has no such cutoff: at a control every 6 mm it followed f1's facets.
     const H: number = M / 2;
     const A: number[] = new Array<number>(H + 1).fill(0),
       B: number[] = new Array<number>(H + 1).fill(0),
@@ -234,7 +237,17 @@ export namespace FamilyConicFair {
         return sum;
       });
     };
-    // An invented closure regularizes the spline across the opening. Closure arcs do not count as measured skin. The closure guard reports how much adjoining samples move against the same skin faired on its own.
+    // An invented closure is faired with the skin. It is never evidence of skin: no arc on it counts as a groove or in acceptance, and no
+    // skin is judged there (`IArc.closure`). Faired with the skin, it only regularises the spline across the opening. Weighted zero
+    // instead, as the fit tool treats it (`FamilyConicFit.IRow.free` and `side`), the nose's half-section closure left the spline's low
+    // harmonics nothing to hold, swung 18 to 31 mm into the parent, and the extremes the excursion stands on it were read there. The fit
+    // has the wall's other constraints to shape a closure; this fairing has none. The guard that the closure does not pull the skin is
+    // `IConversion.closureGuardMm`: on f1's nose it reads up to 1.5 mm (median 0.59 mm, 37 of 40 stations over the 0.25 mm tolerance)
+    // and on its trunk across both arm cuts at 560 to 627 mm up to 3.5 mm (median 1.07 mm, all 67 over) against the skin faired alone as an
+    // open curve, so the closure does pull the faired skin beside it. That reaches no module directly:
+    // the family is fitted by `FamilyConicBody`, where a closure is never data (`FamilyConicFit.IRow.free`, held on the parent's side by
+    // `side`). It reaches the module only through the lines detected and the anchor windows read near a closure's edges
+    // (`FamilyConicConvert.bridge`), which is where it is checked: a window that runs into a closure edge must not misplace its line.
     fit(radii);
     // r's derivative of an order: each harmonic's a cos + b sin turned by the order's quarter turns, its own number to the order a factor.
     const rAt = (phi: number, order: number): number => {
@@ -270,7 +283,14 @@ export namespace FamilyConicFair {
       }
       return [x, y];
     };
-    // Inflections are sign changes of cross(p', p''). Give those breaks to the converter before fitting intervals. A degree-H trigonometric radius gives a curvature numerator of degree at most 2H. The bracket grid uses four samples per possible sign-change root, followed by bisection in each detected interval.
+    // The faired curve's inflections, the sign changes of cross(p', p''), are the converter's breaks: it never fits an interval whose
+    // curvature changes sign, so without them it bisects toward each inflection to its depth limit and a section of 28 spent its arc budget
+    // (f1's chest at a 20 mm fairing). Recovery's own cubic adapter hands it the same roots (`AutoMovieRecoveryConicApproximation`
+    // `.ICubicCriticalParameters`). The faired radius is a trigonometric polynomial of degree H, so the numerator is one of degree 2H, with
+    // at most 4H roots a turn; each is bracketed on 16H samples and bisected to the double's resolution. On a straight stretch the curvature
+    // is a residue of the harmonics past the cutoff, 1e-6 to 1e-5 a millimetre on f1's chest, whose sign flips every 0.3 to 0.7 degrees:
+    // bracketed on eight samples a cutoff wavelength those roots went unseen, the converter met them inside its intervals, refused and
+    // bisected, and 16 of 443 sections ran out of arcs. A pair of them costs two short arcs.
     const breaks: number[] = [];
     const numerator = (phi: number): number => {
       const d1: Readonly<AutoMovieVector2Tuple> = derivative(phi, 1),

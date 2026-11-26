@@ -3,21 +3,6 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /** Shared world-space seam geometry between split bands. */
 export namespace IAutoMovieConstructionSplitSeam {
-  /** A measured knot in along-chord, outward-depth and optional lateral millimetres. */
-  export type Knot = [along: number, depth: number, lateral?: number];
-
-  /**
-   * The exact seam tangent and directed cross vector in the parent's tangent
-   * plane at one fork.
-   */
-  export interface IFork {
-    /** Unit transverse vector toward the seam plane's positive side. */
-    across: AutoMovieVector3Tuple;
-
-    /** Unit tangent in the shared seam's original order. */
-    tangent: AutoMovieVector3Tuple;
-  }
-
   /** One reading of the seam. */
   export interface IPoint {
     /** The seam's point, mm. */
@@ -31,12 +16,6 @@ export namespace IAutoMovieConstructionSplitSeam {
      * arclength.
      */
     bend: AutoMovieVector3Tuple;
-
-    /**
-     * Derivative of the curvature vector in arclength, when explicitly
-     * requested.
-     */
-    bendRate?: AutoMovieVector3Tuple;
   }
 
   /**
@@ -68,13 +47,8 @@ export namespace IAutoMovieConstructionSplitSeam {
      * and a curved seam's fallback tangent are retained shared vectors.
      *
      * @param t The share of the length from the first end, in `[0, 1]`.
-     * @param withBendRate Request the cubic's piecewise third arclength
-     *   derivative.
      */
-    at(
-      t: number,
-      withBendRate?: boolean,
-    ): IAutoMovieConstructionSplitSeam.IPoint;
+    at(t: number): IAutoMovieConstructionSplitSeam.IPoint;
   }
 
   /**
@@ -113,12 +87,12 @@ export namespace IAutoMovieConstructionSplitSeam {
     normal: AutoMovieVector3Tuple;
 
     /**
-     * Interior [along-chord, outward-depth, lateral] positions in millimetres; empty is
+     * Interior [along-chord, outward-depth] positions in millimetres; empty is
      * allowed. Along lies in [0,chordLength], depth is any finite value, and
      * neighbors including the implicit endpoints must differ. Traversal order
-     * is retained even when along decreases. A missing lateral coordinate is zero.
+     * is retained even when along decreases.
      */
-    knots: readonly Readonly<Knot>[];
+    knots: readonly (readonly [number, number])[];
 
     /**
      * Optional world direction replacing normal for the seam plane; projected
@@ -126,9 +100,6 @@ export namespace IAutoMovieConstructionSplitSeam {
      * projection returns a refusal string.
      */
     heading?: AutoMovieVector3Tuple;
-
-    /** Resolve spatial endpoint tangents from the owned parent plane and the measured interior. */
-    observed?: boolean;
   };
 
   /**

@@ -18,9 +18,6 @@ export namespace IAutoMovieHumanTrunkReliefNet {
   ) => AutoMovieVector3Tuple) & {
     /** The lowest and highest station a window may reach, mm. */
     bounds?: [number, number];
-
-    /** Prepare a fixed station for all phases of a net row. */
-    station?: (station: number) => (phase: number) => AutoMovieVector3Tuple;
   };
 
   /** Where the feature lies on the chart. */

@@ -56,4 +56,4 @@ Keeps the original chain and its existing jet station preparation; explicit orie
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The chart owns the chain's admitted bindings, bounds and sign. Each fixed-station closure owns its section and frame, and each query returns fresh vectors.
+The surface closure retains its chain and scalar bounds/sign; returned jets own their vectors and no new query cache is introduced here.

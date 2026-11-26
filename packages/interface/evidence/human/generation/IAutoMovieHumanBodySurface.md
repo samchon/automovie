@@ -1,39 +1,3 @@
-# src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Generated registered-frame skin buffers, material coordinates and opening rims in millimetres. Member comments specify the individual units, frames and optional-value meanings.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups IOutput, GenerateDetails and SolidObserver declarations. Each member retains its own concrete data or callable representation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-IOutput, GenerateDetails separate the declared inputs, results and related quantities. Their numeric domains and geometric consistency remain the Human producers' and engine operators' runtime responsibility; the namespace introduces no additional frame or clock.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanBodySurface exchanges the named IOutput, GenerateDetails and SolidObserver contracts with its Human callers. Interface owns these type declarations without importing that implementation.
-
-# src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.SolidObserver
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Borrows the solid tessellator's named world-millimetre source charts from the same generation call.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The observer sees the existing chart map as read-only. Those charts supplied the solid tessellator's point and derivative reads.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-AutoMovieHumanBodySurface.generate calls an optional observer with the gathered source charts when requested.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The callback borrows the existing solid tessellator inputs from its generation call.
-
 # src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.IOutput
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -48,7 +12,7 @@ Returned by AutoMovieHumanBodySurface.generate.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `mesh`, `normals`, `coordinates`, `construction`, `rims`. Optional `nailClipping` carries the largest observed inward depth in mm for each measured nail contact on the emitted exterior. A complete contact with projection witnesses can measure zero. An omitted site leaves its measurement unavailable.
+Required fields are `mesh`, `normals`, `coordinates`, `construction`, `rims`; callers supply the complete record.
 
 # src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.GenerateDetails
 

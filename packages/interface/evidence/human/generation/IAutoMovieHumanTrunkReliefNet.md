@@ -10,11 +10,11 @@ The chart's base surface: the body point at a station and a phase, with the stat
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-`AutoMovieHumanTrunkFeatures.baseSurface` supplies the callable and its station preparation. `AutoMovieHumanTrunkReliefNet.fromFeature` prepares a fixed station for each active net row, then uses the same section for its phase columns.
+Returned by AutoMovieHumanTrunkFeatures.baseSurface. Read by AutoMovieHumanSpinalGroove.create, AutoMovieHumanSternalNotch.create, AutoMovieHumanTrunkReliefNet.fromFeature. Also types AutoMovieHumanTrunkFeatures.base.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The phase function retains only the requested station's section controls for its row. Callers that supply the direct point function can use the same bounded net operator.
+The representation is used by AutoMovieHumanSpinalGroove.create, AutoMovieHumanSternalNotch.create, AutoMovieHumanTrunkFeatures.baseSurface, AutoMovieHumanTrunkFeatures.base for the chart's base surface: the body point at a station and a phase, with the stations its windows stay within, the chart's two shared ends.
 
 # src/human/generation/IAutoMovieHumanTrunkReliefNet.ts#IAutoMovieHumanTrunkReliefNet.IWindow
 

@@ -5,12 +5,14 @@ import type {
   IAutoMovieHumanFootFrame,
   IAutoMovieHumanFootHost,
   IAutoMovieHumanFootPart,
+  IAutoMovieHumanReferenceOutlineTypes,
   IAutoMovieViewOutline,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
 import { AutoMovieHumanFootPlaces } from "../AutoMovieHumanFootPlaces";
 import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
+import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
 
 /**
@@ -30,14 +32,20 @@ export namespace AutoMovieHumanFootHost {
     transverse: number,
   ): IAutoMovieHumanFootPart.IInput {
     const L: number = d.length;
-    const dorsal = (share: number): number =>
-      AutoMovieHumanFootPlaces.dorsum(L, share);
+    const T: typeof AutoMovieHumanReferenceOutlines =
+      AutoMovieHumanReferenceOutlines;
+    const read: (column: string, share: number) => number = (
+      column: string,
+      share: number,
+    ): number =>
+      T.at(T.FOOT, column, share) *
+      (column === "lateral" || column === "medial" ? transverse : L);
 
-    // Use the same anatomical stations as the breadth measurement.
+    // Keep each named measurement and every distinct outline-table row.
     const kept: [string, number][] = plan.named;
     const height: number =
       Math.min(
-        ...kept.map(([, s]: [string, number]): number => dorsal(s)),
+        ...kept.map(([, s]: [string, number]): number => read("dorsum", s)),
       ) / 2;
 
     // Each site's box about the axis, its sides in the law's order (up,
@@ -52,10 +60,10 @@ export namespace AutoMovieHumanFootHost {
           law: {
             share: s,
             edges: [
-              dorsal(s) - height,
-              across("lateral", s, plan) * transverse,
+              read("dorsum", s) - height,
+              read("lateral", s),
               -height,
-              -across("medial", s, plan) * transverse,
+              -read("medial", s),
             ],
             fullness: { shoulder: Math.SQRT2 - 1 },
             plantarJet: { first: 0, second: 0 },
@@ -134,8 +142,8 @@ export namespace AutoMovieHumanFootHost {
    * Brannock horizontal breadth is the distance between across support
    * planes at the metatarsal heads, not one cut or their oblique chord
    * (ANSUR II handbook pp.83/84/112/113). The first head's public length and
-   * the measured Maestro cascade bound the head region. The complete
-   * host uses the same named knots and two-pole parameter as the
+   * the retained cascade convention bound the head region. The complete
+   * retained host uses the same named knots and two-pole parameter as the
    * foot builder. These independent, dimensionless host supports transfer
    * head-u before the complete group's one common scale is solved. They are
    * not themselves the target public breadth. No section or skin is read.
@@ -144,14 +152,16 @@ export namespace AutoMovieHumanFootHost {
     d: IAutoMovieHumanFootFrame.IDimensions,
     plan: IAutoMovieHumanFootHost.IPlan,
   ): IAutoMovieHumanFootHost.ITransverse {
-    const supportOf = (column: "lateral" | "medial"): number => {
+    const T: typeof AutoMovieHumanReferenceOutlines =
+      AutoMovieHumanReferenceOutlines;
+    const supportOf: (column: string) => number = (column: string): number => {
       const knots: IAutoMovieViewPart.IKnot[] = [
         { site: "bottom pole", station: 0, value: 0 },
         ...plan.named.map(
           ([site, share]: [string, number]): IAutoMovieViewPart.IKnot => ({
             site,
             station: share * d.length,
-            value: across(column, share, plan),
+            value: T.at(T.FOOT, column, share),
           }),
         ),
         { site: "top pole", station: plan.end * d.length, value: 0 },
@@ -197,7 +207,7 @@ export namespace AutoMovieHumanFootHost {
     return { lateral, medial };
   }
 
-  /** Share each anatomical station between surface preparation and breadth normalization. */
+  /** Preserve every anatomical/table station once, so inserting the public ball or instep cannot make normalization use a different source spline. */
   export function sourcePlan(
     d: IAutoMovieHumanFootFrame.IDimensions,
     measures: IAutoMovieHumanBodyMeasures,
@@ -206,14 +216,6 @@ export namespace AutoMovieHumanFootHost {
   ): IAutoMovieHumanFootHost.IPlan {
     const L: number = d.length;
     const first: number = (measures.ballOfFootLength * scale) / L;
-    const cascade: readonly number[] = AutoMovieHumanFootPrior.PRIOR.cascade;
-    const fifth: number =
-      first +
-      (cascade[0]! -
-        cascade
-          .slice(1)
-          .reduce((sum: number, value: number): number => sum + value, 0)) /
-        AutoMovieHumanFootPrior.CASCADE_FOOT;
     const longest: number = Math.max(
       ...AutoMovieHumanFootPlaces.TOES.map(
         (tip: { tip: number }): number => tip.tip,
@@ -232,35 +234,33 @@ export namespace AutoMovieHumanFootHost {
       ["heel", back / L / 2],
       ["ankle", back / L],
       ["instep", (measures.instepLength * scale) / L],
-      ["fifth head", fifth],
       ["ball", first],
+      ...AutoMovieHumanReferenceOutlines.FOOT.rows
+        .filter(
+          (row: IAutoMovieHumanReferenceOutlineTypes.IRow): boolean =>
+            row.share > 0 && row.share < end,
+        )
+        .map(
+          (
+            row: IAutoMovieHumanReferenceOutlineTypes.IRow,
+          ): [string, number] => [`outline ${row.share}`, row.share],
+        ),
     ];
     named.sort(
       (a: [string, number], b: [string, number]): number => a[1] - b[1],
     );
     const kept: [string, number][] = named.filter(
       (row: [string, number], index: number): boolean =>
-        row[1] > 0 && row[1] < end &&
-        (index === 0 || row[1] !== named[index - 1]![1]),
+        index === 0 || row[1] !== named[index - 1]![1],
     );
+    const cascade: readonly number[] = AutoMovieHumanFootPrior.PRIOR.cascade;
+    const fifth: number =
+      first +
+      (cascade[0]! -
+        cascade
+          .slice(1)
+          .reduce((sum: number, value: number): number => sum + value, 0)) /
+        AutoMovieHumanFootPrior.CASCADE_FOOT;
     return { named: kept, end, first, fifth };
-  }
-
-  /**
-   * The separate medial and lateral outlines widen from the hindfoot to
-   * their own metatarsal heads. The hindfoot is two thirds of ball breadth
-   * (ESTIMATE from the heel and foot width ranges in Jurca et al. 2019,
-   * doi:10.1038/s41598-019-55432-z). The cubic step gives zero rate at
-   * the end of each widening span. The part supplies its zero-reach poles.
-   */
-  function across(
-    side: "lateral" | "medial",
-    share: number,
-    plan: IAutoMovieHumanFootHost.IPlan,
-  ): number {
-    const head: number = side === "lateral" ? plan.fifth : plan.first;
-    const ankle: number = plan.named.find(([site]): boolean => site === "ankle")?.[1] ?? 0;
-    const t: number = Math.max(0, Math.min(1, (share - ankle) / (head - ankle)));
-    return (2 + t * t * (3 - 2 * t)) / 6;
   }
 }

@@ -11,7 +11,6 @@ import type {
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftSectionBoundary } from "./AutoMovieLoftSectionBoundary";
 import { AutoMovieLoftSectionLegacy } from "./AutoMovieLoftSectionLegacy";
-import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieLoftSectionSource } from "./AutoMovieLoftSectionSource";
 import { AutoMovieLoftViewRead } from "./AutoMovieLoftViewRead";
 
@@ -32,8 +31,6 @@ export namespace AutoMovieLoftSectionConnect {
     sign: 1 | -1 = 1,
   ): IAutoMovieFamily | string {
     try {
-      if (AutoMovieLoftSectionOriginal.active(chain.originalSection, station))
-        return "An original section span has no lossless scalar continuation endpoint at this station.";
       const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(
         chain,
         station,
@@ -96,8 +93,6 @@ export namespace AutoMovieLoftSectionConnect {
       const b: Layer = chain.layers[index + 1]!;
       if (a.sectionSource === undefined && b.sectionSource === undefined)
         continue;
-      if (chain.originalSection !== undefined && a.y < chain.originalSection.domain[1] && b.y > chain.originalSection.domain[0])
-        throw new Error("A changed continuation interval overlaps an original section field.");
       const first: IAutoMovieFamily | string = capture(chain, a.y);
       const last: IAutoMovieFamily | string = capture(chain, b.y);
       if (typeof first === "string" || typeof last === "string")

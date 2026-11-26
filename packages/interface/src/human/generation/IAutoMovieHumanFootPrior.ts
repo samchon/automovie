@@ -8,22 +8,25 @@ export namespace IAutoMovieHumanFootPrior {
     /** Chain name; `{side}` stands for the side. */
     name: string;
 
-    /** Tip `[a, u]`. */
+    /** Tip `[a, u]`. Reference median, awaiting a published value. */
     tip: readonly [number, number];
 
-    /** Across place of the toe's line at its metatarsal head, `u`. */
+    /**
+     * Across place of the toe's line at its metatarsal head, `u`. Reference
+     * median.
+     */
     head: number;
 
-    /** Height of its metatarsal head's centre, foot lengths. */
+    /** Height of its metatarsal head's centre, foot lengths. Reference median. */
     height: number;
 
-    /** Breadth of the toe, foot breadths. */
+    /** Breadth of the toe, foot breadths. Reference median. */
     breadth: number;
 
-    /** Depth over breadth. */
+    /** Depth over breadth. Reference median. */
     depth: number;
 
-    /** The distal pulp's breadth over the shaft's. */
+    /** The distal pulp's breadth over the shaft's. Reference median. */
     pulp: number;
 
     /**
@@ -35,15 +38,20 @@ export namespace IAutoMovieHumanFootPrior {
     /** Control points of a section. */
     order: number;
 
-    /** Control sections of the legacy toe chain, including its distal cap. */
+    /**
+     * Sections of the toe's chain: the reference's bone-normal sections of this
+     * digit, 2 mm apart over its whole length (f1: 29, 29, 25, 21 and 19 for
+     * the hallux to the fifth toe). A toe keeps at least that many whatever its
+     * length; a shorter toe has them closer.
+     */
     sections: number;
   }
 
   /** The prior. */
   export interface IPrior {
     /**
-     * The foot axis turned out from forward, radians. Symmetric quiet-stance
-     * convention.
+     * The foot axis turned out from forward, radians. Reference median (8.2 to
+     * 11.1 deg).
      */
     yaw: number;
 
@@ -74,7 +82,10 @@ export namespace IAutoMovieHumanFootPrior {
      */
     ring: number;
 
-    /** The ankle centre, `[a, u]`: the column's centre at the ankle ring. */
+    /**
+     * The ankle centre, `[a, u]`: the column's centre at the ankle ring.
+     * Reference median.
+     */
     ankle: readonly [number, number];
 
     /** First metatarsal head, `a`: ANSUR II ball-of-foot length (0.739, 0.741). */
@@ -87,7 +98,10 @@ export namespace IAutoMovieHumanFootPrior {
      */
     cascade: readonly number[];
 
-    /** Clefts between neighbouring toes, `[a, u]`, hallux side first. */
+    /**
+     * Clefts between neighbouring toes, `[a, u]`, hallux side first. Reference
+     * median.
+     */
     clefts: readonly (readonly [number, number])[];
 
     /** The toes, hallux first. */
@@ -97,7 +111,8 @@ export namespace IAutoMovieHumanFootPrior {
      * The malleoli as relief windows on the ankle's column: centre height in
      * lateral malleolus heights (the lateral one is the input's site, 1 by
      * definition; the medial one stands higher, Gray), prominence and radius in
-     * mm. These relief magnitudes are model estimates.
+     * mm. Convention, awaiting a relief fit on the references: the cuts read no
+     * isolated prominence on the borders' extremes beyond 1 to 4 mm.
      */
     malleoli: {
       /**

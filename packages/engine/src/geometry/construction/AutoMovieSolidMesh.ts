@@ -17,6 +17,12 @@ export namespace AutoMovieSolidMesh {
       indices: [],
       coordinates: [],
       owners: [],
+      ledger: {
+        seen: [],
+        occupied: new Set(),
+        pairs: new Map(),
+        directed: new Map(),
+      },
     };
   }
 

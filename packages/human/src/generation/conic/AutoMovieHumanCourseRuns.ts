@@ -2,7 +2,6 @@ import { AutoMovieViewJointedCourse } from "@automovie/engine";
 import type {
   IAutoMovieViewAxis,
   IAutoMovieViewJointedCourse,
-  IAutoMovieHumanCourseRuns,
 } from "@automovie/interface";
 
 /**
@@ -29,8 +28,21 @@ export namespace AutoMovieHumanCourseRuns {
   /** Course stations of the run ends, increasing, mm; at least two. */
   export type IRuns = readonly number[];
 
-  /** A material station conversion with its first two derivatives. */
-  export type IMap = IAutoMovieHumanCourseRuns.IMap;
+  /**
+   * A station map that also gives its first two derivatives.
+   *
+   * @evidence contracts/development/design.md#principled-representation The call keeps every `(station) => station` consumer; `jet` adds the derivatives a composed source function needs for its chain rule.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface One call signature and one member.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The derivatives are the map's closed form, never a finite difference.
+   * @evidence contracts/development/common.md#meaningful-documentation States units of the value and both derivatives.
+   */
+  export interface IMap {
+    /** The person's station of a reference station, mm. */
+    (s: number): number;
+
+    /** `[value mm, first derivative (dimensionless), second derivative per mm]` at a reference station. */
+    jet: (s: number) => [number, number, number];
+  }
 
   /**
    * The exact run ends of a jointed course: 0, the middle of every interior centre's turn, and the course's arclength.
@@ -152,9 +164,8 @@ export namespace AutoMovieHumanCourseRuns {
   }
 
   /**
-   * Find the nearest course station with a millimetre scan and a local
-   * golden-section bracket on either side of the best sample. Sixty steps
-   * reduce the at-most 2 mm bracket to less than 1e-12 mm in exact arithmetic.
+   * The course station nearest a point: a scan every millimetre from 0 to `to`, refined by 60 golden-section steps within the best
+   * millimetre either side. A definition, not a tuned search: the limb law's `nearest`, which read f1's limb sites.
    *
    * @evidence contracts/development/implementation.md#principled-implementation The station minimizing the course origin's distance to the point on [0, to], a unimodal refinement around the best millimetre.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan and one golden-section bracket.
@@ -254,7 +265,7 @@ export namespace AutoMovieHumanCourseRuns {
    * The first station of `from + k step` (k = 0, 1, ...) not past `to` at which `read` is greatest (`pick` 1) or least (`pick` -1); a
    * later equal value does not replace an earlier one. A sampled definition of a site such as the widest calf girth.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Read the supplied station grid in increasing order to select the first finite extremum.
+   * @evidence contracts/development/implementation.md#principled-implementation The limb law's `extreme`, read at the same millimetre grid from the run's start so f1's sites are reproduced.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One scan.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A nonfinite reading is never selected; a window without one finite reading is refused.
    * @evidence contracts/development/implementation.md#efficient-algorithms (to - from) / step + 1 reads.

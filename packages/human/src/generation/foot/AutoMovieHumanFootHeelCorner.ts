@@ -3,26 +3,24 @@ import type {
   IAutoMovieHumanFootFrame,
 } from "@automovie/interface";
 
-import { AutoMovieHumanFootPlaces } from "../AutoMovieHumanFootPlaces";
-
 /**
  * The heel's posterior corner: where the plantar contact's two edges leave the
  * floor and run round to the rearmost point of the heel, half a sector breadth
  * either side of the midline. Own centre: the calcaneal tuberosity's rearmost
  * point; the corner is a quarter ellipse in its own plane, from the contact's
  * rear end (on the floor, `END` foot lengths in front of the rearmost point)
- * up to the rearmost point. The quarter ellipse preserves horizontal
- * contact at the floor and a vertical tangent at the heel's rear wall.
+ * up to the rearmost point (`HEIGHT` foot lengths over the floor): the exact
+ * plane cuts read an exponent of 1.8 to 2.0 on every reference. Behind it the
+ * edges continue up the Achilles (`AutoMovieHumanFootAchilles`). Every number
+ * is a reference median over f1, f2, m1 and m2 awaiting a published value.
  */
 export namespace AutoMovieHumanFootHeelCorner {
   /**
-   * ESTIMATE: the plantar sector at the rear occupies one quarter of
-   * foot breadth, centred on the longitudinal course.
+   * Half the breadth of the plantar sector behind the heel's contact, foot
+   * breadths: half the contact's breadth where it closes (0.33 to 0.58 at
+   * 0.075 of the length). Reference median.
    */
-  export const HALF: number = 1 / 8;
-
-  /** ESTIMATE: rear contact starts one third of the heel-to-ankle distance ahead of the heel wall. */
-  export const END: number = AutoMovieHumanFootPlaces.ANKLE / 3;
+  export const HALF: number = 0.12;
 
   /**
    * The edge's knots from the contact's rear end round the corner.
@@ -34,8 +32,7 @@ export namespace AutoMovieHumanFootHeelCorner {
     frame: IAutoMovieHumanFootFrame.IFrame,
     side: -1 | 1,
   ): AutoMovieVector3Tuple[] {
-    const across: number = 1 / 2 + side * HALF;
-    const rise: number = height(frame);
+    const across: number = ACROSS + side * HALF;
 
     return Array.from(
       { length: CORNER_KNOTS + 1 },
@@ -45,7 +42,7 @@ export namespace AutoMovieHumanFootHeelCorner {
         return frame.at(
           END - END * Math.sin(tau),
           across,
-          rise * (1 - Math.cos(tau)),
+          (HEIGHT - HEIGHT * Math.cos(tau)) * frame.L,
         );
       },
     );
@@ -59,9 +56,18 @@ export namespace AutoMovieHumanFootHeelCorner {
    * @param frame The foot's frame.
    */
   export function height(frame: IAutoMovieHumanFootFrame.IFrame): number {
-    return AutoMovieHumanFootPlaces.dorsum(frame.L, 0);
+    return HEIGHT * frame.L;
   }
 }
 
-/** Six equal angular intervals sample the corner's quarter ellipse. */
+/** The contact's rear end along the foot, foot lengths. Reference median. */
+const END: number = 0.06;
+
+/** The rearmost point's height over the floor, foot lengths. Reference median. */
+const HEIGHT: number = 0.09;
+
+/** The corner's across place on the midline, foot breadths. Reference median. */
+const ACROSS: number = 0.455;
+
+/** Knots on the corner's quarter ellipse, intervals. Convention. */
 const CORNER_KNOTS: number = 6;

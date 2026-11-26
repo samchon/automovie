@@ -28,10 +28,11 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
  * length owner. No new regression or tissue thickness is fitted.
  *
  * The caliper presses through the soft tissue to the bone: 84 of the 260
- * women's and 109 of the 247 men's chest girths lie above the box of their own
- * depth and diameter. Enlarging only to the rectangular perimeter would force a
- * rectangular skin section. The ellipse convention instead keeps the thorax's
- * depth over diameter (0.681, SD 0.069, in women; 0.696, 0.066, in men).
+ * women's and 109 of the 247 men's chest girths lie above the box of their
+ * own depth and diameter. Enlarging only to the rectangular perimeter would
+ * force a rectangular skin section. The ellipse convention instead keeps the
+ * thorax's depth over diameter (0.681, SD 0.069, in women; 0.696, 0.066, in
+ * men).
  *
  * Premise: the thorax keeps its depth-on-girth and breadth-on-girth law over
  * the few centimetres between the nipple line and the inframammary fold.
@@ -51,11 +52,9 @@ export namespace AutoMovieHumanChestWall {
    * The chest wall's box at a girth.
    *
    * @param measures A person's resolved measures, for the sex.
-   * @param girth The level's taut-tape girth, mm (the underbust girth at the
-   *   fold).
-   * @returns Skin-template breadth and depth, mm, retaining the
-   *   compressed-caliper ratio and closing the ellipse tape. This is a
-   *   construction convention, not a measured skin section.
+   * @param girth The level's taut-tape girth, mm (the underbust girth at the fold).
+   * @returns Skin-template breadth and depth, mm, retaining the compressed-caliper ratio and closing the ellipse tape. This is a construction convention, not a measured skin section.
+   *
    * @evidence contracts/common.md#principled-implementation Uses the retained sex-specific caliper regression only for a positive B:D prior, then the engine ellipse perimeter and its positive homogeneity to close the requested skin tape. The nipple-to-underbust and compressed-caliper-to-skin transfers remain explicit conventions.
    * @evidence contracts/common.md#clear-and-simple-design Owns this unknown underbust box only; explicit chest, waist and hip B/D stay in BodyBox. Section geometry and numerical length stay with the engine.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Adds no coefficient, reference residual or person-specific correction. Nonfinite or nonpositive tape, predictions or perimeter throw a named failure instead of returning a substitute box.
@@ -65,7 +64,7 @@ export namespace AutoMovieHumanChestWall {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Owns only local numeric/template values and the returned two-number box; no retained cache, task or external handle is acquired.
    */
   export function box(
-    measures: Pick<IAutoMovieHumanBodyMeasures, "sex">,
+    measures: IAutoMovieHumanBodyMeasures,
     girth: number,
   ): IAutoMovieHumanChestWall.IBoxResult {
     const wall: IAutoMovieHumanChestWall.IWall =

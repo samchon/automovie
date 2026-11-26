@@ -2,28 +2,28 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Records the first directed occurrence of each native edge and closes an opposite second occurrence. An indexed plan has one signed relative turn per undirected pair after projection admission, so the indexed preparation uses that pair for both checks. Split-edge provenance retains native cover identities, and the boundary walk accumulates integer lifts. The edge grouping follows the halfedge-to-unique-edge construction used by [libigl](https://raw.githubusercontent.com/libigl/libigl/main/include/igl/unique_edge_map.cpp).
+Cancels opposite triangle-edge occurrences, reads split-edge provenance and walks the remaining directed domain boundary with accumulated integer phase lifts.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The direct native and prepared indexed paths share collection and boundary reconstruction. The indexed reader fixes the period used by projection and accepts split-edge provenance and endpoint stations when called. Explicit cycle charts and winding carry the actual directed occurrences to cap and event consumers.
+Explicit cycle charts and winding carry occurrence data to cap/event consumers; no global-ID-to-first-chart lookup or geometry registry is used.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-An exposed edge requires authoritative trim or domain provenance. Direct native faces may keep different cover turns for the same pair. Indexed faces require the represented sub-half-period bound and report projection refusals before the first native incidence refusal. Partial endpoint arcs are reported with the stored period; unmatched internal edges refuse the plan.
+A trim edge is never an endpoint merely because it is unpaired. Branching or partial periodic endpoint arcs are reported instead of closed by a guessed cap; unmatched internal edges refuse the plan.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Distinguishes domain and trim provenance, native positive traversal, period winding and partial endpoint reporting. The indexed preparation documents the shared incidence, the fixed period and projection-before-native refusal order.
+Distinguishes domain/trim provenance, native positive traversal, period winding, genuine endpoint classification and partial-result reporting.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For T triangles and E distinct edge identities, collection makes 3T lookups and E insertions. A closed edge retains its identity to refuse a third occurrence. The provenance table hashes S split constraints, and angular halfedge walks use O(B log B) worst-case work for B exposed edges.
+Hashes O(T+S) triangle/constraint edges and uses angular halfedge incidence in O(B log B) worst-case work for B exposed edges; no nearest-cycle matching or world-space search is performed.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the planner's actual split constraints and corner lifts. The indexed preparation uses one record per endpoint pair for projection admission and the native boundary census.
+Uses the planner's actual subdivision/provenance and corner lifts without splitting constraints or reading surface jets again.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The prepared reader owns one face's O(E) incidence records. Each boundary call owns its provenance and exposed-domain keys. Returned cycles own O(B) copied indices and chart numbers.
+O(T+S+P) edge/provenance references are local; returned cycles own O(B) copied indices/chart numbers and no mesh, surface or callback.

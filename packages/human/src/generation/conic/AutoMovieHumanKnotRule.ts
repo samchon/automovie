@@ -1,5 +1,3 @@
-import type { IAutoMovieHumanKnotRule } from "@automovie/interface";
-
 /**
  * Where a family's station knots stand: at the part's landmarks, not where one person's trace needed them.
  *
@@ -14,10 +12,34 @@ import type { IAutoMovieHumanKnotRule } from "@automovie/interface";
  */
 export namespace AutoMovieHumanKnotRule {
   /** What the rule reads of one family. */
-  export type IInput = IAutoMovieHumanKnotRule.IInput;
+  export interface IInput {
+    /** The run ends along the course, mm, increasing: the first station, each interior course centre, the last station. */
+    runs: readonly number[];
+
+    /** The measurement sites' stations, mm. */
+    sites: readonly number[];
+
+    /** Each outline whose extrema take a knot, as a smooth function of the station, mm. */
+    outlines: readonly ((station: number) => number)[];
+
+    /** The section's mean reach by station, mm: the scale of the form. */
+    reach: (station: number) => number;
+
+    /** The least distance between two knots as a share of the mean reach where they stand. */
+    share: number;
+
+    /** The spacing the outlines are searched at, mm: finer than the narrowest belly to be found. */
+    step: number;
+  }
 
   /** One knot with why it stands. */
-  export type IKnot = IAutoMovieHumanKnotRule.IKnot;
+  export interface IKnot {
+    /** Its station, mm. */
+    station: number;
+
+    /** What put it there. A run end and a site are kept whatever stands beside them. */
+    basis: "run" | "site" | "extremum";
+  }
 
   /**
    * Thirds taken off an extremum's bracket: forty take a bracket of a few millimetres under 1e-6 mm. The search cannot place it finer

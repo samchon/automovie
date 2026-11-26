@@ -1,7 +1,6 @@
 import type { IAutoMovieConstructionSource } from "../../../construction/IAutoMovieConstructionSource";
 import type { IAutoMovieConstructionView } from "../../../construction/IAutoMovieConstructionView";
 import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLoftContract";
-import type { IAutoMovieLoftSectionConnect } from "../../../construction/IAutoMovieLoftSectionConnect";
 import type { IAutoMovieViewLoft } from "../../../construction/IAutoMovieViewLoft";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
@@ -12,9 +11,9 @@ import type { IAutoMovieHumanHeadNeckCurves } from "./IAutoMovieHumanHeadNeckCur
 import type { IAutoMovieHumanHeadNeckLayout } from "./IAutoMovieHumanHeadNeckLayout";
 
 /**
- * Call-owned head source definitions, requested raw results, regional attempts
- * and anatomical placement inputs. Runtime construction and admission remain
- * with AutoMovieHumanHeadComposer in Human.
+ * Call-owned head source definitions, lazy raw results, regional attempts and
+ * anatomical placement inputs. Runtime construction and admission remain with
+ * AutoMovieHumanHeadComposer in Human.
  */
 export namespace IAutoMovieHumanHeadComposer {
   /**
@@ -34,7 +33,10 @@ export namespace IAutoMovieHumanHeadComposer {
      */
     definition: IDefinition;
 
-    /** Explicit raw demand for the mass used in this composition. */
+    /**
+     * Explicit raw demand for the mass; observing definition.base.raw does not
+     * create it.
+     */
     readonly mass: IAutoMovieViewLoft.IResult;
 
     /**
@@ -89,22 +91,10 @@ export namespace IAutoMovieHumanHeadComposer {
       readonly loft: IAutoMovieViewLoft.IResult;
     }[];
 
-    /** Canonical source-edge diagnostics, independent of raw loft selection. */
-    readonly diagnostics: IAutoMovieLoftContract.IDiagnostic[];
-
     /**
-     * Prepare only the named raw originals and return their diagnostics. The
-     * composed mass owns its lip contact field.
+     * Canonical source-edge and already-requested raw diagnostics; this
+     * observation never lofts an unrequested part.
      */
-    prepareRaw(names: readonly string[]): IRaw;
-  }
-
-  /** The results and diagnostics of one explicitly selected raw request. */
-  export interface IRaw {
-    /** Actual loft results by selected original name, in request order. */
-    readonly lofts: ReadonlyMap<string, IAutoMovieViewLoft.IResult>;
-
-    /** Diagnostics from the same selected results, in request order. */
     readonly diagnostics: IAutoMovieLoftContract.IDiagnostic[];
   }
 
@@ -120,7 +110,7 @@ export namespace IAutoMovieHumanHeadComposer {
      * Requested catalogue scope, not a certificate that all attempted sources
      * succeeded. Partial top-level definitions cannot assemble a whole head.
      */
-    requestScope:
+    requestScope?:
       | "unrequested"
       | "selected-top-level"
       | "selected-tape-invariant"
@@ -128,8 +118,6 @@ export namespace IAutoMovieHumanHeadComposer {
 
     /** The identical canonical mass/neck preparation. */
     base: IBase;
-    /** The full closure selected by this definition, if its scope requires one. */
-    readonly closureAttempt: IAutoMovieHumanHeadCanonical.IClosureAttempt;
     /** Actual valid regional sources in their authored order. */
     parts: IAutoMovieHumanHeadFeatures.IFeature[];
     /** Actual source context, including the canonical mass. */
@@ -142,19 +130,23 @@ export namespace IAutoMovieHumanHeadComposer {
      */
     studies: IAutoMovieViewPart[];
     /**
-     * Loft exactly the requested names once and return their raw results and
-     * diagnostics.
+     * Raw results requested through this definition; enumeration never creates
+     * a loft.
      */
-    prepareRaw(names: readonly string[]): IRaw;
+    lofts: ReadonlyMap<string, IAutoMovieViewLoft.IResult>;
     /**
      * Read one actual original's call-owned raw loft, without full composition.
      *
-     * Uses the actual source from this definition, including its selected
-     * canonical mass. One named supplier serves selected raw observation and
-     * complete composition. An unavailable original is refused with its attempt
-     * cause; no replacement part or complete tree is manufactured. Resolving an
-     * original reads the source map or its independent studies before lofting.
-     * Callers share multiple raw outputs through prepareRaw.
+     * Uses the actual source from this definition; mass borrows the canonical
+     * base's same lazy result. One named supplier serves selected raw
+     * observation and complete composition. An unavailable original is refused
+     * with its attempt cause; no replacement part or complete tree is
+     * manufactured. A completed raw result is reused by name. Resolving that
+     * name first reads the source map or scans the independent studies; the
+     * first raw request performs the engine loft. compose and selected raw
+     * readers borrow the identical raw result and original callbacks. Only this
+     * call-owned definition retains its requested results; no cross-input cache
+     * is added.
      */
     loft(name: string): IAutoMovieViewLoft.IResult;
   }
@@ -185,10 +177,10 @@ export namespace IAutoMovieHumanHeadComposer {
      */
     readonly preparationMilliseconds: IAutoMovieHumanHeadCanonical.IPrepared["preparationMilliseconds"];
     /**
-     * Perform the explicit full-closure request and return the selected member
-     * or original failure.
+     * Side-effect-free actual full-closure attempt, including its original
+     * failure.
      */
-    attemptClosure: IAutoMovieHumanHeadCanonical.IPrepared["attemptClosure"];
+    readonly closureAttempt: IAutoMovieHumanHeadCanonical.IClosureAttempt;
     /**
      * Same owner's exact lower interval supplier; it does not activate upper
      * tape closure.
@@ -203,22 +195,47 @@ export namespace IAutoMovieHumanHeadComposer {
      */
     readonly tapeInvariant: IAutoMovieHumanHeadCanonical.IPrepared["tapeInvariant"];
     /**
+     * Whether full closure has succeeded; a retained failed attempt remains
+     * false.
+     */
+    readonly calibrated: boolean;
+    /**
+     * Already completed public-input closure, or null; reading this state
+     * performs no geometry.
+     */
+    readonly calibration: IAutoMovieHumanHeadCanonical.IOutput | null;
+
+    /**
      * Explicitly request the actual full public-input closure.
      *
      * Delegates to the same canonical constraint owner used by production and
      * preserves its selected actual source. A method owns full-source demand
-     * while layout, guides and attempt observations remain independent. A
-     * failed attempt throws its original value. Pass the selected output
-     * directly when production and inspection share one request.
+     * while layout, guides and attempt observations remain independent. No
+     * property read invokes closure, and a failed attempt rethrows its original
+     * value without another source. Performs the actual constraint once on
+     * explicit first demand. Subsequent production and inspection calls receive
+     * the identical canonical result or original failure. Only this invocation
+     * retains the actual selected source and attempt.
      */
     closed(): IAutoMovieHumanHeadCanonical.IOutput;
     /**
-     * Loft the selected canonical mass for a raw request. Supply an existing
-     * closure when the request already owns one.
+     * Already requested raw mass, or null; this readonly observation never
+     * creates a loft.
      */
-    loft(
-      closure?: IAutoMovieHumanHeadCanonical.IOutput,
-    ): IAutoMovieViewLoft.IResult;
+    readonly raw: IAutoMovieViewLoft.IResult | null;
+    /**
+     * Call-owned lazy raw loft of that identical source, prepared at most once.
+     *
+     * Lofts the exact retained massPart only when a raw or complete geometry
+     * consumer requests it. Explicit lazy consumption is separate from
+     * original-source admission. It never replaces the source or reports
+     * unperformed loft admission as success. The first request performs one
+     * engine loft; subsequent requests return the retained result in constant
+     * time. Explicit raw consumers borrow the same result; ordinary source-leaf
+     * realization receives the actual part independently. Only this call-owned
+     * source closure retains a requested loft; there is no global cache.
+     */
+    loft(): IAutoMovieViewLoft.IResult;
     /** Same original neck family as the mass; null only without base context. */
     neck: IAutoMovieHumanHeadNeckCurves.IOutput | null;
     /**
@@ -237,12 +254,6 @@ export namespace IAutoMovieHumanHeadComposer {
   export interface IPlaced {
     /** The part. */
     feature: IAutoMovieHumanHeadFeatures.IFeature;
-
-    /**
-     * Exact section owner when this original contributes to its parent's
-     * analytic skin.
-     */
-    sectionOwner?: IAutoMovieLoftSectionConnect.IOriginal;
 
     /**
      * Explicit raw demand in the unchanged generating frame; reading it borrows

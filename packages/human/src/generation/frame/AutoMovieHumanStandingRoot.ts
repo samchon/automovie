@@ -13,15 +13,16 @@ import type {
  * length therefore moves the feet, not the pelvis: with the root's height stored, the figure floats or sinks by the legs' change. The
  * standing figure's premise is the reverse: the floor is fixed and the pelvis stands on the legs.
  *
- * The law assumes the sole is fixed in the supporting segment's frame and
- * that both chains keep the same reference rotations. Under those premises
- * the soles stay on the floor when the support origin keeps its reference height. In an erect
+ * The law reads no skin. The sole is a surface of the supporting segment (the foot), fixed in that segment's frame, and no length field
+ * changes a foot's extent along the sole's normal (`AutoMovieHumanF1SegmentLengths` spreads a foot along and across its sole only). The
+ * chain's reference rotations do not change with a length either. So the sole's lowest point keeps its height above the supporting
+ * segment's origin, and the soles stay on the floor exactly when that origin keeps the height it has on the reference chain. In an erect
  * stance this is the stature's decomposition `hip centre height = ankle centre height + shank + thigh` along the segments' own rest
  * directions (de Leva 1996, whose thigh and shank are the hip-to-knee and knee-to-ankle joint centre lengths).
  *
- * The caller chooses one supporting segment. Both feet stand level when the
- * rest chain's two sides are reflections. A posed figure chooses support from
- * its pose.
+ * Limits: one supporting segment is read, so both feet stand level only on a chain whose two sides are reflections (f1's are, by
+ * construction); a posed figure, whose rotations differ from the reference's, needs its support chosen by the pose and is outside this
+ * law.
  */
 export namespace AutoMovieHumanStandingRoot {
   /**

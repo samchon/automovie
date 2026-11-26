@@ -36,7 +36,10 @@ export namespace IAutoMovieHumanTrunkSolver {
      */
     rawNeck?: () => IAutoMovieLoftChain;
 
-    /** The thigh tape, mm, when available with the ring ratio. */
+    /**
+     * The thigh tape, mm, for the groin width; absent, the references' median
+     * ratio is used.
+     */
     thigh?: number;
 
     /** The crotch ring's half girth over the thigh tape, as the leg reports it. */

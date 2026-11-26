@@ -26,8 +26,7 @@ export function AutoMovieHumanLegDistal(
       "The retained distal authority needs its actual named thigh inside the original domain",
     );
   const domain: readonly [number, number] = [thigh, last];
-  const original: IAutoMovieHumanFootSource.IComplete =
-    AutoMovieHumanFootSource.prepare(part);
+  let original: IAutoMovieHumanFootSource.ISource | undefined;
   return {
     name: part.name,
     axis: part.axis,
@@ -43,6 +42,7 @@ export function AutoMovieHumanLegDistal(
         throw new Error(
           `${part.name}: query outside retained distal authority [${domain.join(", ")}] mm`,
         );
+      original ??= AutoMovieHumanFootSource.prepare(part);
       return AutoMovieHumanFootSource.at(original, station);
     },
   };

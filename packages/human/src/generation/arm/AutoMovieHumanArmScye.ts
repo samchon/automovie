@@ -74,15 +74,31 @@ export namespace AutoMovieHumanArmScye {
 
     // The rings a run down from the bottom ring: a negative run reads the
     // chain above it, where it exists.
-    const jets: IAutoMovieHumanLimbRootStrip.IJet[] =
-      AutoMovieHumanLimbRootStrip.edgeRing(
-        (run) =>
-          AutoMovieLoftChain.ring(upper, bottom - run, phases).map((p) =>
-            sided(p, sign),
-          ),
-        0,
-        -STEP,
-      );
+    const rows: Map<number, AutoMovieVector3Tuple[]> = new Map<
+      number,
+      AutoMovieVector3Tuple[]
+    >();
+    const row: (run: number) => AutoMovieVector3Tuple[] = (
+      run: number,
+    ): AutoMovieVector3Tuple[] => {
+      let found: AutoMovieVector3Tuple[] | undefined = rows.get(run);
+      if (found === undefined)
+        rows.set(
+          run,
+          (found = AutoMovieLoftChain.ring(upper, bottom - run, phases).map(
+            (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple => sided(p, sign),
+          )),
+        );
+      return found;
+    };
+    const jets: IAutoMovieHumanLimbRootStrip.IJet[] = phases.map(
+      (_: number, i: number): IAutoMovieHumanLimbRootStrip.IJet =>
+        AutoMovieHumanLimbRootStrip.edge(
+          (run: number): AutoMovieVector3Tuple => row(run)[i]!,
+          0,
+          -STEP,
+        ),
+    );
     const ring: AutoMovieVector3Tuple[] = jets.map(
       (j: IAutoMovieHumanLimbRootStrip.IJet): AutoMovieVector3Tuple => j.point,
     );

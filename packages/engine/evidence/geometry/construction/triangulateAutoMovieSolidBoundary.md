@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses convex-ear removal. A determinant bound propagates binary64 coordinate rounding through the two edge products. Ears with resolved area take priority, followed by the original occurrence arc, tip ID and lift. Periodic sampling locality is bounded by two adjacent original-walk phase primitives, while exact positive orientation, the consumer's half-period cover rule and represented strict interiors remain required. A new diagonal cannot strand a boxed original occurrence in an unrepresentable triangle; distinct cover edges cannot alias one global mesh edge.
+Uses convex-ear removal ordered by original occurrence arc, tip ID and lift. Periodic sampling locality is bounded by two adjacent original-walk phase primitives, while exact positive orientation, the consumer's half-period cover rule and represented strict interiors remain required. A new diagonal cannot strand a boxed original occurrence in an unrepresentable triangle; distinct cover edges cannot alias one global mesh edge.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,11 +14,11 @@ Changes no point or exact sign predicate and introduces no near-length tolerance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States weakly simple positive input, cover identity, exact sign admission, the roundoff-based ordering, half-period search bound and failure behavior.
+States weakly simple positive input, cover identity, exact sign semantics, half-period search bound and failure behavior.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One O(N) pass prepares periodic sampling locality. Each removal ranks N diagonals with a fixed-size determinant error bound and occurrence key, then checks improving candidates against remaining points. Worst-case work is cubic and storage is O(N).
+One O(N) pass prepares periodic sampling locality. Each removal ranks N diagonals by fixed integer comparisons and checks improving candidates against remaining points, with cubic worst-case work and O(N) storage; no coordinate sorting, all-pair population or shortest-edge/Delaunay/continuous surface-error guarantee is claimed.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

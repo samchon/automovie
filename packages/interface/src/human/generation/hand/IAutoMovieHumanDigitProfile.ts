@@ -31,6 +31,9 @@ export namespace IAutoMovieHumanDigitProfile {
     /** Arc length where the tip's cap starts. */
     cap: number;
 
+    /** Half length of a joint's turn, per joint radius (the elbow's softness). */
+    softness: number;
+
     /**
      * True for the thumb, whose base sections are its own and whose creases
      * stand at its two joints.

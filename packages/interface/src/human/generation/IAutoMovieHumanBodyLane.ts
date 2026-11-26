@@ -1,6 +1,4 @@
 import type { IAutoMovieConstructionNode } from "../../construction/IAutoMovieConstructionNode";
-import type { IAutoMovieConstructionRealization } from "../../construction/IAutoMovieConstructionRealization";
-import type { IAutoMovieConstructionSharedLoop } from "../../construction/IAutoMovieConstructionSharedLoop";
 import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain";
 import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftContract";
 import type { IAutoMovieSolidBody } from "../../construction/IAutoMovieSolidBody";
@@ -18,6 +16,7 @@ import type { IAutoMovieHumanLegWalk } from "./leg/IAutoMovieHumanLegWalk";
 import type { IAutoMovieHumanDigitWalk } from "./limb/IAutoMovieHumanDigitWalk";
 import type { IAutoMovieHumanNamedSource } from "./limb/IAutoMovieHumanNamedSource";
 import type { IAutoMovieHumanSourceDefinition } from "./limb/IAutoMovieHumanSourceDefinition";
+import type { IAutoMovieHumanSourceRealization } from "./limb/IAutoMovieHumanSourceRealization";
 import type { IAutoMovieHumanTrunkBuild } from "./trunk/IAutoMovieHumanTrunkBuild";
 
 /**
@@ -158,15 +157,6 @@ export namespace IAutoMovieHumanBodyLane {
     toes: IToe[];
     /** Names from the same foot-placement rows consumed by the toe producer. */
     toeNames: readonly string[];
-
-    /**
-     * Explicit whole arm scope sharing its frame and palm across digit
-     * preparation.
-     */
-    prepareArm?(): Pick<ISide, "arm" | "fingers">;
-
-    /** Explicit whole foot scope sharing its prepared host and toe fields. */
-    prepareFoot?(): Pick<ISide, "foot" | "footDefinition" | "toes">;
   }
 
   /** A digit's input and its web's fold. */
@@ -220,8 +210,14 @@ export namespace IAutoMovieHumanBodyLane {
 
     /** The trunk's build. */
     trunk: IAutoMovieHumanTrunkBuild.IInput;
-    /** The caller's explicit trunk preparation, with its final leg pair. */
+    /**
+     * Same already prepared trunk/tape-pass result, when an original reader
+     * evaluated it first.
+     */
     preparedTrunk?: IAutoMovieHumanTrunkBuild.IOutput;
+    /** Actually requested raw originals from this same preparation context. */
+    preparedSources?: ReadonlyMap<string, IAutoMovieHumanSourceRealization>;
+
     /** Both sides. */
     sides: Record<"left" | "right", ISide>;
 
@@ -257,17 +253,6 @@ export namespace IAutoMovieHumanBodyLane {
      * this realization.
      */
     sourceParts: ReadonlyMap<string, IAutoMovieViewPart>;
-
-    /** Original paired chart loops bound to joins in this invocation. */
-    loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
-    /**
-     * The regular parent cut, exact native stations and prepared strips for
-     * each digital split.
-     */
-    digitalSources?: Pick<
-      IAutoMovieConstructionRealization.IProps,
-      "splitParentCuts" | "splitChildRails" | "splitPrepared"
-    >;
     /**
      * Actual consumed hand contact records, retaining the same parent original
      * and anatomical joint separately.

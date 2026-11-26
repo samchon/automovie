@@ -2,15 +2,15 @@ import { AutoMovieNaturalSpline } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieNaturalCubicSpline,
-  IAutoMovieHumanNativeScaleProfile,
 } from "@automovie/interface";
 
 /**
  * A directional tissue scale along a family's course, as a function of material station with its own 2-jet.
  *
  * A native source applies its scale to the source function, a(s)·f(s) with the product-rule jets, so it needs the scale's value and its
- * first and second station derivatives at every station. Interpolating knot products would give a different function wherever the
- * scale and the original change together. A bound junction needs the actual product and its derivatives.
+ * first and second station derivatives at every station it reads, not only the scale's values at the family's knots. Sampling a station-
+ * varying scale at the knots alone leaves the wall between two knots up to 1.3 mm off the law (f1's trunk under the allsite95 calipers,
+ * between the 446 and 496 mm knots), and a site junction that writes the exact value then makes a ridge one station gap long.
  *
  * The law between two sites is the endpoint-flat quintic 10t^3 - 15t^4 + 6t^5 already used by the native calibration: its first and
  * second derivatives vanish at both sites, so the scale is C2 everywhere and is held at the first and last site's value outside them. Its
@@ -22,11 +22,46 @@ import type {
  * @evidence contracts/development/design.md#prohibited-design-shortcuts No finite difference and no sampled table: every derivative is the closed form of the quintic and of the product rule.
  */
 export namespace AutoMovieHumanNativeScaleProfile {
-  /** The value and two material derivatives of a directional profile or centre. */
-  export type IJet = IAutoMovieHumanNativeScaleProfile.IJet;
+  /**
+   * A directional scale and its first two station derivatives.
+   *
+   * @evidence contracts/development/design.md#principled-representation Value and both derivatives are kept per direction, depth (u) first and breadth (v) second.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Exactly the three orders a product-rule 2-jet consumes.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No optional member; a held end reports explicit zero derivatives.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state their units.
+   */
+  export interface IJet {
+    /** Depth and breadth ratios, dimensionless and positive. */
+    value: AutoMovieVector2Tuple;
 
-  /** A directional material scale with its carried 2-jet. */
-  export type IScale = IAutoMovieHumanNativeScaleProfile.IScale;
+    /** First station derivatives of both ratios, per mm. */
+    first: AutoMovieVector2Tuple;
+
+    /** Second station derivatives of both ratios, per mm squared. */
+    second: AutoMovieVector2Tuple;
+  }
+
+  /**
+   * A scale that is called like a plain `(station) => [a, b]` and also carries its jet.
+   *
+   * @evidence contracts/development/design.md#principled-representation The call signature keeps every existing `scale` consumer; the members add the jet, the law's break stations and its constant value.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Breaks let a source hold a knot where the quintic's third derivative jumps; constant lets a uniform scale keep its exact existing path.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts Constant is null unless every station reads the same value by construction, never by sampling.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state their station units and meaning.
+   */
+  export interface IScale {
+    /** Depth and breadth ratios at a material station, mm. */
+    (station: number): AutoMovieVector2Tuple;
+
+    /** The ratios and their first two station derivatives at a material station, mm. */
+    jet: (station: number) => IJet;
+
+    /** Increasing material stations, mm, where the law changes piece; its value and first two derivatives are continuous there. */
+    breaks: readonly number[];
+
+    /** The ratio every station reads, when the law is constant by construction; otherwise null. */
+    constant: AutoMovieVector2Tuple | null;
+  }
 
   /**
    * The endpoint-flat quintic between anchored sites, held at the first and last site's value outside them.
@@ -216,8 +251,24 @@ export namespace AutoMovieHumanNativeScaleProfile {
     });
   }
 
-  /** The section-coordinate line the scale holds fixed. */
-  export type ICentre = IAutoMovieHumanNativeScaleProfile.ICentre;
+  /**
+   * A scaling centre line: where the tissue scale's fixed point stands in each section's chart, as a station function with its 2-jet.
+   *
+   * A native source scales each chart coordinate about this point, c(s) + a(s)·(f(s) - c(s)), so the line itself stays where it is. The
+   * consumer chooses the line (a skeletal datum, the course itself); this type only carries it.
+   *
+   * @evidence contracts/development/design.md#principled-representation The same value, first and second derivative record as a scale's jet, here in mm, mm per mm and mm per mm squared along chart u (first) and v (second).
+   * @evidence contracts/development/design.md#minimal-and-owned-surface The jet feeds the product rule; the breaks let a source hold a knot where the line's third derivative jumps.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts No sampled table and no default line: an absent centre is the course, which the consumers express by passing none.
+   * @evidence contracts/development/common.md#meaningful-documentation Members state their units and the continuity the breaks promise.
+   */
+  export interface ICentre {
+    /** The centre's chart coordinates [u, v], mm from the course point, and their first two station derivatives. */
+    jet: (station: number) => IJet;
+
+    /** Increasing material stations, mm, where the line changes piece; its value and first two derivatives are continuous there. */
+    breaks: readonly number[];
+  }
 
   /**
    * The natural cubic through a centre line's knot samples, continued past its first and last knot along its end tangent.

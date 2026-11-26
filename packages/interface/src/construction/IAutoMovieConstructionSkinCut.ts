@@ -72,9 +72,6 @@ export namespace IAutoMovieConstructionSkinCut {
      */
     at: (psi: number) => [number, number, number];
 
-    /** Point at that same admitted root in world millimetres, without calculating the curve derivatives. */
-    point?: (psi: number) => AutoMovieVector3Tuple;
-
     /** The least and greatest station of the curve at its admitted phases, mm. */
     reach: [number, number];
   }

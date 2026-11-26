@@ -16,14 +16,14 @@ import type {
 import { AutoMovieHumanFootSource } from "../foot/AutoMovieHumanFootSource";
 
 /**
- * Unmeasured proximal leg material lines constrained by their actual parent field.
+ * An unmeasured proximal leg outline constrained by its actual parent field.
  *
- * @evidence contracts/common.md#principled-implementation The canonical parent section intersects the selected femur material plane. Implicit native total2 differentiates that same parent exit along the unchanged child course.
+ * @evidence contracts/common.md#principled-implementation The canonical parent section intersects the actual femur's lateral ray plane; implicit native total2 differentiates that same parent exit along the unchanged child course.
  * @evidence contracts/common.md#clear-and-simple-design Returns one original outline and its complete parent/contact record; the caller retains all other source functions and performs its existing loft once.
  * @evidence contracts/common.md#prohibited-implementation-shortcuts No public-width clamp, independent ellipse, moved bone, changed tape or mesh readback supplies the contact. Missing physical jets remain failures.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes a declared lateral source transfer from equality of the entire child ring or final world C2, and requires the actual trial/final parent identity at the caller.
  * @evidence contracts/performance.md#efficient-algorithms One bounded Illinois section root and a fixed two-by-two implicit solve precede an O(n) original-knot pass.
- * @evidence contracts/performance.md#reuse-equivalent-work Prepares one actual parent field for both material lines and reuses the existing native root and parameter operators.
+ * @evidence contracts/performance.md#reuse-equivalent-work Reuses the existing native source wrapper and public parameter/outline owners; no section meshing, raw loft or independent root algorithm is introduced.
  * @evidence contracts/performance.md#bound-retention-and-release-resources The definition owns its finite outline and borrowed parent/contact records; no global cache or process is retained.
  */
 export namespace AutoMovieHumanLegProximal {
@@ -47,18 +47,6 @@ export namespace AutoMovieHumanLegProximal {
     parent: IAutoMovieHumanLegProximal.IParent,
     outward: 1 | -1,
   ): IAutoMovieHumanLegProximal.IResult {
-    return prepare(child, thigh, parent)("v", outward);
-  }
-
-  /**
-   * Prepare the actual parent section once for the proximal material lines it
-   * owns.
-   */
-  export function prepare(
-    child: IAutoMovieViewPart,
-    thigh: number,
-    parent: IAutoMovieHumanLegProximal.IParent,
-  ): (axis: "u" | "v", sign: 1 | -1) => IAutoMovieHumanLegProximal.IResult {
     const definition: IAutoMovieHumanSourceDefinition = parent.definition;
     if (definition.part === null || definition.view === null)
       throw new Error("Proximal leg needs its actual parent definition");
@@ -101,6 +89,9 @@ export namespace AutoMovieHumanLegProximal {
     const reference: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
       child.axis.at(thigh);
     const advance: AutoMovieVector3Tuple = V.cross(reference.v, reference.u);
+    const direction: AutoMovieVector3Tuple = V.scale(reference.v, outward);
+    if (direction[2] === 0)
+      throw new Error("Proximal lateral guide has no world lateral direction");
     const point: (phi: number) => AutoMovieVector3Tuple = (
       phi: number,
     ): AutoMovieVector3Tuple => {
@@ -111,259 +102,153 @@ export namespace AutoMovieHumanLegProximal {
         V.add(V.scale(frame.u, local.p[0]), V.scale(frame.v, local.p[1])),
       );
     };
+    const residual: (phi: number) => number = (phi: number): number =>
+      V.dot(V.sub(point(phi), reference.origin), reference.u);
+    const start: number = direction[2] > 0 ? 0 : Math.PI;
+    const phase: number | null = AutoMovieIllinois.root(
+      residual,
+      start,
+      start + Math.PI,
+      1e-9,
+      100,
+    );
+    if (
+      phase === null ||
+      !Number.isFinite(phase) ||
+      Math.abs(residual(phase)) > 1e-9
+    )
+      throw new Error(
+        "Canonical hip section has no residual-checked femur lateral-plane contact",
+      );
+    const contactPoint: AutoMovieVector3Tuple = point(phase);
+    const station: number =
+      thigh + V.dot(V.sub(contactPoint, reference.origin), advance);
+    const childFrame: IAutoMovieHumanLegProximal.FrameJet | null =
+      child.axis.jet?.(station) ?? null;
     const parentFrame: IAutoMovieHumanLegProximal.FrameJet | null =
       owner.part.axis.jet?.(parent.station) ?? null;
-    if (parentFrame === null || section.jet === null)
+    if (childFrame === null || parentFrame === null || section.jet === null)
       throw new Error(
-        "Proximal parent transfer needs the actual parent's physical2",
+        "Proximal local parent transfer needs available physical2, not zero replacements",
       );
-    return (axis, outward): IAutoMovieHumanLegProximal.IResult => {
-      const direction: AutoMovieVector3Tuple = V.scale(
-        reference[axis],
-        outward,
+    const actual: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
+      child.axis.at(station);
+    const d: AutoMovieVector3Tuple = V.scale(actual.v, outward);
+    const radius: number = V.dot(V.sub(contactPoint, actual.origin), d);
+    if (
+      !(station > child.stations[0]! && station < thigh && radius > 0) ||
+      Math.hypot(
+        ...V.sub(contactPoint, V.add(actual.origin, V.scale(d, radius))),
+      ) > 1e-9
+    )
+      throw new Error(
+        "Actual hip contact is outside the unmeasured straight proximal leg interval",
       );
-      const component: 0 | 2 = axis === "v" ? 2 : 0;
-      if (direction[component] === 0)
-        throw new Error(
-          `Proximal material ${axis} guide has no anatomical support direction`,
-        );
-      const perpendicular: AutoMovieVector3Tuple =
-        axis === "v" ? reference.u : reference.v;
-      const residual: (phi: number) => number = (phi: number): number =>
-        V.dot(V.sub(point(phi), reference.origin), perpendicular);
-      const start: number =
-        (axis === "v" ? 0 : -Math.PI / 2) +
-        (direction[component] > 0 ? 0 : Math.PI);
-      const phase: number | null = AutoMovieIllinois.root(
-        residual,
-        start,
-        start + Math.PI,
-        1e-9,
-        100,
-      );
-      if (
-        phase === null ||
-        !Number.isFinite(phase) ||
-        Math.abs(residual(phase)) > 1e-9
-      )
-        throw new Error(
-          `Canonical hip section has no residual-checked femur ${axis} plane contact`,
-        );
-      const contactPoint: AutoMovieVector3Tuple = point(phase);
-      const station: number =
-        thigh + V.dot(V.sub(contactPoint, reference.origin), advance);
-      const childFrame: IAutoMovieHumanLegProximal.FrameJet | null =
-        child.axis.jet?.(station) ?? null;
-      if (childFrame === null)
-        throw new Error(
-          "Proximal local parent transfer needs available physical2, not zero replacements",
-        );
-      const actual: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
-        child.axis.at(station);
-      const d: AutoMovieVector3Tuple = V.scale(actual[axis], outward);
-      const radius: number = V.dot(V.sub(contactPoint, actual.origin), d);
-      if (
-        !(station > child.stations[0]! && station < thigh && radius > 0) ||
-        Math.hypot(
-          ...V.sub(contactPoint, V.add(actual.origin, V.scale(d, radius))),
-        ) > 1e-9
-      )
-        throw new Error(
-          "Actual hip contact is outside the unmeasured straight proximal leg interval",
-        );
-      const jet: ReturnType<
-        NonNullable<IAutoMovieHumanFootSource.IStation["jet"]>
-      > = section.jet!(phase);
-      const pp: AutoMovieVector3Tuple = V.add(parentFrame.first.origin, [
-        jet.s[0],
-        0,
-        jet.s[1],
-      ]);
-      const ppp: AutoMovieVector3Tuple = V.add(parentFrame.second.origin, [
-        jet.ss[0],
-        0,
-        jet.ss[1],
-      ]);
-      const pt: AutoMovieVector3Tuple = [jet.t[0], 0, jet.t[1]];
-      const pst: AutoMovieVector3Tuple = [jet.st[0], 0, jet.st[1]];
-      const ptt: AutoMovieVector3Tuple = [jet.tt[0], 0, jet.tt[1]];
-      const ds: AutoMovieVector3Tuple = V.scale(
-        childFrame.first[axis],
-        outward,
-      );
-      const dss: AutoMovieVector3Tuple = V.scale(
-        childFrame.second[axis],
-        outward,
-      );
-      const qs: AutoMovieVector3Tuple = V.add(
-        childFrame.first.origin,
-        V.scale(ds, radius),
-      );
-      const fr: AutoMovieVector3Tuple = V.sub(V.scale(pp, d[1]), d);
-      const fs: AutoMovieVector3Tuple = V.sub(V.scale(pp, qs[1]), qs);
-      const first: [number, number] = solve(fr, pt, V.scale(fs, -1));
-      const yFirst: number = qs[1] + d[1] * first[0];
-      const known: AutoMovieVector3Tuple = V.add(
-        V.add(childFrame.second.origin, V.scale(dss, radius)),
-        V.scale(ds, 2 * first[0]),
-      );
-      const parentKnown: AutoMovieVector3Tuple = V.add(
-        V.add(
-          V.scale(ppp, yFirst * yFirst),
-          V.scale(pst, 2 * yFirst * first[1]),
-        ),
-        V.add(V.scale(ptt, first[1] * first[1]), V.scale(pp, known[1])),
-      );
-      const second: [number, number] = solve(fr, pt, V.sub(known, parentKnown));
-      const contact: IAutoMovieHumanLegProximal.IContact = {
-        parent,
-        owner,
-        phase,
-        point: contactPoint,
-        station,
-        outward,
-        axis,
-        radius: [radius, first[0], second[0]],
-        parentFrame,
-        childFrame,
-      };
-      const pair = axis === "v" ? child.side : child.front;
-      const original:
-        | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
-        outward === 1 ? pair.positive : pair.negative,
-        { bottom: child.stations[0]!, top: child.stations.at(-1)! },
-      );
-      if ("detail" in original) throw new Error(original.detail);
-      if (
-        original.knots.some(
-          (knot: IAutoMovieViewPart.IKnot): boolean =>
-            knot.station > child.stations[0]! && knot.station < thigh,
-        )
-      )
-        throw new Error(
-          "Proximal authoring cannot discard an existing named input before the thigh",
-        );
-      const change: [number, number] | null = AutoMovieViewParameter.jet(
-        original.parameter,
-        station,
-      );
-      if (change === null)
-        throw new Error(
-          "Proximal contact has no regular source-parameter change",
-        );
-      const span: number = original.spline.xs.at(-1)! - original.spline.xs[0]!;
-      const firstParameter: number = (outward * first[0]) / change[0];
-      const secondParameter: number =
-        (outward * second[0] - firstParameter * change[1]) /
-        (change[0] * change[0]);
-      const from: number = original.spline.xs[0]!;
-      const to: number = AutoMovieViewParameter.at(original.parameter, station);
-      const thighParameter: number = AutoMovieViewParameter.at(
-        original.parameter,
-        thigh,
-      );
-      const thighReading: IAutoMovieViewOutline.IReading | string =
-        AutoMovieViewOutline.at(original, thigh);
-      if (typeof thighReading === "string") throw new Error(thighReading);
-      const contactReach: number = positiveSpan(
-        radius,
-        firstParameter,
-        secondParameter,
-      );
-      const thighReach: number = positiveSpan(
-        outward * thighReading.value,
-        ...thighReading.parameterJet,
-      );
-      const approach: number = to - from;
-      const exit: number = thighParameter - to;
-      const capTo: number =
-        approach <= contactReach
-          ? to
-          : to - Math.min(approach / 2, contactReach);
-      const support = (
-        site: string,
-        parameter: number,
-        value: number,
-      ): IAutoMovieViewPart.IKnot => ({
-        site,
-        station: AutoMovieViewParameter.station(original.parameter, parameter),
-        value,
-        jet: { first: 0, second: 0 },
-      });
-      // The unmeasured pole leaves in the direction of its first actual contact.
-      // A source-clock secant has the required signed nonzero cap slope. The
-      // parent still owns both jets at the regular contact.
-      const poleFirst: number = (outward * radius * span) / (capTo - from);
-      const knots: IAutoMovieViewPart.IKnot[] = [
-        { ...original.knots[0]!, jet: { first: poleFirst, second: 0 } },
-        ...(capTo === to
-          ? []
-          : [support("hip contact approach", capTo, outward * radius)]),
-        {
-          site: `actual hip parent ${axis === "v" ? "lateral" : "anterior"} contact`,
-          station,
-          value: outward * radius,
-          jet: {
-            first: firstParameter * span,
-            second: secondParameter * span * span,
-          },
-        },
-        ...(exit <= Math.min(contactReach, thighReach)
-          ? []
-          : [
-              support(
-                "hip contact departure",
-                to + Math.min(exit / 3, contactReach),
-                outward * radius,
-              ),
-              support(
-                "thigh tape approach",
-                thighParameter - Math.min(exit / 3, thighReach),
-                thighReading.value,
-              ),
-            ]),
-      ];
-      for (const knot of original.knots.filter(
-        (value: IAutoMovieViewPart.IKnot): boolean => value.station >= thigh,
-      )) {
-        const reading: IAutoMovieViewOutline.IReading | string =
-          AutoMovieViewOutline.at(original, knot.station);
-        if (typeof reading === "string") throw new Error(reading);
-        knots.push({
-          ...knot,
-          value: reading.value,
-          jet: {
-            first: reading.parameterJet[0] * span,
-            second: reading.parameterJet[1] * span * span,
-          },
-        });
-      }
-      return {
-        outline: {
-          knots,
-          parameter: original.parameter,
-          range:
-            outward === 1
-              ? { minimum: 0, maximum: null }
-              : { minimum: null, maximum: 0 },
-        },
-        contact,
-      };
+    const jet: ReturnType<
+      NonNullable<IAutoMovieHumanFootSource.IStation["jet"]>
+    > = section.jet(phase);
+    const pp: AutoMovieVector3Tuple = V.add(parentFrame.first.origin, [
+      jet.s[0],
+      0,
+      jet.s[1],
+    ]);
+    const ppp: AutoMovieVector3Tuple = V.add(parentFrame.second.origin, [
+      jet.ss[0],
+      0,
+      jet.ss[1],
+    ]);
+    const pt: AutoMovieVector3Tuple = [jet.t[0], 0, jet.t[1]];
+    const pst: AutoMovieVector3Tuple = [jet.st[0], 0, jet.st[1]];
+    const ptt: AutoMovieVector3Tuple = [jet.tt[0], 0, jet.tt[1]];
+    const ds: AutoMovieVector3Tuple = V.scale(childFrame.first.v, outward);
+    const dss: AutoMovieVector3Tuple = V.scale(childFrame.second.v, outward);
+    const qs: AutoMovieVector3Tuple = V.add(
+      childFrame.first.origin,
+      V.scale(ds, radius),
+    );
+    const fr: AutoMovieVector3Tuple = V.sub(V.scale(pp, d[1]), d);
+    const fs: AutoMovieVector3Tuple = V.sub(V.scale(pp, qs[1]), qs);
+    const first: [number, number] = solve(fr, pt, V.scale(fs, -1));
+    const yFirst: number = qs[1] + d[1] * first[0];
+    const known: AutoMovieVector3Tuple = V.add(
+      V.add(childFrame.second.origin, V.scale(dss, radius)),
+      V.scale(ds, 2 * first[0]),
+    );
+    const parentKnown: AutoMovieVector3Tuple = V.add(
+      V.add(V.scale(ppp, yFirst * yFirst), V.scale(pst, 2 * yFirst * first[1])),
+      V.add(V.scale(ptt, first[1] * first[1]), V.scale(pp, known[1])),
+    );
+    const second: [number, number] = solve(fr, pt, V.sub(known, parentKnown));
+    const contact: IAutoMovieHumanLegProximal.IContact = {
+      parent,
+      owner,
+      phase,
+      point: contactPoint,
+      station,
+      outward,
+      radius: [radius, first[0], second[0]],
+      parentFrame,
+      childFrame,
     };
+    const original:
+      | IAutoMovieViewOutline.IOutline
+      | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      outward === 1 ? child.side.positive : child.side.negative,
+      { bottom: child.stations[0]!, top: child.stations.at(-1)! },
+    );
+    if ("detail" in original) throw new Error(original.detail);
+    if (
+      original.knots.some(
+        (knot: IAutoMovieViewPart.IKnot): boolean =>
+          knot.station > child.stations[0]! && knot.station < thigh,
+      )
+    )
+      throw new Error(
+        "Proximal authoring cannot discard an existing named input before the thigh",
+      );
+    const change: [number, number] | null = AutoMovieViewParameter.jet(
+      original.parameter,
+      station,
+    );
+    if (change === null)
+      throw new Error(
+        "Proximal contact has no regular source-parameter change",
+      );
+    const span: number = original.spline.xs.at(-1)! - original.spline.xs[0]!;
+    const firstParameter: number = (outward * first[0]) / change[0];
+    const knots: IAutoMovieViewPart.IKnot[] = [
+      original.knots[0]!,
+      {
+        site: "actual hip parent lateral contact",
+        station,
+        value: outward * radius,
+        jet: {
+          first: firstParameter * span,
+          second:
+            ((outward * second[0] - firstParameter * change[1]) /
+              (change[0] * change[0])) *
+            span *
+            span,
+        },
+      },
+    ];
+    for (const knot of original.knots.filter(
+      (value: IAutoMovieViewPart.IKnot): boolean => value.station >= thigh,
+    )) {
+      const reading: IAutoMovieViewOutline.IReading | string =
+        AutoMovieViewOutline.at(original, knot.station);
+      if (typeof reading === "string") throw new Error(reading);
+      knots.push({
+        ...knot,
+        value: reading.value,
+        jet: {
+          first: reading.parameterJet[0] * span,
+          second: reading.parameterJet[1] * span * span,
+        },
+      });
+    }
+    return { outline: { knots, parameter: original.parameter }, contact };
   }
-}
-
-/**
- * Bound the interval that owns an unmodified two-jet. The nearer two Bernstein
- * controls of a quintic displace by at most `2 h |first| / 5 + h² |second| /
- * 20`. Solve equality with the positive reach and halve the interval to leave a
- * strict interior margin.
- */
-function positiveSpan(radius: number, first: number, second: number): number {
-  const b: number = (2 * Math.abs(first)) / 5;
-  const a: number = Math.abs(second) / 20;
-  return radius / (b + Math.sqrt(b * b + 4 * a * radius));
 }
 
 /** Solve the same implicit X/Z contact equations, rejecting degeneracy. */

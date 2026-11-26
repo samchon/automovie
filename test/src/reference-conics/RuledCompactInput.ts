@@ -2,10 +2,12 @@ import type {
   IAutoMovieCubicBezierCurve64,
   IAutoMovieRecoveryOpenContinuation,
 } from "@automovie/interface";
+import { convertAutoMovieRecoveryCurves } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import { once } from "node:events";
 import { createReadStream, createWriteStream } from "node:fs";
 import fs from "node:fs/promises";
+import path from "node:path";
 import { pipeline } from "node:stream/promises";
 import { createGzip } from "node:zlib";
 
@@ -105,6 +107,128 @@ export namespace RuledCompactInput {
     unusedOpen: number;
     /** Logical source-free incidence identity, excluding coefficient provenance. */
     topologySha256: string;
+  }
+
+  /** Verify the same explicit original f1 supply/recipe used by ReferenceRuledBaseline before one basis conversion. */
+  export async function load(root: string): Promise<Loaded> {
+    const person: string = path.join(root, "test/.shots/f1");
+    const epoch: string =
+      "432cb0b72031588f3c0f45770413e3a276947e1e372d0f843955a54ee63c1fb2";
+    const recipeId: string =
+      "de308faf2422cd0e07d06fbc5cd8cb6eddadf00d81285388dc084ded5729dbc9";
+    const observation: string = path.join(
+      person,
+      "recovery-diagnostics",
+      epoch,
+    );
+    const supply: {
+      ruledCapture: Member;
+      members: Member[];
+      modelSha256: string;
+    } = JSON.parse(
+      await fs.readFile(path.join(person, "reference-supply.json"), "utf8"),
+    ) as { ruledCapture: Member; members: Member[]; modelSha256: string };
+    const recipeMember: Member | undefined = supply.members.find(
+      (m: Member): boolean =>
+        m.path ===
+        path.join(path.dirname(supply.ruledCapture.path), "recipe.json"),
+    );
+    if (recipeMember?.sha256 !== recipeId)
+      throw new Error(
+        "The supply no longer selects the investigated original ruled recipe",
+      );
+    const identities: Loaded["identities"] = [];
+    const read = async (actual: string, original: Member): Promise<Buffer> => {
+      const bytes: Buffer = await fs.readFile(actual);
+      if (bytes.length !== original.bytes || hash(bytes) !== original.sha256)
+        throw new Error("Original byte commitment differs: " + actual);
+      identities.push({ original, actual });
+      return bytes;
+    };
+    const recipe: Loaded["recipe"] = JSON.parse(
+      (
+        await read(
+          path.join(observation, "direct-render", recipeId, "recipe.json"),
+          recipeMember,
+        )
+      ).toString("utf8"),
+    ) as Loaded["recipe"];
+    if (
+      recipe.schema !== "reference-recovery-direct-render-v1" ||
+      recipe.operator !== "ruled" ||
+      recipe.sourceEpoch !== epoch ||
+      recipe.originalModel.sha256 !== supply.modelSha256
+    )
+      throw new Error("Original recipe scope differs");
+    const graph: Graph = JSON.parse(
+      (
+        await read(
+          path.join(observation, "continuation.json"),
+          recipe.continuation,
+        )
+      ).toString("utf8"),
+    ) as Graph;
+    if (
+      graph.provenance.sourceEpoch !== epoch ||
+      graph.provenance.curveBundleSha256 !== recipe.curves.sha256 ||
+      graph.provenance.sourceModel.sha256 !== recipe.originalModel.sha256
+    )
+      throw new Error("Original graph binding differs");
+    await read(path.join(person, "reference-model.json"), recipe.originalModel);
+    let bytes: Buffer = await read(
+      path.join(observation, "hermite-curves.json"),
+      recipe.curves,
+    );
+    let original: Bundle | undefined = JSON.parse(bytes.toString("utf8"));
+    bytes = Buffer.alloc(0);
+    const bundle: Bundle = convertAutoMovieRecoveryCurves(
+      original!,
+      "bezier",
+    ) as Bundle;
+    original = undefined;
+    const graphOpen: Set<string> = new Set();
+    for (const interval of graph.intervals)
+      for (const pair of interval.pairs) {
+        graphOpen.add(interval.beforeSection + ":" + pair.before);
+        graphOpen.add(interval.afterSection + ":" + pair.after);
+      }
+    const cohort: Entry[] = [];
+    for (const [section, item] of bundle.loft.sections.entries())
+      for (const [ordinal, holder] of item.loops.entries())
+        cohort.push({
+          kind: "closed",
+          section,
+          ordinal,
+          holder,
+          quality: bundle.reports[section]!.fits[ordinal]!,
+        });
+    let unusedOpen: number = 0;
+    for (const [section, report] of bundle.reports.entries())
+      for (const [ordinal, holder] of report.open.entries()) {
+        if (graphOpen.has(section + ":" + ordinal))
+          cohort.push({
+            kind: "open",
+            section,
+            ordinal,
+            holder,
+            quality: holder,
+          });
+        else ++unusedOpen;
+      }
+    if (
+      cohort.filter((e: Entry): boolean => e.kind === "open").length !==
+      graphOpen.size
+    )
+      throw new Error("A graph-used open authority is absent");
+    return {
+      bundle,
+      graph,
+      recipe,
+      identities,
+      cohort,
+      unusedOpen,
+      topologySha256: topology(graph),
+    };
   }
 
   /** Hash incidence independently of the separately changing coefficient commitment. */

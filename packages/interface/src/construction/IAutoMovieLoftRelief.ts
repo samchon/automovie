@@ -1,5 +1,3 @@
-import type { IAutoMovieConicFieldJet } from "./IAutoMovieConicFieldJet";
-
 /**
  * A relief: a feature written as a height over its base chain's surface, such
  * as the nose over the face or a breast over the thorax.
@@ -65,29 +63,4 @@ export interface IAutoMovieLoftRelief {
    * vermilion borders move without the cutaneous lips. Absent means no map.
    */
   shift?: number[];
-}
-
-export namespace IAutoMovieLoftRelief {
-  /** A physical source graph instead of a sampled height net. */
-  export interface IGraph {
-    /** Region identity and physical support bounds. */
-    name: string;
-    /** Native station extent, in millimetres. */
-    stations: [number, number];
-    /** Native phase extent, in radians. */
-    phases: [number, number];
-    /** Fixed unit direction of the graph in its source frame. */
-    axis: [number, number, number];
-    /** Absolute coordinate along `axis`, in source millimetres. */
-    target: number;
-    /** Convex weight at the native point, zero outside the graph. */
-    weight(station: number, phase: number): number;
-    /** Weight and native phase derivative, or null outside the graph. */
-    phase(station: number, phase: number): [number, number] | null;
-    /** Exact weight and both native derivatives, or null outside the graph. */
-    jet(station: number, phase: number): IAutoMovieConicFieldJet.IJet | null;
-  }
-
-  /** The original chart's numeric relief or an exact absolute graph. */
-  export type ISource = IAutoMovieLoftRelief | IGraph;
 }

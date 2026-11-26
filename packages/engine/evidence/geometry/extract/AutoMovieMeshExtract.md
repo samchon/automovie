@@ -6,7 +6,7 @@ Linear interpolation on each sign-changing edge is the exact intersection of a f
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The one-shot entry point shares the outline assembler with the prepared reader. The assembler walks each station's eligible triangles, chains the segments, and then reads the jump flags across neighbouring stations.
+One pass per station collects crossings, segments and their chains; the jump flags are a second pass over neighbours.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -27,36 +27,6 @@ Vertex heights are shared across all stations.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Per-station maps are released after the station; only the returned sections remain.
-
-# src/geometry/extract/AutoMovieMeshExtract.ts#AutoMovieMeshExtract.prepareOutline
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the snapshot, varying query frames, defaults, and the link to the one-shot cut's perturbation and diagnostic conventions.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-For a unit station axis and frame origin in millimetres, a box's projected extreme corners bound the vertex heights. A box straddles the exact cut only when its lower height is below and its upper height is on or above the station. This is the triangle interval condition in Minetto et al. extended conservatively to boxes. [An optimal algorithm for 3D triangle mesh slicing, §3.1](https://doi.org/10.1016/j.cad.2017.07.001)
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-Preparation owns immutable triangle geometry, edge IDs and candidate selection. Both the direct and prepared entry points share interpolation, chaining, extremes, envelopes and flags.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-The narrow phase classifies each candidate with the same arithmetic and original triangle order as the direct cut. The index neither changes the above convention nor admits a near-planar edge.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-For T triangles and V vertices, preparation copies O(T + V) data and builds the median-split hierarchy in O(T log² T) time. A query visits B boxes, sorts C candidate triangles in O(C log C), and computes crossings only within those candidates. If the plane straddles all boxes, B and C are O(T).
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The single mesh snapshot, spatial order and edge IDs are shared by all queries on one preparation. Each query recomputes its own intersections in the supplied frame.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-The returned function owns O(T + V) data until its caller releases it. Query candidates, section maps and traversal are call-local. The result owns only its requested cuts.
 
 # src/geometry/extract/AutoMovieMeshExtract.ts#AutoMovieMeshExtract.reduce
 

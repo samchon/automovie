@@ -2,13 +2,13 @@ import { AutoMovieHumanSegmentFrame as F } from "./AutoMovieHumanSegmentFrame";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanSegmentJoint,
-  IAutoMovieHumanSegmentScaling,
 } from "@automovie/interface";
 
 /**
  * Segment lengths as edits of a chain: a segment's length moves the joint at its far end along the segment, so every joint centre and
  * relative frame past it follows through the chain composer (`AutoMovieHumanSegmentFrame.world`), and a later segment keeps its own
- * length and translates within its parent's composed frame.
+ * length and translates. This is the station law the limb law proved on f1 in step 2 of #3151
+ * (`test/src/reference-conics/FamilyConicLimbLaw.ts`, `chainWith`, `extremityFrames`, `scaleIn`), moved into the package.
  *
  * A joint's offset in its parent's frame is scaled by one ratio (a long bone: the far joint along the bone), or, inside a segment whose
  * children spread across it (the hand's metacarpal heads, the foot's metatarsal heads), by one ratio along the segment's axis and another
@@ -16,7 +16,7 @@ import type {
  */
 export namespace AutoMovieHumanSegmentScaling {
   /** One joint's offset edit: a ratio, or an along/across map in the parent's frame. */
-  export type IScale = IAutoMovieHumanSegmentScaling.IScale;
+  export type IScale = number | ((offset: AutoMovieVector3Tuple) => AutoMovieVector3Tuple);
 
   /**
    * A local vector scaled along the unit `a` by `along` and along the unit `b`, square to `a`, by `across`; the third direction kept.

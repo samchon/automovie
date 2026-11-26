@@ -8,7 +8,7 @@ import { AutoMovieHumanSex } from "../typings/AutoMovieHumanSex";
 
 /**
  * The leg's surveyed sites and depth: where the calf's greatest girth stands,
- * where the ankle's least girth stands (a placement estimate,
+ * where the ankle's least girth stands (a reference estimate,
  * {@link ANKLE_ON_MALLEOLUS}) and the thigh's depth at its tape site.
  *
  * Calf site: ANSUR 1988 (Gordon et al. 1989; 2,208 women and 1,774 men)
@@ -72,12 +72,12 @@ export namespace AutoMovieHumanLegSites {
 
   /**
    * The ankle's least girth above the floor per lateral malleolus height (ISO
-   * 8559-1 5.3.26, the minimum leg girth above the malleoli). ESTIMATE:
-   * place the site one nominal ankle breadth above the malleoli. ANSUR II
-   * bimalleolar breadth and lateral malleolus height have similar nominal
-   * magnitudes, so one malleolus height serves as the available scale.
+   * 8559-1 5.3.26, the minimum leg girth above the malleoli). Estimated from
+   * the private reference set; no published source found:
+   * `test_human_estimate_sites` reads 1.913 (SD 0.138) on eight legs of four
+   * people, 0.0747 (SD 0.0057) of stature.
    */
-  export const ANKLE_ON_MALLEOLUS: number = 2;
+  export const ANKLE_ON_MALLEOLUS: number = 1.913;
 
   /**
    * The ankle's least girth's height.

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Retains original direct scalar sources as final local authority and actual analytic frame jets. A complete regular section owns both uncapped ends. For an original prefix, the exact protected station still belongs to the retained distal law after its local 0/1/2 comparison. Compatibility coefficients are sampled from each station's own source.
+Retains original direct scalar sources as final local authority and actual analytic frame jets; explicit compatibility coefficients keep their existing common closing coordinate or ordinary SeamStation law, sampled from each station's own section or chain.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

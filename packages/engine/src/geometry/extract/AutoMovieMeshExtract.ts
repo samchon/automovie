@@ -14,7 +14,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieNaturalSpline } from "../construction/AutoMovieNaturalSpline";
-import { prepareAutoMovieMeshOutline } from "./prepareAutoMovieMeshOutline";
 
 /**
  * Reverse extraction of sparse 2D lines from a dense triangle mesh: exact plane
@@ -65,63 +64,13 @@ export namespace AutoMovieMeshExtract {
     tolerance: number = 0.5,
     bridge: number = 25,
   ): IAutoMovieMeshSectionCut[] {
-    return outlineSections(mesh, frame, stations, axis, tolerance, bridge);
-  }
-
-  /**
-   * Prepare one mesh for exact outline cuts in varying frames, with the same
-   * conventions and defaults as {@link outline}. Only triangles in boxes that
-   * straddle the queried plane enter the exact cut.
-   *
-   * @param mesh The mesh in millimetres, snapshotted when prepared.
-   * @returns A query taking a frame, stations in order, its station axis and
-   *   optional jump tolerance and gap bridge in millimetres.
-   */
-  export function prepareOutline(
-    mesh: IAutoMovieMillimeterMesh,
-  ): (
-    frame: IAutoMovieMeshSectionFrame,
-    stations: readonly number[],
-    axis: 0 | 1 | 2,
-    tolerance?: number,
-    bridge?: number,
-  ) => IAutoMovieMeshSectionCut[] {
-    const prepared: ReturnType<typeof prepareAutoMovieMeshOutline> =
-      prepareAutoMovieMeshOutline(mesh);
-    return (frame, stations, axis, tolerance = 0.5, bridge = 25) =>
-      outlineSections(
-        prepared.mesh,
-        frame,
-        stations,
-        axis,
-        tolerance,
-        bridge,
-        prepared,
-      );
-  }
-
-  /** Cut triangles from the mesh or from its prepared spatial index. */
-  function outlineSections(
-    mesh: IAutoMovieMillimeterMesh,
-    frame: IAutoMovieMeshSectionFrame,
-    stations: readonly number[],
-    axis: 0 | 1 | 2,
-    tolerance: number,
-    bridge: number,
-    prepared?: ReturnType<typeof prepareAutoMovieMeshOutline>,
-  ): IAutoMovieMeshSectionCut[] {
     const n: AutoMovieVector3Tuple = frame.axes[axis];
     const a: AutoMovieVector3Tuple = frame.axes[((axis + 1) % 3) as 0 | 1 | 2];
     const b: AutoMovieVector3Tuple = frame.axes[((axis + 2) % 3) as 0 | 1 | 2];
     const count: number = Math.floor(mesh.indices.length / 3);
-    const project = (v: number): number =>
-      dot(sub(at(mesh, v), frame.origin), n);
-    const height: Float64Array | undefined =
-      prepared === undefined
-        ? new Float64Array(mesh.positions.length / 3)
-        : undefined;
-    if (height !== undefined)
-      for (let v: number = 0; v < height.length; ++v) height[v] = project(v);
+    const height: Float64Array = new Float64Array(mesh.positions.length / 3);
+    for (let v: number = 0; v < height.length; ++v)
+      height[v] = dot(sub(at(mesh, v), frame.origin), n);
     const r2: number = Math.SQRT1_2;
     const directions: [
       keyof NonNullable<IAutoMovieMeshSectionCut["extremes"]>,
@@ -138,43 +87,27 @@ export namespace AutoMovieMeshExtract {
     ];
     const sections: IAutoMovieMeshSectionCut[] = stations.map(
       (station: number): IAutoMovieMeshSectionCut => {
-        // Crossing points by their edge, and each triangle's segment between two edges.
-        const point: Map<number | string, AutoMovieVector3Tuple> = new Map();
-        const segments: [number | string, number | string][] = [];
-        const candidates: number[] | undefined = prepared?.candidates(
-          frame.origin,
-          n,
-          station,
-        );
-        const total: number = candidates?.length ?? count;
-        for (let j: number = 0; j < total; ++j) {
-          const t: number = candidates?.[j] ?? j;
-          const a: number = mesh.indices[3 * t]!;
-          const b: number = mesh.indices[3 * t + 1]!;
-          const c: number = mesh.indices[3 * t + 2]!;
-          const da: number = (height?.[a] ?? project(a)) - station;
-          const db: number = (height?.[b] ?? project(b)) - station;
-          const dc: number = (height?.[c] ?? project(c)) - station;
-
-          // A vertex on the plane counts as above it (simulation of simplicity).
-          const aboveA: boolean = da >= 0;
-          const aboveB: boolean = db >= 0;
-          const aboveC: boolean = dc >= 0;
-          if (aboveA === aboveB && aboveA === aboveC) continue;
-          const ids: [number, number, number] = [a, b, c];
-          const delta: [number, number, number] = [da, db, dc];
-          const above: [boolean, boolean, boolean] = [aboveA, aboveB, aboveC];
-          const nodes: (number | string)[] = [];
+        // Crossing points by the edge they lie on, and each triangle's segment between two edges.
+        const point: Map<string, AutoMovieVector3Tuple> = new Map();
+        const segments: [string, string][] = [];
+        // A vertex on the plane counts as above it (simulation of simplicity).
+        const above: (v: number) => boolean = (v: number): boolean =>
+          height[v]! - station >= 0;
+        for (let t: number = 0; t < count; ++t) {
+          const ids: number[] = [
+            mesh.indices[3 * t]!,
+            mesh.indices[3 * t + 1]!,
+            mesh.indices[3 * t + 2]!,
+          ];
+          const nodes: string[] = [];
           for (let k: number = 0; k < 3; ++k) {
-            const next: number = (k + 1) % 3;
-            if (above[k] === above[next]) continue;
-            const di: number = delta[k]!;
-            const dj: number = delta[next]!;
             const i: number = ids[k]!;
-            const j: number = ids[next]!;
-            const key: number | string =
-              prepared?.edges[3 * t + k] ?? (i < j ? `${i},${j}` : `${j},${i}`);
+            const j: number = ids[(k + 1) % 3]!;
+            if (above(i) === above(j)) continue;
+            const key: string = i < j ? `${i},${j}` : `${j},${i}`;
             if (!point.has(key)) {
+              const di: number = height[i]! - station;
+              const dj: number = height[j]! - station;
               const p: AutoMovieVector3Tuple = at(mesh, i);
               const q: AutoMovieVector3Tuple = at(mesh, j);
               const w: number = di / (di - dj);
@@ -230,7 +163,7 @@ export namespace AutoMovieMeshExtract {
         }
         const { loops, dangling } = chain(
           segments,
-          (key: number | string): [number, number] => {
+          (key: string): [number, number] => {
             const p: AutoMovieVector3Tuple = sub(point.get(key)!, centre);
             return [dot(p, a), dot(p, b)];
           },
@@ -290,10 +223,10 @@ export namespace AutoMovieMeshExtract {
    * (two edges meeting at a vertex just above the plane) are merged.
    */
   function chain(
-    segments: readonly [number | string, number | string][],
-    place: (key: number | string) => [number, number],
+    segments: readonly [string, string][],
+    place: (key: string) => [number, number],
   ): { loops: IAutoMovieMeshSectionChain[]; dangling: number } {
-    const incident: Map<number | string, number[]> = new Map();
+    const incident: Map<string, number[]> = new Map();
     for (let s: number = 0; s < segments.length; ++s)
       for (const key of segments[s]!) {
         const list: number[] | undefined = incident.get(key);
@@ -304,9 +237,9 @@ export namespace AutoMovieMeshExtract {
     for (const list of incident.values()) if (list.length !== 2) dangling += 1;
     const used: Uint8Array = new Uint8Array(segments.length);
     const loops: IAutoMovieMeshSectionChain[] = [];
-    const walk = (start: number | string): void => {
-      const keys: (number | string)[] = [start];
-      let node: number | string = start;
+    const walk: (start: string) => void = (start: string): void => {
+      const keys: string[] = [start];
+      let node: string = start;
       // Steps along and against the segments' winding direction.
       let along: number = 0;
       for (;;) {

@@ -9,55 +9,57 @@ import { AutoMovieHumanTrunkQuadrant } from "./AutoMovieHumanTrunkQuadrant";
 
 /**
  * The trunk section's seven guides of the canonical left side and the six
- * sectors between them, as one table: each guide a longitudinal reference line
- * at a fixed knot of the 256-control section with the lateral share it stands
- * at, each sector the quintic Hermite of its two guides' jets at the quadrant's
- * own speeds (`AutoMovieHumanTrunkQuadrant.between`), so it meets both with
- * their point, tangent and curvature (G2) and holds no number of its own. The
- * reference lines are Gray 1918's and ISO 8559-1's
+ * sectors between them, as one table: each guide a longitudinal reference
+ * line at a fixed knot of the 256-control section with the lateral share it
+ * stands at, each sector the quintic Hermite of its two guides' jets at the
+ * quadrant's own speeds (`AutoMovieHumanTrunkQuadrant.between`), so it meets
+ * both with their point, tangent and curvature (G2) and holds no number of its
+ * own. The reference lines are Gray 1918's and ISO 8559-1's
  * (`docs/techniques/surface-composition.md`, Sectors and guides):
  *
- * - Front midline M, knot 0: the linea alba and the sternum. It owns the front
+ * - front midline M, knot 0: the linea alba and the sternum. It owns the front
  *   place, the tangent across the midline and the curvature of the front
  *   quadrant's parabola through the bust line guide, the crotch fold's
  *   curvature added.
- * - Bust line K, knot 24: the mid-clavicular vertical through the bust point at
- *   the chest. ESTIMATE: use half the section's half width for this
- *   mid-clavicular course, between midline and lateral support.
- * - Anterior axillary line A, knot 46: the lower border of pectoralis major from
- *   the anterior axillary fold point, at the section's own lateral share, which
- *   the front interscye length sets at the axilla and which falls back to 0.9
- *   below it. Its knot is where the arm's arc of the shoulder ring starts.
- * - Mid-axillary line L, knot 70: the section's widest point. Its tangent runs
+ * - bust line K, knot 24: the mid-clavicular vertical through the bust point
+ *   at the chest, at the clavicle's midpoint, half of the sternoclavicular
+ *   joint's and the acromion's half breadths (about 20 and 183 mm, ANSUR II
+ *   biacromial breadth), over the chest's half breadth below the axilla (about
+ *   150 mm on the four references): share 0.65.
+ * - anterior axillary line A, knot 46: the lower border of pectoralis major
+ *   from the anterior axillary fold point, at the section's own lateral share,
+ *   which the front interscye length sets at the axilla and which falls back
+ *   to 0.9 below it. Its knot is where the arm's arc of the shoulder ring starts.
+ * - mid-axillary line L, knot 70: the section's widest point. Its tangent runs
  *   straight back; its curvature is the mean of the front and back quadrants'
  *   parabolas through the anterior and posterior axillary guides, declared once
  *   so both flank sectors share it; the crotch fold has ended before it.
- * - Posterior axillary line P, knot 94: latissimus dorsi and teres major down
+ * - posterior axillary line P, knot 94: latissimus dorsi and teres major down
  *   from the posterior axillary fold point, at share 0.9 or the section's own.
  *   Its knot is where the arm's arc of the shoulder ring ends.
- * - Scapular line E, knot 108: the vertical through the inferior scapular angle,
- *   the erector column's lateral edge below it. ESTIMATE: use half the
- *   section's half width for the unmeasured scapular course.
- * - Back midline S, knot 128: the spinous processes and the sacrum. It owns the
+ * - scapular line E, knot 108: the vertical through the inferior scapular
+ *   angle, the erector column's lateral edge below it, the inferior angle about
+ *   80 mm off the midline (Gray 1918) over the chest's half breadth: share 0.55.
+ * - back midline S, knot 128: the spinous processes and the sacrum. It owns the
  *   back place, the tangent across the midline and the curvature of the back
  *   quadrant's parabola through the scapular guide, the gluteal cleft's
  *   curvature added.
  *
  * The sectors, each after the guide of the same index:
  *
- * - Sternal, M to K: the linea alba and rectus below, the sternum and the
+ * - sternal, M to K: the linea alba and rectus below, the sternum and the
  *   pectorals' medial part above; the crotch fold acts on it.
- * - Pectoral, K to A: pectoralis major over the ribs above, the rectus' lateral
+ * - pectoral, K to A: pectoralis major over the ribs above, the rectus' lateral
  *   edge and the oblique below; the crotch fold acts on it and ends at A.
- * - Anterior flank, A to L: serratus anterior and the external oblique over the
+ * - anterior flank, A to L: serratus anterior and the external oblique over the
  *   ribs, the iliac roll at the pelvis.
- * - Posterior flank, L to P: latissimus dorsi over the ribs, the iliac crest's
+ * - posterior flank, L to P: latissimus dorsi over the ribs, the iliac crest's
  *   back at the pelvis.
- * - Scapular, P to E: the scapula's lateral border and teres major above,
+ * - scapular, P to E: the scapula's lateral border and teres major above,
  *   latissimus below, the gluteus medius at the pelvis; the gluteal cleft's
  *   displacement ends at P.
- * - Erector, E to S: the erector spinae column, the sacrum and the gluteal cleft
- *   at the pelvis; the spinal furrow is a relief over it, not this arc.
+ * - erector, E to S: the erector spinae column, the sacrum and the gluteal
+ *   cleft at the pelvis; the spinal furrow is a relief over it, not this arc.
  */
 export namespace AutoMovieHumanTrunkGuides {
   /** The guides in knot order, front midline to back midline. */
@@ -87,8 +89,7 @@ export namespace AutoMovieHumanTrunkGuides {
   /**
    * The lateral share of the half width a quadrant guide stands at: the bust
    * line's and the scapular line's always, the anterior axillary line's away
-   * from the axilla, the posterior axillary line's where the section gives
-   * none.
+   * from the axilla, the posterior axillary line's where the section gives none.
    */
   export const SHARE: Readonly<
     Record<
@@ -96,10 +97,10 @@ export namespace AutoMovieHumanTrunkGuides {
       number
     >
   > = {
-    bustLine: 0.5,
+    bustLine: 0.65,
     anteriorAxillary: 0.9,
     posteriorAxillary: 0.9,
-    scapular: 0.5,
+    scapular: 0.55,
   };
 
   /**
@@ -107,8 +108,7 @@ export namespace AutoMovieHumanTrunkGuides {
    *
    * @param guide The guide.
    * @param s The section's measures.
-   * @param folded Whether to add the crotch fold; sectors take the guides
-   *   without it. The mid-axillary line has none.
+   * @param folded Whether to add the crotch fold; sectors take the guides without it. The mid-axillary line has none.
    * @returns The guide's arclength jet.
    */
   export function jet(

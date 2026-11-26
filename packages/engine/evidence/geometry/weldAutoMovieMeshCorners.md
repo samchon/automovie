@@ -18,7 +18,7 @@ Linear in corners: one lattice key and one hashed lookup per corner.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-Each call welds the mesh it is given. Paired inspection keeps its corner identities for both diagnostics without calling the weld again.
+Each call welds the mesh it is given; callers keep the result for as long as they need it.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -40,4 +40,4 @@ The -1 sentinel marks a whole degenerate triangle, which every reader tests at i
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each field's meaning, the identity range and sentinel, and that the degenerate ordinals transfer to the topology record.
+States each field's meaning, range and the sentinel.

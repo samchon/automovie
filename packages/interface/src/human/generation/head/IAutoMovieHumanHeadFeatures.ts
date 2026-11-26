@@ -1,4 +1,3 @@
-import type { IAutoMovieConstructionPortLoop } from "../../../construction/IAutoMovieConstructionPortLoop";
 import type { IAutoMovieConstructionView } from "../../../construction/IAutoMovieConstructionView";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanHeadDomeHost } from "./IAutoMovieHumanHeadDomeHost";
@@ -55,9 +54,6 @@ export namespace IAutoMovieHumanHeadFeatures {
      */
     material?: IAutoMovieViewPart;
 
-    /** Original parent aperture and derived lining rail distances, metres. */
-    port?: { loop: IAutoMovieConstructionPortLoop; rails: number[] };
-
     /**
      * Same complete native contact used by a cap's embedding; its placement
      * seed remains separate.
@@ -72,12 +68,6 @@ export namespace IAutoMovieHumanHeadFeatures {
     elongated?: boolean;
 
     /**
-     * Contact trace clock. Absent, round features use phase and elongated
-     * features use arclength.
-     */
-    parameter?: "phase" | "arc";
-
-    /**
      * Where the engine searches the part's station line for its meeting with
      * the parent (`IAutoMovieConstructionSearchSeed`): the phase and the shares
      * of the station range walked; absent, phase 0 from the base (share 0) to
@@ -89,8 +79,6 @@ export namespace IAutoMovieHumanHeadFeatures {
        * orientation.
        */
       phase: number;
-      /** Declared number of evenly spaced station lines, starting at phase. */
-      phases?: number;
       /**
        * Start of the seed-search interval as a dimensionless share of the
        * part's station span.
@@ -102,5 +90,23 @@ export namespace IAutoMovieHumanHeadFeatures {
        */
       to: number;
     };
+  }
+
+  /**
+   * Explicit top-level regional requests share their actual numeric contact
+   * owner.
+   */
+  export interface IPrepared {
+    /**
+     * Actual constructor keys in original production order, without building
+     * geometry.
+     */
+    readonly names: readonly string[];
+
+    /**
+     * Request only these top-level originals; absence requests the complete
+     * top-level set.
+     */
+    read(names?: readonly string[]): IFeature[];
   }
 }

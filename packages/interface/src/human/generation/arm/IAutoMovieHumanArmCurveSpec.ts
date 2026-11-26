@@ -429,8 +429,9 @@ export namespace IAutoMovieHumanArmCurveSpec {
   /**
    * Quintic Hermite chain: each span between consecutive knots is the
    * polynomial quintic fixed by both endpoints' positions, first and second
-   * derivatives in `q`, so the chain is C2 in `q` across its knots.
-   * The exact six-point Bézier form uses the same parameter.
+   * derivatives in `q`, so the chain is C2 in `q` across its knots. Its exact
+   * six-point Bézier form follows human/curves.md "Preserve The Actual
+   * Parameter" ({@link quinticControls}).
    */
   export interface IQuinticHermite {
     /** Representation tag. */

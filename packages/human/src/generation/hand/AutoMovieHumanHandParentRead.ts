@@ -1,17 +1,14 @@
 import {
-  AutoMovieConicFieldJet,
   AutoMovieIllinois,
   AutoMovieLoftViewRead,
   AutoMovieViewAxis,
-  AutoMovieViewConic,
-  AutoMovieViewSectionConic,
+  AutoMovieViewSection,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHandAttachment,
   IAutoMovieHumanHandParent,
   IAutoMovieLoftViewRead,
-  IAutoMovieViewConic,
   IAutoMovieViewPart,
   IAutoMovieViewSection,
 } from "@automovie/interface";
@@ -23,43 +20,13 @@ type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;
 /** Four original support/fullness values in material order. */
 type Quarters = [number, number, number, number];
 
-/** The geometry required for searching, before any physical derivative read. */
-type Sample = Omit<IAutoMovieHumanHandAttachment.ISection, "jets" | "axisJet">;
-
-/**
- * Original parent-coordinate and native-section reads shared by hand
- * attachments.
- */
+/** Original parent-coordinate and native-section reads shared by hand attachments. */
 export namespace AutoMovieHumanHandParentRead {
-  /**
-   * Prepare the immutable parent field for searches and complete only recorded
-   * samples with physical jets.
-   */
-  export function prepare(parent: IAutoMovieHumanHandParent.IOutput): {
-    read(point: AutoMovieVector3Tuple): Sample | null;
-    complete(sample: Sample): IAutoMovieHumanHandAttachment.ISection;
-  } {
-    const field = AutoMovieLoftViewRead.prepare(parent.source);
-    return {
-      read: (point: AutoMovieVector3Tuple): Sample | null =>
-        locate(parent, field.values, point),
-      complete(sample: Sample): IAutoMovieHumanHandAttachment.ISection {
-        if (sample.kind === "regular") validate(section(sample.values));
-        return {
-          ...sample,
-          jets: field.jets(sample.station),
-          axisJet: parent.part.axis.jet?.(sample.station) ?? null,
-        };
-      },
-    };
-  }
-
-  /** Solve the actual normal-plane coordinate and read its exact section shape. */
-  function locate(
+  /** Solve actual normal-plane roots and preserve whole scalar/frame jets or explicit coordinate absence. */
+  export function locate(
     parent: IAutoMovieHumanHandParent.IOutput,
-    readValues: (station: number) => IAutoMovieLoftViewRead.IValues | string,
     point: AutoMovieVector3Tuple,
-  ): Sample | null {
+  ): IAutoMovieHumanHandAttachment.ISection | null {
     const roots: number[] = [];
     const residual: (station: number) => number = (station: number): number => {
       const frame: Frame = parent.part.axis.at(station);
@@ -89,7 +56,7 @@ export namespace AutoMovieHumanHandParentRead {
         roots.push(root);
       }
     }
-    let best: Sample | null = null;
+    let best: IAutoMovieHumanHandAttachment.ISection | null = null;
     let distance: number = Infinity;
     for (const station of roots) {
       const frame: Frame = parent.part.axis.at(station);
@@ -97,7 +64,7 @@ export namespace AutoMovieHumanHandParentRead {
       const squared: number = V.dot(delta, delta);
       if (squared >= distance) continue;
       const values: IAutoMovieLoftViewRead.IValues | string =
-        readValues(station);
+        AutoMovieLoftViewRead.values(parent.source, station);
       if (typeof values === "string") throw new Error(values);
       let zero: boolean = false;
       if (!values.extents.every((extent: number): boolean => extent > 0)) {
@@ -128,75 +95,27 @@ export namespace AutoMovieHumanHandParentRead {
         frame,
         local,
         values,
-        margin: (zero ? 0 : trialRadius(values, phase)) - Math.hypot(...local),
+        jets: AutoMovieLoftViewRead.jets(parent.source, station),
+        axisJet: parent.part.axis.jet?.(station) ?? null,
+        margin:
+          (zero ? 0 : AutoMovieViewSection.radius(section(values), phase)[0]) -
+          Math.hypot(...local),
       };
       distance = squared;
     }
     return best;
   }
 
-  /**
-   * Validate the same four native conics without making display or quadrature
-   * observations.
-   */
-  export function radius(
+  /** Native section admission retains all four parent quarter owners. */
+  export function section(
     values: IAutoMovieLoftViewRead.IValues,
-  ): (phase: number) => number {
-    const conics: IAutoMovieViewConic.ICurve = section(values);
-    validate(conics);
-    return (phase: number): number => value(conics, phase);
-  }
-}
-
-/**
- * Each ray-search trial uses one value from the admitted positive-weight conics
- * and convex G2 end supports. Completed sections additionally retain the
- * existing four-quarter numerical sweep before they publish jets.
- */
-function trialRadius(
-  values: IAutoMovieLoftViewRead.IValues,
-  phase: number,
-): number {
-  return value(section(values), phase);
-}
-
-function section(
-  values: IAutoMovieLoftViewRead.IValues,
-): IAutoMovieViewConic.ICurve {
-  const extents: Quarters = values.extents as Quarters;
-  const ops = AutoMovieConicFieldJet.NUMBER;
-  const curvatures: Quarters = AutoMovieViewConic.curvatures(
-    ops,
-    extents,
-    values.shoulders,
-  );
-  const conics: IAutoMovieViewConic.ICurve = AutoMovieViewConic.prepareGeometry(
-    ops,
-    extents,
-    values.shoulders,
-    curvatures,
-  );
-  if (conics.failure !== null) throw new Error(conics.failure);
-  return conics;
-}
-
-function validate(conics: IAutoMovieViewConic.ICurve): void {
-  const box: IAutoMovieViewSection.IBox = {
-    extents: conics.quarters.map(({ extents }) => extents[0]) as Quarters,
-  };
-  const fault: string | null = AutoMovieViewSectionConic.fault({
-    box,
-    conics,
-    girth: 0,
-  });
-  if (fault !== null) throw new Error(fault);
-}
-
-function value(conics: IAutoMovieViewConic.ICurve, phase: number): number {
-  const radius: number = AutoMovieViewConic.value(conics, phase);
-  if (!(Number.isFinite(radius) && radius > 0))
-    throw new Error(
-      `The actual hand-parent radius is ${radius} at phase ${phase}`,
+  ): IAutoMovieViewSection.ISection {
+    const section: IAutoMovieViewSection.ISection = AutoMovieViewSection.bare(
+      { extents: values.extents as Quarters },
+      values.shoulders as Quarters,
     );
-  return radius;
+    const fault: string | null = AutoMovieViewSection.fault(section);
+    if (fault !== null) throw new Error(fault);
+    return section;
+  }
 }

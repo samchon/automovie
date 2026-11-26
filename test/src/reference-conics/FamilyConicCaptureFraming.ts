@@ -3,12 +3,12 @@ import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 import type { IAutoMovieHumanSegmentFrame } from "@automovie/interface";
 
-/** Explicit fixed source and operator-input framing. */
+/** Fixed authored-F1 source and explicitly associated operator-input framing; never a changed-case fit. */
 export namespace FamilyConicCaptureFraming {
   /**
    * Immutable historical comparison data, separate from current-generation admission.
    *
-   * @evidence contracts/development/design.md#principled-representation Exact file identity, fixed figure-world metre samples and the pelvis world-mm/unit-axis frame define one comparison reference; the caller supplies the fixed source and its explicit connection associations.
+   * @evidence contracts/development/design.md#principled-representation Exact file identity, fixed figure-world metre samples and the pelvis world-mm/unit-axis frame define one comparison reference; the file reader validates schema, f1 identity and finite coordinates.
    * @evidence contracts/development/design.md#minimal-and-owned-surface SourceCapture and the fixed plan share only the baseline curves/frame/provenance; Input, Human and renderer own their imported types.
    * @evidence contracts/development/design.md#prohibited-design-shortcuts The archived reference is never substituted for current source/field admission or interpreted as a current operator evaluation.
    * @evidence contracts/development/common.md#meaningful-documentation Members distinguish file bytes, world units, coordinate registration and historical comparison scope.
@@ -19,12 +19,10 @@ export namespace FamilyConicCaptureFraming {
 
     /** Fixed pelvis origin in world mm and unit axes establish the comparison coordinate registration. */
     frame: IAutoMovieHumanSegmentFrame;
-    /** Fixed original axis/guide samples, in figure-world metres. */
+    /** Fixed F1 original axis/guide samples, in figure-world metres. */
     originals: N.Curve[];
-    /** Fixed submitted operator-input samples, in the same world metres. */
+    /** Fixed F1 submitted operator-input samples, in the same world metres. */
     submitted: N.Curve[];
-    /** Construction owners supplied by the producer for each source. */
-    owners: Readonly<Record<string, readonly string[]>>;
     /** Original scope, source and producer provenance; not current generation evidence. */
     provenance: unknown;
   }
@@ -39,7 +37,7 @@ export namespace FamilyConicCaptureFraming {
   export interface IPlan {
     /** Borrowed fixed world-metre samples only. */
     points: N.Point[];
-    /** Exact construction owner identities; null selects all fixed connection inputs. */
+    /** Exact construction owner identities; null selects the whole fixed F1 layer. */
     operatorOwners: readonly string[] | null;
 
     /** False means no prepared-band association was declared for this family; it is not an empty successful boundary check. */
@@ -49,6 +47,55 @@ export namespace FamilyConicCaptureFraming {
     /** Original source identity, which does not imply operator-family correspondence. */
     source: string;
   }
+  /** Explicit associations read from F1's port/continue declarations and their actual prepared-event names. */
+  const OWNERS: Readonly<Record<string, readonly string[]>> = {
+    trunk: [
+      "band.arm",
+      "band.arm.mirror",
+      "band.breast",
+      "band.breast.mirror",
+      "band.nose",
+      "band.leg",
+      "band.leg.mirror",
+    ],
+    arm: ["band.arm", "wrist.arm"],
+    "arm.mirror": ["band.arm.mirror", "wrist.arm.mirror"],
+    nose: ["band.nose"],
+    breast: ["band.breast"],
+    "breast.mirror": ["band.breast.mirror"],
+    hand: [
+      "wrist.arm",
+      "band.finger.pinky",
+      "band.finger.ring",
+      "band.finger.middle",
+      "band.finger.index",
+    ],
+    "hand.mirror": [
+      "wrist.arm.mirror",
+      "band.finger.pinky.mirror",
+      "band.finger.ring.mirror",
+      "band.finger.middle.mirror",
+      "band.finger.index.mirror",
+    ],
+    leg: [
+      "band.leg",
+      "band.toe.little",
+      "band.toe.ring",
+      "band.toe.middle",
+      "band.toe.index",
+      "band.toe.big",
+    ],
+    "leg.mirror": [
+      "band.leg.mirror",
+      "band.toe.little.mirror",
+      "band.toe.ring.mirror",
+      "band.toe.middle.mirror",
+      "band.toe.index.mirror",
+      "band.toe.big.mirror",
+    ],
+    axilla: ["band.arm"],
+    "axilla.mirror": ["band.arm.mirror"],
+  };
 
   /** Read the exact producer-owned delimiter; a similarly named neighbouring owner cannot match. */
   function owner(curve: N.Curve): string | null {
@@ -59,7 +106,7 @@ export namespace FamilyConicCaptureFraming {
   /**
    * Union fixed original samples with the complete associated fixed parent/child input sequences.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Explicit construction-owner names choose recorded baseline start/end sequences in figure-world metres; no changed-case data selects the frame.
+   * @evidence contracts/development/implementation.md#principled-implementation Explicit F1 construction-owner names choose recorded baseline start/end sequences in figure-world metres; no changed-case data selects the frame.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure Source identity selects authored guides and a small declared owner list; their borrowed points form the camera input.
    * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts No nearest matching, transformed bounds, fabricated point, new camera formula or current-case fit occurs; missing owners remain named.
    * @evidence contracts/development/implementation.md#efficient-algorithms Linear scans in the fixed original and submitted curve catalogs retain only the selected point references.
@@ -69,7 +116,7 @@ export namespace FamilyConicCaptureFraming {
    */
   export function plan(source: string, baseline: IBaseline): IPlan {
     const operators: readonly string[] | null =
-      source === "figure" ? null : (baseline.owners[source] ?? []);
+      source === "figure" ? null : (OWNERS[source] ?? []);
     const chosen: Set<string> = new Set(operators ?? []);
     const selected: N.Curve[] = baseline.submitted.filter(
       (curve: N.Curve): boolean =>
@@ -91,7 +138,7 @@ export namespace FamilyConicCaptureFraming {
       points,
       operatorOwners: operators,
       operatorAssociationRegistered:
-        source === "figure" || Object.hasOwn(baseline.owners, source),
+        source === "figure" || OWNERS[source] !== undefined,
       missingOperatorOwners: missing,
     };
   }
@@ -116,7 +163,7 @@ export namespace FamilyConicCaptureFraming {
       Identity.dataHash(actual) !== Identity.dataHash(baseline.frame)
     )
       throw new Error(
-        "Fixed framing baseline uses a different figure-world coordinate frame",
+        "Fixed F1 framing baseline uses a different figure-world coordinate frame",
       );
   }
 }

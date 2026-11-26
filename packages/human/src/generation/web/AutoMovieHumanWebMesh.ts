@@ -49,7 +49,7 @@ export namespace AutoMovieHumanWebMesh {
     const { mesh, down } = input;
     const { webs } = crests;
     const { children, rows, crestRow } = columns;
-    const { levelOf, lip, prepareChart, plainAt } = surface;
+    const { levelOf, lip, chart, plainAt } = surface;
 
     // Vertices: the lips and crest of every web, shared by its two children.
     const vertex = (
@@ -141,8 +141,6 @@ export namespace AutoMovieHumanWebMesh {
             beside === undefined ? FADE : beside.reach,
           );
           const w: number = 1 - smooth(Math.abs(col.y) / fade);
-          const chart: ((r: number) => Vec3) | null =
-            w === 0 ? null : prepareChart(col, own);
 
           // The blend of the saddle's chart and the plain column law, drawn to
           // the chart near the pinch. The seam patches
@@ -158,7 +156,7 @@ export namespace AutoMovieHumanWebMesh {
           const chartPath: Vec3[] = [col.p];
           for (let r: number = 1; r < rows; r++) {
             const a: Vec3 = plain(r);
-            const b: Vec3 | null = chart === null ? null : chart(r);
+            const b: Vec3 | null = w === 0 ? null : chart(col, own, r);
             const p: Vec3 = b === null ? a : add(a, scale(sub(b, a), w));
             ids.push(vertex(p));
             path.push(p);

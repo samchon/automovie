@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-One hand's measures at their ANSUR II and ISO 7250-1 sites, in calibration millimetres. The optional phalangeal ratio acts on the derived bones with their roots held.
+One hand's measures from the person's inputs, in the same millimetres as the calibration, at the sites their definitions read (ANSUR II and ISO 7250-1): the lengths and the breadth the hand's solve meets.
 
 ## @evidence contracts/development/design.md#principled-representation `length`: Wrist to the tip of the middle finger, mm. `palm`: Wrist to the root of the middle finger, mm. `breadth`: Breadth across the palm over knuckles II to V, mm.
 

@@ -37,12 +37,7 @@ export const triangleIndicesOf: (
   // An indexed loop, unlike `some`, also visits the holes of a sparse array.
   for (let at: number = 0; at < indices.length; ++at) {
     const index: number | undefined = indices[at];
-    if (
-      index === undefined ||
-      !Number.isSafeInteger(index) ||
-      index < 0 ||
-      index >= vertices
-    )
+    if (index === undefined || index < 0 || index >= vertices)
       throw new Error(`${label} indexes a vertex the mesh does not carry`);
   }
   return indices;

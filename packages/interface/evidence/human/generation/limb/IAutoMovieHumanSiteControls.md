@@ -24,47 +24,11 @@ Original mathematical inputs and scalar declarations, before a part, tree view o
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Returned by AutoMovieHumanSiteControls.prepare. The arm, leg and foot author and publish from these controls.
+Returned by AutoMovieHumanSiteControls.native. Also types AutoMovieHumanArmWalk.original, AutoMovieHumanFootBreadth.common.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `input`, `axis`, `scalars` and the solved `tapes`. No native field is prepared implicitly by publication.
-
-# src/human/generation/limb/IAutoMovieHumanSiteControls.ts#IAutoMovieHumanSiteControls.ITape
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The qualified site name, four positive support distances in calibration millimetres and exact requested girth describe the tape input.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The completed result belongs to this tuple, including the original solver diagnostics.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Local preparation returns its solved records for the explicit whole-host preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-Only the same declared name, supports and girth borrow a result. A different tuple uses its own solve without replacing the supplied record.
-
-# src/human/generation/limb/IAutoMovieHumanSiteControls.ts#IAutoMovieHumanSiteControls.IField
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-The scalar input defines the physical station domain and the admitted source holds its original coefficients and derivatives.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The admitted field and its original scalar declaration travel together.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Regional preparation supplies this record to both boundary-jet and contact readers.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A consumer may borrow the field only for that exact declaration.
+Required fields are `input`, `axis`, `scalars`; callers supply the complete record.
 
 # src/human/generation/limb/IAutoMovieHumanSiteControls.ts#IAutoMovieHumanSiteControls.IFrame
 

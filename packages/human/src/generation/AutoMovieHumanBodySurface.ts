@@ -20,11 +20,9 @@ import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpe
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
-import { AutoMovieHumanDigitNails } from "./nail/AutoMovieHumanDigitNails";
-import { AutoMovieHumanNailExteriorClearance } from "./nail/AutoMovieHumanNailExteriorClearance";
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
-const { contact, held } = AutoMovieHumanBodySurfaceContact;
+const { contact, held, WEBS } = AutoMovieHumanBodySurfaceContact;
 const { join, loft, LOOP } = AutoMovieHumanBodySurfaceLoft;
 const { chain } = AutoMovieHumanBodySurfaceRead;
 const { domed } = AutoMovieHumanBodySurfacePoles;
@@ -32,15 +30,15 @@ const { domed } = AutoMovieHumanBodySurfacePoles;
 /**
  * Whole-body skin assembled from the calibrated chains and their events.
  *
- * A parent evaluates each contact ring once, including its pinch phases, and
- * shares its directed arcs with child chains by vertex index. Each chain lofts
- * at its bisection stations between owned rings, inherited arcs or poles.
- * Inherited rings use the existing section-phase rule and zipper; the short
- * pinch closure is shared by the adjacent children.
+ * A parent evaluates each contact ring once, including its pinch phases,
+ * and shares its directed arcs with child chains by vertex index. Each
+ * chain lofts at its bisection stations between owned rings, inherited arcs
+ * or poles. Inherited rings use the existing section-phase rule and zipper;
+ * the short pinch closure is shared by the adjacent children.
  *
- * Shared incidence does not qualify correspondence, regularity or the inferred
- * closures. Those obligations remain with reproduction review. Triangle groups
- * are named `<chain>/<k>` by their principal interval.
+ * Shared incidence does not qualify correspondence, regularity or the
+ * inferred closures. Those obligations remain with reproduction review.
+ * Triangle groups are named `<chain>/<k>` by their principal interval.
  */
 export namespace AutoMovieHumanBodySurface {
   /** Chord tolerance of the station bisection in mm. */
@@ -50,15 +48,10 @@ export namespace AutoMovieHumanBodySurface {
    * Loft the whole calibrated body.
    *
    * @param calibration Shared chain coefficients, events and poles.
-   * @param details Optional detail intervals consumed by the existing body
-   *   loft.
-   * @param observeSolids Optional observer of this skin's actual prepared
-   *   analytic charts.
    */
   export function generate(
     calibration: IAutoMovieHumanBodyCalibration,
     details: IAutoMovieHumanBodySurface.GenerateDetails = [],
-    observeSolids?: IAutoMovieHumanBodySurface.SolidObserver,
   ): IAutoMovieHumanBodySurface.IOutput {
     const context: IAutoMovieHumanSurfaceContext = {
       mesh: AutoMovieHumanLoftMesh.create(),
@@ -91,9 +84,6 @@ export namespace AutoMovieHumanBodySurface {
         ),
       ),
       coordinates: [],
-      webPaths: [],
-      pinches: new Set(),
-      domeNormals: [],
       roots: new Map(),
       ends: new Map(),
       holes: new Map(),
@@ -165,16 +155,8 @@ export namespace AutoMovieHumanBodySurface {
 
     // 3a. The solids: every chain a merge names, drawn as trimmed faces and
     // blends with their rails shared.
-    const nailPlates: IAutoMovieLoftChain[] = [];
     calibration.diagnostics?.push(
-      ...AutoMovieHumanBodySurfaceSolids.draw(
-        context,
-        calibration,
-        observeSolids,
-        (plate: IAutoMovieLoftChain): void => {
-          nailPlates.push(plate);
-        },
-      ),
+      ...AutoMovieHumanBodySurfaceSolids.draw(context, calibration),
     );
 
     // 3b. Every appendage joined to its base through its strip, and every
@@ -191,68 +173,23 @@ export namespace AutoMovieHumanBodySurface {
           calibration.events,
         ),
       );
-    construction.push(...context.webPaths);
+    construction.push(...(WEBS.get(context.mesh) ?? []));
 
     const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
-    const nailClipping: NonNullable<
-      IAutoMovieHumanBodySurface.IOutput["nailClipping"]
-    > =
-      AutoMovieHumanNailExteriorClearance.report(context.mesh, [
-        ...calibration.chains,
-        ...nailPlates,
-      ])?.flatMap(
-        ({ digit, maximumMm }): { digit: string; maximumMm: number }[] =>
-          maximumMm === null ? [] : [{ digit, maximumMm }],
-      ) ?? [];
-    const clippingByDigit: ReadonlyMap<string, number> = new Map(
-      nailClipping.map(({ digit, maximumMm }): [string, number] => [
-        digit,
-        maximumMm,
-      ]),
-    );
-    const prefix: string = AutoMovieHumanDigitNails.names("").plate;
-    for (const plate of nailPlates) {
-      const maximum: number | undefined = clippingByDigit.get(
-        plate.name.slice(prefix.length),
-      );
-      if (maximum === undefined || maximum > AutoMovieHumanDigitNails.CLIP_MM)
-        calibration.diagnostics?.push({
-          producer: plate.name,
-          level: 7,
-          contract: "retained exterior clipping",
-          detail:
-            maximum === undefined
-              ? "No directional depth witness on an opposed shared material edge"
-              : `Skin overlap ${maximum} mm exceeds ${AutoMovieHumanDigitNails.CLIP_MM} mm`,
-        });
-    }
     return {
       mesh: context.mesh,
       construction,
       rims: context.rims,
-      ...(nailClipping.length === 0 ? {} : { nailClipping }),
       normals: domed(
-        context.domeNormals,
+        context.mesh,
         held(
-          context.pinches,
+          context.mesh,
           faces,
           ringBlend(
             calibration,
             context.coordinates,
             context.mesh.indices,
-            surfaceNormals(
-              nailPlates.length === 0
-                ? calibration
-                : {
-                    ...calibration,
-                    chains: calibration.chains.map(
-                      (source) => context.chains.get(source.name)!,
-                    ),
-                  },
-              context.coordinates,
-              faces,
-              context.solidNormals,
-            ),
+            surfaceNormals(calibration, context.coordinates, faces),
           ),
         ),
       ),

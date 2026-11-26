@@ -18,15 +18,15 @@ A missing loop and a refused shoulder are reported, never repaired; no point is 
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-A course with multiple planes prepares one O(T + V) mesh index for its T triangles and V vertices, then clips only the triangles in boxes that can cross each plane. Loop readings are O(points) per station and jumps are O(S) across S stations.
+O(S T) cutting dominates; readings are O(points) per station and the jumps O(S).
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-All planes share one triangle and edge layout. Each cut is read once for all its section measurements.
+Each cut is read once for all its readings.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The prepared geometry and section reader are local to the call. The returned sections retain their measurements and points.
+Owns no retained state or handle; only the returned sections remain.
 
 # src/geometry/extract/AutoMovieMeshCourse.ts#AutoMovieMeshCourse.read
 

@@ -18,11 +18,11 @@ Names atlas-to-body index mapping, column count, rail order, mutation and crossi
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-C columns and B face changes use O(C+B) output. Each change has a bounded outer bisection and up to two bounded side refinements when the new rail leaves both faces. Owner lookup remains linear for inserted points.
+C columns and B face changes use O(C) output plus up to 40 rail queries per change, with linear owner-name lookup for inserted points; rail solving/cache costs belong to that caller as well.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the actual rails already solved at blend columns to start face-change brackets. Interior reads remain independent and the end of the full turn gets its own chart branch. Each returned crossing has one mesh vertex for both incident faces.
+Reuses published column charts/across directions and the join's rail cache for bisection queries; each returned crossing has one mesh vertex for both incident faces.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -36,7 +36,7 @@ Splits a multi-face rail into crossing-to-crossing runs, inserts crossings in on
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The single-face loop stores the caller's exact boundary readers when provided. Multi-face runs delegate boundary insertion and candidate selection to one local clip operation.
+The single-face loop case is direct; multi-face runs delegate boundary insertion/candidate selection to one local clip operation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

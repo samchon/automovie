@@ -6,6 +6,7 @@ import {
 import type {
   IAutoMovieHumanSectionSite,
   IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSiteConstraints,
   IAutoMovieHumanSiteControls,
   IAutoMovieLoftContract,
   IAutoMovieLoftViewSource,
@@ -14,10 +15,7 @@ import type {
   IAutoMovieViewSection,
 } from "@automovie/interface";
 
-/**
- * Common generating scalar controls and local native field, before either
- * adjoining original is published.
- */
+/** Common generating scalar controls and local native field, before either adjoining original is published. */
 export namespace AutoMovieHumanSiteControls {
   /**
    * Resolve original scalar controls directly from anatomical/site input.
@@ -28,7 +26,7 @@ export namespace AutoMovieHumanSiteControls {
    */
   export function prepare(
     input: IAutoMovieHumanSectionSource,
-    preparedTapes: readonly IAutoMovieHumanSiteControls.ITape[] = [],
+    constraints?: IAutoMovieHumanSiteConstraints.IOwner,
     sharedFrame?: IAutoMovieHumanSiteControls.IFrame,
   ): IAutoMovieHumanSiteControls.IOutput {
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
@@ -103,32 +101,24 @@ export namespace AutoMovieHumanSiteControls {
 
     // A tape solve remains owned by the shared section factory, once per site.
     const shoulders: number[] = [];
-    const tapes: IAutoMovieHumanSiteControls.ITape[] = [];
     for (const site of sites) {
       if ("shoulder" in site.fullness) {
         shoulders.push(site.fullness.shoulder);
         continue;
       }
-      const name: string = `${producer} ${site.site}`;
-      const girth: number = site.fullness.girth;
-      const extents: [number, number, number, number] = [
-        site.edges[0],
-        site.edges[1],
-        -site.edges[2],
-        -site.edges[3],
-      ];
-      const borrowed: IAutoMovieHumanSiteControls.ITape | undefined =
-        preparedTapes.find(
-          (tape: IAutoMovieHumanSiteControls.ITape): boolean =>
-            tape.name === name &&
-            Object.is(tape.girth, girth) &&
-            extents.every((value: number, i: number): boolean =>
-              Object.is(value, tape.extents[i]),
-            ),
-        );
-      const solved: IAutoMovieViewSection.ISolved =
-        borrowed?.result ??
-        AutoMovieViewSection.solve(name, { extents }, girth);
+      const solve: IAutoMovieHumanSiteConstraints.IOwner["solve"] =
+        constraints?.solve ??
+        ((
+          name: string,
+          extents: [number, number, number, number],
+          girth: number,
+        ): IAutoMovieViewSection.ISolved =>
+          AutoMovieViewSection.solve(name, { extents }, girth));
+      const solved: IAutoMovieViewSection.ISolved = solve(
+        `${producer} ${site.site}`,
+        [site.edges[0], site.edges[1], -site.edges[2], -site.edges[3]],
+        site.fullness.girth,
+      );
       diagnostics.push(...solved.diagnostics);
       if (solved.section === null)
         return fail(
@@ -136,7 +126,6 @@ export namespace AutoMovieHumanSiteControls {
           `site ${site.site}: no section fits the tape ${site.fullness.girth} mm`,
         );
       shoulders.push(solved.section.shoulders[0]);
-      tapes.push(borrowed ?? { name, girth, extents, result: solved });
     }
     const shoulderKnots: IAutoMovieViewPart.IKnot[] = sites.map(
       (
@@ -195,41 +184,36 @@ export namespace AutoMovieHumanSiteControls {
         input,
         axis: frame,
         scalars,
-        tapes,
+        field: native(input.name, scalars),
       },
       diagnostics,
     };
   }
 
   /**
-   * Admit the original scalar field over the supplied station interval. A
-   * caller can borrow that exact prepared declaration for another consumer.
+   * Own one explicit native preparation for an original scalar declaration.
+   * Replacing a scalar requires a new supplier; unchanged contact readers
+   * share the same admitted physical-parameter coefficients and refusal.
    */
   export function native(
     name: string,
     scalars: IAutoMovieLoftViewSource.IInput,
-    prepared?: IAutoMovieHumanSiteControls.IField,
-  ): IAutoMovieHumanSiteControls.IField {
-    if (prepared !== undefined) {
-      if (prepared.scalars !== scalars)
+  ): IAutoMovieHumanSiteControls.IControls["field"] {
+    let retained: IAutoMovieLoftViewSource.ISource | undefined;
+    return (): IAutoMovieLoftViewSource.ISource => {
+      if (retained !== undefined) return retained;
+      const admitted: IAutoMovieLoftViewSource.IResult | null =
+        AutoMovieLoftViewSource.create(scalars);
+      if (admitted === null || admitted.source === null)
         throw new Error(
-          `The prepared ${name} field belongs to another scalar declaration`,
+          `The actual ${name} has no direct original field: ${JSON.stringify(admitted)}`,
         );
-      return prepared;
-    }
-    const admitted: IAutoMovieLoftViewSource.IResult | null =
-      AutoMovieLoftViewSource.create(scalars);
-    if (admitted === null || admitted.source === null)
-      throw new Error(
-        `The actual ${name} has no direct original field: ${JSON.stringify(admitted)}`,
-      );
-    return { scalars, source: admitted.source };
+      retained = admitted.source;
+      return retained;
+    };
   }
 
-  /**
-   * Copy a signed original scalar, including its authored normalized jets,
-   * bounds and zero closing knots.
-   */
+  /** Copy a signed original scalar, including its authored normalized jets, bounds and zero closing knots. */
   export function outline(
     input: Pick<
       IAutoMovieHumanSectionSource,

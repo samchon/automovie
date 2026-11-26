@@ -9,8 +9,9 @@ import type { IAutoMovieHumanFootToeSpan } from "@automovie/interface";
  * The count is the toe's own (`AutoMovieHumanFootPrior`, `sections`), never
  * stepped from a spacing: a count stepped by a fixed spacing flips with the
  * inputs and moves the tip's shape between one side's toe and the other's
- * reflection. Sample each nominal toe shaft with the same control count
- * and give its cap three closer stations for the tighter curve turn.
+ * reflection. The reference's bone-normal sections of f1's toes (every 2 mm)
+ * are 29 for the hallux and the second toe, 25 for the third, 21 for the
+ * fourth and 19 for the fifth, and a toe keeps at least that many.
  */
 export namespace AutoMovieHumanFootToeStations {
   /**

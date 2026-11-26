@@ -23,9 +23,6 @@ export namespace IAutoMovieSolidCycle {
      */
     neighbours: IAutoMovieSolidCycle.INeighbour[];
 
-    /** Sample the otherwise untrimmed parent rows on this split end's angular partition. */
-    partition?: true;
-
     /**
      * For a winding cycle sampled from an exact curve `u = along(v)` of this
      * chart: the curve's station at a phase. A segment whose two stored

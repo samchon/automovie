@@ -13,7 +13,7 @@ import type {
  * clinical joints, validate arbitrary topology or pin a distal world stance.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Bilateral separation in the declared pelvis frame gives the signed support half-span B/2; only the selected joint's lateral offset changes and descendants follow the actual chain composer.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure model places the supplied skeleton and supports made-input verification.
+ * @evidence contracts/development/implementation.md#clear-and-simple-structure One pure owner is called by the real F1 narrow-body entry and made-input scenarios.
  * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Requires an explicit finite-positive breadth within the existing BodyIdentity field's 800mm maximum; no clinical regression, missing-input prior, skin displacement or distal compensation is introduced.
  * @evidence contracts/development/common.md#meaningful-documentation Names frame, signed sides, independent preserved inputs and the trusted topology/frame premises separately from clinical identity.
  * @evidence contracts/development/implementation.md#efficient-algorithms One joint lookup and at most one chain copy use linear work/storage in joint count; an identical half-span returns the original chain.

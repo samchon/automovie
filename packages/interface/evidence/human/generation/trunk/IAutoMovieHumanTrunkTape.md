@@ -6,8 +6,6 @@ What the solve reads.
 
 ## @evidence contracts/development/design.md#principled-representation `producer`: Producer and site, for the diagnostic. `plane`: Actual common world-Y section family, authored before the attached originals. `masses`: The original masses whose common-level side cuts the tape also wraps.
 
-`contour` carries the native section reader through a local feature operator on each actual trial section. The tape reads the same contour that the trunk publishes.
-
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
 Returned by AutoMovieHumanTrunkLegs.trial, AutoMovieHumanTrunkTape.parent. Read by AutoMovieHumanTrunkTape.solve.

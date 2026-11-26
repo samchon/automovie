@@ -4,8 +4,8 @@ import type {
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
 
-import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { AutoMovieCurveLengthQuadrature64 } from "./AutoMovieCurveLengthQuadrature64";
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Measure original three-dimensional source derivatives by composite
@@ -35,12 +35,19 @@ export function measureAutoMovieCurveLength64(
   pieces: IAutoMovieMeasureCurveLength64.IPieces,
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
-  admitSubdivisions(subdivisions);
+  if (subdivisions < 1 || subdivisions > 1024)
+    throw new Error("Curve length subdivisions must be an integer in [1,1024]");
   if (pieces.length === 0)
     throw new Error("Curve length needs an original piece");
 
   // Closed finite derivative charts are admitted before either numerical observation.
-  for (const piece of pieces) admitDomain(piece.domain);
+  for (const piece of pieces) {
+    const [a, b]: readonly [number, number] = piece.domain;
+    if (!(b > a) || overflowsBinary64(b - a))
+      throw new Error(
+        "Curve length needs finite increasing representable domains",
+      );
+  }
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(pieces, subdivisions, true);
   if (measured.nonfiniteDerivative)
@@ -55,46 +62,10 @@ export function measureAutoMovieCurveLength64(
     throw new Error(
       "Curve speed integration contribution is not representable",
     );
-  if (![measured.coarseMm, measured.fineMm].every(Number.isFinite))
+  if ([measured.coarseMm, measured.fineMm].some(overflowsBinary64))
     throw new Error("Curve speed integration overflow");
   return {
     lengthMm: measured.fineMm,
     differenceMm: Math.abs(measured.fineMm - measured.coarseMm),
   };
-}
-
-/** Prepare the source addresses that the length measurement will read. */
-export namespace measureAutoMovieCurveLength64 {
-  /** Declare one fixed piece's endpoint and interior addresses before measuring. */
-  export function parameters(
-    domain: readonly [number, number],
-    subdivisions: number,
-  ): number[] {
-    admitSubdivisions(subdivisions);
-    admitDomain(domain);
-    return AutoMovieCurveLengthQuadrature64.parameters(domain, subdivisions);
-  }
-}
-
-function admitSubdivisions(subdivisions: number): void {
-  if (
-    !Number.isSafeInteger(subdivisions) ||
-    subdivisions < 1 ||
-    subdivisions > 1024
-  )
-    throw new Error("Curve length subdivisions must be an integer in [1,1024]");
-}
-
-function admitDomain([a, b]: readonly [number, number]): void {
-  if (
-    !(
-      Number.isFinite(a) &&
-      Number.isFinite(b) &&
-      b > a &&
-      !overflowsBinary64(b - a)
-    )
-  )
-    throw new Error(
-      "Curve length needs finite increasing representable domains",
-    );
 }

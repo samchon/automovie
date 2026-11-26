@@ -1,10 +1,8 @@
 import type { AutoMovieVector3Tuple } from "../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieBlendColumn } from "./IAutoMovieBlendColumn";
-import type { IAutoMovieConstructionSkinCut } from "./IAutoMovieConstructionSkinCut";
 import type { IAutoMovieConstructionSplit } from "./IAutoMovieConstructionSplit";
 import type { IAutoMovieConstructionSplitSeam } from "./IAutoMovieConstructionSplitSeam";
 import type { IAutoMovieLoftChain } from "./IAutoMovieLoftChain";
-import type { IAutoMovieSolidMesh } from "./IAutoMovieSolidMesh";
 import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
 
 /**
@@ -12,32 +10,6 @@ import type { IAutoMovieSolidSurface } from "./IAutoMovieSolidSurface";
  * bands.
  */
 export namespace IAutoMovieConstructionSplitBand {
-  /** One explicit regular strip, already prepared from the split's own curves. */
-  export interface IPreparedStrip {
-    /** Chart and sampling metadata under this declared split-band name. */
-    chain: IAutoMovieLoftChain;
-
-    /** The same continuous shape in world mm with exact chart ownership. */
-    surface: IAutoMovieSolidSurface;
-
-    /** Physical course span in mm, from the parent at 0 to the held rail. */
-    length: number;
-
-    /** Increasing sampled stations of the analytic strip, including both ends, in mm. */
-    stations?: number[];
-
-    /** The complete ordered parent or shared seam loop, one point per column. */
-    loop: AutoMovieVector3Tuple[];
-
-    /** Host arc phases at columns and arc ends, in the declared stretch order. */
-    phases: number[];
-
-    /** Terminal first-order strip and its independent original receiving points. */
-    terminal?: IAutoMovieSolidMesh.ITerminalSource;
-
-    /** Held child rail phases, one unwrapped turn in the same column order. */
-    childPhases: number[];
-  }
   /**
    * One side of a band: the face's surface, the rail's station on it and the
    * station's sign into the band's continuation.
@@ -55,7 +27,6 @@ export namespace IAutoMovieConstructionSplitBand {
      */
     into: 1 | -1;
 
-
     /**
      * The rail's station at phase psi in radians when the rail is a curve round
      * the face (a port's rails), mm; absent, station at every phase. railAt
@@ -63,7 +34,6 @@ export namespace IAutoMovieConstructionSplitBand {
      * exceptions. Keep the callback and source surface stable during a build.
      */
     along?: (psi: number) => number;
-
   }
 
   /** What one band is built from. */
@@ -230,15 +200,6 @@ export namespace IAutoMovieConstructionSplitBand {
         curve: IAutoMovieConstructionSplitSeam.ISeam;
 
         /**
-         * Shared parent-owned tangent planes, when the two endpoints have a
-         * curved seam germ.
-         */
-        forks?: readonly [
-          IAutoMovieConstructionSplitSeam.IFork,
-          IAutoMovieConstructionSplitSeam.IFork,
-        ];
-
-        /**
          * True traverses the seam from its first end to its second; false
          * reverses that traversal in the band's loop.
          */
@@ -250,64 +211,6 @@ export namespace IAutoMovieConstructionSplitBand {
          */
         columns: number;
       };
-
-  /** A measured switch between the two source fields bounding a child territory. */
-  export interface IRailCrossing {
-    /** The territory before and after this root in increasing native phase. */
-    sides: readonly [number, number];
-
-    /** The increasing native phase of the physical root, radians. */
-    phase: number;
-
-    /** The signed-distance difference plane, oriented from the first territory to the second. */
-    plane: IAutoMovieConstructionSkinCut.IPlane;
-  }
-
-  /** One physically prepared rail and the fork addresses shared by a fan's edge readers. */
-  export interface IGuidedRail {
-    /** Child rail phase at each plane change matching a loop stretch's first column. */
-    marks: readonly { column: number; phase: number; crossing?: IRailCrossing }[];
-
-    /** Exact uniform phase readings in world millimetres, one for each `8 * count` addresses. */
-    points: readonly AutoMovieVector3Tuple[];
-
-    /** All observed increasing-phase switches, including those a stretch does not use. */
-    crossings: readonly IRailCrossing[];
-  }
-
-  /** An infeasible published cross line, with endpoints and directed source derivatives. */
-  export interface ILineDemand {
-    /** First boundary's native phase when it stands on the parent. */
-    parentPhase?: number;
-    /** Second boundary's native phase. */
-    childPhase: number;
-    /** Start position and directed transverse derivative, in kernel units. */
-    start: { point: AutoMovieVector3Tuple; first: AutoMovieVector3Tuple };
-    /** End position and directed transverse derivative, in kernel units. */
-    end: { point: AutoMovieVector3Tuple; first: AutoMovieVector3Tuple };
-  }
-
-  /** An exact endpoint with an outward normal and a directed cross derivative. */
-  export interface ILineEnd {
-    /** World point, millimetres. */
-    point: AutoMovieVector3Tuple;
-
-    /** First derivative in the directed cross coordinate. */
-    first: AutoMovieVector3Tuple;
-
-    /** The regular outward normal, when it exists. */
-    normal: AutoMovieVector3Tuple | null;
-  }
-
-  /** Read every original cross line before a fan's correspondence admission. */
-  export type LineProbe = (
-    band: string,
-    column: number,
-    phase: number,
-    start: ILineEnd,
-    end: ILineEnd,
-  ) => void;
-
 
   /** What one band of a split into more than two is built from. */
   export interface IFanInput {
@@ -329,18 +232,6 @@ export namespace IAutoMovieConstructionSplitBand {
 
     /** The ribbons' turn at each fork, radians of clock. */
     corner: number;
-
-    /** One prepared physical rail and its matched fork addresses. */
-    guidedRail?: IGuidedRail;
-
-    /** Physical reach of the common fork turn along each owned boundary, millimetres. */
-    cornerReach?: number;
-
-    /** The exact physical endpoints of a failed cross-line admission. */
-    lineDemand?: (line: ILineDemand) => void;
-
-    /** Optional independent observer of the original material lines. */
-    lineProbe?: LineProbe;
 
     /** The declared crease window, or absent. */
     crease?: IAutoMovieConstructionSplit.ICrease;

@@ -1,5 +1,4 @@
 import type { IAutoMovieViewSection } from "../../../construction/IAutoMovieViewSection";
-import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanTrunkConnection } from "./IAutoMovieHumanTrunkConnection";
 
 /**
@@ -27,22 +26,6 @@ export interface IAutoMovieHumanTrunkViews {
    * same regular boundary.
    */
   connection?: IAutoMovieHumanTrunkConnection.IDefinition;
-
-  /**
-   * The person's registered landmarks for the shoulder port, in calibration
-   * millimetres.
-   */
-  shoulder?: {
-    /** Axillary height of the underlying lateral torso. */
-    lower: number;
-    /** Height of the acromial crest. */
-    upper: number;
-    /** Left side-neck point in the body frame. The right uses its reflection. */
-    neck: AutoMovieVector3Tuple;
-    /** Acromial crest's unsigned distance from the median plane. */
-    lateral: number;
-  };
-
   /**
    * The perineum: the trunk's bottom pole, where every outline meets at one
    * point. Its height is the crotch's (ISO 8559-1 5.7.6, the inseam over the

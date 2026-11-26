@@ -3,7 +3,7 @@ import type { IAutoMovieNaturalCubicSpline } from "../../../construction/IAutoMo
 /**
  * A star read at any station: the natural splines, along the hand, of the inner
  * point's `[b, c]`, the half extents and the harmonics of the skin's radius
- * about that point.
+ * about that point (`AutoMovieHumanArmPrior.IStar`).
  */
 export interface IAutoMovieHumanHandStarField {
   /**

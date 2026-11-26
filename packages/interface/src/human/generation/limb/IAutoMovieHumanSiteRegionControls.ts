@@ -16,12 +16,6 @@ export namespace IAutoMovieHumanSiteRegionControls {
     local: IAutoMovieHumanSiteControls.IOutput;
 
     /**
-     * Admitted field of the same local scalar declaration, or null after failed
-     * controls.
-     */
-    field: IAutoMovieHumanSiteControls.IField | null;
-
-    /**
      * Supply the same complete local scalar boundary and qualified jets to the
      * host input.
      */

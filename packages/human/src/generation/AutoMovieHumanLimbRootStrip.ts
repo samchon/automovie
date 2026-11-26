@@ -18,9 +18,9 @@ import type {
  * the trunk with its tangent and curvature vector (G2) and arrives on the
  * limb's own surface the same way, and neither piece is faded into the other.
  *
- * The strip reads the two published jets; it reads neither the trunk's chain
- * nor the limb's tube, so the limb chain that composes it decides where its own
- * sections end.
+ * The strip reads the two published jets; it reads neither the
+ * trunk's chain nor the limb's tube, so the limb chain that composes it decides
+ * where its own sections end.
  */
 export namespace AutoMovieHumanLimbRootStrip {
   /**
@@ -211,8 +211,8 @@ export namespace AutoMovieHumanLimbRootStrip {
   }
 
   /**
-   * The jet of a smooth curve along its run, read by central differences of its
-   * points a step either side.
+   * The jet of a smooth curve along its run, read by central differences of
+   * its points a step either side.
    *
    * @param at The curve's point at a run, mm.
    * @param run Where the jet is read, mm.
@@ -224,29 +224,10 @@ export namespace AutoMovieHumanLimbRootStrip {
     run: number,
     step: number,
   ): IAutoMovieHumanLimbRootStrip.IJet {
-    return central(at(run), at(run - step), at(run + step), step);
-  }
+    const p: AutoMovieVector3Tuple = at(run);
+    const a: AutoMovieVector3Tuple = at(run - step);
+    const b: AutoMovieVector3Tuple = at(run + step);
 
-  /** Use three explicit rings for the central stencil of every meridian. */
-  export function centredRing(
-    at: (run: number) => readonly AutoMovieVector3Tuple[],
-    run: number,
-    step: number,
-  ): IAutoMovieHumanLimbRootStrip.IJet[] {
-    const ring = at(run);
-    const before = at(run - step);
-    const after = at(run + step);
-    return ring.map((point, index) =>
-      central(point, before[index]!, after[index]!, step),
-    );
-  }
-
-  function central(
-    p: AutoMovieVector3Tuple,
-    a: AutoMovieVector3Tuple,
-    b: AutoMovieVector3Tuple,
-    step: number,
-  ): IAutoMovieHumanLimbRootStrip.IJet {
     return {
       point: p,
       first: [0, 1, 2].map(
@@ -272,37 +253,11 @@ export namespace AutoMovieHumanLimbRootStrip {
     run: number,
     step: number,
   ): IAutoMovieHumanLimbRootStrip.IJet {
-    return oneSided(
-      at(run),
-      at(run + step),
-      at(run + 2 * step),
-      at(run + 3 * step),
-      step,
-    );
-  }
+    const p: AutoMovieVector3Tuple = at(run);
+    const a: AutoMovieVector3Tuple = at(run + step);
+    const b: AutoMovieVector3Tuple = at(run + 2 * step);
+    const c: AutoMovieVector3Tuple = at(run + 3 * step);
 
-  /** Use four explicit rings for the one-sided stencil of every meridian. */
-  export function edgeRing(
-    at: (run: number) => readonly AutoMovieVector3Tuple[],
-    run: number,
-    step: number,
-  ): IAutoMovieHumanLimbRootStrip.IJet[] {
-    const ring = at(run);
-    const first = at(run + step);
-    const second = at(run + 2 * step);
-    const third = at(run + 3 * step);
-    return ring.map((point, index) =>
-      oneSided(point, first[index]!, second[index]!, third[index]!, step),
-    );
-  }
-
-  function oneSided(
-    p: AutoMovieVector3Tuple,
-    a: AutoMovieVector3Tuple,
-    b: AutoMovieVector3Tuple,
-    c: AutoMovieVector3Tuple,
-    step: number,
-  ): IAutoMovieHumanLimbRootStrip.IJet {
     return {
       point: p,
       first: [0, 1, 2].map(

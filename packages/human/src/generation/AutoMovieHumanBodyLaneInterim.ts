@@ -22,16 +22,28 @@ import { AutoMovieHumanTrunkLaws } from "./trunk/AutoMovieHumanTrunkLaws";
 import { AutoMovieHumanTrunkViews } from "./trunk/AutoMovieHumanTrunkViews";
 
 /**
- * Assemble the person's trunk laws and independently prepared limb sources. The
- * trunk solve supplies the common shoulder, chest and neck landmarks. The torso
- * and its masses read the person's tapes and posture. Each limb source and its
- * bind consume the same local rest definition.
+ * The body lane's input for a person while some of its laws are still owed
+ * (#3044's rule for priors the campaign has not yet replaced: read from the
+ * construction that produces them today, listed as remaining, never refit).
+ * The trunk's owed values come from the old trunk's solve
+ * (`AutoMovieHumanTrunkInterim`, `AutoMovieHumanMassInterim`), and the
+ * spine joints from the remaining legacy trunk. Limb originals and the full
+ * bind skeleton consume the same independent local rest/source owners. The arm, the digits, the foot and the
+ * toes take their sections from the person's tapes, the published digit
+ * joints and the reference set's outline tables
+ * (`AutoMovieHumanArmInterim`, `AutoMovieHumanDigitInterim`,
+ * `AutoMovieHumanFootInterim`); no old limb chain is read (`log-body.md`).
+ *
+ * Published values and landed laws are read as they are: the trunk's boxes,
+ * heights and back profile (`AutoMovieHumanTrunkViews`, `AutoMovieHumanTrunkLaws`),
+ * the leg's tapes, sites, thigh depth and bone place (`AutoMovieHumanLegLaws`),
+ * the foot's instep and ball lengths.
  */
 export namespace AutoMovieHumanBodyLaneInterim {
   /**
    * The lane's input.
    *
-   * @param input The person, the common trunk landmarks and the limb sources.
+   * @param input The person, the old constructions and the skeleton.
    * @returns The body lane's input.
    */
   export function of(
@@ -46,56 +58,35 @@ export namespace AutoMovieHumanBodyLaneInterim {
     // The same input-derived frame places head/S00 and the remaining legacy
     // trunk. A skeletal ankle offset must not be added to its skin priors again.
     const placed: IAutoMovieHumanBodyFrame.IOutput = input.frame;
-    const pending: IAutoMovieHumanTrunkLaws.IPending = {
+    const pending: (
+      upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"],
+    ) => IAutoMovieHumanTrunkLaws.IPending = (
+      upper: IAutoMovieHumanTrunkViewLaws.ILaws["upper"],
+    ): IAutoMovieHumanTrunkLaws.IPending => ({
       chest: solution.landmarks.bustPoint[1],
       cervicale: placed.cervicale,
       perineum: placed.perineum,
-      upper: [],
-    };
-    const breastSetback: number = AutoMovieHumanMassInterim.breastAmplitude(
+      upper,
+    });
+    const laws: IAutoMovieHumanTrunkViewLaws.ILaws = AutoMovieHumanTrunkLaws.of(
       measures,
       input.scale,
-    );
-    const glutealSetback: number = AutoMovieHumanMassInterim.glutealAmplitude(
-      measures,
-      input.scale,
-    );
-    const outline: IAutoMovieHumanTrunkViewLaws.ILaws =
-      AutoMovieHumanTrunkLaws.of(measures, input.scale, input.crotch, pending);
-    const laws: IAutoMovieHumanTrunkViewLaws.ILaws = {
-      ...outline,
-      upper: AutoMovieHumanTrunkInterim.upperSites(
-        solution,
-        measures,
-        input.scale,
-        outline.back,
-        breastSetback,
+      input.crotch,
+      pending(
+        AutoMovieHumanTrunkInterim.upperSites(
+          solution,
+          measures,
+          input.scale,
+          input.crotch,
+          input.stature,
+          placed.cervicale,
+        ),
       ),
-    };
-    const breast: IAutoMovieHumanBodyLane.IInput["trunk"]["breast"] =
-      AutoMovieHumanMassInterim.breast(
-        measures,
-        input.scale,
-        laws,
-        radius,
-        input.crotch,
-        breastSetback,
-      );
-    const gluteal: IAutoMovieHumanBodyLane.IInput["trunk"]["gluteal"] =
-      AutoMovieHumanMassInterim.gluteal(
-        solution.landmarks,
-        measures,
-        input.scale,
-        laws,
-        radius,
-        glutealSetback,
-      );
+    );
 
-    const side = (name: "left" | "right"): IAutoMovieHumanBodyLane.ISide => {
-      const own: ReturnType<IAutoMovieHumanLimbSources.IOutput["leg"]> =
-        input.sources.leg(name);
-      const bind: IAutoMovieHumanBodyLane.ISide["leg"]["bind"] =
-        own.leg.prepareBinding();
+    const side: (name: "left" | "right") => IAutoMovieHumanBodyLane.ISide = (
+      name: "left" | "right",
+    ): IAutoMovieHumanBodyLane.ISide => {
       const fold: (
         from: number,
         to: number,
@@ -108,13 +99,15 @@ export namespace AutoMovieHumanBodyLaneInterim {
       });
       return {
         get leg(): IAutoMovieHumanBodyLane.ISide["leg"] {
+          const own: ReturnType<IAutoMovieHumanLimbSources.IOutput["leg"]> =
+            input.sources.leg(name);
           return {
             bones: own.bones,
             law: own.law,
             get definition(): IAutoMovieHumanLegWalk.IDefinition {
               return own.leg.current();
             },
-            bind,
+            bind: own.leg.bind,
             trunk: fold(0, 0.5),
             foot: fold(1, 0.85),
           };
@@ -123,10 +116,10 @@ export namespace AutoMovieHumanBodyLaneInterim {
           return { ...input.sources.arm(name).arm(), trunk: fold(0, 0.4) };
         },
         get foot(): IAutoMovieHumanBodyLane.ISide["foot"] {
-          return own.foot();
+          return input.sources.leg(name).foot();
         },
         get footDefinition(): IAutoMovieHumanSourceDefinition {
-          return own.definition();
+          return input.sources.leg(name).definition();
         },
         get fingers(): IAutoMovieHumanBodyLane.IDigit[] {
           return input.sources.arm(name).fingers();
@@ -139,26 +132,7 @@ export namespace AutoMovieHumanBodyLaneInterim {
           return input.sources.arm(name).digit(key);
         },
         get toes(): IAutoMovieHumanBodyLane.IToe[] {
-          return own.toes();
-        },
-        prepareArm(): Pick<IAutoMovieHumanBodyLane.ISide, "arm" | "fingers"> {
-          const source: ReturnType<IAutoMovieHumanLimbSources.IOutput["arm"]> =
-            input.sources.arm(name);
-          return {
-            arm: { ...source.arm(), trunk: fold(0, 0.4) },
-            fingers: source.fingers(),
-          };
-        },
-        prepareFoot(): Pick<
-          IAutoMovieHumanBodyLane.ISide,
-          "foot" | "footDefinition" | "toes"
-        > {
-          const source: ReturnType<typeof own.prepareFoot> = own.prepareFoot();
-          return {
-            foot: source.foot(),
-            footDefinition: source.definition(),
-            toes: source.toes(),
-          };
+          return input.sources.leg(name).toes();
         },
         toeNames: AutoMovieHumanFootInterim.names(name),
       };
@@ -171,6 +145,14 @@ export namespace AutoMovieHumanBodyLaneInterim {
     return {
       diagnostics,
       trunk: {
+        get legs(): NonNullable<
+          IAutoMovieHumanBodyLane.IInput["trunk"]["legs"]
+        > {
+          return {
+            left: sides.left.leg.definition,
+            right: sides.right.leg.definition,
+          };
+        },
         bindLeg(
           side: "left" | "right",
           parent: IAutoMovieHumanSourceDefinition,
@@ -184,8 +166,14 @@ export namespace AutoMovieHumanBodyLaneInterim {
           input.scale,
           laws,
           {
-            breast: breast === null ? 0 : breastSetback,
-            gluteal: gluteal === null ? 0 : glutealSetback,
+            breast: AutoMovieHumanMassInterim.breastAmplitude(
+              measures,
+              input.scale,
+            ),
+            gluteal: AutoMovieHumanMassInterim.glutealAmplitude(
+              measures,
+              input.scale,
+            ),
           },
           input.neckConnection,
         ),
@@ -193,8 +181,19 @@ export namespace AutoMovieHumanBodyLaneInterim {
           chest: measures.chestCircumference * input.scale,
           hip: measures.hipCircumference * input.scale,
         },
-        breast,
-        gluteal,
+        breast: AutoMovieHumanMassInterim.breast(
+          measures,
+          input.scale,
+          laws,
+          radius,
+        ),
+        gluteal: AutoMovieHumanMassInterim.gluteal(
+          solution,
+          measures,
+          input.scale,
+          laws,
+          radius,
+        ),
       },
       sides,
       gap: AutoMovieHumanTrunkRows.MAX_GAP,

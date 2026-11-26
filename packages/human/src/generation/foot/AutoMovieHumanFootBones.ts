@@ -42,7 +42,7 @@ export namespace AutoMovieHumanFootBones {
     const heads: IAutoMovieHumanFootHeads.IHeads =
       AutoMovieHumanFootHeads.of(frame);
     const lines: IAutoMovieHumanFootToeLines.ILine[] =
-      AutoMovieHumanFootToeLines.of(frame, heads.heads, d.phalangealLengthScale);
+      AutoMovieHumanFootToeLines.of(frame, heads.heads);
     const sided = (p: AutoMovieVector3Tuple): AutoMovieVector3Tuple =>
       G.sided(p, sign);
 

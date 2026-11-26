@@ -1,39 +1,3 @@
-# src/human/generation/hand/IAutoMovieHumanHandDigitLaw.ts#IAutoMovieHumanHandDigitLaw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the AutoMovieHumanHandDigitLaw exchange boundary; the member contracts document the individual inputs, outputs and their interpretation.
-
-## @evidence contracts/development/design.md#principled-representation
-
-A type-only namespace groups the caller's geometric source, the optional start and the resulting axes. Member contracts state their coordinate units.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these declarations used by Human's AutoMovieHumanHandDigitLaw; Human retains the computation and source preparation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace qualifies the geometric source and fit records. The runtime construction remains in Human.
-
-# src/human/generation/hand/IAutoMovieHumanHandDigitLaw.ts#IAutoMovieHumanHandDigitLaw.IDigitSource
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Declares the source's tip, ordered anchors, section size, sampling count and physical blend distance.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The ordered anchor rows carry the three centre coordinates and two section reaches in millimetres. The pole is in the same hand chart.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Supplies AutoMovieHumanHandDigitLaw.digit with the caller's geometric data. Human owns evaluation.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The source carries only explicit geometry and a section sample count. It introduces no inferred material or fitted default.
-
 # src/human/generation/hand/IAutoMovieHumanHandDigitLaw.ts#IAutoMovieHumanHandDigitLaw.DigitAxesResult
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -10,6 +10,7 @@ import type {
   IAutoMovieHumanNeutralHip,
   IAutoMovieHumanNeutralShoulder,
 } from "@automovie/interface";
+import { Singleton } from "tstl";
 
 import { AutoMovieHumanNeutralAnkle } from "./AutoMovieHumanNeutralAnkle";
 import { AutoMovieHumanNeutralForearm } from "./AutoMovieHumanNeutralForearm";
@@ -111,18 +112,44 @@ export namespace AutoMovieHumanNeutral {
   }
 
   /**
-   * Derive neutral from the supplied rings and bind skeleton for this call.
+   * Each calibration's neutral, derived once. The skeleton's pose evaluator
+   * and the rig's binding both stand on the same body's neutral, and each
+   * derived it again: the separating pieces scan the skin's rings, so the
+   * second derivation repeated the whole scan for the same answer. The key
+   * is the calibration object itself, so a body generated again is a new key
+   * and an old body's entry goes with it.
+   */
+  const CACHE: WeakMap<
+    IAutoMovieHumanBodyCalibration,
+    Singleton<IAutoMovieHumanNeutral.IOutput>
+  > = new WeakMap();
+
+  /**
+   * One calibrated body's neutral, derived at its first request and shared by
+   * every later one.
    *
-   * @param _calibration The body those source inputs describe.
-   * @param source Its rings and bind skeleton, read once in this call.
-   * @returns The neutral skeleton and its absolute turns.
+   * The neutral reads only the chains {@link READS} names, by name, and the
+   * bind skeleton, which is a function of the calibration alone, so every
+   * caller's source gives the same neutral and the first one's is kept.
+   *
+   * @param calibration The body.
+   * @param source Its rings and bind skeleton, read only on the first request.
+   * @returns The neutral; callers read it and do not change it.
    */
   export function of(
-    _calibration: IAutoMovieHumanBodyCalibration,
+    calibration: IAutoMovieHumanBodyCalibration,
     source: IAutoMovieHumanNeutral.OfSource,
   ): IAutoMovieHumanNeutral.IOutput {
-    const { rings, joints }: IAutoMovieHumanNeutral.ISource = source();
-    return derive(rings, joints);
+    let cached: Singleton<IAutoMovieHumanNeutral.IOutput> | undefined =
+      CACHE.get(calibration);
+    if (cached === undefined) {
+      cached = new Singleton((): IAutoMovieHumanNeutral.IOutput => {
+        const read: IAutoMovieHumanNeutral.ISource = source();
+        return derive(read.rings, read.joints);
+      });
+      CACHE.set(calibration, cached);
+    }
+    return cached.get();
   }
 
   /**

@@ -1,30 +1,63 @@
 import type {
   AutoMovieVector3Tuple,
+  IAutoMovieHumanFootColumnLaw,
   IAutoMovieHumanFootFrame,
 } from "@automovie/interface";
+import { Singleton } from "tstl";
 
-import { AutoMovieHumanFootPlaces } from "../AutoMovieHumanFootPlaces";
+import { AutoMovieHumanFootColumnLaw } from "./AutoMovieHumanFootColumnLaw";
 import { AutoMovieHumanFootHeelCorner } from "./AutoMovieHumanFootHeelCorner";
 
-/** The posterior ankle joins the heel's quarter ellipse to the ankle ring. */
+/**
+ * The Achilles: the back of the heel above its posterior corner and the tendon
+ * up to the ankle ring, along the midline behind the closed plantar contact,
+ * where the contact's two edges run together half a sector breadth either side.
+ * Own centre: the tendon's insertion on the calcaneus. Its knots are reference
+ * medians, `[a, u, eta]` in foot lengths, foot breadths and lateral malleolus
+ * heights, the last on the ring, awaiting a published value.
+ */
 export namespace AutoMovieHumanFootAchilles {
   /**
-   * Continue the heel corner's side toward the ankle. ESTIMATE: at the ankle
-   * ring the tendon lies one third of the heel-to-ankle offset forward of the
-   * heel. The side spacing comes from the heel corner.
+   * One edge's knots up the tendon.
+   *
+   * @param frame The foot's frame.
+   * @param side -1 for the medial edge, 1 for the lateral.
    */
   export function knots(
     frame: IAutoMovieHumanFootFrame.IFrame,
     side: -1 | 1,
   ): AutoMovieVector3Tuple[] {
-    const base: number = AutoMovieHumanFootHeelCorner.height(frame);
-    return [1 / 2, 1].map(
-      (share: number): AutoMovieVector3Tuple =>
+    const law: IAutoMovieHumanFootColumnLaw.IPlan = LAW.get();
+
+    return KNOTS.map(
+      (q: readonly [number, number, number]): AutoMovieVector3Tuple =>
         frame.at(
-          (AutoMovieHumanFootPlaces.ANKLE * share) / 3,
-          1 / 2 + side * AutoMovieHumanFootHeelCorner.HALF,
-          base + share * (frame.ring - base),
+          law.along(q[2]),
+          law.across(q[2]) + side * AutoMovieHumanFootHeelCorner.HALF,
+          q[2] * frame.H,
         ),
     );
   }
 }
+
+/**
+ * The tendon's plan law over its knots' heights (`AutoMovieHumanFootColumnLaw`):
+ * the guide reads each knot at its own height on it.
+ */
+const LAW: Singleton<IAutoMovieHumanFootColumnLaw.IPlan> = new Singleton(
+  (): IAutoMovieHumanFootColumnLaw.IPlan =>
+    AutoMovieHumanFootColumnLaw.plan(
+      KNOTS.map((q: readonly [number, number, number]): number => q[2]),
+      KNOTS.map((q: readonly [number, number, number]): number => q[0]),
+      KNOTS.map((q: readonly [number, number, number]): number => q[1]),
+    ),
+);
+
+/** The tendon's knots along the midline, lowest first: `[a, u, eta]`. Reference median. */
+const KNOTS: readonly (readonly [number, number, number])[] = [
+  [0.0075, 0.44, 0.5],
+  [0.024, 0.42, 0.7],
+  [0.0405, 0.41, 1],
+  [0.046, 0.4, 1.2],
+  [0.04475, 0.393, 1.4621],
+];

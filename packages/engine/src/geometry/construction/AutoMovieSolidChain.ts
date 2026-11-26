@@ -6,12 +6,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
 import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftJet } from "./AutoMovieLoftJet";
-import { AutoMovieLoftPoint } from "./AutoMovieLoftPoint";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
 import { AutoMovieSeamStation } from "./AutoMovieSeamStation";
 import { AutoMovieSolidVector } from "./AutoMovieSolidVector";
@@ -107,34 +105,18 @@ export namespace AutoMovieSolidChain {
     // everywhere, since its normal never passes through zero.
     const first: number = chain.layers[0]!.y;
     const last: number = chain.layers[chain.layers.length - 1]!.y;
-    const ownership: ReturnType<typeof AutoMovieLoftCapSource.prepare> =
-      AutoMovieLoftCapSource.prepare(chain);
-    const domain: [number, number] = ownership.domain;
-    const caps: ReturnType<typeof AutoMovieLoftCapRead.prepare> =
-      AutoMovieLoftCapRead.prepare(chain, ownership);
-    const sections: ReturnType<typeof AutoMovieLoftSection.prepare> =
-      AutoMovieLoftSection.prepare(chain);
-    const points: ReturnType<typeof AutoMovieLoftPoint.prepare> =
-      AutoMovieLoftPoint.prepare(chain, sections, caps);
-    const jets: ReturnType<typeof AutoMovieLoftJet.prepare> =
-      AutoMovieLoftJet.prepare(chain, sections, caps);
+    const domain: [number, number] = AutoMovieLoftCapSource.bounds(chain);
     const middle: number = (first + last) / 2;
     let j: IAutoMovieLoftSurfaceJet;
     try {
-      j = jets(middle)(0);
+      j = AutoMovieLoftJet.at(chain, middle, 0);
     } catch (error: unknown) {
       if (error instanceof AutoMovieLoftAdmissionError) return null;
       throw error;
     }
-    if (
-      ![j.p, j.s, j.t, j.ss, j.st, j.tt].every(
-        (v: readonly number[]): boolean => v.every(Number.isFinite),
-      )
-    )
-      return null;
     const normal: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(j.s, j.t);
     const size: number = Math.hypot(...normal);
-    if (!(Number.isFinite(size) && size > 0)) return null;
+    if (!(size > 0)) return null;
     let sign: 1 | -1;
     if (chain.orientation !== undefined) {
       if (chain.orientation !== 1 && chain.orientation !== -1) return null;
@@ -145,57 +127,30 @@ export namespace AutoMovieSolidChain {
         AutoMovieLoftChain.axis(chain, middle),
       );
       const facing: number = AutoMovieSolidVector.dot(normal, out);
-      if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+      if (!(Math.abs(facing) > 0)) return null;
       sign = facing > 0 !== (chain.mirrored === true) ? 1 : -1;
     }
 
-    /** The chart owns finite queries only inside the original station range. */
-    const admit = (u: number, kind: "point" | "jet", v: number = 0): void => {
-      if (
-        !(
-          Number.isFinite(u) &&
-          Number.isFinite(v) &&
-          u >= domain[0] &&
-          u <= domain[1]
-        )
-      )
-        throw new AutoMovieLoftAdmissionError(
-          `The requested ${kind} is outside the loft's owned original domain.`,
-        );
-    };
-    const pointAt: NonNullable<IAutoMovieSolidSurface["pointAt"]> = (u) => {
-      admit(u, "point");
-      const point: ReturnType<typeof points> = points(u);
-      return (v: number): AutoMovieVector3Tuple => {
-        admit(u, "point", v);
-        return point(v);
-      };
-    };
-    const jetAt: NonNullable<IAutoMovieSolidSurface["jetAt"]> = (u) => {
-      admit(u, "jet");
-      const jet: ReturnType<typeof jets> = jets(u, true);
-      return (v: number): IAutoMovieSolidSurface.IJet => {
-        admit(u, "jet", v);
-        const q: IAutoMovieLoftSurfaceJet = jet(v);
-        return { p: q.p, u: q.s, v: q.t, uu: q.ss, uv: q.st, vv: q.tt };
-      };
-    };
     return {
       name: chain.name,
       period: 2 * Math.PI,
       domain,
       orientation: sign,
       point: (u: number, v: number): AutoMovieVector3Tuple => {
-        admit(u, "point", v);
-        return points(u)(v);
+        if (!(u >= domain[0] && u <= domain[1]))
+          throw new AutoMovieLoftAdmissionError(
+            "The requested point is outside the loft's owned original domain.",
+          );
+        return AutoMovieLoftChain.point(chain, u, v);
       },
       jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => {
-        admit(u, "jet", v);
-        const q: IAutoMovieLoftSurfaceJet = jets(u)(v);
+        if (!(u >= domain[0] && u <= domain[1]))
+          throw new AutoMovieLoftAdmissionError(
+            "The requested jet is outside the loft's owned original domain.",
+          );
+        const q: IAutoMovieLoftSurfaceJet = AutoMovieLoftJet.at(chain, u, v);
         return { p: q.p, u: q.s, v: q.t, uu: q.ss, uv: q.st, vv: q.tt };
       },
-      pointAt,
-      jetAt,
     };
   }
 }

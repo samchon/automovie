@@ -5,7 +5,6 @@ import type {
   IAutoMovieLoftSectionFrame,
   IAutoMovieViewAxis,
   IAutoMovieViewAxisJet,
-  IAutoMovieHumanMaterialCourse,
 } from "@automovie/interface";
 
 /**
@@ -111,6 +110,23 @@ export namespace AutoMovieHumanMaterialCourse {
     return Runs.smooth([0, hold.station, ...from!.slice(1)], [0, hold.station, ...to!.slice(1)], [hold.window, ...halves]);
   }
 
-  /** The host-owned root run and its blend window. */
-  export type IHold = IAutoMovieHumanMaterialCourse.IHold;
+  /**
+   * A root the part's host owns: the stretch of the first run, from the course's first centre, that keeps its stations when the run's
+   * bone changes length. A limb's first centre is its joint centre, inside its host, while its skin begins at a rail on the host's
+   * skin, a tenth of a metre down a thigh. The host places that rail (a split's end ring, a port's loop), so the run that stretches
+   * with the bone starts past it: without this the rail's station is carried by the bone's ratio like any other, and a thigh 0.9 times
+   * as long lifts the leg's first ring, 104 mm down the course, by 10.4 mm into the trunk's end.
+   *
+   * @evidence contracts/development/design.md#principled-representation The run end where the host's ownership stops and the half length over which the ratio turns to the bone's.
+   * @evidence contracts/development/design.md#minimal-and-owned-surface Two numbers, both read by `map`.
+   * @evidence contracts/development/design.md#prohibited-design-shortcuts The held stretch is a run with an exact end, not a clamp on the map.
+   * @evidence contracts/development/common.md#meaningful-documentation States what is held, why and the measured case.
+   */
+  export interface IHold {
+    /** The station where the held root ends, mm, inside the first run. */
+    station: number;
+
+    /** The blend window's half length about it, mm. */
+    window: number;
+  }
 }

@@ -1,21 +1,3 @@
-# src/human/generation/IAutoMovieHumanLegConstruction.ts#IAutoMovieHumanLegConstruction
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Describes calibration leg tapes, body controls and optional measured gluteal-furrow height; nested declarations retain their units, frames, optional states and callback contracts.
-
-## @evidence contracts/development/design.md#principled-representation
-
-Calibration leg tapes, body controls, optional measured gluteal-furrow height and optional per-side bone lengths. The bone lengths are Euclidean joint-centre spans in calibration millimetres. The preparation validates numerical feasibility.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Interface owns these dependency-free exchange types for AutoMovieHumanLegConstruction; Human retains the producer, evaluator and validation code, while imported geometry contracts keep their original owner.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The namespace groups the existing LegConstruction contracts without adding runtime factories, fixture selectors or alternative representations; any fitted or conventional quantities remain identified by their nested declarations.
-
 # src/human/generation/IAutoMovieHumanLegConstruction.ts#IAutoMovieHumanLegConstruction.IInputs
 
 ## @evidence contracts/development/common.md#meaningful-documentation

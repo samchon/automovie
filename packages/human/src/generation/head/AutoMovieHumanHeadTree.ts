@@ -8,9 +8,9 @@ import type {
   IAutoMovieConstructionAxis,
   IAutoMovieConstructionCurvatureWidth,
   IAutoMovieConstructionFullness,
+  IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionOutline,
-  IAutoMovieConstructionSharedLoop,
   IAutoMovieConstructionSource,
   IAutoMovieConstructionView,
   IAutoMovieHumanHeadComposer,
@@ -22,7 +22,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
-import { AutoMovieHumanHeadEarContact } from "./AutoMovieHumanHeadEarContact";
 
 /**
  * The composed head as a construction tree (`IAutoMovieConstruction`), which
@@ -35,14 +34,13 @@ import { AutoMovieHumanHeadEarContact } from "./AutoMovieHumanHeadEarContact";
  * the invocation-owned source map. Its scalar and frame callbacks reach
  * engine lofting without a declaration roundtrip. Explicit serializable
  * declarations remain a separate caliper and independent-study boundary.
- * Traced joins are seeded by the engine's
+ * Each join is seeded by the engine's
  * search along the part's station line at the phase the part names, its
  * blend's chord a share of each side's normal-section radius at every traced
  * point, capped at half the lesser of the part's height and least half
  * extent (`AutoMovieHumanSeamUnion.width`), with the phase parameter for a
  * round footprint and the arc parameter for one more than twice as long as
- * wide. Auricles supply paired native charts along their closed contact.
- * Lengths are metres in the head's frame: the composer's calibration
+ * wide. Lengths are metres in the head's frame: the composer's calibration
  * millimetres over a thousand. Source-leaf inputs stay in their original
  * millimetres; explicit declarations and operator distances use metres.
  *
@@ -161,25 +159,14 @@ export namespace AutoMovieHumanHeadTree {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the caller-owned tree; the temporary subtree map is released after construction.
    */
   export function of(
-    composed: Pick<
-      IAutoMovieHumanHeadComposer.IOutput,
-      "massPart" | "massView" | "parts"
-    >,
-  ): IAutoMovieConstruction & {
-    loopSources: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
-  } {
+    composed: Pick<IAutoMovieHumanHeadComposer.IOutput, "massView" | "parts">,
+  ): IAutoMovieConstruction {
     // Each part's subtree: its own view, joined in order by its inner parts.
     const subtree: Map<string, IAutoMovieConstructionNode> = new Map();
     for (const placed of composed.parts)
-      if (placed.sectionOwner === undefined)
-        subtree.set(placed.feature.part.name, placed.view);
+      subtree.set(placed.feature.part.name, placed.view);
     for (const placed of composed.parts) {
-      if (
-        placed.sectionOwner !== undefined ||
-        placed.feature.parent === "head.mass" ||
-        placed.feature.parent === "nose"
-      )
-        continue;
+      if (placed.feature.parent === "head.mass") continue;
       const parent: IAutoMovieConstructionNode | undefined = subtree.get(
         placed.feature.parent,
       );
@@ -192,38 +179,10 @@ export namespace AutoMovieHumanHeadTree {
 
     // The head: the mass, every part straight on it joined in turn.
     let root: IAutoMovieConstructionNode = composed.massView;
-    // Attach the original nose before opening either of its own apertures.
-    const nasalCuts: IAutoMovieHumanHeadComposer.IPlaced[] =
-      composed.parts.filter(
-        (placed): boolean =>
-          placed.sectionOwner === undefined && placed.feature.parent === "nose",
-      );
-    for (const placed of composed.parts) {
-      if (
-        placed.sectionOwner === undefined &&
-        placed.feature.parent === "head.mass"
-      ) {
+    for (const placed of composed.parts)
+      if (placed.feature.parent === "head.mass")
         root = join(placed, root, subtree.get(placed.feature.part.name)!);
-        if (placed.feature.part.name === "nose")
-          for (const cut of nasalCuts)
-            root = join(cut, root, subtree.get(cut.feature.part.name)!);
-      }
-    }
-    return {
-      name: "head",
-      root,
-      loopSources: AutoMovieHumanHeadEarContact.context(
-        composed.massPart,
-        composed.parts
-          .filter(
-            ({ feature, sectionOwner }) =>
-              feature.parent === composed.massPart.name &&
-              sectionOwner === undefined,
-          )
-          .map(({ feature }) => feature.part),
-        TOLERANCE,
-      ),
-    };
+    return { name: "head", root };
   }
 
   /**
@@ -304,30 +263,11 @@ export namespace AutoMovieHumanHeadTree {
     placed: IAutoMovieHumanHeadComposer.IPlaced,
     host: IAutoMovieConstructionNode,
     part: IAutoMovieConstructionNode,
-  ): IAutoMovieConstructionNode {
+  ): IAutoMovieConstructionJoin {
     const feature: IAutoMovieHumanHeadFeatures.IFeature = placed.feature;
-    const name: string = `blend.${feature.part.name}`;
-    if (feature.port !== undefined)
-      return {
-        type: "port",
-        name: `port.${feature.part.name}`,
-        host,
-        hostFace: feature.parent,
-        part,
-        partFace: feature.part.name,
-        partEnd: "bottom",
-        recess: true,
-        band: name,
-        correspondence: "angle",
-        ribbons: "column",
-        count: feature.port.rails.length,
-        rows: ROWS,
-        rail: feature.port.rails[0]!,
-        ...feature.port,
-      };
     // A dome crosses its parent between its base and its apex; a long one
     // is searched across its middle, where its wall stands steepest.
-    const search: NonNullable<IAutoMovieHumanHeadFeatures.IFeature["search"]> =
+    const search: { phase: number; from: number; to: number } =
       feature.search ?? {
         phase: feature.elongated === true ? Math.PI / 2 : 0,
         from: 0,
@@ -344,35 +284,24 @@ export namespace AutoMovieHumanHeadTree {
     return {
       type: "join",
       kind: feature.join,
-      name,
+      name: `blend.${feature.part.name}`,
       host,
       part,
-      ...(AutoMovieHumanHeadEarContact.sideOf(feature.part.name) === null
-        ? {}
-        : { loop: { type: "source", source: name } }),
       seed: {
         type: "search",
         partFace: feature.part.name,
         hostFace: feature.material?.name ?? feature.parent,
         phase: search.phase,
-        ...(search.phases === undefined ? {} : { phases: search.phases }),
         from: search.from,
         to: search.to,
       },
-      parameter: {
-        type: feature.parameter ?? (feature.elongated === true ? "arc" : "phase"),
-      },
+      parameter:
+        feature.elongated === true ? { type: "arc" } : { type: "phase" },
       partWidth: width,
       hostWidth: width,
       continuity: "G2",
       count: COUNT,
       rows: ROWS,
-      // Keep one source-chart boundary where the later nostril cuts can
-      // cross the nasal root. Use the campaign's 0.01 mm overlap scale for
-      // the mesh chord, independently of rail and intersection admission.
-      ...(feature.part.name === "nose"
-        ? { nativeRailChord: 0.01 * METRES }
-        : {}),
       tolerance: TOLERANCE * METRES,
       grazing: GRAZING,
     };

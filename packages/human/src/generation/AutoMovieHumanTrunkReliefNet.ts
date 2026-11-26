@@ -1,6 +1,5 @@
 import { AutoMovieLoftRelief } from "@automovie/engine";
 import type {
-  AutoMovieVector3Tuple,
   IAutoMovieHumanTrunkFeature,
   IAutoMovieHumanTrunkReliefNet,
   IAutoMovieLoftRelief,
@@ -11,8 +10,8 @@ import { AutoMovieHumanSeamUnion } from "../lofting/AutoMovieHumanSeamUnion";
 import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFrame";
 
 /**
- * The merge of a feature into the trunk: a relief window over the trunk's chart
- * whose control net is the feature's height sampled at the base surface.
+ * The merge of a feature into the trunk: a relief window over the trunk's
+ * chart whose control net is the feature's height sampled at the base surface.
  *
  * A window's net has its three outer rings zero (`IAutoMovieLoftRelief`), so
  * the relief's height, slope and curvature vanish at the window's edge (rule
@@ -20,14 +19,14 @@ import { AutoMovieHumanTrunkFeatureFrame } from "./AutoMovieHumanTrunkFeatureFra
  * 3)`, so the inner controls `3 .. n - 4` span `2 / (n - 3)` to `(n - 5) / (n -
  * 3)` of the window. The window is therefore the feature's footprint grown by
  * `2 / (n - 7)` of its length on each side, so the first and last inner
- * controls stand on the footprint's edge, where the feature's own profile meets
- * the wall C2, and no inner control is cut while the feature still stands.
- * Where the grown window would cross one of the chart's ends (the crotch ring,
- * the neck's ring, both shared with a neighbour), it stops there and the
- * feature is drawn toward its apex on that side, so its edge still falls on the
- * first inner control. The evaluated cubic B-spline of a sampled net is a
- * little lower than the samples, so the net is scaled until the relief reaches
- * the feature's extreme height at its apex.
+ * controls stand on the footprint's edge, where the feature's own profile
+ * meets the wall C2, and no inner control is cut while the feature still
+ * stands. Where the grown window would cross one of the chart's ends (the
+ * crotch ring, the neck's ring, both shared with a neighbour), it stops there
+ * and the feature is drawn toward its apex on that side, so its edge still
+ * falls on the first inner control. The evaluated cubic B-spline of a sampled
+ * net is a little lower than the samples, so the net is scaled until the
+ * relief reaches the feature's extreme height at its apex.
  */
 export namespace AutoMovieHumanTrunkReliefNet {
   /** Controls across each direction of a trunk window. */
@@ -110,31 +109,25 @@ export namespace AutoMovieHumanTrunkReliefNet {
     );
     const heights: number[] = [];
 
-    for (let i: number = 0; i < n; i++) {
-      if (i < 3 || i > n - 4) {
-        for (let j: number = 0; j < n; j++) heights.push(0);
-        continue;
-      }
-      const s: number = drawn(stations[0] + ((i - 1) / (n - 3)) * sSpan);
-      const section: (phase: number) => AutoMovieVector3Tuple =
-        base.station?.(s) ?? ((phase: number) => base(s, phase));
+    for (let i: number = 0; i < n; i++)
       for (let j: number = 0; j < n; j++) {
-        if (j < 3 || j > n - 4) {
+        const inner: boolean = i >= 3 && i <= n - 4 && j >= 3 && j <= n - 4;
+        if (!inner) {
           heights.push(0);
           continue;
         }
 
         // The base point of this control's place, in the feature's frame; its
         // in-plane coordinates give the height the feature has there.
+        const s: number = stations[0] + ((i - 1) / (n - 3)) * sSpan;
         const t: number = phases[0] + ((j - 1) / (n - 3)) * tSpan;
         const [u, v]: [number, number, number] =
           AutoMovieHumanTrunkFeatureFrame.local(
             feature.frame,
-            section(turned(t)),
+            base(drawn(s), turned(t)),
           );
         heights.push(feature.height(u, v));
       }
-    }
     const relief: IAutoMovieLoftRelief = {
       name,
       stations,

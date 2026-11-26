@@ -79,35 +79,29 @@ export namespace AutoMovieHumanBodyRoots {
     loop: IAutoMovieHumanBodyRoots.StationLoop,
     t: number,
   ): number {
-    return prepareStation(loop)(t);
-  }
-
-  /** Order the samples of one winding loop for repeated station reads. */
-  export function prepareStation(
-    loop: IAutoMovieHumanBodyRoots.StationLoop,
-  ): (t: number) => number {
-    const sorted: [number, number][] = loop
-      .map(([s, t]: [number, number]): [number, number] => [wrap(t), s])
-      .sort((a: [number, number], b: [number, number]): number => a[0] - b[0]);
-    return (t: number): number => {
-      const x: number = wrap(t);
-      let lo: number = 0;
-      let hi: number = sorted.length;
-      while (lo < hi) {
-        const mid: number = (lo + hi) >>> 1;
-        if (sorted[mid]![0] > x) hi = mid;
-        else lo = mid + 1;
-      }
-      const k: number = lo === sorted.length ? 0 : lo;
-      const b: [number, number] = sorted[k]!;
-      const a: [number, number] =
-        sorted[(k - 1 + sorted.length) % sorted.length]!;
-      let span: number = b[0] - a[0];
-      let off: number = x - a[0];
-      if (span <= 0) span += 2 * Math.PI;
-      if (off < 0) off += 2 * Math.PI;
-      return a[1] + (b[1] - a[1]) * (span > 0 ? off / span : 0);
-    };
+    // A loop never changes once built, so its samples are ordered by phase once.
+    let sorted: [number, number][] | undefined = SORTED.get(loop);
+    if (sorted === undefined) {
+      sorted = loop
+        .map((p: [number, number]): [number, number] => [wrap(p[1]), p[0]])
+        .sort(
+          (a: [number, number], b: [number, number]): number => a[0] - b[0],
+        );
+      SORTED.set(loop, sorted);
+    }
+    const x: number = wrap(t);
+    let k: number = sorted.findIndex(
+      (p: [number, number]): boolean => p[0] > x,
+    );
+    if (k < 0) k = 0;
+    const b: [number, number] = sorted[k]!;
+    const a: [number, number] =
+      sorted[(k - 1 + sorted.length) % sorted.length]!;
+    let span: number = b[0] - a[0];
+    let off: number = x - a[0];
+    if (span <= 0) span += 2 * Math.PI;
+    if (off < 0) off += 2 * Math.PI;
+    return a[1] + (b[1] - a[1]) * (span > 0 ? off / span : 0);
   }
 
   /**
@@ -119,42 +113,46 @@ export namespace AutoMovieHumanBodyRoots {
     s: number,
     t: number,
   ): boolean {
-    return prepareInside(loop)(s, t);
-  }
-
-  /** Prepare the range and phase branch of one fixed closed loop. */
-  export function prepareInside(
-    loop: IAutoMovieHumanBodyRoots.InsideLoop,
-  ): (s: number, t: number) => boolean {
-    let low: number = Infinity;
-    let high: number = -Infinity;
-    let sum: number = 0;
-    for (const [s, t] of loop) {
-      low = Math.min(low, s);
-      high = Math.max(high, s);
-      sum += t;
-    }
-    const centre: number = sum / loop.length;
-    return (s: number, t: number): boolean => {
-      if (s >= high || s < low) return false;
-      const phase: number =
-        t + 2 * Math.PI * Math.round((centre - t) / (2 * Math.PI));
-      let crossings: boolean = false;
-      for (
-        let i: number = 0, j: number = loop.length - 1;
-        i < loop.length;
-        j = i++
-      ) {
-        const a: [number, number] = loop[i]!;
-        const b: [number, number] = loop[j]!;
-        if (
-          a[0] > s !== b[0] > s &&
-          phase < ((b[1] - a[1]) * (s - a[0])) / (b[0] - a[0]) + a[1]
-        )
-          crossings = !crossings;
+    // A loop never changes once built, so its mean phase and station range
+    // are read once; a station outside the range crosses no edge.
+    let shape: IShape | undefined = SHAPES.get(loop);
+    if (shape === undefined) {
+      let low: number = Infinity;
+      let high: number = -Infinity;
+      for (const p of loop) {
+        low = Math.min(low, p[0]);
+        high = Math.max(high, p[0]);
       }
-      return crossings;
-    };
+      shape = {
+        centre:
+          loop.reduce(
+            (sum: number, p: [number, number]): number => sum + p[1],
+            0,
+          ) / loop.length,
+        low,
+        high,
+      };
+      SHAPES.set(loop, shape);
+    }
+    if (s >= shape.high || s < shape.low) return false;
+    const centre: number = shape.centre;
+    const phase: number =
+      t + 2 * Math.PI * Math.round((centre - t) / (2 * Math.PI));
+    let crossings: boolean = false;
+    for (
+      let i: number = 0, j: number = loop.length - 1;
+      i < loop.length;
+      j = i++
+    ) {
+      const a: [number, number] = loop[i]!;
+      const b: [number, number] = loop[j]!;
+      if (
+        a[0] > s !== b[0] > s &&
+        phase < ((b[1] - a[1]) * (s - a[0])) / (b[0] - a[0]) + a[1]
+      )
+        crossings = !crossings;
+    }
+    return crossings;
   }
 
   /**
@@ -354,6 +352,25 @@ type V = [number, number, number];
 const H: number = 0.05;
 
 const sub = (a: V, b: V): V => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+
+/** A loop's mean phase and station range. */
+interface IShape {
+  /** Mean phase, radians. */
+  centre: number;
+
+  /** Least station, mm. */
+  low: number;
+
+  /** Greatest station, mm. */
+  high: number;
+}
+
+/** Each loop's mean phase and station range, read once. */
+const SHAPES: WeakMap<readonly [number, number][], IShape> = new WeakMap();
+
+/** Each loop's samples as `[phase, station]` ordered by phase, read once. */
+const SORTED: WeakMap<readonly [number, number][], [number, number][]> =
+  new WeakMap();
 
 /** Phase reduced to `[0, 2 pi)`. */
 function wrap(t: number): number {

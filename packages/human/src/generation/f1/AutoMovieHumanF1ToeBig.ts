@@ -1,0 +1,62 @@
+import { AutoMovieHumanConicSection } from "../conic/AutoMovieHumanConicSection";
+import { AutoMovieHumanF1Joints } from "./AutoMovieHumanF1Joints";
+import { AutoMovieHumanF1Placement } from "./AutoMovieHumanF1Placement";
+import type { IAutoMovieHumanConicLoft } from "@automovie/interface";
+
+/**
+ * f1's toe.big tape wall on the +Z side; the other side is its mirror image in the median plane z = 0, which f1's reference satisfies exactly.
+ *
+ * Frame: the figure's absolute reference pose, millimetres, forward +X, up +Y, +Z the reference's left. The course runs
+ * through `centres` with a turn of half length `halves` at each joint; stations are arclength from the first centre and each
+ * section lies in the plane normal to the course, charted by `u` (carried from `up` by the course's rotations) and `v`.
+ *
+ * Every row of `values` is one section field of `AutoMovieHumanConicSection` at the shared `knots`, a natural cubic between
+ * them: the section is a chain of conics through its four extremes, fitted to the convex hull of the reference skin
+ * (the path of a taut tape).
+ *
+ * Source: the f1 reference body cut by this course's own planes over stations 21 to 53 mm, 33 sections 1 mm apart, every
+ * second one withheld from the fit. Fitted offline by `test/src/reference-conics/FamilyConicBody.ts` (joint least squares over
+ * all sections). Regenerated through the engine's view loft from these numbers alone, the reference skin's cut vertices lie
+ * 0.11 mm from it on average and at most 0.58 mm. 65 independent numbers.
+ */
+export const AutoMovieHumanF1ToeBig: IAutoMovieHumanConicLoft.IFamily = {
+  name: "toe.big",
+  centres: [AutoMovieHumanF1Joints.bigtoe1, AutoMovieHumanF1Joints.bigtoe2, AutoMovieHumanF1Joints.bigtoeEnd],
+  halves: [5],
+  up: AutoMovieHumanF1Placement.direction("toe.big.up"),
+  layout: AutoMovieHumanConicSection.limb(0),
+  knots: [21, 31, 37, 43, 53],
+  values: [
+    // front (+u) extreme: u, mm
+    [6.95, 6.44, 5.17, 5.59, 6.77],
+    // front (+u) extreme: v, mm
+    [-2.58, -4.5, -5.41, -0.46, 1.58],
+    // side (+v) extreme: u, mm
+    [-6.64, -7.65, -7.11, -3.97, -0.66],
+    // side (+v) extreme: v, mm
+    [9.95, 11.06, 11.07, 10.84, 6.89],
+    // back (-u) extreme: u, mm
+    [-15.32, -15.49, -14.82, -13.75, -8.55],
+    // back (-u) extreme: v, mm
+    [-4.88, -3.66, -3.28, -5.44, -4.35],
+    // side (-v) extreme: u, mm
+    [-8.29, -7.01, -5.32, -5.27, -3.27],
+    // side (-v) extreme: v, mm
+    [-13.6, -14.78, -14.4, -13.71, -9.56],
+    // shoulder rho of the arc after anchor 0, share
+    [0.4309, 0.4408, 0.4703, 0.2395, 0.2682],
+    // shoulder rho of the arc after anchor 1, share
+    [0.4596, 0.4311, 0.3978, 0.4794, 0.5619],
+    // shoulder rho of the arc after anchor 2, share
+    [0.503, 0.5131, 0.5546, 0.4157, 0.4009],
+    // shoulder rho of the arc after anchor 3, share
+    [0.5015, 0.3764, 0.3487, 0.4349, 0.4347],
+  ],
+
+  // The part closes in a point at `tip`, the station where the reference's own loop vanishes; its cap starts at `from`.
+  // Each extreme closes on its own outline's taper and bend (`own`, lofting.md: a closing law meets the wall's slope and bend where the two
+  // meet): with one taper for the whole section the cap left the wall on the nail's side falling 0.26 mm a millimetre toward the tip where
+  // the wall rises 0.12 (secants over the last span), a turn of 21 degrees that drew a ring across the top of the toe (`toes.left`,
+  // `toes.high-oblique`), and underneath 0.33 against 0.52. A side that still widens toward the tip leaves level (`TAPER.least`).
+  tips: [null, {from: 53, tip: 56.13, own: true}],
+};

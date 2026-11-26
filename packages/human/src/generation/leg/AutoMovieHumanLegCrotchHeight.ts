@@ -8,7 +8,9 @@ import type { IAutoMovieHumanLegCrotchHeight } from "@automovie/interface";
  *
  * The trunk builds its bottom ring at this height and the leg ends on that
  * ring, so the leg's length is the inseam less the ankle ring's rise over the
- * malleolus. The endpoint follows the person's measured tape.
+ * malleolus, never a regression on stature, thigh and sex. The former fitted
+ * line read 6.7, 6.2 mm under this on f1 and f2, 4.3 mm over on m1 and 8.9 mm
+ * under on m2.
  */
 export namespace AutoMovieHumanLegCrotchHeight {
   /**

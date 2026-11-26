@@ -6,7 +6,7 @@ Positive division and floor are monotone, so a node's cell range encloses each d
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The shared spatial reader compares actual coordinates for overlap and cell coordinates for neighbourhoods. The public collector applies the same order to either population. A pure per-triangle self crossing census can use the internal traversal and rank its actual witnesses separately.
+One walker serves mesh crossings, which needs actual overlap, and lash contact, which needs the cell neighbourhood, by switching only the coordinate the overlap test compares; ordering is the same for both.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

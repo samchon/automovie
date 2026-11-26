@@ -3,7 +3,7 @@
  * evaluation remains in Human.
  */
 export namespace IAutoMovieHumanLegSectionProportion {
-  /** One station's breadth-to-depth ratio and dimensionless fullness. */
+  /** One share's breadth over depth and fullness, means over the eight legs. */
   export interface IRow {
     /** Share of the ankle-to-crotch span. */
     share: number;
@@ -15,7 +15,12 @@ export namespace IAutoMovieHumanLegSectionProportion {
     fullness: number;
   }
 
-  /** Section ratio and fullness at a normalized station. */
+  /**
+   * Result of AutoMovieHumanLegSectionProportion.at. The ratio and fullness at
+   * a share, linear between the rows and held beyond the ends.
+   *
+   * @param share Share of the ankle-to-crotch span, 0 to 1.
+   */
   export type IAtResult = {
     /** Section breadth divided by depth, dimensionless. */
     ratio: number;

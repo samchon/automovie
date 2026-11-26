@@ -6,7 +6,7 @@ One column ordering ties the interpolated ribbon chain to its two rail charts, d
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-A data record publishes geometry and its source correspondence. The native producer includes its actual input rails so clipping can start from the same solved columns. Other producers can omit the rail records.
+A data record publishes geometry and its source correspondence without retaining the join's query API or another tessellated representation.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

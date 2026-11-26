@@ -94,20 +94,20 @@ IAutoMovieHumanHandPalm.IOpenTerminalResult is the canonical exchange used by Au
 
 Required fields are `base`, `boundary`; callers supply the complete record.
 
-# src/human/generation/hand/IAutoMovieHumanHandPalm.ts#IAutoMovieHumanHandPalm.IFixedMesh
+# src/human/generation/hand/IAutoMovieHumanHandPalm.ts#IAutoMovieHumanHandPalm.PalmOfMap
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes a caller-owned position buffer and its oriented triangle indices in millimetres.
+The palm's chain, its sections square to the hand's axis.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Three consecutive positions identify one point. Three indices identify one oriented triangle in the same mesh.
+The palm's chain, its sections square to the hand's axis. The callable takes q and returns AutoMovieVector3Tuple.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The fixed hand contour attachment and terminal readers consume the record. Human owns tessellation and edge admission.
+IAutoMovieHumanHandPalm.PalmOfMap is the canonical exchange used by AutoMovieHumanHandPalm.palmOf.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Every point and triangle is supplied by the caller. The type generates no inferred topology.
+The representation is used by AutoMovieHumanHandPalm.palmOf for the palm's chain, its sections square to the hand's axis.

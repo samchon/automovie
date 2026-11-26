@@ -38,8 +38,12 @@ import type {
  *   the section wherever they fade, as an `i` anchor keeps it. Its numbers are
  *   its share of what is left of that chord past the feature before it
  *   (`along`), its offset `o` square to the chord in millimetres outward, and
- *   its tangent's turn `h` from the chord's direction, radians (`place`). The
- *   remaining positive share keeps the relative order for every section.
+ *   its tangent's turn `h` from the chord's direction, radians (`place`). Read
+ *   as free chart coordinates, f1's nose's six feature lines left that order
+ *   at 146 of 157 stations where its alar crease and wing fade; each on the
+ *   chord from the feature before it, a tenth of a millimetre at one feature
+ *   turned the next one's chord past its arc's own turn and the fit stood
+ *   against those walls in both directions.
  *
  * After the anchors come the shoulders, one per arc between consecutive
  * anchors: the conic shoulder `rho = |M S| / |M A|` of the engine's native
@@ -56,12 +60,11 @@ export namespace AutoMovieHumanConicSection {
   const EDGE: number = 0.03;
 
   /**
-   * Maximum shoulder for broad arcs. ESTIMATE: limit the middle weight to four.
-   * The rational midpoint then stays at least one fifth of the way from the
-   * tangent corner to the chord midpoint. End curvature stays at least one
-   * sixteenth of that of the unit-weight arc with the same control triangle.
+   * Largest shoulder an arc takes. A shoulder near 1 hugs its two tangent lines and turns at their meeting within a millimetre: f1's trunk
+   * fitted the tape's straight run between the thighs with shoulders of 0.91 to 0.96, and those arcs drew a crease up the front of each thigh
+   * that no net over the wall could take out. Held at this the wall stays fair, and what it leaves the net carries.
    */
-  export const FAIR: number = 4 / 5;
+  const FAIR: number = 0.85;
 
   /** Largest share of the way to a box corner that a guide's touch offset may take. */
   const CORNER: number = 0.92;
@@ -545,27 +548,6 @@ export namespace AutoMovieHumanConicSection {
     return { at, shoulders: cursor };
   }
 
-  /**
-   * The fields that hold the guides' extents: for each guide anchor (`IAnchor.guide`) its coordinate along its own chart axis, a `u`
-   * guide's `u` and a `v` guide's `v`, as `resolve` reads them. Each is a signed distance from the course whose sign is its guide's side,
-   * a magnitude that a section admitted by the engine keeps away from zero.
-   */
-  export function extents(
-    layout: IAutoMovieHumanConicSection.ILayout,
-  ): number[] {
-    const { at } = offsets(layout);
-    return layout.anchors.flatMap(
-      (anchor: IAutoMovieHumanConicSection.IAnchor, k: number): number[] =>
-        anchor.guide !== true
-          ? []
-          : anchor.kind === "u"
-            ? [at[k]!]
-            : anchor.kind === "v"
-              ? [at[k]! + 1]
-              : [],
-    );
-  }
-
   /** Dependent anchors (`m`, `i`) by increasing level, the order they are resolved in. */
   export function dependents(
     layout: IAutoMovieHumanConicSection.ILayout,
@@ -730,112 +712,128 @@ export namespace AutoMovieHumanConicSection {
     values: readonly number[],
     layout: IAutoMovieHumanConicSection.ILayout,
   ): IAutoMovieHumanConicSection.IChain {
-    return prepare(layout)(values);
-  }
-
-  /**
-   * Prepare the layout's field addresses, guide box and anchor dependency order for repeated section resolutions.
-   *
-   * @param layout The common arrangement of anchors and shoulder bounds.
-   * @returns A closure that resolves a fresh chain for each field vector.
-   */
-  export function prepare(
-    layout: IAutoMovieHumanConicSection.ILayout,
-  ): (values: readonly number[]) => IAutoMovieHumanConicSection.IChain {
     const K: number = layout.anchors.length;
-    const { at, shoulders }: IAutoMovieHumanConicSection.IOffsetsResult = offsets(layout);
-    const available: (AutoMovieVector2Tuple | null)[] = new Array<AutoMovieVector2Tuple | null>(K).fill(null);
-    const extremes = layout.anchors.flatMap((anchor, k: number) => {
-      if (anchor.kind !== "u" && anchor.kind !== "v") return [];
-      available[k] = [0, 0];
-      return [{ k, field: at[k]!, kind: anchor.kind, mid: anchor.mid === true }];
-    });
+    const points: (AutoMovieVector2Tuple | null)[] =
+      new Array<AutoMovieVector2Tuple | null>(K).fill(null);
+    const tangents: (AutoMovieVector2Tuple | null)[] =
+      new Array<AutoMovieVector2Tuple | null>(K).fill(null);
+    const { at, shoulders }: { at: number[]; shoulders: number } =
+      offsets(layout);
+
+    // Extremes first: an extreme's tangent follows the counter-clockwise travel of the chain.
+    layout.anchors.forEach(
+      (anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
+        if (anchor.kind !== "u" && anchor.kind !== "v") return;
+        const p: AutoMovieVector2Tuple =
+          anchor.mid === true
+            ? [values[at[k]!]!, 0]
+            : [values[at[k]!]!, values[at[k]! + 1]!];
+        points[k] = p;
+        tangents[k] =
+          anchor.kind === "u" ? [0, p[0] > 0 ? 1 : -1] : [p[1] > 0 ? -1 : 1, 0];
+      },
+    );
 
     // A guide that reaches its box's corner leaves its arc no first leg. Where one point of a section is both its forward
     // and its side extreme (a section standing like a diamond in its chart) the touch offset would do exactly that, so each
     // guide is held inside the share CORNER of the way to the corners its two neighbouring guides set.
-    const guides: number[] = layout.anchors
+    const boxed: number[] = layout.anchors
       .map((_: IAutoMovieHumanConicSection.IAnchor, k: number): number => k)
       .filter((k: number): boolean => layout.anchors[k]!.guide === true);
-    const boxes = !layout.mirror && guides.length === 4 ? guides.map((k: number, q: number) => ({
-      k, across: (q % 2 === 0 ? 1 : 0) as 0 | 1, before: guides[(q + 3) % 4]!, after: guides[(q + 1) % 4]!,
-    })) : [];
-
-    // Build the chord bindings in resolution order. Only the coordinates of the already resolved anchors change between sections.
-    const features = layout.anchors.flatMap((anchor, k: number) => {
-      if (anchor.kind !== "f") return [];
-      const [before, after] = frame(k, layout);
-      available[k] = [0, 0];
-      return [{ k, field: at[k]!, before, after, first: k === 0 || layout.anchors[k - 1]!.kind !== "f" }];
-    });
-    const dependent = dependents(layout).map((k: number) => {
-      const [before, after] = neighbours(k, available);
-      available[k] = [0, 0];
-      return { k, field: at[k]!, before, after, inflected: layout.anchors[k]!.kind === "i" };
-    });
-
-    const forward = layout.anchors.map((_, k: number) => {
-      const arc: number = layout.mirror && k === K - 1 ? K - 2 : k;
-      return { k, field: shoulders + arc, least: leastOf(layout, arc) ?? 0 };
-    });
-    const reflected: { k: number; field: number; least: number }[] = [];
-    if (layout.mirror)
-      for (let k: number = K - 2; k >= 1; --k) {
-        if (layout.anchors[k]!.kind === "v" && layout.anchors[k]!.guide === true) guides.push(K + reflected.length);
-        reflected.push({ k, field: shoulders + k - 1, least: leastOf(layout, k - 1) ?? 0 });
-      }
-
-    return (values: readonly number[]): IAutoMovieHumanConicSection.IChain => {
-      const points: AutoMovieVector2Tuple[] = new Array<AutoMovieVector2Tuple>(K);
-      const tangents: AutoMovieVector2Tuple[] = new Array<AutoMovieVector2Tuple>(K);
-      for (const { k, field, kind, mid } of extremes) {
-        const p: AutoMovieVector2Tuple = [values[field]!, mid ? 0 : values[field + 1]!];
-        points[k] = p;
-        tangents[k] = kind === "u" ? [0, p[0] > 0 ? 1 : -1] : [p[1] > 0 ? -1 : 1, 0];
-      }
-      for (const { k, across, before, after } of boxes) {
-        const a: number = points[after]![across];
-        const b: number = points[before]![across];
+    if (!layout.mirror && boxed.length === 4)
+      boxed.forEach((k: number, q: number): void => {
+        const across: 0 | 1 = q % 2 === 0 ? 1 : 0;
+        const a: number = points[boxed[(q + 1) % 4]!]![across];
+        const b: number = points[boxed[(q + 3) % 4]!]![across];
         const p: AutoMovieVector2Tuple = points[k]!;
-        p[across] = Math.min(CORNER * Math.max(a, b), Math.max(CORNER * Math.min(a, b), p[across]));
-      }
+        p[across] = Math.min(
+          CORNER * Math.max(a, b),
+          Math.max(CORNER * Math.min(a, b), p[across]),
+        );
+      });
 
-      let previous: number = 0;
-      for (const { k, field, before, after, first } of features) {
-        previous = along(first ? 0 : previous, values[field]!);
-        const placed: IAutoMovieHumanConicSection.IPlaceResult = place(
-          points[before]!, points[after]!, previous, values[field + 1]!, values[field + 2]!,
+    // Then the feature points in order, each on the chord of its frame (`frame`: the extremes either side of its run), past the feature
+    // before it in the run (`along`).
+    let previous: number = 0;
+    layout.anchors.forEach(
+      (anchor: IAutoMovieHumanConicSection.IAnchor, k: number): void => {
+        if (anchor.kind !== "f") return;
+        if (k === 0 || layout.anchors[k - 1]!.kind !== "f") previous = 0;
+        const [before, after]: [number, number] = frame(k, layout);
+        previous = along(previous, values[at[k]!]!);
+        const placed: {
+          point: AutoMovieVector2Tuple;
+          tangent: AutoMovieVector2Tuple;
+        } = place(
+          points[before]!,
+          points[after]!,
+          previous,
+          values[at[k]! + 1]!,
+          values[at[k]! + 2]!,
         );
         points[k] = placed.point;
         tangents[k] = placed.tangent;
-      }
+      },
+    );
 
-      for (const { k, field, before, after, inflected } of dependent) {
-        const p0: AutoMovieVector2Tuple = points[before]!;
-        const p2: AutoMovieVector2Tuple = points[after]!;
-        const share: number = clamp(values[field]!);
-        if (inflected) {
-          const angle: number = Math.atan2(p2[1] - p0[1], p2[0] - p0[0]) + values[field + 1]!;
-          points[k] = [p0[0] + share * (p2[0] - p0[0]), p0[1] + share * (p2[1] - p0[1])];
-          tangents[k] = [Math.cos(angle), Math.sin(angle)];
-          continue;
-        }
-        const corner: AutoMovieVector2Tuple = meet(p0, tangents[before]!, p2, tangents[after]!);
-        const middle: AutoMovieVector2Tuple = [(p0[0] + p2[0]) / 2, (p0[1] + p2[1]) / 2];
-        points[k] = [middle[0] + share * (corner[0] - middle[0]), middle[1] + share * (corner[1] - middle[1])];
-        tangents[k] = [p2[0] - p0[0], p2[1] - p0[1]];
+    // Then the anchors that stand on their neighbours' triangle or chord, lower levels first.
+    for (const k of dependents(layout)) {
+      const [before, after]: [number, number] = neighbours(k, points);
+      const p0: AutoMovieVector2Tuple = points[before]!;
+      const p2: AutoMovieVector2Tuple = points[after]!;
+      const share: number = clamp(values[at[k]!]!);
+      if (layout.anchors[k]!.kind === "i") {
+        const angle: number =
+          Math.atan2(p2[1] - p0[1], p2[0] - p0[0]) + values[at[k]! + 1]!;
+        points[k] = [
+          p0[0] + share * (p2[0] - p0[0]),
+          p0[1] + share * (p2[1] - p0[1]),
+        ];
+        tangents[k] = [Math.cos(angle), Math.sin(angle)];
+        continue;
       }
-
-      const rho = ({ field, least }: { field: number; least: number }): number => Math.min(FAIR, Math.max(least, clamp(values[field]!)));
-      const weights: number[] = forward.map(rho);
-      for (const entry of reflected) {
-        const { k } = entry;
-        points.push([points[k]![0], -points[k]![1]]);
-        tangents.push([-tangents[k]![0], tangents[k]![1]]);
-        weights.push(rho(entry));
-      }
-      return { input: { points, tangents, shoulders: weights }, guides: [...guides] };
+      const corner: AutoMovieVector2Tuple = meet(
+        p0,
+        tangents[before]!,
+        p2,
+        tangents[after]!,
+      );
+      const middle: AutoMovieVector2Tuple = [
+        (p0[0] + p2[0]) / 2,
+        (p0[1] + p2[1]) / 2,
+      ];
+      points[k] = [
+        middle[0] + share * (corner[0] - middle[0]),
+        middle[1] + share * (corner[1] - middle[1]),
+      ];
+      tangents[k] = [p2[0] - p0[0], p2[1] - p0[1]];
+    }
+    const input: IAutoMovieViewChain.IInput = {
+      points: [],
+      tangents: [],
+      shoulders: [],
     };
+    const guides: number[] = [];
+    const rho = (arc: number): number =>
+      shoulder(values[shoulders + arc]!, layout, arc);
+    for (let k: number = 0; k < K; ++k) {
+      if (layout.anchors[k]!.guide === true) guides.push(input.points.length);
+      input.points.push(points[k]!);
+      input.tangents.push(tangents[k]!);
+      input.shoulders.push(rho(layout.mirror && k === K - 1 ? K - 2 : k));
+    }
+    if (layout.mirror)
+      for (let k: number = K - 2; k >= 1; --k) {
+        if (
+          layout.anchors[k]!.kind === "v" &&
+          layout.anchors[k]!.guide === true
+        )
+          guides.push(input.points.length);
+        input.points.push([points[k]![0], -points[k]![1]]);
+        input.tangents.push([-tangents[k]![0], tangents[k]![1]]);
+        input.shoulders.push(rho(k - 1));
+      }
+    return { input, guides };
   }
 
   /**
@@ -843,11 +841,12 @@ export namespace AutoMovieHumanConicSection {
    * arc keeping its triangle (its two end points and the meeting of their tangents).
    *
    * Two conics that meet at an anchor share its tangent but not its curvature, and where one arc ends nearly flat and the next starts sharply
-   * bent the wall turns sharply along the anchor's whole station line. For a rational quadratic with end weights 1 and middle
+   * bent the wall turns within a few millimetres along the anchor's whole station line: f1's trunk over the hips met at its first median with
+   * curvatures of 1.2 and 308 per metre and drew an upright line down each hip. For a rational quadratic with end weights 1 and middle
    * weight `w = rho / (1 - rho)` the curvature at an end is `|(P1 - P0) x (P2 - P1)| / (w^2 |leg|^3)`, the leg the side of the triangle at
    * that end (Farin, rational quadratic Bezier curves; Pottmann, curvature continuous conic splines). Both curvatures are brought to their
    * geometric mean, so each arc's weight moves by the same factor; the shoulders stay within the model's bounds, where the joint is as near
-   * G2 as they allow.
+   * G2 as they allow. Merged into one conic instead (both halves of one arc split at its shoulder), the hip's shape moved further.
    *
    * @param values The section's field vector.
    * @param layout Its layout, not a mirror's last anchor: `k` must have an arc on either side in the listed anchors.

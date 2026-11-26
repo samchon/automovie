@@ -13,33 +13,11 @@ import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource
 import { AutoMovieLoftFrame } from "./AutoMovieLoftFrame";
 import { AutoMovieLoftReliefCompose } from "./AutoMovieLoftReliefCompose";
 import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
-import { AutoMovieLoftSectionOriginal } from "./AutoMovieLoftSectionOriginal";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
-/** World-point phase reader for one physical station. */
-type Point = (phase: number) => [number, number, number];
-
-/** Value-only loft station samplers with fixed, phase-local spline support. */
+/** Value-only loft station samplers and the lazy single point reader. */
 export namespace AutoMovieLoftPoint {
-  /** Prepare a chain's Point0 for queries of its immutable original fields. */
-  export function prepare(
-    chain: IAutoMovieLoftChain,
-    sections: ReturnType<typeof AutoMovieLoftSection.prepare>,
-    caps: ReturnType<typeof AutoMovieLoftCapRead.prepare>,
-    dense: boolean = false,
-  ): (station: number) => Point {
-    if (
-      !dense &&
-      chain.basis === "spline" &&
-      !AutoMovieLoftSection.present(chain)
-    ) {
-      const lifts: boolean = hasLift(chain);
-      return (station: number): Point => lazy(chain, station, lifts);
-    }
-    return (station: number): Point => sample(chain, station, sections, caps);
-  }
-
   /**
    * World point of the chain at station s as a function of phase.
    *
@@ -51,46 +29,28 @@ export namespace AutoMovieLoftPoint {
    * @param chain Chain to evaluate.
    * @param s Station within the chain; world height for horizontal layers.
    */
-  export function sampler(chain: IAutoMovieLoftChain, s: number): Point {
-    return sample(chain, s);
-  }
-
-  /**
-   * Prepare the section and its phase-independent world placement for one
-   * station.
-   */
-  function sample(
+  export function sampler(
     chain: IAutoMovieLoftChain,
     s: number,
-    sections?: ReturnType<typeof AutoMovieLoftSection.prepare>,
-    caps?: ReturnType<typeof AutoMovieLoftCapRead.prepare>,
-  ): Point {
+  ): (t: number) => [number, number, number] {
+    return chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
+      ? lazy(chain, s)
+      : whole(chain, s);
+  }
+
+  /** The sampler whose section and lift rows are combined whole, at once. */
+  function whole(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => [number, number, number] {
     const cap: ((phi: number) => IAutoMovieLoftPhaseReading) | null =
-      caps === undefined ? AutoMovieLoftCapRead.phase(chain, s) : caps.phase(s);
+      AutoMovieLoftCapRead.phase(chain, s);
     if (cap !== null) return (t: number): [number, number, number] => cap(t).p;
-    const original = AutoMovieLoftSectionOriginal.active(
-      chain.originalSection,
-      s,
-    )
-      ? chain.originalSection!
-      : undefined;
     const source: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
-      original !== undefined
-        ? null
-        : sections === undefined
-          ? AutoMovieLoftSection.phase(chain, s)
-          : sections.phase(s);
+      AutoMovieLoftSection.phase(chain, s);
     const c: number[] | null =
-      source === null && original === undefined
-        ? AutoMovieLoftChain.coefficients(chain, s)
-        : null;
+      source === null ? AutoMovieLoftChain.coefficients(chain, s) : null;
     const f: IAutoMovieLoftSectionFrame = AutoMovieLoftChain.frame(chain, s);
-    const originalPoint:
-      | ((phase: number) => IAutoMovieLoftSectionPhase["p"])
-      | undefined =
-      original === undefined
-        ? undefined
-        : (original.pointAt?.(s) ?? ((t: number) => original.point(s, t)));
 
     // A lifted section leaves its plane along the frame normal by the
     // spline of its lift values, evaluated as the x block of a section
@@ -98,41 +58,33 @@ export namespace AutoMovieLoftPoint {
     const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
     const lifted: number[] | null = l === null ? null : [...l, ...l];
     const n: [number, number, number] = normal(f);
-    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
 
     return (t: number): [number, number, number] => {
       const p: readonly number[] =
-        originalPoint !== undefined
-          ? originalPoint(t)
-          : source === null
-            ? AutoMovieLoftChain.section(chain, c!, t)
-            : source(t).p;
+        source === null
+          ? AutoMovieLoftChain.section(chain, c!, t)
+          : source(t).p;
       const q: [number, number, number] = AutoMovieLoftFrame.place(
         f,
         p[0]!,
         p[1]!,
       );
       if (lifted !== null) {
-        const h: number = AutoMovieSplineCurve.scalarJet(
+        const h: number = AutoMovieSplineCurve.evaluate(
           lifted,
           chain.order,
           t,
         )[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      AutoMovieLoftReliefCompose.point(q, reliefs, s, t);
-      if (
-        (source !== null || original !== undefined) &&
-        !q.every(Number.isFinite)
-      )
-        throw new Error("The actual native point has no finite world value.");
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
       return q;
     };
   }
 
   /**
-   * One world point at station s and phase t. Sparse spline queries combine
-   * only the controls active at the requested phase.
+   * One world point of the chain at station s and phase t, read directly: a
+   * reader of many phases at one station takes {@link sampler} instead.
    *
    * @param chain Chain to evaluate.
    * @param s Station within the chain.
@@ -143,11 +95,7 @@ export namespace AutoMovieLoftPoint {
     s: number,
     t: number,
   ): [number, number, number] {
-    const at: Point =
-      chain.basis === "spline" && !AutoMovieLoftSection.present(chain)
-        ? lazy(chain, s, hasLift(chain))
-        : sampler(chain, s);
-    return at(t);
+    return sampler(chain, s)(t);
   }
 
   /** Actual world value and phase tangent without physical station2 admission. */
@@ -166,7 +114,6 @@ export namespace AutoMovieLoftPoint {
     const n: [number, number, number] = normal(f);
     const l: number[] | null = AutoMovieLoftChain.lift(chain, s);
     const lifted: number[] | null = l === null ? null : [...l, ...l];
-    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
     return (
       t: number,
     ): { p: [number, number, number]; t: [number, number, number] } => {
@@ -181,19 +128,14 @@ export namespace AutoMovieLoftPoint {
       for (let k: number = 0; k < 3; k++)
         dt[k] = f.u[k]! * local.t[0]! + f.v[k]! * local.t[1]!;
       if (lifted !== null) {
-        const h: [number, number, number] = AutoMovieSplineCurve.scalarJet(
-          lifted,
-          chain.order,
-          t,
-        );
+        const h: [number, number, number, number] =
+          AutoMovieSplineCurve.evaluate(lifted, chain.order, t);
         for (let k: number = 0; k < 3; k++) {
           p[k]! += h[0] * n[k]!;
-          dt[k]! += h[1] * n[k]!;
+          dt[k]! += h[2] * n[k]!;
         }
       }
-      AutoMovieLoftReliefCompose.phase({ p, t: dt }, reliefs, s, t);
-      if (![...p, ...dt].every(Number.isFinite))
-        throw new Error("The actual phase-only world reading is nonfinite.");
+      AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
       return { p, t: dt };
     };
   }
@@ -208,7 +150,10 @@ export namespace AutoMovieLoftPoint {
    * write for the whole row, entry by entry, so every point is the sampler's to
    * the bit.
    */
-  function lazy(chain: IAutoMovieLoftChain, s: number, lifts: boolean): Point {
+  function lazy(
+    chain: IAutoMovieLoftChain,
+    s: number,
+  ): (t: number) => [number, number, number] {
     const layers: readonly IAutoMovieLoftChain.ILayer[] = chain.layers;
     const [lo, hi]: [number, number] = AutoMovieLoftChain.bracket(chain, s);
     const a: IAutoMovieLoftChain.ILayer = layers[lo]!;
@@ -262,20 +207,44 @@ export namespace AutoMovieLoftPoint {
             b.curvatures,
           )
         : (k: number): number => scalar(source.a, source.b, weights!, k);
-    const lifting: Pick | null = lifts
-      ? entry(
+    const lifting: ((k: number) => number) | null = !layers.some(
+      (l: IAutoMovieLoftChain.ILayer): boolean => l.lift !== undefined,
+    )
+      ? null
+      : entry(
           (k: number): number => (a.lift !== undefined ? a.lift[k]! : 0),
           (k: number): number => (a.lift !== undefined ? a.liftSlopes![k]! : 0),
           a.liftCurvatures,
           (k: number): number => (b.lift !== undefined ? b.lift[k]! : 0),
           (k: number): number => (b.lift !== undefined ? b.liftSlopes![k]! : 0),
           b.liftCurvatures,
-        )
-      : null;
-    const reliefs = AutoMovieLoftReliefCompose.sources(chain);
+        );
+
+    // The row and the doubled lift, filled where a phase reads them.
+    const c: number[] = new Array<number>(2 * N);
+    const lifted: number[] | null =
+      lifting === null ? null : new Array<number>(2 * N);
+    const filled: Uint8Array = new Uint8Array(N);
+    const fill: (j: number) => void = (j: number): void => {
+      if (filled[j] === 1) return;
+      c[j] = section(j);
+      c[N + j] = section(N + j);
+      if (lifted !== null) {
+        const h: number = lifting!(j);
+        lifted[j] = h;
+        lifted[N + j] = h;
+      }
+      filled[j] = 1;
+    };
     return (t: number): [number, number, number] => {
+      // The four controls `AutoMovieSplineCurve.evaluate` reads at t.
+      const i: number = Math.min(
+        N - 1,
+        Math.floor(((((t / (2 * Math.PI)) % 1) + 1) % 1) * N),
+      );
+      for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
       const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
-        section,
+        c,
         N,
         t,
       );
@@ -284,20 +253,13 @@ export namespace AutoMovieLoftPoint {
         p[0],
         p[1],
       );
-      if (lifting !== null) {
-        const h: number = AutoMovieSplineCurve.scalarJet(lifting, N, t)[0];
+      if (lifted !== null) {
+        const h: number = AutoMovieSplineCurve.evaluate(lifted, N, t)[0];
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
-      AutoMovieLoftReliefCompose.point(q, reliefs, s, t);
+      AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
       return q;
     };
-  }
-
-  /** Whether any station can carry the loft's out-of-plane lift. */
-  function hasLift(chain: IAutoMovieLoftChain): boolean {
-    return chain.layers.some(
-      (layer: IAutoMovieLoftChain.ILayer): boolean => layer.lift !== undefined,
-    );
   }
 
   /** One coefficient in the unchanged left-associated Hermite combination order. */

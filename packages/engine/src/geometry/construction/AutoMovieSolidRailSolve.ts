@@ -118,7 +118,7 @@ export namespace AutoMovieSolidRailSolve {
           foot.v + k * dx[1],
         ];
         if (
-          !AutoMovieSolidDomain.contains(surface, u1, v1) ||
+          !AutoMovieSolidDomain.contains(surface, u1) ||
           (held && !host.kept(foot.face, u1, v1))
         )
           continue;
@@ -223,7 +223,7 @@ export namespace AutoMovieSolidRailSolve {
       const face0: number = current.face;
       const held: boolean = host.kept(face0, current.u, current.v);
       const inside = (u: number, v: number): boolean =>
-        AutoMovieSolidDomain.contains(host.faces[face0]!, u, v) &&
+        AutoMovieSolidDomain.contains(host.faces[face0]!, u) &&
         (!held || host.kept(face0, u, v));
       let accepted: boolean = false;
       let k: number = 1;
@@ -269,7 +269,7 @@ export namespace AutoMovieSolidRailSolve {
           // Past the domain the trial crosses at its foot; inside the domain but past the kept region (a trimmed part of the chart) the
           // neighbour across that trim is read explicitly, since the chart itself still evaluates there.
           const beyond: ReturnType<IAutoMovieSolidAtlas["across"]> =
-            AutoMovieSolidDomain.contains(host.faces[face0]!, u1, v1)
+            AutoMovieSolidDomain.contains(host.faces[face0]!, u1)
               ? host.across(face0, u1, v1)
               : null;
           const reached: IAutoMovieSolidTraceTrialTrial | null =
@@ -288,9 +288,11 @@ export namespace AutoMovieSolidRailSolve {
               : AutoMovieSolidTraceTrial(host, face0, u1, v1, true);
           if (crossed !== null && !crossed.crossed) continue;
           if (crossed === null || crossed.face === came) continue;
-          // The boundary's chord share maps the foot to a different world
-          // point. The crossing is admitted when one Newton step on the
-          // neighbour, backtracked in its chart, lowers the current residual.
+          // The crossing is judged by where the solve goes on the neighbour, not by its foot: the foot is mapped by the boundary's chord
+          // share, a different world point from the iterate's (on f1's arm past its armpit band it stood 0.0035 to 0.0113 mm off the
+          // section plane, so every foot's residual exceeded the band end's and the crossing was refused though the arm kept a root).
+          // It is taken when one Newton step on the neighbour from the foot, backtracked within the neighbour's region, lowers the
+          // residual below this iterate's.
           const settled: IAutoMovieSolidTraceTrialTrial | null = onward(
             crossed,
             merit,
@@ -334,16 +336,14 @@ export namespace AutoMovieSolidRailSolve {
       dot(j.v, j.v),
       [dot(j.u, world), dot(j.v, world)],
     );
-    if (d === null || !d.every(Number.isFinite)) return null;
+    if (d === null) return null;
     const speed: number = norm(
       combine([
         [d[0], j.u],
         [d[1], j.v],
       ]),
     );
-    return Number.isFinite(speed) && speed > 0
-      ? [d[0] / speed, d[1] / speed]
-      : null;
+    return speed > 0 ? [d[0] / speed, d[1] / speed] : null;
   }
 
   /** Settle a positive-width normal section from a regional chart guess. */
@@ -383,21 +383,11 @@ export namespace AutoMovieSolidRailSolve {
       let k: number = 1;
       let trial: number = 0;
       while (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          x[0] + k * dx[0],
-          x[1] + k * dx[1],
-        ) &&
+        !AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0]) &&
         trial++ < 20
       )
         k /= 2;
-      if (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          x[0] + k * dx[0],
-          x[1] + k * dx[1],
-        )
-      )
+      if (!AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0]))
         return null;
       x = [x[0] + k * dx[0], x[1] + k * dx[1]];
       if (done) return x;
@@ -405,13 +395,7 @@ export namespace AutoMovieSolidRailSolve {
     return null;
   }
 
-  /**
-   * Solve positive world chord length along a supplied owned-chart jet reader.
-   * Halve the initial tangent estimate until it lies on the increasing branch.
-   * Backtrack subsequent Newton steps within that predicate and require
-   * residual decrease. This keeps a failed trial separate from an unavailable
-   * root. See Armijo 1966, doi:10.2140/pjm.1966.16.1.
-   */
+  /** Solve positive world chord length along a supplied owned-chart jet reader. */
   export function offset(
     along: (l: number) => IAutoMovieSolidSurface.IJet | null,
     d: readonly [number, number],
@@ -431,9 +415,8 @@ export namespace AutoMovieSolidRailSolve {
       ]),
     );
     if (!(speed > 0)) return null;
-    /** Read the chord and its derivative on the current positive branch. */
-    const read = (l: number): { miss: number; rate: number } | null => {
-      if (!(Number.isFinite(l) && l > 0)) return null;
+    let l: number = (start ?? width) / speed;
+    for (let step: number = 0; step < steps; step++) {
       const j: IAutoMovieSolidSurface.IJet | null = along(l);
       if (j === null) return null;
       const r: AutoMovieVector3Tuple = sub(j.p, from);
@@ -447,36 +430,11 @@ export namespace AutoMovieSolidRailSolve {
             [d[1], j.v],
           ]),
         ) / chord;
-      return Number.isFinite(miss) && Number.isFinite(rate) && rate > 0
-        ? { miss, rate }
-        : null;
-    };
-    const tolerance: number = rounding * (width + norm(from));
-    let l: number = (start ?? width) / speed;
-    let current: ReturnType<typeof read> = read(l);
-
-    // Use the same halving budget as the two-coordinate rail solve.
-    for (let n: number = 0; current === null && n < 20; n++) {
-      l /= 2;
-      current = read(l);
-    }
-    if (current === null) return null;
-
-    for (let step: number = 0; step < steps; step++) {
-      const converged: boolean = Math.abs(current.miss) <= tolerance;
-      let delta: number = -current.miss / current.rate;
-      let next: ReturnType<typeof read> = null;
-      for (let n: number = 0; n < 20 && l + delta !== l; n++, delta /= 2) {
-        const trial: ReturnType<typeof read> = read(l + delta);
-        if (trial !== null && Math.abs(trial.miss) < Math.abs(current.miss)) {
-          next = trial;
-          break;
-        }
-      }
-      if (converged) return next === null ? l : l + delta;
-      if (next === null) return null;
-      l += delta;
-      current = next;
+      if (!(rate > 0)) return null;
+      const converged: boolean =
+        Math.abs(miss) <= rounding * (width + norm(from));
+      l -= miss / rate;
+      if (converged) return along(l) === null ? null : l;
     }
     return null;
   }

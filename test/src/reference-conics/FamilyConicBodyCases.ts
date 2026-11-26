@@ -6,13 +6,13 @@
  *
  * A site case moves one measure of one site to its population's 5th and 95th percentile, `1 -+ 1.645 CV`, with `CV` the coefficient of
  * variation of the matching ANSUR II women's measure (`packages/human/docs/sources/ansur-ii.md`, SD over mean; the trunk's four are the
- * existing case-table values). Where the survey has no measure of the site's own definition the nearest one is
+ * values `AutoMovieHumanF1Engineering` already holds). Where the survey has no measure of the site's own definition the nearest one is
  * taken and the row says so. A breadth or a depth case takes its site's girth's `CV`, since the notes hold SDs for the hip's breadth and
  * depth only. These sizes are the cases' reach, not acceptance limits.
  */
 export namespace FamilyConicBodyCases {
   /** What a case moves. */
-  export type Kind = "baseline" | "girth" | "breadth" | "depth" | "tissue" | "bust" | "length";
+  export type Kind = "f1" | "girth" | "breadth" | "depth" | "tissue" | "bust" | "length";
 
   /** One case of the round. */
   export interface ICase {
@@ -22,13 +22,13 @@ export namespace FamilyConicBodyCases {
     /** What it moves. */
     kind: Kind;
 
-    /** The site it acts on (the resolver's named material site), or null for a case of the whole figure. */
+    /** The site it acts on (a key of `AutoMovieHumanF1NativeSites.ISites`' groups), or null for a case of the whole figure. */
     site: string | null;
 
-    /** The ratio of the moved measure to the baseline. */
+    /** The ratio of the moved measure to f1's own. */
     ratio: number;
 
-    /** What stays at the baseline while it moves, in words the resolving tool maps to fields. */
+    /** What stays at f1's value while it moves, in words the resolving tool maps to fields. */
     holds: string;
 
     /** The basis of the ratio. */
@@ -52,10 +52,10 @@ export namespace FamilyConicBodyCases {
 
   /** The sites below the head with their girths' spread. */
   const SITES: readonly ISite[] = [
-    { site: "hip", cv: 0.0622, basis: "buttock circumference" },
-    { site: "omphalion", cv: 0.1045, basis: "waist (omphalion) circumference" },
-    { site: "underbust", cv: 0.0662, basis: "chest circumference below the bust (ANSUR 1988)" },
-    { site: "neck", cv: 0.0484, basis: "neck circumference" },
+    { site: "hip", cv: 0.0622, basis: "buttock circumference, the coefficient AutoMovieHumanF1Engineering holds" },
+    { site: "omphalion", cv: 0.1045, basis: "waist (omphalion) circumference, as held there" },
+    { site: "underbust", cv: 0.0662, basis: "chest circumference below the bust (ANSUR 1988), as held there" },
+    { site: "neck", cv: 0.0484, basis: "neck circumference, as held there" },
     { site: "upperArm", cv: 30.8 / 305.6, basis: "biceps circumference, flexed: the survey has no relaxed upper arm girth" },
     { site: "elbow", cv: 18.5 / 264.1, basis: "forearm circumference, flexed: the survey has no elbow girth" },
     { site: "forearm", cv: 18.5 / 264.1, basis: "forearm circumference, flexed" },
@@ -68,29 +68,18 @@ export namespace FamilyConicBodyCases {
     { site: "foot", cv: 4.8 / 92.7, basis: "foot breadth: the note holds no ball of foot circumference's SD" },
   ];
 
-  /** The existing case-table spread for chest circumference at the bust point. */
+  /** The bust girth's spread: chest circumference at the bust point, the coefficient `AutoMovieHumanF1Engineering` holds. */
   const BUST_CV: number = 0.07;
 
-  /** Covered anatomical length changes, including breadth controls for hand and foot. */
-  export const LENGTHS = ["upperArm", "forearm", "thigh", "shank", "handLength", "handBreadth", "footLength", "footBreadth", "phalanges", "limbs"] as const;
-
-  /** One of the round's exact length changes. */
-  export type Length = (typeof LENGTHS)[number];
-
-  /** The twenty requested length changes, identified by the dimension and ratio. */
-  export const LENGTH_CASES: readonly { id: string; field: Length; ratio: number }[] =
-    LENGTHS.flatMap((field: Length) => [0.9, 1.1].map((ratio: number) => ({
-      id: `length-${field}-${ratio}`,
-      field,
-      ratio,
-    })));
+  /** The length cases the native round already resolves (`AutoMovieHumanF1Engineering`, `length-<field>-<ratio>`), by field. */
+  const LENGTHS: readonly string[] = ["upperArm", "forearm", "thigh", "shank", "handLength", "handBreadth", "footLength", "footBreadth", "phalanges", "limbs"];
 
   /** The ratio's text in an identifier: three decimals. */
   const text = (ratio: number): string => ratio.toFixed(3);
 
-  /** Every case of the round, baseline first. */
+  /** Every case of the round, f1 first. */
   export const CASES: readonly ICase[] = [
-    { id: "baseline", kind: "baseline", site: null, ratio: 1, holds: "everything", basis: "the supplied original fields" },
+    { id: "f1", kind: "f1", site: null, ratio: 1, holds: "everything", basis: "the reference person's own fields" },
     ...SITES.flatMap((entry: ISite): ICase[] =>
       [-1, 1].flatMap((sign: number): ICase[] => {
         const ratio: number = 1 + sign * PERCENTILE * entry.cv;
@@ -107,6 +96,8 @@ export namespace FamilyConicBodyCases {
       return { id: "bust-girth-" + text(ratio), kind: "bust", site: "bust", ratio, holds: "the under-bust girth, the chest wall, the bust point's breadth and both heights", basis: "1 " + (sign < 0 ? "-" : "+") + " 1.645 CV of ANSUR II women's chest circumference at the bust point" };
     }),
     ...[0.8, 1.2].map((ratio: number): ICase => ({ id: "tissue-" + ratio, kind: "tissue", site: null, ratio, holds: "every joint centre, every bony breadth and every centre line", basis: "the native round's own tissue cases" })),
-    ...LENGTH_CASES.map(({ id, ratio }): ICase => ({ id, kind: "length", site: null, ratio, holds: "every caliper and girth; the soles on the floor", basis: "the round's prescribed length ratios" })),
+    ...LENGTHS.flatMap((field: string): ICase[] =>
+      [0.9, 1.1].map((ratio: number): ICase => ({ id: "length-" + field + "-" + ratio, kind: "length", site: null, ratio, holds: "every caliper and girth; the soles on the floor", basis: "the native round's own length cases" })),
+    ),
   ];
 }

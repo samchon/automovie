@@ -242,7 +242,7 @@ Returns one string or null with no retained query state.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Bisection from the ellipse shoulder admits each endpoint using actual-source quadrature. The final two admitted observations supply the range.
+Bisection from the ellipse shoulder finds each finite source-admission endpoint, then actual-source quadrature measures its girth.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -262,7 +262,7 @@ Bounded binary64 bisection with actual source and native-arclength admission on 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Returns the shoulder and measured girth from each final admitted bracket endpoint without measuring that endpoint again.
+Every admitted range candidate has finite native arclength; this avoids claiming a reach whose endpoint cannot be integrated.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -292,7 +292,7 @@ One native ellipse measurement can complete the request; otherwise at most100 Il
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The local choice and the complete reach supply their measured endpoints directly to Illinois. Only finite new shoulders need numeric construction. The selected actual source and fault come from that same iteration.
+The call-owned numeric trial map reuses identical shoulder measurements and the selected actual source; it retains no foreign algebra callbacks or cross-input state. Complete endpoint geometry remains the original range owner's result.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

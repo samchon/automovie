@@ -1,5 +1,4 @@
 import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftContract";
-import type { IAutoMovieViewPart } from "../../construction/IAutoMovieViewPart";
 import type { AutoMovieHumanSide } from "../AutoMovieHumanSide";
 import type { IAutoMovieHumanArmConstruction } from "./IAutoMovieHumanArmConstruction";
 import type { IAutoMovieHumanBodyMeasures } from "./IAutoMovieHumanBodyMeasures";
@@ -55,6 +54,6 @@ export namespace IAutoMovieHumanLimbSources {
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
 
     /** Complete the genuine coupled parent only at its explicit full demand. */
-    completeLeg?: (side: AutoMovieHumanSide) => IAutoMovieViewPart;
+    completeLeg?: () => void;
   }
 }

@@ -139,12 +139,6 @@ export namespace IAutoMovieConstructionProfileSource {
     point(station: number, clock: number): AutoMovieVector2Tuple;
 
     /**
-     * Prepare actual local Point0 for multiple original clocks at one fixed
-     * physical station.
-     */
-    pointAt?(station: number): (clock: number) => AutoMovieVector2Tuple;
-
-    /**
      * Actual fixed-station phase reading at station millimetres and original
      * clock. An absent method falls back to this owner's jet; an implemented
      * method returning null is a refusal and does not fall back. A nonnull
@@ -165,13 +159,5 @@ export namespace IAutoMovieConstructionProfileSource {
       station: number,
       clock: number,
     ): IAutoMovieConstructionProfileSource.IJet | null;
-
-    /**
-     * Prepare the actual physical total2 for multiple original clocks at one
-     * fixed station.
-     */
-    jetAt?(
-      station: number,
-    ): (clock: number) => IAutoMovieConstructionProfileSource.IJet | null;
   }
 }

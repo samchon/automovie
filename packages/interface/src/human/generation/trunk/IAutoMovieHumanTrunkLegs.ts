@@ -17,8 +17,8 @@ export namespace IAutoMovieHumanTrunkLegs {
     /** Retained standalone legs when no coupled factory was supplied. */
     legs?: Record<"left" | "right", IAutoMovieHumanSourceDefinition>;
     /**
-     * Author the regional leg against this identical parent and its named hip
-     * station.
+     * Author and retain the regional leg against this identical parent and its
+     * named hip station.
      */
     bindLeg?(
       side: "left" | "right",

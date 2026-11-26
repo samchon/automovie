@@ -48,9 +48,6 @@ export interface IAutoMovieHumanTrunkInputs {
    */
   cervicale: number;
 
-  /** Signed posterior cervicale skin datum from the ankle midpoint, calibration mm. */
-  cervicaleForward?: number;
-
   /**
    * Acromial height: the acromion over the floor (ANSUR II), the shoulder
    * point's height.
@@ -62,12 +59,6 @@ export interface IAutoMovieHumanTrunkInputs {
    * parts from the trunk.
    */
   axilla: number;
-
-  /** Authored thoracic angle between the posterior surface tangents, degrees. */
-  kyphoticAngle?: number;
-
-  /** Authored lumbar angle between the posterior surface tangents, degrees. */
-  lordoticAngle?: number;
 
   /**
    * Whether the person's measured anatomy is a woman's

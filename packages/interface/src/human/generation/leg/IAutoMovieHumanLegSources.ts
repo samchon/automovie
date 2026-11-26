@@ -1,5 +1,4 @@
 import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLoftContract";
-import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanBodyLane } from "../IAutoMovieHumanBodyLane";
 import type { IAutoMovieHumanBodyMeasures } from "../IAutoMovieHumanBodyMeasures";
 import type { IAutoMovieHumanFootConstruction } from "../IAutoMovieHumanFootConstruction";
@@ -24,20 +23,11 @@ export namespace IAutoMovieHumanLegSources {
     /** Original leg law. */
     law: IAutoMovieHumanLegWalk.ILaw;
 
-    /**
-     * Prepare one foot host for selected original and toe reads within this
-     * scope.
-     */
-    prepareFoot(): Pick<IOutput, "foot" | "definition" | "toe" | "toes">;
-
     /** Explicit foot input request, using only its actual distal authority. */
     foot(): IAutoMovieHumanBodyLane.ISide["foot"];
 
     /** Same foot original consumed by its explicit loft. */
     definition(): IAutoMovieHumanSourceDefinition;
-
-    /** Prepare just the named toe geometry on the shared support plan. */
-    toe(name: string): IAutoMovieHumanBodyLane.IToe | undefined;
 
     /** Explicit toe originals from the same foot controls. */
     toes(): IAutoMovieHumanBodyLane.IToe[];
@@ -70,6 +60,6 @@ export namespace IAutoMovieHumanLegSources {
      * Explicit full-parent demand; ordinary ankle/foot/original reads do not
      * call it.
      */
-    completeLeg?: () => IAutoMovieViewPart;
+    completeLeg?: () => void;
   }
 }

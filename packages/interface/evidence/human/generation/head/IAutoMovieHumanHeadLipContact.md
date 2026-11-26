@@ -58,8 +58,8 @@ One full native parent source, with explicit units and chart ownership.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Returned by AutoMovieHumanHeadLipContact.create. A distinct fixed level can prepare a reader over the same admitted original parent without repeating its scalar source admission.
+Returned by AutoMovieHumanHeadLipContact.create.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The frame and all three contact capabilities use the same original parent. Preparing a level retains its section geometry, with every lateral query evaluated directly.
+Required fields are `parent`, `source`, `frame`; callers supply the complete record.

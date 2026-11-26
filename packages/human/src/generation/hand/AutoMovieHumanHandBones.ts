@@ -1,6 +1,7 @@
 import type {
   AutoMovieHumanSex as AutoMovieHumanSexType,
   AutoMovieVector3Tuple,
+  IAutoMovieHumanArmPrior,
   IAutoMovieHumanHandBones,
   IAutoMovieHumanHandFrame,
   IAutoMovieHumanHandMeasures,
@@ -8,6 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanSex } from "../../typings/AutoMovieHumanSex";
+import { AutoMovieHumanArmPrior } from "../AutoMovieHumanArmPrior";
 import { AutoMovieHumanDigitJoints } from "../AutoMovieHumanDigitJoints";
 import { AutoMovieHumanHandJoints } from "./AutoMovieHumanHandJoints";
 import { AutoMovieHumanHandPosture } from "./AutoMovieHumanHandPosture";
@@ -18,17 +20,17 @@ import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
  * ratios on the person's lengths, with a conventional packing of PIP breadth
  * proxies inside the hand breadth (`docs/anatomy/hand.md`, Finger widths and
  * webs). PIP breadth is not an observed MCP breadth. Metacarpal bases are
- * level. The thumb uses the retained thenar branch direction, transferred from
- * the form's nominal axial crease into this hand's material frame; its CMC is
- * that ray's intersection with the metacarpal-base plane. This is a placement
- * convention, not a measured CMC or an old skin solve. The common forearm WJC
- * keeps its retained 1.5 mm stylion offset; de Leva's hand-specific Table 2
- * offsets of 2.2/2.4 mm are different datums. Applying the hand ratios here is
- * an explicit transfer to that shared WJC, not a claim that the paper measured
- * this identical hand origin. MET3-to-MCP, interarticular-to-joint-centre and
- * thumb-crease-to-MCP transfers remain placement proxies. Public palm length
- * owns the proximal digit-III crease, independently of these joint and web
- * definitions.
+ * level. The thumb uses the retained thenar branch direction, transferred
+ * from the form's nominal axial crease into this hand's material frame;
+ * its CMC is that ray's intersection with the metacarpal-base plane.
+ * This is a placement convention, not a measured CMC or an old skin solve.
+ * The common forearm WJC keeps its retained 1.5 mm stylion offset; de Leva's
+ * hand-specific Table 2 offsets of 2.2/2.4 mm are different datums. Applying
+ * the hand ratios here is an explicit transfer to that shared WJC, not a
+ * claim that the paper measured this identical hand origin. MET3-to-MCP,
+ * interarticular-to-joint-centre and thumb-crease-to-MCP transfers remain
+ * placement proxies. Public palm length owns the proximal digit-III crease,
+ * independently of these joint and web definitions.
  *
  * @evidence contracts/common.md#principled-implementation Combines the named published segment ratios with explicit WJC, joint-centre and breadth-packing transfers before any skin exists.
  * @evidence contracts/common.md#clear-and-simple-design One source record carries actual joints, the material frame, packing centre and independent crease to skeleton and view consumers.
@@ -40,33 +42,10 @@ import { AutoMovieHumanHandVector as V } from "./AutoMovieHumanHandVector";
  */
 export namespace AutoMovieHumanHandBones {
   /**
-   * A left hand's straight-wrist material frame. The canonical bind places the
-   * radial side toward anatomical anterior, projected off the forearm.
-   */
-  export function frame(
-    forearm: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanHandFrame {
-    const length: number = V.norm(forearm);
-    if (!Number.isFinite(length) || !(length > 0))
-      throw new Error("A hand frame needs a finite forearm direction");
-    const along: AutoMovieVector3Tuple = [
-      forearm[0] / length,
-      forearm[1] / length,
-      forearm[2] / length,
-    ];
-    const radial: AutoMovieVector3Tuple =
-      along[1] === 0 && along[2] === 0 ? [0, 0, 1] : [1, 0, 0];
-    const across: AutoMovieVector3Tuple = V.across(radial, along);
-    return { along, across, palmar: V.cross(across, along) };
-  }
-
-  /**
    * Place a hand without constructing or measuring a palm, digit or mesh.
-   * Public lengths are measured in the straightened measuring pose; shared bind
-   * flexions turn the phalanges while keeping each segment's length.
+   * Public lengths are measured in the straightened measuring pose; shared
+   * bind flexions turn the phalanges while keeping each segment's length.
    *
-   * @param material A left-hand orthonormal frame supplied by the person's
-   *   forearm. A standalone hand uses the straight downward chart.
    * @evidence contracts/common.md#principled-implementation Uses Reddy's MC ratios, de Leva's third-MC reach, Buryanov's web/joint ratios and the existing shared bind posture; no generated skin is queried.
    * @evidence contracts/common.md#clear-and-simple-design Publishes four-centre digit records that both skeleton and body construction can consume.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Each hand reads its own public dimensions; PIP packing proxies and the unmeasured CMC convention are explicit, without person-specific corrections.
@@ -81,31 +60,37 @@ export namespace AutoMovieHumanHandBones {
     sex: AutoMovieHumanSexType,
     scale: number,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
-    material: IAutoMovieHumanHandFrame = frame([0, -1, 0]),
   ): IAutoMovieHumanHandBones.IOutput {
-    const phalangealScale: number = given.phalangealLengthScale ?? 1;
     if (
       !(
         scale > 0 &&
         given.length > given.palm &&
         given.palm > AutoMovieHumanHandJoints.STYLION * scale &&
         given.breadth > 0 &&
-        given.thumb > 0 &&
-        Number.isFinite(phalangealScale) &&
-        phalangealScale > 0
+        given.thumb > 0
       )
     )
       throw new Error(
         "A hand needs positive dimensions with hand length beyond its palm",
       );
-    const { along, across, palmar } = material;
-    const dorsal: AutoMovieVector3Tuple = V.scale(palmar, -1);
+    const prior: IAutoMovieHumanArmPrior.IHandPrior =
+      AutoMovieHumanArmPrior.PRIOR.hand;
+    const along: AutoMovieVector3Tuple = V.unit([...prior.along]);
+    const across: AutoMovieVector3Tuple = V.across([...prior.across], along);
+    const palmar: AutoMovieVector3Tuple = V.cross(across, along);
+    const frame: IAutoMovieHumanHandFrame = {
+      along,
+      across,
+      palmar:
+        V.dot(palmar, [...prior.through]) >= 0 ? palmar : V.scale(palmar, -1),
+    };
+    const dorsal: AutoMovieVector3Tuple = V.scale(frame.palmar, -1);
     const terminal: number =
       given.length - AutoMovieHumanHandJoints.STYLION * scale;
-    const population: 0 | 1 = sex === AutoMovieHumanSex.Female ? 0 : 1;
-    const reach: number = MET3[population] * terminal;
-    const external: number = (terminal - reach) / (1 + PHALANGES[1]!.web);
-    const third: number = THIRD[population] * reach;
+    const reach: number =
+      MET3[sex === AutoMovieHumanSex.Female ? 0 : 1]! * terminal;
+    const external: number = (terminal - reach) / (1 + WEB[1]!);
+    const third: number = THIRD * reach;
 
     // Packing is a location convention, not a claim that PIP equals MCP.
     // Contradictory dimensions report the compression of these proxies only;
@@ -147,7 +132,7 @@ export namespace AutoMovieHumanHandBones {
         wrist,
         V.plus(
           V.scale(along, a),
-          V.plus(V.scale(across, b), V.scale(palmar, c)),
+          V.plus(V.scale(across, b), V.scale(frame.palmar, c)),
         ),
       );
     const mcps: AutoMovieVector3Tuple[] = centres.map(
@@ -162,29 +147,23 @@ export namespace AutoMovieHumanHandBones {
       IAutoMovieHumanHandBones.IDigit
     >;
     for (let index: number = 0; index < NAMES.length; index++) {
-      const {
-        web,
-        middle: middleShare,
-        distal: distalShare,
-        external: own,
-      } = PHALANGES[index]!;
-      const length: number =
-        ((external * own) / PHALANGES[1]!.external) * phalangealScale;
-      const first: number = (web + 1 - distalShare - middleShare) * length;
-      const second: number = (web + 1 - distalShare) * length;
+      const length: number = external * prior.external[index]!;
+      const web: number = WEB[index]! * length;
+      const first: number = web + prior.joints[index]![0]! * length;
+      const second: number = web + prior.joints[index]![1]! * length;
       const proximal: AutoMovieVector3Tuple = AutoMovieHumanHandJoints.proximal(
         index + 1,
-        material,
+        frame,
       );
       const middle: AutoMovieVector3Tuple = bend(
         proximal,
-        palmar,
-        AutoMovieHumanHandPosture.FINGERS.pip[index]!,
+        frame.palmar,
+        prior.posture.pip[index]!,
       );
       const distal: AutoMovieVector3Tuple = bend(
         middle,
-        palmar,
-        AutoMovieHumanHandPosture.FINGERS.dip[index]!,
+        frame.palmar,
+        prior.posture.dip[index]!,
       );
       const mcp: AutoMovieVector3Tuple = mcps[index]!;
       const pip: AutoMovieVector3Tuple = V.plus(mcp, V.scale(proximal, first));
@@ -194,7 +173,7 @@ export namespace AutoMovieHumanHandBones {
       );
       const tip: AutoMovieVector3Tuple = V.plus(
         dip,
-        V.scale(distal, distalShare * length),
+        V.scale(distal, web + length - second),
       );
       fingers[NAMES[index]!] = {
         centres: [mcp, pip, dip, tip],
@@ -202,18 +181,27 @@ export namespace AutoMovieHumanHandBones {
       };
     }
 
-    // The thumb base and axis use the public rig's landmark ratios, with
-    // longitudinal placement scaled by MCP3 and cross directions by II–V.
-    const chord: number = V.dot(V.sub(mcps[0]!, mcps[3]!), across);
+    // Transfer only the prior's direction from [crease, 0, 0] to the thenar
+    // branch centre. That nominal axial crease is not the old skin loop's
+    // mean or an observed WJC. Similarity transfer keeps this dimensionless
+    // direction: no independent hand-depth measurement exists here. The CMC
+    // meets the same base-level plane as the other metacarpals, radial and
+    // palmar of the wrist; the measured MC length continues along that ray.
+    const ray: AutoMovieVector3Tuple = [
+      prior.branch - prior.crease,
+      prior.thenar.b,
+      prior.thenar.c,
+    ];
+    const base: number = reach - third;
     const cmc: AutoMovieVector3Tuple = point(
-      THUMB_BASE[0] * reach,
-      THUMB_BASE[1] * chord,
-      THUMB_BASE[2] * chord,
+      base,
+      (base * ray[1]) / ray[0],
+      (base * ray[2]) / ray[0],
     );
     const metacarpal: AutoMovieVector3Tuple = V.unit(
       V.plus(
-        V.scale(along, THUMB_AXIS[0]),
-        V.plus(V.scale(across, THUMB_AXIS[1]), V.scale(palmar, THUMB_AXIS[2])),
+        V.scale(along, ray[0]),
+        V.plus(V.scale(across, ray[1]), V.scale(frame.palmar, ray[2])),
       ),
     );
     const mcp: AutoMovieVector3Tuple = V.plus(
@@ -222,18 +210,22 @@ export namespace AutoMovieHumanHandBones {
     );
     const rest: { mcp: number; ip: number } =
       AutoMovieHumanHandPosture.thumbRest();
-    const proximal: AutoMovieVector3Tuple = bend(metacarpal, palmar, rest.mcp);
-    const distal: AutoMovieVector3Tuple = bend(proximal, palmar, rest.ip);
+    const proximal: AutoMovieVector3Tuple = bend(
+      metacarpal,
+      frame.palmar,
+      rest.mcp,
+    );
+    const distal: AutoMovieVector3Tuple = bend(proximal, frame.palmar, rest.ip);
     const ip: AutoMovieVector3Tuple = V.plus(
       mcp,
-      V.scale(proximal, THUMB_PROXIMAL * given.thumb * phalangealScale),
+      V.scale(proximal, prior.thumbProximal * given.thumb),
     );
     const tip: AutoMovieVector3Tuple = V.plus(
       ip,
-      V.scale(distal, (1 - THUMB_PROXIMAL) * given.thumb * phalangealScale),
+      V.scale(distal, (1 - prior.thumbProximal) * given.thumb),
     );
     return {
-      frame: { along: [...along], across: [...across], palmar: [...palmar] },
+      frame,
       radialCenter: -centres[1]!,
       fingers,
       thumb: { centres: [cmc, mcp, ip, tip], dorsal: [...dorsal] },
@@ -301,8 +293,8 @@ export namespace AutoMovieHumanHandBones {
 
   /**
    * Public stylion-to-crease length on the straightened measuring course,
-   * carried onto the proximal phalanx in the bind. The shared WJC offset and
-   * MCP reach are removed once before that transport.
+   * carried onto the proximal phalanx in the bind. The shared WJC offset
+   * and MCP reach are removed once before that transport.
    *
    * @evidence contracts/common.md#principled-implementation Subtracts the shared stylion/WJC offset and actual wrist-to-MCP3 reach, then carries the remainder along the generated proximal direction.
    * @evidence contracts/common.md#clear-and-simple-design One point calculation keeps the independent public crease outside the bone/web ratio definitions.
@@ -336,69 +328,14 @@ const NAMES: readonly IAutoMovieHumanHandBones.Finger[] = [
 ];
 /** Reddy 2024 total metacarpal lengths over the third, thumb first. */
 const METACARPALS: readonly number[] = [0.711, 1.039, 1, 0.883, 0.797];
-/**
- * Reddy Table 4 MC3 total length divided by de Leva Table 4 WJC-to-MET3 reach,
- * women and men.
- */
-const THIRD: readonly [number, number] = [60.4 / 78, 66.6 / 86.2];
-/**
- * De Leva Table 4 WJC-to-MET3 / WJC-to-DAC3, a bony-landmark proxy for MCP3,
- * women and men.
- */
-const MET3: readonly [number, number] = [78 / 170.1, 86.2 / 187.9];
+/** Retained third-MC/reach convention across de Leva/Reddy datums; exact aggregation unrecovered. */
+const THIRD: number = 0.774;
+/** de Leva Table 4 WJC-to-MET3 / WJC-to-DAC3, a bony-landmark proxy for MCP3, women and men. */
+const MET3: readonly number[] = [78 / 170.1, 86.2 / 187.9];
+/** Buryanov 2010 Table III, each web's height above its MCP over web-to-tip length. */
+const WEB: readonly number[] = [0.1552, 0.1533, 0.1849, 0.2472];
 
-/**
- * Buryanov Tables I and III, in index-to-little order. The distal share
- * includes tip soft tissue.
- */
-const PHALANGES: ReadonlyArray<{
-  web: number;
-  middle: number;
-  distal: number;
-  external: number;
-}> = [
-  {
-    web: 0.1552,
-    middle: 0.3097,
-    distal: 0.278,
-    external: (15.82 + 3.84) / 0.278,
-  },
-  {
-    web: 0.1533,
-    middle: 0.3311,
-    distal: 0.2632,
-    external: (17.4 + 3.95) / 0.2632,
-  },
-  {
-    web: 0.1849,
-    middle: 0.3361,
-    distal: 0.2825,
-    external: (17.3 + 3.95) / 0.2825,
-  },
-  {
-    web: 0.2472,
-    middle: 0.3199,
-    distal: 0.3392,
-    external: (15.96 + 3.73) / 0.3392,
-  },
-];
-
-/** Buryanov Table I, proximal share of the thumb's MCP-to-skin-tip length. */
-const THUMB_PROXIMAL: number = 31.57 / (31.57 + 21.67 + 5.67);
-
-/**
- * HM08 thumb CMC relative to wrist, normalized longitudinally by MCP3 reach and
- * transversely by II–V.
- */
-const THUMB_BASE: AutoMovieVector3Tuple = [0.345, 0.355, 0.224];
-
-/** HM08 thumb CMC-to-MCP direction in its wrist-and-knuckle frame. */
-const THUMB_AXIS: AutoMovieVector3Tuple = [0.673, 0.665, 0.323];
-
-/**
- * Turn a phalanx toward the palm by its shared bind angle, retaining unit
- * length.
- */
+/** Turn a phalanx toward the palm by its shared bind angle, retaining unit length. */
 function bend(
   direction: AutoMovieVector3Tuple,
   palmar: AutoMovieVector3Tuple,

@@ -32,7 +32,7 @@ Closures retain copied cycles/maps and borrowed surfaces until dropped; populati
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Checkpoints cycle copies and mesh populations, then appends shared rail vertices and reciprocal cycles through the existing join, blend and clip owners. When the part face already has a retained domain, it admits every part-rail column on that domain and applies the existing authoritative segment partition before publishing another trim on that face.
+Checkpoints cycle copies and mesh populations, then appends shared rail vertices and reciprocal cycles through the existing join, blend and clip owners.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -40,7 +40,7 @@ One transaction owns mutation order while numerical geometry remains in the exis
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves early join-null, returned diagnostics and the original checkpoint scope. Part-side admission reuses existing chart membership, periodic lifts and exact predicates. Refining or connecting the new trim across a different part chart still belongs to the boundary producer.
+Preserves early join-null, returned diagnostics and the original checkpoint scope; thrown callbacks are not caught or converted into rollback results.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -48,15 +48,15 @@ Distinguishes append/cycle mutations, admitted input premises and returned failu
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Includes cycle/atlas snapshots, join and column solves, boundary allocation and clipping. Each retained cycle prepares one reader for the part's declared columns. The authoritative segment sweep uses only the previously retained and newly declared boundary segments of that one face.
+Includes cycle/atlas snapshots, join and column solves, boundary allocation and clipping; supplied traced data can be reused by the join.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Adjoining faces share exact boundary vertex indices, and one published blend supplies its surface and trim records. A traced join that selects native boundaries gives both source cuts and their adjoining blend edges reciprocal readers of the same prepared cubic rails.
+Adjoining faces share exact boundary vertex indices, and one published blend supplies its surface and trim records.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The body retains successful geometry. Checkpoint copies and retained-part boundary preparation are local to the merge. Returned joins own their declared columns.
+The body retains successful geometry; checkpoint copies are local, while returned joins retain their existing query cache with no new cache here.
 
 # src/geometry/construction/AutoMovieSolidBodyMerge.ts#AutoMovieSolidBodyMerge.kept
 

@@ -6,15 +6,6 @@ import type { IAutoMovieCubicBezierCurve64 } from "../../../geometry/curve/IAuto
  * remains in Human.
  */
 export namespace IAutoMovieHumanHandPalm {
-  /** Locally owned mesh in the caller's absolute millimetre chart. */
-  export interface IFixedMesh {
-    /** Interleaved positions, three coordinates per vertex. */
-    positions: number[];
-
-    /** Three vertex indices per oriented triangle. */
-    indices: number[];
-  }
-
   /** JSON coefficient layout before restoring the engine's fixed tuple widths. */
   export interface IFixedCurveInput {
     /** Declared cubic representation and physical units. */
@@ -189,4 +180,12 @@ export namespace IAutoMovieHumanHandPalm {
      */
     boundary: AutoMovieVector3Tuple[];
   };
+
+  /**
+   * The map argument of AutoMovieHumanHandPalm.palmOf. The palm's chain, its
+   * sections square to the hand's axis.
+   */
+  export type PalmOfMap = (
+    q: readonly [number, number, number],
+  ) => AutoMovieVector3Tuple;
 }

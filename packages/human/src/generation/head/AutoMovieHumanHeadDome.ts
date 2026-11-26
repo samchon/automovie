@@ -34,21 +34,17 @@ import { AutoMovieHumanHeadDomeHost } from "./AutoMovieHumanHeadDomeHost";
  */
 export namespace AutoMovieHumanHeadDome {
   /**
-   * Attempt the actual caller once and optionally collect every sibling
-   * outcome.
+   * Attempt the actual caller once and optionally collect every sibling outcome.
    *
    * @param dome Actual original cap definition, before any parent query.
    * @param parent Actual selected material source, if present.
    * @param point Original source placement anchor, world mm.
-   * @param attempts Explicit inspection sink; its composer must reject
-   *   aggregate failure.
-   * @param baseInset When supplied, the author uses the bracket solely to find
-   *   the surface and starts the cap this distance before it along the axis.
-   * @returns Actual original part, or null only in explicit failure collection
-   *   mode.
-   * @evidence contracts/common.md#principled-implementation Uses the same attachment and source construction as production and records their real outcomes. A surface-relative base uses the bracket's exact hit and preserves its original axis and apex.
+   * @param attempts Explicit inspection sink; its composer must reject aggregate failure.
+   * @returns Actual original part, or null only in explicit failure collection mode.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the same attachment and source construction as production and records their real outcomes.
    * @evidence contracts/common.md#clear-and-simple-design One owner supplies both normal throwing and explicit all-caller inspection.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed collection emits no substitute view; normal production still throws the original exception. Surface-relative bases are a declared authoring input before emission.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Failed collection emits no substitute view; normal production still throws the original exception.
    * @evidence contracts/common.md#meaningful-documentation A collecting composer must aggregate failures before publishing any result.
    * @evidence contracts/performance.md#efficient-algorithms Each parent-backed attempt performs one original scalar admission, O(n log n) source-site ordering, bounded contact-bracket inversions and fixed-size cap construction; native, scalar and axis owners retain their query costs.
    * @evidence contracts/performance.md#reuse-equivalent-work Inspection reuses the real region's definitions rather than reauthoring fixtures.
@@ -59,8 +55,7 @@ export namespace AutoMovieHumanHeadDome {
     parent: IAutoMovieViewPart | undefined,
     point: AutoMovieVector3Tuple,
     attempts?: IAutoMovieHumanHeadDome.IAttempt[],
-    baseInset?: number,
-  ): (IAutoMovieHumanHeadDome.IPart & { rise: number }) | null {
+  ): IAutoMovieHumanHeadDome.IPart | null {
     let host: IAutoMovieHumanHeadDomeHost.IHost | null = null;
     const record: (error: string | null) => void = (
       error: string | null,
@@ -82,23 +77,9 @@ export namespace AutoMovieHumanHeadDome {
     };
     try {
       host = parent === undefined ? null : contact(parent, dome);
-      if (baseInset !== undefined && host !== null && host.parameter !== null) {
-        const shift: number = host.parameter - baseInset;
-        dome = {
-          ...dome,
-          origin: [
-            host.point[0] - baseInset * dome.outward[0],
-            host.point[1] - baseInset * dome.outward[1],
-            host.point[2] - baseInset * dome.outward[2],
-          ],
-          height: dome.height - shift,
-        };
-        host = { ...host, parameter: baseInset };
-      }
-      const part: IAutoMovieHumanHeadDome.IPart & { rise: number } = {
+      const part: IAutoMovieHumanHeadDome.IPart = {
         ...of({ ...dome, ...(host === null ? {} : { host }) }),
         attachment: host,
-        rise: dome.height,
       };
       record(null);
       return part;
@@ -189,7 +170,7 @@ export namespace AutoMovieHumanHeadDome {
     // A sunk stem under the base, as wide as the base, twice as deep as the
     // estimated host sagitta. This allowance does not certify containment
     // when the host radius varies; the actual join must report that case.
-    const sink: number = Math.max(2 * sagitta(dome), dome.stem ?? 0);
+    const sink: number = 2 * sagitta(dome);
 
     // The source belongs to its author; a shallow crossing is the join
     // owner's responsibility and cannot change this declared profile.

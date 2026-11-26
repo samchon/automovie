@@ -15,7 +15,7 @@ import { AutoMovieHumanTrunkFeatureProfile } from "./AutoMovieHumanTrunkFeatureP
  * the sternum between the breasts keeps the wall's own convex section.
  */
 export namespace AutoMovieHumanBreastFootprint {
-  /** Upper reach over lower reach. ESTIMATE to spread the superior transition farther along the chest than the lower fold. */
+  /** Upper reach over lower reach. Conventional, flagged: to be read on f1 and f2's sagittal profile. */
   export const UPPER: number = 1.6;
 
   /** Lateral half width over the bust point's place off the midline. Conventional, flagged. */

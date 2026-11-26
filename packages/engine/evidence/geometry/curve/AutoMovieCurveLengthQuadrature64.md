@@ -27,33 +27,3 @@ The same speed reader, constants and summation serve both rules and both public 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Borrows callbacks and domains synchronously and returns scalar observations only; fixed module constants are the sole retained population.
-
-# src/geometry/curve/AutoMovieCurveLengthQuadrature64.ts#AutoMovieCurveLengthQuadrature64.parameters
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Lists the two domain endpoints followed by the closed chart's coarse and fine quadrature addresses.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Uses the same interval, GL8 node constants and binary64 affine operation order as the measurement.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-Builds one plain array for one already admitted domain and panel count.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Preserves repeated or collapsed addresses so source preparation does not change the integration rule.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Emits two endpoints and 24 times the panel count in interior addresses in one pass.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Both this enumeration and measurement use the same affine node calculation.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Returns only the caller-owned parameter array.

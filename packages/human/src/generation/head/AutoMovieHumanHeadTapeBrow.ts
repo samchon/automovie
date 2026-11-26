@@ -59,8 +59,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
         "Head brow tape has no ordered regular upper-source interval",
       );
     const span: number = brow - first;
-    const planeAt: ReturnType<typeof AutoMovieHumanHeadTapeSource.preparePlane> =
-      AutoMovieHumanHeadTapeSource.preparePlane(reader, brow);
+    const cache: Map<number, IAutoMovieHumanHeadTape.ICourse | null> =
+      new Map();
     let evaluations: number = 0;
     const evaluate: (back: number) => IAutoMovieHumanHeadTape.ICourse | null = (
       back: number,
@@ -69,16 +69,21 @@ export namespace AutoMovieHumanHeadTapeBrow {
         throw new Error(
           "Head brow tape candidate lies outside its upper-source ownership interval",
         );
+      if (cache.has(back)) return cache.get(back)!;
       if (evaluations >= 512)
         throw new Error("Head brow tape numerical plane budget exhausted");
       evaluations++;
-      const plane: IAutoMovieHumanHeadTapeSource.IPlane = planeAt(back);
+      const plane: IAutoMovieHumanHeadTapeSource.IPlane =
+        AutoMovieHumanHeadTapeSource.plane(reader, brow, back);
       if (
         attachments.some(
           (point: IAutoMovieHumanHeadTapeBrow.P2): boolean =>
             plane.a + plane.b * point[0] < point[1],
         )
-      ) return null;
+      ) {
+        cache.set(back, null);
+        return null;
+      }
       // Candidates are compared by the one-panel-per-piece rule; the
       // published witness is re-measured by the former two-panel rule in
       // `finish`. Within one rule the error of each piece's Gauss-Legendre
@@ -86,7 +91,7 @@ export namespace AutoMovieHumanHeadTapeBrow {
       // the coarser rule moves the located maximum only by that error's
       // slope over the length's curvature there, and the published length
       // is the unchanged rule at the selected plane.
-      return {
+      const course: IAutoMovieHumanHeadTape.ICourse = {
         plane,
         ...AutoMovieHumanHeadTapeSource.measure(reader, plane, 1),
         coordinates: [0, (back - first) / span],
@@ -94,6 +99,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
         evaluations,
         unavailable: 0,
       };
+      cache.set(back, course);
+      return course;
     };
     let best: IAutoMovieHumanHeadTape.ICourse | null = null;
     const retain: (
@@ -128,13 +135,6 @@ export namespace AutoMovieHumanHeadTapeBrow {
 
     // Continuation: the seed's neighbouring scan sites bracket the maximum
     // when the seed still beats both; any other outcome scans completely.
-    type Sample = readonly [number, IAutoMovieHumanHeadTape.ICourse | null];
-    const pilot: Sample[] = [];
-    const probe: (station: number) => number = (station: number): number => {
-      const course: IAutoMovieHumanHeadTape.ICourse | null = evaluate(station);
-      pilot.push([station, course]);
-      return retain(course);
-    };
     if (mode === "continued" && seed !== undefined) {
       const target: number = first + seed[1] * span;
       const below: number | undefined = grid
@@ -144,11 +144,11 @@ export namespace AutoMovieHumanHeadTapeBrow {
         (s: number): boolean => s > target,
       );
       if (below !== undefined && above !== undefined) {
-        const centre: number = probe(target);
+        const centre: number = retain(evaluate(target));
         if (
           centre !== -Infinity &&
-          centre >= probe(below) &&
-          centre >= probe(above)
+          centre >= retain(evaluate(below)) &&
+          centre >= retain(evaluate(above))
         ) {
           refine(below, above);
           return finish();
@@ -161,14 +161,8 @@ export namespace AutoMovieHumanHeadTapeBrow {
         ...(seed === undefined ? [] : [first + seed[1] * span]),
       ]),
     ].sort((a: number, b: number): number => a - b);
-    const coarse: (IAutoMovieHumanHeadTape.ICourse | null)[] = sites.map(
-      (site: number): IAutoMovieHumanHeadTape.ICourse | null => {
-        const prepared: Sample | undefined = pilot.find(
-          (sample: Sample): boolean => sample[0] === site,
-        );
-        return prepared === undefined ? evaluate(site) : prepared[1];
-      },
-    );
+    const coarse: (IAutoMovieHumanHeadTape.ICourse | null)[] =
+      sites.map(evaluate);
     coarse.forEach(retain);
     for (let index: number = 0; index < sites.length; index++) {
       const candidate: IAutoMovieHumanHeadTape.ICourse | null = coarse[index]!;

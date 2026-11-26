@@ -9,10 +9,13 @@ export namespace IAutoMovieHumanTrunkGroinWidth {
     /** The buttock's half width, mm. */
     buttock: number;
 
-    /** The thigh tape, mm, when available with the ring ratio. */
+    /** The thigh tape, mm; absent, the references' median ratio is used. */
     thigh?: number;
 
-    /** The ring's half girth over the thigh tape, as the leg reports it. */
+    /**
+     * The ring's half girth over the thigh tape, as the leg reports it; absent,
+     * the references' median ratio is used.
+     */
     ratio?: number;
 
     /** The ring's girth at a trial half width, mm: the hull of its own section. */

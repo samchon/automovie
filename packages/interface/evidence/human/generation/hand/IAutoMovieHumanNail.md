@@ -20,19 +20,19 @@ Three named vectors express the frame independently of the digit family.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Complete skin of a digit before a nail relief is applied. `grid`: Gives units, equal spacing, endpoint inclusion, phase wrap and identity with point. `proximal`: Separates the physical fitting aperture from actual proximal relief support; stations and world coordinates are millimetres, with the existing periodic phase samples.
+Complete skin of a digit before a nail relief is applied.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The reader takes course millimetres and chart radians, returning a figure-space point in millimetres. First and tip bound the allowed station interval. `grid`: The same sampled point authority lets the relief bound affine phase edges and their lateral slopes in station millimetres and phase radians. `proximal`: An explicit station per borrowed ring preserves the real chart and its unique seam, including an interval of different pitch.
+The reader takes course millimetres and chart radians, returning a figure-space point in millimetres. First and tip bound the allowed station interval.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-AutoMovieHumanNail reads the unmodified skin throughout the distal segment. `grid`: An optional borrowed grid describes production readers that already interpolate this exact chart; other readers retain the point, first and tip contract. `proximal`: The optional rings only extend an existing reader's owning chart for relief; callers without an extension use the existing bounds.
+AutoMovieHumanNail reads the unmodified skin throughout the distal segment.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The callback provides the digit's own evaluated skin. The nail producer admits its usable region. `proximal`: No ring is inferred beyond the part's real proximal source, and the core grid's first row is not repeated.
+The callback provides the digit's own evaluated skin. The nail producer admits its usable region.
 
 # src/human/generation/hand/IAutoMovieHumanNail.ts#IAutoMovieHumanNail.IProportions
 

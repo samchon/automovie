@@ -1,4 +1,3 @@
-import { AutoMovieSolidVector as V } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanDigitWalk,
@@ -16,13 +15,9 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
 import { AutoMovieHumanDigitInterim } from "../limb/AutoMovieHumanDigitInterim";
 import { AutoMovieHumanFootConnection } from "./AutoMovieHumanFootConnection";
 import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
-import { AutoMovieHumanFootToeLines } from "./AutoMovieHumanFootToeLines";
 import { AutoMovieHumanToeVertical } from "./AutoMovieHumanToeVertical";
 
-/**
- * Toe inputs from the shared foot scalar/section/frame owner, before any
- * complete parent part exists.
- */
+/** Toe inputs from the shared foot scalar/section/frame owner, before any complete parent part exists. */
 export namespace AutoMovieHumanFootToeSources {
   /**
    * Enumerate the actual toe production names without preparing any geometry.
@@ -42,14 +37,10 @@ export namespace AutoMovieHumanFootToeSources {
     );
   }
 
-  /**
-   * Generate skin attachments from the foot's source support and the canonical
-   * phalange input.
-   */
+  /** Generate skin attachments from the identical actual foot input, without a second placement or support solve. */
   export function create(
     foot: IAutoMovieHumanFootPart.IInput,
     controls: IAutoMovieHumanSiteControls.IOutput,
-    phalangealLengthScale: number = 1,
   ): IAutoMovieHumanFootToeSources.ICandidate[] {
     const region:
       | NonNullable<IAutoMovieHumanFootPart.IInput["metatarsal"]>
@@ -58,8 +49,6 @@ export namespace AutoMovieHumanFootToeSources {
       throw new Error(
         "Toe attachments need the defining foot's metatarsal supports",
       );
-    if (!(Number.isFinite(phalangealLengthScale) && phalangealLengthScale > 0))
-      throw new Error("Toe phalanx length scale must be finite and positive");
     const sign: number = foot.side === "left" ? 1 : -1;
     const lateral: AutoMovieVector3Tuple = [
       -sign * foot.along[2],
@@ -71,7 +60,11 @@ export namespace AutoMovieHumanFootToeSources {
       AutoMovieHumanFootPlaces.TOES;
     const partNames: readonly string[] = names(foot.side);
 
-    // Scale the relative phalanx pattern to the public heel-to-longest-toe length.
+    // A maximum of population means need not equal the mean's unit maximum.
+
+    // Treat this retained pattern as relative toe lengths, then let public
+
+    // heel-to-longest-toe length own its actual longitudinal support.
     const longest: number = Math.max(
       ...tips.map((tip: { tip: number }): number => tip.tip),
     );
@@ -79,9 +72,6 @@ export namespace AutoMovieHumanFootToeSources {
     const owner: IAutoMovieHumanFootSource.ISource =
       AutoMovieHumanFootSource.fromControls(controls);
     const cascade: readonly number[] = AutoMovieHumanFootPrior.PRIOR.cascade;
-    const expected: readonly [number, number] =
-      AutoMovieHumanFootPrior.PRIOR.expected.breadth;
-    const nominalBreadth: number = ((expected[0] + expected[1]) * L) / 2;
     const stations: number[] = [
       region.span[1],
       region.span[1] + (cascade[0]! * L) / AutoMovieHumanFootPrior.CASCADE_FOOT,
@@ -90,7 +80,7 @@ export namespace AutoMovieHumanFootToeSources {
       stations.push(
         stations.at(-1)! - (drop * L) / AutoMovieHumanFootPrior.CASCADE_FOOT,
       );
-    const toes = tips.map(
+    return tips.map(
       (
         t: { tip: number; across: number },
         k: number,
@@ -105,11 +95,14 @@ export namespace AutoMovieHumanFootToeSources {
         const breadth: number = gap * transverse;
         const terminal: number = t.tip / longest;
 
-        // Convert nominal across shares with the public ANSUR breadth-to-
-        // length midrange before applying the transverse-only measurement.
-        // This keeps breadth edits from changing the cap and floor datums.
+        // The original toe pattern is normalized by L. Apply the retained
+        // individual aspect before the group's across-only kappa, so changing
+
+        // public B does not move the floor, cap stations or the Y family.
+
+        // This is a source choice, not a recovered individual measurement.
         const distalDepth: number =
-          AutoMovieHumanFootPrior.PRIOR.toes[k]!.depth * gap * nominalBreadth;
+          AutoMovieHumanFootPrior.PRIOR.toes[k]!.depth * gap * L;
         const height: number = distalDepth / 2;
         const at: (along: number, across: number) => AutoMovieVector3Tuple = (
           along: number,
@@ -123,60 +116,16 @@ export namespace AutoMovieHumanFootToeSources {
           -region.supports.medial +
           AutoMovieHumanFootPrior.PRIOR.toes[k]!.head *
             (region.supports.lateral + region.supports.medial);
-        const rootAlong = stations[k]!;
-        const nominalAlong = terminal * L;
-        const nominalAcross = t.across * transverse;
-        const root: AutoMovieVector3Tuple = at(rootAlong, rootAcross);
-        const along = nominalAlong - rootAlong;
-        const across = nominalAcross - rootAcross;
-        if (!(along > distalDepth / 2))
-          throw new Error(
-            `The ${foot.side} toe ${k + 1} has no shaft before its distal cap`,
-          );
-        const acrossAt = (
-          point: AutoMovieVector3Tuple,
-          station: number,
-        ): number => {
-          const parent: ReturnType<IAutoMovieViewPart["axis"]["at"]> = (
-            owner.axis ?? owner.part.axis
-          ).at(station);
-          return V.dot(V.sub(point, parent.origin), parent.v);
-        };
-        const slope = (-sign * across) / along;
-        const rootChord = AutoMovieHumanFootConnection.chord(
-          owner,
-          rootAlong,
-          acrossAt(root, rootAlong),
-          slope,
+        const root: AutoMovieVector3Tuple = at(stations[k]!, rootAcross);
+        const apex: AutoMovieVector3Tuple = at(
+          terminal * L,
+          t.across * transverse,
         );
-        // The default skin carries the heel-to-longest tape. An explicit
-        // phalanx case changes the supported root-to-apex span. A held parent
-        // chord supplies the root height and the distal section owns the pad.
-        // Use the same physical length projection as the canonical toe line.
-        const plan = Math.hypot(along, across);
-        const rise = height - rootChord.centre;
-        const advance =
-          phalangealLengthScale === 1
-            ? 1
-            : AutoMovieHumanFootToeLines.planFactor(
-                plan,
-                phalangealLengthScale * Math.hypot(plan, rise),
-                rise,
-              );
-        const apexAlong =
-          phalangealLengthScale === 1
-            ? nominalAlong
-            : rootAlong + advance * along;
-        const apexAcross =
-          phalangealLengthScale === 1
-            ? nominalAcross
-            : rootAcross + advance * across;
-        const apex: AutoMovieVector3Tuple = at(apexAlong, apexAcross);
 
-        // The foot-along chart owns the cap reach as well as width.
+        // The observed foot-along chart owns the cap reach as well as width.
 
         // An oblique centreline's arclength would re-interpret that chart.
-        const span: number = apexAlong - rootAlong;
+        const span: number = terminal * L - stations[k]!;
         if (!(span > distalDepth / 2))
           throw new Error(
             `The ${foot.side} toe ${k + 1} has no shaft before its distal cap`,
@@ -196,15 +145,41 @@ export namespace AutoMovieHumanFootToeSources {
           height,
           root[2] - (mid[2] - root[2]) / 2,
         ];
-        const insideAlong: number = rootAlong - (span - distalDepth / 2) / 4;
+        const insideAlong: number = stations[k]! - (span - distalDepth / 2) / 4;
         const sourceStations: number[] = [
           0,
-          rootAlong - insideAlong,
-          (rootAlong + apexAlong - distalDepth / 2) / 2 - insideAlong,
-          apexAlong - distalDepth / 2 - insideAlong,
-          apexAlong - insideAlong,
+          stations[k]! - insideAlong,
+          (stations[k]! + terminal * L - distalDepth / 2) / 2 - insideAlong,
+          terminal * L - distalDepth / 2 - insideAlong,
+          terminal * L - insideAlong,
         ];
+        const acrossAt: (
+          point: AutoMovieVector3Tuple,
+          station: number,
+        ) => number = (
+          point: AutoMovieVector3Tuple,
+          station: number,
+        ): number => {
+          const parent: ReturnType<IAutoMovieViewPart["axis"]["at"]> = (
+            owner.axis ?? owner.part.axis
+          ).at(station);
+          return point.reduce(
+            (sum: number, value: number, coordinate: number): number =>
+              sum +
+              (value - parent.origin[coordinate]!) * parent.v[coordinate]!,
+            0,
+          );
+        };
+        const rootChart: number = acrossAt(root, stations[k]!);
         const hiddenChart: number = acrossAt(inside, insideAlong);
+        const slope: number = (rootChart - hiddenChart) / sourceStations[1]!;
+        const rootChord: IAutoMovieHumanFootConnection.IChord =
+          AutoMovieHumanFootConnection.chord(
+            owner,
+            stations[k]!,
+            rootChart,
+            slope,
+          );
         const hiddenChord: IAutoMovieHumanFootConnection.IChord =
           AutoMovieHumanFootConnection.chord(
             owner,
@@ -260,83 +235,6 @@ export namespace AutoMovieHumanFootToeSources {
             ranges: undefined,
             order: profiles.order,
             gap: profiles.gap,
-          },
-        };
-      },
-    );
-    return pack(foot, toes, lateral);
-  }
-
-  /**
-   * ESTIMATE: neighbouring sections each own half the space between their
-   * actual axes in the observation plane. Both axes are affine in that clock,
-   * so the narrower endpoint of their common span bounds the whole span. A
-   * closed Bézier hull carries this bound through the skin source. Individual
-   * width estimates continue to cap each side independently.
-   */
-  function pack(
-    foot: IAutoMovieHumanFootPart.IInput,
-    toes: readonly IAutoMovieHumanFootToeSources.ICandidate[],
-    lateral: AutoMovieVector3Tuple,
-  ): IAutoMovieHumanFootToeSources.ICandidate[] {
-    const axes = toes.map(
-      ({
-        part,
-      }): { first: number; last: number; across: (s: number) => number } => {
-        const first = V.sub(part.centres[0]!, foot.heel);
-        const last = V.sub(part.apex, foot.heel);
-        const start = V.dot(first, foot.along);
-        const end = V.dot(last, foot.along);
-        const q = V.dot(first, lateral);
-        const slope = V.dot(V.sub(last, first), lateral) / (end - start);
-        return {
-          first: start,
-          last: end,
-          across: (s: number): number => q + slope * (s - start),
-        };
-      },
-    );
-    const limits = axes.slice(0, -1).map((a, k): number => {
-      const b = axes[k + 1]!;
-      const start = Math.max(a.first, b.first);
-      const end = Math.min(a.last, b.last);
-      if (start >= end) return Infinity;
-      const width =
-        0.5 *
-        Math.min(
-          b.across(start) - a.across(start),
-          b.across(end) - a.across(end),
-        );
-      if (!(width > 0))
-        throw new Error(
-          `The adjacent toe courses ${toes[k]!.part.name} and ${toes[k + 1]!.part.name} cross in their source span`,
-        );
-      return width;
-    });
-    return toes.map(
-      ({ root, apex, part }, k): IAutoMovieHumanFootToeSources.ICandidate => {
-        const nominal = part.law("base").breadth / 2;
-        const inner = Math.min(nominal, limits[k - 1] ?? Infinity);
-        const outer = Math.min(nominal, limits[k] ?? Infinity);
-        const [positive, negative] =
-          foot.side === "left" ? [inner, outer] : [outer, inner];
-        const law = part.law;
-        return {
-          root,
-          apex,
-          part: {
-            ...part,
-            law: (site: string): IAutoMovieHumanDigitWalk.ISiteLaw => ({
-              ...law(site),
-              breadth: positive + negative,
-            }),
-            halfBreadths: [positive, negative],
-            ranges: [
-              undefined,
-              { minimum: 0, maximum: positive },
-              undefined,
-              { minimum: -negative, maximum: 0 },
-            ],
           },
         };
       },

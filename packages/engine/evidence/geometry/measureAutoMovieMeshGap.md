@@ -6,7 +6,7 @@ The distance between two non-crossing triangles is attained edge to edge or corn
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Preparation (`surface`, with the hierarchy from `buildAutoMovieMeshQueryHierarchy`) is separate from measurement, so a part measured against many others is prepared once. The dual walk and the two closed-form distances are private. The geometry barrel exposes the prepared query for model contacts and the Human figure's retained surface checks.
+Preparation (`surface`, with the hierarchy from `buildAutoMovieMeshQueryHierarchy`) is separate from measurement, so a part measured against many others is prepared once; the dual walk and the two closed-form distances are private steps. It stays out of the barrel because model contacts is its only consumer.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

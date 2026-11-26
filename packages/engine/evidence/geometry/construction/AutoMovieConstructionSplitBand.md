@@ -207,33 +207,3 @@ A pure numeric search coordinates no work.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/geometry/construction/AutoMovieConstructionSplitBand.ts#AutoMovieConstructionSplitBand.cornerOf
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Names the clock width corresponding to one physical reach and the nonoverlap condition for two fork turns.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Maps the fraction of seam length occupied by the physical reach to the same fraction of the seam clock. Each fork receives at most half the clock.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One scalar conversion serves both fork ends.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-The caller supplies a positive seam length and an admitted reach. The half-clock limit follows from the two ends sharing one span.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Uses a fixed number of scalar operations.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-A synchronous scalar operation over its supplied inputs prepares no shared work.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Only the scalar result leaves this synchronous operation.

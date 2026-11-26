@@ -7,8 +7,6 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { ConstructionBlendFixture as Fixture } from "../../internal/construction/ConstructionBlendFixture";
-
 /** Read a flat chart directly in millimetres, with either face orientation. */
 function sheet(name: string, orientation: 1 | -1): IAutoMovieSolidSurface {
   return {
@@ -85,10 +83,6 @@ export function test_engine_geometry_solid_clip_crossing(): void {
   type Join = Parameters<typeof AutoMovieSolidClip.rail>[1];
   type Columns = Parameters<typeof AutoMovieSolidClip.rail>[2];
   type Sample = NonNullable<ReturnType<Join["rail"]>>;
-  const original: Fixture.IFixture = Fixture.create();
-  const sample: Sample | null = original.join.rail(original.blend.seed);
-  if (sample === null)
-    throw new Error("The complete rail fixture is unavailable");
   const quarter: number = Math.PI / 4;
   for (const [name, shared, ends, accepted] of [
     [
@@ -125,7 +119,6 @@ export function test_engine_geometry_solid_clip_crossing(): void {
     boolean,
   ][]) {
     const join: Join = {
-      ...original.join,
       rail: (t: number): Sample | null => {
         const phase: number = t % (2 * Math.PI);
         const face: 0 | 1 = phase < Math.PI ? 0 : 1;
@@ -133,33 +126,19 @@ export function test_engine_geometry_solid_clip_crossing(): void {
         if (within >= quarter && within <= 3 * quarter) return null;
         const hostFace: 0 | 1 = within < quarter ? face : face === 0 ? 1 : 0;
         const host: [number, number] = ends[hostFace];
-        return {
-          ...sample,
-          hostFace,
-          host,
-          across: [1, 0],
-          hostPoint: [host[0], host[1], 0],
-        };
+        return { hostFace, host, hostPoint: [host[0], host[1], 0] };
       },
     };
     const columns: Columns = {
-      ...original.blend,
       seed: 0,
-      rails: undefined,
-      host: { kind: "hole", chart: ends, faces: [0, 1] },
+      host: { chart: ends, faces: [0, 1] },
       across: [
         [1, 0],
         [1, 0],
       ],
     };
     const rail: IAutoMovieSolidClip.IRailPoint[] | string =
-      AutoMovieSolidClip.rail(
-        body(shared),
-        join,
-        columns,
-        [0, 1],
-        [0, Math.PI],
-      );
+      AutoMovieSolidClip.rail(body(shared), join, columns, [0, 1], 2);
     if (!accepted) {
       TestValidator.predicate(
         name,

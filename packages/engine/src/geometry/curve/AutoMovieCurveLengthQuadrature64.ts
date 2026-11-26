@@ -2,7 +2,6 @@ import type {
   IAutoMovieCurveLengthQuadrature64,
   IAutoMovieMeasureCurveLength64,
 } from "@automovie/interface";
-
 import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
@@ -11,21 +10,6 @@ import { overflowsBinary64 } from "../../math/overflowsBinary64";
  * module is not re-exported by the curve barrel or a scalar integrator.
  */
 export namespace AutoMovieCurveLengthQuadrature64 {
-  /** Exact closed-domain addresses requested by the two composite rules. */
-  export function parameters(
-    domain: readonly [number, number],
-    subdivisions: number,
-  ): number[] {
-    const [a, b]: readonly [number, number] = domain;
-    const width: number = b - a;
-    const samples: number[] = [a, b];
-    for (const count of [subdivisions, 2 * subdivisions])
-      for (let interval: number = 0; interval < count; ++interval)
-        for (const node of NODES)
-          samples.push(parameter(a, width, interval, node, count));
-    return samples;
-  }
-
   /**
    * Observe two bounded composite rules without choosing the public policy.
    * Callers admit nonempty pieces, finite increasing representable domains and
@@ -70,9 +54,9 @@ export namespace AutoMovieCurveLengthQuadrature64 {
     ): number {
       const derivative: readonly [number, number, number] = read(parameter);
       const value: number = Math.hypot(...derivative);
-      // A callback supplies the derivative, and a finite one can still overflow its norm.
+      // A finite derivative can overflow its speed.
       nonfiniteDerivative ||=
-        !derivative.every(Number.isFinite) || overflowsBinary64(value);
+        derivative.some(overflowsBinary64) || overflowsBinary64(value);
       return value;
     }
 
@@ -89,15 +73,16 @@ export namespace AutoMovieCurveLengthQuadrature64 {
           const low: number = a + width * (interval / count);
           const high: number = a + width * ((interval + 1) / count);
           for (let i: number = 0; i < NODES.length; ++i) {
-            const at: number = parameter(a, width, interval, NODES[i]!, count);
-            collapsedNode ||= !(at > low && at < high);
+            const unit: number = (interval + (NODES[i]! + 1) / 2) / count;
+            const parameter: number = a + width * unit;
+            collapsedNode ||= !(parameter > low && parameter < high);
 
             // Arithmetic collapse must not send a strict source callback outside its closed chart.
-            if (!(at >= a && at <= b)) {
+            if (!(parameter >= a && parameter <= b)) {
               length = NaN;
               continue;
             }
-            const value: number = speed(piece.derivative, at);
+            const value: number = speed(piece.derivative, parameter);
             const contribution: number =
               (WEIGHTS[i]! * value * width) / (2 * count);
             underflowingContribution ||= value > 0 && contribution === 0;
@@ -109,18 +94,6 @@ export namespace AutoMovieCurveLengthQuadrature64 {
       return length;
     }
   }
-}
-
-/** Preserve the original binary64 affine-node operation order. */
-function parameter(
-  a: number,
-  width: number,
-  interval: number,
-  node: number,
-  count: number,
-): number {
-  const unit: number = (interval + (node + 1) / 2) / count;
-  return a + width * unit;
 }
 
 /** Existing cubic-length eight-point Gauss-Legendre abscissas on [-1,1]. */

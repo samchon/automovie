@@ -240,9 +240,12 @@ export namespace AutoMovieHumanMouth {
 
   /**
    * The slit as a Fourier margin facing forward: a stadium about the contact
-   * line, with a constant half-height between the semicircular ends at the
-   * cheilia. Arclength sampling places the stations on the two straight
-   * edges and the end arcs. Their tangent is continuous at each join.
+   * line, as tall as the slit from end to end and closed by half circles at
+   * the cheilia, walked by its length. An ellipse thinned toward the cheilia
+   * below one station's height, and there the skin's edges stepped over it
+   * whole: on f2 the skin bridged it 6 mm from each corner and the rim fell
+   * into three loops. The stadium's curvature jumps only where its circles
+   * meet its sides, so the series converges as the cube of its order.
    */
   function aperture(
     mouth: IAutoMovieHumanOralAnatomy,

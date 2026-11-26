@@ -1,7 +1,6 @@
 import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLoftContract";
 import type { IAutoMovieLoftViewSource } from "../../../construction/IAutoMovieLoftViewSource";
 import type { IAutoMovieViewAxis } from "../../../construction/IAutoMovieViewAxis";
-import type { IAutoMovieViewSection } from "../../../construction/IAutoMovieViewSection";
 import type { IAutoMovieHumanSectionSource } from "./IAutoMovieHumanSectionSource";
 
 /**
@@ -39,32 +38,11 @@ export namespace IAutoMovieHumanSiteControls {
      */
     readonly scalars: IAutoMovieLoftViewSource.IInput;
 
-    /** Exact independent tape solutions from this explicit preparation. */
-    readonly tapes: readonly ITape[];
-  }
-
-  /** A tape's independent numeric declaration and original solver result. */
-  export interface ITape {
-    /** Same qualified site name used in the solver's diagnostics. */
-    readonly name: string;
-
-    /** Positive support distances in +u, +v, -u, -v order, calibration mm. */
-    readonly extents: readonly [number, number, number, number];
-
-    /** Requested circumference, calibration mm. */
-    readonly girth: number;
-
-    /** The solver's original section and diagnostics for this exact input. */
-    readonly result: IAutoMovieViewSection.ISolved;
-  }
-
-  /** Exact scalar authority prepared over its declared physical station range. */
-  export interface IField {
-    /** Original scalar input identity for this admitted scope. */
-    readonly scalars: IAutoMovieLoftViewSource.IInput;
-
-    /** Admitted regional coefficients and available native derivatives. */
-    readonly source: IAutoMovieLoftViewSource.ISource;
+    /**
+     * Explicit native scalar preparation, shared by contact consumers; its
+     * physical2 refusal stays observable.
+     */
+    field(): IAutoMovieLoftViewSource.ISource;
   }
 
   /**

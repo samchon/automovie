@@ -14,4 +14,4 @@ No join is made along a section's rays, by a distance field or on a mesh; a fail
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both kinds, the roles of host and part, what the engine computes, the kept sides, the failure effect and the admission rules. The optional paired traced rails declare their mesh chord in metres and require closed regular single-chart curves.
+States both kinds, the roles of host and part, what the engine computes, the kept sides, the failure effect and the admission rules.

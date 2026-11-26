@@ -11,7 +11,6 @@ import {
 } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
-import { ConicPaperInput } from "../../../reference-conics/ConicPaperInput";
 import { nclose } from "../../internal/nclose";
 
 /**
@@ -24,7 +23,6 @@ import { nclose } from "../../internal/nclose";
  * 4. A stationary cusp retains a repeated curvature root and velocity root.
  * 5. Collinear/constant sources, near-lines and rigid/scaled frames keep their meaning.
  * 6. Nonfinite coefficients refuse, while input coefficients remain unchanged.
- * 7. Both experiment charts preserve the analytic cubic after one shared span preparation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the analytic scenarios, parameter mappings and numerical root scope.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public critical-coefficient operation and Ahn producer, then checks actual source coverage, finite positive coefficients and preservation of source jet values.
@@ -96,41 +94,6 @@ export function test_recovery_conics_critical(): void {
             : [0, 0];
     },
   });
-
-  const span: ConicPaperInput.Span = [
-    [controls[0][0], 22, controls[0][1]],
-    [controls[1][0], 22, controls[1][1]],
-    [controls[2][0], 22, controls[2][1]],
-    [controls[3][0], 22, controls[3][1]],
-  ];
-  const bind: ReturnType<typeof ConicPaperInput.prepareChart> =
-    ConicPaperInput.prepareChart(span, 7);
-  const exact: IAutoMoviePlanarCurveSource = source(7, 1, 1);
-  for (const method of ["ahn", "ghosh"] as const) {
-    let queries: number = 0;
-    const scoped: IAutoMoviePlanarCurveSource = bind(
-      (): void => { ++queries; },
-      method,
-      (): void => {},
-    );
-    TestValidator.predicate(
-      method + " prepared analytic inflection",
-      scoped.breaks.some((t: number): boolean => nclose(t, 7 + alpha, 1e-12)),
-    );
-    for (const t of [7.75, 7, 8, 7 + alpha]) {
-      for (const order of [0, 1, 2, 3, 4, 5] as const) {
-        const value: Readonly<AutoMovieVector2Tuple> =
-          order === 0 ? scoped.evaluate(t) : scoped.derivative(t, order);
-        const want: Readonly<AutoMovieVector2Tuple> =
-          order === 0 ? exact.evaluate(t) : exact.derivative(t, order);
-        TestValidator.predicate(
-          method + " prepared cubic derivative " + order,
-          nclose(value[0], want[0], 1e-12) && nclose(value[1], want[1], 1e-12),
-        );
-      }
-    }
-    TestValidator.equals(method + " exact callback count", queries, 24);
-  }
 
   for (const [origin, width, height] of [
     [0, 1, 1],

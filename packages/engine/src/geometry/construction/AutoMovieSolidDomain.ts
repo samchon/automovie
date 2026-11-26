@@ -4,18 +4,16 @@ import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
 
 /** Pre-evaluation admission of solver trials to an actually owned chart. */
 export namespace AutoMovieSolidDomain {
-  /** Finite chart membership without evaluating the surface. */
+  /**
+   * Chart membership without evaluating the surface: the bounded first
+   * coordinate within its domain; the second coordinate is unbounded.
+   */
   export function contains(
     surface: IAutoMovieSolidSurface,
     u: number,
-    v: number,
   ): boolean {
     const bounds: [number, number] | undefined = surface.domain;
-    return (
-      Number.isFinite(u) &&
-      Number.isFinite(v) &&
-      (bounds === undefined || (u >= bounds[0] && u <= bounds[1]))
-    );
+    return bounds === undefined || (u >= bounds[0] && u <= bounds[1]);
   }
 
   /** One admissible physical2 trial, or null before an unavailable evaluation. */
@@ -24,7 +22,7 @@ export namespace AutoMovieSolidDomain {
     u: number,
     v: number,
   ): IAutoMovieSolidSurface.IJet | null {
-    if (!contains(surface, u, v)) return null;
+    if (!contains(surface, u)) return null;
     try {
       const value: IAutoMovieSolidSurface.IJet = surface.jet(u, v);
       const rows: number[][] = [
@@ -41,7 +39,6 @@ export namespace AutoMovieSolidDomain {
         const owned: [number, number, number] = [0, 0, 0];
         for (let index: number = 0; index < 3; index++) {
           const component: number = row[index]!;
-          if (!Number.isFinite(component)) return null;
           owned[index] = component;
         }
         copied.push(owned);

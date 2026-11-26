@@ -102,11 +102,14 @@ export namespace AutoMovieHumanWebSurface {
     // `S + alpha u E_eta + beta v E_xi + rho (u^2 - v^2) E_a`, and on its axes
     // it is the separatrices themselves; its ends are moved onto the column's
     // own ring vertex and arrival in proportion to the level.
-    /** Prepare the two fixed end readings for one column and child. */
-    const prepareChart: IAutoMovieHumanWebSurface["prepareChart"] = (
+    // A column's end levels and their points are the same for every row, so
+    // they are read once per column and child.
+    const ends: WeakMap<object, WeakMap<object, IEnds>> = new WeakMap();
+    const chart = (
       col: Extract<IAutoMovieHumanWebColumn, { kind: "plain" }>,
       own: IAutoMovieHumanWebChild,
-    ): ((r: number) => Vec3) => {
+      r: number,
+    ): Vec3 => {
       const at = (x: number): Vec3 => {
         const h: number = Math.hypot(x, col.y);
         const u: number = Math.sqrt(Math.max(0, (h + x) / 2));
@@ -117,18 +120,27 @@ export namespace AutoMovieHumanWebSurface {
           lip(col.web, Math.sign(v) || col.side, 1 - v * v),
         );
       };
-      const top: number = levelOf(0, own, col.web);
-      const bottom: number = levelOf(rows, own, col.web);
-      const atTop: Vec3 = at(top);
-      const atBottom: Vec3 = at(bottom);
-      return (r: number): Vec3 => {
-        const x: number = levelOf(r, own, col.web);
-        const f: number = (x - top) / (bottom - top);
-        return add(
-          at(x),
-          add(scale(sub(col.p, atTop), 1 - f), scale(sub(col.q, atBottom), f)),
-        );
-      };
+      let byChild: WeakMap<object, IEnds> | undefined = ends.get(col);
+      if (byChild === undefined) ends.set(col, (byChild = new WeakMap()));
+      let end: IEnds | undefined = byChild.get(own);
+      if (end === undefined) {
+        const first: number = levelOf(0, own, col.web);
+        const last: number = levelOf(rows, own, col.web);
+        end = {
+          top: first,
+          bottom: last,
+          atTop: at(first),
+          atBottom: at(last),
+        };
+        byChild.set(own, end);
+      }
+      const { top, bottom, atTop, atBottom }: IEnds = end;
+      const x: number = levelOf(r, own, col.web);
+      const f: number = (x - top) / (bottom - top);
+      return add(
+        at(x),
+        add(scale(sub(col.p, atTop), 1 - f), scale(sub(col.q, atBottom), f)),
+      );
     };
 
     // A column away from the webs: the Hermite from the parent's surface to
@@ -163,13 +175,21 @@ export namespace AutoMovieHumanWebSurface {
         );
     };
 
-    return {
-      levelOf,
-      rowOf,
-      lip,
-      chart: (col, own, r): Vec3 => prepareChart(col, own)(r),
-      prepareChart,
-      plainAt,
-    };
+    return { levelOf, rowOf, lip, chart, plainAt };
   }
+}
+
+/** A web column's end levels and its chart's points there. */
+interface IEnds {
+  /** Level of the column's first row. */
+  top: number;
+
+  /** Level of its last row. */
+  bottom: number;
+
+  /** The chart's point at the first row's level. */
+  atTop: Vec3;
+
+  /** The chart's point at the last row's level. */
+  atBottom: Vec3;
 }

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Keeps the original analytic grid readings and point metric, excludes potentially cut full cells, and prepares original-source and residual membership separately from the sampling margin. Grid stations share the winding ray crossings at their common phase.
+Keeps the original analytic grid readings and point metric, excludes potentially cut full cells, and prepares original-source and residual membership separately from the sampling margin.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -19,8 +19,6 @@ States copied-jet lifetime, station-major exceptions, foreign-owner face charts,
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
 Reads G grid jets once and performs O(G(S+L)) true-cut classification, conservative cell tests over only the barriers whose station range meets each cell's interval (bucketed once in O((S+D) R) for R intervals) and O(G(S+D)) boundary-contact scans for S cut segments, D domain authority segments and C cells. Domain work and the cost of each source predicate are additional, not constant-time assumptions.
-
-On the same 3,695,854-triangle neutral Human input, winding-cycle reader self time fell from 27.07 to 4.65 seconds. Skin generation fell from 168.28 to 144.68 seconds. The whole verification report was identical apart from timings.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

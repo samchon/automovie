@@ -18,7 +18,7 @@ Required fields are `fingerMcp`, `fingerPip`, `thumbMcp`, `thumbIp`; callers sup
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The thumb's MCP and IP bind turns toward the palm, in degrees from each incoming segment. Their basis is the public HM08 rig recorded in the Human hand anatomy note.
+The thumb's resting flexion at its two joints, degrees, each about its own bone toward the palm: the relaxed hand rests every digit at the same share of its joints' ranges, so the thumb's MCP and IP take the fingers' observed mean resting share of their MCP and PIP ranges ({@link FINGERS} over {@link RANGE}, four reference bodies) times their own ranges.
 
 ## @evidence contracts/development/design.md#principled-representation `mcp`: Thumb MCP rest flexion, degrees. `ip`: Thumb interphalangeal rest flexion, degrees.
 

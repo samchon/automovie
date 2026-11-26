@@ -1,12 +1,10 @@
 import {
   AutoMovieViewCurves,
   AutoMovieViewOutline,
-  AutoMovieViewParallelAxis,
   AutoMovieViewSection,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieConstructionParallelAxis,
   IAutoMovieHumanHeadLandmarks,
   IAutoMovieHumanHeadLayout,
   IAutoMovieHumanHeadMassPart,
@@ -235,59 +233,6 @@ export namespace AutoMovieHumanHeadMassPart {
     z: number,
   ): number {
     return frontReading(part, y, z).forward;
-  }
-
-  /**
-   * Bound the source's forward world-X support over the requested level span.
-   * Its conic quarters reach no farther than their anterior support line.
-   * Independent extrema of axis X and the local outline bound their sum.
-   */
-  export function frontCeiling(
-    part: IAutoMovieViewPart,
-    span: readonly [number, number],
-  ): number {
-    const axis: IAutoMovieConstructionParallelAxis | null =
-      AutoMovieViewParallelAxis.source(part.axis);
-    if (
-      axis === null ||
-      axis.u.x !== 1 ||
-      axis.u.y !== 0 ||
-      axis.u.z !== 0 ||
-      axis.v.x !== 0 ||
-      axis.v.y !== 0 ||
-      axis.v.z !== 1
-    )
-      throw new Error("Orbital stem needs the original level head chart");
-
-    /** Read the maximum at the prepared scalar's endpoints and stationary sites. */
-    const maximum = (
-      outline: IAutoMovieViewPart.IOutline,
-      top?: number,
-    ): number => {
-      const prepared: ReturnType<typeof AutoMovieViewOutline.create> =
-        AutoMovieViewOutline.create(outline, top === undefined ? undefined : { top });
-      if ("detail" in prepared)
-        throw new Error(`Orbital stem: ${prepared.detail}`);
-      const stations: number[] | string =
-        AutoMovieViewOutline.supportStations(prepared, 0, 1, span);
-      if (typeof stations === "string")
-        throw new Error(`Orbital stem: ${stations}`);
-      return Math.max(
-        ...stations.map((station: number): number => {
-          const value: number | string = AutoMovieViewOutline.value(
-            prepared,
-            station,
-          );
-          if (typeof value === "string")
-            throw new Error(`Orbital stem: ${value}`);
-          return value;
-        }),
-      );
-    };
-    return (
-      maximum(AutoMovieViewOutline.scale(axis.origin.x, 1000, 1000)) +
-      maximum(part.front.positive, part.stations.at(-1))
-    );
   }
 
   /**

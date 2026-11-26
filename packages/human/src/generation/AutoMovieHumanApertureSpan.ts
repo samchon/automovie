@@ -280,9 +280,8 @@ export namespace AutoMovieHumanApertureSpan {
     cost: (x: readonly number[]) => number,
     guess: number,
   ): number {
-    const point: ReturnType<typeof AutoMovieLoftChain.sampler> =
-      AutoMovieLoftChain.sampler(chain, s);
-    const gap = (t: number): number => cost(point(t));
+    const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+    const gap = (t: number): number => cost(at(t));
     let t: number = guess;
     let least: number = gap(t);
     for (let k: number = -256; k < 256; k++) {
@@ -397,28 +396,28 @@ export namespace AutoMovieHumanApertureSpan {
         v[2]! - along * forward[2]!,
       ];
     };
-    // Prepare the fixed coarse grid once for the initial foot and any
-    // stalled margin solves.
-    const grid: Float64Array = sampleGrid();
-
-    /** Every half millimetre of the window by 512 phases, as [s, t, x, y, z]. */
-    function sampleGrid(): Float64Array {
+    // The coarse search's grid, its points read once for every margin point
+    // (a solve that stalls searches again): every half millimetre of the
+    // window by 512 phases, `[s, t, x, y, z]` rows.
+    let grid: Float64Array | null = null;
+    const points = (): Float64Array => {
+      if (grid !== null) return grid;
       const rows: number[] = [];
       for (
         let s: number = Math.max(y0, stations[0] - REACH);
         s <= Math.min(y1, stations[1] + REACH);
         s += 0.5
       ) {
-        const point: ReturnType<typeof AutoMovieLoftChain.sampler> =
+        const at: (t: number) => [number, number, number] =
           AutoMovieLoftChain.sampler(chain, s);
         for (let i: number = 0; i < 512; i++) {
           const t: number = (2 * Math.PI * i) / 512;
-          const p: [number, number, number] = point(t);
+          const p: [number, number, number] = at(t);
           rows.push(s, t, p[0], p[1], p[2]);
         }
       }
-      return Float64Array.from(rows);
-    }
+      return (grid = Float64Array.from(rows));
+    };
     // A coarse search of the front-most skin nearest a margin point's line.
     const seed = (target: readonly number[]): [number, number] => {
       let found: [number, number] = [
@@ -426,18 +425,19 @@ export namespace AutoMovieHumanApertureSpan {
         0,
       ];
       let best: number = Infinity;
-      for (let k: number = 0; k < grid.length; k += 5) {
+      const g: Float64Array = points();
+      for (let k: number = 0; k < g.length; k += 5) {
         const off: number[] = [
-          grid[k + 2]! - target[0]!,
-          grid[k + 3]! - target[1]!,
-          grid[k + 4]! - target[2]!,
+          g[k + 2]! - target[0]!,
+          g[k + 3]! - target[1]!,
+          g[k + 4]! - target[2]!,
         ];
 
         // Front-most skin only: the opening's own side of the head.
         const d: number = Math.hypot(...square(off)) - 1e-3 * dot(off, forward);
         if (d < best) {
           best = d;
-          found = [grid[k]!, grid[k + 1]!];
+          found = [g[k]!, g[k + 1]!];
         }
       }
       return found;
@@ -549,10 +549,10 @@ export namespace AutoMovieHumanApertureSpan {
     let first: number = -1;
     let last: number = -1;
     layers.forEach((layer: IAutoMovieLoftChain.ILayer, k: number): void => {
-      const point: ReturnType<typeof AutoMovieLoftChain.sampler> =
+      const at: (t: number) => [number, number, number] =
         AutoMovieLoftChain.sampler(chain, layer.y);
       for (let i: number = 0; i < PHASES; i++) {
-        const p: [number, number, number] = point((2 * Math.PI * i) / PHASES);
+        const p: [number, number, number] = at((2 * Math.PI * i) / PHASES);
         if (
           p.every(
             (v: number, c: number): boolean => low[c]! <= v && v <= high[c]!,

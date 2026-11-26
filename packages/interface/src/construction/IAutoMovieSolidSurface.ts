@@ -32,24 +32,6 @@ export interface IAutoMovieSolidSurface {
    */
   point?(u: number, v: number): AutoMovieVector3Tuple;
 
-  /** Prepare Point0 at one fixed first chart coordinate for multiple phases. */
-  pointAt?(u: number): (v: number) => AutoMovieVector3Tuple;
-
-  /** Prepare one original generating line at a fixed second coordinate. */
-  pointAlong?(v: number): (u: number) => AutoMovieVector3Tuple;
-
-  /**
-   * Prepare the same total2 chart at one fixed first coordinate for multiple
-   * phases.
-   */
-  jetAt?(u: number): (v: number) => IAutoMovieSolidSurface.IJet;
-
-  /** Prepare the same total2 along one original generating line. */
-  jetAlong?(v: number): (u: number) => IAutoMovieSolidSurface.IJet;
-
-  /** Prepare the same point and first partials along one original line, without its second partials. */
-  tangentAlong?(v: number): (u: number) => IAutoMovieSolidSurface.IFirst;
-
   /**
    * Period of `v`, such as `2 pi` for a chain's phase. Absent, `v` is not
    * periodic and a traced curve may not wrap in it.
@@ -75,9 +57,6 @@ export interface IAutoMovieSolidSurface {
 
 /** Data and callback contracts shared by the SolidSurface operations. */
 export namespace IAutoMovieSolidSurface {
-  /** World point and both chart tangent vectors, omitting unused second partials. */
-  export type IFirst = Pick<IJet, "p" | "u" | "v">;
-
   /**
    * A surface's point and partial derivatives at one chart point. The point is
    * in world mm; each derivative divides by its named parameter units.

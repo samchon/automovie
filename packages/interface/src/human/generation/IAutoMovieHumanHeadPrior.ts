@@ -56,29 +56,47 @@ export namespace IAutoMovieHumanHeadPrior {
      */
     crease: readonly number[];
 
-    /**
-     * Lips' resting gap in world millimetres, by Legan and Burstone's rest
-     * measurement.
-     */
+    /** Oral fissure's depth and half-height. */
+    fissure: readonly number[];
+
+    /** Lips' rest gap per mouth opening. */
     gape: number;
 
     /** Jaw joint's fullness per laterotrusion. */
     joint: number;
 
-    /**
-     * Philtral groove depth per half-width, followed by half-width per mouth
-     * width.
-     */
+    /** Philtrum's depth and half-width. */
     philtrum: readonly number[];
+
+    /** Depth of the orbit's hollow round the eye, millimetres, before the seat. */
+    socket: number;
 
     /** Lid margin's centre behind the nasion's skin. */
     eyeRecess: number;
 
+    /** Globe centre above the margin's. */
+    globeRise: number;
+
     /** Globe radius, millimetres. */
     radius: number;
 
+    /**
+     * Lid margin's harmonics 1 to 3 per coordinate, `[a1, b1, a2, b2, a3, b3]`:
+     * x in millimetres, y per half the fissure height, z per half its length.
+     */
+    margin: readonly (readonly number[])[];
+
     /** Margin's centre ahead of the globe's. */
     marginForward: number;
+
+    /** Nostril's half-length and half-width at its middle, per half nose width. */
+    nostrilSize: readonly number[];
+
+    /**
+     * Nostril centre in the base: forward in tip leads, out in half nose
+     * widths.
+     */
+    nostrilCentre: readonly number[];
 
     /** Angle of the nostril's length from the sagittal plane, degrees. */
     nostrilSweep: number;
@@ -89,6 +107,17 @@ export namespace IAutoMovieHumanHeadPrior {
 
   /** The whole prior. */
   export interface IPrior {
+    /**
+     * Hump of the section planes' tilt about the lateral axis, nose side down:
+     * height in radians, its station, its widths below and above. The station
+     * runs 0 at the neck ring, 1 at the menton, 2 at the subnasale, 3 at eye
+     * level and 4 at the vertex.
+     */
+    tilt: readonly number[];
+
+    /** Input ratios. */
+    ratios: IRatios;
+
     /** Midline profile. */
     profile: IProfile;
 
@@ -105,6 +134,21 @@ export namespace IAutoMovieHumanHeadPrior {
     ear: IEar;
   }
 
+  /** Ratios from public inputs to places the inputs do not define. */
+  export interface IRatios {
+    /**
+     * Menton above the neck ring, per neck length. The neck length is a course,
+     * not a landmark difference, so this places the head on it. Observed.
+     */
+    neck: number;
+
+    /**
+     * Skull centre (midway from glabella to opisthocranion) ahead of the neck
+     * ring's centre, per neck radius. Observed.
+     */
+    forward: number;
+  }
+
   /** The midline profile's landmarks, relative to glabella and face height. */
   export interface IProfile {
     /**
@@ -113,13 +157,13 @@ export namespace IAutoMovieHumanHeadPrior {
      */
     unit: number;
 
-    /** Fallback vertical component of the brow chord per face height. */
+    /**
+     * Glabella above nasion, per face height. Observed: 0.17, 0.14, 0.17, 0.08
+     * on f1, f2, m1, m2.
+     */
     glabella: number;
 
-    /**
-     * Fallback anterior component of the brow chord, in the profile norm's
-     * millimetres.
-     */
+    /** Nasion behind glabella, millimetres. Observed: 2.7, 1.7, 2.0, 1.3. */
     nasion: number;
 
     /**
@@ -212,7 +256,11 @@ export namespace IAutoMovieHumanHeadPrior {
      */
     frontal: number;
 
-    /** Elliptical fallback exponent of the face's front quarter. */
+    /**
+     * Exponent of the face's plan: from the midline to the widest place the
+     * face's half width follows a super-ellipse of this exponent. Observed at
+     * the zygomatic level on the four references: 2.4 to 2.6.
+     */
     plan: number;
 
     /**
@@ -245,6 +293,9 @@ export namespace IAutoMovieHumanHeadPrior {
     /** Gonial angle, degrees, and per unit of the masculine-feminine control. */
     angle: readonly number[];
 
+    /** Gonion ahead of the ear's line, millimetres. */
+    gonion: number;
+
     /**
      * Lower face-throat angle, degrees: the skin under the chin leaves the
      * gnathion this far round from the line to the subnasale (Legan and
@@ -254,20 +305,111 @@ export namespace IAutoMovieHumanHeadPrior {
 
     /** Least fall of the skin under the border from the horizontal, degrees. */
     under: number;
+
+    /**
+     * Soft tissue's rounding of the turn under the border, millimetres at no
+     * fat: an ellipse whose radius is `taper` times this over the bone's edge
+     * and the gonial angle, and this over `taper` squared where it opens into
+     * the skin under the jaw.
+     */
+    round: number;
+
+    /**
+     * Growth of the soft tissue's roundings with fat, as the logarithm per unit
+     * of the fat control: subcutaneous fat over the jaw and under the chin
+     * thickens with it, and rounds the border and fills the throat.
+     */
+    fat: number;
+
+    /** See {@link round}. */
+    taper: number;
+
+    /** The arch's front behind the chin's skin, in radii over the bone's edge. */
+    inset: number;
+
+    /** Arch's half-length behind the gonion, in half mandibular widths. */
+    back: number;
+
+    /**
+     * Width of the jaw's blend with the neck under the border, millimetres at
+     * no fat: the hollow where the skin under the jaw meets the neck at the
+     * cervicomental angle, which the sections cross nearly along that skin.
+     */
+    throat: number;
   }
 
   /** The auricle. */
   export interface IEar {
-    /** Insertion length per auricle length, female then male. */
-    insertion: readonly [number, number];
+    /** Length along the ear per the ear length input. */
+    lengthRatio: number;
 
-    /** Lobular length per auricle length, female then male. */
-    lobule: readonly [number, number];
+    /** Chord per the breadth input. */
+    breadthRatio: number;
 
-    /** Carrier rim half-thickness per auricle breadth. */
+    /** Ear's centre below eye level, in ear lengths. Observed. */
+    drop: number;
+
+    /**
+     * Ear's line behind the skull centre at its own centre, millimetres.
+     * Observed.
+     */
+    forward: number;
+
+    /** Lean of the ear's line back from the vertical, radians. */
+    lean: number;
+
+    /** Egg's wider top: chord growth per unit height along the ear. */
+    egg: number;
+
+    /** Stand off the head, in protrusions, as a quadratic along the ear. */
+    stand: readonly number[];
+
+    /** Free end of the lobe, in ear lengths. */
+    lobeFree: number;
+
+    /** Free end of the helix, in ear lengths. */
+    topFree: number;
+
+    /** Below the top, where the section splits round the pocket, in ear lengths. */
+    splitFree: number;
+
+    /** Below the top, where the pocket closes, in ear lengths. */
+    roofFree: number;
+
+    /** Posterior root behind the anterior root, in chords. */
+    root: number;
+
+    /** Helix tube's half thickness, millimetres for a 31 mm ear. */
     rim: number;
 
-    /** Circular ridge diameter per auricle breadth. */
-    ridge: number;
+    /** Where rings start along the ear, from its bottom. */
+    lobeFrom: number;
+
+    /** Over how much of the ear the rings fade in. */
+    lobeBlend: number;
+
+    /** Chord fraction where the rim starts, behind the helix root. */
+    frontRim: number;
+
+    /**
+     * Rings: height, distance in from the rim, width, millimetres for a 31 mm
+     * ear.
+     */
+    helix: readonly number[];
+
+    /** See {@link helix}. */
+    scapha: readonly number[];
+
+    /** See {@link helix}. */
+    antihelix: readonly number[];
+
+    /** Bumps: height, place along the chord, place along the ear, widths. */
+    concha: readonly number[];
+
+    /** See {@link concha}. */
+    tragus: readonly number[];
+
+    /** See {@link concha}. */
+    antitragus: readonly number[];
   }
 }

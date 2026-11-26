@@ -24,7 +24,7 @@ Native polar data of the immutable normal template, independent of every world r
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Returned by the prepared original polar piece reader.
+Also types AutoMovieHumanHeadNeckBaseTrial.readings, AutoMovieHumanHeadNeckBaseTrial.previous.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -34,9 +34,9 @@ Required fields are `jet`, `cos`, `sin`; callers supply the complete record.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Native readings prepared on the fixed original piece partition.
+One native template reader; only fixed-partition query parameters may be retained.
 
-## @evidence contracts/development/design.md#principled-representation `stations`: Actual quarter/G2 source-piece boundaries in the tape clock. The piece reader evaluates a prepared fixed piece or a requested moving piece.
+## @evidence contracts/development/design.md#principled-representation `boundaries`: Actual quarter/G2 source-piece boundaries in the immutable native radian clock; inspection/refinement samples are separate.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -44,7 +44,7 @@ Returned by AutoMovieHumanHeadNeckBaseTrial.prepareNative. Read by AutoMovieHuma
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The declared `stations` and `piece` operation refer to the actual original template.
+Required fields are `boundaries`; callers supply the complete record.
 
 # src/human/generation/head/IAutoMovieHumanHeadNeckBaseTrial.ts#IAutoMovieHumanHeadNeckBaseTrial.CreateExtents
 

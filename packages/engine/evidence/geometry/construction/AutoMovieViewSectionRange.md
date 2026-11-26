@@ -6,11 +6,11 @@ Actual native arclength and finite/curvature/support observations admit each can
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The fixed box and departures prepare one trial reader. The target selection supplies an accepted candidate or measured local bracket and a complete-reach operation for fallback.
+One invocation supplies a directly accepted actual candidate, an optional local bracket and the numeric trial reader; the caller retains complete-reach fallback.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Invalid shoulders, nonfinite targets and unbracketed targets leave the local bracket null. A root-interior refusal triggers the caller's original complete-reach path.
+No callback or public algebra effect is cached; invalid shoulders, nonfinite targets and unbracketed targets leave range null, and root-interior refusal triggers the caller's original complete-reach path.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -22,7 +22,7 @@ At most two initial numeric sources, each with the unchanged bounded length and 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The complete search starts with the same measured ellipse and its first bisection can borrow the already observed half-interval proposal. An admitted local pair carries its actual endpoint trials into the solve.
+A call-owned Map retains only equal numeric shoulder candidates of this fixed box/departure solve; changing inputs requires a new family.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
@@ -32,7 +32,7 @@ Numeric sources and diagnostics are released with the synchronous solve, without
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Bisection from the measured ellipse advances each side by evaluating native arclength and admission at the original midpoint. Both final measured endpoints supply the scalar range.
+Bisection from the ellipse shoulder finds each finite source-admission endpoint, then actual-source quadrature measures its girth.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -52,7 +52,7 @@ Bounded binary64 bisection with actual source and native-arclength admission on 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Each active admitted edge keeps its measured source. The public range and the target solver read the final endpoints without repeating their measurements.
+Every admitted range candidate has finite native arclength; this avoids claiming a reach whose endpoint cannot be integrated.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

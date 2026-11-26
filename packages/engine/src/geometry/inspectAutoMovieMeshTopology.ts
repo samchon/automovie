@@ -1,11 +1,9 @@
 import {
   IAutoMovieMesh,
-  type IAutoMovieMeshPiece,
   type IAutoMovieMeshTopology,
 } from "@automovie/interface";
 
 import { createMeshEdgeKey } from "../math/createMeshEdgeKey";
-import { measureWeldedMeshPieces } from "./measureWeldedMeshPieces";
 import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
 
 /**
@@ -20,8 +18,10 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * degenerate, by ordinal, and contributes no edges in either mode. A closed
  * solid reports `watertight`; an assembly whose members share faces, or a
  * surface meant to stay open, reports its boundary and non-manifold edge counts
- * rather than passing. Coordinates are metres and the volume, by the divergence
- * theorem, is cubic metres, positive for an outward-wound closed shell.
+ * rather than passing. Non-finite components are counted across positions,
+ * normals, UVs, colours and relief weights. Coordinates are metres and the
+ * volume, by the divergence theorem, is cubic metres, positive for an
+ * outward-wound closed shell.
  *
  * This measures; it does not judge. `validateMeshTopology` is the verdict on
  * the same surface, adding winding consistency and an `expectClosed`
@@ -32,50 +32,20 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * @param mesh Mesh to measure.
  * @returns Counts, degenerate ordinals, closure and volume.
  */
-export function inspectAutoMovieMeshTopology(
+export const inspectAutoMovieMeshTopology: (
   mesh: IAutoMovieMesh,
-): IAutoMovieMeshTopology {
-  return inspectWeldedTopology(
-    mesh,
-    weldAutoMovieMeshCorners(mesh, "mesh topology"),
-  );
-}
-
-/** Paired topology and piece inspection over one mesh's corner weld. */
-export namespace inspectAutoMovieMeshTopology {
-  /**
-   * Inspect the mesh and prepare a piece census over the same welded corners.
-   * Request `pieces()` after reading `topology` when both reports are needed.
-   * The prepared function owns only the corner identities and retains no census
-   * result. Invalid meshes produce the same standalone refusals.
-   */
-  export function prepare(mesh: IAutoMovieMesh): {
-    readonly topology: IAutoMovieMeshTopology;
-    readonly pieces: () => IAutoMovieMeshPiece[];
-  } {
-    const welded: weldAutoMovieMeshCorners.IResult = weldAutoMovieMeshCorners(
-      mesh,
-      "mesh topology",
-    );
-    const { corners, identities } = welded;
-    const cornerWeld = { corners, identities };
-    return {
-      topology: inspectWeldedTopology(mesh, welded),
-      pieces: () => measureWeldedMeshPieces(cornerWeld),
-    };
-  }
-}
-
-/** Measure edge incidence and signed volume after the corner identities exist. */
-function inspectWeldedTopology(
+) => IAutoMovieMeshTopology = (
   mesh: IAutoMovieMesh,
-  {
+): IAutoMovieMeshTopology => {
+  const {
     indices,
     corners,
-    degenerate,
+    degenerate: degenerateTriangles,
     identities,
-  }: weldAutoMovieMeshCorners.IResult,
-): IAutoMovieMeshTopology {
+  }: weldAutoMovieMeshCorners.IResult = weldAutoMovieMeshCorners(
+    mesh,
+    "mesh topology",
+  );
   const edgeKey: (from: number, to: number) => number | string =
     createMeshEdgeKey(identities);
   const edges: Map<number | string, number> = new Map();
@@ -109,11 +79,11 @@ function inspectWeldedTopology(
   }
   return {
     triangles: indices.length / 3,
-    degenerate: degenerate.length,
-    degenerateTriangles: degenerate,
+    degenerate: degenerateTriangles.length,
+    degenerateTriangles,
     boundaryEdges,
     nonManifoldEdges,
     watertight: edges.size > 0 && boundaryEdges === 0 && nonManifoldEdges === 0,
     volume: sixVolume / 6,
   };
-}
+};

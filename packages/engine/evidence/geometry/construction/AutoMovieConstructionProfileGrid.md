@@ -20,9 +20,9 @@ Scanning the body finds no `any`, type assertion, non-null assertion, suppressio
 
 Cost is driven by the sizes of `prepared`, `tolerance`; the dominant cost is a single pass (for-of over prepared.definition.loops), performed once per call with 1 allocation site (literals and constructed values). No speedup is claimed and none is measured.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-Each level evaluates its complete rectangular sample domain once. The chord and boundary observations reuse the same numeric rows by index.
+The operation coordinates no requests, phases or consumers and holds no cache: each call recomputes from its arguments and shares nothing, which is correct because its result depends only on them.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

@@ -16,7 +16,6 @@ import type {
   IAutoMovieLoftViewRead,
   IAutoMovieLoftViewSource,
   IAutoMovieViewAxis,
-  IAutoMovieViewOutline,
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
@@ -41,10 +40,7 @@ const BRACKETS: number = 16;
 
 /** Source-native parent chords for a gluteal footprint; no emitted skin is read. */
 export namespace AutoMovieHumanGlutealParent {
-  /**
-   * Read original cut points and their actual physical station/phase once for
-   * the tape and its support provenance.
-   */
+  /** Read original cut points and their actual physical station/phase once for the tape and its support provenance. */
   export function levelCutRecords(
     part: IAutoMovieViewPart,
     y: number,
@@ -53,10 +49,7 @@ export namespace AutoMovieHumanGlutealParent {
     return AutoMovieHumanGlutealCut.records(part, y, count);
   }
 
-  /**
-   * Read a named world-height cut of the identical original parent field, in
-   * calibration-mm X/Z.
-   */
+  /** Read a named world-height cut of the identical original parent field, in calibration-mm X/Z. */
   export function levelCut(
     part: IAutoMovieViewPart,
     y: number,
@@ -85,10 +78,7 @@ export namespace AutoMovieHumanGlutealParent {
     };
   }
 
-  /**
-   * Prepare the actual trunk and same leg once; values and jets remain separate
-   * capabilities.
-   */
+  /** Prepare the actual trunk and same leg once; values and jets remain separate capabilities. */
   export function create(
     trunk: IAutoMovieViewPart,
     leg: IAutoMovieHumanGlutealParent.ICreateLeg,
@@ -130,10 +120,7 @@ export namespace AutoMovieHumanGlutealParent {
   }
 }
 
-/**
- * Retain the full original source, refusing unavailable direct fullness
- * explicitly.
- */
+/** Retain the full original source, refusing unavailable direct fullness explicitly. */
 function prepare(part: IAutoMovieViewPart): Field | string {
   const result: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
@@ -144,32 +131,16 @@ function prepare(part: IAutoMovieViewPart): Field | string {
   return { part, source: result.source };
 }
 
-/**
- * Read the actual level trunk's value-only native point, retaining its local
- * values in an explicit rejection.
- */
+/** Read the actual level trunk's value-only native point, retaining its local values in an explicit rejection. */
 function trunkChord(
   field: Field,
   y: number,
   z: number,
 ): IAutoMovieHumanGlutealParent.IChord[] | string {
   const [first, last]: readonly [number, number] = field.source.domain;
-  const bottom = field.part.axis.at(first),
-    top = field.part.axis.at(last);
-  const station: number = first + (y - bottom.origin[1]);
-  if (
-    !(
-      Number.isFinite(station) &&
-      Math.abs(top.origin[1] - bottom.origin[1] - (last - first)) <= TOLERANCE
-    )
-  )
-    return (
-      field.part.name +
-      ": AP contact needs its registered level station course."
-    );
-  if (station < first || station > last) return [];
+  if (y < first || y > last) return [];
   const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
-    field.part.axis.at(station);
+    field.part.axis.at(y);
   if (
     Math.abs(frame.origin[1] - y) > TOLERANCE ||
     frame.u.some(
@@ -181,15 +152,15 @@ function trunkChord(
   )
     return `${field.part.name}: contact needs its actual level +X/+Z frame.`;
   const values: IAutoMovieLoftViewRead.IValues | string =
-    AutoMovieLoftViewRead.values(field.source, station);
+    AutoMovieLoftViewRead.values(field.source, y);
   if (typeof values === "string") return values;
   const across: number = z - frame.origin[2];
   if (values.extents.every((value: number): boolean => value === 0))
     return Math.abs(across) <= TOLERANCE
       ? [
           {
-            back: boundary(field, frame.origin[0], station, 0),
-            front: boundary(field, frame.origin[0], station, 0),
+            back: boundary(field, frame.origin[0], y, 0),
+            front: boundary(field, frame.origin[0], y, 0),
           },
         ]
       : [];
@@ -213,7 +184,7 @@ function trunkChord(
       );
       if (phase === null || Math.abs(read(phase)[1] - across) > TOLERANCE)
         return `${field.part.name}: no admitted local AP chord root.`;
-      return boundary(field, frame.origin[0] + read(phase)[0], station, phase);
+      return boundary(field, frame.origin[0] + read(phase)[0], y, phase);
     };
     const back: IAutoMovieHumanGlutealParent.IBoundary | string = at(
       Math.PI / 2,
@@ -229,14 +200,11 @@ function trunkChord(
         : (front as string)
       : [{ back, front }];
   } catch (error: unknown) {
-    return `${field.part.name}: local AP chord at world Y/Z [${y}, ${z}] mm, source station ${station} mm, extents [${values.extents.join(", ")}] mm, shoulders [${values.shoulders.join(", ")}]: ${error instanceof Error ? error.message : String(error)}`;
+    return `${field.part.name}: local AP chord at world Y/Z [${y}, ${z}] mm, source station ${y} mm, extents [${values.extents.join(", ")}] mm, shoulders [${values.shoulders.join(", ")}]: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
-/**
- * Prepare the actual proximal course; an AP query changes station as well as
- * phase.
- */
+/** Prepare the actual proximal course; an AP query changes station as well as phase. */
 function legReader(
   field: Field,
   view: IAutoMovieConstructionView,
@@ -267,98 +235,18 @@ function legReader(
     centres.slice(0, 3),
   );
   if (typeof bounds === "string") return bounds;
-  const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
-    field.part.axis.at(domain[0]);
-  const end: typeof frame = field.part.axis.at(domain[1]);
-  const normal: Vec3 = AutoMovieViewAxis.normal(frame);
-  const endOnLine: Vec3 = AutoMovieSolidVector.add(
-    frame.origin,
-    AutoMovieSolidVector.scale(normal, domain[1] - domain[0]),
-  );
-  if (
-    AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(end.origin, endOnLine)) >
-      TOLERANCE ||
-    AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(end.u, frame.u)) >
-      TOLERANCE ||
-    AutoMovieSolidVector.norm(AutoMovieSolidVector.sub(end.v, frame.v)) >
-      TOLERANCE
-  )
-    return `${field.part.name}: AP contact needs its straight proximal material frame.`;
-  const prepared: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
-    AutoMovieLoftViewRead.prepare(field.source);
-  const lateral = (quarter: 1 | 3) => {
-    const outline: IAutoMovieViewOutline.IOutline =
-      field.source.extents[quarter];
-    return {
-      outline,
-      stationary: [
-        ...outline.knots.map(({ station }): number => station),
-        ...AutoMovieViewOutline.criticalStations(outline),
-      ],
-    };
-  };
-  const negative = lateral(3);
-  const positive = lateral(1);
-  const extreme = (
-    side: ReturnType<typeof lateral>,
-    lo: number,
-    hi: number,
-    sign: -1 | 1,
-  ): number | string => {
-    let largest: number = -Infinity;
-    for (const s of [
-      lo,
-      hi,
-      ...side.stationary.filter((s: number): boolean => lo < s && s < hi),
-    ]) {
-      const value: number | string = AutoMovieViewOutline.value(
-        side.outline,
-        s,
-      );
-      if (typeof value === "string") return value;
-      largest = Math.max(largest, sign * value);
-    }
-    return sign * largest;
-  };
   return (
     y: number,
     z: number,
   ): IAutoMovieHumanGlutealParent.IChord[] | string => {
-    const position = (x: number): Vec3 =>
-      AutoMovieSolidVector.sub([x, y, z], frame.origin);
-    const stationOf = (delta: Vec3): number =>
-      domain[0] + AutoMovieSolidVector.dot(delta, normal);
-    const a: Vec3 = position(bounds[0]);
-    const b: Vec3 = position(bounds[1]);
-    const sa: number = stationOf(a);
-    const sb: number = stationOf(b);
-    const lo: number = Math.max(domain[0], Math.min(sa, sb));
-    const hi: number = Math.min(domain[1], Math.max(sa, sb));
-    if (lo > hi + TOLERANCE) return [];
-    const va: number = AutoMovieSolidVector.dot(a, frame.v);
-    const vb: number = AutoMovieSolidVector.dot(b, frame.v);
-    const medial: number | string = extreme(negative, Math.min(lo, hi), hi, -1);
-    const outward: number | string = extreme(positive, Math.min(lo, hi), hi, 1);
-    if (typeof medial === "string" || typeof outward === "string")
-      return typeof medial === "string" ? medial : (outward as string);
-    if (
-      Math.max(va, vb) < medial - TOLERANCE ||
-      Math.min(va, vb) > outward + TOLERANCE
-    )
-      return [];
-
+    const cache: Map<number, Reading | string | null> = new Map();
     const evaluate: (x: number) => Reading | string | null = (
       x: number,
     ): Reading | string | null => {
-      const delta: Vec3 = position(x);
-      const station: number = stationOf(delta);
-      if (station < domain[0] || station > domain[1]) return null;
-      return radial(
-        station,
-        AutoMovieSolidVector.dot(delta, frame.u),
-        AutoMovieSolidVector.dot(delta, frame.v),
-        prepared,
-      );
+      if (cache.has(x)) return cache.get(x)!;
+      const value: Reading | string | null = radial(field, [x, y, z], domain);
+      cache.set(x, value);
+      return value;
     };
     const starts: number[] = Array.from(
       { length: BRACKETS + 1 },
@@ -383,8 +271,6 @@ function legReader(
         continue;
       const root: number | null = AutoMovieIllinois.root(
         (x: number): number => {
-          if (x === a.x) return a.value!.residual;
-          if (x === b.x) return b.value!.residual;
           const at: Reading | string | null = evaluate(x);
           return typeof at === "object" && at !== null ? at.residual : NaN;
         },
@@ -411,7 +297,7 @@ function legReader(
         intersections.push(boundary(field, root, at.station, at.phase));
     }
     if (intersections.length === 0)
-      return `${field.part.name}: bounded AP search at world Y/Z [${y}, ${z}] mm in source stations [${lo}, ${hi}] mm has no admitted contact bracket; absence is not established.`;
+      return `${field.part.name}: bounded AP search has no admitted contact bracket; absence is not established.`;
     if (intersections.length % 2 !== 0)
       return `${field.part.name}: AP contact leaves its proximal source domain or has an unresolved tangency.`;
     const chords: IAutoMovieHumanGlutealParent.IChord[] = [];
@@ -421,10 +307,7 @@ function legReader(
   };
 }
 
-/**
- * Value-only radial residual in the actual source plane, without a closest
- * surface foot.
- */
+/** Value-only radial residual in the actual source plane, without a closest surface foot. */
 interface Reading {
   /** Query distance minus the actual whole-section radius, mm. */
   residual: number;
@@ -434,16 +317,42 @@ interface Reading {
   phase: number;
 }
 
-/** Value-only radial residual at the exact projection onto the straight femur. */
+/** Intersect a world point's normal plane with the original proximal course. */
 function radial(
-  station: number,
-  u: number,
-  v: number,
-  prepared: ReturnType<typeof AutoMovieLoftViewRead.prepare>,
-): Reading | string {
+  field: Field,
+  point: Vec3,
+  domain: [number, number],
+): Reading | string | null {
+  const plane: (station: number) => number = (station: number): number => {
+    const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
+      field.part.axis.at(station);
+    return AutoMovieSolidVector.dot(
+      AutoMovieSolidVector.sub(point, frame.origin),
+      AutoMovieViewAxis.normal(frame),
+    );
+  };
+  const a: number = plane(domain[0]);
+  const b: number = plane(domain[1]);
+  if (!Number.isFinite(a) || !Number.isFinite(b))
+    return `${field.part.name}: nonfinite original course projection.`;
+  if (a * b > 0) return null;
+  const station: number | null = AutoMovieIllinois.root(
+    plane,
+    domain[0],
+    domain[1],
+    TOLERANCE,
+    100,
+  );
+  if (station === null || Math.abs(plane(station)) > TOLERANCE)
+    return `${field.part.name}: no admitted original source-plane projection.`;
+  const frame: ReturnType<IAutoMovieViewPart["axis"]["at"]> =
+    field.part.axis.at(station);
+  const delta: Vec3 = AutoMovieSolidVector.sub(point, frame.origin);
+  const u: number = AutoMovieSolidVector.dot(delta, frame.u);
+  const v: number = AutoMovieSolidVector.dot(delta, frame.v);
   const phase: number = Math.atan2(v, u);
   const values: IAutoMovieLoftViewRead.IValues | string =
-    prepared.values(station);
+    AutoMovieLoftViewRead.values(field.source, station);
   if (typeof values === "string") return values;
   if (values.extents.every((value: number): boolean => value === 0))
     return { residual: Math.hypot(u, v), station, phase };
@@ -456,14 +365,11 @@ function radial(
       phase,
     };
   } catch (error: unknown) {
-    return error instanceof Error ? error.message : String(error);
+    return `${field.part.name}: ${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
-/**
- * Conservative original-source box used only to bracket the local implicit
- * residual.
- */
+/** Conservative original-source box used only to bracket the local implicit residual. */
 function apBounds(
   field: Field,
   domain: [number, number],

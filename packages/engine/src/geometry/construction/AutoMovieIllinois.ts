@@ -27,68 +27,35 @@ export namespace AutoMovieIllinois {
     tolerance: number,
     iterations: number,
   ): number | null {
-    return select(
-      (x: number): number => x,
-      f,
-      [a, a],
-      [b, b],
-      tolerance,
-      iterations,
-    );
-  }
-
-  /**
-   * Apply the same bracketed rule and return the selected evaluated trial.
-   * The supplied trial records remain stable while they are bracket endpoints.
-   */
-  export function select<T>(
-    evaluate: (x: number) => T,
-    residual: (trial: T) => number,
-    a: readonly [number, T],
-    b: readonly [number, T],
-    tolerance: number,
-    iterations: number,
-  ): T | null {
-    let x0: number = a[0];
-    let x1: number = b[0];
-    let trial0: T = a[1];
-    let trial1: T = b[1];
-    let f0: number = residual(a[1]);
-    let f1: number = residual(b[1]);
-    if (f0 === 0) return a[1];
-    if (f1 === 0) return b[1];
+    let x0: number = a;
+    let x1: number = b;
+    let f0: number = f(x0);
+    let f1: number = f(x1);
+    if (f0 === 0) return x0;
+    if (f1 === 0) return x1;
     if (!(f0 * f1 < 0)) return null;
     let side: number = 0;
-    let selected: T = a[1];
+    let x: number = x0;
     for (let i: number = 0; i < iterations; i++) {
-      const x: number = (x0 * f1 - x1 * f0) / (f1 - f0);
-      // A rounded interpolation can land exactly on an active endpoint.
-      selected = Object.is(x, x0)
-        ? trial0
-        : Object.is(x, x1)
-          ? trial1
-          : evaluate(x);
-      const fx: number = residual(selected);
-      if (Math.abs(fx) <= tolerance) return selected;
+      x = (x0 * f1 - x1 * f0) / (f1 - f0);
+      const fx: number = f(x);
+      if (Math.abs(fx) <= tolerance) return x;
       if (fx * f1 < 0) {
         // The root lies between x and x1: x0's end is replaced.
         x0 = x1;
-        trial0 = trial1;
         f0 = f1;
         x1 = x;
-        trial1 = selected;
         f1 = fx;
         side = 0;
       } else {
         // x1's end is replaced while x0 stays: halve x0's value after the
         // second time it stays, the Illinois step.
         x1 = x;
-        trial1 = selected;
         f1 = fx;
         if (side === -1) f0 /= 2;
         side = -1;
       }
     }
-    return selected;
+    return x;
   }
 }

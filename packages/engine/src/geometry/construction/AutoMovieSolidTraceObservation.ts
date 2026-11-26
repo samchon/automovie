@@ -16,7 +16,6 @@ export namespace AutoMovieSolidTraceObservation {
     | "host-face-limit"
     | "host-open-boundary"
     | "host-receiver-unavailable"
-    | "part-chart-outside"
     | "part-jet-unavailable"
     | "host-trial-unavailable"
     | "singular-newton-jacobian"
@@ -28,8 +27,6 @@ export namespace AutoMovieSolidTraceObservation {
     | "branch-distance"
     | "walk-step-failed"
     | "walk-step-limit"
-    | "walk-no-progress"
-    | "walk-part-bound"
     | "singular-tangent";
 
   /**
@@ -148,11 +145,6 @@ export namespace AutoMovieSolidTraceObservation {
       face: number;
     };
     /**
-     * Accepted source state before the last attempted chord, absent before any
-     * trial.
-     */
-    before: IDirection["last"] | null;
-    /**
      * Last attempted chord in mm and its actual prediction, or null when no
      * step was attempted.
      */
@@ -249,10 +241,7 @@ export namespace AutoMovieSolidTraceObservation {
       " | walkFailure=" +
       JSON.stringify(
         { stage: "length-walk", directions },
-        (_key: string, value: unknown): unknown =>
-          typeof value === "number" && !Number.isFinite(value)
-            ? String(value)
-            : value,
+        (_key: string, value: unknown): unknown => value,
       )
     );
   }

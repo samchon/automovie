@@ -6,7 +6,7 @@ One original part and the metadata its tree join consumes.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Keeps actual geometry, cumulative tree parent, original material owner/contact and independent world-mm placement seed with the authored join search. A source-owned aperture carries the parent chart loop and the corresponding lining rail offsets in metres.
+Keeps actual geometry, cumulative tree parent, original material owner/contact and independent world-mm placement seed with the authored join search.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

@@ -6,7 +6,6 @@ import type {
   AutoMovieScalarJet2,
   AutoMovieVector3Tuple,
   IAutoMovieHumanFootConnection,
-  IAutoMovieHumanFootPart,
   IAutoMovieHumanFootSource,
   IAutoMovieLoftSectionFrame,
 } from "@automovie/interface";
@@ -28,28 +27,7 @@ import { AutoMovieHumanFootSource } from "./AutoMovieHumanFootSource";
  */
 export namespace AutoMovieHumanFootConnection {
   /**
-   * Locate the ankle fold's receiving lines at the scale of its own section.
-   * The ankle's sagittal semidiameter is an ESTIMATE for its unmeasured local
-   * rolling radius. The original heel and half-length dorsum landmark bound the
-   * chord on either side in millimetres.
-   *
-   * @see https://doi.org/10.1016/S0010-4485(99)00073-1 The physical length and tangent turn of a fair geometric transition are coupled.
-   */
-  export function ankleFold(
-    foot: IAutoMovieHumanFootPart.IInput,
-  ): { radius: number; cap: number } | null {
-    if (foot.ankle === undefined) return null;
-    const [rear, front] = foot.ankle.points;
-    const posterior: number = V.dot(V.sub(rear, foot.heel), foot.along);
-    const anterior: number = V.dot(V.sub(front, foot.heel), foot.along);
-    const cap: number = Math.min(posterior, foot.length / 2 - anterior);
-    const radius: number = Math.min((anterior - posterior) / 2, cap);
-    return radius > 0 && Number.isFinite(cap) ? { radius, cap } : null;
-  }
-
-  /**
-   * Cut a fixed vertical parent chart at the real across location; implicit
-   * differentiation retains its full native shape.
+   * Cut a fixed vertical parent chart at the real across location; implicit differentiation retains its full native shape.
    *
    * @evidence contracts/common.md#principled-implementation Solves both monotone polar half branches and differentiates v(s,phi(s))=across+slope*s twice with the native total2 chain rule.
    * @evidence contracts/common.md#clear-and-simple-design One record exposes both world heights, midpoint, depth and separately available jets.
@@ -148,8 +126,7 @@ export namespace AutoMovieHumanFootConnection {
   }
 
   /**
-   * Intersect the actual ankle section with the foot sagittal plane through its
-   * original centre.
+   * Intersect the actual ankle section with the foot sagittal plane through its original centre.
    *
    * @evidence contracts/common.md#principled-implementation The original polar direction solves the plane equation dot(u,a)*cos(phi)+dot(v,a)*sin(phi)=0, and the native field supplies both complete-section points.
    * @evidence contracts/common.md#clear-and-simple-design Retains the same generating owner, station, frame, available frame jets and phases; a regional owner does not assert completed proximal geometry.

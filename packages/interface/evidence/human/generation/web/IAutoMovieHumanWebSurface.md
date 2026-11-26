@@ -12,7 +12,7 @@ Returned by AutoMovieHumanWebSurface.of. Read by AutoMovieHumanWebMesh.of. Also 
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `levelOf`, `rowOf`, `lip`, `chart`, `prepareChart` and `plainAt`. The mesh consumer prepares the endpoint reads within each fixed column and child.
+Required fields are `levelOf`, `rowOf`, `lip`, `chart`, `plainAt`; callers supply the complete record.
 
 # src/human/generation/web/IAutoMovieHumanWebSurface.ts#IAutoMovieHumanWebSurface.Plain
 

@@ -15,8 +15,8 @@ import { AutoMovieHumanFootReflection } from "./AutoMovieHumanFootReflection";
  * ankle ring, the leg's start: each layer the body's section at its station
  * with slopes by central differences, the side's reflection applied, and the
  * malleoli's relief windows on it. The ankle ring is horizontal at
- * `AutoMovieHumanFootPrior.PRIOR.ring` lateral malleolus heights, the
- * independent join estimate for this older foot chain API.
+ * `AutoMovieHumanFootPrior.PRIOR.ring` lateral malleolus heights, a fitted
+ * constant kept until the ankle girth is solved at its own site.
  */
 export namespace AutoMovieHumanFootBodyChain {
   /** The body's chain for a side. */

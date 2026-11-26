@@ -1,25 +1,30 @@
 import type { IAutoMovieHumanHeadNeck } from "./IAutoMovieHumanHeadNeck";
+import type { IAutoMovieHumanNeckPrior } from "./IAutoMovieHumanNeckPrior";
 
 /**
- * Registered neck section descriptors with calibration scale and sampling
- * metadata.
+ * Registered generating neck rows and their unchanged calibration-scale and
+ * sampling metadata. Runtime construction and admission remain with
+ * AutoMovieHumanNeckSource in Human.
  */
 export namespace IAutoMovieHumanNeckSource {
   /** Shared source descriptors, not a loft result or final neck surface. */
   export interface IOutput {
-    /** Four samples of the circular taper in rising centre-height order. */
+    /** The original four rows in rising mean-height order. */
     rows: IRow[];
 
-    /** Normal plane origin, registered C7 point and estimated axis slope. */
+    /** Analytic top mean, adopted posterior point and endpoint dx/dy. */
     head: IAutoMovieHumanHeadNeck;
 
-    /** Bottom generating row's centre in the internal trunk overlap. */
+    /** Bottom generating row's analytic phase mean; not a named base-tape point. */
     bottom: [number, number, number];
 
     /** Calibration mm per world mm supplied by the body input boundary. */
     scale: number;
 
-    /** Ring order of the shared head-mass sampling policy. */
+    /**
+     * Retained phase resolution for projected normalization and the
+     * transitional engine chain.
+     */
     order: number;
 
     /**
@@ -28,25 +33,16 @@ export namespace IAutoMovieHumanNeckSource {
      */
     samples: number;
 
-    /** AP translation that registers the section frame at the supplied C7 datum. */
+    /** Same rigid AP map applied to every generating row and head datum. */
     registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]>;
   }
 
   /** One original generating row, with dimensions in calibration mm. */
   export interface IRow {
-    /** Analytic section coefficients in the same phase as the original outline. */
-    ring: {
-      /** Dimensionless forward cosines, starting at the mean. */
-      x: readonly number[];
+    /** Unmodified dimensionless x/z and millimetre y harmonics. */
+    ring: IAutoMovieHumanNeckPrior.IRing;
 
-      /** World-millimetre height cosines, starting at the mean. */
-      y: readonly number[];
-
-      /** Dimensionless lateral sines, starting at the first harmonic. */
-      z: readonly number[];
-    };
-
-    /** Section centre in calibration mm. */
+    /** Baseline forward and vertical translation before harmonic offsets. */
     origin: [number, number, number];
 
     /** Lateral harmonic scale, calibration mm. */

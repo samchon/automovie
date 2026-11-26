@@ -107,6 +107,8 @@ export namespace ConicPaperFit {
         collinearCharts: 0,
         selectedBreaks: 0,
         collapsedBreaks: 0,
+        computedCharts: 0,
+        cachedCharts: 0,
         milliseconds: 0,
       },
       independent: [],
@@ -124,10 +126,9 @@ export namespace ConicPaperFit {
         let failures: number = 0;
         for (let i: number = 0; i < loop.curve.spans.length; ++i) {
           try {
-            const chart: IAutoMoviePlanarCurveSource = I.prepareChart(
+            const chart: IAutoMoviePlanarCurveSource = I.chart(
               loop.curve.spans[i]!,
               i,
-            )(
               (): void => {
                 ++record.queries;
                 if (record.queries > result.queryBudgetPerCurve)

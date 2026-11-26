@@ -12,12 +12,12 @@ import type { IAutoMovieHumanHeadTape } from "./IAutoMovieHumanHeadTape";
  */
 export namespace IAutoMovieHumanHeadCanonical {
   /**
-   * One original family with independent guides, lower material and upper
-   * closure.
+   * One original family, with independent guides/lower material and a lazy
+   * upper closure.
    *
    * Both consumers retain this invocation's one generating family and original
-   * axis. Each selected request owns its output and shares it with its
-   * consumers.
+   * axis. Retains only the original base, one requested lower adapter and one
+   * requested closed source.
    */
   export interface IPrepared {
     /**
@@ -87,18 +87,23 @@ export namespace IAutoMovieHumanHeadCanonical {
     };
 
     /**
-     * Perform one explicitly selected full closure and return its original
-     * outcome.
+     * Actual attempt snapshot; reading it requests no source and preserves an
+     * original failure.
      */
-    attemptClosure(): IRequestedClosure;
+    readonly closureAttempt: IClosureAttempt;
+    /** Already resolved full closure, or null; reading this never computes it. */
+    readonly result: IOutput | null;
     /**
-     * Prepare and loft the requested exact lower original interval.
+     * Borrow the exact lower original interval once, without the upper solve.
      *
      * Existing restriction reads the unchanged family's original values,
      * parameter jets and axis below nasion. The output is an explicit regular
-     * adapter interval, never a second full head. The requested interval must
-     * remain below nasion. The caller owns the resulting adapter and engine
-     * loft.
+     * adapter interval, never a second full head. An upper request or a
+     * different placement context is rejected; no old source or missing
+     * derivative is substituted. One requested interval scalar restriction and
+     * engine loft, then constant-time reuse. Returns the same adapter for the
+     * same immutable placement and generating family. Only one placement
+     * identity and its actual adapter survive with this preparation.
      */
     lower(
       placement: IAutoMovieHumanNeckSource.IOutput,
@@ -108,32 +113,46 @@ export namespace IAutoMovieHumanHeadCanonical {
       placement: IAutoMovieHumanNeckSource.IOutput,
     ): IAutoMovieViewPart;
     /**
-     * Resolve the actual complete original when its upper field is needed.
+     * Resolve the actual complete original once when its upper field is needed.
      *
      * Solves the original family's actual tape and returns its selected
      * part/witness unchanged. Full-source demand is explicit and independent of
-     * guide/lower consumers. Source failures propagate. Production, original
-     * section and raw readers share the selected member through their
-     * definition.
+     * guide/lower consumers. Every source failure propagates; no cached
+     * coefficient or incomplete source is returned as closed. The full closure
+     * is attempted once per immutable preparation, including a failed attempt,
+     * without a raw loft; retained reads return its result or rethrow its
+     * original failure. Production, original sections and raw readers borrow
+     * that identical selected part or observe the same original failure; a new
+     * input context owns a fresh attempt. The result or original error and
+     * immutable source dependencies live with this one invocation, without a
+     * global failure cache.
      */
     closed(): IOutput;
   }
 
-  /** The full closure outcome belonging to a selected source definition. */
+  /**
+   * Observed outcome of this immutable family's one explicit full-closure
+   * attempt.
+   *
+   * Original and raw consumers observe the same family-owned attempt rather
+   * than maintaining separate retries. A failed family retains its original
+   * error until that caller-owned family is released, with no global or
+   * cross-input cache.
+   */
   export type IClosureAttempt =
     | {
-        /** The defined scope uses no full closure. */
+        /**
+         * Closure lifecycle discriminant "unrequested"; the failed branch
+         * retains its thrown error.
+         */
         readonly state: "unrequested";
       }
-    | IRequestedClosure;
-
-  /** The selected member or original failure from one explicit closure. */
-  export type IRequestedClosure =
     | {
-        /** Successful closure with the selected canonical member. */
+        /**
+         * Closure lifecycle discriminant "succeeded"; the failed branch retains
+         * its thrown error.
+         */
         readonly state: "succeeded";
-        /** Actual selected source and scalar closure witness. */
-        readonly result: IOutput;
       }
     | {
         /**
@@ -141,7 +160,10 @@ export namespace IAutoMovieHumanHeadCanonical {
          * its thrown error.
          */
         readonly state: "failed";
-        /** Original thrown failure from the selected closure. */
+        /**
+         * Original thrown failure retained after the closure attempt; no retry
+         * or conversion is implied.
+         */
         readonly error: unknown;
       };
 

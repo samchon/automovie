@@ -1,5 +1,6 @@
 import { AutoMovieLoftChain } from "@automovie/engine";
 import type {
+  IAutoMovieHumanLoftMesh,
   IAutoMovieHumanSurfaceBoundary,
   IAutoMovieHumanSurfaceContext,
   IAutoMovieHumanSurfacePole,
@@ -115,6 +116,9 @@ export namespace AutoMovieHumanBodySurfacePoles {
           ),
         ),
       );
+      const own: Map<number, [number, number, number]> =
+        DOMES.get(context.mesh) ?? new Map();
+      DOMES.set(context.mesh, own);
       const n: number = corners.length;
       for (let i: number = 1; i < count; i++) {
         const a: number = (Math.PI / 2) * (i / count);
@@ -151,9 +155,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
           ];
           const length: number = Math.hypot(...normal);
           if (length > 1e-12)
-            context.domeNormals.push([
-              v,
-              [normal[0] / length, normal[1] / length, normal[2] / length],
+            own.set(v, [
+              normal[0] / length,
+              normal[1] / length,
+              normal[2] / length,
             ]);
         });
         if (end === "top")
@@ -173,14 +178,17 @@ export namespace AutoMovieHumanBodySurfacePoles {
   /**
    * Station where a rounded pole's dome starts, or null to close at the end.
    *
-   * An authored cap keeps its domain. When a recovered point has no authored
-   * cap and its end ring is smaller than the loft's chord tolerance, try
-   * successive inward rings. ESTIMATE: use their mean radius as an ellipse
-   * semiaxis and the distance to the recovered point as the other semiaxis.
-   * Both endpoint curvature radii must resolve at the current chord tolerance
-   * before replacing any existing rings.
-   *
-   * @see https://occt3d.com/dev/doc/overview/html/occt_user_guides__mesh.html
+   * The fitter ends a digit chain with a layer of a few tenths of a
+   * millimetre round its recovered tip, the next layer 3 to 6 mm inward
+   * holding the digit's full section (f1: index finger 0.1 then 5.0 mm
+   * radius over 5.4 mm, ring finger 0.7, 1.2 then 5.0 mm). The Hermite
+   * interval between them narrows linearly, so the tip lofts as a cone that
+   * no dome on its point-sized end ring can round. The dome therefore starts
+   * at the first layer from the end whose mean radius reaches
+   * {@link FLOOR} of the chain's median layer radius, skipping the point
+   * rings. A base whose apex lies closer than {@link ASPECT} of its radius
+   * would flatten the end (the crown's last layers are wide and shallow),
+   * so such an end keeps its fitted layers.
    */
   export function domeBase(
     context: IAutoMovieHumanSurfaceContext,
@@ -192,11 +200,6 @@ export namespace AutoMovieHumanBodySurfacePoles {
       context.poles.get(target.name + ":" + end);
     if (calibrated?.critical !== true) return null;
     const layers: readonly IAutoMovieLoftChain.ILayer[] = target.layers;
-    if (layers.length < 3) return null;
-    const step: number = end === "bottom" ? 1 : -1;
-    const first: number = end === "bottom" ? 0 : layers.length - 1;
-    const opposite: number = end === "bottom" ? layers.length - 1 : 0;
-    // Estimate the mean reach with eight evenly spaced readings per quadrant.
     const probes: number[] = Array.from(
       { length: 32 },
       (_: unknown, i: number): number => (2 * Math.PI * i) / 32,
@@ -224,30 +227,28 @@ export namespace AutoMovieHumanBodySurfacePoles {
         ) / ring.length;
       return [radius, c];
     };
-    const tolerance: number = context.tolerance;
-    if (measure(layers[first]!.y)[0] >= tolerance) return null;
-    for (
-      let i: number = first + step;
-      step * (opposite - i) > 0;
-      i += step
-    ) {
-      const station: number = layers[i]!.y;
-      const [radius, centre] = measure(station);
-      if (radius < tolerance) continue;
-      const height: number = Math.hypot(
-        calibrated.point[0] - centre[0],
-        calibrated.point[1] - centre[1],
-        calibrated.point[2] - centre[2],
-      );
-
-      // For (r cos t, h sin t), the endpoint radii are h²/r and r²/h.
-      if (
-        Math.min((height * height) / radius, (radius * radius) / height) >=
-        tolerance
-      )
-        return station;
-    }
-    return null;
+    const radii: number[] = layers.map(
+      (l: IAutoMovieLoftChain.ILayer): number => measure(l.y)[0],
+    );
+    const sorted: number[] = [...radii].sort(
+      (a: number, b: number): number => a - b,
+    );
+    const floor: number = FLOOR * sorted[sorted.length >> 1]!;
+    const order: number[] = layers.map((_: unknown, k: number): number =>
+      end === "bottom" ? k : layers.length - 1 - k,
+    );
+    if (radii[order[0]!]! >= floor) return null;
+    const k: number | undefined = order.find(
+      (i: number): boolean => radii[i]! >= floor,
+    );
+    if (k === undefined || k === order[order.length - 1]) return null;
+    const [radius, centre] = measure(layers[k]!.y);
+    const apex: number = Math.hypot(
+      calibrated.point[0] - centre[0],
+      calibrated.point[1] - centre[1],
+      calibrated.point[2] - centre[2],
+    );
+    return apex >= ASPECT * radius ? layers[k]!.y : null;
   }
 
   /** Fewest rings of the rounded dome closing a chain at a critical point, plus one. */
@@ -259,12 +260,20 @@ export namespace AutoMovieHumanBodySurfacePoles {
   /** Largest turn of a dome's profile between two of its rings, radians. */
   export const DOME_TURN: number = (6 * Math.PI) / 180;
 
+  /** Each mesh's dome normals, by vertex, oriented when the mesh's are known. */
+  export const DOMES: WeakMap<
+    IAutoMovieHumanLoftMesh.IContext,
+    Map<number, [number, number, number]>
+  > = new WeakMap();
+
   /** Normals with the domes' own in place of the faceted mesh's, facing the same way. */
   export function domed(
-    own: Readonly<IAutoMovieHumanSurfaceContext["domeNormals"]>,
+    mesh: IAutoMovieHumanLoftMesh.IContext,
     normals: number[],
   ): number[] {
-    if (own.length === 0) return normals;
+    const own: Map<number, [number, number, number]> | undefined =
+      DOMES.get(mesh);
+    if (own === undefined) return normals;
     const out: number[] = [...normals];
     for (const [v, n] of own) {
       const sign: number =
@@ -279,6 +288,12 @@ export namespace AutoMovieHumanBodySurfacePoles {
     return out;
   }
 
+  /** Share of a chain's median layer radius below which an end layer is a point ring. */
+  export const FLOOR: number = 0.35;
+
+  /** Least apex height of a dome as a share of its base radius. */
+  export const ASPECT: number = 0.5;
+
   /**
    * Band between two rings of one phase set, leaving out every cell with a
    * corner inside one of the chain's root loops; the cells left out are
@@ -292,8 +307,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
     s0: number,
     s1: number,
     phases: readonly number[],
-    holed: ReturnType<typeof prepareHoles> = prepareHoles(context, target),
   ): void {
+    const holed:
+      | ((corners: readonly [number, number][]) => string | null)
+      | null = holing(context, target);
     if (holed === null) {
       AutoMovieHumanLoftMesh.band(context.mesh, lower, upper);
       return;
@@ -340,8 +357,10 @@ export namespace AutoMovieHumanBodySurfacePoles {
     upperPhases: readonly number[],
     s0: number,
     s1: number,
-    holed: ReturnType<typeof prepareHoles> = prepareHoles(context, target),
   ): void {
+    const holed:
+      | ((corners: readonly [number, number][]) => string | null)
+      | null = holing(context, target);
     if (holed === null) {
       AutoMovieHumanLoftMesh.zipper(
         context.mesh,
@@ -388,7 +407,7 @@ export namespace AutoMovieHumanBodySurfacePoles {
    * or the span key of an opening spanning two chains), null for skin; null
    * itself when the chain has no loops.
    */
-  export function prepareHoles(
+  function holing(
     context: IAutoMovieHumanSurfaceContext,
     target: IAutoMovieLoftChain,
   ): ((corners: readonly [number, number][]) => string | null) | null {
@@ -397,27 +416,18 @@ export namespace AutoMovieHumanBodySurfacePoles {
 
     // A loop winding round the cap pole leaves out the chart beyond it.
     const toward: number = target.pole?.end === "bottom" ? -1 : 1;
-    const loops = roots.map((root) => ({
-      key: root.span ?? target.name,
-      contains:
-        root.appendage?.winding === undefined
-          ? AutoMovieHumanBodyRoots.prepareInside(root.loop)
-          : beyond(AutoMovieHumanBodyRoots.prepareStation(root.loop), toward),
-    }));
     return (corners: readonly [number, number][]): string | null => {
-      for (const { key, contains } of loops)
-        if (corners.some(([s, t]: [number, number]): boolean => contains(s, t)))
-          return key;
+      for (const r of roots)
+        if (
+          corners.some(([s, t]: [number, number]): boolean =>
+            r.appendage?.winding !== undefined
+              ? AutoMovieHumanBodyRoots.beyond(r.loop, s, t, toward)
+              : AutoMovieHumanBodyRoots.inside(r.loop, s, t),
+          )
+        )
+          return r.span ?? target.name;
       return null;
     };
-  }
-
-  /** Leave out cells on the pole's side of the prepared winding loop. */
-  function beyond(
-    station: (phase: number) => number,
-    toward: number,
-  ): (s: number, t: number) => boolean {
-    return (s: number, t: number): boolean => toward * (s - station(t)) > 0;
   }
 
   /** Record a left-out cell in its hole, with its corners' chart points and chain. */

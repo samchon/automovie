@@ -23,9 +23,7 @@ export namespace IAutoMovieHumanLegProximal {
     point: AutoMovieVector3Tuple;
     /** Actual source station on the unchanged child course, mm. */
     station: number;
-    /** The selected native material line. `u` is AP and `v` is transverse. */
-    axis: "u" | "v";
-    /** Signed native direction on the selected material line. */
+    /** Signed native v direction of the outward guide. */
     outward: 1 | -1;
     /** Positive ray radius and first/second derivatives in child station. */
     radius: [number, number, number];
@@ -48,7 +46,7 @@ export namespace IAutoMovieHumanLegProximal {
     ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>>
   >;
 
-  /** New proximal material line, with its actual complete parent authority. */
+  /** New proximal outward original, with its actual complete parent authority. */
   export interface IResult {
     /**
      * Reauthored prefix; all named-thigh-and-later scalar spans replay

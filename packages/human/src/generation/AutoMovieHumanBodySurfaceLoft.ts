@@ -27,7 +27,6 @@ const {
   cells,
   domeBase,
   pole,
-  prepareHoles,
   zipped,
 }: typeof AutoMovieHumanBodySurfacePoles = AutoMovieHumanBodySurfacePoles;
 const { inheritedPhases, ownPhases }: typeof AutoMovieHumanBodySurfacePhases =
@@ -147,8 +146,7 @@ export namespace AutoMovieHumanBodySurfaceLoft {
       return ringVertices(context, target, y, phases);
     });
 
-    // Bands between consecutive stations share the same prepared trim loops.
-    const holes: ReturnType<typeof prepareHoles> = prepareHoles(context, target);
+    // Bands between consecutive stations, grouped by principal interval.
     for (let k: number = 0; k + 1 < heights.length; k++) {
       AutoMovieHumanLoftMesh.group(
         context.mesh,
@@ -165,7 +163,6 @@ export namespace AutoMovieHumanBodySurfaceLoft {
           heights[k]!,
           heights[k + 1]!,
           ringPhases[k]!,
-          holes,
         );
       else
         zipped(
@@ -177,7 +174,6 @@ export namespace AutoMovieHumanBodySurfaceLoft {
           ringPhases[k + 1]!,
           heights[k]!,
           heights[k + 1]!,
-          holes,
         );
     }
 

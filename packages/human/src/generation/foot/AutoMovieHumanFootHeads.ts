@@ -12,7 +12,8 @@ import { AutoMovieHumanFootPrior } from "../AutoMovieHumanFootPrior";
  * the ball. The first head stands at ANSUR II's ball-of-foot length; the second
  * is Maestro's lead ahead of it and the other three stand behind it by his
  * cascade (millimetres of a foot of `CASCADE_FOOT`, scaled by the foot's
- * length). Each head belongs to its toe's nominal transverse bay.
+ * length); each head's across place and height are the prior's reference
+ * medians.
  */
 export namespace AutoMovieHumanFootHeads {
   /**

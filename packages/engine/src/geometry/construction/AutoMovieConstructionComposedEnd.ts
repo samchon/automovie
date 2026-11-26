@@ -51,8 +51,7 @@ export namespace AutoMovieConstructionComposedEnd {
     const turn: number = 2 * Math.PI;
     if (sections.length < 2)
       return "an end is composed of at least two sections";
-    if (!(Number.isInteger(m) && m >= 8))
-      return `the composition's ${m} samples are fewer than 8`;
+    if (!(m >= 8)) return `the composition's ${m} samples are fewer than 8`;
 
     // The plane's own axes: the world axis least along the normal, made square to it, and their cross product.
     const least: number = [0, 1, 2].reduce(
@@ -293,7 +292,6 @@ export namespace AutoMovieConstructionComposedEnd {
 
     // The outline: from the first section's lobe, each piece ends in a fork at which the neighbouring section's lobe begins.
     const pieces: IAutoMovieConstructionComposedEnd.IPiece[] = [];
-    const ends: [number, number][] = [];
     const total: number = tagged.reduce(
       (sum: number, list: Lobe[]): number => sum + list.length,
       0,
@@ -307,7 +305,6 @@ export namespace AutoMovieConstructionComposedEnd {
       from: tagged[0]![0]!.from,
       to: tagged[0]![0]!.to,
     });
-    ends.push([tagged[0]![0]!.first, tagged[0]![0]!.last]);
     while (pieces.length < total) {
       const seam: number = Math.floor(fork / 2);
       const other: number = section === seam ? seam + 1 : seam;
@@ -321,7 +318,6 @@ export namespace AutoMovieConstructionComposedEnd {
         from: forward ? lobe.from : lobe.to,
         to: forward ? lobe.to : lobe.from,
       });
-      ends.push([fork, forward ? lobe.last : lobe.first]);
       section = other;
       fork = forward ? lobe.last : lobe.first;
     }
@@ -356,9 +352,6 @@ export namespace AutoMovieConstructionComposedEnd {
           (_: unknown, k: number): V2 => flat(read(piece, k / m).point),
         ),
     );
-    // Retain competing sites within arithmetic roundoff only in the optional observation.
-    const distanceTie = (a: number, b: number): boolean =>
-      Math.abs(a - b) <= 64 * Number.EPSILON * (1 + Math.max(a, b));
     return {
       seams,
       lobes: tagged.map((list: Lobe[]): [number, number][] =>
@@ -376,7 +369,7 @@ export namespace AutoMovieConstructionComposedEnd {
           const i: number = Math.min(pieces.length - 1, Math.floor(x));
           return read(pieces[i]!, x - i);
         },
-        distance: (point, observe): number => {
+        distance: (point: Vec3): number => {
           const q: V2 = flat(point);
           // Each piece's nearest sample; then, on the two pieces whose samples stand nearest, the foot on the section itself: each
           // step moves the share by the gap's part along the tangent over the tangent's length, held inside the piece, until it
@@ -397,53 +390,6 @@ export namespace AutoMovieConstructionComposedEnd {
             )
             .sort((a: { d: number }, b: { d: number }): number => a.d - b.d);
           let best: number = nearest[0]!.d;
-          const evidence =
-            observe === undefined
-              ? undefined
-              : {
-                  best: {
-                    piece: nearest[0]!.piece,
-                    share: nearest[0]!.share,
-                    distance: best,
-                    settled: false,
-                  },
-                  pieces: new Map<
-                    number,
-                    { share: number; distance: number; settled: boolean }
-                  >(),
-                };
-          const retain =
-            evidence === undefined
-              ? undefined
-              : (
-                  piece: number,
-                  share: number,
-                  distance: number,
-                  settled: boolean,
-                ): void => {
-                  const winner = evidence.best;
-                  // Keep the original search's exact scalar winner, with a settled version of the same branch when available.
-                  if (
-                    distance < winner.distance ||
-                    (piece === winner.piece &&
-                      distance === winner.distance &&
-                      settled &&
-                      !winner.settled)
-                  )
-                    evidence.best = { piece, share, distance, settled };
-                  const existing = evidence.pieces.get(piece);
-                  if (
-                    existing === undefined ||
-                    distance < existing.distance ||
-                    (settled &&
-                      !existing.settled &&
-                      distanceTie(distance, existing.distance))
-                  )
-                    evidence.pieces.set(piece, { share, distance, settled });
-                };
-          if (retain !== undefined)
-            for (const start of nearest)
-              retain(start.piece, start.share, start.d, false);
           for (const start of nearest.slice(0, 2)) {
             const piece: IAutoMovieConstructionComposedEnd.IPiece =
               pieces[start.piece]!;
@@ -451,13 +397,9 @@ export namespace AutoMovieConstructionComposedEnd {
             for (let step: number = 0; step < 32; ++step) {
               const r: { point: Vec3; first: Vec3 } = read(piece, share);
               const [p, d]: [V2, V2] = [flat(r.point), lean(r.first)];
-              const distance: number = Math.hypot(p[0] - q[0], p[1] - q[1]);
-              best = Math.min(best, distance);
+              best = Math.min(best, Math.hypot(p[0] - q[0], p[1] - q[1]));
               const speed: number = d[0] * d[0] + d[1] * d[1];
-              if (!(speed > 0)) {
-                retain?.(start.piece, share, distance, false);
-                break;
-              }
+              if (!(speed > 0)) break;
               const next: number = Math.min(
                 1,
                 Math.max(
@@ -465,32 +407,9 @@ export namespace AutoMovieConstructionComposedEnd {
                   share + ((q[0] - p[0]) * d[0] + (q[1] - p[1]) * d[1]) / speed,
                 ),
               );
-              const settled: boolean = Math.abs(next - share) <= 1e-14;
-              retain?.(start.piece, share, distance, settled);
-              if (settled) break;
+              if (Math.abs(next - share) <= 1e-14) break;
               share = next;
             }
-          }
-          if (observe !== undefined && evidence !== undefined) {
-            const winner = evidence.best;
-            const sites: IAutoMovieConstructionComposedEnd.IOutlineDistanceSite[] =
-              [
-                {
-                  piece: winner.piece,
-                  share: winner.share,
-                  forks: ends[winner.piece]!,
-                  settled: winner.settled,
-                },
-              ];
-            for (const [piece, hit] of evidence.pieces)
-              if (piece !== winner.piece && distanceTie(hit.distance, best))
-                sites.push({
-                  piece,
-                  share: hit.share,
-                  forks: ends[piece]!,
-                  settled: hit.settled,
-                });
-            observe(sites);
           }
           return best;
         },

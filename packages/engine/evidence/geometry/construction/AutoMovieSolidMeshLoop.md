@@ -36,11 +36,11 @@ Uses the same parity, metric projection and margin comparisons as keeps; copied 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One face-local closure owns the copied chart, segment deltas, chart box and optional fixed range of phase crossings before any query. Unsupported charts use the live classifier.
+One face-local closure owns lazy loop preparation and each loop's chart box; no global cache is introduced.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves loop order, both periodic rules, square root and margin equality. A strict chart-box lower bound permits skipping the full metric scan. Original accessors and malformed inputs retain the live short circuit and original exception identity.
+Preserves loop order, eager fallback, both distinct periodic rules, sqrt and equality; the metric scan of a loop is skipped only where a lower bound of the same metric to the loop's chart box strictly exceeds the margin, so the answer is the full scan's and no tolerance or curve is changed.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -48,15 +48,15 @@ States numerical snapshot ownership, accessor fallback, the supported descriptor
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Scalar preparation is O(S+L) for S edges and L loops. Grid preparation also intersects winding edges once per phase. Each grid point reads its phase's winding crossings and scans every metric distance only for loops whose chart box may lie within the margin.
+Preparation is O(S+L) for S total edges and L loops; a query reads the kept side of each loop and scans only the loops whose box lies within the margin, so a face of many small holes costs each grid point its few near ones.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Each face owns its numeric preparation after edits or rollback. Metric coefficients are local to one query. A live query does not change the mode or state of later queries.
+Each new face owns new preparation after edits or rollback; eligible input and jet values stay unchanged while read.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Captures O(S+L) scratch for L loops and the requested phase range's winding crossings. The face retains it through its synchronous call.
+Captures O(S+L) scratch for L loops until the returned reader is dropped; the face retains it only through its synchronous call.
 
 # src/geometry/construction/AutoMovieSolidMeshLoop.ts#AutoMovieSolidMeshLoop.nearest
 

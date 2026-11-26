@@ -12,7 +12,7 @@ Returned by AutoMovieHumanTrunkKeys.sites. Read by AutoMovieHumanTrunkFeatures.b
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `crotch`, `buttock`, `iliocristale`, `omphalion`, `waist`, `fold`, `bust`, `axilla`, `bustSpan`, `projection`, `buttockProjection`, `span`, `neck`.
+Required fields are `crotch`, `buttock`, `iliocristale`, `omphalion`, `waist`, `fold`, `bust`, `axilla`, `furrowFrom`, `bustSpan`, `projection`, `buttockProjection`, `span`, `neck`; callers supply the complete record.
 
 # src/human/generation/IAutoMovieHumanTrunkFeatures.ts#IAutoMovieHumanTrunkFeatures.GuardedMake
 

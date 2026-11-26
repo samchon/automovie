@@ -2,143 +2,205 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanHeadInputs,
   IAutoMovieHumanHeadNeck,
+  IAutoMovieHumanNeckPrior,
   IAutoMovieHumanNeckSource,
 } from "@automovie/interface";
 
-import { AutoMovieHumanHeadMassPart } from "./head/AutoMovieHumanHeadMassPart";
+import { AutoMovieHumanNeckPrior } from "./AutoMovieHumanNeckPrior";
 
 /**
- * The neck's registered coordinate frame and circular section study from the
- * person's own tapes and landmarks.
+ * The retained neck's generating records, before any chain is constructed.
+ * The head needs their mean, adopted posterior C7 point and endpoint jet;
+ * the transitional trunk adapter now evaluates the composed mass instead of
+ * constructing another skin from these original harmonic rows.
+ * Their private shape and XZ perimeter normalization are not a published
+ * infrathyroid plane or a closed three-dimensional base-tape construction.
+ * One rigid AP frame map registers that local prior at the shared body-input
+ * C7 before its rows, mean, posterior, head or joint consumers are published.
+ *
+ * @evidence contracts/common.md#principled-implementation Shares the existing four generating rows and their units, reads harmonic means analytically and takes the endpoint secant from the same final two authored points as the previous chain's linear endpoint derivative.
+ * @evidence contracts/common.md#clear-and-simple-design One pure input record serves head layout and the remaining old trunk adapter, without constructing an unused neck mesh for the head.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Contains no generated-skin read, reference fit, ray intersection, new person constant or substitute tape claim.
+ * @evidence contracts/common.md#meaningful-documentation Separates calibration units, original data, named C7 closure, projected normalization and unfinished anatomical tape contracts.
+ * @evidence contracts/performance.md#efficient-algorithms Four fixed harmonic rows and two posterior evaluations supply the head frame; no periodic spline chain or section rings are needed by that consumer.
+ * @evidence contracts/performance.md#reuse-equivalent-work The body passes this same resolved record to the head and transitional neck generator.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Returns four small descriptors and scalar frame data; only the immutable prior persists globally.
  */
 export namespace AutoMovieHumanNeckSource {
   /**
-   * Resolve one neck from the supplied circumference and ISO 8559-1:2017
-   * §3.1.6–8 and §5.3.2–3 (https://www.iso.org/standard/61686.html). The normal
-   * tape is circular by estimate because the inputs give circumference without
-   * a cross-sectional depth or breadth. The tape's lowest point is halfway from
-   * the front base to the lower of the other two base landmarks. Its highest
-   * point is the higher landmark. This placement estimates an unavailable
-   * infrathyroid height while the separate base owner measures its own course
-   * through all three sites.
+   * Resolve world inputs into their one calibration-space source definition.
    *
-   * @param inputs Neck and base girths and base landmarks in world mm.
-   * @param scale Calibration mm per world mm.
-   * @returns The common C7 datum, axis, sample rows and head-mass overlap.
+   * @evidence contracts/common.md#principled-implementation Preserves log-interpolated intrinsic sizes and harmonic shapes, closes posterior phase pi at public C7 height and rigidly registers the local prior at the common body-frame C7 X. The intrinsic two-point secant is evaluated before translation and no curve is fitted.
+   * @evidence contracts/common.md#clear-and-simple-design Produces descriptors and placement numbers only; a separate consumer may construct the old trunk's temporary chain.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts The old projected perimeter remains explicitly interim; no emitted chain, mesh, sampled ray or anatomical-site compensation determines the head frame.
+   * @evidence contracts/common.md#meaningful-documentation States world-to-calibration conversion, local-to-common rigid registration, both C7 estimates and the distinction between generating placement and actual skin/tape geometry.
+   * @evidence contracts/performance.md#efficient-algorithms A bounded four-row normalization and two analytic phase reads replace constructing a periodic chain merely to recover its inputs.
+   * @evidence contracts/performance.md#reuse-equivalent-work One returned record supplies both consumers in the production definition.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Descriptor arrays are caller-owned and retain only immutable prior rows; no global body or source cache is added.
    */
   export function of(
     inputs: Pick<IAutoMovieHumanHeadInputs, "neck" | "neckBase" | "sex">,
     scale: number,
   ): IAutoMovieHumanNeckSource.IOutput {
-    const { neck, neckBase } = inputs;
-    const cervicaleX: number = neckBase.cervicaleOrigin * scale;
-    const cervicale: number = neckBase.cervicaleHeight * scale;
-    const side: number = neckBase.sideNeckPointHeight * scale;
-    const front: number = neckBase.suprasternaleHeight * scale;
-    const radius: number = (neck * scale) / (2 * Math.PI);
-    const baseRadius: number = (neckBase.girth * scale) / (2 * Math.PI);
     if (
-      ![scale, cervicaleX, cervicale, side, front, radius, baseRadius].every(
-        Number.isFinite,
-      ) ||
       !(
+        Number.isFinite(scale) &&
         scale > 0 &&
-        radius > 0 &&
-        baseRadius > 0 &&
-        front < Math.min(cervicale, side)
+        inputs.neck > 0 &&
+        inputs.neckBase.girth > 0
       )
     )
       throw new Error(
-        "A neck source needs finite positive tapes and increasing front-to-back base heights",
+        "A neck source needs positive tapes and a positive finite calibration scale",
       );
-
-    // The angle of the normal section follows from the vertical half span
-    // of a tilted circle. Its horizontal sections have depth radius r / cos.
-    const lower: number = (front + Math.min(cervicale, side)) / 2;
-    const upper: number = Math.max(cervicale, side);
-    const level: number = (upper + lower) / 2;
-    const sine: number = (upper - lower) / (2 * radius);
-    if (!(sine < 1))
-      throw new Error(
-        "The neck tape cannot span its named base heights as a normal circle",
-      );
-    const cosine: number = Math.sqrt((1 - sine) * (1 + sine));
-    const slope: number = sine / cosine;
-
-    // Align the horizontal section's back wall at the adopted C7 point.
-    const localCervicale: number =
-      slope * (cervicale - level) - radius / cosine;
-    const x: number = cervicaleX - localCervicale;
-    const registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]> = {
-      priorCervicaleX: localCervicale,
-      cervicaleX,
-      mappedCervicaleX: localCervicale + x,
-      translationX: x,
-    };
-
-    // Estimate the internal overlap using one base radius below the lowest landmark.
-    // Keep the four descriptor stations while the actual mass reads its own
-    // shared quintic scalar curves and closes its nonplanar base tape.
-    const first: number = front - baseRadius;
-    const rows: IAutoMovieHumanNeckSource.IRow[] = Array.from(
-      { length: 4 },
-      (_: unknown, k: number): IAutoMovieHumanNeckSource.IRow => {
-        const t: number = k / 3;
-        const station: number = first + (level - first) * t;
-        const share: number = t ** 3 * (10 - 15 * t + 6 * t * t);
-        const r: number = (1 - share) * baseRadius + share * radius;
+    const prior: IAutoMovieHumanNeckPrior.IPrior =
+      AutoMovieHumanNeckPrior.PRIOR;
+    const last: number = prior.rings.length - 1;
+    const logs: (k: number) => number = (k: number): number =>
+      (1 - k / last) * Math.log(inputs.neckBase.girth) +
+      (k / last) * Math.log(inputs.neck);
+    const size: (s: IAutoMovieHumanNeckPrior.ISize, k: number) => number = (
+      s: IAutoMovieHumanNeckPrior.ISize,
+      k: number,
+    ): number =>
+      scale *
+      Math.exp(s.level[k]! + s.sex[k]! * inputs.sex + s.gain[k]! * logs(k));
+    const aspect: number = size(prior.depth, last) / size(prior.width, last);
+    const meanTop: number =
+      inputs.neckBase.cervicaleHeight * scale -
+      scale * even(prior.rings[last]!.y, Math.PI);
+    const rows: IAutoMovieHumanNeckSource.IRow[] = prior.rings.map(
+      (
+        ring: IAutoMovieHumanNeckPrior.IRing,
+        k: number,
+      ): IAutoMovieHumanNeckSource.IRow => {
+        const width: number =
+          (scale * Math.exp(logs(k))) / perimeter(ring, aspect, prior.order);
         return {
-          origin: [x + slope * (station - level), station, 0],
-          width: r,
-          depth: r * cosine,
+          ring,
+          origin: [
+            (prior.place.level[k]! + prior.place.sex[k]! * inputs.sex) * scale,
+            meanTop + prior.drop[k]! * scale,
+            0,
+          ],
+          width,
+          depth: aspect * width,
           scale,
-          ring: { x: [0, 1], y: [0, (-r * sine) / scale], z: [1] },
         };
       },
     );
+    const top: IAutoMovieHumanNeckSource.IRow = rows[last]!;
+    const priorPosterior: [number, number, number] = point(top, Math.PI);
+    const previous: [number, number, number] = point(rows[last - 1]!, Math.PI);
+    const dy: number = priorPosterior[1] - previous[1];
+    if (dy === 0 || !Number.isFinite(dy))
+      throw new Error(
+        "The neck's authored posterior endpoint has no finite height secant",
+      );
+    const cervicaleX: number = inputs.neckBase.cervicaleOrigin * scale;
+    const translationX: number = cervicaleX - priorPosterior[0];
+    if (![cervicaleX, translationX].every(Number.isFinite))
+      throw new Error("The local neck prior has no finite common C7 frame map");
+
+    // One rigid generating-frame map registers the local prior before any
+
+    // curve, head or joint consumes it. Relative shape and the intrinsic
+
+    // posterior secant are evaluated in the unchanged local prior frame.
+    for (const row of rows) row.origin[0] += translationX;
+    const centre: [number, number, number] = mean(top);
+    const posterior: [number, number, number] = point(top, Math.PI);
+    const registration: NonNullable<IAutoMovieHumanHeadNeck["registration"]> = {
+      priorCervicaleX: priorPosterior[0],
+      cervicaleX,
+      mappedCervicaleX: posterior[0],
+      translationX,
+    };
     return {
       rows,
       scale,
-      order: AutoMovieHumanHeadMassPart.ORDER,
-      samples: AutoMovieHumanHeadMassPart.SAMPLES,
-      bottom: [...rows[0]!.origin],
+      order: prior.order,
+      samples: prior.samples,
+      bottom: mean(rows[0]!),
       registration,
       head: {
-        level,
-        x,
-        radius,
-        back: cervicaleX,
-        backLevel: cervicale,
-        backSlope: slope,
-        normalBandUpper: upper,
+        level: centre[1],
+        x: centre[0],
+        radius: (inputs.neck * scale) / (2 * Math.PI),
+        back: posterior[0],
+        backLevel: posterior[1],
+        backSlope: (priorPosterior[0] - previous[0]) / dy,
         registration,
       },
     };
   }
 
   /**
-   * Evaluate the declared section coordinates at a phase in radians, returning
-   * calibration mm.
+   * Evaluate the original harmonic authoring row, before any interpolation.
+   *
+   * @evidence contracts/common.md#principled-implementation Uses the prior's original cosine forward/height and sine lateral definitions with their declared scale and translation.
+   * @evidence contracts/common.md#clear-and-simple-design A point evaluator is shared with the transitional chain adapter; no second shape formula is introduced.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Reads no emitted geometry or reference and applies no endpoint clamp.
+   * @evidence contracts/common.md#meaningful-documentation Names authoring phase and calibration-mm output, distinct from an interpolated skin.
+   * @evidence contracts/performance.md#efficient-algorithms Linear work in the fixed harmonic count.
+   * @evidenceExclude contracts/performance.md#reuse-equivalent-work One synchronous point read coordinates no requests or cache.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources Returns one owned tuple without retaining source data.
    */
   export function point(
     row: IAutoMovieHumanNeckSource.IRow,
     phase: number,
   ): AutoMovieVector3Tuple {
-    const even = (series: readonly number[]): number =>
-      series.reduce(
-        (sum: number, x: number, k: number): number =>
-          sum + x * Math.cos(k * phase),
-        0,
-      );
-    const lateral: number = row.ring.z.reduce(
-      (sum: number, z: number, k: number): number =>
-        sum + z * Math.sin((k + 1) * phase),
+    return [
+      row.origin[0] + row.depth * even(row.ring.x, phase),
+      row.origin[1] + row.scale * even(row.ring.y, phase),
+      row.origin[2] + row.width * odd(row.ring.z, phase),
+    ];
+  }
+
+  /** Exact full-period mean of the authored harmonics, calibration mm. */
+  function mean(row: IAutoMovieHumanNeckSource.IRow): [number, number, number] {
+    return [
+      row.origin[0] + row.depth * row.ring.x[0]!,
+      row.origin[1] + row.scale * row.ring.y[0]!,
+      row.origin[2],
+    ];
+  }
+
+  /** Retained XZ polygon normalization; it is not the nonplanar row's 3D length. */
+  function perimeter(
+    ring: IAutoMovieHumanNeckPrior.IRing,
+    aspect: number,
+    order: number,
+  ): number {
+    let sum: number = 0;
+    let previous: [number, number] = [aspect * even(ring.x, 0), odd(ring.z, 0)];
+    for (let j: number = 1; j <= order; j++) {
+      const phase: number = (2 * Math.PI * j) / order;
+      const next: [number, number] = [
+        aspect * even(ring.x, phase),
+        odd(ring.z, phase),
+      ];
+      sum += Math.hypot(next[0] - previous[0], next[1] - previous[1]);
+      previous = next;
+    }
+    return sum;
+  }
+
+  /** Original cosine series including its mean term. */
+  function even(values: readonly number[], phase: number): number {
+    return values.reduce(
+      (sum: number, value: number, k: number): number =>
+        sum + value * Math.cos(k * phase),
       0,
     );
-    return [
-      row.origin[0] + row.depth * even(row.ring.x),
-      row.origin[1] + row.scale * even(row.ring.y),
-      row.origin[2] + row.width * lateral,
-    ];
+  }
+
+  /** Original sine series, whose full-period mean is zero. */
+  function odd(values: readonly number[], phase: number): number {
+    return values.reduce(
+      (sum: number, value: number, k: number): number =>
+        sum + value * Math.sin((k + 1) * phase),
+      0,
+    );
   }
 }

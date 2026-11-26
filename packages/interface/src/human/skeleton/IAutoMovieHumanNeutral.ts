@@ -5,29 +5,35 @@ import type { IAutoMovieHumanJointCentres } from "./IAutoMovieHumanJointCentres"
 import type { IAutoMovieHumanSkeletonMath } from "./IAutoMovieHumanSkeletonMath";
 
 /**
- * Bind-derived neutral joint placements, world turns and clinical segment frames.
+ * Bind-derived neutral joint placements, world turns and clinical segment
+ * frames.
  *
- * The interface package owns these declarations; AutoMovieHumanNeutral in Human supplies their runtime values.
+ * The interface package owns these declarations; AutoMovieHumanNeutral in Human
+ * supplies their runtime values.
  */
 export namespace IAutoMovieHumanNeutral {
-  /** A body's neutral.
-   */
+  /** A body's neutral. */
   export interface IOutput {
     /** The skeleton standing at neutral, in the bind's order, mm. */
     joints: IAutoMovieHumanJointCentres.IJoint[];
 
-    /** Each bone's world turn from bind to neutral: the achieved offset, inverted. */
+    /**
+     * Each bone's world turn from bind to neutral: the achieved offset,
+     * inverted.
+     */
     turns: Map<string, AutoMovieQuaternionTuple>;
 
-    /** Each upper arm's and thigh's resting abduction from the plumb line, degrees, by bone. */
+    /**
+     * Each upper arm's and thigh's resting abduction from the plumb line,
+     * degrees, by bone.
+     */
     resting: Map<string, number>;
 
     /** Each forearm's achieved pronation from thumbs forward, degrees. */
     forearms: Map<string, number>;
   }
 
-  /** One bone's segment frame at neutral.
-   */
+  /** One bone's segment frame at neutral. */
   export interface IFrame {
     /** Bone id. */
     bone: string;
@@ -45,7 +51,9 @@ export namespace IAutoMovieHumanNeutral {
     axes: IAutoMovieHumanSkeletonMath.IAxes;
   }
 
-  /** What a body's neutral is derived from: its skin's rings and its bind skeleton.
+  /**
+   * What a body's neutral is derived from: its skin's rings and its bind
+   * skeleton.
    */
   export interface ISource {
     /** The skin as rings; at least the chains {@link READS} names. */
@@ -55,6 +63,16 @@ export namespace IAutoMovieHumanNeutral {
     joints: readonly IAutoMovieHumanJointCentres.IJoint[];
   }
 
-  /** Supplies the neutral's rings and bind skeleton once per call to AutoMovieHumanNeutral.of. */
+  /**
+   * The source argument of AutoMovieHumanNeutral.of. One calibrated body's
+   * neutral, derived at its first request and shared by every later one. The
+   * neutral reads only the chains {@link READS} names, by name, and the bind
+   * skeleton, which is a function of the calibration alone, so every caller's
+   * source gives the same neutral and the first one's is kept.
+   *
+   * @param calibration The body.
+   * @param source Its rings and bind skeleton, read only on the first request.
+   * @returns The neutral; callers read it and do not change it.
+   */
   export type OfSource = () => ISource;
 }

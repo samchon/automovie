@@ -155,10 +155,10 @@ export namespace AutoMovieHumanArmCurveSpec {
   }
 
   /**
-   * The exact six Bézier control points of the quintic Hermite span `a`..`b`
-   * in the same parameter. With `h = b.q - a.q`, P1 = A + h A1 / 5,
-   * P2 = A + 2 h A1 / 5 + h^2 A2 / 20, P3 = B - 2 h B1 / 5 + h^2 B2 / 20,
-   * and P4 = B - h B1 / 5.
+   * The six Bézier control points of the quintic Hermite span `a`..`b` in
+   * the same parameter, exactly (human/curves.md "Preserve The Actual
+   * Parameter"): with `h = b.q - a.q`, P1 = A + h A1 / 5, P2 = A + 2 h A1 / 5
+   * + h^2 A2 / 20, P3 = B - 2 h B1 / 5 + h^2 B2 / 20, P4 = B - h B1 / 5.
    */
   export function quinticControls(
     a: IAutoMovieHumanArmCurveSpec.IHermiteKnot,

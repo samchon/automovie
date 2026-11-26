@@ -33,9 +33,6 @@ export interface IAutoMovieHumanTrunkContext {
   /** Shoulder point height, mm. */
   shoulderY: number;
 
-  /** Median back in calibration millimetres, anchored at the actual neck cut. */
-  back(y: number): number;
-
-  /** Surveyed chest-wall depth over breadth at the person's underbust tape. */
-  chestWallDepth: number;
+  /** The inguinal fold's softness, mm. */
+  soft: number;
 }

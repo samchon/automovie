@@ -3,7 +3,6 @@ import { AutoMovieViewChain } from "@automovie/engine";
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieHumanConicSection,
-  IAutoMovieHumanNativeGirthClosure,
   IAutoMovieViewChain,
 } from "@automovie/interface";
 
@@ -26,8 +25,17 @@ import type {
  * feature's place are not fullness and stay; the section must contain its course point.
  */
 export namespace AutoMovieHumanNativeGirthClosure {
-  /** The conic source values that attain the requested girth. */
-  export type IClosed = IAutoMovieHumanNativeGirthClosure.IClosed;
+  /** A section closed on a girth. */
+  export interface IClosed {
+    /** The scalar added to every fullness share's logit; zero when the given section already measures the girth. */
+    fullness: number;
+
+    /** The section's field vector at that fullness: every millimetre and angle field as given, the fullness shares moved. */
+    values: readonly number[];
+
+    /** The closed section's taut tape, mm. */
+    tape: number;
+  }
 
   /**
    * Phases a section is sampled at for its tape. A chord of an inscribed polygon falls short of its arc by the arc's length times

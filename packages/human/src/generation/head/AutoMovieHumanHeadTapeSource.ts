@@ -1,7 +1,7 @@
 import {
   AutoMovieLoftSectionNative,
+  AutoMovieLoftViewRead,
   AutoMovieLoftViewSource,
-  AutoMovieSolidVector,
   measureAutoMovieCurveLength64,
 } from "@automovie/engine";
 import type {
@@ -14,6 +14,24 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanHeadTapeStation } from "./AutoMovieHumanHeadTapeStation";
+
+/** One numerical trial and the exact source used at that station. */
+interface ILocated {
+  /** Actual selected physical station, calibration mm. */
+  station: number;
+
+  /** Present after numerical inversion; exact anchors request their own station directly. */
+  source?: IAutoMovieHumanHeadTapeStation.IPrepared;
+}
+
+/** An original plane residual and its same-trial numeric source. */
+interface IResidual {
+  /** Actual world-plane residual, calibration mm. */
+  value: number;
+
+  /** Exact scalar/native station used to compute that residual. */
+  source: IAutoMovieHumanHeadTapeStation.IPrepared;
+}
 
 /**
  * Actual oblique head-tape courses on the original native generating field.
@@ -28,8 +46,8 @@ import { AutoMovieHumanHeadTapeStation } from "./AutoMovieHumanHeadTapeStation";
  * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no mesh, polyline tape, fitted tilt, private loft or unavailable derivative replacement; singular/nonfinite course premises fail explicitly.
  * @evidence contracts/common.md#meaningful-documentation States anatomical frame, physical units, permitted plane family, transversality and numerical quadrature limits.
  * @evidence contracts/performance.md#efficient-algorithms Each source admits once; bounded bracketed point solves precede one actual source2 read per quadrature query. Horizontal courses need only phase values.
- * @evidence contracts/performance.md#reuse-equivalent-work All planes borrow the same admitted original source; point-only inversion shares the two exact endpoint station readers and the selected physical jet supplies the point and both partials together.
- * @evidence contracts/performance.md#bound-retention-and-release-resources Readers retain one actual part and its original scalar preparations. A measure prepares at most two endpoint readers and holds only scalar interior bracket data.
+ * @evidence contracts/performance.md#reuse-equivalent-work All planes borrow the same admitted original source; point-only inversion shares the two exact endpoint station readers and carries its selected trial into the final phase read.
+ * @evidence contracts/performance.md#bound-retention-and-release-resources Readers retain one actual part and its original scalar preparations; a measure retains at most two endpoints plus its active bracket and no arbitrary trial-station map or global cache.
  */
 export namespace AutoMovieHumanHeadTapeSource {
   /**
@@ -83,44 +101,20 @@ export namespace AutoMovieHumanHeadTapeSource {
       throw new Error(
         "Head tape needs ordered original stations inside its domain",
       );
-    return preparePlane(reader, front)(back);
-  }
-
-  /** Fix the original front anchor for a bounded posterior search. */
-  export function preparePlane(
-    reader: IAutoMovieHumanHeadTapeSource.IReader,
-    front: number,
-  ): (back: number) => IAutoMovieHumanHeadTapeSource.IPlane {
-    if (
-      !(
-        Number.isFinite(front) &&
-        front >= reader.source.domain[0] &&
-        front <= reader.source.domain[1]
-      )
-    )
-      throw new Error(
-        "Head tape needs ordered original stations inside its domain",
-      );
     const p: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.prepare(
       reader,
       front,
     ).point(0);
-    return (back: number): IAutoMovieHumanHeadTapeSource.IPlane => {
-      if (!(Number.isFinite(back) && back >= reader.source.domain[0] && back <= front))
-        throw new Error(
-          "Head tape needs ordered original stations inside its domain",
-        );
-      const q: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.prepare(
-        reader,
-        back,
-      ).point(Math.PI);
-      if (!(p[0] > q[0] && p[1] >= q[1]))
-        throw new Error(
-          "Head tape has no front-higher positive sagittal anchor span",
-        );
-      const b: number = (p[1] - q[1]) / (p[0] - q[0]);
-      return { a: p[1] - b * p[0], b, front: [...p], back: q, range: [back, front] };
-    };
+    const q: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.prepare(
+      reader,
+      back,
+    ).point(Math.PI);
+    if (!(p[0] > q[0] && p[1] >= q[1]))
+      throw new Error(
+        "Head tape has no front-higher positive sagittal anchor span",
+      );
+    const b: number = (p[1] - q[1]) / (p[0] - q[0]);
+    return { a: p[1] - b * p[0], b, front: p, back: q, range: [back, front] };
   }
 
   /**
@@ -131,7 +125,7 @@ export namespace AutoMovieHumanHeadTapeSource {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No finite differences, missing derivative, sampled replacement field or out-of-domain cap extension supplies the tangent.
    * @evidence contracts/common.md#meaningful-documentation Requires a finite positive station-plane derivative and reports unresolved source roots explicitly; this is not a global intersection certificate.
    * @evidence contracts/performance.md#efficient-algorithms At most48 safeguarded secant/bisection queries and one native physical2 read; a horizontal course has constant work.
-   * @evidence contracts/performance.md#reuse-equivalent-work The final physical read supplies the original point and both partial derivatives together.
+   * @evidence contracts/performance.md#reuse-equivalent-work The final value read supplies the original frame and point used with the same source's analytic tangent.
    * @evidence contracts/performance.md#bound-retention-and-release-resources Numerical scratch and all returned vectors belong to the call; no course cache survives.
    */
   export function at(
@@ -143,33 +137,32 @@ export namespace AutoMovieHumanHeadTapeSource {
       reader,
       plane,
       phase,
-      AutoMovieHumanHeadTapeStation.create(reader),
+      AutoMovieHumanHeadTapeStation.create(reader, plane.range),
     );
   }
 
-  /** Use one original station jet once the point-only inverse selects its station. */
+  /** The unchanged final phase/physical2 reading, with a caller-owned Point0 inverse. */
   function course(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
     plane: IAutoMovieHumanHeadTapeSource.IPlane,
     phase: number,
     sources: IAutoMovieHumanHeadTapeStation.IOutput,
   ): IAutoMovieHumanHeadTapeSource.IReading {
-    const station: number = locate(plane, phase, sources.point);
-    if (plane.b === 0) {
-      const original: IAutoMovieHumanHeadTapeStation.IReading = sources.value(
-        station,
-        phase,
-      );
-      return {
-        station,
-        point: original.point,
-        derivative: AutoMovieHumanHeadTapeStation.vector(
-          original.frame,
-          original.local.t,
-        ),
-      };
-    }
-    const inputs: IAutoMovieLoftViewRead.IJets | string = sources.jets(station);
+    const selected: ILocated = locate(plane, phase, sources.point);
+    const station: number = selected.station;
+    const original: IAutoMovieHumanHeadTapeStation.IReading = sources.value(
+      station,
+      phase,
+      selected.source,
+    );
+    const turn: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.vector(
+      original.frame,
+      original.local.t,
+    );
+    if (plane.b === 0)
+      return { station, point: original.point, derivative: turn };
+    const inputs: IAutoMovieLoftViewRead.IJets | string =
+      AutoMovieLoftViewRead.jets(reader.source, station);
     const frame:
       | ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>>
       | undefined = reader.part.axis.jet?.(station);
@@ -179,14 +172,6 @@ export namespace AutoMovieHumanHeadTapeSource {
       );
     const local: ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>> =
       AutoMovieLoftSectionNative.jet(inputs)(phase);
-    const point: AutoMovieVector3Tuple = AutoMovieSolidVector.add(
-      AutoMovieHumanHeadTapeStation.vector(frame.value, local.p),
-      frame.value.origin,
-    );
-    const turn: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.vector(
-      frame.value,
-      local.t,
-    );
     const along: AutoMovieVector3Tuple = frame.first.origin.map(
       (x: number, i: number): number =>
         x +
@@ -206,7 +191,7 @@ export namespace AutoMovieHumanHeadTapeSource {
     ) as AutoMovieVector3Tuple;
     if (!derivative.every(Number.isFinite))
       throw new Error("Head tape has a nonfinite original world tangent");
-    return { station, point, derivative };
+    return { station, point: original.point, derivative };
   }
 
   /**
@@ -217,8 +202,8 @@ export namespace AutoMovieHumanHeadTapeSource {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Neither the difference nor a specified-course length is a global maximum or interval error certificate.
    * @evidence contracts/common.md#meaningful-documentation Returns mm and preserves all original source/root/derivative failures.
    * @evidence contracts/performance.md#efficient-algorithms N original knot planes use bounded native phase inversions, then the resulting O(N) pieces use the shared K/2K quadrature policy and at's source-query bound.
-   * @evidence contracts/performance.md#reuse-equivalent-work Every derivative query borrows the same actual source and plane. The two exact endpoint Point0 preparations are shared across phases and each selected station supplies a single physical section read.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous measure prepares its declared endpoints and holds an active bracket of scalar station and residual values.
+   * @evidence contracts/performance.md#reuse-equivalent-work Every derivative query borrows the same actual source and plane; the two exact endpoint Point0 preparations are shared across phases and each selected trial supplies its final phase geometry.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous measure retains two successful endpoint readers and its active bracket; selected-trial numeric data expires after its final phase read.
    */
   export function measure(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
@@ -231,10 +216,7 @@ export namespace AutoMovieHumanHeadTapeSource {
     );
 
     const sources: IAutoMovieHumanHeadTapeStation.IOutput =
-      AutoMovieHumanHeadTapeStation.create(
-        reader,
-        plane.b === 0 ? [plane.range[0], plane.range[0]] : plane.range,
-      );
+      AutoMovieHumanHeadTapeStation.create(reader, plane.range);
 
     return measureAutoMovieCurveLength64(
       sites
@@ -261,23 +243,31 @@ export namespace AutoMovieHumanHeadTapeSource {
       station: number,
       phi: number,
     ) => IAutoMovieHumanHeadTapeStation.IValue,
-  ): number {
-    if (plane.b === 0) return plane.range[0];
+  ): ILocated {
+    if (plane.b === 0) return { station: plane.range[0] };
     const angle: number =
       ((phase % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
-    if (angle === 0) return plane.range[1];
-    if (angle === Math.PI) return plane.range[0];
-    const residual = (station: number): number => {
-      const { point } = readPoint(station, phase);
-      return point[1] - plane.a - plane.b * point[0];
+    if (angle === 0) return { station: plane.range[1] };
+    if (angle === Math.PI) return { station: plane.range[0] };
+    const residual: (station: number) => IResidual = (
+      station: number,
+    ): IResidual => {
+      const at: IAutoMovieHumanHeadTapeStation.IValue = readPoint(
+        station,
+        phase,
+      );
+      return {
+        value: at.point[1] - plane.a - plane.b * at.point[0],
+        source: at.source,
+      };
     };
     let low: number = plane.range[0];
     let high: number = plane.range[1];
-    let a: number = residual(low);
-    let b: number = residual(high);
-    if (a === 0) return low;
-    if (b === 0) return high;
-    if (!(a < 0 && b > 0))
+    let a: IResidual = residual(low);
+    let b: IResidual = residual(high);
+    if (a.value === 0) return { station: low, source: a.source };
+    if (b.value === 0) return { station: high, source: b.source };
+    if (!(a.value < 0 && b.value > 0))
       throw new Error(
         "Head tape phase does not bracket its original plane intersection",
       );
@@ -299,32 +289,35 @@ export namespace AutoMovieHumanHeadTapeSource {
     // node needs fewer native section preparations. Only the halved weight
     // differs from the true residual; every accepted station is still
     // checked on its own actual residual.
-    let weightLow: number = a;
-    let weightHigh: number = b;
+    let weightLow: number = a.value;
+    let weightHigh: number = b.value;
     let kept: -1 | 0 | 1 = 0;
     for (let iteration: number = 0; iteration < 48; iteration++) {
       let middle: number =
         low - (weightLow * (high - low)) / (weightHigh - weightLow);
       if (!(middle > low && middle < high)) middle = (low + high) / 2;
       if (!(middle > low && middle < high)) break;
-      const at: number = residual(middle);
-      if (Math.abs(at) <= allowance) return middle;
-      if (at < 0) {
+      const at: IResidual = residual(middle);
+      if (Math.abs(at.value) <= allowance)
+        return { station: middle, source: at.source };
+      if (at.value < 0) {
         low = middle;
         a = at;
-        weightLow = at;
+        weightLow = at.value;
         if (kept === 1) weightHigh /= 2;
         kept = 1;
       } else {
         high = middle;
         b = at;
-        weightHigh = at;
+        weightHigh = at.value;
         if (kept === -1) weightLow /= 2;
         kept = -1;
       }
     }
-    if (Math.min(Math.abs(a), Math.abs(b)) <= allowance)
-      return Math.abs(a) < Math.abs(b) ? low : high;
+    if (Math.min(Math.abs(a.value), Math.abs(b.value)) <= allowance)
+      return Math.abs(a.value) < Math.abs(b.value)
+        ? { station: low, source: a.source }
+        : { station: high, source: b.source };
     throw new Error(
       "Head tape original plane inverse did not resolve within its numerical budget",
     );

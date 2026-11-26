@@ -1,14 +1,11 @@
 import type {
-  AutoMovieVector3Tuple,
   IAutoMovieSolidBody,
+  IAutoMovieSolidCycle,
   IAutoMovieSolidMesh,
 } from "@automovie/interface";
 
 import { AutoMovieSolidBodyMerge } from "./AutoMovieSolidBodyMerge";
-import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import { AutoMovieSolidMeshWrite } from "./AutoMovieSolidMeshWrite";
-import { faceAutoMovieSolidMesh } from "./faceAutoMovieSolidMesh";
 
 /**
  * A solid built by merges and diffs, as trimmed faces that share their
@@ -101,244 +98,27 @@ export namespace AutoMovieSolidBody {
     body: IAutoMovieSolidBody.IBody,
     onFailure?: (face: string, detail: string) => void,
   ): IAutoMovieSolidMesh.IOpen[][] {
-    const append = prepareFaces(body.mesh);
     return body.faces.map(
-      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] => {
-        const input: IAutoMovieSolidMesh.IFace = {
+      (f: IAutoMovieSolidBody.IFace): IAutoMovieSolidMesh.IOpen[] =>
+        AutoMovieSolidMesh.face(body.mesh, {
           surface: f.surface,
           stations: f.stations,
           phases: f.phases,
           domainLoops: f.meshLoops,
           loops: f.cycles.map(
-            ({ kind, vertices, chart, partition, along, segments }) => ({
-              kind,
-              vertices,
-              chart,
-              ...(partition === true ? { partition, along, segments } : {}),
+            (c: IAutoMovieSolidCycle.ICycle): IAutoMovieSolidMesh.ILoop => ({
+              kind: c.kind,
+              vertices: c.vertices,
+              chart: c.chart,
             }),
           ),
           inverted: f.inverted,
-          terminal: f.terminal?.prepare,
           onFailure:
             onFailure === undefined
               ? undefined
               : (detail: string): void => onFailure(f.surface.name, detail),
-        };
-        return append(input);
-      },
+        }),
     );
-  }
-
-  /** Prepare one append-only face batch for direct or published body skin. */
-  export function prepareFaces(
-    mesh: IAutoMovieSolidMesh.IMesh,
-  ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
-    const append = faceAutoMovieSolidMesh.prepare(mesh, true);
-    return (input): IAutoMovieSolidMesh.IOpen[] =>
-      input.terminal === undefined
-        ? drawSplitParent(mesh, input, append)
-        : drawTerminal(mesh, input, input.terminal);
-  }
-
-  /** Write a first-order terminal face on its two unedited original rails. */
-  function drawTerminal(
-    mesh: IAutoMovieSolidMesh.IMesh,
-    input: IAutoMovieSolidMesh.IFace,
-    terminal: IAutoMovieSolidMesh.ITerminal,
-  ): IAutoMovieSolidMesh.IOpen[] {
-    const fail = (detail: string): IAutoMovieSolidMesh.IOpen[] => {
-      if (input.onFailure === undefined) throw new Error(detail);
-      input.onFailure(detail);
-      return [];
-    };
-    const parent = input.loops.find(({ kind }) => kind === "start");
-    const receiver = input.loops.find(({ kind }) => kind === "end");
-    if (
-      input.loops.length !== 2 ||
-      parent === undefined ||
-      receiver === undefined ||
-      input.inverted === true
-    )
-      return fail("A terminal first-order face needs both intact source loops");
-    const firstVertex = mesh.positions.length / 3;
-    const plan = terminal(
-      parent.vertices,
-      receiver.vertices,
-      firstVertex,
-      input.surface.orientation,
-    );
-    if (typeof plan === "string") return fail(plan);
-    // The terminal face has several native charts and no single loft address.
-    for (const { point, normal } of plan.vertices)
-      AutoMovieSolidMeshWrite.vertex(mesh, point, NaN, NaN, NaN, normal);
-    for (const [a, b, c] of plan.triangles) mesh.indices.push(a, b, c);
-    return [];
-  }
-
-  /**
-   * Retain an end cut on native phase spokes. The curved cut owns all of its
-   * published vertices. The nearest wholly kept station joins the untouched
-   * grid, with one two-boundary interpolation strip across the source chart.
-   *
-   * @see https://doi.org/10.1002/nme.1620070405
-   */
-  function drawSplitParent(
-    mesh: IAutoMovieSolidMesh.IMesh,
-    input: IAutoMovieSolidMesh.IFace,
-    append: (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[],
-  ): IAutoMovieSolidMesh.IOpen[] {
-    const { phases, stations, surface, loops: cycles } = input;
-    const cycle: IAutoMovieSolidMesh.ILoop | undefined = cycles.find(
-      ({ partition }): boolean => partition === true,
-    );
-    if (
-      cycle === undefined ||
-      (cycle.along === undefined && cycles.length !== 1) ||
-      stations.length < 3 ||
-      (input.domainLoops?.length ?? 0) !== 0 ||
-      (cycle.kind !== "start" && cycle.kind !== "end") ||
-      surface.period === undefined
-    )
-      return append(input);
-    const bottom: boolean = cycle.kind === "start";
-    const station: number = stations[bottom ? 0 : stations.length - 1]!;
-    const curved: boolean = cycle.along !== undefined;
-    const cutMin: number = Math.min(...cycle.chart.map(([u]): number => u));
-    const cutMax: number = Math.max(...cycle.chart.map(([u]): number => u));
-    const outer: number = bottom ? cutMax : cutMin;
-    const inner: number = bottom ? cutMin : cutMax;
-    const kept = curved
-      ? stations.filter((u): boolean => (bottom ? u > outer : u < outer))
-      : bottom
-        ? stations.slice(1)
-        : stations.slice(0, -1);
-    const firstKept: number | undefined = bottom ? kept[0] : kept.at(-1);
-    const nonSplit = cycles.filter((other): boolean => other !== cycle);
-    const fail = (detail: string): IAutoMovieSolidMesh.IOpen[] => {
-      if (!curved) return append(input);
-      if (input.onFailure === undefined) throw new Error(detail);
-      input.onFailure(detail);
-      return [];
-    };
-    if (
-      firstKept === undefined ||
-      kept.length < 2 ||
-      nonSplit.some(({ chart }): boolean =>
-        chart.some(([u]): boolean =>
-          bottom ? u <= firstKept : u >= firstKept,
-        ),
-      )
-    )
-      return fail(
-        "a structured split end has no separate complete kept station",
-      );
-    const selected: number[] | undefined = AutoMovieSolidCycle.partition(
-      cycle,
-      phases,
-      station,
-      curved ? kept : stations,
-      surface,
-    );
-    if (selected === undefined)
-      return fail("a structured split end has no native phase partition");
-    const matched: number[] = selected.map((i): number => cycle.chart[i]![1]);
-    const before: [number, number, number, number] = [
-      mesh.positions.length,
-      mesh.coordinates.length,
-      mesh.indices.length,
-      mesh.owners.length,
-    ];
-    let failure: boolean = false;
-    const opened = append({
-      ...input,
-      phases: matched,
-      stations: kept,
-      loops: cycles.filter((other): boolean => other !== cycle),
-      onFailure: (): void => {
-        failure = true;
-      },
-    });
-    const rim = opened.find(
-      ({ end }): boolean => end === (bottom ? "bottom" : "top"),
-    );
-    const coarse: number[] | undefined = rim?.vertices
-      .slice()
-      .sort(
-        (a, b): number =>
-          mesh.coordinates[3 * a + 2]! - mesh.coordinates[3 * b + 2]!,
-      );
-    if (
-      failure ||
-      coarse === undefined ||
-      coarse.length !== matched.length ||
-      coarse.some((i, k): boolean => mesh.coordinates[3 * i + 2] !== matched[k])
-    ) {
-      [
-        mesh.positions.length,
-        mesh.coordinates.length,
-        mesh.indices.length,
-        mesh.owners.length,
-      ] = before;
-      if (mesh.normals !== undefined) mesh.normals.length = before[0];
-      return fail("a structured split end has no matching kept phase ring");
-    }
-    let fine: readonly number[] = cycle.vertices;
-    const site = (j: number): number => fine[j % fine.length]!;
-    const phase = (j: number): number =>
-      cycle.chart[j % cycle.vertices.length]![1] +
-      (j >= cycle.vertices.length ? surface.period! : 0);
-    const triangles: [number, number, number][] = [];
-    if (curved) {
-      const id: number = AutoMovieSolidMesh.owner(mesh, surface);
-      const over = stations.filter((u): boolean =>
-        bottom ? u > inner && u < firstKept : u < inner && u > firstKept,
-      );
-      if (!bottom) over.reverse();
-      for (const station of over) {
-        const fraction: number = (station - inner) / (firstKept - inner);
-        const row = cycle.chart.map(([u, v]): number => {
-          const original: number = u + (firstKept - u) * fraction;
-          const p: AutoMovieVector3Tuple =
-            surface.point?.(original, v) ?? surface.jet(original, v).p;
-          return AutoMovieSolidMesh.vertex(mesh, p, id, original, v);
-        });
-        for (const [k, a] of row.entries()) {
-          const next: number = (k + 1) % row.length;
-          triangles.push(
-            [a, row[next]!, fine[next]!],
-            [a, fine[next]!, fine[k]!],
-          );
-        }
-        fine = row;
-      }
-    }
-    for (const [k, a] of coarse.entries()) {
-      const next: number = (k + 1) % coarse.length;
-      const b: number = coarse[next]!;
-      const first: number = selected[k]!;
-      const last: number =
-        selected[next]! + (next === 0 ? cycle.vertices.length : 0);
-      // The nearer coarse phase spans each fine edge. The remaining triangle
-      // connects the coarse edge to the separating fine vertex. Both exact
-      // endpoint spokes stay edges of this sector's triangulation.
-      const midpoint: number = (phase(first) + phase(last)) / 2;
-      let pivot: number = first;
-      for (let j: number = first; j < last; ++j) {
-        const left: boolean = (phase(j) + phase(j + 1)) / 2 <= midpoint;
-        if (left) pivot = j + 1;
-        triangles.push([left ? a : b, site(j + 1), site(j)]);
-      }
-      triangles.push([a, b, site(pivot)]);
-    }
-    AutoMovieSolidMesh.close(
-      mesh,
-      bottom
-        ? triangles.map(([a, b, c]): [number, number, number] => [a, c, b])
-        : triangles,
-      surface,
-      input.inverted === true,
-    );
-    return opened.filter((boundary): boolean => boundary !== rim);
   }
 
   /**
@@ -389,10 +169,6 @@ export namespace AutoMovieSolidBody {
         p[0],
         p[1],
       ]),
-      ...(c.along === undefined ? {} : { along: c.along }),
-      ...(c.partition === true
-        ? { partition: true, segments: c.segments?.slice() }
-        : {}),
     });
     return {
       name: body.name,
@@ -416,19 +192,7 @@ export namespace AutoMovieSolidBody {
                 };
           return {
             chain: f.surface.name,
-            ...(f.retainSurface === true
-              ? { surface: f.surface, stations: [...f.stations] }
-              : {}),
-            ...(f.retainPhases === true ? { samplePhases: [...f.phases] } : {}),
             cycles: f.cycles.map(cycle),
-            ...(f.terminal === undefined
-              ? {}
-              : {
-                  terminal: {
-                    prepare: f.terminal.prepare,
-                    receiving: f.terminal.receiving.map((p) => [...p]),
-                  },
-                }),
             ...(domains === undefined
               ? {}
               : { domainLoops: domains, grid: grid! }),

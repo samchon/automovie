@@ -12,7 +12,6 @@ import type {
 import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteControls } from "../limb/AutoMovieHumanSiteControls";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
-import { AutoMovieHumanFootArchSection } from "./AutoMovieHumanFootArchSection";
 
 /**
  * One foot's body as a part lofted from its views (#3049): straight along the
@@ -21,20 +20,20 @@ import { AutoMovieHumanFootArchSection } from "./AutoMovieHumanFootArchSection";
  * distal cap past the metatarsal heads, which the toes merge onto and whose
  * skin between them is the webs' blends.
  *
- * Views. The top view (the sole's outline) gives each site's lateral and medial
- * edges; the side view the dorsum above and the plantar edge below. The axis
- * stands at the caller's height over the floor (a height inside every site's
- * box), so a site's lower edge is minus that height where the sole bears on the
- * floor and the sole stands on the floor by construction; the medial arch is
- * the plantar-medial quarter's own shoulder, a sourced departure, never a
- * lifted edge.
+ * Views. The top view (the sole's outline) gives each site's lateral and
+ * medial edges; the side view the dorsum above and the plantar edge below.
+ * The axis stands at the caller's height over the floor (a height inside every
+ * site's box), so a site's lower edge is minus that height where the sole
+ * bears on the floor and the sole stands on the floor by construction; the
+ * medial arch is the plantar-medial quarter's own shoulder, a sourced
+ * departure, never a lifted edge.
  *
  * Sites: the caller's laws by name at their shares of the foot's length from
  * pternion (the heel's breadth, the ankle's front under the malleoli, the
  * instep, the ball at the metatarsal heads with the foot's breadth, the
  * forefoot's end), each with its box and its owner (a tape where one is an
- * input, a sourced shoulder elsewhere). The shank's walk merges onto this part
- * from above (the leg is the part, the foot the host).
+ * input, a sourced shoulder elsewhere). The shank's walk merges onto this
+ * part from above (the leg is the part, the foot the host).
  */
 export namespace AutoMovieHumanFootPart {
   /**
@@ -50,9 +49,8 @@ export namespace AutoMovieHumanFootPart {
   }
 
   /**
-   * Prepare the final original part; preserve every unmodified edge function
-   * when dorsal-only stations are added. The optional base must be the
-   * unmodified preparation of this same input.
+   * Prepare the final original part; preserve every unmodified edge function when dorsal-only stations are added.
+   * The optional base must be the unmodified preparation of this same input.
    *
    * @evidence contracts/common.md#principled-implementation Replaces only front.positive on the original prepared part; emission stations union the old layers and dorsal knots without resampling any other original.
    * @evidence contracts/common.md#clear-and-simple-design One final part and its matching canonical-axis view serve parent readings, metrics and lofting.
@@ -73,7 +71,6 @@ export namespace AutoMovieHumanFootPart {
     const part: IAutoMovieViewPart = {
       ...prepared.part,
       front: { ...prepared.part.front, positive: input.dorsal },
-      fullness: AutoMovieHumanFootArchSection.fullness(input, prepared.part),
       stations: [
         ...new Set([
           ...prepared.part.stations,
@@ -91,10 +88,10 @@ export namespace AutoMovieHumanFootPart {
   }
 
   /**
-   * Author the shared local scalar/section/frame declaration directly. Dorsal
-   * replacement preserves the original side/plantar/fullness objects and their
-   * parameter; station union affects only observation density. No completed
-   * foot or raw surface supplies the toe boundary.
+   * Author the shared local scalar/section/frame declaration directly.
+   * Dorsal replacement preserves the original side/plantar/fullness objects
+   * and their parameter; station union affects only observation density.
+   * No completed foot or raw surface supplies the toe boundary.
    */
   export function controls(
     input: IAutoMovieHumanFootPart.IInput,
@@ -109,7 +106,6 @@ export namespace AutoMovieHumanFootPart {
     const scalars: typeof original.scalars = {
       ...original.scalars,
       front: { ...original.scalars.front, positive: input.dorsal },
-      fullness: AutoMovieHumanFootArchSection.fullness(input, original.scalars),
       stations: [
         ...new Set([
           ...original.scalars.stations,
@@ -121,18 +117,18 @@ export namespace AutoMovieHumanFootPart {
     };
     return {
       controls: {
-        ...original,
         input: declaration,
+        axis: original.axis,
         scalars,
+        field: AutoMovieHumanSiteControls.native(input.name, scalars),
       },
       diagnostics: prepared.diagnostics,
     };
   }
 
   /**
-   * The base site declaration. define owns the final optional dorsal
-   * replacement while preserving these complete independent side and plantar
-   * sources.
+   * The base site declaration. define owns the final optional dorsal replacement
+   * while preserving these complete independent side and plantar sources.
    *
    * @evidence contracts/common.md#principled-implementation Converts the actual foot's fixed floor frame, named edge laws, jets, ranges and closing planes into its single production source declaration.
    * @evidence contracts/common.md#clear-and-simple-design Separates the existing declaration from realization so input dimensions can read the same source.

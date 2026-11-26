@@ -1,5 +1,4 @@
 import { bracketedRoot } from "@automovie/engine";
-import type { AutoMovieVector3Tuple, IAutoMovieHumanNativeRadialContact } from "@automovie/interface";
 
 /**
  * Where a cutter's seed line enters a host whose sections are star-shaped about a straight course: the point seed of a diff join, derived
@@ -14,17 +13,40 @@ import type { AutoMovieVector3Tuple, IAutoMovieHumanNativeRadialContact } from "
  * start absorbs.
  */
 export namespace AutoMovieHumanNativeRadialContact {
-  /** A point or direction in the figure's frame. */
-  export type V = AutoMovieVector3Tuple;
+  /** A point or direction in the figure's frame, mm. */
+  export type V = [number, number, number];
 
-  /** The source section's borrowed frame. */
-  export type IFrame = IAutoMovieHumanNativeRadialContact.IFrame;
+  /** A section frame of a course: origin, and the section plane's unit u and v, figure frame. */
+  export interface IFrame {
+    /** The course point, mm. */
+    origin: readonly number[];
+    /** The section plane's first axis, unit. */
+    u: readonly number[];
+    /** The section plane's second axis, unit. */
+    v: readonly number[];
+  }
 
-  /** The host's course and original skin coordinates. */
-  export type IHost = IAutoMovieHumanNativeRadialContact.IHost;
+  /** The host: its straight course, its source point at a chart point, and its material domain. */
+  export interface IHost {
+    /** The course frame at a station, mm. */
+    at: (station: number) => IFrame;
+    /** The host source's point at `[station mm, phase rad]`, figure frame mm. */
+    point: (station: number, phase: number) => readonly number[];
+    /** The host source's station domain, mm. */
+    domain: readonly [number, number];
+  }
 
-  /** The two material addresses and their world positions. */
-  export type IResult = IAutoMovieHumanNativeRadialContact.IResult;
+  /** The derived seed and its observation. */
+  export interface IResult {
+    /** The part's material station on its seed line, mm. */
+    part: number;
+    /** The host chart point `[station mm, phase rad]`, phase in [0, 2 pi). */
+    host: [number, number];
+    /** The part's point at the seed, figure frame mm. */
+    point: V;
+    /** The host's point at its chart point, figure frame mm. */
+    target: V;
+  }
 
   const turn: number = 2 * Math.PI;
 

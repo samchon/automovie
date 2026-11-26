@@ -152,9 +152,8 @@ export namespace AutoMovieConstructionPortCurve {
     child: ISide,
     loop: readonly Vec3[],
     kind: "angle" | "length",
-    guidedRail?: IAutoMovieConstructionSplitBand.IGuidedRail,
   ): number[] | string {
-    return kind === "length" || guidedRail !== undefined ? lengths(child, loop, guidedRail) : phases(child, loop);
+    return kind === "length" ? lengths(child, loop) : phases(child, loop);
   }
 
   /** The same caller-owned rail callback, without clamping or a new source. */
@@ -171,7 +170,7 @@ export namespace AutoMovieConstructionPortCurve {
    * the two curves, each about its own centroid, stand closest in the
    * least-squares sense. Neither curve need be star-shaped about the centroid.
    */
-  function lengths(child: ISide, loop: readonly Vec3[], guidedRail?: IAutoMovieConstructionSplitBand.IGuidedRail): number[] | string {
+  function lengths(child: ISide, loop: readonly Vec3[]): number[] | string {
     const turn: number = 2 * Math.PI;
     const samples: number = 8 * loop.length;
     const at: (psi: number) => Vec3 = (psi: number): Vec3 => {
@@ -180,11 +179,10 @@ export namespace AutoMovieConstructionPortCurve {
         child.surface.jet(railAt(child, psi), psi).p;
       return [p[0]!, p[1]!, p[2]!];
     };
-    if (guidedRail !== undefined && guidedRail.points.length !== samples)
-      return "the prepared rail has a different phase resolution";
-    const ring: readonly Vec3[] = guidedRail === undefined
-      ? Array.from({ length: samples + 1 }, (_, j): Vec3 => at((turn * j) / samples))
-      : [...guidedRail.points, guidedRail.points[0]!];
+    const ring: Vec3[] = Array.from(
+      { length: samples + 1 },
+      (_: unknown, j: number): Vec3 => at((turn * j) / samples),
+    );
     const newell: (points: readonly Vec3[]) => {
       centre: Vec3;
       normal: Vec3 | null;
@@ -238,34 +236,6 @@ export namespace AutoMovieConstructionPortCurve {
       const span: number = along[j + 1]! - along[j]!;
       return (turn * (j + (span > 0 ? (x - along[j]!) / span : 0))) / samples;
     };
-    const marks = guidedRail?.marks;
-    if (marks !== undefined) {
-      if (marks.length < 2 || marks[0]!.column !== 0)
-        return "the rail correspondence has no ordered fork marks";
-      const first: number = marks[0]!.phase;
-      const sign: number = Math.sign(marks.at(-1)!.phase - first);
-      const lengthAt = (phase: number): number => {
-        const cycle: number = Math.floor(phase / turn);
-        const at: number = (phase / turn - cycle) * samples;
-        const k: number = Math.min(samples - 1, Math.floor(at));
-        return cycle * total + along[k]! + (at - k) * (along[k + 1]! - along[k]!);
-      };
-      const result: number[] = [];
-      for (const [i, a] of marks.entries()) {
-        const b = marks[i + 1] ?? { column: loop.length, phase: first + sign * turn };
-        const source: number = lapAlong[b.column]! - lapAlong[a.column]!;
-        const start: number = lengthAt(a.phase);
-        const extent: number = lengthAt(b.phase) - start;
-        if (!(source > 0 && sign * extent > 0))
-          return "the rail correspondence changes direction at a fork";
-        for (let k: number = a.column; k < b.column; ++k) {
-          const value: number = start + (lapAlong[k]! - lapAlong[a.column]!) * extent / source;
-          const wrapped: number = phaseAt(value);
-          result.push(k === a.column ? a.phase : wrapped + turn * Math.floor(value / total));
-        }
-      }
-      return result;
-    }
     const pointAt: (length: number) => Vec3 = (length: number): Vec3 => {
       const x: number = ((length % total) + total) % total;
       const j: number = below(x);

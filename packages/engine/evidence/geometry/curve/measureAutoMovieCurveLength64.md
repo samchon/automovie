@@ -1,29 +1,29 @@
 # src/geometry/curve/measureAutoMovieCurveLength64.ts#measureAutoMovieCurveLength64
 
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States derivative and domain units, pure-callback ownership, piece-chart independence, finite endpoint admission and the observed result. The parameter schedule reports one fixed piece's endpoint and interior requests in the original parameter units and numerical order.
-
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Integrates the norm of the original world derivative over each actual finite parameter domain. The measure uses the eight-point Gauss–Legendre nodes and weights and compares K and 2K panels. The parameter schedule enumerates those same addresses after domain and panel admission.
+Integrates the Euclidean norm of each original world derivative on its actual finite parameter domain with the existing eight-point Gauss-Legendre nodes, weights and K/2K comparison.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The public owner checks the source domain. The shared quadrature owns the address order and integration. Original curve producers supply their derivatives from that same domain.
+This public owner admits source domains and interprets results from AutoMovieCurveLengthQuadrature64.measure; original curve producers supply derivatives instead of fitting a substitute cubic or exposing a general scalar integrator.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Uses finite closed-domain derivatives and representable nodes and contributions. Finite zero speed is permitted and callback failures propagate. The measured panel difference remains an observation. Domain and subdivision bounds apply to both paths, while derivative and contribution checks belong to the measurement.
+Requires finite closed-domain derivatives and representable nodes/contributions, permits finite zero speed, and propagates callback failures. It neither clamps source queries nor treats the observed difference as a bound or medical/geometric proof.
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States derivative/domain units, pure-callback/source ownership, piece-chart independence, finite endpoint admission, K limits, numerical failure and the observation-only result.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For N pieces and K subdivisions the measurement reads at most 24 N K interior derivatives plus 2 N endpoints, with K bounded at 1024. The parameter schedule emits 2 + 24K values in one traversal for the single supplied piece. Quadrature scratch is constant-size apart from the output schedule and the caller's callback work.
+N pieces and K subdivisions use at most 24*N*K interior derivative reads plus 2*N endpoint checks; K is at most 1024 and all other scratch is constant-size, excluding callback work.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The measurement and the parameter schedule use the same module-constant node and weight tables. An original source can prepare the actual requested stations. The coarse and fine observations still evaluate their own numerical contributions.
+Module-constant nodes/weights serve both rules and the existing cubic wrapper; endpoint admission and the coarse/fine observations are distinct reads with no cross-call cache.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The measure borrows callbacks synchronously and returns two scalars. The parameter schedule retains only its plain address array. Both share the fixed sixteen quadrature constants.
+Borrows pieces/callbacks synchronously, retains only fixed 16 quadrature constants globally, and returns two scalars; no source reference, queue or task survives a call or exception.

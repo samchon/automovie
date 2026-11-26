@@ -110,8 +110,10 @@ export namespace AutoMovieHumanHeadCaliper {
     if (typeof targetValue === "string")
       throw new Error(`Cranial glabella source: ${targetValue}`);
 
-    type Trial = readonly [reach: number, length: number];
-    const measure: (reach: number) => Trial = (reach: number): Trial => {
+    const measured: Map<number, number> = new Map();
+    const maximum: (reach: number) => number = (reach: number): number => {
+      const previous: number | undefined = measured.get(reach);
+      if (previous !== undefined) return previous;
       const share: number = (reach - plan.reach) / plan.reach;
       const curve:
         | IAutoMovieViewOutline.IOutline
@@ -170,35 +172,34 @@ export namespace AutoMovieHumanHeadCaliper {
           Math.hypot(station - glabella, value - targetValue),
         );
       }
-      return [reach, longest];
+      measured.set(reach, longest);
+      return longest;
     };
-    let hi: Trial = measure(2 * plan.reach);
-    for (let i: number = 0; hi[1] < plan.length && i < 64; i++)
-      hi = measure(2 * hi[0]);
-    const lo: Trial = measure(0);
+    const lo: number = 0;
+    let hi: number = 2 * plan.reach;
+    for (let i: number = 0; maximum(hi) < plan.length && i < 64; i++) hi *= 2;
     if (
       !(
-        Number.isFinite(hi[0]) &&
-        lo[1] <= plan.length &&
-        hi[1] >= plan.length
+        Number.isFinite(hi) &&
+        maximum(lo) <= plan.length &&
+        maximum(hi) >= plan.length
       )
     )
       throw new Error(
         "Public cranial caliper has no nonnegative finite reach bracket in the retained family",
       );
-    const selected: Trial | null = AutoMovieIllinois.select(
-      measure,
-      (trial: Trial): number => trial[1] - plan.length,
-      [lo[0], lo],
-      [hi[0], hi],
+    const reach: number | null = AutoMovieIllinois.root(
+      (candidate: number): number => maximum(candidate) - plan.length,
+      lo,
+      hi,
       128 * Number.EPSILON * plan.length,
       64,
     );
-    if (selected === null || !Number.isFinite(selected[0]))
+    if (reach === null || !Number.isFinite(reach))
       throw new Error(
         "Cranial caliper has no selected finite posterior-reach root",
       );
-    const [reach, actual]: Trial = selected;
+    const actual: number = maximum(reach);
     if (
       !(
         Number.isFinite(actual) &&

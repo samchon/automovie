@@ -28,8 +28,10 @@
     "src",
     "!lib/capture",
     "!lib/executable",
+    "!lib/generation/f1",
     "!src/capture",
     "!src/executable",
+    "!src/generation/f1",
     "package.json",
     "LICENSE"
   ],

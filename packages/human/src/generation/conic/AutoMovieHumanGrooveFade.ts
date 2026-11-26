@@ -1,4 +1,4 @@
-import type { IAutoMovieHumanGrooveFade } from "@automovie/interface";
+import type { AutoMovieVector2Tuple } from "@automovie/interface";
 
 /**
  * How a groove on a section's median ends along the course: by narrowing, its depth and its inflection's turn going down with its
@@ -22,10 +22,31 @@ import type { IAutoMovieHumanGrooveFade } from "@automovie/interface";
  */
 export namespace AutoMovieHumanGrooveFade {
   /** A median groove at its full form. */
-  export type IGroove = IAutoMovieHumanGrooveFade.IGroove;
+  export interface IGroove {
+    /** The crest's distance from the median line, mm: the groove's half width. */
+    half: number;
+
+    /** How far the floor lies inside the line through the two crests, mm. */
+    depth: number;
+
+    /** The inflection's tangent's turn inward from the crest's, radians, in (0, pi / 2). */
+    turn: number;
+  }
 
   /** A groove's three anchors of one side in the section's chart. */
-  export type IAnchors = IAutoMovieHumanGrooveFade.IAnchors;
+  export interface IAnchors {
+    /** The crest. */
+    crest: AutoMovieVector2Tuple;
+
+    /** The inflection, halfway down and halfway across the flank. */
+    inflection: AutoMovieVector2Tuple;
+
+    /** The inflection's tangent's heading in the chart, radians. */
+    heading: number;
+
+    /** The floor, on the median line. */
+    floor: AutoMovieVector2Tuple;
+  }
 
   const admit = (groove: IGroove): void => {
     if (!(groove.half > 0 && groove.depth > 0 && groove.turn > 0 && groove.turn < Math.PI / 2)) throw new Error("groove fade: a groove needs a positive half width and depth and a turn inside (0, pi / 2)");

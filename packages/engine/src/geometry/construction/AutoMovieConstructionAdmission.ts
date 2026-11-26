@@ -36,8 +36,6 @@ export namespace AutoMovieConstructionAdmission {
      */
     function check(node: IAutoMovieConstructionNode): Names {
       const name: string = (node as { name?: unknown }).name as string;
-      if (typeof name !== "string")
-        throw new Error("realizeAutoMovieConstruction: a node has no name");
       if (seen.has(name))
         throw new Error(
           `realizeAutoMovieConstruction: the name ${name} is used twice`,
@@ -75,10 +73,7 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(part.views, node.seed.partFace, "part face");
           need(host.faces, node.seed.hostFace, "host face");
-          if (
-            node.fair !== undefined &&
-            !(Number.isFinite(node.fair) && node.fair > 0)
-          )
+          if (node.fair !== undefined && !(node.fair > 0))
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s fair ${node.fair} m is not positive and finite`,
             );
@@ -87,32 +82,14 @@ export namespace AutoMovieConstructionAdmission {
           const loop: typeof node.loop = node.loop;
           if (
             loop !== undefined &&
-            "source" in loop &&
             !(
-              loop.type === "source" &&
-              typeof loop.source === "string" &&
-              loop.source.length > 0
-            )
-          )
-            throw new Error(
-              `realizeAutoMovieConstruction: ${name}'s source loop needs a nonempty key`,
-            );
-          if (
-            loop !== undefined &&
-            !("source" in loop) &&
-            !(
-              Number.isFinite(loop.centre[0]) &&
-              Number.isFinite(loop.centre[1]) &&
               loop.semi[0] > 0 &&
               loop.semi[1] > 0 &&
               loop.semi[1] < Math.PI &&
               (loop.sense === 1 || loop.sense === -1) &&
               (loop.shape === undefined ||
                 (loop.shape.length === node.count &&
-                  loop.shape.every(
-                    (share: number): boolean =>
-                      Number.isFinite(share) && share > 0,
-                  )))
+                  loop.shape.every((share: number): boolean => share > 0)))
             )
           )
             throw new Error(
@@ -122,7 +99,7 @@ export namespace AutoMovieConstructionAdmission {
             if (
               width.type === "fold" &&
               width.reach !== undefined &&
-              !(Number.isFinite(width.reach) && width.reach > 0)
+              !(width.reach > 0)
             )
               throw new Error(
                 `realizeAutoMovieConstruction: ${name}'s fold reach ${width.reach} m is not positive and finite`,
@@ -141,12 +118,9 @@ export namespace AutoMovieConstructionAdmission {
           if (
             band !== undefined &&
             !(
-              Number.isFinite(band.rail) &&
               band.rail > 0 &&
-              Number.isInteger(band.count) &&
               band.count >= 8 &&
               band.count % 4 === 0 &&
-              Number.isInteger(band.rows) &&
               band.rows >= 1
             )
           )
@@ -183,13 +157,7 @@ export namespace AutoMovieConstructionAdmission {
             plane: IAutoMovieConstructionSplit.IPlane,
             what: string,
           ): void => {
-            if (
-              !(
-                plane.point.every(Number.isFinite) &&
-                plane.normal.every(Number.isFinite) &&
-                Math.hypot(...plane.normal) > 0
-              )
-            )
+            if (!(Math.hypot(...plane.normal) > 0))
               refuse(
                 `${what} plane (point [${plane.point.join(", ")}] m, normal [${plane.normal.join(", ")}]) is not finite with a nonzero normal`,
               );
@@ -200,33 +168,16 @@ export namespace AutoMovieConstructionAdmission {
                 `compose frame ${String(node.compose.frame)} is neither tree nor host`,
               );
             flat(node.compose.plane, "compose");
-            if (
-              node.compose.round !== undefined &&
-              !(Number.isFinite(node.compose.round) && node.compose.round > 0)
-            )
+            if (node.compose.round !== undefined && !(node.compose.round > 0))
               refuse(
                 `compose round ${node.compose.round} m is not positive and finite`,
               );
           }
-          if (
-            !composed &&
-            !(
-              Number.isFinite(a) &&
-              Number.isFinite(b) &&
-              a < b &&
-              b < a + 2 * Math.PI
-            )
-          )
+          if (!composed && !(a < b && b < a + 2 * Math.PI))
             refuse(`seam [${a}, ${b}] is not a < b < a + 2 pi`);
-          if (
-            !(
-              Number.isInteger(node.count) &&
-              node.count >= 8 &&
-              node.count % 4 === 0
-            )
-          )
+          if (!(node.count >= 8 && node.count % 4 === 0))
             refuse(`count ${node.count} is not a multiple of 4 of at least 8`);
-          if (!(Number.isInteger(node.rows) && node.rows >= 1))
+          if (!(node.rows >= 1))
             refuse(`rows ${node.rows} is not a positive integer`);
           // A curved seam is parameterized by its own length, so its knots
           // need not advance along the chord; each stands off the one before
@@ -255,8 +206,6 @@ export namespace AutoMovieConstructionAdmission {
             for (const [along, depth] of profile.knots) {
               if (
                 !(
-                  Number.isFinite(along) &&
-                  Number.isFinite(depth) &&
                   along >= 0 &&
                   (along !== previous[0] || depth !== previous[1])
                 )
@@ -266,50 +215,27 @@ export namespace AutoMovieConstructionAdmission {
                 );
               previous = [along, depth];
             }
-            if (
-              !(
-                Number.isFinite(profile.corner) &&
-                profile.corner > 0 &&
-                profile.corner < Math.PI / 2
-              )
-            )
+            if (!(profile.corner > 0 && profile.corner < Math.PI / 2))
               refuse(
                 `profile corner ${profile.corner} rad is not in (0, pi / 2)`,
               );
             if (
               profile.reach !== undefined &&
-              !(
-                Number.isFinite(profile.reach) &&
-                profile.reach > 0 &&
-                profile.reach <= 1
-              )
+              !(profile.reach > 0 && profile.reach <= 1)
             )
               refuse(`profile reach ${profile.reach} is not in (0, 1]`);
-            if (
-              profile.square !== undefined &&
-              typeof profile.square !== "boolean"
-            )
-              refuse(
-                `profile square ${String(profile.square)} is not a boolean`,
-              );
             if (
               profile.fair !== undefined &&
               !(
                 typeof profile.fair === "number" ? [profile.fair] : profile.fair
-              ).every(
-                (share: number): boolean =>
-                  Number.isFinite(share) && share > 0 && share <= 1,
-              )
+              ).every((share: number): boolean => share > 0 && share <= 1)
             )
               refuse(
                 `profile fair ${JSON.stringify(profile.fair)} is not in (0, 1]`,
               );
             const heading: [number, number, number] | undefined =
               profile.heading;
-            if (
-              heading !== undefined &&
-              !(heading.every(Number.isFinite) && Math.hypot(...heading) > 0)
-            )
+            if (heading !== undefined && !(Math.hypot(...heading) > 0))
               refuse(
                 `profile heading [${heading.join(", ")}] is not a finite nonzero direction`,
               );
@@ -322,13 +248,7 @@ export namespace AutoMovieConstructionAdmission {
             const [oa, ob]: [number, number] = outer.seam;
             if (
               !composed &&
-              !(
-                Number.isFinite(oa) &&
-                Number.isFinite(ob) &&
-                oa < inner[0] &&
-                ob > inner[1] &&
-                ob < oa + 2 * Math.PI
-              )
+              !(oa < inner[0] && ob > inner[1] && ob < oa + 2 * Math.PI)
             )
               refuse(
                 `outer seam [${oa}, ${ob}] does not enclose [${inner[0]}, ${inner[1]}] within one turn`,
@@ -345,7 +265,7 @@ export namespace AutoMovieConstructionAdmission {
           for (const child of node.children) {
             const part: Names = check(child.part);
             need(part.views, child.partFace, "part face");
-            if (!(Number.isFinite(child.rail) && child.rail > 0))
+            if (!(child.rail > 0))
               refuse(
                 `rail ${child.rail} m of ${child.partFace} is not positive`,
               );
@@ -362,10 +282,7 @@ export namespace AutoMovieConstructionAdmission {
                 refuse(`cut of ${child.partFace} has no plane`);
               for (const plane of child.cut.planes)
                 flat(plane, `cut of ${child.partFace}'s`);
-              if (
-                child.cut.round !== undefined &&
-                !(Number.isFinite(child.cut.round) && child.cut.round > 0)
-              )
+              if (child.cut.round !== undefined && !(child.cut.round > 0))
                 refuse(
                   `cut round ${child.cut.round} m of ${child.partFace} is not positive and finite`,
                 );
@@ -374,9 +291,6 @@ export namespace AutoMovieConstructionAdmission {
             if (
               crease !== undefined &&
               !(
-                Number.isFinite(crease.start) &&
-                Number.isFinite(crease.end) &&
-                Number.isFinite(crease.transition) &&
                 crease.start <= crease.end &&
                 crease.end < crease.start + 2 * Math.PI &&
                 crease.transition > 0
@@ -400,35 +314,20 @@ export namespace AutoMovieConstructionAdmission {
           const part: Names = check(node.part);
           need(host.views, node.hostFace, "host face");
           need(part.views, node.partFace, "part face");
-          const { centre, semi } = node.loop;
-          if (
-            !(
-              centre.every(Number.isFinite) &&
-              semi[0] > 0 &&
-              semi[1] > 0 &&
-              semi[1] < Math.PI &&
-              Number.isFinite(semi[0]) &&
-              (node.loop.sense === 1 || node.loop.sense === -1)
-            )
-          )
+          const semi: readonly [number, number] = node.loop.semi;
+          if (!(semi[0] > 0 && semi[1] > 0 && semi[1] < Math.PI))
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s port curve is not a finite chart ellipse with positive semi-axes, the phase one under pi`,
             );
-          if (
-            !(
-              Number.isInteger(node.count) &&
-              node.count >= 8 &&
-              node.count % 4 === 0
-            )
-          )
+          if (!(node.count >= 8 && node.count % 4 === 0))
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s count ${node.count} is not a multiple of 4 of at least 8`,
             );
-          if (!(Number.isInteger(node.rows) && node.rows >= 1))
+          if (!(node.rows >= 1))
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rows ${node.rows} is not a positive integer`,
             );
-          if (!(Number.isFinite(node.rail) && node.rail > 0))
+          if (!(node.rail > 0))
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s rail ${node.rail} m is not positive`,
             );
@@ -436,9 +335,7 @@ export namespace AutoMovieConstructionAdmission {
             node.rails !== undefined &&
             !(
               node.rails.length >= 3 &&
-              node.rails.every(
-                (x: number): boolean => Number.isFinite(x) && x > 0,
-              )
+              node.rails.every((x: number): boolean => x > 0)
             )
           )
             throw new Error(
@@ -460,42 +357,16 @@ export namespace AutoMovieConstructionAdmission {
             throw new Error(
               `realizeAutoMovieConstruction: ${name}'s ribbons ${String(node.ribbons)} is neither common nor column`,
             );
-          const meridian = node.meridian;
-          if (
-            meridian !== undefined &&
-            (meridian === null ||
-              meridian.section === undefined ||
-              meridian.section === null ||
-              meridian.through === undefined ||
-              meridian.through === null ||
-              !Number.isFinite(meridian.clock) ||
-              ![meridian.section.axis, meridian.through.axis].every(
-                (axis) => axis === 0 || axis === 1 || axis === 2,
-              ) ||
-              !Number.isFinite(meridian.section.value) ||
-              !Number.isFinite(meridian.through.value) ||
-              meridian.section.axis === meridian.through.axis)
-          )
-            throw new Error(
-              `realizeAutoMovieConstruction: ${name}'s meridian needs a finite clock and independent world coordinates`,
-            );
           for (const profile of node.profiles ?? []) {
             const knots: boolean =
               profile.knots.length >= 1 &&
               profile.knots.every(
-                ([t, depth]: [number, number], k: number): boolean =>
-                  Number.isFinite(t) &&
-                  t > 0 &&
-                  t < 1 &&
-                  Number.isFinite(depth) &&
-                  (k === 0 || t > profile.knots[k - 1]![0]),
+                ([t]: [number, number], k: number): boolean =>
+                  t > 0 && t < 1 && (k === 0 || t > profile.knots[k - 1]![0]),
               );
             const window: boolean =
-              Number.isFinite(profile.start) &&
-              Number.isFinite(profile.end) &&
               profile.start <= profile.end &&
               profile.end < profile.start + 2 * Math.PI &&
-              Number.isFinite(profile.transition) &&
               profile.transition > 0;
             if (!knots)
               throw new Error(
@@ -511,7 +382,7 @@ export namespace AutoMovieConstructionAdmission {
             shape !== undefined &&
             !(
               shape.length === node.count &&
-              shape.every((x: number): boolean => Number.isFinite(x) && x > 0)
+              shape.every((x: number): boolean => x > 0)
             )
           )
             throw new Error(

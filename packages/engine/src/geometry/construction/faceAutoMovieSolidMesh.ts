@@ -28,61 +28,6 @@ export function faceAutoMovieSolidMesh(
   mesh: IAutoMovieSolidMesh.IMesh,
   input: IAutoMovieSolidMesh.IFace,
 ): IAutoMovieSolidMesh.IOpen[] {
-  return append(mesh, input);
-}
-
-/** Fixed-scope face publication for one append-only tessellation. */
-export namespace faceAutoMovieSolidMesh {
-  /**
-   * Prepare edge incidence for one append-only batch of faces. Before each
-   * face, read just the new triangle tail, including caps or seams the caller
-   * added between faces. Published triangles and their order must stay fixed
-   * for the batch, and its face callbacks must not mutate or reenter the mesh.
-   * A body batch declares its shared vertices before each first face uses them.
-   * Reusing an earlier interior vertex falls back to complete incidence.
-   */
-  export function prepare(
-    mesh: IAutoMovieSolidMesh.IMesh,
-    declaredBodyBoundaries: boolean = false,
-  ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
-    const original: number = mesh.positions.length / 3;
-    const later = new Set<number>();
-    let admits: ((vertex: number) => boolean) | undefined =
-      declaredBodyBoundaries
-        ? (vertex): boolean => vertex < original || later.has(vertex)
-        : undefined;
-    let incidence: IIncidence = edgesOf(mesh.indices, admits);
-    let scanned: number = mesh.indices.length;
-    let previouslyEmitted: number = original;
-    return (input: IAutoMovieSolidMesh.IFace): IAutoMovieSolidMesh.IOpen[] => {
-      if (admits !== undefined) {
-        const declared = [...input.loops, ...(input.domainLoops ?? [])].flatMap(
-          ({ vertices }) => vertices,
-        );
-        const known = admits;
-        // A late reuse of an already drawn interior may have skipped an edge.
-        // Use the complete historical incidence for this and later faces.
-        if (declared.some((id) => id < previouslyEmitted && !known(id))) {
-          admits = undefined;
-          incidence = edgesOf(mesh.indices);
-          scanned = mesh.indices.length;
-        } else for (const id of declared) if (id >= original) later.add(id);
-      }
-      addEdges(incidence, mesh.indices, scanned, admits);
-      scanned = mesh.indices.length;
-      const result = append(mesh, input, incidence);
-      previouslyEmitted = mesh.positions.length / 3;
-      return result;
-    };
-  }
-}
-
-/** Append through the same admission path for isolated and grouped faces. */
-function append(
-  mesh: IAutoMovieSolidMesh.IMesh,
-  input: IAutoMovieSolidMesh.IFace,
-  incidence?: IIncidence,
-): IAutoMovieSolidMesh.IOpen[] {
   const prepared: IAutoMovieGridSolidMeshGrid | null | string =
     gridAutoMovieSolidMesh(mesh, input);
   if (prepared === null) return [];
@@ -98,7 +43,8 @@ function append(
     active.set(edge.b, prepared.chart.get(edge.b)!);
   }
   for (const id of prepared.interior) active.set(id, prepared.chart.get(id)!);
-  const { occupied, directed }: IIncidence = incidence ?? edgesOf(mesh.indices);
+  const { occupied, directed }: IAutoMovieSolidMesh.ILedger = incidence(mesh);
+  const fresh: Set<string> = new Set();
 
   /**
    * Last actual predicate reading; recording it neither changes nor repeats
@@ -141,18 +87,45 @@ function append(
     ...prepared.full,
     ...plan.triangles,
   ];
-  const boundary = openAutoMovieSolidMesh.prepareIndexed(
+  const projected: Map<string, number> = new Map();
+  const period: number | undefined = input.surface.period;
+  for (const triangle of triangles) {
+    if (period !== undefined) {
+      const phases: number[] = triangle.vertices.map(
+        (id: number, k: number): number =>
+          prepared.chart.get(id)![1] + triangle.lifts[k]! * period,
+      );
+      if (Math.max(...phases) - Math.min(...phases) >= period / 2)
+        return refuse(
+          input,
+          "indexed triangle has no unique sub-half-period cover",
+        );
+    }
+    for (let k: number = 0; k < 3; k++) {
+      const next: number = (k + 1) % 3;
+      const a: number = triangle.vertices[k]!;
+      const b: number = triangle.vertices[next]!;
+      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
+      const turn: number =
+        (triangle.lifts[next]! - triangle.lifts[k]!) * (a < b ? 1 : -1);
+      const known: number | undefined = projected.get(pair);
+      if (known !== undefined && known !== turn)
+        return refuse(
+          input,
+          "distinct cover edges project onto one straight global mesh edge",
+        );
+      projected.set(pair, turn);
+    }
+  }
+  const opened: IAutoMovieOpenSolidMeshResult | string = openAutoMovieSolidMesh(
     prepared.chart,
     triangles,
-    input.surface.period,
-  );
-  if (typeof boundary === "string") return refuse(input, boundary);
-  const opened: IAutoMovieOpenSolidMeshResult | string = boundary(
     plan.constraints,
     prepared.trim.length,
     prepared.domain.length,
     input.stations[0]!,
     input.stations[input.stations.length - 1]!,
+    input.surface.period,
   );
   if (typeof opened === "string") return refuse(input, opened);
   if (opened.partial) {
@@ -211,20 +184,17 @@ function append(
   );
   const positive: boolean =
     input.surface.orientation * (input.inverted === true ? -1 : 1) > 0;
-  // The native incidence and unique cover above already certify every new
-  // edge. Resolving is injective, so only two reused IDs can already meet
-  // another published face.
   for (const triangle of indices)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = triangle[corner]!;
       const b: number = triangle[(corner + 1) % 3]!;
-      if (a >= prepared.base || b >= prepared.base) continue;
       const key: string = positive ? `${a}/${b}` : `${b}/${a}`;
-      if (directed.has(key))
+      if ((directed.get(key) ?? 0) !== 0 || fresh.has(key))
         return refuse(
           input,
           "published global edge already has this directed incidence",
         );
+      fresh.add(key);
     }
   for (const id of added)
     if (!prepared.samples.has(id))
@@ -241,7 +211,6 @@ function append(
       owner,
       sample.chart[0],
       sample.chart[1],
-      sample.normal,
     );
   }
   AutoMovieSolidMeshWrite.emit(
@@ -253,39 +222,63 @@ function append(
   return open;
 }
 
-/** Edge incidence occupied by the current append-only output. */
-interface IIncidence {
-  /** Unoriented endpoint pairs `minID/maxID` of the published triangles. */
-  occupied: Set<string>;
-  /** Directed edges `a/b` of the same published triangles. */
-  directed: Set<string>;
-}
-
-/** Build the incidence once from the operation's exact starting triangles. */
-function edgesOf(
-  indices: readonly number[],
-  admits?: (vertex: number) => boolean,
-): IIncidence {
-  const result: IIncidence = { occupied: new Set(), directed: new Set() };
-  addEdges(result, indices, 0, admits);
-  return result;
-}
-
-/** Add the oriented and unoriented edges of newly admitted triangles. */
-function addEdges(
-  incidence: IIncidence,
-  indices: readonly number[],
-  start: number,
-  admits?: (vertex: number) => boolean,
-): void {
-  for (let index: number = start; index < indices.length; index += 3)
+/**
+ * The edge incidence of every triangle a mesh holds now.
+ *
+ * Each face needs the pairs and directed edges of all earlier faces. Reading
+ * them from the whole index buffer for every face cost the triangle count once
+ * per face in string keys, most of a body's realization once it had dozens of
+ * faces. The mesh's ledger, built with the mesh, keeps what it read: it finds
+ * the first index at which the buffer differs from its copy, takes back the
+ * triangles it read from there on, since a checkpoint restore truncates the
+ * buffer and later faces refill it, and reads the triangles the buffer now
+ * holds from there. The comparison is one pass of numbers; only changed
+ * triangles cost keys.
+ */
+function incidence(
+  mesh: IAutoMovieSolidMesh.IMesh,
+): IAutoMovieSolidMesh.ILedger {
+  const ledger: IAutoMovieSolidMesh.ILedger = mesh.ledger ?? {
+    seen: [],
+    occupied: new Set(),
+    pairs: new Map(),
+    directed: new Map(),
+  };
+  const { seen, occupied, pairs, directed }: IAutoMovieSolidMesh.ILedger =
+    ledger;
+  const common: number = Math.min(seen.length, mesh.indices.length);
+  let same: number = 0;
+  while (same < common && seen[same] === mesh.indices[same]) ++same;
+  same -= same % 3;
+  for (let index: number = same; index < seen.length; index += 3)
     for (let corner: number = 0; corner < 3; corner++) {
-      const a: number = indices[index + corner]!;
-      const b: number = indices[index + ((corner + 1) % 3)]!;
-      if (admits !== undefined && !(admits(a) && admits(b))) continue;
-      incidence.occupied.add(`${Math.min(a, b)}/${Math.max(a, b)}`);
-      incidence.directed.add(`${a}/${b}`);
+      const a: number = seen[index + corner]!;
+      const b: number = seen[index + ((corner + 1) % 3)]!;
+      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
+      const held: number = pairs.get(pair)! - 1;
+      if (held === 0) {
+        pairs.delete(pair);
+        occupied.delete(pair);
+      } else pairs.set(pair, held);
+      const key: string = `${a}/${b}`;
+      const count: number = directed.get(key)! - 1;
+      if (count === 0) directed.delete(key);
+      else directed.set(key, count);
     }
+  seen.length = same;
+  for (let index: number = same; index < mesh.indices.length; index += 3)
+    for (let corner: number = 0; corner < 3; corner++) {
+      const a: number = mesh.indices[index + corner]!;
+      const b: number = mesh.indices[index + ((corner + 1) % 3)]!;
+      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
+      pairs.set(pair, (pairs.get(pair) ?? 0) + 1);
+      occupied.add(pair);
+      const key: string = `${a}/${b}`;
+      directed.set(key, (directed.get(key) ?? 0) + 1);
+    }
+  for (let index: number = same; index < mesh.indices.length; index++)
+    seen.push(mesh.indices[index]!);
+  return ledger;
 }
 
 /**
@@ -318,7 +311,7 @@ function membership(
       edge: [number, number][];
     } => {
       const kept: boolean = AutoMovieSolidCycle.kept(
-        { kind: loop.kind, chart: loop.chart },
+        loop,
         u,
         v,
         input.surface.period,

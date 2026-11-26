@@ -13,15 +13,6 @@ import { AutoMovieViewAxisJet } from "./AutoMovieViewAxisJet";
 import { AutoMovieViewOutline } from "./AutoMovieViewOutline";
 import { AutoMovieViewParameter } from "./AutoMovieViewParameter";
 
-/** Private capability carrying the copied metre declaration on a prepared axis. */
-const DECLARATION: unique symbol = Symbol("parallel axis declaration");
-
-/** An axis prepared from an authored parallel chart. */
-type DeclaredAxis = IAutoMovieViewAxis.IAxis & {
-  /** Return an independent copy of the original declaration. */
-  [DECLARATION]?: () => IAutoMovieConstructionParallelAxis;
-};
-
 /**
  * Parallel source planes: fixed chart axes translated by three admitted
  * source-coordinate curves, independent of the origin course's tangent.
@@ -37,7 +28,6 @@ export namespace AutoMovieViewParallelAxis {
     const V: AutoMovieVector3Tuple = [...v];
     const tolerance: number = 64 * Number.EPSILON;
     if (
-      ![...U, ...V].every(Number.isFinite) ||
       Math.abs(Math.hypot(...U) - 1) > tolerance ||
       Math.abs(Math.hypot(...V) - 1) > tolerance ||
       Math.abs(U[0] * V[0] + U[1] * V[1] + U[2] * V[2]) > tolerance
@@ -45,9 +35,7 @@ export namespace AutoMovieViewParallelAxis {
       return "parallel chart directions must be finite, unit and perpendicular";
     const curves: IAutoMovieViewOutline.IOutline[] = [];
     for (const coordinate of ["x", "y", "z"] as const) {
-      const source:
-        | IAutoMovieViewOutline.IOutline
-        | IAutoMovieViewOutline.IFailure = AutoMovieViewOutline.create(
+      const source: IAutoMovieViewOutline.IResult = AutoMovieViewOutline.create(
         origin[coordinate],
       );
       if ("detail" in source)
@@ -103,7 +91,6 @@ export namespace AutoMovieViewParallelAxis {
             reading.parameterJet[1] * transfer[0] * transfer[0] +
             reading.parameterJet[0] * transfer[1];
         }
-        if (![...first, ...second].every(Number.isFinite)) return null;
         return AutoMovieViewAxisJet.fixed(
           { origin: point, u: [...U], v: [...V] },
           first,
@@ -130,11 +117,7 @@ export namespace AutoMovieViewParallelAxis {
       [original.u.x, original.u.y, original.u.z],
       [original.v.x, original.v.y, original.v.z],
     );
-    if (typeof axis !== "string")
-      Object.defineProperty(axis, DECLARATION, {
-        value: (): IAutoMovieConstructionParallelAxis => copy(original),
-      });
-    return axis;
+    return typeof axis === "string" ? axis : { ...axis, parallel: original };
   }
 
   /**
@@ -144,10 +127,7 @@ export namespace AutoMovieViewParallelAxis {
   export function source(
     axis: IAutoMovieViewAxis.IAxis,
   ): IAutoMovieConstructionParallelAxis | null {
-    if (axis === null || typeof axis !== "object") return null;
-    return Object.hasOwn(axis, DECLARATION)
-      ? (axis as DeclaredAxis)[DECLARATION]!()
-      : null;
+    return axis.parallel === undefined ? null : copy(axis.parallel);
   }
 
   /**

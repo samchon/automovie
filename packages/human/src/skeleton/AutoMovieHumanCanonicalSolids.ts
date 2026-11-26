@@ -1,7 +1,7 @@
 import {
   Vector3,
   physicalHullFaces,
-  physicalHullFacesMass,
+  physicalHullMass,
   physicalHullNearest,
   resolveAutoMovieHumanoidRingModules,
 } from "@automovie/engine";
@@ -62,17 +62,20 @@ export namespace AutoMovieHumanCanonicalSolids {
     // two points can lie on a hull whose surface cuts across between them.
     const convex = (
       run: IAutoMovieVector3[][],
-      hull: IAutoMoviePhysicalHullFaces.IHull,
+      points: IAutoMovieVector3[],
     ): boolean => {
-      if (!(hull.buried <= hull.tolerance)) return false;
-      const nearest: ReturnType<typeof physicalHullNearest.prepare> =
-        physicalHullNearest.prepare(hull);
-      return run.every((ring: IAutoMovieVector3[]): boolean =>
-        ring.every(
-          (p: IAutoMovieVector3, index: number): boolean =>
-            nearest(Vector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5)) >=
-            -hull.tolerance,
-        ),
+      const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
+      return (
+        hull.buried <= hull.tolerance &&
+        run.every((ring: IAutoMovieVector3[]): boolean =>
+          ring.every(
+            (p: IAutoMovieVector3, index: number): boolean =>
+              physicalHullNearest(
+                points,
+                Vector3.lerp(p, ring[(index + 1) % ring.length]!, 0.5),
+              ).distance >= -hull.tolerance,
+          ),
+        )
       );
     };
     const solids: IAutoMovieHumanCanonicalSolids.ISolid[] = [];
@@ -97,40 +100,35 @@ export namespace AutoMovieHumanCanonicalSolids {
         ),
         ...(module.pole === null ? [] : [[reflect(module.pole)]]),
       ];
-      const runs: IRun[] = [];
+      const runs: IAutoMovieVector3[][] = [];
       let start: number = 0;
       while (start + 1 < layers.length) {
         let end: number = start + 1;
 
-        // The accepted run keeps the supporting faces its edge reads used.
-        let accepted: IRun | null = null;
+        // The points of the longest run found convex are kept as the array
+        // its hull was searched on, so the solid's mass reads that hull from
+        // the engine's per-array memo instead of searching it again.
+        let accepted: IAutoMovieVector3[] | null = null;
         while (end + 1 < layers.length) {
           const run: IAutoMovieVector3[][] = layers.slice(start, end + 2);
           const points: IAutoMovieVector3[] = run.flat();
-          const hull: IAutoMoviePhysicalHullFaces.IHull =
-            physicalHullFaces(points);
-          if (!convex(run, hull)) break;
-          accepted = { points, hull };
+          if (!convex(run, points)) break;
+          accepted = points;
           end++;
         }
-        if (accepted === null) {
-          const points: IAutoMovieVector3[] = layers.slice(start, end + 1).flat();
-          accepted = { points, hull: physicalHullFaces(points) };
-        }
-        runs.push(accepted);
+        runs.push(accepted ?? layers.slice(start, end + 1).flat());
         start = end;
       }
-      runs.forEach(({ points, hull }: IRun, index: number): void => {
-        const solid: ReturnType<typeof physicalHullFacesMass> =
-          physicalHullFacesMass(hull);
+      runs.forEach((points: IAutoMovieVector3[], index: number): void => {
+        const solid: ReturnType<typeof physicalHullMass> =
+          physicalHullMass(points);
         solids.push({
           id: runs.length === 1 ? module.bone : `${module.bone}.${index}`,
           carrier,
           centre: solid.centerOfMass,
-          points: points.map(
-            (point: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.subtract(point, solid.centerOfMass),
-          ),
+          // The centred points are a translation of the run, so their hull
+          // is read from the run's instead of being searched again.
+          points: physicalHullFaces.shift(points, solid.centerOfMass),
           volume: solid.volume,
           inertia: solid.inertia,
           inertiaRotation: solid.inertiaRotation,
@@ -139,14 +137,6 @@ export namespace AutoMovieHumanCanonicalSolids {
     }
     return solids;
   }
-}
-
-/** One ring run and the supporting faces its solid uses. */
-interface IRun {
-  /** Ordered source ring and pole points in metres. */
-  points: IAutoMovieVector3[];
-  /** Supporting faces of those actual points. */
-  hull: IAutoMoviePhysicalHullFaces.IHull;
 }
 
 /** A phalanx of the hand, whose collider stays a capsule. */

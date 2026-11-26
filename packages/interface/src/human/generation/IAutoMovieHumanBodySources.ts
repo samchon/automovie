@@ -3,7 +3,9 @@ import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftCo
 import type { IAutoMovieViewPart } from "../../construction/IAutoMovieViewPart";
 import type { AutoMovieVector3Tuple } from "../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanParameters } from "../IAutoMovieHumanParameters";
+import type { IAutoMovieHumanBodyCalibration } from "./IAutoMovieHumanBodyCalibration";
 import type { IAutoMovieHumanBodyFrame } from "./IAutoMovieHumanBodyFrame";
+import type { IAutoMovieHumanBodyLane } from "./IAutoMovieHumanBodyLane";
 import type { IAutoMovieHumanBodyLaw } from "./IAutoMovieHumanBodyLaw";
 import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
 import type { IAutoMovieHumanLimbRest } from "./IAutoMovieHumanLimbRest";
@@ -11,10 +13,13 @@ import type { IAutoMovieHumanLimbSources } from "./IAutoMovieHumanLimbSources";
 import type { IAutoMovieHumanNeckBoundary } from "./IAutoMovieHumanNeckBoundary";
 import type { IAutoMovieHumanNeckSource } from "./IAutoMovieHumanNeckSource";
 import type { IAutoMovieHumanSkeletonLaw } from "./IAutoMovieHumanSkeletonLaw";
+import type { IAutoMovieHumanTrunkConstruction } from "./IAutoMovieHumanTrunkConstruction";
 import type { IAutoMovieHumanTrunkInputs } from "./IAutoMovieHumanTrunkInputs";
 import type { IAutoMovieHumanTrunkSolution } from "./IAutoMovieHumanTrunkSolution";
 import type { IAutoMovieHumanHeadLane } from "./head/IAutoMovieHumanHeadLane";
 import type { IAutoMovieHumanHeadPlacement } from "./head/IAutoMovieHumanHeadPlacement";
+import type { IAutoMovieHumanSourceRealization } from "./limb/IAutoMovieHumanSourceRealization";
+import type { IAutoMovieHumanTrunkBuild } from "./trunk/IAutoMovieHumanTrunkBuild";
 
 /**
  * Invocation-owned source factories, explicit raw requests and observed
@@ -46,14 +51,10 @@ export namespace IAutoMovieHumanBodySources {
      * Independent numerical limb rest; no whole bind or trunk source is
      * published.
      */
-    limbRest(
-      boundary?: IAutoMovieHumanNeckBoundary.IOutput,
-    ): IAutoMovieHumanLimbRest.IOutput;
+    limbRest(): IAutoMovieHumanLimbRest.IOutput;
 
     /** Same selected factories later consumed by full production. */
-    limbSources(
-      rest?: IAutoMovieHumanLimbRest.IOutput,
-    ): IAutoMovieHumanLimbSources.IOutput;
+    limbSources(): IAutoMovieHumanLimbSources.IOutput;
 
     /**
      * Only actually requested common/placement/raw findings; missing stages are
@@ -80,42 +81,67 @@ export namespace IAutoMovieHumanBodySources {
      * Explicit actual cut/seat request from the common scalar family; a head or
      * S00 original never pays this unrelated legacy receiver implicitly.
      */
-    neckBoundary(common?: ICommon): IAutoMovieHumanNeckBoundary.IOutput;
+    neckBoundary(): IAutoMovieHumanNeckBoundary.IOutput;
 
     /**
      * Explicit head-original request, using the same preceding neck controls as
      * production.
      */
-    headSource(common?: ICommon): IAutoMovieHumanHeadLane.IPrepared;
+    headSource(): IAutoMovieHumanHeadLane.IPrepared;
 
     /**
      * Explicit common legacy trunk constraints, without a raw neck or full head
      * prerequisite.
      */
-    trunkSolution(
-      boundary?: IAutoMovieHumanNeckBoundary.IOutput,
-      rawNeck?: () => IAutoMovieLoftChain,
-    ): IAutoMovieHumanTrunkSolution;
+    trunkSolution(): IAutoMovieHumanTrunkSolution;
 
     /**
      * Body-owned bone/rest/hand descriptors from shared datum and public
      * inputs, without head/eye construction.
      */
-    bodyAnatomy(
-      common?: ICommon,
-      boundary?: IAutoMovieHumanNeckBoundary.IOutput,
-      trunk?: IAutoMovieHumanTrunkSolution,
-      rest?: IAutoMovieHumanLimbRest.IOutput,
-    ): IAutoMovieHumanSkeletonLaw.IOutput;
+    bodyAnatomy(): IAutoMovieHumanSkeletonLaw.IOutput;
 
     /**
      * Explicit actual legacy raw request; metadata and property reads never
      * invoke it.
      */
-    neckRaw(
-      common?: ICommon,
-      prepared?: IAutoMovieHumanHeadLane.IPrepared,
-    ): IAutoMovieLoftChain;
+    neckRaw(): IAutoMovieLoftChain;
+
+    /**
+     * Explicitly completed production metadata, retained in this same
+     * invocation without copying its source memo fields.
+     */
+    production?: {
+      /** Actual requested head source, never a nominal stand-in. */
+      head: IAutoMovieHumanHeadLane.IPrepared;
+
+      /** Full bind skeleton, including its actual head/eye bones. */
+      anatomy: IAutoMovieHumanSkeletonLaw.IOutput;
+
+      /**
+       * Actual placement metadata; its chain list stays empty until raw is
+       * requested.
+       */
+      standing: IAutoMovieHumanBodyCalibration;
+
+      /** Identical solved trunk and placement metadata. */
+      trunkPlacement: IAutoMovieHumanTrunkConstruction.IPlacement;
+    };
+
+    /**
+     * Source factories and their selected completed results, owned by this same
+     * invocation.
+     */
+    body?: IAutoMovieHumanBodyLane.IInput;
+
+    /** Original tape-pass result; no raw result is implied. */
+    trunk?: IAutoMovieHumanTrunkBuild.IOutput;
+
+    /** An unfinished coupled source is not publishable as a parent. */
+    preparingTrunk?: boolean;
+
+    /** Only explicitly requested raw results. */
+    rawSources?: Map<string, IAutoMovieHumanSourceRealization>;
   }
 
   /** Already resolved production inputs; their calibration units are unchanged. */
@@ -133,7 +159,7 @@ export namespace IAutoMovieHumanBodySources {
     trunkInputs: IAutoMovieHumanTrunkInputs;
 
     /** Explicit genuine coupled-parent request supplied by the production owner. */
-    completeLeg?: (side: "left" | "right") => IAutoMovieViewPart;
+    completeLeg?: () => void;
   }
 
   /**

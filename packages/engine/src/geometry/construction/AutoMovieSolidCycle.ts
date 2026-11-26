@@ -1,11 +1,4 @@
-import type {
-  AutoMovieVector3Tuple,
-  IAutoMovieSolidCycle,
-  IAutoMovieSolidSurface,
-} from "@automovie/interface";
-
-import { AutoMovieLoftAdmissionError } from "./AutoMovieLoftAdmissionError";
-import { AutoMovieSolidVector as Vec } from "./AutoMovieSolidVector";
+import type { IAutoMovieSolidCycle } from "@automovie/interface";
 
 /**
  * A trim cycle of a face in its own chart: the closed boundary of the face's
@@ -164,128 +157,9 @@ export namespace AutoMovieSolidCycle {
         }),
       ),
       ...(c.along === undefined ? {} : { along: c.along }),
-      ...(c.partition === undefined ? {} : { partition: c.partition }),
       ...(c.exact === undefined ? {} : { exact: c.exact }),
       ...(c.segments === undefined ? {} : { segments: c.segments.slice() }),
     };
-  }
-
-  /**
-   * Carry a marked split boundary's angular partition through its retained
-   * source rows. Use the original row's count to partition the accumulated
-   * world chord length and normal rotation. Each boundary span takes the
-   * largest measured length and turn over the retained stations. The maximum of
-   * the two normalized increments allocates space to both requirements without
-   * comparing millimetres to radians. Sampling still uses exact split
-   * addresses, and every finer boundary vertex remains.
-   *
-   * @see https://doi.org/10.1002/nme.1620070405 Structured curvilinear grid lines follow a shared boundary parameter.
-   * @see https://www.sciencedirect.com/science/article/pii/S0010448518302331 Curvature-adaptive surface sampling distributes work in the normal map.
-   */
-  export function partition(
-    cycle: Pick<
-      IAutoMovieSolidCycle.ICycle,
-      "partition" | "along" | "chart" | "vertices" | "segments"
-    >,
-    authored: readonly number[],
-    station: number,
-    stations: readonly number[],
-    surface: IAutoMovieSolidSurface,
-  ): number[] | undefined {
-    const chart: [number, number][] = cycle.chart;
-    const period: number | undefined = surface.period;
-    if (
-      cycle.partition !== true ||
-      authored.length < 3 ||
-      chart.length < authored.length ||
-      chart.length !== cycle.vertices.length ||
-      period === undefined ||
-      !(Number.isFinite(period) && period > 0) ||
-      authored.some(
-        (v, k): boolean =>
-          !Number.isFinite(v) || (k > 0 && !(v > authored[k - 1]!)),
-      ) ||
-      !(authored.at(-1)! - authored[0]! < period) ||
-      cycle.segments !== undefined ||
-      chart.some(
-        ([u, v], k): boolean =>
-          u !== (cycle.along?.(v) ?? station) ||
-          !Number.isFinite(v) ||
-          (k > 0 && !(v > chart[k - 1]![1])),
-      ) ||
-      !(chart.at(-1)![1] - chart[0]![1] < period)
-    )
-      return undefined;
-    const fine: number[] = chart.map(([, v]): number => v);
-    const bend: number[] = fine.map((): number => 0);
-    const chord: number[] = fine.map((): number => 0);
-    try {
-      for (const u of stations) {
-        const read =
-          surface.jetAt?.(u) ??
-          ((v: number): IAutoMovieSolidSurface.IJet => surface.jet(u, v));
-        const row = fine.map((v) => {
-          const jet = read(v);
-          const point: AutoMovieVector3Tuple = [...jet.p];
-          return { point, normal: Vec.unit(Vec.cross(jet.u, jet.v)) };
-        });
-        for (const [i, { point, normal }] of row.entries()) {
-          const next = row[(i + 1) % fine.length]!;
-          if (normal === null || next.normal === null) return undefined;
-          const angle: number = Math.atan2(
-            Vec.norm(Vec.cross(normal, next.normal)),
-            Vec.dot(normal, next.normal),
-          );
-          bend[i] = Math.max(bend[i]!, angle);
-          chord[i] = Math.max(chord[i]!, Vec.norm(Vec.sub(next.point, point)));
-        }
-      }
-    } catch (error: unknown) {
-      if (error instanceof AutoMovieLoftAdmissionError) return undefined;
-      throw error;
-    }
-    const distance: number = chord.reduce(
-      (sum, value): number => sum + value,
-      0,
-    );
-    const rotation: number = bend.reduce(
-      (sum, value): number => sum + value,
-      0,
-    );
-    if (
-      !(distance > 0 && Number.isFinite(distance)) ||
-      !Number.isFinite(rotation)
-    )
-      return undefined;
-    const measures: number[] = [0];
-    for (const [i, length] of chord.entries())
-      measures.push(
-        measures.at(-1)! +
-          Math.max(length / distance, rotation > 0 ? bend[i]! / rotation : 0),
-      );
-    const length: number = measures.at(-1)!;
-    if (!(length > 0 && Number.isFinite(length))) return undefined;
-    let index: number = -1;
-    const selected: number[] = authored.map((_, k): number => {
-      const target: number = (k * length) / authored.length;
-      const last: number = fine.length - authored.length + k;
-      ++index;
-      while (
-        index < last &&
-        Math.abs(measures[index + 1]! - target) <
-          Math.abs(measures[index]! - target)
-      )
-        ++index;
-      return index;
-    });
-    const regular: boolean = selected.every((v, i): boolean => {
-      const next: number | undefined = selected[i + 1];
-      const gap: number =
-        (next === undefined ? fine[selected[0]!]! + period : fine[next]!) -
-        fine[v]!;
-      return gap > 0 && gap < period / 2;
-    });
-    return regular ? selected : undefined;
   }
 
   /**
@@ -340,8 +214,7 @@ export namespace AutoMovieSolidCycle {
   export function prepare(
     cycle: Pick<IAutoMovieSolidCycle.ICycle, "kind" | "chart" | "along">,
     period: number | undefined,
-    phases?: readonly number[],
-  ): (u: number, v: number, column?: number) => boolean {
+  ): (u: number, v: number) => boolean {
     const curve: ((v: number) => number) | undefined = cycle.along;
     const prepared: IPrepared =
       cycle.kind === "hole" || cycle.kind === "island"
@@ -363,35 +236,8 @@ export namespace AutoMovieSolidCycle {
                   ),
                 }),
           };
-    const columns =
-      phases !== undefined && prepared.ends !== undefined && curve === undefined
-        ? windingColumns(cycle.chart, prepared.ends, period, phases)
-        : undefined;
-    return (u: number, v: number, column?: number): boolean =>
-      columns !== undefined && column !== undefined && phases![column] === v
-        ? windingKept(cycle.kind, u, columns[column]!)
-        : read(cycle, u, v, period, prepared);
-  }
-
-  /**
-   * Prepare the ray crossings of a straight-segment winding cycle at grid
-   * phases.
-   */
-  function windingColumns(
-    chart: readonly [number, number][],
-    ends: readonly [number, number, number][],
-    period: number | undefined,
-    phases: readonly number[],
-  ): number[][] {
-    const p: number = period ?? 2 * Math.PI;
-    return phases.map((v) => {
-      const stations: number[] = [];
-      for (const [k, a] of chart.entries()) {
-        const x: number | undefined = windingCrossing(a, ends[k]!, v, p);
-        if (x !== undefined) stations.push(x);
-      }
-      return stations;
-    });
+    return (u: number, v: number): boolean =>
+      read(cycle, u, v, period, prepared);
   }
 
   /**
@@ -526,70 +372,43 @@ export namespace AutoMovieSolidCycle {
     // the query's cover: shifting the query instead can round a negative
     // sub-ULP phase to the closing endpoint and lose both adjacent crossings.
     const p: number = period ?? 2 * Math.PI;
-    let kept: boolean = false;
+    let count: number = 0;
     for (let k: number = 0; k < n; k++) {
       const a: [number, number] = cycle.chart[k]!;
       const raw: [number, number] = cycle.chart[(k + 1) % n]!;
       const b: [number, number, number] =
         prepared === undefined ? windingEnd(a, raw, p) : prepared.ends![k]!;
-      const x: number | undefined = windingCrossing(
-        a,
-        b,
-        v,
-        p,
-        cycle,
-        raw,
-        prepared?.on?.[k],
-      );
-      if (x !== undefined && (cycle.kind === "start" ? x <= u : x >= u))
-        kept = !kept;
+      const turn: number = b[2];
+      const end: number = b[1] + turn * p;
+      const reference: number = (a[1] + end) / 2;
+      let translation: number = 0;
+      let bv: number = end;
+      let w: number = v;
+      if (p > 0) {
+        const image: number = -Math.round((reference - v) / p);
+        translation = image * p;
+        bv = b[1] + (turn + image) * p;
+      } else {
+        // Preserve the legacy invalid-period result; this branch admits no new source.
+        w = shift(v, reference, p);
+      }
+      const av: number = a[1] + translation;
+      if (av > w === bv > w) continue;
+
+      // The crossing's station: on the exact curve when the segment samples it, since a face beside this one may end on that curve
+      // itself (a port's band ends on the part's curved rail), and the chord between two vertices then stands off it by its sagitta,
+      // a strip that belonged to neither face (0.03 mm on f1's arm under its armpit band). Otherwise the chord, the source start
+      // coordinates keeping the original reached getter sequence.
+      const curve: ((v: number) => number) | undefined = cycle.along;
+      const x: number =
+        curve !== undefined && (prepared?.on?.[k] ?? on(curve, a, raw))
+          ? curve(w - translation)
+          : a[0] +
+            ((w - (a[1] + translation)) * (b[0] - a[0])) /
+              (bv - (a[1] + translation));
+      if (cycle.kind === "start" ? x <= u : x >= u) count++;
     }
-    return kept;
-  }
-
-  /** Read the crossing in the query's cover with the original endpoint ties. */
-  function windingCrossing(
-    a: [number, number],
-    b: [number, number, number],
-    v: number,
-    period: number,
-    source?: Pick<IAutoMovieSolidCycle.ICycle, "along">,
-    raw?: [number, number],
-    exact?: boolean,
-  ): number | undefined {
-    const turn: number = b[2];
-    const end: number = b[1] + turn * period;
-    const reference: number = (a[1] + end) / 2;
-    let translation: number = 0;
-    let bv: number = end;
-    let w: number = v;
-    if (Number.isFinite(period) && period > 0) {
-      const image: number = -Math.round((reference - v) / period);
-      translation = image * period;
-      bv = b[1] + (turn + image) * period;
-    } else w = shift(v, reference, period);
-    const av: number = a[1] + translation;
-    if (av > w === bv > w) return undefined;
-
-    // The adjoining face can end on the exact curve. Reading its chord
-    // instead leaves the sagitta between the two faces without an owner.
-    const curve: ((phase: number) => number) | undefined = source?.along;
-    return curve !== undefined && (exact ?? on(curve, a, raw!))
-      ? curve(w - translation)
-      : a[0] +
-          ((w - (a[1] + translation)) * (b[0] - a[0])) /
-            (bv - (a[1] + translation));
-  }
-
-  function windingKept(
-    kind: IAutoMovieSolidCycle.ICycle["kind"],
-    u: number,
-    crossings: readonly number[],
-  ): boolean {
-    let kept: boolean = false;
-    for (const x of crossings)
-      if (kind === "start" ? x <= u : x >= u) kept = !kept;
-    return kept;
+    return count % 2 === 1;
   }
 
   /**

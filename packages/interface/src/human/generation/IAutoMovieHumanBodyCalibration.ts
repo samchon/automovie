@@ -12,7 +12,6 @@ import type { IAutoMovieHumanSurfaceAppendage } from "./IAutoMovieHumanSurfaceAp
 import type { IAutoMovieHumanSurfaceMerge } from "./IAutoMovieHumanSurfaceMerge";
 import type { IAutoMovieHumanSurfacePole } from "./IAutoMovieHumanSurfacePole";
 import type { IAutoMovieHumanTrunkLandmarks } from "./IAutoMovieHumanTrunkLandmarks";
-import type { IAutoMovieHumanDigitNails } from "./hand/IAutoMovieHumanDigitNails";
 
 /**
  * Shared shape coefficients (theta) of the generated body surface.
@@ -131,10 +130,4 @@ export interface IAutoMovieHumanBodyCalibration {
    * digits.
    */
   nails?: IAutoMovieHumanNailWindow[];
-
-  /**
-   * Native nail inputs whose original digit face survived the solid tree. Final
-   * skin consumes the shared chart, not a second overlapping surface.
-   */
-  nailSources?: IAutoMovieHumanDigitNails.IPlaced[];
 }

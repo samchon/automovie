@@ -1,6 +1,6 @@
 # Ear
 
-Each value holds for its cited population and protocol. Use the landmarks and measurements as anatomical evidence when judging ear form.
+Each value holds only for its cited population and protocol. Use a value where the reference observation is missing, never as a generator default.
 
 ## Parts
 
@@ -27,8 +27,14 @@ From Gray 1918 ([gray-1918](../sources/gray-1918.md)), established account.
 | Protrusion top / middle / bottom | 10-12 / 16-18 / 20-22 mm | Banks and Cheney |
 | Vertical placement | top at the lateral brow, lobule bottom at subnasale | Banks and Cheney |
 
-Both sources record greater protrusion at the middle of the auricle than at the top. Inspect the cranioauricular sulcus along the attachment and behind the concha.
+In both sources protrusion grows from the top of the auricle to its lower helix, so the groove behind the ear (the cranioauricular sulcus) is shallowest above and deepest behind the concha.
 
 ## Horizontal sections
 
-Use the upper and lower attachment landmarks to choose the planes. A cut through a free lobule or an overhanging helix can meet the auricle separately from the head. At the attachment, trace how the auricle and scalp outlines meet. Inspect the concha and scapha in close views so the section read preserves the projection of the helix, the openness of the bowl and the notch behind the ear. [Gray's Anatomy](../sources/gray-1918.md).
+Horizontal cuts of the f1 reference head at 0.5 mm spacing (`test/.shots/f1/ear-observations/horizontal-v1.json`) pass from bottom to top through:
+
+1. the free lobule, a separate loop below the lowest attachment (otobasion inferius);
+2. the attached auricle, one outline with the head: a finger-shaped stem leaving the scalp at the auriculocephalic angle, then the concha bowl, tragus and antitragus in front and the helix hook at its tip, with the sulcus behind as an acute notch;
+3. the free upper helix above the highest attachment (otobasion superius), first a hook, then a loop around a small closed pocket where the helix rolls over the scapha, then a single loop up to superaurale.
+
+The section family therefore has three topology events: a merge at the lobule, a split at the upper attachment, and a pocket that opens and closes under the helix roll.

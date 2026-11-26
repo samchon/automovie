@@ -52,10 +52,7 @@ export namespace AutoMovieHumanConicLoft {
     if (eases === undefined || eases.length !== knots.length || values.length !== knots.length || knots.length < 2) throw new Error("roll: an eased roll needs one value and one ease per knot, at least two knots");
     for (let i: number = 0; i + 1 < knots.length; ++i) {
       if (!(knots[i + 1]! > knots[i]!)) throw new Error("roll: the knots must increase");
-      const [a, b]: [number, number] = [eases[i]!, eases[i + 1]!];
-      if (!(Number.isFinite(a) && Number.isFinite(b) && a >= 0 && b >= 0 &&
-            (values[i] === values[i + 1] || a + b <= knots[i + 1]! - knots[i]!)))
-        throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative or longer than it");
+      if (!(eases[i]! >= 0 && eases[i + 1]! >= 0 && eases[i]! + eases[i + 1]! <= knots[i + 1]! - knots[i]!)) throw new Error("roll: the eases of the stretch from " + knots[i] + " to " + knots[i + 1] + " mm are negative or longer than it");
     }
     // The quintic smoothstep, its integral from 0 and its derivative, at a share of its window.
     const step = (t: number): number => t * t * t * (10 + t * (-15 + 6 * t));
@@ -223,61 +220,18 @@ export namespace AutoMovieHumanConicLoft {
     };
   }
 
-  /** The family's field vector at one station; an extended family (`IFamily.extended`) eases below its stored first knot (`extended`). */
+  /** The family's field vector at one station. */
   export function reader(
-    family: Pick<IAutoMovieHumanConicLoft.IFamily, "knots" | "values" | "extended"> & Partial<Pick<IAutoMovieHumanConicLoft.IFamily, "layout">>,
+    family: Pick<IAutoMovieHumanConicLoft.IFamily, "knots" | "values">,
   ): (s: number) => number[] {
-    const from: number = family.extended === undefined ? 0 : family.knots.indexOf(family.extended);
-    if (from < 0) throw new Error("an extended family's stored first knot " + family.extended + " is not among its knots");
-    const knots: number[] = family.knots.slice(from);
     const splines: IAutoMovieNaturalCubicSpline[] = family.values.map(
       (field: number[]): IAutoMovieNaturalCubicSpline =>
-        AutoMovieNaturalSpline.create(knots, field.slice(from)),
+        AutoMovieNaturalSpline.create(family.knots, field),
     );
-    if (family.extended === undefined)
-      return (s: number): number[] => splines.map((spline: IAutoMovieNaturalCubicSpline): number => AutoMovieNaturalSpline.evaluate(spline, s));
-    // The extension leaves the first knot on each field's own tangent and levels out over the stored first knot interval `L`,
-    // `v + d L g((s - k) / L)` with `g(x) = x + x^2 / 2` (g(0) = 0, g'(0) = 1, g'(-1) = 0, g(-1) = -1/2), then holds: C1 at both ends and
-    // monotone between, so the engine's outlines through the stations do not swing across a slope break.
-    // The guides' extents (`AutoMovieHumanConicSection.extents`) are positive magnitudes (signed by their side), so they are extended
-    // multiplicatively, in their logarithm: `v exp((d / v) L g(x))`, the same ease on `ln |v|`. It has the same value and slope `d` at
-    // the knot and levels out at `x = -1`. A linear ease can reach zero where
-    // `d L / 2 >= v`. The log extension preserves each extent's original sign.
-    const k: number = family.extended, span: number = knots[1]! - k;
-    const magnitudes: Set<number> = new Set(family.layout === undefined ? [] : AutoMovieHumanConicSection.extents(family.layout));
-    const ends = splines.map((spline: IAutoMovieNaturalCubicSpline): [number, number] => {
-      const [value, slope] = AutoMovieNaturalSpline.read(spline, k);
-      return [value, slope];
-    });
-    return (s: number): number[] => splines.map((spline: IAutoMovieNaturalCubicSpline, f: number): number => {
-      if (s >= k) return AutoMovieNaturalSpline.evaluate(spline, s);
-      const [value, slope] = ends[f]!;
-      const x: number = Math.max(-1, (s - k) / span), g: number = x + (x * x) / 2;
-      return magnitudes.has(f) && value !== 0 ? value * Math.exp((slope / value) * span * g) : value + slope * span * g;
-    });
-  }
-
-  /**
-   * A section's mean reach, mm: the mean distance of its four guides from the course along their own chart axes (the forward and back
-   * extremes' `u`, the two sides' `v`), from the family's fields at one station. The size a joint's widths are shares of.
-   *
-   * @param family The family.
-   * @param station The station, mm; past the last knot the last knot's section.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The four guides are the section's extremes on its box, resolved from the fields by `AutoMovieHumanConicSection.resolve`.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One resolve and one mean.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A section without four guides is refused with its count.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One field read.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The digits' domes and the joints' widths read this one definition.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns one number.
-   * @evidence contracts/development/common.md#meaningful-documentation States the guides and the unit.
-   */
-  export function meanReach(family: IAutoMovieHumanConicLoft.IFamily, station: number): number {
-    const chain: IAutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.resolve(
-      reader(family)(Math.min(station, family.knots.at(-1)!)), family.layout);
-    if (chain.guides.length !== 4) throw new Error("a section of " + family.name + " has " + chain.guides.length + " guides, four expected");
-    return chain.guides.reduce(
-      (sum: number, guide: number, quarter: number): number => sum + Math.abs(chain.input.points[guide]![quarter % 2]!), 0) / 4;
+    return (s: number): number[] =>
+      splines.map((spline: IAutoMovieNaturalCubicSpline): number =>
+        AutoMovieNaturalSpline.evaluate(spline, s),
+      );
   }
 
   /**
@@ -306,19 +260,14 @@ export namespace AutoMovieHumanConicLoft {
    *
    * @param family The authored definition.
    * @param stations Stations of the emitted layers and of the derived outlines, mm, increasing.
-   * @param refine Whether midway stations are inserted where the section turns faster than the engine's spline follows. Off, the
-   *   requested stations between the caps are the derived outlines' knots exactly: a caller differentiating the family's values holds
-   *   the base state's discrete station choices fixed, since the insertion is a step function of the values.
    */
   export function part(
     family: IAutoMovieHumanConicLoft.IFamily,
     requested: number[],
-    refine: boolean = true,
   ): IAutoMovieViewPart {
     if (family.native !== undefined)
       return family.native.part(family, requested);
     const read: (s: number) => number[] = reader(family);
-    const resolve: (values: readonly number[]) => IAutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.prepare(family.layout);
     const [bottom, top]: [IAutoMovieHumanConicLoft.ITip | null, IAutoMovieHumanConicLoft.ITip | null] = family.tips ?? [
       null,
       null,
@@ -338,17 +287,26 @@ export namespace AutoMovieHumanConicLoft {
     // The engine reads every derived number between two stations by its own spline, not through the section model, so where the model's
     // section turns faster than that reading follows, the engine's chain loses an arc though the model's never does. Wherever the model's
     // section midway between two stations stands off the mean of their two by more than the tolerances, the midway station is added.
-    /** A resolved layer shared by its adjoining intervals and the emitted outlines. */
-    type Layer = { station: number; chain: IAutoMovieHumanConicSection.IChain };
-    const at = (station: number): Layer => ({
-      station,
-      chain: resolve(read(station)),
-    });
-    const between = (left: Layer, right: Layer, out: Layer[]): void => {
-      if (!refine || right.station - left.station <= 2 * REFINE.least) return;
-      const middle: Layer = at((left.station + right.station) / 2);
-      const { chain: low } = left, { chain: mid } = middle, { chain: high } = right;
-      const off: boolean = mid.input.points.some(
+    const resolved: Map<number, IAutoMovieHumanConicSection.IChain> = new Map();
+    const at = (s: number): IAutoMovieHumanConicSection.IChain => {
+      let chain: IAutoMovieHumanConicSection.IChain | undefined =
+        resolved.get(s);
+      if (chain === undefined)
+        resolved.set(
+          s,
+          (chain = AutoMovieHumanConicSection.resolve(read(s), family.layout)),
+        );
+      return chain;
+    };
+    const between = (a: number, b: number): number[] => {
+      if (b - a <= 2 * REFINE.least) return [];
+      const middle: number = (a + b) / 2;
+      const [low, mid, high]: IAutoMovieHumanConicSection.IChain[] = [
+        at(a),
+        at(middle),
+        at(b),
+      ];
+      const off: boolean = mid!.input.points.some(
         (p: AutoMovieVector2Tuple, k: number): boolean => {
           const turn = (t: AutoMovieVector2Tuple): number =>
             Math.atan2(t[1], t[0]);
@@ -374,19 +332,13 @@ export namespace AutoMovieHumanConicLoft {
           );
         },
       );
-      if (!off) return;
-      between(left, middle, out);
-      out.push(middle);
-      between(middle, right, out);
+      return off ? [...between(a, middle), middle, ...between(middle, b)] : [];
     };
-    const layers: Layer[] = [];
-    for (const station of owned) {
-      const next: Layer = at(station);
-      if (layers.length > 0) between(layers.at(-1)!, next, layers);
-      layers.push(next);
-    }
-    const stations: number[] = layers.map((layer: Layer): number => layer.station);
-    const chains: IAutoMovieHumanConicSection.IChain[] = layers.map((layer: Layer): IAutoMovieHumanConicSection.IChain => layer.chain);
+    const stations: number[] = owned.flatMap(
+      (s: number, i: number): number[] =>
+        i === 0 ? [s] : [...between(owned[i - 1]!, s), s],
+    );
+    const chains: IAutoMovieHumanConicSection.IChain[] = stations.map(at);
     const count: number = chains[0]!.input.points.length;
     const guides: number[] = chains[0]!.guides;
     if (guides.length !== 4)
@@ -394,13 +346,38 @@ export namespace AutoMovieHumanConicLoft {
         "the layout names " + guides.length + " engine guides instead of four",
       );
 
-    /** The sum of a section's four guide extents. */
-    const size = (chain: IAutoMovieHumanConicSection.IChain): number =>
-      chain.guides.reduce(
+    // The wall's taper at a cap's first section: the relative growth of the mean of its four extents over a millimetre away from the tip,
+    // times the cap's length, held to [TAPER.least, TAPER.most].
+    const size = (s: number): number => {
+      const chain: IAutoMovieHumanConicSection.IChain =
+        AutoMovieHumanConicSection.resolve(read(s), family.layout);
+      return chain.guides.reduce(
         (sum: number, g: number, q: number): number =>
           sum + Math.abs(chain.input.points[g]![q % 2]),
         0,
       );
+    };
+    const taper = (end: IAutoMovieHumanConicLoft.ITip): number => {
+      const inward: number = Math.sign(end.from - end.tip);
+      return Math.min(
+        TAPER.most,
+        Math.max(
+          TAPER.least,
+          (size(end.from + inward) / size(end.from) - 1) *
+            Math.abs(end.from - end.tip),
+        ),
+      );
+    };
+
+    // The wall's bend at a cap's first section in the cap's own measure: the second difference of the mean extent over millimetres away from
+    // the tip, relative to the extent, times the square of the cap's length.
+    const bend = (end: IAutoMovieHumanConicLoft.ITip): number => {
+      const inward: number = Math.sign(end.from - end.tip);
+      const [s0, s1, s2]: number[] = [0, 1, 2].map((k: number): number =>
+        size(end.from + k * inward),
+      );
+      return ((s2! - 2 * s1! + s0!) / s0!) * (end.from - end.tip) ** 2;
+    };
 
     // The cap's knots and its rings both stand at equal steps of the root of the distance to the tip, the engine's pole parameter.
     const capShares: number[] = Array.from(
@@ -415,51 +392,52 @@ export namespace AutoMovieHumanConicLoft {
     // one and two millimetres away from the tip.
     const cap = (
       end: IAutoMovieHumanConicLoft.ITip,
-      root: IAutoMovieHumanConicSection.IChain,
+      value: number,
+      along: 0 | 1 | null,
       site: string,
-    ) => {
+      pick?: (chain: IAutoMovieHumanConicSection.IChain) => number,
+    ): IAutoMovieViewPart.IKnot[] => {
+      const middle: number = along === null ? 0 : (end.centre?.[along] ?? 0);
       const inward: number = Math.sign(end.from - end.tip);
       const length: number = Math.abs(end.from - end.tip);
-      const one: IAutoMovieHumanConicSection.IChain = at(end.from + inward).chain;
-      const two: IAutoMovieHumanConicSection.IChain | null = end.own === true || end.covered !== true
-        ? at(end.from + 2 * inward).chain : null;
-
-      // Taper and bend are the first and second differences of the summed extents in the cap's own measure.
-      const s0: number = size(root), s1: number = size(one);
-      const taper = (from: number, next: number): number =>
-        Math.min(TAPER.most, Math.max(TAPER.least, (next / from - 1) * length));
-      const bend = (from: number, next: number, last: number): number =>
-        ((last - 2 * next + from) / from) * length ** 2;
-      const sharedTaper: number = taper(s0, s1);
-      const sharedBend: number = end.covered === true ? 0 : bend(s0, s1, size(two!));
-      return (
-        pick: (chain: IAutoMovieHumanConicSection.IChain) => number,
-        along: 0 | 1 | null,
-      ): IAutoMovieViewPart.IKnot[] => {
-        const value: number = pick(root);
-        const middle: number = along === null ? 0 : (end.centre?.[along] ?? 0);
-        const x1: number = end.own === true && along !== null ? pick(one) : NaN;
-        const own: boolean = Number.isFinite(x1) && Math.abs(value) > OWN_LEAST * s0;
-        const q: number = own ? taper(value, x1) : sharedTaper;
-        const c: number = end.covered === true ? 0 : Math.max(
-          0,
-          (1 - q) ** 2 + (own ? bend(value, x1, pick(two!)) : sharedBend),
-        );
-        const b: number = 2 * q - 1 - 2 * c;
-        const a: number = 1 - b - c;
-        return capShares.map((x: number, k: number): IAutoMovieViewPart.IKnot => {
-          const t: number = x * x;
-          const g: number = Math.sqrt(t * (a + t * (b + t * c)));
-          return {
-            site: site + "." + k,
-            station: end.tip + (end.from - end.tip) * t,
-            value: along === null ? value : value * g + 2 * middle * g * (1 - g) ** 2,
-          };
-        });
-      };
+      const [x1, x2]: number[] =
+        end.own === true && along !== null && pick !== undefined
+          ? [1, 2].map((k: number): number =>
+              pick(
+                AutoMovieHumanConicSection.resolve(
+                  read(end.from + k * inward),
+                  family.layout,
+                ),
+              ),
+            )
+          : [NaN, NaN];
+      const x0: number = value;
+      const own: boolean =
+        Number.isFinite(x1) && Math.abs(x0) > OWN_LEAST * size(end.from);
+      const q: number = own
+        ? Math.min(TAPER.most, Math.max(TAPER.least, (x1! / x0 - 1) * length))
+        : taper(end);
+      const c: number =
+        end.covered === true
+          ? 0
+          : Math.max(
+              0,
+              (1 - q) ** 2 +
+                (own ? ((x2! - 2 * x1! + x0) / x0) * length ** 2 : bend(end)),
+            );
+      const b: number = 2 * q - 1 - 2 * c;
+      const a: number = 1 - b - c;
+      return capShares.map((x: number, k: number): IAutoMovieViewPart.IKnot => {
+        const t: number = x * x;
+        const g: number = Math.sqrt(t * (a + t * (b + t * c)));
+        return {
+          site: site + "." + k,
+          station: end.tip + (end.from - end.tip) * t,
+          value:
+            along === null ? value : value * g + 2 * middle * g * (1 - g) ** 2,
+        };
+      });
     };
-    const bottomCap = bottom === null ? null : cap(bottom, chains[0]!, "tip.bottom");
-    const topCap = top === null ? null : cap(top, chains.at(-1)!, "tip.top");
 
     // The cap's rings: without them the engine meshed a cap from its first section straight to its pole, a cone ending in a flat disc.
     const rings = (end: IAutoMovieHumanConicLoft.ITip): number[] =>
@@ -477,7 +455,9 @@ export namespace AutoMovieHumanConicLoft {
       along: 0 | 1 | null,
     ): IAutoMovieViewPart.IOutline => ({
       knots: [
-        ...(bottomCap?.(pick, along) ?? []),
+        ...(bottom === null
+          ? []
+          : cap(bottom, pick(chains[0]!), along, "tip.bottom", pick)),
         ...stations.map(
           (station: number, i: number): IAutoMovieViewPart.IKnot => ({
             site: "s" + i,
@@ -485,7 +465,9 @@ export namespace AutoMovieHumanConicLoft {
             value: pick(chains[i]!),
           }),
         ),
-        ...(topCap?.(pick, along).reverse() ?? []),
+        ...(top === null
+          ? []
+          : cap(top, pick(chains.at(-1)!), along, "tip.top", pick).reverse()),
       ],
     });
     const outline = (
@@ -727,11 +709,10 @@ export namespace AutoMovieHumanConicLoft {
       return d.map((x: number): number => x / l);
     };
     for (const s of stations) {
-      const point: (phase: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
+      const at: (t: number) => number[] = AutoMovieLoftChain.sampler(chain, s);
       const ring: number[][] = Array.from(
         { length: M },
-        (_: unknown, j: number): number[] =>
-          point(j * step),
+        (_: unknown, j: number): number[] => at(j * step),
       );
       if (ring.some((p: number[]): boolean => !p.every(Number.isFinite)))
         continue;
@@ -794,43 +775,6 @@ export namespace AutoMovieHumanConicLoft {
    * @param name The twin's chain name.
    */
   export function mirror(family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily {
-    return mirrored(family, name);
-  }
-
-  /**
-   * A side part's fields extended from its stored first knot back to its joint's loop, so its view starts at the loop and the port
-   * (`AutoMovieHumanBoundSection.port`) can blend from the loop into the part's own sections.
-   *
-   * The extension leaves the first knot on each field's own tangent and levels out over the stored first knot interval, then holds
-   * (`IFamily.extended`, read by `reader`: C1, monotone, with no constant of its own; the guides' extents eased in their logarithm, so
-   * they stay positive). The original natural cubics continue from their first knot.
-   * At the loop the port carries the parent's curve and the extension's weight is zero.
-   * A family starting at or before `from` needs no extension.
-   *
-   * @param family The stored family.
-   * @param from The loop's shallowest station on the family's course, mm (less one address tolerance).
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation The first section levelled out C1 from its own tangent over its own first interval, with the stored natural cubics untouched past the first knot.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure One prepended knot and one marker.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A native family or one with a proximal tip is returned unchanged.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Constant work.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every field read goes through `reader`, which applies the ease.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns a fresh family.
-   * @evidence contracts/development/common.md#meaningful-documentation States the ease, its range and why the natural cubic's own continuations were left.
-   */
-  export function extended(family: IAutoMovieHumanConicLoft.IFamily, from: number): IAutoMovieHumanConicLoft.IFamily {
-    if (!(family.knots[0]! > from) || family.native !== undefined || (family.tips?.[0] ?? null) !== null) return family;
-    const first: number = family.knots[0]!;
-    return {
-      ...family,
-      knots: [from, ...family.knots],
-      values: family.values.map((field: number[]): number[] => [field[0]!, ...field]),
-      extended: family.extended ?? first,
-    };
-  }
-
-  /** The twin, as `mirror` documents it. */
-  function mirrored(family: IAutoMovieHumanConicLoft.IFamily, name: string): IAutoMovieHumanConicLoft.IFamily {
     if (family.native !== undefined) return family.native.mirror(family, name);
     const anchors: IAutoMovieHumanConicSection.IAnchor[] = family.layout.anchors;
     const K: number = anchors.length;
@@ -904,11 +848,11 @@ export namespace AutoMovieHumanConicLoft {
         (anchor: IAutoMovieHumanConicSection.IAnchor): boolean =>
           anchor.kind === "f",
       )
-    ) {
-      const resolve: (values: readonly number[]) => IAutoMovieHumanConicSection.IChain = AutoMovieHumanConicSection.prepare(family.layout);
+    )
       family.knots.forEach((_: number, m: number): void => {
-        const input = resolve(
+        const input = AutoMovieHumanConicSection.resolve(
           family.values.map((field: number[]): number => field[m]!),
+          family.layout,
         ).input;
         const points: AutoMovieVector2Tuple[] = Array.from(
           { length: K },
@@ -938,7 +882,6 @@ export namespace AutoMovieHumanConicLoft {
           values[twinAt[j]! + 2]![m] = read.values[2];
         }
       });
-    }
     const flip = (v: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [v[0], v[1], -v[2]];
     return {
       name,
@@ -997,7 +940,6 @@ export namespace AutoMovieHumanConicLoft {
       },
       knots: [...family.knots],
       values,
-      ...(family.extended === undefined ? {} : { extended: family.extended }),
       // A cap's centre lies in the chart, whose `v` the twin negates.
       ...(family.tips === undefined
         ? {}

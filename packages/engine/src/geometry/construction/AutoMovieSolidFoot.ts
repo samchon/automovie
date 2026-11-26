@@ -102,21 +102,11 @@ export namespace AutoMovieSolidFoot {
       let k: number = length > bound && length > 0 ? bound / length : 1;
       let trial: number = 0;
       while (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          u + k * delta[0],
-          v + k * delta[1],
-        ) &&
+        !AutoMovieSolidDomain.contains(surface, u + k * delta[0]) &&
         trial++ < 20
       )
         k /= 2;
-      if (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          u + k * delta[0],
-          v + k * delta[1],
-        )
-      )
+      if (!AutoMovieSolidDomain.contains(surface, u + k * delta[0]))
         return null;
       u += k * delta[0];
       v += k * delta[1];

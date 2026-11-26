@@ -23,58 +23,18 @@ interface CapReading {
   active: boolean;
 }
 
-/** Readers of an immutable view source, with structure checked at preparation. */
-interface IReader {
-  /** Finite scalar values in the source station's physical millimetres. */
-  values(station: number): IAutoMovieLoftViewRead.IValues | string;
-  /** Actual physical source2 at the station, when available. */
-  jets(station: number): IAutoMovieLoftViewRead.IJets | string;
-}
-
 /**
  * Original scalar values and qualified physical jets for native view
  * evaluation.
  */
 export namespace AutoMovieLoftViewRead {
-  /**
-   * Check source structure once for a scope that reads the same immutable
-   * field. Each call still checks and reads only its requested station and
-   * derivative order.
-   */
-  export function prepare(source: IAutoMovieLoftViewSource.ISource): IReader {
-    try {
-      structure(source);
-    } catch (error: unknown) {
-      return {
-        values: (station: number): string => fault(station, error),
-        jets: (station: number): string => fault(station, error),
-      };
-    }
-    return {
-      values: (station: number): IAutoMovieLoftViewRead.IValues | string =>
-        valuesOf(source, station, true),
-      jets: (station: number): IAutoMovieLoftViewRead.IJets | string =>
-        jetsOf(source, station, true),
-    };
-  }
-
   /** Read finite scalar values without requesting station derivatives. */
   export function values(
     source: IAutoMovieLoftViewSource.ISource,
     station: number,
   ): IAutoMovieLoftViewRead.IValues | string {
-    return valuesOf(source, station, false);
-  }
-
-  /** Read only scalar values after either live or scoped structural admission. */
-  function valuesOf(
-    source: IAutoMovieLoftViewSource.ISource,
-    station: number,
-    prepared: boolean,
-  ): IAutoMovieLoftViewRead.IValues | string {
     try {
-      finiteStation(station);
-      if (!prepared) structure(source);
+      validate(source);
       const extents: number[] = source.extents.map(
         (outline: IAutoMovieViewOutline.IOutline, q: number): number =>
           value(outline, station, `extent ${q}`) * (q < 2 ? 1 : -1),
@@ -98,8 +58,6 @@ export namespace AutoMovieLoftViewRead {
       const w: CapReading = cap(source.caps, station);
       if (w.active && !chained(source))
         shoulders = shoulders.map((r: number): number => blend(r, w));
-      if (![...extents, ...shoulders].every(Number.isFinite))
-        throw new Error("The effective source values are not finite.");
       const out: IAutoMovieLoftViewRead.IValues = { extents, shoulders };
       if (source.fullness.kind === "top" && source.fullness.touch !== null)
         out.touch = source.fullness.touch.map(
@@ -152,21 +110,8 @@ export namespace AutoMovieLoftViewRead {
     source: IAutoMovieLoftViewSource.ISource,
     station: number,
   ): IAutoMovieLoftViewRead.IJets | string {
-    return jetsOf(source, station, false);
-  }
-
-  /**
-   * Read the station's physical jet after either live or scoped structural
-   * admission.
-   */
-  function jetsOf(
-    source: IAutoMovieLoftViewSource.ISource,
-    station: number,
-    prepared: boolean,
-  ): IAutoMovieLoftViewRead.IJets | string {
     try {
-      finiteStation(station);
-      if (!prepared) structure(source);
+      validate(source);
       const extents: IAutoMovieViewSectionField.IStationJet[] =
         source.extents.map(
           (
@@ -231,13 +176,6 @@ export namespace AutoMovieLoftViewRead {
             ];
           },
         );
-      if (
-        ![...extents, ...shoulders].every(
-          (at: IAutoMovieViewSectionField.IStationJet): boolean =>
-            at.every(Number.isFinite),
-        )
-      )
-        throw new Error("The required effective source2 is not finite.");
       const out: IAutoMovieLoftViewRead.IJets = {
         extents,
         shoulders: shoulders.map(
@@ -321,37 +259,28 @@ function chained(source: IAutoMovieLoftViewSource.ISource): boolean {
 /** The four scalar roles of one split, in its tuple order. */
 const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
 
-/** Reject nonfinite station coordinates, including on prepared readers. */
-function finiteStation(station: number): void {
-  if (!Number.isFinite(station))
-    throw new Error("The present view source is malformed.");
+/**
+ * Distinguish explicit source absence at the caller from broken present source
+ * data here.
+ */
+function validate(source: IAutoMovieLoftViewSource.ISource): void {
+  structure(source);
 }
 
-/** Refuse a malformed present source by the structural rule it breaks. */
+/** Refuse a malformed source or station by the rule it breaks. */
 function structure(source: IAutoMovieLoftViewSource.ISource): void {
   if (
-    source === null ||
-    source.kind !== "view" ||
-    !Array.isArray(source.extents) ||
     source.extents.length !== 4 ||
-    !Array.isArray(source.domain) ||
     source.domain.length !== 2 ||
-    !source.domain.every(Number.isFinite) ||
-    !Number.isFinite(source.domain[1] - source.domain[0]) ||
     !(source.domain[1] > source.domain[0]) ||
-    !Array.isArray(source.caps) ||
-    source.caps.length > 2 ||
-    source.fullness === null ||
-    (source.fullness.kind !== "shoulder" && source.fullness.kind !== "top")
+    source.caps.length > 2
   )
     throw new Error("The present view source is malformed.");
   if (
     source.fullness.kind === "top"
-      ? !Array.isArray(source.fullness.shoulders) ||
-        source.fullness.shoulders.length !== 4
+      ? source.fullness.shoulders.length !== 4
       : source.fullness.departures !== null &&
-        (!Array.isArray(source.fullness.departures) ||
-          source.fullness.departures.length !== 4)
+        source.fullness.departures.length !== 4
   )
     throw new Error("The present fullness source has no four-quarter layout.");
 
@@ -384,7 +313,6 @@ function structure(source: IAutoMovieLoftViewSource.ISource): void {
           (
             list: readonly (readonly IAutoMovieViewOutline.IOutline[])[],
           ): boolean =>
-            !Array.isArray(list) ||
             list.some(
               (split: readonly IAutoMovieViewOutline.IOutline[]): boolean =>
                 split.length !== 4,
@@ -410,10 +338,8 @@ function structure(source: IAutoMovieLoftViewSource.ISource): void {
         throw new Error("A constant cap has an inconsistent support endpoint.");
     } else if (
       !(
-        Number.isFinite(entry.span) &&
         entry.span > 0 &&
         entry.near !== null &&
-        Number.isFinite(entry.near) &&
         entry.span === Math.abs(entry.near - entry.pole) &&
         (entry.pole === source.domain[0]
           ? entry.near > entry.pole
@@ -456,8 +382,6 @@ function value(
 ): number {
   const reading: number | string = AutoMovieViewOutline.value(outline, station);
   if (typeof reading === "string") throw new Error(`${name}: ${reading}`);
-  if (!Number.isFinite(reading))
-    throw new Error(`${name}: the original scalar value is nonfinite.`);
   return reading;
 }
 

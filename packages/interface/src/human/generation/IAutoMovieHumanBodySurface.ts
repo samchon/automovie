@@ -1,5 +1,3 @@
-import type { IAutoMovieSolidSurface } from "../../construction/IAutoMovieSolidSurface";
-import type { IAutoMovieSolidMesh } from "../../construction/IAutoMovieSolidMesh";
 import type { IAutoMovieHumanLoftMesh } from "../lofting/IAutoMovieHumanLoftMesh";
 import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstructionPath";
 
@@ -11,22 +9,13 @@ import type { IAutoMovieHumanConstructionPath } from "./IAutoMovieHumanConstruct
  * Human supplies their runtime values.
  */
 export namespace IAutoMovieHumanBodySurface {
-  /**
-   * Borrow the very same analytic charts the solid tessellator used in this
-   * call.
-   */
-  export type SolidObserver = (
-    surfaces: ReadonlyMap<string, IAutoMovieSolidSurface>,
-    grids: readonly IAutoMovieSolidMesh.IGridReport[],
-  ) => void;
-
   /** Generated skin in millimetres, registered frame. */
   export interface IOutput {
     /**
      * Skin buffers, triangles counter-clockwise from outside. Triangle groups
      * are named `<chain>/<k>`: the interval between principal layers k and k+1
      * of that chain, which the sections `<chain>/<k>` and `<chain>/<k+1>`
-     * shape. Retained solid faces use `<chain>/solid`.
+     * shape.
      */
     mesh: IAutoMovieHumanLoftMesh.IContext;
 
@@ -49,14 +38,6 @@ export namespace IAutoMovieHumanBodySurface {
 
     /** Aperture paths sampled by the actual skin generation, in millimetres. */
     construction: IAutoMovieHumanConstructionPath[];
-
-    /** Observed nail-bed and strip clipping from the retained exterior. */
-    nailClipping?: {
-      /** Name of the retained digit owner. */
-      digit: string;
-      /** Largest combined bed or strip clipping at that digit, in mm. */
-      maximumMm: number;
-    }[];
 
     /**
      * The rim of every opening closed from its trim loop, by name: the loop's

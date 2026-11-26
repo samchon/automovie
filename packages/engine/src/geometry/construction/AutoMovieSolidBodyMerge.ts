@@ -6,7 +6,6 @@ import type {
   IAutoMovieSolidClip,
   IAutoMovieSolidCycle,
   IAutoMovieSolidJoin,
-  IAutoMovieSolidMeshConstraints,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
 
@@ -15,11 +14,8 @@ import { AutoMovieSolidChain } from "./AutoMovieSolidChain";
 import { AutoMovieSolidClip } from "./AutoMovieSolidClip";
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDiff } from "./AutoMovieSolidDiff";
-import { AutoMovieSolidExactBlend } from "./AutoMovieSolidExactBlend";
 import { AutoMovieSolidMerge } from "./AutoMovieSolidMerge";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
-import { AutoMovieSolidMeshAuthorities } from "./AutoMovieSolidMeshAuthorities";
-import { AutoMovieSolidMeshConstraints } from "./AutoMovieSolidMeshConstraints";
 
 /** Existing transactional body assembly and frozen host snapshots. */
 export namespace AutoMovieSolidBodyMerge {
@@ -41,10 +37,7 @@ export namespace AutoMovieSolidBodyMerge {
     /** Included body face identifiers in original order. */
     const index: number[] = body.faces
       .map((_: IAutoMovieSolidBody.IFace, k: number): number => k)
-      .filter(
-        (k: number): boolean =>
-          k !== without && body.faces[k]!.terminal === undefined,
-      );
+      .filter((k: number): boolean => k !== without);
 
     /** Translate a body identifier into this atlas's face index. */
     const back: Map<number, number> = new Map(
@@ -160,11 +153,8 @@ export namespace AutoMovieSolidBodyMerge {
    * @param body The body; its faces, cycles and mesh grow in place.
    * @param input The merge.
    * @returns The blend or null with observed diagnostics. Returned rail/trim
-   *   failures restore face count, copied cycles and mesh populations. A
-   *   callback exception preserves the state at the throw and propagates to the
-   *   caller. An existing part's new rail must remain on its retained chart.
-   *   Its constraints may not cross earlier trim segments without a shared
-   *   vertex.
+   *   failures restore face count, copied cycles and mesh populations; thrown
+   *   callbacks are not caught or rolled back.
    */
   export function merge(
     body: IAutoMovieSolidBody.IBody,
@@ -224,12 +214,6 @@ export namespace AutoMovieSolidBodyMerge {
     /** Existing part index, or the original new-part sentinel. */
     const known: number = typeof input.part === "number" ? input.part : -1;
 
-    if (known >= 0 && body.faces[known]?.terminal !== undefined)
-      return fail(
-        "analytic merge part",
-        "A terminal first-order face cannot be trimmed",
-      );
-
     /** Original part surface reference supplied to the join. */
     const partSurface: IAutoMovieSolidSurface =
       typeof input.part === "number"
@@ -251,94 +235,18 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Accepted join whose original callbacks supply the rails. */
     const join: IAutoMovieSolidJoin.IJoin = created.join;
+
     /** Existing blend publication with aligned rail charts. */
-    const original: IAutoMovieSolidBlendChain.IBlend | null =
+    const blend: IAutoMovieSolidBlendChain.IBlend | null =
       AutoMovieSolidBlendChain.of(input.name, join, input.count);
-    if (original === null)
-      return fail("rails", "a column of the blend has no rail");
-    const native =
-      input.railChord === undefined
-        ? null
-        : AutoMovieSolidExactBlend.prepare(
-            join,
-            original,
-            partSurface,
-            host,
-            input.nativeRailBoundaries,
-          );
-    if (input.railChord !== undefined && native === null)
-      return fail(
-        "native rail grid",
-        input.nativeRailBoundaries === true
-          ? "both closed rail curves must be regular in single retained charts"
-          : "closed rails must occupy one chart per original",
-      );
-    const basis =
-      native === null
-        ? null
-        : AutoMovieSolidExactBlend.adaptive(
-            native.at,
-            input.count,
-            input.rows,
-            input.railChord!,
-          );
-    if (typeof basis === "string") return fail("native rail grid", basis);
-    const rows = basis?.rows ?? input.rows;
-    const phases =
-      basis?.phases ??
-      Array.from(
-        { length: input.count },
-        (_, k) => (2 * Math.PI * k) / input.count,
-      );
-    const blend =
-      native === null
-        ? original
-        : AutoMovieSolidExactBlend.discretize(
-            original,
-            join,
-            native.column,
-            phases,
-          );
     if (blend === null)
       return fail("rails", "a column of the blend has no rail");
 
-    const retained: IAutoMovieSolidBody.IFace | undefined = body.faces[known];
-    if (
-      retained !== undefined &&
-      (retained.sourceAtlas !== undefined || retained.cycles.length !== 0)
-    ) {
-      const reads = retained.cycles.map((cycle) =>
-        AutoMovieSolidCycle.prepare(cycle, partSurface.period),
-      );
-      const inherited = retained.sourceAtlas;
-      const outside: number = blend.part.chart.findIndex(
-        ([u, v]): boolean =>
-          (inherited !== undefined &&
-            !inherited.atlas.kept(inherited.face, u, v)) ||
-          reads.some((keeps) => !keeps(u, v)),
-      );
-      if (outside !== -1)
-        return fail(
-          "part rail domain",
-          `${partSurface.name}'s rail column ${outside} at [${blend.part.chart[outside]}] leaves its retained chart`,
-        );
-    }
-
     /** Original analytic surface adapter for the published chain. */
-    const sampled: IAutoMovieSolidSurface | null = AutoMovieSolidChain.surface(
-      blend.chain,
-    );
-    if (sampled === null)
+    const blendSurface: IAutoMovieSolidSurface | null =
+      AutoMovieSolidChain.surface(blend.chain);
+    if (blendSurface === null)
       return fail("blend surface", "the blend chain carries no jets");
-    const blendSurface =
-      native === null
-        ? sampled
-        : AutoMovieSolidExactBlend.surface(
-            native.at,
-            input.name,
-            blend.length,
-            sampled.orientation,
-          );
 
     // The faces: the part's (new or known) and the blend's.
 
@@ -356,15 +264,14 @@ export namespace AutoMovieSolidBodyMerge {
     const blendFace: number = body.faces.length;
     body.faces.push({
       surface: blendSurface,
-      ...(native === null
-        ? {}
-        : { retainSurface: true as const, retainPhases: true as const }),
       stations: Array.from(
-        { length: rows + 1 },
-        (_: unknown, i: number): number =>
-          i === rows ? blend.length : (blend.length * i) / rows,
+        { length: input.rows + 1 },
+        (_: unknown, i: number): number => (blend.length * i) / input.rows,
       ),
-      phases,
+      phases: Array.from(
+        { length: input.count },
+        (_: unknown, k: number): number => (2 * Math.PI * k) / input.count,
+      ),
       cycles: [],
     });
 
@@ -372,7 +279,7 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** Host rail including existing cross-face bisection observations. */
     const rail: IAutoMovieSolidClip.IRailPoint[] | string =
-      AutoMovieSolidClip.rail(body, join, blend, index, phases);
+      AutoMovieSolidClip.rail(body, join, blend, index, input.count);
     if (typeof rail === "string")
       return fail(
         "rails",
@@ -394,73 +301,14 @@ export namespace AutoMovieSolidBodyMerge {
         ),
     );
 
-    /** The shared column's physical phase, radians. */
-    const phase = (k: number): number => phases[k]!;
-    const boundaries = native?.boundaries;
-    const exact = (
-      boundary: NonNullable<typeof boundaries>["host"],
-      kind: IAutoMovieSolidCycle.ICycle["kind"],
-      station: number,
-    ): IAutoMovieSolidCycle.IExact => ({
-      count: phases.length,
-      kept: (u, v) => boundary.side(u, v) * (kind === "hole" ? 1 : -1) >= 0,
-      across: (u, v) => [station, boundary.clock(u, v)],
-    });
-
-    const partCycle: IAutoMovieSolidCycle.ICycle = {
-      kind: blend.part.kind,
-      ...(boundaries === undefined
-        ? {}
-        : { exact: exact(boundaries.part, blend.part.kind, blend.length) }),
-      vertices: partVertices,
-      chart: blend.part.chart.map(([u, v]): [number, number] => [u, v]),
-      neighbours: partVertices.map(
-        (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
-          face: blendFace,
-          from: [blend.length, phase(k)],
-          to: [
-            blend.length,
-            phase((k + 1) % partVertices.length) +
-              (k + 1 === partVertices.length ? 2 * Math.PI : 0),
-          ],
-        }),
-      ),
-    };
-    if (retained !== undefined && retained.cycles.length !== 0) {
-      // Two valid rail columns can straddle a thinner removed chart region.
-      // Use the same authoritative segments and predicates as face drawing.
-      const chart: Map<number, readonly [number, number]> = new Map();
-      const segments: IAutoMovieSolidMeshConstraints.ISegment[] | string =
-        AutoMovieSolidMeshAuthorities.collect(
-          body.mesh,
-          [...retained.cycles, partCycle],
-          chart,
-          partSurface.period,
-        );
-      const checked: IAutoMovieSolidMeshConstraints.IEdge[] | string =
-        typeof segments === "string"
-          ? segments
-          : AutoMovieSolidMeshConstraints.split(
-              chart,
-              segments,
-              partSurface.period,
-            );
-      if (typeof checked === "string")
-        return fail("part rail domain", `${partSurface.name}: ${checked}`);
-    }
+    /** Original uniform column phase, radians. */
+    const phase: (k: number) => number = (k: number): number =>
+      (2 * Math.PI * k) / input.count;
 
     // The blend face's two station-end cycles.
     body.faces[blendFace]!.cycles.push(
       {
         kind: "start",
-        ...(boundaries === undefined
-          ? {}
-          : {
-              exact: {
-                count: phases.length,
-                across: (_u: number, v: number) => boundaries.host.at(v).chart,
-              },
-            }),
         vertices: rail.map(
           (r: IAutoMovieSolidClip.IRailPoint): number => r.vertex,
         ),
@@ -490,14 +338,6 @@ export namespace AutoMovieSolidBodyMerge {
       },
       {
         kind: "end",
-        ...(boundaries === undefined
-          ? {}
-          : {
-              exact: {
-                count: phases.length,
-                across: (_u: number, v: number) => boundaries.part.at(v).chart,
-              },
-            }),
         // Its own copy: a later clip splices vertices into one face's cycle in place, which must not reach the other's.
         vertices: partVertices.slice(),
         chart: partVertices.map((_: number, k: number): [number, number] => [
@@ -515,7 +355,25 @@ export namespace AutoMovieSolidBodyMerge {
     );
 
     // The part face's rail cycle.
-    body.faces[part]!.cycles.push(partCycle);
+    body.faces[part]!.cycles.push({
+      kind: blend.part.kind,
+      vertices: partVertices,
+      chart: blend.part.chart.map((c: [number, number]): [number, number] => [
+        c[0],
+        c[1],
+      ]),
+      neighbours: partVertices.map(
+        (_: number, k: number): IAutoMovieSolidCycle.INeighbour => ({
+          face: blendFace,
+          from: [blend.length, phase(k)],
+          to: [
+            blend.length,
+            phase((k + 1) % partVertices.length) +
+              (k + 1 === partVertices.length ? 2 * Math.PI : 0),
+          ],
+        }),
+      ),
+    });
 
     // Every host face the rail runs over.
 
@@ -525,9 +383,6 @@ export namespace AutoMovieSolidBodyMerge {
       rail,
       blendFace,
       blend.host.kind,
-      boundaries === undefined
-        ? undefined
-        : exact(boundaries.host, blend.host.kind, 0),
     );
     if (clipped !== null) return fail("trim", clipped);
     body.blends.push(blend);

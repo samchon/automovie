@@ -8,23 +8,25 @@ import type {
 
 import { AutoMovieHumanHeadMedianProfile } from "../AutoMovieHumanHeadMedianProfile";
 import { AutoMovieHumanHeadPrior } from "../AutoMovieHumanHeadPrior";
+import { AutoMovieHumanReferenceOutlines } from "../AutoMovieHumanReferenceOutlines";
 import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
 
 /**
- * Original globe and fissure views for the eye module's curve inspection. These
- * are independent parts, not an addition of volume to the head's skin tree.
+ * Original globe and fissure views for the eye module's curve inspection. These are
+ * independent parts, not an addition of volume to the head's skin tree.
  *
  * The outer sclera's lateral/vertical diameters and the emmetropic
  * cornea-to-sclera AP length are Bekerman 2014 Table 1. An ellipsoid through
- * those three diameters is a modelling approximation; a separate corneal cap
- * must not add its depth to the already cornea-inclusive AP length. AP
- * placement uses Wilson et al. 2023's corneal-plane depth with the axial globe
- * radius. The aperture's base plane is midway from the equator to the apex.
- * Vertical and lateral placement use the fissure's own-side pupil.
+ * those three diameters is a modelling approximation; a separate corneal
+ * cap must not add its depth to the already cornea-inclusive AP length.
+ * AP placement still uses the retained margin-seat convention, whose
+ * 13.5 mm nasion recess and 6.26 mm forward offset are not established by
+ * that diameter study. Vertical/lateral placement uses the same own-side
+ * pupil datum as the fissure, rather than adding a separate globe rise.
  *
  * @evidence contracts/common.md#principled-implementation Uses three external globe dimensions and the published upper-lid cubic, with independent public canthus/separation constraints. The same affine map places the photographic pupil; ellipsoid, lower-margin and AP-placement conventions remain explicit.
  * @evidence contracts/common.md#clear-and-simple-design Publishes four independent view parts for source-curve inspection; it neither constructs lids nor joins globes into skin.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts The published external globe dimensions constrain the source. Emmetropia and transfer of the lower margin are declared conventions.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses no f1 fit, retina/keratometric substitution, fabricated lid thickness or realized-opening claim; emmetropia and lower/MRD transfer are declared conventions.
  * @evidence contracts/common.md#meaningful-documentation Gives external measurement sites, cornea-inclusive AP, exact cubic parameter/jet meaning, template pupil and the independent-study boundary.
  * @evidence contracts/performance.md#efficient-algorithms One bounded pupil inversion, two thirteen-site globes and two bounded fissure-site lists supply original views; the engine owns interpolation and lofting.
  * @evidence contracts/performance.md#reuse-equivalent-work Both margins and their source axis use linear combinations of the identical primary controls; the own-side pupil also places its globe.
@@ -32,9 +34,9 @@ import { AutoMovieHumanHeadSourceAxis } from "./AutoMovieHumanHeadSourceAxis";
  */
 export namespace AutoMovieHumanHeadEyeParts {
   /**
-   * External radii [AP, superior-inferior, lateral], world mm, from Bekerman
-   * 2014 Table 1: axial Group II and sclera-to-sclera rows. The small observed
-   * side difference is not a significant population rule.
+   * External radii [AP, superior-inferior, lateral], world mm, from
+   * Bekerman 2014 Table 1: axial Group II and sclera-to-sclera rows.
+   * The small observed side difference is not a significant population rule.
    */
   const RADII: Readonly<
     Record<"left" | "right", readonly [number, number, number]>
@@ -43,51 +45,15 @@ export namespace AutoMovieHumanHeadEyeParts {
     right: [23.422 / 2, 23.799 / 2, 24.156 / 2],
   };
 
-  /**
-   * Angular intervals of each ellipse; the engine owns the C2 interpolation
-   * between these sites.
-   */
+  /** Angular intervals of each ellipse; the engine owns the C2 interpolation between these sites. */
   const INTERVALS: number = 12;
 
   /**
-   * Shin et al. 2025, PLOS One e0316714, S3 Appendix's executed cubic matrices
-   * P2 (female) and P1 (male). Points are [temporal-to-nasal, superior] in
-   * photo-scale mm about the pupil; a 12 mm corneal diameter supplies scale.
-   * The sex assignment follows the published widths and peaks. The endpoint
-   * chord comes from the person's own 3D fissure length.
-   */
-  const SHIN_UPPER_LID: Readonly<
-    Record<
-      "female" | "male",
-      readonly [
-        readonly [number, number],
-        readonly [number, number],
-        readonly [number, number],
-        readonly [number, number],
-      ]
-    >
-  > = {
-    female: [
-      [-12.77, -0.405],
-      [-3.345, 9.527],
-      [8.919, 3.497],
-      [12.061, -4.764],
-    ],
-    male: [
-      [-12.869, -0.972],
-      [-7.529, 5.598],
-      [7.375, 6.139],
-      [12.382, -4.274],
-    ],
-  };
-
-  /**
-   * Draw both external globes and fissures in their shared pupil frames,
-   * calibration mm.
+   * Draw both external globes and fissures in their shared pupil frames, calibration mm.
    *
    * @evidence contracts/common.md#principled-implementation Fixes en-ex as a 3D chord and en-en between shared-height nasal endpoints, maps the source photo's pupil by the same affine function as the upper cubic, and closes supplied pupil-aligned margin separation with the stated MRD split. Each outside globe uses its three external dimensions in that own-side pupil frame.
    * @evidence contracts/common.md#clear-and-simple-design Publishes two globe and two fissure views only. Common cubic controls define each fissure's parallel origin and signed guides; realization and lid/tree connection remain separate.
-   * @evidence contracts/common.md#prohibited-implementation-shortcuts Uses published upper-lid controls and the person's supplied fissure dimensions, keeping globe diameters and tissue thickness separate.
+   * @evidence contracts/common.md#prohibited-implementation-shortcuts Imports published controls directly; there is no private FISSURE completion, reference fit, fake lid thickness or substitution of globe diameters for supplied fissure dimensions.
    * @evidence contracts/common.md#meaningful-documentation States endpoint mapping, exact normalized cubic jets, template pupil, lower-curve convention, outside diameters, AP allowance and unconnected-study scope.
    * @evidence contracts/performance.md#efficient-algorithms One bounded sixty-step source-pupil inversion and two thirteen-site globes precede at most thirty-four fissure evaluation sites per side. Three value/first/second-jet knots declare each cubic without a sampled refit.
    * @evidence contracts/performance.md#reuse-equivalent-work Linear combinations of the same four controls supply upper/lower guides and origin; the resulting own-side pupil places its globe. No cross-input cache changes identity or invalidation.
@@ -118,10 +84,7 @@ export namespace AutoMovieHumanHeadEyeParts {
           (_: unknown, i: number): number =>
             -r[0] * k * Math.cos((Math.PI * i) / INTERVALS),
         );
-        /**
-         * One exact ellipse at its sites, interpolated by the engine in its
-         * declared pole parameter.
-         */
+        /** One exact ellipse at its sites, interpolated by the engine in its declared pole parameter. */
         const outline: (
           radius: number,
           sign: 1 | -1,
@@ -177,25 +140,28 @@ export namespace AutoMovieHumanHeadEyeParts {
 
   /**
    * Source fissure volumes, for curve inspection before any lid trim is wired.
-   * Shin's upper cubic is mapped by its chord residual; the lower parabola is
-   * an explicit construction convention. Rana 2023's MRD1:MRD2 3.5:5.2 sets the
-   * split about the affine-mapped photographic pupil, not a lower-lid
-   * observation in Shin's study. That photo's pupil is (0,0): its image under
-   * the identical chord/residual map is shared with the globe. It is a
-   * template-derived place, not an individual 3D pupil measurement; the
-   * endpoint chord itself is not the pupil's Y datum. Both margins share
-   * forward place, so their pupil separation is also the 3D Ps-Pi distance. The
-   * outside globe's AP radius sizes the retained regular-site cutter allowance,
-   * not lid tissue thickness. The visible upper margin and origin share the
-   * affine-mapped cubic's parameter; the lower residual is a parabola in that
-   * parameter, not a photographed lower-lid course.
+   * Shin's upper cubic is mapped by its chord residual; the lower parabola
+   * is an explicit construction convention. Rana 2023's MRD1:MRD2 3.5:5.2
+   * sets the split about the affine-mapped photographic pupil, not a
+   * lower-lid observation in Shin's study. That photo's pupil is (0,0):
+   * its image under the identical chord/residual map is shared with the
+   * globe. It is a template-derived place, not an individual 3D pupil
+   * measurement; the endpoint chord itself is not the pupil's Y datum.
+   * Both margins share forward place, so their pupil separation is also the
+   * 3D Ps-Pi distance. The outside globe's AP radius sizes the retained
+   * regular-site cutter allowance, not lid tissue thickness. The visible
+   * upper margin and origin share the affine-mapped cubic's parameter;
+   * the lower residual is a parabola in that parameter, not a photographed
+   * lower-lid course.
    */
   function openings(
     plan: IAutoMovieHumanHeadLayout,
     seat: number,
   ): { part: IAutoMovieViewPart; pupil: [number, number, number] }[] {
     const controls: readonly (readonly [number, number])[] =
-      SHIN_UPPER_LID[plan.sex === 1 ? "female" : "male"];
+      AutoMovieHumanReferenceOutlines.SHIN_UPPER_LID[
+        plan.sex === 1 ? "female" : "male"
+      ];
     const first: readonly [number, number] = controls[0]!;
     const last: readonly [number, number] = controls[3]!;
     const tilt: number = Math.atan2(first[1] - last[1], last[0] - first[0]);
@@ -361,10 +327,7 @@ export namespace AutoMovieHumanHeadEyeParts {
   /** Fixed chart-coordinate records accepted by the engine source-axis owner. */
   type IOrigin = Parameters<typeof AutoMovieHumanHeadSourceAxis.of>[0];
 
-  /**
-   * Evaluate authored controls only to publish source values; the engine owns
-   * every actual interpolated curve.
-   */
+  /** Evaluate authored controls only to publish source values; the engine owns every actual interpolated curve. */
   function bernstein(p: ICubic, t: number): number {
     return (
       (1 - t) ** 3 * p[0] +
@@ -376,8 +339,8 @@ export namespace AutoMovieHumanHeadEyeParts {
 
   /**
    * The common angle parameter normalizes to the original Bezier t. Its
-   * millimetre domain spans the public 3D chord length; it is neither world Z
-   * nor arc length. Changing that domain never changes a world control.
+   * millimetre domain spans the public 3D chord length; it is neither world
+   * Z nor arc length. Changing that domain never changes a world control.
    */
   function station(t: number, length: number): number {
     return t === 0
@@ -388,10 +351,10 @@ export namespace AutoMovieHumanHeadEyeParts {
   }
 
   /**
-   * Declare the cubic exactly with values and normalized first/second jets. A
-   * common explicit angle parameter prevents radial pole admission from
-   * changing the polynomial's parameter. The pupil knot is a named site, not a
-   * refit; extra evaluation stations do not change any source span.
+   * Declare the cubic exactly with values and normalized first/second jets.
+   * A common explicit angle parameter prevents radial pole admission from
+   * changing the polynomial's parameter. The pupil knot is a named site,
+   * not a refit; extra evaluation stations do not change any source span.
    */
   function curve(
     p: ICubic,

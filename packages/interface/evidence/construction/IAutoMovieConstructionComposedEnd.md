@@ -123,21 +123,3 @@ Values derived from the sections alone.
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States each array's indexing and unit.
-
-# src/construction/IAutoMovieConstructionComposedEnd.ts#IAutoMovieConstructionComposedEnd.IOutlineDistanceSite
-
-## @evidence contracts/development/design.md#principled-representation
-
-One retained piece, its local share, its two fork identities, and whether this site settled.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The site retains no new curve or evaluator.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A sampled minimum remains distinguishable from a settled site.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Gives the piece's index, local direction and shared fork identities.

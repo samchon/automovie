@@ -102,12 +102,6 @@ export namespace FamilyConicRelief {
     /** Observed skin polygon in the section chart, mm. */
     skin: C.P[];
 
-    /** Directed measured edges of a clipped polygon. Excluded edges are not closed again. */
-    retained?: (start: C.P, end: C.P) => boolean;
-
-    /** Whether a closer real, foreign edge in the source cut blocks this landing. */
-    blocked?: (from: C.P, direction: C.P, along: number) => boolean;
-
     /** The wall's chart point at a phase. */
     wall: (phi: number) => C.P;
 
@@ -320,9 +314,8 @@ export namespace FamilyConicRelief {
           row.skin,
           from,
           direction,
-          row.retained,
         );
-        if (hit === null || row.blocked?.(from, direction, hit.along) === true) {
+        if (hit === null) {
           if (dumped)
             records.push({ s: row.s, phi, heldout: row.heldout, why: "miss" });
           continue;
@@ -588,15 +581,12 @@ export namespace FamilyConicRelief {
     polygon: readonly C.P[],
     from: C.P,
     direction: C.P,
-    retained?: (start: C.P, end: C.P) => boolean,
-    closed: boolean = true,
   ): ICrossing | null {
     let best: number | null = null;
     let normal: C.P = [0, 0];
-    for (let i: number = 0; i < polygon.length - Number(!closed); ++i) {
+    for (let i: number = 0; i < polygon.length; ++i) {
       const a: C.P = polygon[i]!;
       const e: C.P = polygon[(i + 1) % polygon.length]!;
-      if (retained?.(a, e) === false) continue;
       const edge: C.P = [e[0] - a[0], e[1] - a[1]];
       const den: number = direction[0] * edge[1] - direction[1] * edge[0];
       if (den === 0) continue;

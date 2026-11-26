@@ -202,8 +202,8 @@ Fixed station AD preparation plus one numeric inverse and one selected AD readin
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The declaration of the copied station validates its metadata once. The same station descriptor supplies the point and partial derivatives for each requested phase.
+The private copied preparation reuses successful metadata validation across phases and the same descriptor supplies its point; failures and exceptions are not retained.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Prepared AD, numeric data and the original station admission belong to the caller-owned closure. Outputs own fresh vectors.
+Prepared AD/numeric data and one validation bit belong to the existing caller-owned closure; outputs own fresh vectors and no global cache is retained.

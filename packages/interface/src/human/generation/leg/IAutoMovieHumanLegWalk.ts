@@ -44,10 +44,8 @@ export namespace IAutoMovieHumanLegWalk {
   export type IDefinition = IAutoMovieHumanSourceDefinition & {
     /** Physical station of bone 2/share 1 in this identical source, mm. */
     ankleStation: number;
-    /** Same actual lateral parent contact used to author the proximal source. */
+    /** Same actual parent contact used to author the unmeasured proximal source. */
     proximal?: IAutoMovieHumanLegProximal.IContact;
-    /** Actual anterior parent contact on that same part and named hip plane. */
-    proximalAnterior?: IAutoMovieHumanLegProximal.IContact;
     /**
      * Identical measured interval retained by the base, coupled trials/final
      * and ankle consumer.

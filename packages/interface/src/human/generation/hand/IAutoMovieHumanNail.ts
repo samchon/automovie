@@ -4,34 +4,6 @@ import type { IAutoMovieHumanConicLoft } from "../conic/IAutoMovieHumanConicLoft
 
 /** Nail geometry inputs and generated plate, ownership and diagnostic records. */
 export namespace IAutoMovieHumanNail {
-  /** Optional physical authority from an identified nail on the same person. */
-  export interface ISetup {
-    /** Prepare the bed inside the plate for solid attachment. */
-    attached?: boolean;
-
-    /** Infer the exposed distal edge from the original skin tip. */
-    nativeOutline?: boolean;
-
-    /** Original visible material boundary positions in world millimetres. */
-    measured?: readonly AutoMovieVector3Tuple[];
-
-    /** Original visible nail faces in world millimetres, for sagittal curvature. */
-    measuredFaces?: readonly (readonly [
-      AutoMovieVector3Tuple,
-      AutoMovieVector3Tuple,
-      AutoMovieVector3Tuple,
-    ])[];
-
-    /** The skin's immediate indexed neighbours of the measured plate border. */
-    groove?: readonly {
-      edge: readonly [AutoMovieVector3Tuple, AutoMovieVector3Tuple];
-      skin: AutoMovieVector3Tuple;
-    }[];
-
-    /** Directly measured lateral reach from the nail edge into its fold, mm. */
-    grooveRoom?: number;
-  }
-
   /** The frame of the last digit segment or the plate it carries. */
   export interface IFrame {
     /** The last joint's centre, mm. */
@@ -48,41 +20,15 @@ export namespace IAutoMovieHumanNail {
   export interface ISkin {
     /**
      * The skin's point at a station and a phase of the digit's chart, mm in the
-     * figure's frame. Plate measurements use the interval from first to tip.
-     * The relief alone may also read the preceding chart supplied by proximal.
+     * figure's frame.
      */
     point: (station: number, phase: number) => readonly number[];
 
-    /** The first station of the fitted distal chart, mm. */
+    /** The first station the nail may read, mm. */
     first: number;
 
     /** The station of the digit's tip, where its skin closes, mm. */
     tip: number;
-
-    /**
-     * The point reader's exact bilinear chart samples in figure-world mm, when
-     * it is backed by such a grid. Rows step equally from first to tip,
-     * inclusive. Columns start at phase zero and step equally through a turn
-     * without repeating the initial column. Interpolation wraps that last
-     * interval to column zero. The grid and point callback must read the same
-     * surface to kernel arithmetic precision.
-     */
-    grid?: readonly (readonly AutoMovieVector3Tuple[])[];
-
-    /**
-     * Ordered rings on the same owning skin from its actual first station up to
-     * the fitting chart. The first ring of the fit is shared and appears only
-     * in the fitting grid. Rings use that chart's same unrepeated phase
-     * columns. When supplied, point also evaluates this piecewise bilinear
-     * chart.
-     */
-    proximal?: readonly {
-      /** Station on the owning skin chart in millimetres. */
-      station: number;
-
-      /** Positions on the original skin ring, in figure-world millimetres. */
-      ring: readonly AutoMovieVector3Tuple[];
-    }[];
   }
 
   /** Plate proportions for a measured or explicitly estimated digit class. */
@@ -186,8 +132,8 @@ export namespace IAutoMovieHumanNail {
     sagitta: [number, number];
 
     /**
-     * Largest absolute height requested of either net's three outer rows or
-     * columns, where the engine requires zero, mm.
+     * The greatest height the bed's net was asked to hold in its three outer
+     * rings, where the engine needs zero, mm.
      */
     clipped: number;
 

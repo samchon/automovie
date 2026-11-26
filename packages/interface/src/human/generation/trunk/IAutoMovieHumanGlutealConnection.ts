@@ -29,11 +29,6 @@ export namespace IAutoMovieHumanGlutealConnection {
     target: AutoMovieVector3Tuple;
     /** Own root footprint: up, lateral, down and medial, mm. */
     footprint: [number, number, number, number];
-    /**
-     * The existing attachment's fold reach gives the footprint solve's spatial
-     * resolution, mm.
-     */
-    fold: number;
     /** Own source fullness, dimensionless; it is not copied from the parent. */
     shoulder: number;
     /** Anatomical lateral is +Z on the left and -Z on the right. */
@@ -53,11 +48,6 @@ export namespace IAutoMovieHumanGlutealConnection {
    * it.
    */
   export interface IConnection {
-    /**
-     * The admitted footprint in anatomical [up, lateral, down, medial] order,
-     * mm.
-     */
-    footprint: [number, number, number, number];
     /** Identical parent definitions, also consumed by their production lofts. */
     parent: IAutoMovieHumanGlutealParent.IParent;
     /** Composite parent's posterior wall at the apex's unchanged Y/Z, mm. */

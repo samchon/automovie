@@ -27,10 +27,7 @@ export namespace IAutoMovieHumanTrunkSectionFamily {
      * family.
      */
     fullness: IAutoMovieHumanTrunkViews.ISite["fullness"];
-    /**
-     * Read the original box/tape result. A prepared family shares this result
-     * across its tape passes.
-     */
+    /** Solve this unchanged box/tape once at its first original-source demand. */
     resolve(): IFullness;
     /**
      * Evaluate that original plane's conic family at the actual candidate
@@ -38,8 +35,8 @@ export namespace IAutoMovieHumanTrunkSectionFamily {
      */
     section(shoulder: number): IAutoMovieViewSection.ISection;
     /**
-     * Read this exact support box's native shoulder reach, including a null
-     * refusal.
+     * Admit this exact support box's native shoulder reach once, including a
+     * null refusal.
      */
     range(): IAutoMovieViewSection.IRange | null;
   }

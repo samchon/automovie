@@ -1,21 +1,3 @@
-# src/construction/IAutoMovieConstructionSkinCut.ts#IAutoMovieConstructionSkinCut
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the region, the smooth minimum with its bound and derivatives, the residual and the rail's jets.
-
-## @evidence contracts/development/design.md#principled-representation
-
-One generating curve for a shared boundary: the skin's own intersection with a declared surface, exact with its jets, which the rail cycle, the band's edge and the crossing between them all read (construction.md, Connections: Ownership).
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The plane record and input describe one cut. The cut publishes its station-jet reader, optional point reader and station bounds.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-A phase without a crossing, already past the surface or tangent to it is refused with its phase; nothing is clamped to the face's end or refitted.
-
 # src/construction/IAutoMovieConstructionSkinCut.ts#IAutoMovieConstructionSkinCut.IPlane
 
 ## @evidence contracts/development/design.md#principled-representation
@@ -56,16 +38,16 @@ States each field's unit and role.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The curve's station with two derivatives at any phase, its world point there when provided, and its station bounds at admitted phases.
+The curve's station with two derivatives at any phase, and the stations it spans at its admitted phases.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Both reads address the same cut by phase. One interval records the sampled station extent.
+One reader and one interval.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Both readers solve the residual on the skin at the supplied phase and require the same directed crossing.
+The reader solves the residual on the skin at the phase asked; it interpolates no stored station.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the station-jet and point units, their shared root and the interval's source.
+States the reader's result and the interval's source.

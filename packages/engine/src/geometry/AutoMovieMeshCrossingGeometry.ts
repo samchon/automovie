@@ -27,12 +27,10 @@ export namespace AutoMovieMeshCrossingGeometry {
   export function prepare(
     mesh: IAutoMovieMesh,
   ): IAutoMovieMeshCrossingGeometry.ISnapshot {
-    const indices: readonly number[] = Object.freeze(
-      triangleIndicesOf(
-        mesh,
-        "Mesh crossings (complete triangle buffers)",
-      ).slice(),
-    );
+    const indices: readonly number[] = triangleIndicesOf(
+      mesh,
+      "Mesh crossings (complete triangle buffers)",
+    ).slice();
     const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(
       mesh.positions,
       indices,
@@ -44,7 +42,7 @@ export namespace AutoMovieMeshCrossingGeometry {
       hierarchy:
         triangles.length === 0
           ? undefined
-          : buildAutoMovieMeshQueryHierarchy.partition([...triangles]),
+          : buildAutoMovieMeshQueryHierarchy([...triangles]),
     };
   }
 
@@ -84,31 +82,24 @@ export namespace AutoMovieMeshCrossingGeometry {
   }
 }
 
-/** Snapshot referenced vertices, then derive every original triangle and box. */
+/**
+ * Read all coordinates, then copy every addressed original triple and its exact
+ * box.
+ */
 function read(
   positions: readonly number[],
   indices: readonly number[],
 ): IAutoMovieMeshCrossingGeometry.ITriangle[] {
-  for (let scalar: number = 0; scalar < positions.length; scalar++)
-    if (!Number.isFinite(positions[scalar]))
-      throw new Error("Mesh crossings need finite complete triangle buffers.");
-  const used: Uint8Array = new Uint8Array(positions.length / 3);
-  for (const index of indices) used[index] = 1;
-  const vertices: number[][] = new Array<number[]>(used.length);
-  for (let index: number = 0; index < used.length; index++) {
-    if (used[index] === 0) continue;
-    const start: number = index * 3;
-    vertices[index] = [
-      positions[start]!,
-      positions[start + 1]!,
-      positions[start + 2]!,
-    ];
-  }
+  const at: (vertex: number) => number[] = (vertex: number): number[] => [
+    positions[vertex * 3]!,
+    positions[vertex * 3 + 1]!,
+    positions[vertex * 3 + 2]!,
+  ];
   const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = [];
   for (let t: number = 0; t < indices.length; t += 3) {
-    const a: number[] = vertices[indices[t]!]!;
-    const b: number[] = vertices[indices[t + 1]!]!;
-    const c: number[] = vertices[indices[t + 2]!]!;
+    const a: number[] = at(indices[t]!);
+    const b: number[] = at(indices[t + 1]!);
+    const c: number[] = at(indices[t + 2]!);
     const low: number[] = [0, 1, 2].map((axis: number): number =>
       Math.min(a[axis]!, b[axis]!, c[axis]!),
     );

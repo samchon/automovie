@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses the original tangent-plane pseudo-arclength walk to measure the loop. Both endpoint tangents must face the closing chord of the equal-chord walk. Its signed length distinguishes a return from an overshoot. A directed chord within the ordinary corrected-step allowance qualifies the guide for periodic interpolation.
+Uses the original tangent-plane pseudo-arclength walk followed by equal-chord walks and the existing periodic reference law; arc remains an approximation to requested exact arclength.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -10,7 +10,7 @@ One preparation returns the reference law and original start preimages for param
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves bounded halving, tangent fallback and the secant adjustment. A failed or exhausted candidate can publish only when its closing chord passes the same direction and distance checks.
+Preserves halving, tangent fallback, secant arithmetic and last valid walk on closing exhaustion; adds no numerical or domain repair.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -18,7 +18,7 @@ States mm chords, callback ownership, fixed limits passed from the public consta
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For C targets, the first walk permits walkSteps*C steps with bounded failed halvings. Each reference chord uses one full step or at most walkSteps shortened attempts. An accepted shortened step decreases the remaining distance and regrows toward half the nominal chord. One initial and at most closingSteps equal walks each use walkPoints*C points.
+For C targets, the first walk permits walkSteps*C steps with bounded failed halvings; one initial and at most closingSteps equal walks each use walkPoints*C points, plus existing solve costs.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

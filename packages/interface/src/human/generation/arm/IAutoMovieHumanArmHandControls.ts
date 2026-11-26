@@ -1,5 +1,4 @@
 import type { IAutoMovieHumanSectionSource } from "../limb/IAutoMovieHumanSectionSource";
-import type { IAutoMovieHumanSiteControls } from "../limb/IAutoMovieHumanSiteControls";
 import type { IAutoMovieHumanArmWalk } from "./IAutoMovieHumanArmWalk";
 
 /**
@@ -15,9 +14,6 @@ export namespace IAutoMovieHumanArmHandControls {
      * jets.
      */
     hand: IAutoMovieHumanArmWalk.IPrepared;
-
-    /** Admitted forearm-to-cap coefficients of this same hand declaration. */
-    field: IAutoMovieHumanSiteControls.IField | null;
 
     /**
      * Attach the original shared parameter, control values and jets to the arm

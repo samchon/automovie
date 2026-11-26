@@ -3,7 +3,6 @@ import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanSegmentFrame,
   IAutoMovieHumanSegmentJoint,
-  IAutoMovieHumanSkinDatum,
 } from "@automovie/interface";
 
 /**
@@ -18,10 +17,24 @@ import type {
  */
 export namespace AutoMovieHumanSkinDatum {
   /** A section frame of a wall's course: origin and the section plane's unit `u` and `v`, figure frame. */
-  export type IFrame = IAutoMovieHumanSkinDatum.IFrame;
+  export interface IFrame {
+    /** The course point, mm. */
+    origin: readonly number[];
+    /** The section plane's first axis. */
+    u: readonly number[];
+    /** The section plane's second axis. */
+    v: readonly number[];
+  }
 
   /** A wall: its course frame by station, a point's station on it, and its directional tissue ratio by station. */
-  export type IWall = IAutoMovieHumanSkinDatum.IWall;
+  export interface IWall {
+    /** The course frame at a station, mm. */
+    at: (station: number) => IFrame;
+    /** The course station of a point, mm. */
+    station: (point: AutoMovieVector3Tuple) => number;
+    /** The wall's depth and breadth ratios, along `u` and `v`, at a station. */
+    ratio: (station: number) => readonly [number, number];
+  }
 
   /**
    * A skin datum on a scaled wall: its in-plane offset from the course point at its own station scaled by the ratio there. A ratio of

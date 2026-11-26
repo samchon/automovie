@@ -197,9 +197,9 @@ export namespace AutoMovieViewSection {
       AutoMovieViewSectionRange.nearby(box, departures, girth);
     if (family.accepted !== undefined)
       return { section: completed(family.accepted.source), diagnostics: [] };
-    let local: boolean = family.bracket !== null;
-    let reach: IAutoMovieViewSectionRange.IBracket | null =
-      family.bracket ?? family.reach();
+    let local: boolean = family.range !== null;
+    let reach: IAutoMovieViewSection.IRange | null =
+      family.range ?? range(box, departures);
 
     // Only an admitted local solve may retry through the unchanged complete
     // reach path; original callback exceptions are never caught or replaced.
@@ -216,58 +216,53 @@ export namespace AutoMovieViewSection {
             },
           ],
         };
-      const [lower, upper]: IAutoMovieViewSectionRange.IBracket = reach;
-      const lo: number = lower.source.girth;
-      const hi: number = upper.source.girth;
+      const [lo, hi]: [number, number] = reach.girth;
       if (!(girth >= lo && girth <= hi)) {
-        const end: IAutoMovieViewSectionRange.ITrial =
-          girth < lo ? lower : upper;
+        const end: number = girth < lo ? reach.shoulder[0] : reach.shoulder[1];
         return {
-          section: completed(end.source),
+          section: completed(family.at(end).source),
           diagnostics: [
             {
               producer,
               level: 2,
               contract: "girth in reach",
-              detail: `girth ${girth} mm outside the reach ${lo} to ${hi} mm of the box ${W} by ${D} mm (rhombus ${2 * Math.hypot(W, D)} mm, rectangle ${2 * (W + D)} mm); the section is the shoulder ${end.shoulder}`,
+              detail: `girth ${girth} mm outside the reach ${lo} to ${hi} mm of the box ${W} by ${D} mm (rhombus ${2 * Math.hypot(W, D)} mm, rectangle ${2 * (W + D)} mm); the section is the shoulder ${end}`,
             },
           ],
         };
       }
       let localRefusal: boolean = false;
-      const selected: IAutoMovieViewSectionRange.ITrial | null =
-        AutoMovieIllinois.select(
-          (shoulder: number): IAutoMovieViewSectionRange.ITrial | null =>
-            Number.isFinite(shoulder) ? family.at(shoulder) : null,
-          (trial: IAutoMovieViewSectionRange.ITrial | null): number => {
-            if (trial === null) return NaN;
-            if (local && trial.fault !== null) {
-              localRefusal = true;
-              return NaN;
-            }
-            return trial.source.girth - girth;
-          },
-          [lower.shoulder, lower],
-          [upper.shoulder, upper],
-          GIRTH_TOLERANCE,
-          ITERATIONS,
-        );
-      const value: Measured | null = selected?.source ?? null;
+      const r: number | null = AutoMovieIllinois.root(
+        (x: number): number => {
+          const trial: IAutoMovieViewSectionRange.ITrial = family.at(x);
+          if (local && trial.fault !== null) {
+            localRefusal = true;
+            return NaN;
+          }
+          return trial.source.girth - girth;
+        },
+        reach.shoulder[0],
+        reach.shoulder[1],
+        GIRTH_TOLERANCE,
+        ITERATIONS,
+      );
+      // A refused local trial ends the bracket with no shoulder to read.
+      const value: Measured | null =
+        r === null || localRefusal ? null : family.at(r).source;
       const failure: string | null =
-        selected === null
+        value === null
           ? "no finite bracketed shoulder estimate"
-          : selected.fault;
+          : AutoMovieViewSectionConic.fault(value);
       const residual: number = value === null ? NaN : value.girth - girth;
       const section: IAutoMovieViewSection.ISection | null =
         value === null ? null : completed(value);
       const refused: boolean =
         localRefusal ||
         failure !== null ||
-        !Number.isFinite(residual) ||
         Math.abs(residual) > GIRTH_TOLERANCE;
       if (local && refused) {
         local = false;
-        reach = family.reach();
+        reach = range(box, departures);
         continue;
       }
       if (refused)

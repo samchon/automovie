@@ -3,7 +3,6 @@ import type {
   IAutoMovieSolidBody,
   IAutoMovieSolidClip,
   IAutoMovieSolidCycle,
-  IAutoMovieSolidJoin,
   IAutoMovieSolidRail,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
@@ -11,6 +10,27 @@ import type {
 import { AutoMovieSolidCycle } from "./AutoMovieSolidCycle";
 import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidMesh } from "./AutoMovieSolidMesh";
+
+/** The column data the host rail needs from its blend. */
+type SolidClipColumns = Pick<
+  IAutoMovieSolidBlendChain.IBlend,
+  "across" | "seed"
+> & {
+  /** The columns' host chart and optional atlas face indices. */
+  host: Pick<IAutoMovieSolidBlendChain.IBlend["host"], "chart" | "faces">;
+};
+
+/** The original host face and its chart and world positions at a rail read. */
+type SolidClipSample = Pick<
+  IAutoMovieSolidRail.IRail,
+  "hostFace" | "host" | "hostPoint"
+>;
+
+/** The join operation used to settle a crossing between adjacent columns. */
+interface SolidClipJoin {
+  /** Read the rail at curve parameter t in radians, or null on local failure. */
+  rail(t: number): SolidClipSample | null;
+}
 
 /**
  * A host rail laid onto the faces of a body: its points with the crossings
@@ -74,18 +94,16 @@ export namespace AutoMovieSolidClip {
    * @param join The join.
    * @param blend Its published blend.
    * @param index The body face of each atlas face the join was traced on.
-   * @param phases The blend's shared column phases without the repeated
-   *   endpoint.
+   * @param count The blend's columns.
    * @returns The points in rail order, or where a crossing's rail fails.
    */
   export function rail(
     body: IAutoMovieSolidBody.IBody,
-    join: IAutoMovieSolidJoin.IJoin,
-    blend: IAutoMovieSolidBlendChain.IBlend,
+    join: SolidClipJoin,
+    blend: SolidClipColumns,
     index: number[],
-    phases: readonly number[],
+    count: number,
   ): IAutoMovieSolidClip.IRailPoint[] | string {
-    const count: number = phases.length;
     const faces: number[] = (
       blend.host.faces ?? blend.host.chart.map((): number => 0)
     ).map((f: number): number => index[f]!);
@@ -115,26 +133,28 @@ export namespace AutoMovieSolidClip {
     const out: IAutoMovieSolidClip.IRailPoint[] = [];
     for (let k: number = 0; k < count; k++) {
       out.push(
-        point(faces[k]!, blend.host.chart[k]!, phases[k]!, blend.across[k]!),
+        point(
+          faces[k]!,
+          blend.host.chart[k]!,
+          (2 * Math.PI * k) / count,
+          blend.across[k]!,
+        ),
       );
       const next: number = faces[(k + 1) % count]!;
       if (next === faces[k]) continue;
 
       // The crossing: the last parameter on this face and the first on the next.
-      let lo: number = blend.seed + phases[k]!;
-      let hi: number = blend.seed + (phases[k + 1] ?? 2 * Math.PI);
-      let low: IAutoMovieSolidRail.IRail | null =
-        blend.rails?.[k] ?? join.rail(lo);
-      // A full turn can land on a different atlas chart branch than its seed.
-      let high: IAutoMovieSolidRail.IRail | null =
-        (k + 1 < count ? blend.rails?.[k + 1] : undefined) ?? join.rail(hi);
+      let lo: number = blend.seed + (2 * Math.PI * k) / count;
+      let hi: number = blend.seed + (2 * Math.PI * (k + 1)) / count;
+      let low: SolidClipSample | null = join.rail(lo);
+      let high: SolidClipSample | null = join.rail(hi);
       for (
         let i: number = 0;
         i < BISECTIONS && low !== null && high !== null;
         i++
       ) {
         const m: number = (lo + hi) / 2;
-        const r: IAutoMovieSolidRail.IRail | null = join.rail(m);
+        const r: SolidClipSample | null = join.rail(m);
         // At the crossing itself the rail may stand on the boundary of both
         // faces and settle on neither; once the bracket is a millionth of a
         // column the two ends already place the crossing.
@@ -147,11 +167,12 @@ export namespace AutoMovieSolidClip {
           // world point within `CROSSING` mm, or when both lie on the faces'
           // shared boundary as closely as the boundary's two readings do (the
           // sliver between them is the stretch, long where the rail runs along
-          // the boundary at a grazing angle).
+          // the boundary at a grazing angle: on f1's ear, 0.036 mm along the
+          // rail with both ends 0.006 mm off a seam whose sagitta is 0.007).
           let dead: [number, number] = [m, m];
           for (let j: number = 0; j < BISECTIONS; j++) {
             const a: number = (lo + dead[0]) / 2;
-            const ra: IAutoMovieSolidRail.IRail | null = join.rail(a);
+            const ra: SolidClipSample | null = join.rail(a);
             if (ra === null) dead = [a, dead[1]];
             else if (index[ra.hostFace] === faces[k]) {
               lo = a;
@@ -160,7 +181,7 @@ export namespace AutoMovieSolidClip {
           }
           for (let j: number = 0; j < BISECTIONS; j++) {
             const b: number = (dead[1] + hi) / 2;
-            const rb: IAutoMovieSolidRail.IRail | null = join.rail(b);
+            const rb: SolidClipSample | null = join.rail(b);
             if (rb === null) dead = [dead[0], b];
             else if (index[rb.hostFace] === next) {
               hi = b;
@@ -219,8 +240,6 @@ export namespace AutoMovieSolidClip {
    * @param blend The blend face's index.
    * @param kind The rail's kind on a single face
    *   (`IAutoMovieSolidBlendChain.IBlend.host.kind`).
-   * @param exact Shared original boundary readers for an admitted single-face
-   *   rail.
    * @returns Null, or why a face could not be trimmed.
    */
   export function trim(
@@ -228,7 +247,6 @@ export namespace AutoMovieSolidClip {
     rail: IAutoMovieSolidClip.IRailPoint[],
     blend: number,
     kind: IAutoMovieSolidCycle.ICycle["kind"],
-    exact?: IAutoMovieSolidCycle.IExact,
   ): string | null {
     const n: number = rail.length;
     const along = (
@@ -253,7 +271,6 @@ export namespace AutoMovieSolidClip {
     ) {
       body.faces[first]!.cycles.push({
         kind,
-        ...(exact === undefined ? {} : { exact }),
         vertices: rail.map(
           (r: IAutoMovieSolidClip.IRailPoint): number => r.vertex,
         ),
@@ -336,8 +353,8 @@ export namespace AutoMovieSolidClip {
     body: IAutoMovieSolidBody.IBody,
     face: number,
     next: number,
-    low: IAutoMovieSolidRail.IRail,
-    high: IAutoMovieSolidRail.IRail,
+    low: SolidClipSample,
+    high: SolidClipSample,
   ): [number, number] {
     const at: [number, number] = [low.host[0], low.host[1]];
     const f: IAutoMovieSolidBody.IFace = body.faces[face]!;
@@ -387,22 +404,25 @@ export namespace AutoMovieSolidClip {
       );
       return jet === null ? null : [jet.p[0], jet.p[1], jet.p[2]];
     };
-    const ends: ([number, number, number] | null)[] = [
-      read(f.surface, a),
-      read(f.surface, b),
-      read(f.surface, [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]),
-      read(g.surface, [(n.from[0] + n.to[0]) / 2, (n.from[1] + n.to[1]) / 2]),
-    ];
-    if (ends.some((p: [number, number, number] | null): boolean => p === null))
+    const p: [number, number, number] | null = read(f.surface, a);
+    const q: [number, number, number] | null = read(f.surface, b);
+    const here: [number, number, number] | null = read(f.surface, [
+      (a[0] + b[0]) / 2,
+      (a[1] + b[1]) / 2,
+    ]);
+    const there: [number, number, number] | null = read(g.surface, [
+      (n.from[0] + n.to[0]) / 2,
+      (n.from[1] + n.to[1]) / 2,
+    ]);
+    if (p === null || q === null || here === null || there === null)
       return [Infinity, 0];
-    const [p, q, here, there] = ends as [number, number, number][];
     const off = (x: readonly number[]): number =>
       Math.hypot(
-        ...nearest(p!, q!, x).map((y: number, i: number): number => y - x[i]!),
+        ...nearest(p, q, x).map((y: number, i: number): number => y - x[i]!),
       );
     return [
       Math.max(off(low.hostPoint), off(high.hostPoint)),
-      Math.max(off(here!), off(there!)),
+      Math.max(off(here), off(there)),
     ];
   }
 
@@ -628,7 +648,7 @@ export namespace AutoMovieSolidClip {
       for (const [cycle, positions, run] of [
         [p, pArc, r],
         [q, qArc, s],
-      ] as [
+      ] satisfies [
         IAutoMovieSolidCycle.ICycle,
         number[],
         IAutoMovieSolidClip.IRailPoint[],

@@ -18,12 +18,12 @@ States borrowed callbacks, supplied-curve admission gap, observed failures, unit
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Prepares C declared columns and an address order once. Identifying an exact address uses O(log C) comparisons and another address solves one local rail. The strict single-face crossing scan is O(C²). The fold test uses a fixed number of shares and adds its measured operands to a failed observation.
+C sampled columns include cached/missed rail solves and fixed fold shares; the single-face strict crossing scan is O(C²). The normal observer adds only failed-path norms and fixed-size diagnostic serialization, with no extra geometry reads.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The declared column carries its rail, ribbons and outward direction. The exact address lookup serves those columns even for nonuniform clocks. Other requests perform their own solve, and the normal observer reports its already read operands.
+Caches rails and nulls at Map-equivalent parameters; neighbouring fold columns and ribbons are deliberately rebuilt. The normal observer reuses each compared first/along/normal and original dot for its failed context.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Successful readers borrow the fixed declared columns and their index. Independent queries hold local data until return.
+Only successful returned readers retain the local Map/input/curve/atlas; keys are unbounded and no resource handle is acquired.

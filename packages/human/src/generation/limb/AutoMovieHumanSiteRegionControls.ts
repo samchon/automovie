@@ -5,6 +5,7 @@ import {
 import type {
   IAutoMovieHumanSectionSite,
   IAutoMovieHumanSectionSource,
+  IAutoMovieHumanSiteConstraints,
   IAutoMovieHumanSiteControls,
   IAutoMovieHumanSiteRegionControls,
   IAutoMovieLoftViewSource,
@@ -12,21 +13,19 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanSiteConstraints } from "./AutoMovieHumanSiteConstraints";
 import { AutoMovieHumanSiteControls } from "./AutoMovieHumanSiteControls";
 
 /**
- * A shared distal C2 scalar region, directly authored from original site
- * inputs. Its bounded local law replaces whole-limb natural-spline coupling.
- * Both consumers receive the same angle coordinate and original parameter jets;
- * world continuity separately requires their shared axis/native field. The
- * angle endpoints still depend on the limb's proximal/distal reaches; this
- * removes proximal constraints, not every proximal shape dependency.
+ * A shared distal C2 scalar region, directly authored from original site inputs.
+ * Its bounded local law replaces whole-limb natural-spline coupling. Both
+ * consumers receive the same angle coordinate and original parameter jets;
+ * world continuity separately requires their shared axis/native field.
+ * The angle endpoints still depend on the limb's proximal/distal reaches;
+ * this removes proximal constraints, not every proximal shape dependency.
  */
 export namespace AutoMovieHumanSiteRegionControls {
-  /**
-   * Prepare the named support site through the actual distal cap in the common
-   * material chart.
-   */
+  /** Prepare the named support site through the actual distal cap in the common material chart. */
   export function create(
     input: IAutoMovieHumanSectionSource,
     supportName: string,
@@ -57,6 +56,8 @@ export namespace AutoMovieHumanSiteRegionControls {
       throw new Error(
         "The distal source requires its actual original two-pole angle coordinate",
       );
+    const constraints: IAutoMovieHumanSiteConstraints.IOwner =
+      AutoMovieHumanSiteConstraints.create();
     const edgeScale: number =
       (Math.PI - AutoMovieViewParameter.at(parameter, support.station)) /
       Math.PI;
@@ -133,7 +134,7 @@ export namespace AutoMovieHumanSiteRegionControls {
       ) as NonNullable<IAutoMovieHumanSectionSource["ranges"]>,
     };
     const original: IAutoMovieHumanSiteControls.IOutput =
-      AutoMovieHumanSiteControls.prepare(local);
+      AutoMovieHumanSiteControls.prepare(local, constraints);
 
     // The local owner derives the hull from its actual closed tape values.
     // Bounds precede coefficient preparation and preserve any genuine jets.
@@ -156,15 +157,8 @@ export namespace AutoMovieHumanSiteRegionControls {
         ),
       };
     }
-    const prepared: IAutoMovieHumanSiteControls.IField | null =
-      original.controls === null
-        ? null
-        : AutoMovieHumanSiteControls.native(
-            input.name,
-            original.controls.scalars,
-          );
     const field: IAutoMovieLoftViewSource.ISource | null =
-      prepared?.source ?? null;
+      original.controls?.field() ?? null;
 
     const connect: (
       host: IAutoMovieHumanSectionSource,
@@ -333,29 +327,21 @@ export namespace AutoMovieHumanSiteRegionControls {
     };
     return {
       local: original,
-      field: prepared,
       connect,
       prepare(
         host: IAutoMovieHumanSectionSource,
       ): IAutoMovieHumanSiteControls.IOutput {
         if (original.controls === null) return original;
-        return AutoMovieHumanSiteControls.prepare(
-          connect(host),
-          original.controls.tapes,
-          {
-            definition: input.axis,
-            value: original.controls.axis,
-          },
-        );
+        return AutoMovieHumanSiteControls.prepare(connect(host), constraints, {
+          definition: input.axis,
+          value: original.controls.axis,
+        });
       },
     };
   }
 }
 
-/**
- * Compare authored normalized components, including explicit null
- * auto-components and absence.
- */
+/** Compare authored normalized components, including explicit null auto-components and absence. */
 function sameJet(
   a: IAutoMovieViewPart.IKnot["jet"],
   b: IAutoMovieViewPart.IKnot["jet"],

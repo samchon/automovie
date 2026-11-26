@@ -45,12 +45,6 @@ export namespace NodeCanvasTypes {
     /** Original triangle order. */
     indices: readonly number[];
 
-    /**
-     * Optional exact unit normals from the generating chart, one packed
-     * triple per vertex. Flat facet clay remains available without them.
-     */
-    normals?: readonly number[];
-
     /** Linear RGB clay colour, independent of anatomy. */
     colour: Point;
   }
@@ -102,7 +96,7 @@ export namespace NodeCanvasTypes {
     /** False for an actual saved-camera pair using the complete image viewport without captions. */
     annotations?: boolean;
 
-    /** Explicit camera depth interval and offset in metres. */
+    /** Saved-camera clipping only; omitted for the original experimental fitted cameras. */
     clipping?: { near: number; far: number; distance: number };
   }
 

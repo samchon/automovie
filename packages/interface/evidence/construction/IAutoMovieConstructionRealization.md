@@ -6,7 +6,7 @@ Chord uses tree metres; explicit source keys resolve actual already evaluated mi
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Tolerance, the optional final-skin request and invocation-local source maps keep runtime owners outside the pure authoring AST. Prepared split strips follow the node's child order and travel with the original cut and native receiving stations.
+Tolerance, optional final-skin request and an optional invocation-local source map keep runtime owners outside the pure authoring AST.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

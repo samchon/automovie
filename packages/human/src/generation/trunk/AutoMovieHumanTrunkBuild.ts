@@ -15,13 +15,10 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
-import { AutoMovieHumanGlutealRelief } from "../AutoMovieHumanGlutealRelief";
 import { AutoMovieHumanMassPart } from "../limb/AutoMovieHumanMassPart";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanBreastConnection } from "./AutoMovieHumanBreastConnection";
 import { AutoMovieHumanGlutealConnection } from "./AutoMovieHumanGlutealConnection";
-import { AutoMovieHumanMammaryPlacement } from "./AutoMovieHumanMammaryPlacement";
-import { AutoMovieHumanMammarySkin } from "./AutoMovieHumanMammarySkin";
 import { AutoMovieHumanTrunkLegs } from "./AutoMovieHumanTrunkLegs";
 import { AutoMovieHumanTrunkMassPlacement } from "./AutoMovieHumanTrunkMassPlacement";
 import { AutoMovieHumanTrunkSectionFamily } from "./AutoMovieHumanTrunkSectionFamily";
@@ -29,35 +26,48 @@ import { AutoMovieHumanTrunkTape } from "./AutoMovieHumanTrunkTape";
 import { AutoMovieHumanTrunkViewPart } from "./AutoMovieHumanTrunkViewPart";
 
 /**
- * The trunk's source from its views, with chest and hip fullness solved over
- * actual level sections. The breast's native forward graph and the gluteal
- * masses receive their projection at the fixed height and transverse place of
- * the person's AP apex.
+ * The trunk subtree built and joined (#3047): the base lofted from its views,
+ * the breasts and the gluteal masses as parts of their own on it, the base's
+ * fullness at the chest and the buttock solved on sampled original cuts,
+ * and fold declarations for later body-tree assembly. Each declared AP apex fixes its
+ * own height, transverse place and full-body front/back target. The original
+ * trunk section at that Y/Z supplies the local wall, so actual amplitude is
+ * their AP difference, not a whole-depth difference at another place.
  *
- * Each tape solves fullness on the original level and tissue envelope. The
- * final pass publishes those sections and their tissue fields. The hip tape
- * also reads both retained legs. Embedded masses use the mirrored law and
- * sample their exact parent atlas.
+ * Order. The masses stand on the base's surface and the chest and hip tapes
+ * wrap base and masses together, so the build closes the two in two passes:
+ * the base with the ellipse's shoulder at those two sites, the masses on it,
+ * the two shoulders solved on the hull of the base's section, the masses'
+ * level cuts and, at the hip, the same original legs' horizontal cuts
+ * (`AutoMovieHumanTrunkTape`), then the base again with them and
+ * the masses again on it. A mass's place reads only the base's outlines near
+ * its centre, so a changed shoulder can change local projection. This retains
+ * the existing two-pass tape construction; it does not establish final-union
+ * tape closure. AP apex coordinates remain fixed in both source passes.
+ *
+ * Masses. Each side is the same construction from the left side's law
+ * mirrored (J6): the target point and the up direction reflected in the
+ * median plane, the footprint and profile kept in their up, lateral, down
+ * and medial naming, and the side's lateral direction (+Z on the left, -Z on
+ * the right) handed to the part, which reads off its own frame which chart
+ * side is lateral. The original-source wall point and AP axis pass to the
+ * mass builder directly; its original world jet only estimates embedding.
+ * A source-to-loft discrepancy does not move the apex to conceal it.
  *
  * Folds. Each mass declares a fold for the body's construction tree
  * (`AutoMovieHumanBodyTree`), its seed searched along the mass's lower station
  * line (the footprint's lower edge) from inside the base out, its fold radius
- * the caller's declared join softness, its width capped at half its smallest
- * footprint edge (a fillet wider than that swallows the mass) and at the gap
- * from its footprint's medial edge to the median plane (beyond it the pair's
- * rails cross: the cleavage and the cleft are corners the two-part merge does
- * not close, operator gap 3). A pair that reaches the median plane is reported
- * and left unjoined.
+ * the caller's declared join softness, its width capped at half its smallest footprint edge (a fillet wider
+ * than that swallows the mass) and at the gap from its footprint's medial edge
+ * to the median plane (beyond it the pair's rails cross: the cleavage and the
+ * cleft are corners the two-part merge does not close, operator gap 3). A
+ * pair that reaches the median plane is reported and left unjoined.
  */
 export namespace AutoMovieHumanTrunkBuild {
   /** Section controls and ring phases of a mass. */
   const MASS_ORDER: number = 128;
 
-  /**
-   * Preserve the existing upper scalar support from the canonical head axis;
-   * the regular shared connection excludes that support's dome from the loft
-   * domain.
-   */
+  /** Preserve the existing upper scalar support from the canonical head axis; the regular shared connection excludes that support's dome from the loft domain. */
   export function withHead(
     trunk: IAutoMovieHumanTrunkBuild.IInput,
     head: IAutoMovieHumanTrunkBuild.IWithHeadHead,
@@ -125,7 +135,6 @@ export namespace AutoMovieHumanTrunkBuild {
     }
     return {
       sections: original.sections,
-      legs: original.legs,
       trunk: failed.has(AutoMovieHumanTrunkViewPart.NAME)
         ? null
         : original.trunk,
@@ -138,20 +147,20 @@ export namespace AutoMovieHumanTrunkBuild {
     };
   }
 
-  /**
-   * Prepare the identical two tape passes from original fields, without raw
-   * lofts, a mesh or final realization.
-   */
+  /** Prepare the identical two tape passes from original fields, without raw lofts, a mesh or final realization. */
   export function define(
     input: IAutoMovieHumanTrunkBuild.IInput,
   ): IAutoMovieHumanTrunkBuild.IOutput {
     const sections: ReadonlyMap<
       string,
       IAutoMovieHumanTrunkSectionFamily.IPlane
-    > = AutoMovieHumanTrunkSectionFamily.prepare(input.views);
+    > = AutoMovieHumanTrunkSectionFamily.define(input.views);
     const diagnostics: IAutoMovieLoftContract.IDiagnostic[] = [];
     const sources: IAutoMovieHumanNamedSource[] = [];
-    const out = (
+    const out: (
+      trunk: IAutoMovieConstructionView | null,
+      masses: IAutoMovieHumanBodyTree.IFold[],
+    ) => IAutoMovieHumanTrunkBuild.IOutput = (
       trunk: IAutoMovieConstructionView | null,
       masses: IAutoMovieHumanBodyTree.IFold[],
     ): IAutoMovieHumanTrunkBuild.IOutput => ({
@@ -172,48 +181,14 @@ export namespace AutoMovieHumanTrunkBuild {
       diagnostics.push(...first.diagnostics);
       return out(null, []);
     }
-    const target = input.breast?.target;
-    const shoulder = input.views.shoulder;
-    const gluteal = input.nativeGluteal === true ? input.gluteal : null;
-    const rear =
-      gluteal === null
-        ? undefined
-        : (part: IAutoMovieViewPart): IAutoMovieViewPart =>
-            AutoMovieHumanGlutealRelief.source(part, gluteal);
-    let native: AutoMovieHumanMammaryPlacement.IPrepared | null = null;
-    const mammaryFailure = (error: unknown): void => {
-      diagnostics.push({
-        producer: "trunk.mammary",
-        level: 3,
-        contract: "native source",
-        detail: error instanceof Error ? error.message : String(error),
-      });
-    };
-    if (
-      input.mammary !== undefined &&
-      shoulder !== undefined &&
-      target !== undefined
-    )
-      try {
-        native = AutoMovieHumanMammaryPlacement.prepare(
-          first.part,
-          input.mammary,
-          shoulder,
-          target,
-        );
-      } catch (error: unknown) {
-        mammaryFailure(error);
-      }
-    const shapes = native;
     const firstInput: IAutoMovieHumanTrunkBuild.IInput = {
       ...input,
-      breast: shapes === null ? input.breast : null,
-      gluteal: rear === undefined ? input.gluteal : null,
       legs: AutoMovieHumanTrunkLegs.pair(input, first),
     };
     const masses1: IMass[] = masses(firstInput, first.part, [], sources);
 
-    // The original tape envelope sets the base's shoulders.
+    // The original-source tape-plane envelope sets the base's shoulders.
+    // This is not a cut of final Boolean skin or a whole-body tape proof.
     const solved: IAutoMovieHumanTrunkViews = {
       ...input.views,
       sites: input.views.sites.map(
@@ -230,21 +205,10 @@ export namespace AutoMovieHumanTrunkBuild {
           const plane: IAutoMovieHumanTrunkSectionFamily.IPlane = sections.get(
             s.site,
           )!;
-          const hip = (shoulder: number) =>
-            AutoMovieHumanTrunkLegs.trial(input, s, shoulder, sections, rear);
           const tape: IAutoMovieHumanTrunkTape.IResult =
             AutoMovieHumanTrunkTape.solve({
               producer: `view.trunk ${s.site}`,
               plane,
-              contour:
-                kind !== "breast" || shapes === null
-                  ? undefined
-                  : (original) =>
-                      AutoMovieHumanMammaryPlacement.tape(
-                        shapes,
-                        original,
-                        plane.y,
-                      ),
               masses: masses1
                 .filter((m: IMass): boolean => m.kind === kind)
                 .map(
@@ -254,9 +218,19 @@ export namespace AutoMovieHumanTrunkBuild {
                   }),
                 ),
               parentsAt:
-                kind === "gluteal" && rear === undefined ? hip : undefined,
-              completeCutsAt:
-                kind === "gluteal" && rear !== undefined ? hip : undefined,
+                kind === "gluteal"
+                  ? (
+                      shoulder: number,
+                    ): NonNullable<
+                      IAutoMovieHumanTrunkTape.IInput["parents"]
+                    > =>
+                      AutoMovieHumanTrunkLegs.trial(
+                        input,
+                        s,
+                        shoulder,
+                        sections,
+                      )
+                  : undefined,
               tape: kind === "breast" ? input.tapes.chest : input.tapes.hip,
             });
           diagnostics.push(...tape.diagnostics);
@@ -266,32 +240,10 @@ export namespace AutoMovieHumanTrunkBuild {
         },
       ),
     };
-    let base: IAutoMovieHumanSourceRealization = {
+    const base: IAutoMovieHumanSourceRealization = {
       ...AutoMovieHumanTrunkViewPart.define(solved, input.top, sections),
       loft: null,
     };
-    if (base.part !== null && shapes !== null && target !== undefined)
-      try {
-        base = {
-          ...base,
-          part: AutoMovieHumanMammarySkin.of(base.part, shapes, target[1]),
-        };
-        input = { ...input, breast: null };
-      } catch (error: unknown) {
-        mammaryFailure(error);
-      }
-    if (base.part !== null && rear !== undefined)
-      try {
-        base = { ...base, part: rear(base.part) };
-        input = { ...input, gluteal: null };
-      } catch (error: unknown) {
-        diagnostics.push({
-          producer: "trunk.gluteal",
-          level: 3,
-          contract: "native source",
-          detail: error instanceof Error ? error.message : String(error),
-        });
-      }
     sources.push({ name: AutoMovieHumanTrunkViewPart.NAME, result: base });
     diagnostics.push(...base.diagnostics);
     if (base.part === null || base.view === null) return out(null, []);
@@ -314,7 +266,7 @@ export namespace AutoMovieHumanTrunkBuild {
         cap: m.cap,
       }),
     );
-    return { ...out(base.view, folds), legs: input.legs };
+    return out(base.view, folds);
   }
 
   /** A built mass. */
@@ -340,10 +292,8 @@ export namespace AutoMovieHumanTrunkBuild {
    *
    * @param input The laws.
    * @param part The identical original trunk source used for wall placement.
-   * @param diagnostics Where a failed mass is recorded; a pass that only reads
-   *   the masses for the tapes passes a list it drops.
-   * @param sources The actual source results, including failed and intermediate
-   *   tape-pass attempts.
+   * @param diagnostics Where a failed mass is recorded; a pass that only reads the masses for the tapes passes a list it drops.
+   * @param sources The actual source results, including failed and intermediate tape-pass attempts.
    * @returns The masses that built.
    */
   function masses(
@@ -405,11 +355,7 @@ export namespace AutoMovieHumanTrunkBuild {
         }
         const leg: IAutoMovieHumanSourceDefinition | undefined =
           input.legs?.[side];
-        const connection:
-          | (IAutoMovieHumanMassSource.IConnection & {
-              footprint?: IAutoMovieHumanTrunkBuild.IMassLaw["footprint"];
-            })
-          | string =
+        const connection: IAutoMovieHumanMassSource.IConnection | string =
           kind === "breast"
             ? AutoMovieHumanBreastConnection.create({
                 trunk: part,
@@ -424,7 +370,6 @@ export namespace AutoMovieHumanTrunkBuild {
                   leg: { part: leg.part, view: leg.view },
                   target: own.target,
                   footprint: own.footprint,
-                  fold: own.fold,
                   shoulder: own.shoulder,
                   lateral: side === "left" ? 1 : -1,
                 })
@@ -456,8 +401,6 @@ export namespace AutoMovieHumanTrunkBuild {
           throw new Error(
             "A mass connection lost its identical original trunk field",
           );
-        const footprint: IAutoMovieHumanTrunkBuild.IMassLaw["footprint"] =
-          connection.footprint ?? own.footprint;
         const built: IAutoMovieHumanSourceRealization = {
           ...AutoMovieHumanMassPart.define({
             name,
@@ -467,7 +410,7 @@ export namespace AutoMovieHumanTrunkBuild {
             sourceFrame: { origin: connection.wall, normal: connection.normal },
             up: own.up,
             lateral: [0, 0, side === "left" ? 1 : -1],
-            footprint,
+            footprint: own.footprint,
             amplitude: connection.amplitude,
             profile: own.profile,
             shoulder: own.shoulder,
@@ -483,10 +426,10 @@ export namespace AutoMovieHumanTrunkBuild {
         if (built.view === null) continue;
         out.push({
           kind,
-          law: { ...own, footprint },
+          law: own,
           source: built.part,
           view: built.view,
-          cap: Math.min(Math.min(...footprint) / 2, clearance),
+          cap: Math.min(Math.min(...own.footprint) / 2, clearance),
         });
       }
     }

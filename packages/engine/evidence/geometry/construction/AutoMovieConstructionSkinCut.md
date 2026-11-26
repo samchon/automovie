@@ -6,7 +6,7 @@ The curve is the zero set of the planes' minimum, or smooth minimum, on the skin
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Residual, bracketed root, admitted table, and one crossing check for both reads.
+Residual, bracketed root, admitted table, then one reader.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,11 +18,11 @@ States the bracketing, the reader's start and fallback, and the refusals.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Building reads `samples` phases over the stations plus one bisection each. Newton iterations and point reads consume only the first derivative along station. The station-jet reader computes the full residual derivatives once at the admitted root.
+Building reads `samples` phases over the stations plus one bisection each; a reading takes a few Newton steps, one skin jet each.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The admitted roots start both readers. They solve the same equation and share the axial transversality check.
+The admitted roots start every later reading.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

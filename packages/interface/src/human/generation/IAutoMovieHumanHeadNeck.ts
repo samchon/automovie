@@ -1,43 +1,50 @@
 import type { IAutoMovieHumanHeadInputs } from "./IAutoMovieHumanHeadInputs";
 import type { IAutoMovieHumanHeadNeckCurves } from "./head/IAutoMovieHumanHeadNeckCurves";
 
-/** Retained neck placement and the active lower-head generating sources.
- */
+/** Retained neck placement and the active lower-head generating sources. */
 export interface IAutoMovieHumanHeadNeck {
-  /** Section mean height, distinct from the adopted posterior C7 point, calibration mm. */
+  /**
+   * Section mean height, distinct from the adopted posterior C7 point,
+   * calibration mm.
+   */
   level: number;
 
   /** Centre ahead of the origin. */
   x: number;
 
-  /** Circle-equivalent scale G/(2*pi); this alone does not close a noncircular head-mass section's actual tape. */
+  /**
+   * Circle-equivalent scale G/(2*pi); this alone does not close a noncircular
+   * head-mass section's actual tape.
+   */
   radius: number;
 
   /** The ring's back on the midline, forward place. */
   back: number;
 
-  /** Actual height of that posterior point, distinct from the section mean, calibration mm. */
+  /**
+   * Actual height of that posterior point, distinct from the section mean,
+   * calibration mm.
+   */
   backLevel: number;
 
-  /** The adopted normal band's axis slope, `dx/dy`. */
+  /** That back's forward run per millimetre of height, `dx/dy`. */
   backSlope: number;
 
   /**
-   * The normal band's authored posterior upper height, calibration mm. The
-   * shared neck source chooses the higher base datum before deriving its slope.
-   * Independent neck definitions may supply only the frame and project it.
+   * Base tape and resolved heights in calibration mm, scaled once by
+   * HeadLayout; absent on retired layout readers.
    */
-  normalBandUpper?: number;
-
-  /** Base tape and resolved heights in calibration mm, scaled once by HeadLayout; absent on retired layout readers. */
   base?: IAutoMovieHumanHeadInputs["neckBase"] & {
-    /** Local posterior X before registration, calibration mm. */
+    /** Original local-prior posterior X before registration, calibration mm. */
     priorCervicaleOrigin: number;
   };
 
-  /** Rigid AP registration from the local section frame to the common body frame, calibration mm. */
+  /**
+   * One explicit AP rigid registration from local harmonic prior to the common
+   * body frame, calibration mm.
+   */
   registration?: {
-    /** Local posterior datum before mapping. */
+    /** Prior posterior datum before mapping. */
     priorCervicaleX: number;
 
     /** Common generating C7 datum. */
@@ -50,6 +57,9 @@ export interface IAutoMovieHumanHeadNeck {
     translationX: number;
   };
 
-  /** Actual lower-head radius/origin and named-height course, authored before the final mass. */
+  /**
+   * Actual lower-head radius/origin and named-height course, authored before
+   * the final mass.
+   */
   curves?: IAutoMovieHumanHeadNeckCurves.IOutput;
 }

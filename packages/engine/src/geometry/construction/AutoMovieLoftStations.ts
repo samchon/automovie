@@ -1,9 +1,6 @@
 import type { IAutoMovieLoftChain } from "@automovie/interface";
 
-import { AutoMovieLoftCapRead } from "./AutoMovieLoftCapRead";
-import { AutoMovieLoftCapSource } from "./AutoMovieLoftCapSource";
-import { AutoMovieLoftPoint } from "./AutoMovieLoftPoint";
-import { AutoMovieLoftSection } from "./AutoMovieLoftSection";
+import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 
 /**
  * Tessellation stations of a chain: where a face's grid rings stand.
@@ -30,8 +27,7 @@ export namespace AutoMovieLoftStations {
    * @param chain The chain.
    * @param from First station, mm.
    * @param to Last station, mm.
-   * @param tolerance Largest departure of a band from its sections, mm, or a
-   *   function of its two bounding stations for a local feature's tolerance.
+   * @param tolerance Largest departure of a band from its sections, mm.
    * @param depth Largest bisection depth.
    * @returns Increasing stations including both ends.
    */
@@ -39,7 +35,7 @@ export namespace AutoMovieLoftStations {
     chain: IAutoMovieLoftChain,
     from: number,
     to: number,
-    tolerance: number | ((from: number, to: number) => number),
+    tolerance: number,
     depth: number = 8,
   ): number[] {
     const probes: number[] = Array.from(
@@ -54,16 +50,7 @@ export namespace AutoMovieLoftStations {
       to,
     ];
     const out: number[] = [from];
-    const ownership: ReturnType<typeof AutoMovieLoftCapSource.prepare> =
-      AutoMovieLoftCapSource.prepare(chain);
-    const station: ReturnType<typeof AutoMovieLoftPoint.prepare> =
-      AutoMovieLoftPoint.prepare(
-        chain,
-        AutoMovieLoftSection.prepare(chain),
-        AutoMovieLoftCapRead.prepare(chain, ownership),
-        true,
-      );
-    const at = (s: number): Ring => probes.map(station(s));
+    const at = (s: number): Ring => AutoMovieLoftChain.ring(chain, s, probes);
     const split = (
       a: number,
       b: number,
@@ -85,9 +72,7 @@ export namespace AutoMovieLoftStations {
             ),
           );
         });
-        if (
-          error > (typeof tolerance === "number" ? tolerance : tolerance(a, b))
-        ) {
+        if (error > tolerance) {
           split(a, m, level + 1, ra, rm);
           split(m, b, level + 1, rm, rb);
           return;

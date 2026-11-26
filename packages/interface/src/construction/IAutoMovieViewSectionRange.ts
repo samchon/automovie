@@ -1,4 +1,5 @@
 import type { IAutoMovieSource } from "./IAutoMovieSource";
+import type { IAutoMovieViewSection } from "./IAutoMovieViewSection";
 
 /** Data and callback contracts shared by the ViewSectionRange operations. */
 export namespace IAutoMovieViewSectionRange {
@@ -7,9 +8,6 @@ export namespace IAutoMovieViewSectionRange {
    * observation.
    */
   export interface ITrial {
-    /** Common normalized shoulder before applying the four departures. */
-    shoulder: number;
-
     /** Actual native source before unused display observations. */
     source: IAutoMovieSource;
 
@@ -17,13 +15,16 @@ export namespace IAutoMovieViewSectionRange {
     fault: string | null;
   }
 
-  /** Two actual admissible endpoints of an increasing common-shoulder range. */
-  export type IBracket = readonly [ITrial, ITrial];
-
-  /** One target's near candidates and the bounded reader of its fixed box. */
+  /**
+   * An accepted candidate or actual local bracket, with call-owned numeric
+   * trials for one target solve.
+   */
   export interface IFamily {
-    /** Actual local target bracket, when admitted by both endpoint readings. */
-    bracket: IBracket | null;
+    /**
+     * Actual local target bracket; null also permits a separately accepted
+     * original candidate.
+     */
+    range: IAutoMovieViewSection.IRange | null;
 
     /**
      * Actual ellipse candidate already within the unchanged native target
@@ -32,15 +33,9 @@ export namespace IAutoMovieViewSectionRange {
     accepted?: IAutoMovieViewSectionRange.ITrial;
 
     /**
-     * Prepare and measure one requested common shoulder. Original exceptions
+     * Same-shoulder actual source/admission; original preparation exceptions
      * propagate.
      */
     at(shoulder: number): IAutoMovieViewSectionRange.ITrial;
-
-    /**
-     * Run the complete reach search from the already observed ellipse, when
-     * available.
-     */
-    reach(): IBracket | null;
   }
 }

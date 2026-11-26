@@ -4,8 +4,6 @@
 
 The port curve is the parent's published loop on its own chart, and its vertices are evaluated once on the host and handed to both the host's hole and the band, as a trim's and a join's rails are, so the faces meet vertex for vertex; between the vertices the hole, the band's edge and the crossing map read that one curve; rollback is the realization's checkpoint.
 
-A recess retains a single pole-closed lining and reverses that face's winding. Its band uses the host's original outward direction. Both seams keep the ordinary port's shared indices and analytic cross jets. The host's current domain owns recess admission at the aperture centre, columns, and their midpoints. Existing boundary samples also check for a seam contained in the aperture.
-
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
 Admission, one shared strip builder, then one mutation block, as the split's realization.
@@ -20,7 +18,7 @@ States the steps, the shared vertices, the published chain and the failure effec
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in columns for vertices and cycles after the strip. The recess adds a bounded series of host-chart ownership checks and visits the existing host cycle samples once. The checkpoint costs O(F+C) as for a join.
+Linear in columns for vertices and cycles after the strip; the checkpoint costs O(F+C) as for a join.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

@@ -19,7 +19,7 @@ export namespace IAutoMovieHumanTrunkFeatures {
     /** Omphalion height, mm. */
     omphalion: number;
 
-    /** Natural waist height, mm. */
+    /** Natural waist height, mm: the row where the furrow's phase span is read. */
     waist: number;
 
     /** Inframammary fold height, mm. */
@@ -30,6 +30,9 @@ export namespace IAutoMovieHumanTrunkFeatures {
 
     /** Axilla height, mm: the top of the trunk's chain. */
     axilla: number;
+
+    /** The furrow's lower end, mm. */
+    furrowFrom: number;
 
     /** The bust span, mm: the breadth between the bust points. */
     bustSpan: number;

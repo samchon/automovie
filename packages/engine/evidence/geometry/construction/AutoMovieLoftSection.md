@@ -117,32 +117,3 @@ The returned reader shares one prepared station and mixed weight across all phas
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Geometry/rows belong to the caller's closure; each returned total2 owns new vectors and no global cache is added.
-# src/geometry/construction/AutoMovieLoftSection.ts#AutoMovieLoftSection.prepare
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Reads the same original, endpoint and continuation laws under a checked immutable bracket scope. A supplied fixed-station total2 reader handles repeated phases of that exact original station.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-Reuses the existing owner choice, scalar evaluation and mixed-span product rules.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-A bracket failure remains a failure. Prepared reads do not manufacture endpoint data or physical2.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents the chain scope and separates local phase and analytic total2.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Checks source layout and layer bindings at preparation. A station selects its bracket and builds only its requested local geometry.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Many queries reuse source structure and layer ownership. Each phase sweep shares its fixed station plan.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-The caller holds the prepared chain and releases fixed-station plans independently.

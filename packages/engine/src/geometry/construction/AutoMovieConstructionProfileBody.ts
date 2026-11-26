@@ -83,16 +83,9 @@ export namespace AutoMovieConstructionProfileBody {
         return id;
       };
       for (const station of grid.stations)
-        for (const piece of pieces) {
-          const surface: IAutoMovieSolidSurface = prepared.surfaces.get(
-            piece.id,
-          )!;
-          const jet: (phase: number) => IAutoMovieSolidSurface.IJet =
-            surface.jetAt?.(station) ??
-            ((phase: number): IAutoMovieSolidSurface.IJet =>
-              surface.jet(station, phase));
-          for (const phase of grid.phases.get(piece.id)!) jet(phase);
-        }
+        for (const piece of pieces)
+          for (const phase of grid.phases.get(piece.id)!)
+            prepared.surfaces.get(piece.id)!.jet(station, phase);
 
       for (let i: number = 0; i < pieces.length; i++) {
         const piece: (typeof pieces)[number] = pieces[i]!;
