@@ -13,7 +13,7 @@ import type {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { validateAutoMovieFontSources } from "../typography/validateAutoMovieFontSources";
+import { AutoMovieEngineTypography } from "../typography/AutoMovieEngineTypography";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { appendFlamesArtifact } from "./appendFlamesArtifact";
 import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
@@ -174,7 +174,7 @@ export const validateShotArtifact: (
       (shot.lightMotions ?? []).map((clip: IAutoMovieClip): string => clip.id),
     ),
   });
-  validateAutoMovieFontSources(shot.fonts, "$input.fonts", collector);
+  AutoMovieEngineTypography.validateFontSources(shot.fonts, "$input.fonts", collector);
   appendSurfaceGraphicsArtifact(
     shot.surfaceGraphics,
     scene.nodes,

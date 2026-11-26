@@ -1,4 +1,4 @@
-import { layoutAutoMovieText } from "@automovie/engine";
+import { AutoMovieEngineTypography } from "@automovie/engine";
 import { AutoMovieIngestFont } from "@automovie/ingest";
 import type {
   IAutoMovieFont,
@@ -51,7 +51,7 @@ export function test_engine_text_layout(): void {
     height: number,
     extra: Partial<IAutoMovieLayoutText.IProps> = {},
   ): IAutoMovieLayoutText.IResult =>
-    layoutAutoMovieText({
+    AutoMovieEngineTypography.layoutText({
       font,
       text,
       size: 0.1,

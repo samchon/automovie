@@ -1,4 +1,4 @@
-import { buildAutoMovieTextGeometry } from "@automovie/engine";
+import { AutoMovieEngineTypography } from "@automovie/engine";
 import type {
   IAutoMovieFont,
   IAutoMovieSurfaceGraphicLayer,
@@ -10,7 +10,7 @@ import * as THREE from "three";
  * Flat glyph geometry of one text layer on a surface face, in the surface's
  * reading frame.
  *
- * `buildAutoMovieTextGeometry` lays the text out in the layer's box, in metres
+ * `AutoMovieEngineTypography.buildTextGeometry` lays the text out in the layer's box, in metres
  * with the box's bottom-left corner as origin, `+x` to the reader's right and
  * `+y` up, and triangulates the glyphs counter-clockwise seen from `+z`. The em
  * size is the layer's `size` times the face's depth. Each glyph point `(x, y)`
@@ -29,7 +29,7 @@ export function createAutoMovieSurfaceGraphicText(
   layer: IAutoMovieSurfaceGraphicLayer.IText,
   font: IAutoMovieFont,
 ): THREE.BufferGeometry {
-  const tessellation: IAutoMovieTessellation = buildAutoMovieTextGeometry({
+  const tessellation: IAutoMovieTessellation = AutoMovieEngineTypography.buildTextGeometry({
     font,
     text: layer.text,
     size: layer.size * faceDepth,

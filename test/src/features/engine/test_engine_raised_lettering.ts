@@ -1,4 +1,4 @@
-import { buildAutoMovieRaisedLettering } from "@automovie/engine";
+import { AutoMovieEngineTypography } from "@automovie/engine";
 import { AutoMovieIngestFont } from "@automovie/ingest";
 import type { IAutoMovieFont, IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -32,7 +32,7 @@ export function test_engine_raised_lettering(): void {
   const raise: (depth: number) => IAutoMovieMesh = (
     depth: number,
   ): IAutoMovieMesh =>
-    buildAutoMovieRaisedLettering({
+    AutoMovieEngineTypography.buildRaisedLettering({
       font,
       text: "L",
       size: 1,
