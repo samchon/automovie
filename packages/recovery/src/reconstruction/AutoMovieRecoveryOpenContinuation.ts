@@ -15,9 +15,9 @@ import type {
 
 import { RecoveryOpenSlabGraph as O } from "../internal/RecoveryOpenSlabGraph";
 import { RecoveryScalarIndex as S } from "../internal/RecoveryScalarIndex";
-import { critical } from "../internal/mesh-observations/critical";
+import { critical } from "../geometry/internal/critical";
 import { cutExact } from "../internal/mesh-observations/cutExact";
-import { planeFrame } from "../internal/mesh-observations/planeFrame";
+import { planeFrame } from "../geometry/internal/planeFrame";
 
 /**
  * Source observation of open-curve continuation without repeating numerical

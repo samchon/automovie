@@ -18,7 +18,7 @@ import type { AutoMovieCliCaptureHost } from "./capture/AutoMovieCliCaptureHost"
 import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
 import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
 import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
-import { readAutoMovieRevision } from "./readAutoMovieRevision";
+import { readAutoMovieRevision } from "./production/internal/readAutoMovieRevision";
 import { runAutoMovieFfmpeg } from "./runAutoMovieFfmpeg";
 
 /**

@@ -1,4 +1,4 @@
-import { buildSubdivisionTopology } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionTopology } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -37,7 +37,7 @@ export function test_engine_geometry_subdivision_topology(): void {
     faces: number[][],
   ): IAutoMovieSubdivisionTopology => {
     const [offsets, vertices] = rows(faces);
-    return buildSubdivisionTopology(
+    return AutoMovieEngineGeometry.buildSubdivisionTopology(
       count,
       offsets,
       vertices,

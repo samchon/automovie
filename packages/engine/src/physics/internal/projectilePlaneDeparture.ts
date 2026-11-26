@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { projectileAt } from "../projectileAt";
+import { projectileAt } from "./projectileAt";
 import { projectileDragDeparture } from "./projectileDragDeparture";
 
 /**

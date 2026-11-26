@@ -10,12 +10,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveAutoMovieContactEvents } from "../composition/resolveAutoMovieContactEvents";
+import { resolveAutoMovieContactEvents } from "../composition/internal/resolveAutoMovieContactEvents";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { physicalShapeNearest } from "./internal/physicalShapeNearest";
 import { physicalShapeSegmentDistance } from "./physicalShapeSegmentDistance";
-import { projectileAt } from "./projectileAt";
+import { projectileAt } from "./internal/projectileAt";
 import { projectileDragFlight } from "./projectileDragFlight";
 import { projectilePlaneDeparture } from "./internal/projectilePlaneDeparture";
 import { projectileShapeDeparture } from "./internal/projectileShapeDeparture";

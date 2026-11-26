@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/internal/convexHull2D";
-import { validateTransformScalars } from "./validateTransformScalars";
+import { validateTransformScalars } from "./internal/validateTransformScalars";
 
 /**
  * The optional dimensions of an affordance, each a positive length in metres,

@@ -2,7 +2,7 @@ import {
   type AutoMovieArchetype,
   createSiegeEngine,
 } from "@automovie/archetypes";
-import { projectileAt } from "@automovie/engine";
+import { AutoMovieAir } from "@automovie/engine";
 import type { IAutoMovieProjectileState } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -53,7 +53,7 @@ export function test_archetype_siege_launch_seed(): void {
       const { y: vy, z: vz } = a.velocity;
       const t: number = (vy + Math.sqrt(vy * vy + 2 * G * y0)) / G;
       const closed: number = z0 + vz * t;
-      const landed: IAutoMovieProjectileState = projectileAt(
+      const landed: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
         {
           origin: a.origin,
           velocity: a.velocity,

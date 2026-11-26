@@ -1,4 +1,4 @@
-import { bufferAutoMovieBones, rigAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type { AutoMovieHumanoidBone } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -23,10 +23,10 @@ import { throwsError } from "../../internal/throwsError";
  */
 export function test_engine_geometry_sweep_rig_pose_overflow(): void {
   const skeleton: ReturnType<typeof sweepBranchedSkeleton> = sweepBranchedSkeleton();
-  const motion: ReturnType<typeof bufferAutoMovieBones> = bufferAutoMovieBones(skeleton.rest);
+  const motion: ReturnType<typeof AutoMovieEngineSweep.bufferBones> = AutoMovieEngineSweep.bufferBones(skeleton.rest);
   const binding: (typeof skeleton.bindings.sweeps)[string] = skeleton.bindings.sweeps.sideLeft!;
   const index = (bone: AutoMovieHumanoidBone): number => motion.index(bone);
-  const rig: ReturnType<typeof rigAutoMovieSweep> = rigAutoMovieSweep({
+  const rig: ReturnType<typeof AutoMovieEngineSweep.rigSweep> = AutoMovieEngineSweep.rigSweep({
     sweep: sweepBranchedBody().sweeps.sideLeft!,
     binding: {
       points: binding.points.map(index),

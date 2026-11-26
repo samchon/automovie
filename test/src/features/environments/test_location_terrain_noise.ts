@@ -1,11 +1,5 @@
 import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import {
-  AutoMovieEngineWorld,
-  heightAt,
-  prepareSpace,
-  surfaceHeightAt,
-  tessellateSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEngineSpace, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieHeightRule,
@@ -84,7 +78,7 @@ export function test_location_terrain_noise(): void {
     r: IAutoMovieHeightRule,
     x: number,
     z: number,
-  ): number => surfaceHeightAt({ height: r }, x, z);
+  ): number => AutoMovieEngineSpace.surfaceHeightAt({ height: r }, x, z);
 
   // 4. Pads 0.5 m square centred 20 m apart at heights 0 and 1, joined by a
   // path between their centres. Each pad's level apron ends 0.75 m from its
@@ -185,8 +179,8 @@ export function test_location_terrain_noise(): void {
 
   // 7. The actual triangle centroids against the two height readers.
   const space: IAutoMovieSpace = environment.stage.space!;
-  const mesh: IAutoMovieTessellation = tessellateSurface(space.surfaces[0]!)!;
-  const prepared: ReturnType<typeof prepareSpace> = prepareSpace(space);
+  const mesh: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(space.surfaces[0]!)!;
+  const prepared: ReturnType<typeof AutoMovieEngineSpace.prepareSpace> = AutoMovieEngineSpace.prepareSpace(space);
   const meshAgrees: () => boolean = (): boolean => {
     for (let face: number = 0; face < mesh.indices.length; face += 3) {
       const corners: number[] = [0, 1, 2].map(
@@ -198,7 +192,7 @@ export function test_location_terrain_noise(): void {
           0,
         ) / 3;
       const [x, y, z]: number[] = [mean(0), mean(1), mean(2)];
-      const scene: number | null = heightAt(space, x!, z!, prepared);
+      const scene: number | null = AutoMovieEngineSpace.heightAt(space, x!, z!, prepared);
       const world: number | null = AutoMovieEngineWorld.groundHeight(
         environment.runtime.world.surfaces,
         { x: x!, z: z! },

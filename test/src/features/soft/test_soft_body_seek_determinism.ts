@@ -1,4 +1,4 @@
-import { sampleSoftBody, simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -93,7 +93,7 @@ export function test_soft_body_seek_determinism(): void {
   const ascending: string[] = Array.from(
     { length: 17 },
     (_: unknown, step: number): string =>
-      AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, step)),
+      AutoMovieEngineSoftBody.softBodyStateDigest(AutoMovieEngineSoftBody.simulateSoftBody(domain, step)),
   );
   const scrambled: number[] = [
     13, 0, 7, 16, 2, 11, 4, 9, 15, 1, 6, 12, 3, 10, 5, 8, 14,
@@ -106,7 +106,7 @@ export function test_soft_body_seek_determinism(): void {
         (): boolean =>
           scrambled.every(
             (step: number): boolean =>
-              AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, step)) ===
+              AutoMovieEngineSoftBody.softBodyStateDigest(AutoMovieEngineSoftBody.simulateSoftBody(domain, step)) ===
               ascending[step],
           ),
       ],
@@ -118,8 +118,8 @@ export function test_soft_body_seek_determinism(): void {
     { digestsMatch: true, digestsMove: true },
   );
 
-  const once: IAutoMovieSoftBodyState = simulateSoftBody(domain, 48);
-  const twice: IAutoMovieSoftBodyState = simulateSoftBody(domain, 48);
+  const once: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 48);
+  const twice: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 48);
   TestValidator.equals(
     "the same seek twice is bit-identical",
     namedFacts([
@@ -149,7 +149,7 @@ export function test_soft_body_seek_determinism(): void {
     },
   );
 
-  const gathered: IAutoMovieSoftBodyState = simulateSoftBody(
+  const gathered: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(
     domain,
     48,
     "gathered",
@@ -165,7 +165,7 @@ export function test_soft_body_seek_determinism(): void {
       [
         "stable",
         (): boolean =>
-          AutoMovieEngineSoftBody.softBodyStateDigest(simulateSoftBody(domain, 48, "gathered")) ===
+          AutoMovieEngineSoftBody.softBodyStateDigest(AutoMovieEngineSoftBody.simulateSoftBody(domain, 48, "gathered")) ===
           AutoMovieEngineSoftBody.softBodyStateDigest(gathered),
       ],
       ["named", (): boolean => gathered.state === "gathered"],
@@ -178,20 +178,20 @@ export function test_soft_body_seek_determinism(): void {
   TestValidator.equals(
     "a shot second snaps down to its fixed step",
     namedFacts([
-      ["inside", (): boolean => sampleSoftBody(domain, dt * 9.75).step === 9],
-      ["boundary", (): boolean => sampleSoftBody(domain, dt * 10).step === 10],
-      ["negative", (): boolean => sampleSoftBody(domain, -5).step === 0],
-      ["zero", (): boolean => sampleSoftBody(domain, 0).step === 0],
+      ["inside", (): boolean => AutoMovieEngineSoftBody.sampleSoftBody(domain, dt * 9.75).step === 9],
+      ["boundary", (): boolean => AutoMovieEngineSoftBody.sampleSoftBody(domain, dt * 10).step === 10],
+      ["negative", (): boolean => AutoMovieEngineSoftBody.sampleSoftBody(domain, -5).step === 0],
+      ["zero", (): boolean => AutoMovieEngineSoftBody.sampleSoftBody(domain, 0).step === 0],
       [
         "sameAsSeek",
         (): boolean =>
-          AutoMovieEngineSoftBody.softBodyStateDigest(sampleSoftBody(domain, dt * 9.75)) ===
+          AutoMovieEngineSoftBody.softBodyStateDigest(AutoMovieEngineSoftBody.sampleSoftBody(domain, dt * 9.75)) ===
           ascending[9],
       ],
       [
         "namedSample",
         (): boolean =>
-          sampleSoftBody(domain, dt * 3, "gathered").state === "gathered",
+          AutoMovieEngineSoftBody.sampleSoftBody(domain, dt * 3, "gathered").state === "gathered",
       ],
     ]),
     {
@@ -211,7 +211,7 @@ export function test_soft_body_seek_determinism(): void {
         "fractional",
         (): boolean =>
           throwsError(
-            (): IAutoMovieSoftBodyState => simulateSoftBody(domain, 1.5),
+            (): IAutoMovieSoftBodyState => AutoMovieEngineSoftBody.simulateSoftBody(domain, 1.5),
             ["seekable", "non-negative integer"],
           ),
       ],
@@ -219,7 +219,7 @@ export function test_soft_body_seek_determinism(): void {
         "negativeStep",
         (): boolean =>
           throwsError(
-            (): IAutoMovieSoftBodyState => simulateSoftBody(domain, -1),
+            (): IAutoMovieSoftBodyState => AutoMovieEngineSoftBody.simulateSoftBody(domain, -1),
             ["non-negative integer"],
           ),
       ],
@@ -227,16 +227,16 @@ export function test_soft_body_seek_determinism(): void {
         "pastBudget",
         (): boolean =>
           throwsError(
-            (): IAutoMovieSoftBodyState => simulateSoftBody(domain, 65),
+            (): IAutoMovieSoftBodyState => AutoMovieEngineSoftBody.simulateSoftBody(domain, 65),
             ["budget stops at 64"],
           ),
       ],
-      ["atBudget", (): boolean => simulateSoftBody(domain, 64).step === 64],
+      ["atBudget", (): boolean => AutoMovieEngineSoftBody.simulateSoftBody(domain, 64).step === 64],
       [
         "nonFiniteTime",
         (): boolean =>
           throwsError(
-            (): IAutoMovieSoftBodyState => sampleSoftBody(domain, Number.NaN),
+            (): IAutoMovieSoftBodyState => AutoMovieEngineSoftBody.sampleSoftBody(domain, Number.NaN),
             ["non-finite time"],
           ),
       ],
@@ -245,7 +245,7 @@ export function test_soft_body_seek_determinism(): void {
         (): boolean =>
           throwsError(
             (): IAutoMovieSoftBodyState =>
-              simulateSoftBody(
+              AutoMovieEngineSoftBody.simulateSoftBody(
                 softPanel({
                   columns: 2,
                   rows: 2,
@@ -270,7 +270,7 @@ export function test_soft_body_seek_determinism(): void {
         "unknownState",
         (): boolean =>
           throwsError(
-            (): IAutoMovieSoftBodyState => simulateSoftBody(domain, 1, "shut"),
+            (): IAutoMovieSoftBodyState => AutoMovieEngineSoftBody.simulateSoftBody(domain, 1, "shut"),
             ['does not declare a named state "shut"'],
           ),
       ],

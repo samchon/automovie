@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, surfaceHeightAt, tessellateSurface, validateSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineSpace, validateSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineFilm, AutoMovieEngineGeometry } from "@automovie/engine";
 import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
@@ -34,7 +34,7 @@ export const assertFootprintVoidGeometry: (
     spaceOf,
     pieceArea,
   }: typeof props = props;
-  const drawn: IAutoMovieTessellation = tessellateSurface(plate)!;
+  const drawn: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(plate)!;
   TestValidator.equals(
     "the drawn plate has the void open, exactly where the query says it is",
     namedFacts([
@@ -105,7 +105,7 @@ export const assertFootprintVoidGeometry: (
       [
         "nothingIsDrawnForNoArea",
         (): boolean =>
-          tessellateSurface({
+          AutoMovieEngineGeometry.tessellateSurface({
             ...plate,
             polygon: [v(0, 0), v(1, 1), v(2, 2)],
           }) === null,
@@ -192,7 +192,7 @@ export const assertFootprintVoidGeometry: (
     },
   );
 
-  const relieved: IAutoMovieTessellation = tessellateSurface(relief)!;
+  const relieved: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(relief)!;
   TestValidator.equals(
     "relief over a holed plate keeps both the lattice and the void",
     namedFacts([
@@ -204,7 +204,7 @@ export const assertFootprintVoidGeometry: (
             (_: unknown, index: number): boolean =>
               nclose(
                 relieved.positions[index * 3 + 1]!,
-                surfaceHeightAt(
+                AutoMovieEngineSpace.surfaceHeightAt(
                   relief,
                   relieved.positions[index * 3]!,
                   relieved.positions[index * 3 + 2]!,

@@ -4,7 +4,7 @@ import {
 } from "@automovie/interface";
 
 import { seededValue } from "../../math/internal/seededValue";
-import { instancePrototypeChoices } from "../instancePrototypeChoices";
+import { instancePrototypeChoices } from "./instancePrototypeChoices";
 
 /**
  * The prototype one instance slot draws, or the explicit one it names.

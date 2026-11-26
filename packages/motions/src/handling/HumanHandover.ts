@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import { Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -121,7 +121,7 @@ export namespace HumanHandover {
     const atStart: IAutoMovieVector3 = handle.point(input.frame);
     const meet: IAutoMovieVector3 =
       input.meet ??
-      resolveAutoMovieMutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
+      AutoMovieEngineCompositionPose.mutualGoal(HumanHandoverMeeting.goal(input, EXCHANGE))
         .point;
     const shift: IAutoMovieVector3 = Vector3.subtract(meet, atStart);
     const offered: IAutoMovieRigidTransform = {

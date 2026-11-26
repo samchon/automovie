@@ -1,8 +1,9 @@
-import type {
-  IAutoMoviePhysicalBalance,
-  IAutoMoviePhysicalSupportPatch,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { physicalBalanceExhaustion as physicalBalanceExhaustionImplementation } from "./internal/physicalBalanceExhaustion";
+import { physicalBalanceBracing as physicalBalanceBracingImplementation } from "./internal/physicalBalanceBracing";
+import { physicalBalanceReference as physicalBalanceReferenceImplementation } from "./internal/physicalBalanceReference";
+import { planPhysicalBalanceTargets as planPhysicalBalanceTargetsImplementation } from "./internal/planPhysicalBalanceTargets";
+
+import { type IAutoMoviePhysicalBalance, type IAutoMoviePhysicalSupportPatch, type IAutoMovieVector3, type IAutoMoviePhysicalBalanceExhaustion, type IAutoMoviePhysicalBalanceBracing, type IAutoMoviePhysicalBalanceReference, type IAutoMoviePlanPhysicalSupportTargets, type IAutoMoviePlanPhysicalBalanceTargets } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/internal/convexHull2D";
@@ -374,5 +375,49 @@ export namespace AutoMoviePhysicalBalance {
       if (dx * (point.z - a.z) - dz * (point.x - a.x) < 0) inside = false;
     }
     return inside ? { ...point } : best;
+  }
+
+  /**
+   * Whether bounded support recovery is exhausted at one tick.
+   *
+   * Continuously unrecoverable support starts a clock at its first tick and keeps
+   * that start while it lasts; any other assessment clears it. Recovery is
+   * exhausted once the clock has run for the policy's duration, inclusive, or at
+   * once after a failed landing, which withdraws support rather than inventing a
+   * success.
+   */
+  export function exhaustion(input: IAutoMoviePhysicalBalanceExhaustion.IInput): IAutoMoviePhysicalBalanceExhaustion.IResult {
+    return physicalBalanceExhaustionImplementation(input);
+  }
+
+  /**
+   * Capture-point feedback toward the actual support hull under an explicit
+   * root-target travel bound. This requests a bounded motor target adjustment,
+   * never an extra force or a pose write. A failed step alone cannot turn off
+   * remaining effort: withdrawal additionally requires the declared measured
+   * COM-height recovery limit. The provider owns that limit and its meaning.
+   */
+  export function bracing(input: IAutoMoviePhysicalBalanceBracing.IInput): IAutoMoviePhysicalBalanceBracing.IResult {
+    return physicalBalanceBracingImplementation(input);
+  }
+
+  /**
+   * The completed fitted balance reference at a replan boundary and the authored
+   * placements at that same boundary. A replan in the next interval starts from
+   * the previous plan's endpoint; a revision inside the interval starts at the
+   * preceding native tick of the previous plan. Without a contiguous previous
+   * plan there is no completed reference.
+   */
+  export function reference(input: IAutoMoviePhysicalBalanceReference.IInput): IAutoMoviePhysicalBalanceReference.IResult {
+    return physicalBalanceReferenceImplementation(input);
+  }
+
+  /**
+   * Fit world support intent in the measured floating-base frame. Reach-derived
+   * lowering remains a separate root motor request; no lowered virtual root is
+   * passed off as the actual stance frame.
+   */
+  export function planTargets(input: IAutoMoviePlanPhysicalBalanceTargets.IInput): IAutoMoviePlanPhysicalSupportTargets.IResult {
+    return planPhysicalBalanceTargetsImplementation(input);
   }
 }

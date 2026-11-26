@@ -10,7 +10,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { meshAutoMovieSweep } from "../../geometry/sweep/meshAutoMovieSweep";
+import { meshAutoMovieSweep } from "../../geometry/sweep/internal/meshAutoMovieSweep";
 import { Vector3 } from "../../math/Vector3";
 import { validateServiceNetwork } from "./validateServiceNetwork";
 import { validateWetZones } from "./validateWetZones";

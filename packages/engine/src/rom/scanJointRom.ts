@@ -8,7 +8,7 @@ import type {
   IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
 
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { jointToQuaternion } from "../kinematics/internal/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
 import { normalizeJointAxes } from "../kinematics/internal/normalizeJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";

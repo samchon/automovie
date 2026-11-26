@@ -1,8 +1,4 @@
-import {
-  indexSkeletonTopology,
-  reachableBoneNames,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { indexSkeletonTopology, AutoMovieEngineText, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -33,7 +29,7 @@ const bone: (
 const names: (skeleton: IAutoMovieSkeleton) => string[] = (
   skeleton: IAutoMovieSkeleton,
 ): string[] =>
-  [...reachableBoneNames(skeleton)].sort(AutoMovieEngineText.compareCodeUnits);
+  [...AutoMovieEngineKinematics.reachableBoneNames(skeleton)].sort(AutoMovieEngineText.compareCodeUnits);
 
 /**
  * `reachableBoneNames` is the set of bones a walk from the null-parent roots
@@ -84,7 +80,7 @@ export function test_engine_kinematics_reachable_bone_names(): void {
   grown.bones.push(bone("spine", "hips"));
   TestValidator.equals(
     "a snapshot and a fresh read",
-    [[...reachableBoneNames(grown, snapshot)], names(grown)],
+    [[...AutoMovieEngineKinematics.reachableBoneNames(grown, snapshot)], names(grown)],
     [["hips"], ["hips", "spine"]],
   );
   TestValidator.predicate(

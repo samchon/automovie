@@ -1,7 +1,4 @@
-import {
-  AutoMovieNaturalSpline,
-  interpolateAutoMovieSpline,
-} from "@automovie/engine";
+import { AutoMovieNaturalSpline, AutoMovieEngineSweep } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -35,7 +32,7 @@ export function test_engine_geometry_tension_spline(): void {
   // 1.
   const knots: number[] = [0, 1, 3, 4];
   const values: number[] = [0, 2, 1, 3];
-  const curve = interpolateAutoMovieSpline({ knots, values });
+  const curve = AutoMovieEngineSweep.interpolateSpline({ knots, values });
   const natural = AutoMovieNaturalSpline.create(knots, values);
   TestValidator.predicate(
     "tension 0",
@@ -70,7 +67,7 @@ export function test_engine_geometry_tension_spline(): void {
     "premise",
     !inside((x: number): number => AutoMovieNaturalSpline.evaluate(cubic, x)),
   );
-  const tense = interpolateAutoMovieSpline({ knots: xs, values: ys });
+  const tense = AutoMovieEngineSweep.interpolateSpline({ knots: xs, values: ys });
   TestValidator.predicate(
     "knots",
     xs.every((x: number, i: number): boolean => near(tense(x), ys[i]!)),
@@ -78,7 +75,7 @@ export function test_engine_geometry_tension_spline(): void {
   TestValidator.predicate("scan", inside(tense));
 
   // 3.
-  const wave = interpolateAutoMovieSpline({
+  const wave = AutoMovieEngineSweep.interpolateSpline({
     knots: [0, 1, 2, 3],
     values: [0, 1, 0, -1],
     period: 4,
@@ -98,15 +95,15 @@ export function test_engine_geometry_tension_spline(): void {
   TestValidator.equals(
     "one knot",
     [
-      interpolateAutoMovieSpline({ knots: [2], values: [5] })(-3),
-      interpolateAutoMovieSpline({ knots: [2], values: [5] })(9),
+      AutoMovieEngineSweep.interpolateSpline({ knots: [2], values: [5] })(-3),
+      AutoMovieEngineSweep.interpolateSpline({ knots: [2], values: [5] })(9),
     ],
     [5, 5],
   );
   TestValidator.predicate(
     "two knots",
     near(
-      interpolateAutoMovieSpline({ knots: [0, 2], values: [1, 3] })(0.5),
+      AutoMovieEngineSweep.interpolateSpline({ knots: [0, 2], values: [1, 3] })(0.5),
       1.5,
     ),
   );
@@ -115,23 +112,23 @@ export function test_engine_geometry_tension_spline(): void {
   for (const [label, run, message] of [
     [
       "none",
-      () => interpolateAutoMovieSpline({ knots: [], values: [] }),
+      () => AutoMovieEngineSweep.interpolateSpline({ knots: [], values: [] }),
       "needs at least one knot",
     ],
     [
       "values",
-      () => interpolateAutoMovieSpline({ knots: [0, 1], values: [0] }),
+      () => AutoMovieEngineSweep.interpolateSpline({ knots: [0, 1], values: [0] }),
       "needs one value per knot",
     ],
     [
       "order",
-      () => interpolateAutoMovieSpline({ knots: [0, 0], values: [0, 1] }),
+      () => AutoMovieEngineSweep.interpolateSpline({ knots: [0, 0], values: [0, 1] }),
       "knot 1 does not increase",
     ],
     [
       "period",
       () =>
-        interpolateAutoMovieSpline({
+        AutoMovieEngineSweep.interpolateSpline({
           knots: [0, 4],
           values: [0, 1],
           period: 4,

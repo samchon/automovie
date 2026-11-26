@@ -7,11 +7,11 @@ import type {
 } from "@automovie/interface";
 
 import { solveAutoMovieQuadraticProgram } from "../../math/internal/solveAutoMovieQuadraticProgram";
-import { admitSubdivisionCage } from "../admitSubdivisionCage";
-import { refineSubdivisionLevel } from "../refineSubdivisionLevel";
+import { admitSubdivisionCage } from "./admitSubdivisionCage";
+import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 import { refineSubdivisionStencils } from "./refineSubdivisionStencils";
 import { subdivisionBendingRows } from "./subdivisionBendingRows";
-import { stencilAutoMovieSubdivisionLimit } from "../sweep/stencilAutoMovieSubdivisionLimit";
+import { stencilAutoMovieSubdivisionLimit } from "../sweep/internal/stencilAutoMovieSubdivisionLimit";
 
 /**
  * Fit an explicitly refined generating domain to authored coarse limit points.

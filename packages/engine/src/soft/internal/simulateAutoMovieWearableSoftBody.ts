@@ -15,7 +15,7 @@ import {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { simulateSoftBodyWithBoundaries } from "../simulateSoftBodyWithBoundaries";
+import { simulateSoftBodyWithBoundaries } from "./simulateSoftBodyWithBoundaries";
 
 /**
  * Resolve admitted node/bone moving anchors and body capsules from complete

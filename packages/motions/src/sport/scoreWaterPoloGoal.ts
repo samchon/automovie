@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieMotionHumanProp,
@@ -88,7 +88,7 @@ export function scoreWaterPoloGoal(
       seconds >= (flight.capturedAt ?? Infinity)
     )
       continue;
-    const center: IAutoMovieVector3 = projectileAt(
+    const center: IAutoMovieVector3 = AutoMovieAir.projectileAt(
       flight.projectile,
       travel,
     ).position;

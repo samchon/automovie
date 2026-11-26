@@ -1,4 +1,4 @@
-import { advanceAutoMovieGrid } from "@automovie/engine";
+import { AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanAuditMotion,
   IAutoMovieMotionHumanAuditPartner,
@@ -108,7 +108,7 @@ export namespace AutoMovieMotionHumanAuditPartner {
               recorded[index] = Math.max(recorded[index]!, depth);
               const i: number = Math.floor(index / count);
               const j: number = index % count;
-              due[index] = advanceAutoMovieGrid(
+              due[index] = AutoMovieEngineSchedule.advanceGrid(
                 k,
                 times.length - 1,
                 apart ? base : base + recorded[index]!,

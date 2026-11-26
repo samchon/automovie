@@ -1,8 +1,4 @@
-import {
-  HUMANOID_REST_FRAME,
-  Vector3,
-  decomposeJointRotation,
-} from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Vector3, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -187,7 +183,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       lowerWorld: IAutoMovieQuaternion,
     ): number =>
       strained(
-        decomposeJointRotation(
+        AutoMovieEngineKinematics.decomposeJointRotation(
           upper,
           chain.axes[upperBone],
           HUMANOID_REST_FRAME[upperBone],

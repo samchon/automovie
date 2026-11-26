@@ -4,10 +4,10 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieSpline } from "../AutoMovieSpline";
-import { integrateAutoMovieSweepVolume } from "../integrateAutoMovieSweepVolume";
-import { interpolateAutoMovieSpline } from "../interpolateAutoMovieSpline";
-import { momentAutoMovieSweepSections } from "../momentAutoMovieSweepSections";
-import { settleAutoMovieSweepVolume } from "../settleAutoMovieSweepVolume";
+import { integrateAutoMovieSweepVolume } from "./integrateAutoMovieSweepVolume";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
+import { momentAutoMovieSweepSections } from "./momentAutoMovieSweepSections";
+import { settleAutoMovieSweepVolume } from "./settleAutoMovieSweepVolume";
 import { overflowsBinary64 } from "../../../math/internal/overflowsBinary64";
 
 /**

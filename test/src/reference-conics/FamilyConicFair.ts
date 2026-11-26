@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 
 import type { FamilyConicSection as C } from "./FamilyConicSection";
 
@@ -478,7 +478,7 @@ export namespace FamilyConicFair {
       ++fairCount;
     }
     const result: IAutoMovieConicApproximation.IResult =
-      approximateAutoMovieRecoveryConicsAhn(source, {
+      AutoMovieRecoveryConicApproximation.approximateAhn(source, {
         toleranceMm: options.toleranceMm,
         ...LIMITS,
       });

@@ -1,4 +1,4 @@
-import { buildAutoMovieWall, AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineArchitecture, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBoundaryWallCut,
   IAutoMovieBuiltEnvironment,
@@ -172,13 +172,13 @@ export function test_architecture_built_opening(): void {
     ]),
     { origin: true, rotation: true },
   );
-  const cutWall: IAutoMovieMesh = buildAutoMovieWall({
+  const cutWall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
     width: cut.width,
     height: cut.height,
     depth: cut.depth,
     openings: cut.openings,
   });
-  const solidWall: IAutoMovieMesh = buildAutoMovieWall({
+  const solidWall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
     width: cut.width,
     height: cut.height,
     depth: cut.depth,
@@ -207,7 +207,7 @@ export function test_architecture_built_opening(): void {
       `wall width ${width} is refused`,
       throwsError(
         (): unknown =>
-          buildAutoMovieWall({ width, height: 2, depth: 0.2, openings: [] }),
+          AutoMovieEngineGeometry.buildWall({ width, height: 2, depth: 0.2, openings: [] }),
         "wall width must be a finite number > 0",
       ),
     );
@@ -228,7 +228,7 @@ export function test_architecture_built_opening(): void {
       `non-finite opening origin ${axis} is refused`,
       throwsError(
         (): unknown =>
-          buildAutoMovieWall({
+          AutoMovieEngineGeometry.buildWall({
             width: 2,
             height: 2,
             depth: 0.2,
@@ -238,7 +238,7 @@ export function test_architecture_built_opening(): void {
       ),
     );
   }
-  const zeroOriginWall: IAutoMovieMesh = buildAutoMovieWall({
+  const zeroOriginWall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
     width: 2,
     height: 2,
     depth: 0.2,

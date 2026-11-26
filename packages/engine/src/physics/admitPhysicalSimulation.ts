@@ -1,7 +1,7 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
 import { admitPhysicalBody } from "./admitPhysicalBody";
-import { admitPhysicalReleasePolicy } from "./admitPhysicalReleasePolicy";
+import { admitPhysicalReleasePolicy } from "./internal/admitPhysicalReleasePolicy";
 import { admitPhysicalTargets } from "./admitPhysicalTargets";
 import { validatePhysicalProfile } from "./internal/validatePhysicalProfile";
 

@@ -1,5 +1,5 @@
 import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { AutoMovieEngineWorld, heightAt, prepareSpace, tessellateSurface, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineWorld, AutoMovieEnginePopulationRuntime, AutoMovieEngineSpace, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieSpace,
@@ -55,8 +55,8 @@ export function test_location_terrain(): void {
   const environment: IAutoMovieEnvironment = build(1);
   const space: IAutoMovieSpace = environment.stage.space!;
   const ground: IAutoMovieSpace["surfaces"][number] = space.surfaces[0]!;
-  const mesh: IAutoMovieTessellation = tessellateSurface(ground)!;
-  const prepared: ReturnType<typeof prepareSpace> = prepareSpace(space);
+  const mesh: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellateSurface(ground)!;
+  const prepared: ReturnType<typeof AutoMovieEngineSpace.prepareSpace> = AutoMovieEngineSpace.prepareSpace(space);
   let minimum: number = Infinity;
   let maximum: number = -Infinity;
   let error: number = 0;
@@ -77,7 +77,7 @@ export function test_location_terrain(): void {
         mesh.positions[b + 2]! +
         mesh.positions[c + 2]!) /
       3;
-    const scene: number | null = heightAt(space, x, z, prepared);
+    const scene: number | null = AutoMovieEngineSpace.heightAt(space, x, z, prepared);
     const world: number | null = AutoMovieEngineWorld.groundHeight(
       environment.runtime.world.surfaces,
       { x, z },
@@ -116,7 +116,7 @@ export function test_location_terrain(): void {
     "a regenerated tree is on the rolled support in the authored disk",
     Math.hypot(point.x - 1, point.z - 2) <= 1.2 &&
       Math.abs(point.y - 3) > 1e-4 &&
-      nclose(point.y, heightAt(space, point.x, point.z, prepared)!, 1e-12),
+      nclose(point.y, AutoMovieEngineSpace.heightAt(space, point.x, point.z, prepared)!, 1e-12),
   );
   TestValidator.predicate(
     "hard level and slope conflicts name their sources",

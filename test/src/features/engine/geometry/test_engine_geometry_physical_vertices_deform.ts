@@ -1,4 +1,4 @@
-import { transformAutoMovieMesh, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -68,7 +68,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   };
 
   // 1.
-  const placed: IAutoMovieMesh = transformAutoMovieMesh(mesh, {
+  const placed: IAutoMovieMesh = AutoMovieEngineGeometry.transformMesh(mesh, {
     scale: { x: -1, y: 2, z: 1 },
   });
   TestValidator.equals(
@@ -90,7 +90,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
     "scale splits",
     throwsError(
       (): unknown =>
-        transformAutoMovieMesh(grid, { scale: { x: 10, y: 1, z: 1 } }),
+        AutoMovieEngineGeometry.transformMesh(grid, { scale: { x: 10, y: 1, z: 1 } }),
       ["physicalVertices", "aliases disagree"],
     ),
   );
@@ -144,7 +144,7 @@ export function test_engine_geometry_physical_vertices_deform(): void {
   TestValidator.predicate(
     "placement refuses",
     throwsError(
-      (): unknown => transformAutoMovieMesh(invalid, {}),
+      (): unknown => AutoMovieEngineGeometry.transformMesh(invalid, {}),
       "physicalVertices",
     ),
   );

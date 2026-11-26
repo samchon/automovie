@@ -1,4 +1,4 @@
-import { loadAutoMovieProductionModule } from "automovie";
+import { AutoMovieCliProduction } from "automovie";
 import assert from "node:assert/strict";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
@@ -20,7 +20,7 @@ export async function test_cli_production_module(): Promise<void> {
     await fs.writeFile(path.join(root, "package.json"), "{}\n");
     const id: string = "renderer-fixture";
     assert.throws(
-      (): unknown => loadAutoMovieProductionModule(root, id),
+      (): unknown => AutoMovieCliProduction.loadModule(root, id),
       /renderer-fixture is not installed/u,
     );
 
@@ -31,7 +31,7 @@ export async function test_cli_production_module(): Promise<void> {
       'throw new Error("compiler changed during loading");\n',
     );
     assert.throws(
-      (): unknown => loadAutoMovieProductionModule(root, id),
+      (): unknown => AutoMovieCliProduction.loadModule(root, id),
       (error: unknown): boolean =>
         error instanceof Error &&
         error.message.includes("Could not load renderer-fixture") &&

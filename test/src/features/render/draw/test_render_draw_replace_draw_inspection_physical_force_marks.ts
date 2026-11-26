@@ -1,4 +1,4 @@
-import { AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, markAutoMovieContacts, markAutoMovieSupportWrenches, physicalInputDigest, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMoviePhysicalPlayback as Playback, AutoMoviePhysicalSimulation as Simulation, physicalInputDigest, AutoMovieEnginePhysics, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDistributePhysicalSupportWrench,
@@ -62,7 +62,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
   const playback: IAutoMoviePhysicalPlayback = await replay(rigid);
   const step: Step = firstActingStep(playback.contacts);
   const contacts = (seconds: number): IAutoMovieMark[] =>
-    markAutoMovieContacts({
+    AutoMovieEngineCompositionContact.markContacts({
       receipts: playback.contacts,
       seconds,
       metresPerNewton,
@@ -99,7 +99,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
 
   // The impact arrests about 4.2 m/s of a 1 kg ball within one 1/120 s step: hundreds of newtons against a 9.81 N weight.
   const clamped = (seconds: number): IAutoMovieMark[] =>
-    markAutoMovieContacts({
+    AutoMovieEngineCompositionContact.markContacts({
       receipts: playback.contacts,
       seconds,
       metresPerNewton,
@@ -189,7 +189,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
     for (const receipt of performance.contacts)
       for (const sample of receipt.samples ?? [])
         if (sample.impulse > 0 && sample.separation <= 0)
-          for (const mark of markAutoMovieContacts({
+          for (const mark of AutoMovieEngineCompositionContact.markContacts({
             receipts: [receipt],
             seconds: sample.seconds,
             metresPerNewton,
@@ -221,7 +221,7 @@ export async function test_render_draw_replace_draw_inspection_physical_force_ma
   const supports = (
     wrench: IAutoMoviePhysicalSupportWrench,
   ): IAutoMovieMark[] =>
-    markAutoMovieSupportWrenches({
+    AutoMovieEngineCompositionContact.markSupportWrenches({
       wrenches: [wrench],
       seconds: wrench.seconds,
       interval: 1 / 120,

@@ -6,7 +6,7 @@ import type {
 import { AutoMovieRenderCapture } from "@automovie/render";
 import {
   AutoMovieCliCaptureHost,
-  loadAutoMovieProductionModule,
+  AutoMovieCliProduction,
   renderAutoMovieVideo,
   resolveAutoMovieFfmpeg,
 } from "automovie";
@@ -126,7 +126,7 @@ export async function motionCapture(): Promise<void> {
     ? resolveAutoMovieFfmpeg({
         env: process.env,
         load: (id: "ffmpeg-static"): string | null =>
-          loadAutoMovieProductionModule<string | null>(ROOT, id),
+          AutoMovieCliProduction.loadModule<string | null>(ROOT, id),
       })
     : null;
   const host: AutoMovieCliCaptureHost = await AutoMovieCliCaptureHost.open({

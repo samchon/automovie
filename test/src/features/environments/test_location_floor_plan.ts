@@ -1,5 +1,5 @@
 import { createBuilding, createPassage, AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { Quaternion, Vector3, heightAt } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBuiltBoundary,
   IAutoMovieBuiltEnvironment,
@@ -181,12 +181,12 @@ export function test_location_floor_plan(): void {
   const space: IAutoMovieSpace = site.stage.space!;
   TestValidator.equals(
     "support observes the courtyard void, surrounding floor and skybridge",
-    [heightAt(space, 3, 13), heightAt(space, 1, 13), heightAt(space, -1, 2)],
+    [AutoMovieEngineSpace.heightAt(space, 3, 13), AutoMovieEngineSpace.heightAt(space, 1, 13), AutoMovieEngineSpace.heightAt(space, -1, 2)],
     [null, 3, 3],
   );
   TestValidator.equals(
     "only an open threshold supports a performer in a wall",
-    [heightAt(space, 6, 1.2), heightAt(space, 6, 2), heightAt(space, 3, 0)],
+    [AutoMovieEngineSpace.heightAt(space, 6, 1.2), AutoMovieEngineSpace.heightAt(space, 6, 2), AutoMovieEngineSpace.heightAt(space, 3, 0)],
     [null, 3, null],
   );
   const door: IAutoMoviePropSpec | undefined = site.runtime.props.find(
@@ -198,8 +198,8 @@ export function test_location_floor_plan(): void {
     door?.model.affordances?.map((contact): string => contact.id).sort(),
     ["pull", "push"],
   );
-  const tread: number | null = heightAt(space, 2.1, 1.5);
-  const upper: number | null = heightAt(space, 2.1, 3);
+  const tread: number | null = AutoMovieEngineSpace.heightAt(space, 2.1, 1.5);
+  const upper: number | null = AutoMovieEngineSpace.heightAt(space, 2.1, 3);
   TestValidator.predicate(
     "shaft leaves the sixth tread and upper floor independently supported",
     tread !== null &&

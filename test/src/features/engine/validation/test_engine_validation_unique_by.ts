@@ -1,4 +1,4 @@
-import { validateUniqueBy } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -13,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_validation_unique_by(): void {
   const clean: IAutoMovieConstraintViolation[] = [];
-  validateUniqueBy(
+  AutoMovieEngineValidation.validateUniqueBy(
     [
       { id: "a", path: "$.0" },
       { id: "b", path: "$.1" },
@@ -24,7 +24,7 @@ export function test_engine_validation_unique_by(): void {
   TestValidator.equals("distinct", clean.length, 0);
 
   const found: IAutoMovieConstraintViolation[] = [];
-  validateUniqueBy(
+  AutoMovieEngineValidation.validateUniqueBy(
     [
       { id: "a", path: "$.0" },
       { id: "b", path: "$.1" },

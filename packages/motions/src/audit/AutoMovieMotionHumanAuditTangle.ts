@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, advanceAutoMovieGrid } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -158,7 +158,7 @@ export namespace AutoMovieMotionHumanAuditTangle {
             recorded[index] = Math.max(recorded[index]!, depth);
             const i: number = Math.floor(index / count);
             const j: number = index % count;
-            due[index] = advanceAutoMovieGrid(
+            due[index] = AutoMovieEngineSchedule.advanceGrid(
               k,
               times.length - 1,
               apart ? base : base + recorded[index]!,

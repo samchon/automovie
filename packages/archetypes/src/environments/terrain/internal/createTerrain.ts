@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, surfaceHeightAt, validateSpace, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, validateSpace, AutoMovieEngineMath } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -229,7 +229,7 @@ export function createTerrain(
         ...context.frame,
         translation: {
           x: wx,
-          y: surfaceHeightAt({ height: rule }, wx, wz),
+          y: AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, wx, wz),
           z: wz,
         },
       };
@@ -340,7 +340,7 @@ function terrainBase(
     rule,
     pitch: Infinity,
     sample: ({ x, z }: { x: number; z: number }): number =>
-      surfaceHeightAt({ height: rule }, x, z),
+      AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, x, z),
   };
 }
 
@@ -437,7 +437,7 @@ function routeEnd(
   return {
     translation: {
       ...point,
-      y: surfaceHeightAt({ height: rule }, point.x, point.z),
+      y: AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, point.x, point.z),
     },
     rotation: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
     scale: { x: 1, y: 1, z: 1 },

@@ -1,4 +1,4 @@
-import { measureAutoMovieSchedule } from "@automovie/engine";
+import { AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieMeasureSchedule,
   IAutoMovieSchedule,
@@ -94,12 +94,12 @@ export function test_engine_composition_measure_schedule(): void {
   };
   TestValidator.equals(
     "the pacing of the schedule",
-    measureAutoMovieSchedule(schedule, classify),
+    AutoMovieEngineSchedule.measure(schedule, classify),
     expected,
   );
   TestValidator.equals(
     "an empty schedule measures zero",
-    measureAutoMovieSchedule({ entries: [], duration: 0 }, classify),
+    AutoMovieEngineSchedule.measure({ entries: [], duration: 0 }, classify),
     {
       actionsPerMinute: 0,
       combinationShare: 0,

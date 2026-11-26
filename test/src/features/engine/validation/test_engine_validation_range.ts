@@ -1,4 +1,4 @@
-import { validateRange } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -19,7 +19,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_engine_validation_range(): void {
   const camera = (value: number): IAutoMovieConstraintViolation[] => {
     const violations: IAutoMovieConstraintViolation[] = [];
-    validateRange(value, "$camera", 0, 180, "field", violations, false, false);
+    AutoMovieEngineValidation.validateRange(value, "$camera", 0, 180, "field", violations, false, false);
     return violations;
   };
   for (const value of [0, 180, 181])
@@ -33,18 +33,18 @@ export function test_engine_validation_range(): void {
   for (const value of [0.001, 90, 179.999])
     TestValidator.equals(`open support ${value}`, camera(value), []);
   const violations: IAutoMovieConstraintViolation[] = [];
-  validateRange(0, "$default", 0, 90, "field", violations);
-  validateRange(90, "$default", 0, 90, "field", violations);
-  validateRange(90, "$spot", 0, 90, "field", violations, false);
+  AutoMovieEngineValidation.validateRange(0, "$default", 0, 90, "field", violations);
+  AutoMovieEngineValidation.validateRange(90, "$default", 0, 90, "field", violations);
+  AutoMovieEngineValidation.validateRange(90, "$spot", 0, 90, "field", violations, false);
   TestValidator.equals("legacy equalities", violations, []);
-  validateRange(-1, "$default", 0, 90, "field", violations);
+  AutoMovieEngineValidation.validateRange(-1, "$default", 0, 90, "field", violations);
   TestValidator.predicate(
     "default bracket",
     violations.some((item: IAutoMovieConstraintViolation): boolean =>
       item.expected.includes("[0, 90]"),
     ),
   );
-  validateRange(91, "$spot", 0, 90, "field", violations, false);
+  AutoMovieEngineValidation.validateRange(91, "$spot", 0, 90, "field", violations, false);
   TestValidator.predicate(
     "legacy bracket",
     violations.some((item: IAutoMovieConstraintViolation): boolean =>
@@ -53,7 +53,7 @@ export function test_engine_validation_range(): void {
   );
   for (const inclusiveMax of [true, false]) {
     const unbounded: IAutoMovieConstraintViolation[] = [];
-    validateRange(
+    AutoMovieEngineValidation.validateRange(
       1,
       "$unbounded",
       0,

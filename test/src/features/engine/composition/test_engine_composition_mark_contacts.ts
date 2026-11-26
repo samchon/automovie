@@ -1,4 +1,4 @@
-import { markAutoMovieContacts } from "@automovie/engine";
+import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieMark,
@@ -73,7 +73,7 @@ export function test_engine_composition_mark_contacts(): void {
     receipts: IAutoMovieContactReceipt[],
     seconds: number,
   ): IAutoMovieMark[] =>
-    markAutoMovieContacts({ receipts, seconds, metresPerNewton: 0.002 });
+    AutoMovieEngineCompositionContact.markContacts({ receipts, seconds, metresPerNewton: 0.002 });
 
   // 1. One acting contact.
   const acting: IAutoMovieMark[] = mark(
@@ -126,7 +126,7 @@ export function test_engine_composition_mark_contacts(): void {
   // 4. Refusals.
   for (const scale of [0, -1])
     TestValidator.error(`a scale of ${scale} is refused`, (): void => {
-      markAutoMovieContacts({
+      AutoMovieEngineCompositionContact.markContacts({
         receipts: [],
         seconds: 0,
         metresPerNewton: scale,
@@ -153,7 +153,7 @@ export function test_engine_composition_mark_contacts(): void {
     appliedImpulse: { a: number; b: number } | undefined,
     ownership: IAutoMoviePhysicalOwnershipEvent[] | undefined,
   ): boolean[] =>
-    markAutoMovieContacts({
+    AutoMovieEngineCompositionContact.markContacts({
       receipts: [
         receipt("solver", [
           {
@@ -203,7 +203,7 @@ export function test_engine_composition_mark_contacts(): void {
 
   // 6. A clamp keeps the direction, shortens the arrow and declares itself.
   const clamp = (maximumLength: number): IAutoMovieMark[] =>
-    markAutoMovieContacts({
+    AutoMovieEngineCompositionContact.markContacts({
       receipts: [receipt("solver", [step(1, 0.5, 0.01)])],
       seconds: 1.005,
       metresPerNewton: 0.002,

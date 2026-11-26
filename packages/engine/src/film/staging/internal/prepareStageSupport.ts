@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { prepareSurface } from "../../../space/prepareSurface";
-import { preparedSurfaceContains } from "../../../space/preparedSurfaceContains";
-import { surfaceHeightAt } from "../../../space/surfaceHeightAt";
+import { prepareSurface } from "../../../space/internal/prepareSurface";
+import { preparedSurfaceContains } from "../../../space/internal/preparedSurfaceContains";
+import { surfaceHeightAt } from "../../../space/internal/surfaceHeightAt";
 import type { IStageGround } from "../IStageGround";
 
 /**

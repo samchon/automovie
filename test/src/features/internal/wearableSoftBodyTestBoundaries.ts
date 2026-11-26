@@ -1,4 +1,4 @@
-import { simulateSoftBodyWithBoundaries } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieSoftBodyBoundarySample,
   IAutoMovieSoftBodyDomain,
@@ -40,20 +40,20 @@ export function wearableSoftBodyTestBoundaries(
     "the lower moving-boundary solver refuses incomplete and foreign records",
     {
       missingSequence: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, []),
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, []),
         "one moving boundary",
       ),
       wrongBoundaryStep: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
             { ...validBoundary(), step: 1 },
           ]),
         "must name absolute step 0",
       ),
       negativeParticle: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
             {
               ...validBoundary(),
               anchors: [{ particle: -1, position: { x: 0, y: 1, z: 0 } }],
@@ -62,8 +62,8 @@ export function wearableSoftBodyTestBoundaries(
         "invalid anchor particle",
       ),
       outOfRangeParticle: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
             {
               ...validBoundary(),
               anchors: [{ particle: 2, position: { x: 0, y: 1, z: 0 } }],
@@ -72,8 +72,8 @@ export function wearableSoftBodyTestBoundaries(
         "invalid anchor particle",
       ),
       staticAnchorOverride: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(
             { ...domain(), anchors: staticDomain.anchors },
             0,
             [validBoundary()],
@@ -82,7 +82,7 @@ export function wearableSoftBodyTestBoundaries(
       ),
       duplicateAnchor: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
+        AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
           {
             ...boundary,
             anchors: [...boundary.anchors, boundary.anchors[0]!],
@@ -91,7 +91,7 @@ export function wearableSoftBodyTestBoundaries(
       }, "repeats anchor particle"),
       duplicateCapsule: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
+        AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
           {
             ...boundary,
             capsules: [...boundary.capsules, boundary.capsules[0]!],
@@ -100,7 +100,7 @@ export function wearableSoftBodyTestBoundaries(
       }, "repeats capsule"),
       foreignCapsule: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
+        AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
           {
             ...boundary,
             capsules: [{ ...boundary.capsules[0]!, id: "foreign" }],
@@ -109,7 +109,7 @@ export function wearableSoftBodyTestBoundaries(
       }, "not an authored body capsule"),
       zeroRadius: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
+        AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
           {
             ...boundary,
             capsules: [{ ...boundary.capsules[0]!, radius: 0 }],

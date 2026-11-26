@@ -19,7 +19,7 @@ import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
 import { validateDeclaredReferences } from "../../validation/validateDeclaredReferences";
 import { validateModel } from "../../validation/validateModel";
 import { validateSpace } from "../../validation/validateSpace";
-import { validateTransformScalars } from "../../validation/validateTransformScalars";
+import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 import { validateBuiltBoundaries } from "./validateBuiltBoundaries";
 import { validateBuiltBuildings } from "./validateBuiltBuildings";
 import { validateBuiltCarriageService } from "./validateBuiltCarriageService";

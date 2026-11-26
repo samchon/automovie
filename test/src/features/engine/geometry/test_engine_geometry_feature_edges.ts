@@ -1,4 +1,4 @@
-import { tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeasureFeatureEdges,
   IAutoMovieTessellation,
@@ -49,7 +49,7 @@ export function test_engine_geometry_feature_edges(): void {
       triangle: surfaceTriangleOf(mesh.positions, mesh.indices, point),
       point,
     }).convex;
-  const box: IAutoMovieTessellation = tessellate({ type: "box", width: 1, height: 1, depth: 1 });
+  const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({ type: "box", width: 1, height: 1, depth: 1 });
   const measured: IAutoMovieMeasureFeatureEdges.IResult = measure(box);
 
   // 1.
@@ -65,7 +65,7 @@ export function test_engine_geometry_feature_edges(): void {
   TestValidator.predicate("near the edge", close(convex(box, measured, { x: 0.495, y: 0.5, z: 0 }), 0.005, 1e-9));
 
   // 2.
-  const rims: IAutoMovieMeasureFeatureEdges.IResult = measure(tessellate({ type: "cylinder", radius: 0.3, height: 1 }));
+  const rims: IAutoMovieMeasureFeatureEdges.IResult = measure(AutoMovieEngineGeometry.tessellate({ type: "cylinder", radius: 0.3, height: 1 }));
   TestValidator.equals("rim count", rims.edges.length, 32);
   TestValidator.predicate(
     "rims only",

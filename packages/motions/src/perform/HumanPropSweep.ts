@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  projectileAt,
-  projectileFirstContact,
-} from "@automovie/engine";
+import { Quaternion, Vector3, projectileFirstContact, AutoMovieAir } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -433,7 +428,7 @@ export namespace HumanPropSweep {
     // relative to; the floor and a prop standing still are at rest.
     const reader: HumanPropSweepColliders.Surface | undefined =
       surfaces.get(id);
-    const state: IAutoMovieProjectileState = projectileAt(projectile, hit.time);
+    const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(projectile, hit.time);
     return {
       hit,
       struck,

@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMoviePatternFinding,
@@ -98,7 +98,7 @@ const course: (
  */
 export function test_architecture_surface_pattern_findings(): void {
   const overlapping: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "overlap",
         zones: [
@@ -240,7 +240,7 @@ export function test_architecture_surface_pattern_findings(): void {
           ],
   });
   const shared: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "border",
         zones: [
@@ -300,7 +300,7 @@ export function test_architecture_surface_pattern_findings(): void {
     jointTolerance: number,
     adjacency: number,
   ): IAutoMovieSurfacePatternResult =>
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "corner",
         zones: [
@@ -439,7 +439,7 @@ export function test_architecture_surface_pattern_findings(): void {
     narrow: boolean,
     grainToleranceDeg: number | null,
   ): IAutoMovieSurfacePatternResult =>
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "course",
         zones: [
@@ -580,7 +580,7 @@ export function test_architecture_surface_pattern_findings(): void {
   ) => IAutoMovieSurfacePatternResult = (
     grainToleranceDeg: number | null,
   ): IAutoMovieSurfacePatternResult =>
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         id: "transition",
         zones: [

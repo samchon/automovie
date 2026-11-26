@@ -1,4 +1,4 @@
-import { simulateSoftBody, AutoMovieEngineSoftFurnishing, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftFurnishing, AutoMovieEngineSoftBody } from "@automovie/engine";
 import { AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
@@ -25,7 +25,7 @@ const drape: (step: number) => ReturnType<typeof AutoMovieEngineSoftBody.softBod
   });
   return AutoMovieEngineSoftBody.softBodySurfaceGeometry({
     domain,
-    state: simulateSoftBody(domain, step),
+    state: AutoMovieEngineSoftBody.simulateSoftBody(domain, step),
   });
 };
 
@@ -239,7 +239,7 @@ export function test_render_scene_build_soft_body_object(): void {
   const thread: ReturnType<typeof AutoMovieRenderSceneLayout.buildSoftBodyObject> = AutoMovieRenderSceneLayout.buildSoftBodyObject({
     surface: AutoMovieEngineSoftBody.softBodySurfaceGeometry({
       domain: cord,
-      state: simulateSoftBody(cord, 0),
+      state: AutoMovieEngineSoftBody.simulateSoftBody(cord, 0),
     }),
     status: "rest",
   });

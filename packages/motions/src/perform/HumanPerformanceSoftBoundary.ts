@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  softBodyRestConfiguration,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -397,7 +393,7 @@ export namespace HumanPerformanceSoftBoundary {
     domain: IAutoMovieSoftBodyDomain,
     first: IAutoMovieSoftBodyBoundarySample,
   ): number[] => {
-    const out: number[] = softBodyRestConfiguration(domain);
+    const out: number[] = AutoMovieEngineSoftBody.softBodyRestConfiguration(domain);
     for (const a of first.anchors) {
       out[a.particle * 3] = a.position.x;
       out[a.particle * 3 + 1] = a.position.y;

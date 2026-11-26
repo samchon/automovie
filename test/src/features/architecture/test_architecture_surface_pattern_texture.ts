@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMoviePatternPlacement,
   IAutoMoviePatternPoint,
@@ -99,7 +99,7 @@ const sample: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 11 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A sheet pinned to the module gives every piece the same image: the identity).
  */
 export function test_architecture_surface_pattern_texture(): void {
-  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern(
+  const field: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern(
     { pattern: pattern() },
   );
   const perModule: IAutoMoviePatternTexturing =
@@ -219,7 +219,7 @@ export function test_architecture_surface_pattern_texture(): void {
 
   const acrossSheet: IAutoMoviePatternTexturing =
     AutoMovieEngineArchitecture.patternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "across-grain",
           zones: [zone({ generate: stackBond(0.5, 90) })],
@@ -269,7 +269,7 @@ export function test_architecture_surface_pattern_texture(): void {
 
   const flippedField: IAutoMoviePatternTexturing =
     AutoMovieEngineArchitecture.patternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "flipped-field",
           zones: [
@@ -343,7 +343,7 @@ export function test_architecture_surface_pattern_texture(): void {
 
   const narrowed: IAutoMoviePatternTexturing =
     AutoMovieEngineArchitecture.patternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "narrow",
           zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
@@ -371,7 +371,7 @@ export function test_architecture_surface_pattern_texture(): void {
 
   const diagonal: IAutoMoviePatternTexturing =
     AutoMovieEngineArchitecture.patternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "diagonal-grain",
           zones: [
@@ -459,7 +459,7 @@ export function test_architecture_surface_pattern_texture(): void {
     v: number;
   }): IAutoMoviePatternTexturing =>
     AutoMovieEngineArchitecture.patternTextureTransforms({
-      result: generateAutoMovieSurfacePattern({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           id: "skewed",
           zones: [

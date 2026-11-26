@@ -4,7 +4,7 @@ import type {
   IAutoMovieHumanConicSection,
   IAutoMovieViewChain,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 
 import { FamilyConicExcursion as X } from "./FamilyConicExcursion";
 import { FamilyConicFair as F } from "./FamilyConicFair";
@@ -344,7 +344,7 @@ export namespace FamilyConicSection {
   ): { ends: IEnd[]; at: (phi: number) => { point: P; tangent: P } } {
     // The faired section with its inflections as breaks (`FamilyConicFair.curve`, which states the fairing law, the seam and the breaks).
     const curve = F.curve(points, { fairMm });
-    const result = approximateAutoMovieRecoveryConicsAhn(curve, CONVERT);
+    const result = AutoMovieRecoveryConicApproximation.approximateAhn(curve, CONVERT);
     const arcs = [...result.arcs].sort(
       (p, q): number => p.domain[0] - q.domain[0],
     );

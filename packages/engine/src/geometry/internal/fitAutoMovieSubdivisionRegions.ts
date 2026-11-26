@@ -5,9 +5,9 @@ import type {
   IAutoMovieSubdivisionLevel,
 } from "@automovie/interface";
 
-import { admitSubdivisionCage } from "../admitSubdivisionCage";
+import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { fitAutoMovieSubdivisionDomain } from "./fitAutoMovieSubdivisionDomain";
-import { refineSubdivisionLevel } from "../refineSubdivisionLevel";
+import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
 /**
  * Fit disjoint geometric regions on their actual joined subdivision domain.

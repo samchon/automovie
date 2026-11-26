@@ -18,10 +18,10 @@ import type {
 import { RecoveryScalarIndex as S } from "../../internal/RecoveryScalarIndex";
 import { RecoverySlabGraph as G } from "../../internal/RecoverySlabGraph";
 import { createRecoveryObservationPolicy } from "../../internal/createRecoveryObservationPolicy";
-import { critical } from "../../internal/mesh-observations/critical";
+import { critical } from "./critical";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
-import { planeFrame } from "../../internal/mesh-observations/planeFrame";
-import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
+import { planeFrame } from "./planeFrame";
+import { sourceOrientation } from "./sourceOrientation";
 import { observeRecoverySection } from "./observeRecoverySection";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";

@@ -1,4 +1,4 @@
-import { simulateSoftBody, simulateSoftBodyWithBoundaries, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieSoftAnchor,
   IAutoMovieSoftBodyDomain,
@@ -134,7 +134,7 @@ export function test_engine_wearable_soft_body(): void {
   TestValidator.predicate(
     "the legacy static path retains its exact rest state",
     test12ValuesClose(
-      simulateSoftBody(staticDomain, 1).positions,
+      AutoMovieEngineSoftBody.simulateSoftBody(staticDomain, 1).positions,
       staticDomain.rest,
     ),
   );
@@ -255,13 +255,13 @@ export function test_engine_wearable_soft_body(): void {
         "unit length",
       ),
       unresolvedStatic: throwsError(
-        (): ReturnType<typeof simulateSoftBody> =>
-          simulateSoftBody(domain(), 1),
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBody> =>
+          AutoMovieEngineSoftBody.simulateSoftBody(domain(), 1),
         "resolved moving boundaries",
       ),
       missingAnchorBoundary: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
             {
               step: 0,
               anchors: [],
@@ -278,8 +278,8 @@ export function test_engine_wearable_soft_body(): void {
         "missing authored moving anchor",
       ),
       missingCapsuleBoundary: throwsError(
-        (): ReturnType<typeof simulateSoftBodyWithBoundaries> =>
-          simulateSoftBodyWithBoundaries(domain(), 0, [
+        (): ReturnType<typeof AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries> =>
+          AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(domain(), 0, [
             {
               step: 0,
               anchors: [{ particle: 0, position: { x: 0, y: 1, z: 0 } }],

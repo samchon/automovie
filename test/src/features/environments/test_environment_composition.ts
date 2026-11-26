@@ -1,10 +1,5 @@
 import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import {
-  Quaternion,
-  Transform,
-  buildAutoMovieWall,
-  heightAt,
-} from "@automovie/engine";
+import { Quaternion, Transform, AutoMovieEngineGeometry, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentContribution,
@@ -47,7 +42,7 @@ import { nclose, throwsError, vclose } from "../internal/predicates";
  */
 export function test_environment_composition(): void {
   const base: IAutoMovieModel = createModel(null);
-  const facade: IAutoMovieMesh = buildAutoMovieWall({
+  const facade: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({
     width: 6,
     height: 3,
     depth: 0.2,
@@ -146,8 +141,8 @@ export function test_environment_composition(): void {
       z: 4,
     }) &&
       vclose(environment.stage.set[0]!.position, { x: 13, y: 4.5, z: 4 }) &&
-      nclose(heightAt(environment.stage.space!, 12, 4) ?? NaN, 3.5) &&
-      heightAt(environment.stage.space!, 10, 5) === null,
+      nclose(AutoMovieEngineSpace.heightAt(environment.stage.space!, 12, 4) ?? NaN, 3.5) &&
+      AutoMovieEngineSpace.heightAt(environment.stage.space!, 10, 5) === null,
   );
   const replacement: IAutoMovieEnvironment = AutoMovieEnvironment.create({
     id: "estate",

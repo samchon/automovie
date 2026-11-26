@@ -27,7 +27,7 @@ import { resolveDrivers } from "./resolveDrivers";
 import { resolveWorldDrivers } from "./resolveWorldDrivers";
 import { sampleClip } from "./sampleClip";
 import { sampleClipSequence } from "./sampleClipSequence";
-import { stepSpring } from "../stepSpring";
+import { stepSpring } from "./stepSpring";
 
 /**
  * Resolve a numerical frame by sampling, profile binding, value driving,

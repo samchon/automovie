@@ -1,7 +1,4 @@
-import {
-  resolveAutoMovieHumanoidSurfaces,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { resolveAutoMovieHumanoidSurfaces, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanGrasp,
@@ -162,7 +159,7 @@ export namespace HumanHandoverMeeting {
               a: IAutoMovieResolveMutualGoal.ISide,
               b: IAutoMovieResolveMutualGoal.ISide,
             ): IAutoMovieVector3 =>
-              resolveAutoMovieMutualGoal({ height: inputs.height, a, b }).point,
+              AutoMovieEngineCompositionPose.mutualGoal({ height: inputs.height, a, b }).point,
           ),
         };
       },

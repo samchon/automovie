@@ -1,4 +1,4 @@
-import { compileAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweep,
@@ -141,7 +141,7 @@ export function sweepBottle(
   // the base as a heel band of four patches round an inner patch, so every rim vertex has valence four
   const nodes: Record<string, IAutoMovieSurfaceNetwork.INode> = {};
   const curves: Record<string, IAutoMovieSurfaceNetwork.ICurve> = {};
-  const surface: IAutoMovieSweepSurface = compileAutoMovieSweep(bottle);
+  const surface: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(bottle);
   const rim = (v: number): IAutoMovieVector3 => surface.point(0, v);
   // the wall continued below the rim, a unit vector down its u lines
   const down = (v: number): IAutoMovieVector3 => {

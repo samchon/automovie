@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieMutualGoal, AutoMovieEngineMath } from "@automovie/engine";
+import { Vector3, AutoMovieEngineMath, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieVector3,
@@ -94,7 +94,7 @@ export function handshakeOfferAttempt(
   const meet = (
     elbows: [IAutoMovieVector3, IAutoMovieVector3],
   ): IAutoMovieVector3 =>
-    resolveAutoMovieMutualGoal({
+    AutoMovieEngineCompositionPose.mutualGoal({
       a: {
         shoulder: elbows[0],
         reach: lower[0],

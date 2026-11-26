@@ -11,9 +11,9 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type * as Playwright from "playwright-core";
 
-import { loadAutoMovieProductionModule } from "../loadAutoMovieProductionModule";
+import { loadAutoMovieProductionModule } from "../production/internal/loadAutoMovieProductionModule";
 import { readAutoMoviePageTimeout } from "../readAutoMoviePageTimeout";
-import { readAutoMovieRevision } from "../readAutoMovieRevision";
+import { readAutoMovieRevision } from "../production/internal/readAutoMovieRevision";
 import { serveAutoMovieDrawPage } from "../serveAutoMovieDrawPage";
 import type { AutoMovieCliCaptureBackend } from "./AutoMovieCliCaptureBackend";
 import type { IAutoMovieCliChromium } from "./IAutoMovieCliChromium";

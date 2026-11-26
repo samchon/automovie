@@ -3,7 +3,7 @@ import type {
   IAutoMovieSurfaceCage,
 } from "@automovie/interface";
 
-import { rigAutoMovieSurfaceNetwork } from "../rigAutoMovieSurfaceNetwork";
+import { rigAutoMovieSurfaceNetwork } from "./rigAutoMovieSurfaceNetwork";
 
 /**
  * Sample a surface network into a quad control cage at one tier.

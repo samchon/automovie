@@ -1,5 +1,5 @@
 import type { createArmour } from "@automovie/archetypes";
-import { Quaternion, Vector3, physicalHullFaces, signedArea, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { Quaternion, Vector3, physicalHullFaces, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -144,7 +144,7 @@ export namespace armourJointObservation {
       two,
     );
     return Math.abs(
-      signedArea(
+      AutoMovieEngineGeometry.signedArea(
         intersection.map(
           (point: [number, number]): { x: number; y: number } => ({
             x: point[0],

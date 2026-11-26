@@ -18,7 +18,7 @@ import { sampleTimes } from "../motion/internal/sampleTimes";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
-import { validateCapsule } from "./validateCapsule";
+import { validateCapsule } from "./internal/validateCapsule";
 
 const DEFAULT_SAMPLE_RATE: number = 24;
 

@@ -1,4 +1,4 @@
-import { measureAutoMoviePlacedContinuity, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieClassifyPlaybackBoundary,
   IAutoMoviePlacedContinuity,
@@ -280,7 +280,7 @@ function admitted(
 ): IAutoMovieTransform | undefined {
   if (observation?.kind !== "present") return undefined;
   const result: IAutoMoviePlacedContinuity.IResult =
-    measureAutoMoviePlacedContinuity({
+    AutoMovieEngineValidation.measurePlacedContinuity({
       kind: "transform",
       path,
       observation,

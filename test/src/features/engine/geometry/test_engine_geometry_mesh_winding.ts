@@ -1,4 +1,4 @@
-import { createAutoMovieMeshWindingQuery } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshWinding,
@@ -30,7 +30,7 @@ import { outwardBoxMesh } from "../../internal/outwardBoxMesh";
 export function test_engine_geometry_mesh_winding(): void {
   const close = (a: number, b: number): boolean => Math.abs(a - b) <= 1e-12;
   const cube: IAutoMovieMesh = outwardBoxMesh({ x: 0, y: 0, z: 0 }, { x: 1, y: 1, z: 1 });
-  const closed = createAutoMovieMeshWindingQuery(cube);
+  const closed = AutoMovieEngineGeometry.createMeshWindingQuery(cube);
 
   // 1.
   const centre: IAutoMovieMeshWinding = closed([0.5, 0.5, 0.5]);
@@ -39,7 +39,7 @@ export function test_engine_geometry_mesh_winding(): void {
   TestValidator.predicate("beside", close(beside.winding, 0) && !beside.inside && !beside.surface);
 
   // 2.
-  const open = createAutoMovieMeshWindingQuery({ ...cube, indices: cube.indices!.slice(0, 30) });
+  const open = AutoMovieEngineGeometry.createMeshWindingQuery({ ...cube, indices: cube.indices!.slice(0, 30) });
   const held: IAutoMovieMeshWinding = open([0.5, 0.5, 0.5]);
   TestValidator.predicate("held", close(held.winding, 5 / 6) && held.inside);
   const above: IAutoMovieMeshWinding = open([0.5, 0.5, 1.5]);
@@ -47,7 +47,7 @@ export function test_engine_geometry_mesh_winding(): void {
 
   // 3.
   const shifted: IAutoMovieMesh = outwardBoxMesh({ x: 0.5, y: 0, z: 0 }, { x: 1.5, y: 1, z: 1 });
-  const pair = createAutoMovieMeshWindingQuery({
+  const pair = AutoMovieEngineGeometry.createMeshWindingQuery({
     ...cube,
     positions: [...cube.positions, ...shifted.positions],
     indices: [...cube.indices!, ...shifted.indices!.map((i: number): number => i + 8)],
@@ -61,7 +61,7 @@ export function test_engine_geometry_mesh_winding(): void {
   );
 
   // 4.
-  const reversed: IAutoMovieMeshWinding = createAutoMovieMeshWindingQuery({
+  const reversed: IAutoMovieMeshWinding = AutoMovieEngineGeometry.createMeshWindingQuery({
     ...cube,
     indices: cube.indices!.map((_: number, at: number): number => cube.indices![at - (at % 3) + (2 - (at % 3))]!),
   })([0.5, 0.5, 0.5]);
@@ -72,7 +72,7 @@ export function test_engine_geometry_mesh_winding(): void {
   TestValidator.predicate("on the face", top.surface && !top.inside);
 
   // 6.
-  const flat: IAutoMovieMeshWinding = createAutoMovieMeshWindingQuery({
+  const flat: IAutoMovieMeshWinding = AutoMovieEngineGeometry.createMeshWindingQuery({
     ...cube,
     indices: [...cube.indices!, 0, 0, 7],
   })([0.5, 0.5, 0.5]);

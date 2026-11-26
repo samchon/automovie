@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, planPhysicalBalanceTargets, preparePhysicalGeometry, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, preparePhysicalGeometry, AutoMovieEnginePhysics, AutoMoviePhysicalBalance } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalContactSupportRows,
@@ -140,8 +140,8 @@ export async function test_engine_physics_plan_physical_balance_targets(): Promi
   const elevated: Poses = translated(0.0004);
   const limb: IAutoMovieFootfallPattern["limbs"][number] = pattern.limbs[0]!;
   const elevatedGoal: IAutoMovieVector3 = { ...elevated[limb.bone]!.position };
-  const elevatedFit: ReturnType<typeof planPhysicalBalanceTargets> =
-    planPhysicalBalanceTargets({
+  const elevatedFit: ReturnType<typeof AutoMoviePhysicalBalance.planTargets> =
+    AutoMoviePhysicalBalance.planTargets({
       profile,
       pattern: {
         ...pattern,

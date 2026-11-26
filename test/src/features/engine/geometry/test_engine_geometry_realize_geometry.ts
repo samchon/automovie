@@ -1,4 +1,4 @@
-import { tessellateToMesh, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh, IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -27,7 +27,7 @@ export function test_engine_geometry_realize_geometry(): void {
     "primitive",
     AutoMovieEngineGeometry.realizeGeometry({ type: "primitive", shape }),
     {
-      mesh: tessellateToMesh(shape),
+      mesh: AutoMovieEngineGeometry.tessellateToMesh(shape),
       complete: true,
       diagnostics: [],
     },

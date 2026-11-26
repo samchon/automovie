@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, decomposeJointRotation, AutoMovieEngineMath } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, AutoMovieEngineMath, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -134,7 +134,7 @@ export namespace HumanFlatThumb {
       carry(rest, target, { x: 0, y: 1, z: 0 }),
       carry(rest, target, { x: 0, y: 0, z: 1 }),
     );
-    const cmc: IAutoMovieResolvedJointAngles = decomposeJointRotation(
+    const cmc: IAutoMovieResolvedJointAngles = AutoMovieEngineKinematics.decomposeJointRotation(
       turn,
       HUMANOID_JOINT_AXES[metacarpal],
       HUMANOID_REST_FRAME[metacarpal],

@@ -4,7 +4,7 @@ import type {
   IAutoMovieRegionTriangulation,
 } from "@automovie/interface";
 
-import { signedArea } from "../../signedArea";
+import { signedArea } from "../../internal/signedArea";
 import { regionFailure } from "./regionFailure";
 
 /**

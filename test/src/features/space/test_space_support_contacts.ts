@@ -1,4 +1,4 @@
-import { detectSupportToppling, supportContactsFor } from "@automovie/engine";
+import { AutoMovieEngineValidation, AutoMovieEngineSpace } from "@automovie/engine";
 import { IAutoMovieSpace, IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -64,7 +64,7 @@ const space: IAutoMovieSpace = {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A box footprint centered on the table yields four contacts, all at the table).
  */
 export function test_space_support_contacts(): void {
-  const centered: IAutoMovieVector3[] = supportContactsFor(space, [
+  const centered: IAutoMovieVector3[] = AutoMovieEngineSpace.supportContactsFor(space, [
     v(0.5, 0.5),
     v(1.5, 0.5),
     v(1.5, 1.5),
@@ -82,7 +82,7 @@ export function test_space_support_contacts(): void {
     vclose(centered[0]!, { x: 0.5, y: 1, z: 0.5 }),
   );
 
-  const onRamp: IAutoMovieVector3[] = supportContactsFor(space, [
+  const onRamp: IAutoMovieVector3[] = AutoMovieEngineSpace.supportContactsFor(space, [
     v(11, 1),
     v(13, 1),
   ]);
@@ -95,8 +95,8 @@ export function test_space_support_contacts(): void {
     { ncloseOnRamp0: true, ncloseOnRamp1: true },
   );
 
-  const stable: ReturnType<typeof detectSupportToppling> =
-    detectSupportToppling({
+  const stable: ReturnType<typeof AutoMovieEngineValidation.detectSupportToppling> =
+    AutoMovieEngineValidation.detectSupportToppling({
       node: "crate",
       centerOfMass: { x: 1, y: 1.2, z: 1 },
       support: centered,
@@ -104,15 +104,15 @@ export function test_space_support_contacts(): void {
   TestValidator.equals("centered box is stable", stable.toppling, null);
   TestValidator.equals("stable box validates", stable.validation.success, true);
 
-  const halfOff: IAutoMovieVector3[] = supportContactsFor(space, [
+  const halfOff: IAutoMovieVector3[] = AutoMovieEngineSpace.supportContactsFor(space, [
     v(1.5, 0.5),
     v(2.5, 0.5),
     v(2.5, 1.5),
     v(1.5, 1.5),
   ]);
   TestValidator.equals("overhanging corners skipped", halfOff.length, 2);
-  const toppling: ReturnType<typeof detectSupportToppling> =
-    detectSupportToppling({
+  const toppling: ReturnType<typeof AutoMovieEngineValidation.detectSupportToppling> =
+    AutoMovieEngineValidation.detectSupportToppling({
       node: "crate",
       centerOfMass: { x: 2, y: 1.2, z: 1 },
       support: halfOff,
@@ -130,7 +130,7 @@ export function test_space_support_contacts(): void {
     { topplingToppling: true, topplingTopplingOvershoot: true },
   );
 
-  const overVoid: IAutoMovieVector3[] = supportContactsFor(space, [
+  const overVoid: IAutoMovieVector3[] = AutoMovieEngineSpace.supportContactsFor(space, [
     v(50, 50),
     v(51, 50),
   ]);
@@ -138,7 +138,7 @@ export function test_space_support_contacts(): void {
   TestValidator.predicate(
     "empty support rejected by the topple judge",
     hasViolation(
-      detectSupportToppling({
+      AutoMovieEngineValidation.detectSupportToppling({
         centerOfMass: { x: 50, y: 1, z: 50 },
         support: overVoid,
       }).validation,

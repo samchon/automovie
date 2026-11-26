@@ -1,4 +1,4 @@
-import { tessellateToMesh, validateMeshTopology } from "@automovie/engine";
+import { AutoMovieEngineGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMesh,
@@ -48,7 +48,7 @@ export function test_engine_validation_validate_mesh_topology(): void {
   const topo = (
     m: IAutoMovieMesh,
     expectClosed: boolean = false,
-  ): IAutoMovieValidation => validateMeshTopology({ mesh: m, expectClosed });
+  ): IAutoMovieValidation => AutoMovieEngineValidation.validateMeshTopology({ mesh: m, expectClosed });
   const says = (result: IAutoMovieValidation, word: string): boolean =>
     result.success === false &&
     result.violations.some((v: IAutoMovieConstraintViolation): boolean =>
@@ -75,7 +75,7 @@ export function test_engine_validation_validate_mesh_topology(): void {
   TestValidator.predicate(
     "explicit path",
     hasViolation(
-      validateMeshTopology({ mesh: fin, path: "$mesh" }),
+      AutoMovieEngineValidation.validateMeshTopology({ mesh: fin, path: "$mesh" }),
       "topology",
       "$mesh.indices",
     ),
@@ -87,7 +87,7 @@ export function test_engine_validation_validate_mesh_topology(): void {
 
   // 3.
   pass("degenerate", topo(mesh(P, [0, 1, 2, 3, 3, 4])));
-  pass("soup", validateMeshTopology({ mesh: mesh(P.slice(0, 9), null) }));
+  pass("soup", AutoMovieEngineValidation.validateMeshTopology({ mesh: mesh(P.slice(0, 9), null) }));
 
   // 4.
   pass("empty", topo(mesh([], [])));
@@ -114,7 +114,7 @@ export function test_engine_validation_validate_mesh_topology(): void {
   );
 
   // 6.
-  const box: IAutoMovieMesh = tessellateToMesh({
+  const box: IAutoMovieMesh = AutoMovieEngineGeometry.tessellateToMesh({
     type: "box",
     width: 1,
     height: 1,

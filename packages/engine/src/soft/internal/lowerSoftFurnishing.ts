@@ -8,7 +8,7 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { simulateSoftBody } from "../simulateSoftBody";
+import { simulateSoftBody } from "./simulateSoftBody";
 import { softBodyStepAt } from "./softBodyStepAt";
 import { softBodySurfaceGeometry } from "./softBodySurfaceGeometry";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";

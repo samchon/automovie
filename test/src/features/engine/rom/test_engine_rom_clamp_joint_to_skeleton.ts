@@ -1,4 +1,4 @@
-import { clampJointToSkeleton, jointToQuaternion } from "@automovie/engine";
+import { clampJointToSkeleton, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieAngleRange,
@@ -188,7 +188,7 @@ export function test_engine_rom_clamp_joint_to_skeleton(): void {
       nclose(out.flexion!, 0, 1e-9) &&
       nclose(out.abduction!, 0, 1e-9) &&
       nclose(out.twist!, 15, 1e-9) &&
-      qclose(jointToQuaternion(out, VALID), expected, 1e-9)
+      qclose(AutoMovieEngineKinematics.jointToQuaternion(out, VALID), expected, 1e-9)
     );
   };
   const zeroFlexion: IAutoMovieJointAxes = {

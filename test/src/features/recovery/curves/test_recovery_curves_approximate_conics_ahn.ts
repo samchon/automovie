@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryConicSources } from "../../internal/RecoveryConicSources";
@@ -46,7 +46,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
         b * Math.sin(t + (order * Math.PI) / 2),
       ],
     };
-    const result: IAutoMovieConicApproximation.IResult = approximate(
+    const result: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
       ellipse,
       options,
     );
@@ -84,7 +84,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
     ): Readonly<AutoMovieVector2Tuple> =>
       order === 1 ? [1, 2 * t] : order === 2 ? [0, 2] : [0, 0],
   };
-  const parabolic: IAutoMovieConicApproximation.IResult = approximate(
+  const parabolic: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     parabola,
     options,
   );
@@ -105,7 +105,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
     );
   }
   const line: IAutoMoviePlanarCurveSource = RecoveryConicSources.line;
-  const linear: IAutoMovieConicApproximation.IResult = approximate(
+  const linear: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     line,
     options,
   );
@@ -116,7 +116,7 @@ export function test_recovery_curves_approximate_conics_ahn(): void {
     nclose(linear.arcs[0]!.weight, 1, 0),
   );
   const scratch: [number, number] = [0, 0];
-  const borrowed: IAutoMovieConicApproximation.IResult = approximate(
+  const borrowed: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       domain: [0, 1],
       breaks: [],

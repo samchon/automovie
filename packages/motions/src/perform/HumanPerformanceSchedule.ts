@@ -1,4 +1,4 @@
-import { AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, resolveAutoMovieHumanoidSurfaces, resolveAutoMovieSchedule, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineScheduleCut, AutoMovieScheduleError, Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineMath, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieIntent,
@@ -60,7 +60,7 @@ export namespace HumanPerformanceSchedule {
     input: IAutoMovieMotionHumanPerformance.IInput,
   ): IAutoMovieSchedule {
     try {
-      return resolveAutoMovieSchedule(input.composition, {
+      return AutoMovieEngineSchedule.resolve(input.composition, {
         timing: (
           intent: IAutoMovieIntent,
           context: IAutoMovieScheduleContext,

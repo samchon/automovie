@@ -1,4 +1,4 @@
-import { buildAutoMovieConvexHull, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeshTopology,
   IAutoMovieVector3,
@@ -22,14 +22,14 @@ export function test_engine_geometry_convex_hull(): void {
   for (let corner: number = 0; corner < 8; ++corner)
     corners.push({ x: corner & 1, y: (corner >> 1) & 1, z: (corner >> 2) & 1 });
   const topology: IAutoMovieMeshTopology = AutoMovieEngineGeometry.inspectMeshTopology(
-    buildAutoMovieConvexHull([...corners, { x: 0.5, y: 0.5, z: 0.5 }]),
+    AutoMovieEngineGeometry.buildConvexHull([...corners, { x: 0.5, y: 0.5, z: 0.5 }]),
   );
   TestValidator.equals("watertight", topology.watertight, true);
   TestValidator.predicate("volume", nclose(topology.volume, 1, 1e-12));
   TestValidator.predicate(
     "coplanar",
     throwsError(() =>
-      buildAutoMovieConvexHull([
+      AutoMovieEngineGeometry.buildConvexHull([
         { x: 0, y: 0, z: 0 },
         { x: 1, y: 0, z: 0 },
         { x: 1, y: 1, z: 0 },

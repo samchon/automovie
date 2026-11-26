@@ -1,4 +1,4 @@
-import { simulateSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -149,8 +149,8 @@ const hemSpan: (positions: number[], axis: 0 | 1 | 2) => number = (
  */
 export function test_soft_body_curtain_states(): void {
   const domain: IAutoMovieSoftBodyDomain = curtain();
-  const closed: IAutoMovieSoftBodyState = simulateSoftBody(domain, 256);
-  const open: IAutoMovieSoftBodyState = simulateSoftBody(domain, 256, "open");
+  const closed: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 256);
+  const open: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 256, "open");
   const columns: number[] = Array.from(
     { length: COLUMNS },
     (_: unknown, column: number): number => column,
@@ -230,7 +230,7 @@ export function test_soft_body_curtain_states(): void {
       [
         "withoutFloorItDrops",
         () =>
-          simulateSoftBody({ ...domain, colliders: [] }, 256).positions.some(
+          AutoMovieEngineSoftBody.simulateSoftBody({ ...domain, colliders: [] }, 256).positions.some(
             (value: number, index: number): boolean =>
               index % 3 === 1 && -0.9375 > value,
           ),
@@ -249,7 +249,7 @@ export function test_soft_body_curtain_states(): void {
       [
         "reproducible",
         () =>
-          simulateSoftBody(domain, 256, "open").positions.every(
+          AutoMovieEngineSoftBody.simulateSoftBody(domain, 256, "open").positions.every(
             (value: number, index: number): boolean =>
               Object.is(value, open.positions[index]),
           ),

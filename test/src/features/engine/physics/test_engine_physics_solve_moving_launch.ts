@@ -1,8 +1,4 @@
-import {
-  AutoMovieGravity,
-  solveBallisticLaunch,
-  solveMovingLaunch,
-} from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieAir } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -55,8 +51,8 @@ function flown(velocity: IAutoMovieVector3, t: number): IAutoMovieVector3 {
 export function test_engine_physics_solve_moving_launch(): void {
   // 1. A held target.
   const still: IAutoMovieVector3 = { x: 7, y: 1, z: 2 };
-  const held = solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 16)!;
-  const fixed = solveBallisticLaunch(ORIGIN, still, 16)!;
+  const held = AutoMovieAir.solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 16)!;
+  const fixed = AutoMovieAir.solveBallisticLaunch(ORIGIN, still, 16)!;
   TestValidator.predicate(
     "a held target",
     vclose(held.velocity, fixed.velocity, PhysicalTolerance.CONVERGED) &&
@@ -79,8 +75,8 @@ export function test_engine_physics_solve_moving_launch(): void {
     y: 1,
     z: 0,
   });
-  const lead = solveMovingLaunch(ORIGIN, slide, 20)!;
-  const partial = solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", 1);
+  const lead = AutoMovieAir.solveMovingLaunch(ORIGIN, slide, 20)!;
+  const partial = AutoMovieAir.solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", 1);
   TestValidator.predicate(
     "a sliding target",
     lead.hitTime > 0 &&
@@ -96,7 +92,7 @@ export function test_engine_physics_solve_moving_launch(): void {
   TestValidator.equals(
     "no iteration",
     [0, -1].map((iterations: number) =>
-      solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", iterations),
+      AutoMovieAir.solveMovingLaunch(ORIGIN, slide, 20, GRAVITY, "direct", iterations),
     ),
     [null, null],
   );
@@ -122,7 +118,7 @@ export function test_engine_physics_solve_moving_launch(): void {
   const closest = iterates.reduce((a, b) => (b.residual < a.residual ? b : a));
   const last = iterates[3]!;
   // The closed form above reads g as 9.81, so the solve does too.
-  const capped = solveMovingLaunch(
+  const capped = AutoMovieAir.solveMovingLaunch(
     ORIGIN,
     accel,
     20,
@@ -142,12 +138,12 @@ export function test_engine_physics_solve_moving_launch(): void {
   TestValidator.equals(
     "unreachable",
     [
-      solveMovingLaunch(
+      AutoMovieAir.solveMovingLaunch(
         ORIGIN,
         (t: number): IAutoMovieVector3 => ({ x: 40 + 30 * t, y: 1, z: 0 }),
         10,
       ),
-      solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 0),
+      AutoMovieAir.solveMovingLaunch(ORIGIN, (): IAutoMovieVector3 => still, 0),
     ],
     [null, null],
   );

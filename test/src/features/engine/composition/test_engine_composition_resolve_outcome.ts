@@ -1,4 +1,4 @@
-import { resolveAutoMovieOutcome } from "@automovie/engine";
+import { AutoMovieEngineCompositionOutcome } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
   IAutoMovieResolveOutcome,
@@ -38,10 +38,10 @@ export function test_engine_composition_resolve_outcome(): void {
   TestValidator.equals(
     "the first holding rule decides, else the default",
     [
-      resolveAutoMovieOutcome(table, [act("reach"), act("dodge")]),
-      resolveAutoMovieOutcome(table, [act("guard"), act("dodge")]),
-      resolveAutoMovieOutcome(table, [act("guard")]),
-      resolveAutoMovieOutcome(table, [act("reach")]),
+      AutoMovieEngineCompositionOutcome.resolve(table, [act("reach"), act("dodge")]),
+      AutoMovieEngineCompositionOutcome.resolve(table, [act("guard"), act("dodge")]),
+      AutoMovieEngineCompositionOutcome.resolve(table, [act("guard")]),
+      AutoMovieEngineCompositionOutcome.resolve(table, [act("reach")]),
     ],
     [
       { outcome: "misses", rule: "dodged" },

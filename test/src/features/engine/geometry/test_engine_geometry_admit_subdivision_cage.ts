@@ -1,4 +1,4 @@
-import { admitSubdivisionCage } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieSubdivisionCage,
   IAutoMovieSubdivisionLevel,
@@ -39,7 +39,7 @@ export function test_engine_geometry_admit_subdivision_cage(): void {
   const uvs: number[] = [0, 0, 0.5, 0, 1, 0, 0, 1, 0.5, 1, 1, 1];
 
   // 1.
-  const level: IAutoMovieSubdivisionLevel = admitSubdivisionCage(cage);
+  const level: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage(cage);
   TestValidator.predicate(
     "copy",
     level.positions !== cage.positions && level.positions.length === 18,
@@ -59,7 +59,7 @@ export function test_engine_geometry_admit_subdivision_cage(): void {
   );
 
   // 2.
-  const triangle: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
+  const triangle: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({
     positions: cage.positions.slice(0, 9),
     faces: [[0, 1, 2]],
   });
@@ -74,7 +74,7 @@ export function test_engine_geometry_admit_subdivision_cage(): void {
   );
 
   // 3.
-  const creased: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
+  const creased: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({
     ...cage,
     creases: [{ from: 4, to: 1, sharpness: 2 }],
     uvs,
@@ -183,6 +183,6 @@ export function test_engine_geometry_admit_subdivision_cage(): void {
   ] satisfies [string, IAutoMovieSubdivisionCage, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => admitSubdivisionCage(bad), p + message),
+      throwsError((): unknown => AutoMovieEngineGeometry.admitSubdivisionCage(bad), p + message),
     );
 }

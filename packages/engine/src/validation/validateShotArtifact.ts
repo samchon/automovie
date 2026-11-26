@@ -24,8 +24,8 @@ import { appendSurfaceGraphicsArtifact } from "./appendSurfaceGraphicsArtifact";
 import { pushViolation } from "./pushViolation";
 import { toValidation } from "./toValidation";
 import { validateClipArtifact } from "./validateClipArtifact";
-import { validateRange } from "./validateRange";
-import { validateUniqueBy } from "./validateUniqueBy";
+import { validateRange } from "./internal/validateRange";
+import { validateUniqueBy } from "./internal/validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
 /**

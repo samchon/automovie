@@ -6,7 +6,7 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 import { collectDeclaredIds } from "../../validation/collectDeclaredIds";
-import { validateTransformScalars } from "../../validation/validateTransformScalars";
+import { validateTransformScalars } from "../../validation/internal/validateTransformScalars";
 
 /**
  * Validate how one source frame of an observed design reference is read.

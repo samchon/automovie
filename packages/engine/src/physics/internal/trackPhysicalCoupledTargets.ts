@@ -13,7 +13,7 @@ import { PhysicalTargetInterval as Interval } from "../PhysicalTargetInterval";
 import { fitPhysicalCoupledTargetGroup } from "./fitPhysicalCoupledTargetGroup";
 import { physicalContactSupportGoals } from "./physicalContactSupportGoals";
 import { preparePhysicalContactTargetSeed } from "./preparePhysicalContactTargetSeed";
-import { samplePhysicalTrackingTarget } from "../samplePhysicalTrackingTarget";
+import { samplePhysicalTrackingTarget } from "./samplePhysicalTrackingTarget";
 
 type Body = IAutoMoviePhysicalSimulationInput.IBody;
 type Target = IAutoMoviePhysicalSimulationInput.ITarget;

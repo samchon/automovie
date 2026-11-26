@@ -1,5 +1,5 @@
 import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
-import { findAutoMovieFreePort } from "../../findAutoMovieFreePort";
+import { findAutoMovieFreePort } from "../../page/internal/findAutoMovieFreePort";
 import { planAutoMovieModulePageViteConfig } from "../../production/internal/planAutoMovieModulePageViteConfig";
 import { writeAutoMovieModulePage } from "../../production/internal/writeAutoMovieModulePage";
 

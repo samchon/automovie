@@ -16,7 +16,7 @@ import type {
 
 import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
-import { compiledPopulationRepresentation } from "../compiledPopulationRepresentation";
+import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "../constants/AUTOMOVIE_INSTANCE_CHUNK_SIZE";
 import { instanceSlot } from "./instanceSlot";
 import { summarizeCompiledSlotChunks } from "./summarizeCompiledSlotChunks";

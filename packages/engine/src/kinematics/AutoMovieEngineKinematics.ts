@@ -1,3 +1,8 @@
+import { armChainFault as armChainFaultImplementation } from "./internal/armChainFault";
+import { decomposeJointRotation as decomposeJointRotationImplementation } from "./internal/decomposeJointRotation";
+import { jointToQuaternion as jointToQuaternionImplementation } from "./internal/jointToQuaternion";
+import { reachableBoneNames as reachableBoneNamesImplementation } from "./internal/reachableBoneNames";
+
 import { aimYawPitch as aimYawPitchImplementation } from "./internal/aimYawPitch";
 import { alternateRigJointAngles as alternateRigJointAnglesImplementation } from "./internal/alternateRigJointAngles";
 import { boxExcludedSwivels as boxExcludedSwivelsImplementation } from "./internal/boxExcludedSwivels";
@@ -28,7 +33,7 @@ import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { distalEndSwivelNearest as distalEndSwivelNearestImplementation } from "./internal/distalEndSwivelNearest";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 
-import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion } from "@automovie/interface";
+import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis } from "@automovie/interface";
 
 import { resolveLookAt as resolveLookAtImplementation } from "./resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./resolvePose";
@@ -861,5 +866,149 @@ export namespace AutoMovieEngineKinematics {
   rotation: (swivel: number) => IAutoMovieQuaternion;
 }): number[] | null {
     return immobileAxisSwivelsImplementation(props);
+  }
+
+  /**
+   * Why the analytic arm IK cannot articulate one arm chain of `skeleton`, or
+   * `null` when it can.
+   *
+   * `HUMANOID_JOINT_AXES` puts the arm's flexion on local +Y because the
+   * canonical humanoid rests in the VRM T-pose with its arms along local ±X. On a
+   * rig whose forearm rests along that flexion axis, such as arms hanging along
+   * −Y, elbow flexion only rolls the forearm about its own length: the hand never
+   * moves, the chain has one reachable radius instead of a shell, and no reach
+   * can be solved. This function reports that rig, naming the lower arm and both
+   * directions in `reason`.
+   *
+   * The test reads the rig, not a pose name, because a retargeted quadruped's
+   * front legs ride the arm chains and may legitimately rest along −Y. Callers
+   * therefore ask it only where an arm verb is performed: the perform-shot gate
+   * refuses the verb with this reason, and {@link reachPose} returns `null`.
+   *
+   * `null` also answers every case that is not this fault: a missing hand, a hand
+   * not parented to the lower arm (its rest offset is then not in the elbow's
+   * frame), a zero-length forearm, and an axis table with no or a zero-length
+   * elbow flexion axis. {@link reachPose} reports the structural cases itself as a
+   * chain it cannot measure.
+   *
+   * @param skeleton Rig whose arm chain is read; only rest offsets are used.
+   * @param side Which arm to test.
+   * @param jointAxes Per-bone clinical axes; defaults to `HUMANOID_JOINT_AXES`,
+   *   the table every arm computation applies, under any axes the lower arm
+   *   declares itself.
+   */
+  export function armChainFault(skeleton: IAutoMovieSkeleton, side: "left" | "right", jointAxes?: Partial<
+    Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
+  >): IAutoMovieArmChainFault | null {
+    return armChainFaultImplementation(skeleton, side, jointAxes);
+  }
+
+  /**
+   * Recover a joint's flexion, abduction and twist, in degrees, from its
+   * bone-local rotation: the inverse of {@link jointToQuaternion} for the same
+   * `axes` and `frame`. IK solvers compute quaternions and lower them through
+   * this into the angles a pose carries.
+   *
+   * Changing basis by `M = [flexion | abduction | twist]` turns a proximal
+   * twist's `qTwist · qAbduction · qFlexion` into `Rz·Ry·Rx` and a distal twist's
+   * `qAbduction · qFlexion · qTwist` into `Ry·Rx·Rz`. The explicit clinical order
+   * `qFlexion · qAbduction · qTwist` uses `Rx·Ry·Rz`. The inverse reads each
+   * matrix from dot products of the axes with the rotated axes. At the gimbal
+   * (middle angle ±90°), only one combination of the outer angles is determined.
+   * The inverse pins flexion for a legacy proximal twist, abduction for a legacy
+   * distal twist, and twist for the explicit clinical order to zero, preserving
+   * the observable combination. The pin holds within a projected cosine of the
+   * square root of the unit roundoff, about 1.5e-8, where the two outer angles
+   * are otherwise rounding noise and the pinned angles rebuild the rotation
+   * within 1e-7 radian. A left-handed basis, such as the default (`flexion ×
+   * abduction = −twist`), is extracted against `−twist` and the twist sign
+   * restored, so the round trip holds for any orthonormal basis.
+   *
+   * `frame` lifts the rest-relative angles to clinical ones, `clinical = sign · r
+   * + neutral`. A `domain` with a non-null constraint also considers the
+   * rotation's second Euler chart, `(f + 180, 180 − a, t + 180)` for proximal
+   * twist and flexion-abduction-twist, and `(180 − f, a + 180, t + 180)` for a
+   * distal one, and the full-turn alias of each angle nearest the constraint's
+   * range. The candidate with the least {@link jointRomOvershoot} wins, the
+   * principal chart on a tie. Every candidate is the same rotation, so a pose no
+   * chart can hold keeps its overshoot instead of being clamped.
+   *
+   * Throws on a non-finite quaternion component or an invalid axis basis (see
+   * {@link normalizeJointAxes}). A non-unit quaternion is read as its rotation
+   * matrix, which is only a rotation for a unit quaternion.
+   *
+   * @param q Bone-local articulation rotation; unit length expected.
+   * @param axes Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+   * @param frame Rest frame lifting rest-relative angles to clinical ones;
+   *   omitted, the angles stay rest-relative.
+   * @param domain Bone and resolved ROM that choose among equivalent charts;
+   *   omitted or with a `null` constraint, the principal chart is returned.
+   */
+  export function decomposeJointRotation(q: IAutoMovieQuaternion, axes?: IAutoMovieJointAxes, frame?: IAutoMovieRestFrame, domain?: IAutoMovieJointRotationDomain): IAutoMovieResolvedJointAngles {
+    return decomposeJointRotationImplementation(q, axes, frame, domain);
+  }
+
+  /**
+   * Convert a joint's clinical flexion, abduction and twist, in degrees, into one
+   * bone-local rotation quaternion.
+   *
+   * Flexion turns about `axes.flexion` (default local X, sagittal), abduction
+   * about `axes.abduction` (default Z, frontal) and twist about `axes.twist`
+   * (default Y, the bone's long axis). The composition follows
+   * `axes.twistPlacement`. A proximal twist, the default, turns the swing axes
+   * with it, as the head turns below its nodding joint:
+   *
+   *     q = qTwist · qAbduction · qFlexion
+   *
+   * A distal twist turns the moved segment about its own long axis before the
+   * swing, as the forearm pronates beyond the elbow, so a pose without twist is
+   * the same rotation in either placement:
+   *
+   *     q = qAbduction · qFlexion · qTwist
+   *
+   * A declared flexion-abduction-twist order takes precedence over twist
+   * placement and uses the rig's clinical vectors in the ISB hip sequence
+   * (https://www.isbweb.org/standards/hip.pdf, Hip Order of Rotation):
+   *
+   *     q = qFlexion · qAbduction · qTwist
+   *
+   * `axes` lets a rig whose bone frames are not aligned to the clinical planes
+   * keep flexion sagittal, such as a T-pose arm that needs flexion about Y. A
+   * `null` angle contributes no rotation. With a `frame`, each angle is read as
+   * clinical and mapped to the rig's rest-relative angle, `r = (clinical −
+   * neutral) / sign`, so one clinical convention serves both sides of a mirrored
+   * rig. {@link decomposeJointRotation} is the inverse for the same `axes` and
+   * `frame`.
+   *
+   * Throws on a non-finite angle, an invalid axis basis (see
+   * {@link normalizeJointAxes}), or an invalid frame sign or neutral.
+   *
+   * @param joint Clinical angles in degrees; `null` axes are at rest.
+   * @param axes Clinical axis basis; defaults to `DEFAULT_JOINT_AXES`.
+   * @param frame Rest frame mapping clinical angles to rest-relative ones;
+   *   omitted, the angles are already rest-relative.
+   */
+  export function jointToQuaternion(joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>, axes?: IAutoMovieJointAxes, frame?: IAutoMovieRestFrame): IAutoMovieQuaternion {
+    return jointToQuaternionImplementation(joint, axes, frame);
+  }
+
+  /**
+   * The bones a skeleton's forward-kinematics walk reaches: every bone whose
+   * parent chain ends at a null-parent root.
+   *
+   * The set depends on parent links only, so it is exactly the set of bones
+   * {@link resolvePose} returns for any pose. A bone can be declared in
+   * `skeleton.bones` yet be detached, with an undeclared parent or a cyclic
+   * chain, and then `resolvePose` omits it; a validator gates on this set before
+   * reading a bone's resolved position so such a rig is reported instead of
+   * crashing the lookup.
+   *
+   * @param skeleton Rig whose reachable bones are listed.
+   * @param topology Index of the same, unchanged skeleton from
+   *   {@link indexSkeletonTopology}; omitted, one is built for this call.
+   * @returns A new set the caller may modify without affecting `topology`.
+   */
+  export function reachableBoneNames(skeleton: IAutoMovieSkeleton, topology?: IAutoMovieSkeletonTopology): Set<AutoMovieHumanoidBone> {
+    return reachableBoneNamesImplementation(skeleton, topology);
   }
 }

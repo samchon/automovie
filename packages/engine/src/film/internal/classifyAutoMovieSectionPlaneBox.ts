@@ -4,7 +4,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieSectionPlaneDistance } from "../autoMovieSectionPlaneDistance";
+import { autoMovieSectionPlaneDistance } from "./autoMovieSectionPlaneDistance";
 
 /** The three axes a box corner is chosen on. */
 const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];

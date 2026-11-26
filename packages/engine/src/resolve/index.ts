@@ -28,7 +28,7 @@ export * from "./recompose";
 
 
 
-export * from "./stepSpring";
+
 export * from "./validateInfluence";
 
 export { AutoMovieEngineResolve } from "./AutoMovieEngineResolve";

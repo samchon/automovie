@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, Quaternion, Vector3, heightAt, sampleMotion, AutoMovieEngineFilm, AutoMovieEngineSequence } from "@automovie/engine";
+import { AutoMovieEngineWorld, Quaternion, Vector3, sampleMotion, AutoMovieEngineFilm, AutoMovieEngineSequence, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionHumanBody,
@@ -61,14 +61,14 @@ export function test_environment_production(): void {
             z: -2,
           },
         ),
-        heightAt(space, 3, -0.2),
-        heightAt(space, 3, 0),
-        heightAt(space, 3, 1.5),
+        AutoMovieEngineSpace.heightAt(space, 3, -0.2),
+        AutoMovieEngineSpace.heightAt(space, 3, 0),
+        AutoMovieEngineSpace.heightAt(space, 3, 1.5),
       ].every(
         (height: number | null): boolean =>
           height !== null && nclose(height, 1.3, 0.005),
       ) &&
-      nclose(heightAt(space, -8, -4)!, 0.2, 0.005),
+      nclose(AutoMovieEngineSpace.heightAt(space, -8, -4)!, 0.2, 0.005),
   );
   const visitor:
     | (typeof compiled.shot.continuity.closing.actors)[number]
@@ -221,8 +221,8 @@ export function test_environment_production(): void {
   TestValidator.predicate(
     "dry trail and pond retain distinct support through the compiled scene",
     wetlands === 0 &&
-      heightAt(trailSpace, 11, 10) === null &&
-      nclose(heightAt(trailSpace, 11, 5)!, 0, 0.001) &&
+      AutoMovieEngineSpace.heightAt(trailSpace, 11, 10) === null &&
+      nclose(AutoMovieEngineSpace.heightAt(trailSpace, 11, 5)!, 0, 0.001) &&
       nclose(endpoint.x, 17, 0.005) &&
       nclose(endpoint.z, 5, 0.005) &&
       (["left", "right"] as const).every((side): boolean =>
@@ -277,7 +277,7 @@ export function test_environment_production(): void {
       vclose(campus.actors[1]!.position, { x: 4, y: 3.4, z: 4 }, 0.001) &&
       vclose(getFloor("resident"), { x: 4, y: 0, z: 6 }, 0.03) &&
       vclose(getFloor("traveller"), { x: 15, y: 3.4, z: 4 }, 0.03) &&
-      nclose(heightAt(bridge.shot.source.scene.space!, 9.5, 4)!, 3.4, 0.001),
+      nclose(AutoMovieEngineSpace.heightAt(bridge.shot.source.scene.space!, 9.5, 4)!, 3.4, 0.001),
   );
   // The cab is docked at the upper stop from the schedule's first key there.
   const docked: number = environmentLiftSchedule.find(

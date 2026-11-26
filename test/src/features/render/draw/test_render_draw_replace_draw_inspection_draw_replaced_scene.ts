@@ -1,4 +1,4 @@
-import { markAutoMovieContacts } from "@automovie/engine";
+import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieInspectionLegendEntry,
@@ -175,7 +175,7 @@ export async function test_render_draw_replace_draw_inspection_draw_replaced_sce
         request: InspectionScene.ask({ marks: ["contact"] }),
         place: async (): Promise<IAutoMovieMark[]> => {
           await place();
-          return markAutoMovieContacts({
+          return AutoMovieEngineCompositionContact.markContacts({
             receipts: [receipt],
             seconds,
             metresPerNewton: 0.125,

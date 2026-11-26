@@ -6,7 +6,7 @@ import type {
 
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
 import { readAutoMovieImageFacts } from "./readAutoMovieImageFacts";
-import { validateUniqueValues } from "./validateUniqueValues";
+import { validateUniqueValues } from "./internal/validateUniqueValues";
 
 /**
  * RFC 4648 section 4 base64: the standard alphabet in padded four-character

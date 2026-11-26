@@ -1,4 +1,4 @@
-import { admitSubdivisionCage, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +30,7 @@ export function test_engine_geometry_subdivision_bending_rows(): void {
     [3, 4, 7, 6],
     [4, 5, 8, 7],
   ];
-  const level: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
+  const level: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({
     positions,
     faces,
   });

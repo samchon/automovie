@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMoviePatternFinding,
   IAutoMoviePatternPlacement,
@@ -52,7 +52,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  */
 export function test_architecture_surface_pattern_quantities(): void {
   const punched: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
         exclusions: [
@@ -216,7 +216,7 @@ export function test_architecture_surface_pattern_quantities(): void {
   );
 
   const swallowed: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         exclusions: [{ id: "shaft", polygon: rectangle(0.5, 0, 1, 0.5) }],
       }),
@@ -259,7 +259,7 @@ export function test_architecture_surface_pattern_quantities(): void {
   );
 
   const paired: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [
           zone({ id: "a", region: rectangle(0, 0, 1, 1) }),
@@ -350,7 +350,7 @@ export function test_architecture_surface_pattern_quantities(): void {
   );
 
   const jointed: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ generate: (): never[] => [] })],
         joint: 0.01,

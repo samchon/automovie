@@ -1,4 +1,4 @@
-import { detectBodyCollision } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBodyCollisionResult,
   IAutoMovieCollisionActor,
@@ -65,7 +65,7 @@ export function test_engine_validation_detect_body_collision(): void {
     });
 
   // 1.
-  const hit: IAutoMovieBodyCollisionResult = detectBodyCollision({
+  const hit: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
     a: A({ mass: 2, centerOfMass: null, friction: 0.5, restitution: 0 }),
     b: B(0.1, { mass: 3, centerOfMass: null, restitution: 0 }),
     sampleRate: 1,
@@ -88,7 +88,7 @@ export function test_engine_validation_detect_body_collision(): void {
     hit.response !== null &&
       vclose(hit.response.impact.impulse, { x: 0, y: 0, z: 0 }),
   );
-  const apart: IAutoMovieBodyCollisionResult = detectBodyCollision({
+  const apart: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
     a: A(),
     b: B(5),
   });
@@ -100,7 +100,7 @@ export function test_engine_validation_detect_body_collision(): void {
   );
 
   // 2.
-  const intended: IAutoMovieBodyCollisionResult = detectBodyCollision({
+  const intended: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
     a: A({ mass: 2, centerOfMass: null, friction: 0.5, restitution: 0 }),
     b: B(0.1),
     sampleRate: 1,
@@ -119,7 +119,7 @@ export function test_engine_validation_detect_body_collision(): void {
     centerOfMass: null,
     restitution: 0,
   };
-  const shared: IAutoMovieBodyCollisionResult = detectBodyCollision({
+  const shared: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
     a: A(unit),
     b: staticActor({
       node: "B",
@@ -137,7 +137,7 @@ export function test_engine_validation_detect_body_collision(): void {
   );
 
   // 4.
-  const zero: IAutoMovieBodyCollisionResult = detectBodyCollision({
+  const zero: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
     a: A(),
     b: B(5),
     sampleRate: 0,
@@ -171,7 +171,7 @@ export function test_engine_validation_detect_body_collision(): void {
         { ...first, time: 1, pose: { ...first.pose, root: root(0.1) } },
       ],
     };
-    const result: IAutoMovieBodyCollisionResult = detectBodyCollision({
+    const result: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
       a: moving,
       b: staticActor({
         node: "B",

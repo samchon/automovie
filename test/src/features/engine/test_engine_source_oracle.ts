@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, createAutoMovieSourceOracle, materializeCompiledFormation, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEngineWorld, materializeCompiledFormation, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
 import type { IAutoMovieWorldSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -94,8 +94,8 @@ const crowd: ReturnType<typeof AutoMovieEnginePopulationRuntime.materializeCompi
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Distance is Euclidean: a 3-4-12 offset is 13 metres.).
  */
 export function test_engine_source_oracle(): void {
-  const oracle: ReturnType<typeof createAutoMovieSourceOracle> =
-    createAutoMovieSourceOracle({
+  const oracle: ReturnType<typeof AutoMovieEnginePopulationRuntime.createAutoMovieSourceOracle> =
+    AutoMovieEnginePopulationRuntime.createAutoMovieSourceOracle({
       world: { surfaces: [slope] },
       formationRuntime: { unit: formation },
       instanceSetRuntime: { crowd },

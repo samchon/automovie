@@ -1,4 +1,4 @@
-import { AutoMovieGravity, Vector3, projectileAt } from "@automovie/engine";
+import { AutoMovieGravity, Vector3, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieProjectileState,
@@ -112,7 +112,7 @@ export function archetypeCaptureExtendedArmoury(): Readonly<
       {
         name: "field-gun-and-shot",
         at: (seconds: number): { archetype: AutoMovieArchetype } => {
-          const state: IAutoMovieProjectileState = projectileAt(
+          const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
             flight,
             Math.max(0, seconds - fire),
           );

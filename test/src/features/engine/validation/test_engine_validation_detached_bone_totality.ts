@@ -1,9 +1,4 @@
-import {
-  detectBodyCollision,
-  validateBalanceSupport,
-  validateFootSkate,
-  validateSelfIntersection,
-} from "@automovie/engine";
+import { validateBalanceSupport, validateFootSkate, validateSelfIntersection, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   type IAutoMovieBodyCollisionResult,
   type IAutoMovieCollisionActor,
@@ -238,7 +233,7 @@ export function test_engine_validation_detached_bone_totality(): void {
     capsules: [{ from: "hips", to: "leftFoot", radius: 0.1 }],
     body: null,
   });
-  const collision: IAutoMovieBodyCollisionResult = detectBodyCollision({
+  const collision: IAutoMovieBodyCollisionResult = AutoMovieEngineValidation.detectBodyCollision({
     a: actor("a"),
     b: actor("b"),
   });

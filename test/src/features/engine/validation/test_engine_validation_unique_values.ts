@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, validateUniqueValues } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -12,7 +12,7 @@ import { TestValidator } from "@nestia/e2e";
  */
 export function test_engine_validation_unique_values(): void {
   const clean: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
-  validateUniqueValues(
+  AutoMovieEngineValidation.validateUniqueValues(
     [
       ["p", "$.0"],
       ["q", "$.1"],
@@ -23,7 +23,7 @@ export function test_engine_validation_unique_values(): void {
   TestValidator.equals("distinct", clean.items.length, 0);
 
   const found: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
-  validateUniqueValues(
+  AutoMovieEngineValidation.validateUniqueValues(
     [
       ["p", "$.0"],
       ["q", "$.1"],

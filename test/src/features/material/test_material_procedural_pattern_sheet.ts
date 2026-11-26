@@ -1,4 +1,4 @@
-import { AutoMovieEngineMaterial, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { AutoMovieEngineMaterial, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieColor,
@@ -42,7 +42,7 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_material_procedural_pattern_sheet(): void {
-  const field: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern(
+  const field: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern(
     {
       pattern: pattern({
         zones: [

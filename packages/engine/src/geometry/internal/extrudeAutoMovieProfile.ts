@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { convexHull2D } from "../../math/internal/convexHull2D";
-import { meshOf } from "../meshOf";
+import { meshOf } from "./meshOf";
 import { positive } from "../positive";
 
 /**

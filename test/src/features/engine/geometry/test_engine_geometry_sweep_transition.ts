@@ -1,4 +1,4 @@
-import { layoutAutoMovieSurfaceTransition, mapAutoMovieSurfaceTier, AutoMovieEngineText, AutoMovieEngineSweep } from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   AutoMovieSurfaceTier,
   IAutoMovieSubdivisionParameter,
@@ -87,7 +87,7 @@ export function test_engine_geometry_sweep_transition(): void {
     [8, 16],
     [16, 12],
   ]) {
-    const quads: Corner[][] = layoutAutoMovieSurfaceTransition(start!, end!, 1);
+    const quads: Corner[][] = AutoMovieEngineSweep.layoutSurfaceTransition(start!, end!, 1);
     const set: Set<string> = new Set(quads.map(key));
     TestValidator.predicate(
       `${start} to ${end} mirrored`,
@@ -114,10 +114,10 @@ export function test_engine_geometry_sweep_transition(): void {
         u: 0.1 + 0.8 * ((k * 0.618) % 1),
         v: 0.1 + 0.8 * ((k * 0.382) % 1),
       };
-      const back: IAutoMovieSubdivisionParameter = mapAutoMovieSurfaceTier({
+      const back: IAutoMovieSubdivisionParameter = AutoMovieEngineSweep.mapSurfaceTier({
         from: low,
         to: cage,
-        at: mapAutoMovieSurfaceTier({ from: cage, to: low, at }).at,
+        at: AutoMovieEngineSweep.mapSurfaceTier({ from: cage, to: low, at }).at,
       }).at;
       return (
         back.face === face &&
@@ -150,7 +150,7 @@ export function test_engine_geometry_sweep_transition(): void {
     TestValidator.predicate(
       label,
       throwsError(
-        (): unknown => layoutAutoMovieSurfaceTransition(start, end, rows),
+        (): unknown => AutoMovieEngineSweep.layoutSurfaceTransition(start, end, rows),
         message,
       ),
     );

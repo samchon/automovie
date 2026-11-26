@@ -1,4 +1,4 @@
-import { simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieSoftBodyDomain,
@@ -94,7 +94,7 @@ export function test_soft_body_budget_report(): void {
   const drawn: ReturnType<typeof AutoMovieEngineSoftBody.softBodySurfaceGeometry> =
     AutoMovieEngineSoftBody.softBodySurfaceGeometry({
       domain,
-      state: simulateSoftBody(domain, 0),
+      state: AutoMovieEngineSoftBody.simulateSoftBody(domain, 0),
     });
   TestValidator.equals(
     "the declared triangle count is what the surface actually draws",
@@ -117,7 +117,7 @@ export function test_soft_body_budget_report(): void {
             (
               AutoMovieEngineSoftBody.softBodySurfaceGeometry({
                 domain: cord,
-                state: simulateSoftBody(cord, 0),
+                state: AutoMovieEngineSoftBody.simulateSoftBody(cord, 0),
               }).mesh.indices ?? []
             ).length === 0
           );

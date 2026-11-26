@@ -5,7 +5,7 @@ import type {
   IAutoMovieSubdivisionSurface,
 } from "@automovie/interface";
 
-import { limitSubdivisionLevel } from "../limitSubdivisionLevel";
+import { limitSubdivisionLevel } from "./limitSubdivisionLevel";
 
 /**
  * Evaluate a completed generating level without another topology refinement.

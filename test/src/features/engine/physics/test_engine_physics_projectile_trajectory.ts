@@ -1,4 +1,4 @@
-import { Quaternion, projectileTrajectory, solveBallisticLaunch, AutoMovieEngineSequence } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineSequence, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieTrack,
@@ -43,7 +43,7 @@ export function test_engine_physics_projectile_trajectory(): void {
     velocity: { x: 5, y: 8, z: 2 },
     gravity: { x: 0, y: -9.81, z: 0 },
   };
-  const clip = projectileTrajectory("arrow", p, 1, 30);
+  const clip = AutoMovieAir.projectileTrajectory("arrow", p, 1, 30);
   TestValidator.equals(
     "the tracks",
     [
@@ -79,8 +79,8 @@ export function test_engine_physics_projectile_trajectory(): void {
   );
   const origin: IAutoMovieVector3 = { x: 0, y: 1.6, z: 0 };
   const target: IAutoMovieVector3 = { x: 12, y: 1.2, z: 4 };
-  const launch = solveBallisticLaunch(origin, target, 16)!;
-  const last: number[] = projectileTrajectory(
+  const launch = AutoMovieAir.solveBallisticLaunch(origin, target, 16)!;
+  const last: number[] = AutoMovieAir.projectileTrajectory(
     "bolt",
     { origin, velocity: launch.velocity, gravity: p.gravity },
     launch.hitTime,
@@ -101,8 +101,8 @@ export function test_engine_physics_projectile_trajectory(): void {
   TestValidator.equals(
     "refusals",
     [
-      throwsError(() => projectileTrajectory("arrow", p, 0, 30)),
-      throwsError(() => projectileTrajectory("arrow", p, 1, 0)),
+      throwsError(() => AutoMovieAir.projectileTrajectory("arrow", p, 0, 30)),
+      throwsError(() => AutoMovieAir.projectileTrajectory("arrow", p, 1, 0)),
     ],
     [true, true],
   );

@@ -7,7 +7,7 @@ import {
 
 import { midpoint } from "../../math/internal/midpoint";
 import { AutoMovieEngineSpace } from "../../space/index";
-import { surfaceHeightAt } from "../../space/surfaceHeightAt";
+import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 
 /**
  * How far a staged prop's underside stands above the face it rests on, in

@@ -22,8 +22,8 @@ import type {
 import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAutoMovieRecoveryCurves";
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
-import { planeFrame } from "../../internal/mesh-observations/planeFrame";
-import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
+import { planeFrame } from "../../geometry/internal/planeFrame";
+import { sourceOrientation } from "../../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
 import { observeRecoverySourceSlabs } from "../../geometry/internal/observeRecoverySourceSlabs";
 import { observeRecoverySourceTerminals } from "../../geometry/internal/observeRecoverySourceTerminals";

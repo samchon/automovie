@@ -1,4 +1,12 @@
-import { type IAutoMovieApplySoftBodyFriction, type IAutoMovieGatherSoftBodyCorrections, type IAutoMovieSoftBodyDomain, type IAutoMovieProjectSoftCordSelfContact, type IAutoMovieWearableSoftResult, type IAutoMovieSimulateWearableSoftBody, type IAutoMovieSoftBodyBudget, type IAutoMovieVector3, type IAutoMovieSoftBodyHeldLoads, type IAutoMovieSoftBodyState, type IAutoMovieSoftBodySurface, type IAutoMovieSoftBodySurfaceGeometry, type IAutoMovieSolveSoftBodyCompliantSweep, type IAutoMovieValidation, type IAutoMovieValidateSoftBodyDomain, type IAutoMovieViolationCollector } from "@automovie/interface";
+import { projectSoftBodyContacts as projectSoftBodyContactsImplementation } from "./internal/projectSoftBodyContacts";
+import { sampleSoftBody as sampleSoftBodyImplementation } from "./internal/sampleSoftBody";
+import { simulateSoftBody as simulateSoftBodyImplementation } from "./internal/simulateSoftBody";
+import { simulateSoftBodyCore as simulateSoftBodyCoreImplementation } from "./internal/simulateSoftBodyCore";
+import { simulateSoftBodyWithBoundaries as simulateSoftBodyWithBoundariesImplementation } from "./internal/simulateSoftBodyWithBoundaries";
+import { softBodyRestBuffer as softBodyRestBufferImplementation } from "./internal/softBodyRestBuffer";
+import { softBodyRestConfiguration as softBodyRestConfigurationImplementation } from "./internal/softBodyRestConfiguration";
+
+import { type IAutoMovieApplySoftBodyFriction, type IAutoMovieGatherSoftBodyCorrections, type IAutoMovieSoftBodyDomain, type IAutoMovieProjectSoftCordSelfContact, type IAutoMovieWearableSoftResult, type IAutoMovieSimulateWearableSoftBody, type IAutoMovieSoftBodyBudget, type IAutoMovieVector3, type IAutoMovieSoftBodyHeldLoads, type IAutoMovieSoftBodyState, type IAutoMovieSoftBodySurface, type IAutoMovieSoftBodySurfaceGeometry, type IAutoMovieSolveSoftBodyCompliantSweep, type IAutoMovieValidation, type IAutoMovieValidateSoftBodyDomain, type IAutoMovieViolationCollector, type IAutoMovieSoftCollider, type IAutoMovieSoftBodyResolvedCapsule, type IAutoMovieSoftBodyBoundarySample, type IAutoMovieSoftBodyObserver } from "@automovie/interface";
 import { applySoftBodyFriction as applySoftBodyFrictionImplementation } from "./internal/applySoftBodyFriction";
 import { gatherSoftBodyCorrections as gatherSoftBodyCorrectionsImplementation } from "./internal/gatherSoftBodyCorrections";
 import { productionSoftBodyUsesMovingBoundary as productionSoftBodyUsesMovingBoundaryImplementation } from "./internal/productionSoftBodyUsesMovingBoundary";
@@ -317,5 +325,82 @@ export namespace AutoMovieEngineSoftBody {
    */
   export function validateSoftVector(out: IAutoMovieViolationCollector, path: string, value: IAutoMovieVector3): void {
     validateSoftVectorImplementation(out, path, value);
+  }
+
+  /**
+   * Project one unanchored particle through authored static colliders, then
+   * resolved moving capsules, preserving the running contact count.
+   */
+  export function projectSoftBodyContacts(colliders: IAutoMovieSoftCollider[], capsules: readonly IAutoMovieSoftBodyResolvedCapsule[] | null, predicted: Float64Array, particle: number, contacts: number): number {
+    return projectSoftBodyContactsImplementation(colliders, capsules, predicted, particle, contacts);
+  }
+
+  /**
+   * Sample the static cloth trajectory at a shot second by snapping to its
+   * fixed-clock step. Nonfinite time throws; negative finite time samples rest.
+   * This public sampling API currently has no production/viewer caller.
+   */
+  export function sampleSoftBody(domain: IAutoMovieSoftBodyDomain, time: number, state?: string | null): IAutoMovieSoftBodyState {
+    return sampleSoftBodyImplementation(domain, time, state);
+  }
+
+  /**
+   * Replay one admitted cloth domain without resolved moving samples to an
+   * absolute fixed-clock step. Body capsules are refused; moving anchor binding
+   * metadata is currently ignored in favor of static/rest targets. Domain
+   * admission is the caller's responsibility. No production/viewer consumer
+   * currently invokes this public solver, while portable unit cases exercise its
+   * numerical output.
+   */
+  export function simulateSoftBody(domain: IAutoMovieSoftBodyDomain, step: number, state?: string | null): IAutoMovieSoftBodyState {
+    return simulateSoftBodyImplementation(domain, step, state);
+  }
+
+  /**
+   * Integrate an admitted cloth lattice from its authored rest boundary to one
+   * absolute fixed step. Without declared compliance and contact the solve is the
+   * plain position-based one, operation for operation. With compliance, each
+   * sweep projects the lattice's edges as compliant constraints with their own
+   * multipliers (`solveSoftBodyCompliantSweep`); with contact, a collider's push
+   * is followed by Coulomb friction (`applySoftBodyFriction`) and a cord that
+   * asks for self-collision keeps its segments apart after each sweep
+   * (`projectSoftCordSelfContact`). A moving anchor a boundary sample lists as
+   * released regains its mass for that step, leaving with the velocity its target
+   * last moved at. Each position and rate must be representable at the step
+   * boundary. An observer reads every completed step, with the force each held
+   * particle bears when the solve is compliant.
+   */
+  export function simulateSoftBodyCore(domain: IAutoMovieSoftBodyDomain, step: number, state: string | null, boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null, observer?: IAutoMovieSoftBodyObserver | null): IAutoMovieSoftBodyState {
+    return simulateSoftBodyCoreImplementation(domain, step, state, boundaries, observer);
+  }
+
+  /**
+   * Replay cloth against a complete resolved moving boundary for every absolute
+   * step from zero through the target. Static colliders remain active. Each
+   * sample holds every authored moving anchor or releases it; an observer reads
+   * every completed step. This public API currently reaches portable tests
+   * through the wearable resolver; no production/viewer host wires that live
+   * solver.
+   */
+  export function simulateSoftBodyWithBoundaries(domain: IAutoMovieSoftBodyDomain, step: number, boundaries: readonly IAutoMovieSoftBodyBoundarySample[], state?: string | null, observer?: IAutoMovieSoftBodyObserver | null): IAutoMovieSoftBodyState {
+    return simulateSoftBodyWithBoundariesImplementation(domain, step, boundaries, state, observer);
+  }
+
+  /**
+   * Allocate the authored rest coordinates with static anchors and one named
+   * state's targets applied.
+   */
+  export function softBodyRestBuffer(domain: IAutoMovieSoftBodyDomain, state: string | null): Float64Array {
+    return softBodyRestBufferImplementation(domain, state);
+  }
+
+  /**
+   * Return fresh plain coordinates for the authored rest mesh with static anchors
+   * and one selected state's targets applied. Production furnishing validation
+   * consumes this configuration; moving targets require the separate
+   * complete-boundary solver.
+   */
+  export function softBodyRestConfiguration(domain: IAutoMovieSoftBodyDomain, state?: string | null): number[] {
+    return softBodyRestConfigurationImplementation(domain, state);
   }
 }

@@ -1,8 +1,4 @@
-import {
-  AutoMovieComposition,
-  AutoMovieScheduleError,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { AutoMovieComposition, AutoMovieScheduleError, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
@@ -42,7 +38,7 @@ export function test_engine_composition_resolve_schedule_index_event(): void {
   // 1. An index with no event.
   let caught: unknown = undefined;
   try {
-    resolveAutoMovieSchedule(
+    AutoMovieEngineSchedule.resolve(
       AutoMovieComposition.sequence(
         kick,
         AutoMovieComposition.at("k", step, 0, { index: 1 }),
@@ -61,7 +57,7 @@ export function test_engine_composition_resolve_schedule_index_event(): void {
   );
 
   // 2. The same alignment naming its event.
-  const placed: IAutoMovieSchedule = resolveAutoMovieSchedule(
+  const placed: IAutoMovieSchedule = AutoMovieEngineSchedule.resolve(
     AutoMovieComposition.parallel(
       kick,
       AutoMovieComposition.at("k", step, 0, { event: "impact", index: 0 }),

@@ -1,7 +1,4 @@
-import {
-  measureAutoMoviePlacedContact,
-  measureAutoMoviePlacedContinuity,
-} from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
@@ -156,7 +153,7 @@ function measureContact(
   input: IAutoMoviePlacedContact.IProps,
 ): IAutoMoviePlacedObligation {
   const result: IAutoMoviePlacedContact.IResult =
-    measureAutoMoviePlacedContact(input);
+    AutoMovieEngineValidation.measurePlacedContact(input);
   if (result.status === "unsupported")
     return {
       status: "unsupported",
@@ -211,7 +208,7 @@ function measureContinuity(
   input: IAutoMoviePlacedContinuity.IProps,
 ): IAutoMoviePlacedObligation {
   const result: IAutoMoviePlacedContinuity.IResult =
-    measureAutoMoviePlacedContinuity(input);
+    AutoMovieEngineValidation.measurePlacedContinuity(input);
   if (result.status === "excluded")
     return {
       status: "excluded",

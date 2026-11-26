@@ -28,7 +28,7 @@ import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCol
 import { materialTextureSlots } from "./materialTextureSlots";
 import { validateAffordance } from "./validateAffordance";
 import { validateAffordanceArticulation } from "./validateAffordanceArticulation";
-import { validateBody } from "./validateBody";
+import { validateBody } from "./internal/validateBody";
 import { validateColor } from "./validateColor";
 import { validateExtents } from "./validateExtents";
 import { validateJointConstraint } from "./validateJointConstraint";
@@ -37,13 +37,13 @@ import { validateMaterialLobes } from "./validateMaterialLobes";
 import { validateMaterialOverlays } from "./validateMaterialOverlays";
 import { validateMaterialProcedural } from "./validateMaterialProcedural";
 import { validateMaterialWear } from "./validateMaterialWear";
-import { validateMesh } from "./validateMesh";
+import { validateMesh } from "./internal/validateMesh";
 import { validateModelImages } from "./validateModelImages";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
 import { validateSkeletonGraph } from "./validateSkeletonGraph";
 import { validateTextureBinding } from "./validateTextureBinding";
-import { validateTransformScalars } from "./validateTransformScalars";
-import { validateUniqueValues } from "./validateUniqueValues";
+import { validateTransformScalars } from "./internal/validateTransformScalars";
+import { validateUniqueValues } from "./internal/validateUniqueValues";
 
 /**
  * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes),

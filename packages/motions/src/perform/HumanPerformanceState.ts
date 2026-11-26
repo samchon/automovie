@@ -1,7 +1,4 @@
-import {
-  checkAutoMovieLegality,
-  integrateAirborneRotation,
-} from "@automovie/engine";
+import { integrateAirborneRotation, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieCheckLegality,
   IAutoMovieComposition,
@@ -372,7 +369,7 @@ export class HumanPerformanceState {
     const violations: IAutoMovieCheckLegality.IViolation[] =
       input.rules === undefined
         ? []
-        : checkAutoMovieLegality(this.schedule, input.rules);
+        : AutoMovieEngineSchedule.checkLegality(this.schedule, input.rules);
     if (violations.length !== 0)
       throw new HumanRefusal({
         kind: "rule",

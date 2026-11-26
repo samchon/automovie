@@ -7,8 +7,8 @@ import type {
   IAutoMovieResolvedJointAngles,
 } from "@automovie/interface";
 
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { decomposeJointRotation } from "../kinematics/internal/decomposeJointRotation";
+import { jointToQuaternion } from "../kinematics/internal/jointToQuaternion";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { abductionRange } from "./abductionRange";
 import { swingConeBlend } from "./swingConeBlend";

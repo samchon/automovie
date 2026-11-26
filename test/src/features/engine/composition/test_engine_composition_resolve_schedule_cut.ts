@@ -1,8 +1,4 @@
-import {
-  AutoMovieComposition,
-  AutoMovieEngineScheduleCut,
-  resolveAutoMovieSchedule,
-} from "@automovie/engine";
+import { AutoMovieComposition, AutoMovieEngineScheduleCut, AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieIntent,
   IAutoMovieIntentTiming,
@@ -67,7 +63,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   });
   const step: IAutoMovieIntent = { subject: "a", capability: "step" };
   const run = (...parts: IAutoMovieIntent[]): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(AutoMovieComposition.sequence(...parts), laws);
+    AutoMovieEngineSchedule.resolve(AutoMovieComposition.sequence(...parts), laws);
   const close = (a: number, b: number): boolean => Math.abs(a - b) < 1e-12;
 
   const shared: IAutoMovieSchedule = run(
@@ -148,7 +144,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
     until: IAutoMovieIntent["until"],
     l: IAutoMovieScheduleLaws = laws,
   ): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(
+    AutoMovieEngineSchedule.resolve(
       AutoMovieComposition.parallel(
         { ...kick(), anchor: "k" },
         AutoMovieComposition.sequence(guard(until), step),
@@ -280,7 +276,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   const record = (intent: IAutoMovieIntent): void => {
     if (intent.capability === "step") seen.push(intent);
   };
-  const restored: IAutoMovieSchedule = resolveAutoMovieSchedule(
+  const restored: IAutoMovieSchedule = AutoMovieEngineSchedule.resolve(
     AutoMovieComposition.sequence(
       anchor,
       AutoMovieComposition.at("saved-kick", savedStep, -0.5, {
@@ -360,7 +356,7 @@ export function test_engine_composition_resolve_schedule_cut(): void {
   );
 
   const synced = (subject: string): IAutoMovieSchedule =>
-    resolveAutoMovieSchedule(
+    AutoMovieEngineSchedule.resolve(
       AutoMovieComposition.parallel(
         { ...kick(), anchor: "k" },
         AutoMovieComposition.sequence(

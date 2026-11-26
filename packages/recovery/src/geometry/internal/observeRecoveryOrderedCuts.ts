@@ -14,7 +14,7 @@ import type {
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "./bindRecoverySavedSectionCuts";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
-import { planeFrame } from "../../internal/mesh-observations/planeFrame";
+import { planeFrame } from "./planeFrame";
 import { prepareRecoveryMeshIncidence } from "./prepareRecoveryMeshIncidence";
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, projectileAt, projectileFirstContact, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Quaternion, Vector3, projectileFirstContact, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMoviePhysicalShape,
@@ -95,7 +95,7 @@ export namespace HumanPropSweepColliders {
     contact: IAutoMovieResolveContactEvents.IInitialContact,
     surface: Surface,
   ): IAutoMovieResolveContactEvents.Departure | undefined {
-    const state: IAutoMovieProjectileState = projectileAt(
+    const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
       projectile,
       contact.from,
     );

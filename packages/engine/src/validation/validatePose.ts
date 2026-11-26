@@ -11,7 +11,7 @@ import {
 import { getConstraint } from "../rom/getConstraint";
 import { validateJointRom } from "../rom/validateJointRom";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
-import { validateTransformScalars } from "./validateTransformScalars";
+import { validateTransformScalars } from "./internal/validateTransformScalars";
 
 /**
  * Admit skeleton identity, optional root transform, duplicate/undeclared joint

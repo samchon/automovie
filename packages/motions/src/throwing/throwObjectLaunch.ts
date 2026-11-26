@@ -1,4 +1,4 @@
-import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieAir } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanContactWindow,
@@ -114,7 +114,7 @@ export namespace throwObjectLaunch {
     launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch,
     seconds: number,
   ): IAutoMovieVector3 {
-    return projectileAt(
+    return AutoMovieAir.projectileAt(
       {
         origin: launch.point,
         velocity: launch.velocity,

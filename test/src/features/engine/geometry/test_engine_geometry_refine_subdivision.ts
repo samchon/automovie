@@ -1,4 +1,4 @@
-import { admitSubdivisionCage, refineSubdivisionPoints, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieSubdivisionLevel } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -25,11 +25,11 @@ import { TestValidator } from "@nestia/e2e";
  *    within 1e-15.
  */
 export function test_engine_geometry_refine_subdivision(): void {
-  const square: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
+  const square: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({
     positions: [0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0],
     faces: [[0, 1, 2, 3]],
   });
-  const grid: IAutoMovieSubdivisionLevel = admitSubdivisionCage({
+  const grid: IAutoMovieSubdivisionLevel = AutoMovieEngineGeometry.admitSubdivisionCage({
     positions: Array.from({ length: 9 }, (_: unknown, i: number): number[] => [
       i % 3,
       Math.floor(i / 3),
@@ -44,7 +44,7 @@ export function test_engine_geometry_refine_subdivision(): void {
   });
 
   // 1.
-  const refined = refineSubdivisionPoints(square.topology, square.positions);
+  const refined = AutoMovieEngineGeometry.refineSubdivisionPoints(square.topology, square.positions);
   TestValidator.equals(
     "square points",
     refined.points,
@@ -60,7 +60,7 @@ export function test_engine_geometry_refine_subdivision(): void {
   });
 
   // 2.
-  const lifted: number[] = refineSubdivisionPoints(
+  const lifted: number[] = AutoMovieEngineGeometry.refineSubdivisionPoints(
     grid.topology,
     grid.positions,
   ).points;

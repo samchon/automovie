@@ -4,10 +4,10 @@ import type {
 } from "@automovie/interface";
 
 import { PLANAR_EPSILON } from "../../constants/PLANAR_EPSILON";
-import { planarCross } from "../../planarCross";
-import { planarSegmentsMeet } from "../../planarSegmentsMeet";
-import { pointInPlanarRing } from "../../pointInPlanarRing";
-import { signedArea } from "../../signedArea";
+import { planarCross } from "../../internal/planarCross";
+import { planarSegmentsMeet } from "../../internal/planarSegmentsMeet";
+import { pointInPlanarRing } from "../../internal/pointInPlanarRing";
+import { signedArea } from "../../internal/signedArea";
 
 /**
  * Return the first deterministic hygiene failure in one planar region, or

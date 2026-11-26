@@ -13,7 +13,7 @@ import {
 } from "@automovie/interface";
 
 import { AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE } from "../../constants/AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE";
-import { instancePrototypeChoices } from "../../populationRuntime/instancePrototypeChoices";
+import { instancePrototypeChoices } from "../../populationRuntime/internal/instancePrototypeChoices";
 import { selectInstancePrototype } from "../../populationRuntime/internal/selectInstancePrototype";
 import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";

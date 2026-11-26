@@ -1,9 +1,4 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  physicalShapeBounds,
-  projectileAt,
-} from "@automovie/engine";
+import { AutoMovieGravity, Quaternion, physicalShapeBounds, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieInteractionEvent,
   IAutoMovieMotionHumanObject,
@@ -117,14 +112,14 @@ function flight(
     velocity.y < 0
       ? height / (impactSpeed / 2 - velocity.y / 2)
       : velocity.y / gravity + impactSpeed / gravity;
-  const landed: IAutoMovieVector3 = projectileAt(projectile, stop).position;
+  const landed: IAutoMovieVector3 = AutoMovieAir.projectileAt(projectile, stop).position;
   const rest: IAutoMovieVector3 = {
     ...landed,
     y: frame.position.y - height,
   };
   return (seconds: number): IAutoMovieRigidTransform => ({
     position:
-      seconds < stop ? projectileAt(projectile, seconds).position : { ...rest },
+      seconds < stop ? AutoMovieAir.projectileAt(projectile, seconds).position : { ...rest },
     rotation: { ...frame.rotation },
   });
 }

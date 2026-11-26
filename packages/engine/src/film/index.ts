@@ -3,8 +3,8 @@ export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 
 
 
-export * from "./autoMovieSectionPlaneDistance";
-export * from "./autoMovieSectionPlanesKeepPoint";
+
+
 
 
 

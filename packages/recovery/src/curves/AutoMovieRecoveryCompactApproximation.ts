@@ -1,8 +1,7 @@
+import { approximateAutoMovieRecoveryCompactCurves as approximateAutoMovieRecoveryCompactCurvesImplementation } from "./internal/approximateAutoMovieRecoveryCompactCurves";
+
 import { AutoMovieBernstein64 as B } from "@automovie/engine";
-import type {
-  AutoMovieVector2Tuple,
-  IAutoMovieRegisteredPlanarCurvePiece,
-} from "@automovie/interface";
+import { type AutoMovieVector2Tuple, type IAutoMovieRegisteredPlanarCurvePiece, type IAutoMovieCompactCurveApproximation, type IAutoMoviePiecewisePlanarCurveSource } from "@automovie/interface";
 
 import { AutoMovieRecoveryConicApproximation as Conic } from "./AutoMovieRecoveryConicApproximation";
 
@@ -51,5 +50,30 @@ export namespace AutoMovieRecoveryCompactApproximation {
       previous = piece.controls.at(-1)!;
     }
     return total;
+  }
+
+  /**
+   * Refit whole smooth charts with storage-selected degree-three to degree-five
+   * Bernstein pieces and optional positive bitangent conics. Old source knots
+   * inform observation coverage but do not force output pieces.
+   *
+   * This is a degree-bounded adaptation of Schneider's endpoint-tangent fitting
+   * and adaptive subdivision (Graphics Gems, 1990), not a reproduction of a
+   * global minimum-control theorem. The existing engine's original-design Jacobi
+   * SVD replaces two-handle normal equations and extends the interior controls:
+   * https://github.com/erich666/GraphicsGems/blob/master/gems/FitCurves.c
+   * https://www.netlib.org/lapack/lapack_routine/dgesvj.f
+   *
+   * Every polynomial fixes endpoint positions and forward tangent directions.
+   * Trapezoid-weighted fitting nodes and distinct held-out quarter nodes inspect
+   * every supplied source knot interval. Polynomial paired-point distances give
+   * bidirectional geometric witnesses at those nodes, not a continuous bound.
+   * Conics additionally use independent source-apex radial correspondences in
+   * both directions. Finite samples cannot certify missed features, embedding,
+   * Hausdorff error or likeness. No source observation is retained in the
+   * result.
+   */
+  export function approximate(curve: IAutoMoviePiecewisePlanarCurveSource, options: IAutoMovieCompactCurveApproximation.IOptions): IAutoMovieCompactCurveApproximation.IResult {
+    return approximateAutoMovieRecoveryCompactCurvesImplementation(curve, options);
   }
 }

@@ -1,4 +1,4 @@
-import { AutoMovieEngineMaterial, tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineMaterial, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMaterialWear,
   IAutoMovieMeasureFeatureEdges,
@@ -51,7 +51,7 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  * that into a difference of up to 0.014 that no shader could remove.
  */
 export function test_render_scene_apply_material_wear(): void {
-  const box: IAutoMovieTessellation = tessellate({
+  const box: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate({
     type: "box",
     width: 1,
     height: 1,

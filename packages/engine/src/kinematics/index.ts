@@ -3,13 +3,13 @@ export * from "./AutoMovieEngineKinematics";
 export * from "./aimRotation";
 
 
-export * from "./armChainFault";
+
 
 
 
 export * from "./constants";
 export * from "./curlChainUntilContact";
-export * from "./decomposeJointRotation";
+
 export * from "./decomposeJointRotationOnBasis";
 
 
@@ -19,7 +19,7 @@ export * from "./hingedArmArticulation";
 export * from "./hingedArmSwivel";
 export * from "./indexSkeletonTopology";
 export * from "./jointRomOvershoot";
-export * from "./jointToQuaternion";
+
 export * from "./jointToQuaternionOnBasis";
 
 export * from "./measureAutoMovieHumanoidBody";
@@ -29,7 +29,7 @@ export * from "./preparePoseResolution";
 export * from "./prepareSkeletonPoseResolution";
 export * from "./prepareAutoMovieMassModel";
 
-export * from "./reachableBoneNames";
+
 export * from "./resolveAttachment";
 
 export * from "./resolveAutoMovieBoneRates";

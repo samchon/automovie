@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoverySlabGraph } from "../../internal/RecoverySlabGraph";
-import { critical } from "../../internal/mesh-observations/critical";
+import { critical } from "./critical";
 import { prepareRecoveryCriticalBrackets } from "./prepareRecoveryCriticalBrackets";
 
 /**

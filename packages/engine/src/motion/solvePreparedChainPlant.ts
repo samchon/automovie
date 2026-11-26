@@ -9,7 +9,7 @@ import type {
   IAutoMovieTwoBoneArticulation,
 } from "@automovie/interface";
 
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
+import { decomposeJointRotation } from "../kinematics/internal/decomposeJointRotation";
 import { decomposeJointRotationOnBasis } from "../kinematics/decomposeJointRotationOnBasis";
 import { twoBoneChainArticulation } from "../kinematics/twoBoneChainArticulation";
 import type { prepareChainFit } from "./prepareChainFit";

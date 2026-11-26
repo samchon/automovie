@@ -1,4 +1,4 @@
-import { Vector3, buildAutoMovieWall } from "@automovie/engine";
+import { Vector3, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBuildWall,
   IAutoMovieModelPart,
@@ -23,7 +23,7 @@ export function liftShaftParts(
       name: null,
       geometry: {
         type: "mesh",
-        mesh: buildAutoMovieWall({ width, height, depth: thickness, openings }),
+        mesh: AutoMovieEngineGeometry.buildWall({ width, height, depth: thickness, openings }),
       },
       material,
       attachedBone: null,

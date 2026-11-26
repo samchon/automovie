@@ -1,4 +1,4 @@
-import { AutoMovieGravity, projectileAt } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieProjectile,
   IAutoMovieTransform,
@@ -361,7 +361,7 @@ export namespace rideBicycle {
       film: number,
     ): IAutoMovieTransform => {
       if (film <= takeoff || film >= touchdown) return placement;
-      const height: number = projectileAt(flight, film - takeoff).position.y;
+      const height: number = AutoMovieAir.projectileAt(flight, film - takeoff).position.y;
       return {
         ...placement,
         translation: {

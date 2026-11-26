@@ -1,4 +1,4 @@
-import { Vector3, projectileAt, projectileFirstContact, AutoMovieEnginePhysics } from "@automovie/engine";
+import { Vector3, projectileFirstContact, AutoMovieEnginePhysics, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -144,7 +144,7 @@ export function test_engine_physics_projectile_first_contact(): void {
     drag: { coefficient: 2 * drag, area: 1, density: 1, mass: 1 },
   };
   const from: number = 0.15 * step;
-  const start = projectileAt(launch, from);
+  const start = AutoMovieAir.projectileAt(launch, from);
   const plane = projectileFirstContact.plane("dense-turn", start.position, {
     x: 0,
     y: 1,
@@ -159,8 +159,8 @@ export function test_engine_physics_projectile_first_contact(): void {
   TestValidator.predicate(
     "a dense turn keeps its initial contact",
     start.velocity.y > 0 &&
-      projectileAt(launch, 0.3 * step).position.y > start.position.y &&
-      projectileAt(launch, 0.75 * step).position.y < start.position.y &&
+      AutoMovieAir.projectileAt(launch, 0.3 * step).position.y > start.position.y &&
+      AutoMovieAir.projectileAt(launch, 0.75 * step).position.y < start.position.y &&
       turn !== null &&
       turn.collider === plane.id &&
       turn.time === from,

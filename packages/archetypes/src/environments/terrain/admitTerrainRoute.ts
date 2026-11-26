@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, signedArea, surfaceHeightAt, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieFootprint,
   IAutoMovieFootprintRing,
@@ -36,7 +36,7 @@ export function admitTerrainRoute(
       throw new Error(
         `Terrain path "${path.id}" waypoint ${index} is outside parcel land.`,
       );
-    const value: number = surfaceHeightAt({ height: rule }, point.x, point.z);
+    const value: number = AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, point.x, point.z);
     if (
       path.fixed[index] &&
       Math.abs(value - point.y) >
@@ -116,7 +116,7 @@ function stripFits(
       strip,
     );
     const area: number = Math.abs(
-      signedArea(
+      AutoMovieEngineGeometry.signedArea(
         intersection.map(
           ([x, y]: [number, number]): IAutoMoviePlanarPoint => ({ x, y }),
         ),
@@ -169,7 +169,7 @@ function routeGrade(
     (a: number, b: number): number => a - b,
   );
   const evaluate: (t: number) => number = (t: number): number =>
-    surfaceHeightAt({ height: rule }, from.x + dx * t, from.z + dz * t);
+    AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, from.x + dx * t, from.z + dz * t);
   let max: number = 0;
   for (let index: number = 0; index + 1 < times.length; index += 1) {
     const start: number = times[index]!;

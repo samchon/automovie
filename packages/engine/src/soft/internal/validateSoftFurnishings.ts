@@ -12,7 +12,7 @@ import {
 import { builtEnvironmentContainsPoint } from "../../architecture/internal/builtEnvironmentContainsPoint";
 import { builtSpaceStatesVolume } from "../../architecture/internal/builtSpaceStatesVolume";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
-import { softBodyRestConfiguration } from "../softBodyRestConfiguration";
+import { softBodyRestConfiguration } from "./softBodyRestConfiguration";
 import { validateAutoMovieSoftFurnishingDomainOwnership } from "./validateAutoMovieSoftFurnishingDomainOwnership";
 import { validateSoftBodyDomain } from "./validateSoftBodyDomain";
 

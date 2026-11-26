@@ -1,4 +1,4 @@
-import { Quaternion, tessellate } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieCapsuleShape,
   IAutoMovieCylinderShape,
@@ -104,7 +104,7 @@ export function animalEquipmentBearingObservation(
         throw new Error(
           "The observed bearing must retain its actual primitive",
         );
-      const mesh: ReturnType<typeof tessellate> = tessellate(
+      const mesh: ReturnType<typeof AutoMovieEngineGeometry.tessellate> = AutoMovieEngineGeometry.tessellate(
         part.geometry.shape,
       );
       const points: IAutoMovieVector3[] = [];

@@ -1,3 +1,6 @@
+import { approximateAutoMovieRecoveryConicsAhn as approximateAutoMovieRecoveryConicsAhnImplementation } from "./internal/approximateAutoMovieRecoveryConicsAhn";
+import { approximateAutoMovieRecoveryConicsGhosh as approximateAutoMovieRecoveryConicsGhoshImplementation } from "./internal/approximateAutoMovieRecoveryConicsGhosh";
+
 import type {
   AutoMovieVector2Tuple,
   IAutoMovieConicApproximation,
@@ -96,5 +99,66 @@ export namespace AutoMovieRecoveryConicApproximation {
         "Budgets must be positive safe integers; maximumDepth must not exceed binary64's 52-bit subdivision precision.",
       );
     return errors;
+  }
+
+  /**
+   * Construct G1 bitangent conics using Ahn's control-triangle subdivision
+   * scheme.
+   *
+   * Basis: Y. J. Ahn, Conic approximation of planar curves, CAD 33 (2001),
+   * 867-872, doi:10.1016/S0010-4485(00)00110-X. The public primary abstract and
+   * section preview establish endpoint tangent interpolation, positive fullness
+   * factor and subdivision into a containing tangent triangle. The inaccessible
+   * characterization theorem and its specific error function are NOT reproduced.
+   * This explicitly labelled adaptation minimizes a sampled radial-correspondence
+   * maximum distance instead: each source point and conic point lie on the same
+   * ray from the tangent intersection. Its signed displacement increases with the
+   * weight, so bisection balances positive and negative extreme discrepancies.
+   *
+   * Samples at odd 1/32 intervals validate weights fitted on even intervals.
+   * Their distance is an observable discrepancy, never a continuous Hausdorff
+   * bound. A complete result only covers the supplied chart within this sampled
+   * criterion. Inflections and inadmissible triangles cause bisection; exhausted
+   * budgets omit unresolved intervals and return partial. Finite straight charts
+   * admit an explicit collinear quadratic, the conic's degenerate case: exactly
+   * collinear to roundoff, or, where the control triangle refuses a chart whose
+   * curvature keeps its sign, when its samples advance along its chord within
+   * toleranceMm of it (a bend below its coordinates' roundoff, between close
+   * inflections, refused at every depth otherwise). Such a primitive's end
+   * tangents are its chord's, so G1 holds there only to that tolerance's bend.
+   * Source callbacks are borrowed and must be deterministic; callback failures or
+   * nonfinite data refuse the whole call. Incident endpoint jets request exact
+   * right/left limits so supplied breaks preserve genuine source corners without
+   * finite-difference displacements.
+   */
+  export function approximateAhn(curve: IAutoMoviePlanarCurveSource, options: IAutoMovieConicApproximation.IOptions): IAutoMovieConicApproximation.IResult {
+    return approximateAutoMovieRecoveryConicsAhnImplementation(curve, options);
+  }
+
+  /**
+   * Numerically reproduce the endpoint-bitangent equioscillation construction of
+   * Ghosh, Petitjean and Vegter, Approximation by Conic Splines (2007), sections
+   * 3.2–3.4 and 6, DOI 10.1007/s11786-007-0004-8.
+   *
+   * Source breaks are hard boundaries: piecewise Hermite input does not acquire
+   * the paper's smoothness merely by supplying derivatives. On each smooth chart
+   * we sample nonzero curvature and monotone affine curvature, construct the
+   * endpoint triple-contact limits of the positive-weight bitangent family, and
+   * bisect its weight until refined positive and negative normal extrema balance.
+   * Located extrema are exchanged into the fitting nodes; independent held-out
+   * nodes then validate the selected coefficient rather than driving its fit.
+   * Endpoint bisection then selects an interval meeting the requested tolerance.
+   * Unlike the paper's symbolic implementation, this experiment uses finite
+   * admission/extremum samples, so neither Hausdorff certification nor global
+   * minimum arc count is claimed. Collinear charts are an explicit line
+   * extension. A zero-curvature chart endpoint uses the compactified
+   * infinite-weight limit only to bracket finite positive weights. This is an
+   * explicit numerical boundary extension, not a proof that the paper's theorem
+   * admits that endpoint. Source callback failures refuse the whole call and
+   * discard all coefficients; sampled mathematical admission failures may leave
+   * explicitly partial coverage.
+   */
+  export function approximateGhosh(curve: IAutoMoviePlanarCurveSource, options: IAutoMovieConicApproximation.IOptions): IAutoMovieConicApproximation.IResult {
+    return approximateAutoMovieRecoveryConicsGhoshImplementation(curve, options);
   }
 }

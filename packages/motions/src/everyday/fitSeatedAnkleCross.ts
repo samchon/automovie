@@ -1,4 +1,4 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3, clampPose, decomposeJointRotation, hingedArmSwivel, physicalShapeBounds, prepareChainPlant, AutoMovieEnginePhysics } from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Quaternion, Vector3, clampPose, hingedArmSwivel, physicalShapeBounds, prepareChainPlant, AutoMovieEnginePhysics, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -225,7 +225,7 @@ export function fitSeatedAnkleCross(
     const leg = {
       hip: {
         bone: upper,
-        ...decomposeJointRotation(
+        ...AutoMovieEngineKinematics.decomposeJointRotation(
           fit.upper,
           upperAxes,
           HUMANOID_REST_FRAME[upper],
@@ -234,7 +234,7 @@ export function fitSeatedAnkleCross(
       },
       knee: {
         bone: lower,
-        ...decomposeJointRotation(
+        ...AutoMovieEngineKinematics.decomposeJointRotation(
           fit.lower,
           lowerAxes,
           HUMANOID_REST_FRAME[lower],

@@ -1,4 +1,4 @@
-import { AutoMovieGravity, detectFreeFall } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieTrack,
@@ -14,8 +14,8 @@ import {
   validationHasWarningCount,
 } from "../../internal/predicates";
 
-type Input = Parameters<typeof detectFreeFall>[0];
-type Result = ReturnType<typeof detectFreeFall>;
+type Input = Parameters<typeof AutoMovieEngineValidation.detectFreeFall>[0];
+type Result = ReturnType<typeof AutoMovieEngineValidation.detectFreeFall>;
 
 /**
  * `detectFreeFall` warns about an unsupported, unattached declared body, emits
@@ -49,7 +49,7 @@ export function test_engine_validation_detect_free_fall(): void {
     { x: -1, y: 0, z: 1 },
   ];
   const fall = (over: Partial<Input>): Result =>
-    detectFreeFall({
+    AutoMovieEngineValidation.detectFreeFall({
       node: "crate",
       body,
       centerOfMass: { x: 0, y: 5, z: 0 },
@@ -84,7 +84,7 @@ export function test_engine_validation_detect_free_fall(): void {
   );
 
   // 2.
-  const outside: Result = detectFreeFall({
+  const outside: Result = AutoMovieEngineValidation.detectFreeFall({
     body,
     centerOfMass: { x: 5, y: 5, z: 5 },
     support: footprint,

@@ -1,8 +1,4 @@
-import {
-  AutoMovieViewChain,
-  buildAutoMovieConvexHull,
-  createAutoMovieMeshWindingQuery,
-} from "@automovie/engine";
+import { AutoMovieViewChain, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieHumanConicSection,
   IAutoMovieHumanF1,
@@ -74,8 +70,8 @@ export namespace AutoMovieHumanCaptureProbes {
     );
     if (placed.length === 0) return [];
     const hull: (point: readonly number[]) => IAutoMovieMeshWinding =
-      createAutoMovieMeshWindingQuery(
-        buildAutoMovieConvexHull(hullPoints(members)),
+      AutoMovieEngineGeometry.createMeshWindingQuery(
+        AutoMovieEngineGeometry.buildConvexHull(hullPoints(members)),
       );
     const skin: ((point: readonly number[]) => IAutoMovieMeshWinding) | null =
       union(pieces);
@@ -189,5 +185,5 @@ function union(
     indices,
     skin: null,
   };
-  return createAutoMovieMeshWindingQuery(mesh);
+  return AutoMovieEngineGeometry.createMeshWindingQuery(mesh);
 }

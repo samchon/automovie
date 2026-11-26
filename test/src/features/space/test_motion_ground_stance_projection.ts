@@ -1,4 +1,4 @@
-import { plantStanceFeet, spaceGround, validateFootSkate, validateGroundContact, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
+import { plantStanceFeet, validateFootSkate, validateGroundContact, AutoMovieEngineMotionTrajectory, AutoMovieEngineSpace } from "@automovie/engine";
 import {
   IAutoMovieKeyframe,
   IAutoMovieMotion,
@@ -124,7 +124,7 @@ export function test_motion_ground_stance_projection(): void {
       },
     })),
   };
-  for (const ground of [spaceGround(space), spaceGround(relief)]) {
+  for (const ground of [AutoMovieEngineSpace.spaceGround(space), AutoMovieEngineSpace.spaceGround(relief)]) {
     const path = AutoMovieEngineMotionTrajectory.followPathMotion({
       id: "climb",
       gait,

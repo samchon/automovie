@@ -1,15 +1,4 @@
 export { AutoMovieEngineSpace } from "./AutoMovieEngineSpace";
 export { AutoMovieEngineWorld } from "./world/AutoMovieEngineWorld";
-export * from "./affordanceSupportContacts";
+
 export * from "./constants";
-export * from "./groundFunction";
-export * from "./heightAt";
-export * from "./isWalkable";
-export * from "./prepareSpace";
-export * from "./prepareSurface";
-export * from "./preparedSurfaceContains";
-export * from "./spaceGround";
-export * from "./supportContactsFor";
-export * from "./surfaceAt";
-export * from "./surfaceContains";
-export * from "./surfaceHeightAt";

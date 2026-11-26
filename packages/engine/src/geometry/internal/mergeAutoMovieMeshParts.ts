@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { mergeAutoMovieMeshes } from "./mergeAutoMovieMeshes";
-import { transformAutoMovieMesh } from "../transformAutoMovieMesh";
+import { transformAutoMovieMesh } from "./transformAutoMovieMesh";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /**

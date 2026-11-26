@@ -1,4 +1,4 @@
-import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternInstancing,
@@ -70,7 +70,7 @@ const FLOOR: {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Eight whole modules on a wall face become eight slots at the module centres,).
  */
 export function test_architecture_surface_pattern_instancing(): void {
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+  const laid: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: pattern({ variants: 3, seed: 20260810 }),
   });
   const wall: IAutoMoviePatternInstancing = AutoMovieEngineArchitecture.patternInstanceTransforms({
@@ -209,7 +209,7 @@ export function test_architecture_surface_pattern_instancing(): void {
 
   const turned: IAutoMoviePatternInstancing =
     AutoMovieEngineArchitecture.patternInstanceTransforms({
-      result: generateAutoMovieSurfacePattern({
+      result: AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
         pattern: pattern({
           zones: [
             zone({
@@ -287,7 +287,7 @@ export function test_architecture_surface_pattern_instancing(): void {
   );
 
   const narrow: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: pattern({
         zones: [zone({ region: rectangle(0, 0, 1.75, 1) })],
         minimumPiece: 0.4,
@@ -350,7 +350,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "repeatable",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 3, seed: 20260810 }),
           })
             .placements.map(
@@ -364,7 +364,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "seedMatters",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 3, seed: 20260811 }),
           })
             .placements.map(
@@ -378,7 +378,7 @@ export function test_architecture_surface_pattern_instancing(): void {
       [
         "single",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({ variants: 1 }),
           }).placements.every(
             (one: IAutoMoviePatternPlacement): boolean => one.variant === 0,

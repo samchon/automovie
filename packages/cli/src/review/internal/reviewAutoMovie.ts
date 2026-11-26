@@ -4,7 +4,7 @@ import * as path from "node:path";
 import type * as Playwright from "playwright-core";
 
 import type { AutoMovieCliReviewTypes } from "../AutoMovieCliReviewTypes";
-import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
+import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieReviewOptions } from "./readAutoMovieReviewOptions";
 import { recordAutoMoviePlayback } from "./recordAutoMoviePlayback";
 import { reviewAutoMovieFile } from "./reviewAutoMovieFile";

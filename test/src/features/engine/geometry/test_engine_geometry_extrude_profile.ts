@@ -1,4 +1,4 @@
-import { tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieMeshTopology,
@@ -71,7 +71,7 @@ export function test_engine_geometry_extrude_profile(): void {
   );
 
   // 3.
-  const box = tessellate({ type: "box", width: 2, height: 2, depth: 0.2 });
+  const box = AutoMovieEngineGeometry.tessellate({ type: "box", width: 2, height: 2, depth: 0.2 });
   TestValidator.equals(
     "primitive box",
     [box.positions.length, box.indices.length],

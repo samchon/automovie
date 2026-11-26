@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Quaternion, Vector3, sampleMotion, spaceGround } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3, sampleMotion, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBeatEndActorState,
   IAutoMovieBeatEndFootPlant,
@@ -38,7 +38,7 @@ export function assertFilmRampContinuity(
       ],
       walkable: ["ramp"],
     };
-  const rampGround: ReturnType<typeof spaceGround> = spaceGround(slopeSpace);
+  const rampGround: ReturnType<typeof AutoMovieEngineSpace.spaceGround> = AutoMovieEngineSpace.spaceGround(slopeSpace);
   TestValidator.predicate(
     "the authored ramp rises one metre per twenty horizontal metres",
     nclose(rampGround(3.25, 4), 0.1625, 1e-12),

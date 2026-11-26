@@ -7,7 +7,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { emptyMeshTarget } from "../../emptyMeshTarget";
+import { emptyMeshTarget } from "../../internal/emptyMeshTarget";
 import { positive } from "../../positive";
 import { triangulateRegion } from "./triangulateRegion";
 

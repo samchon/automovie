@@ -5,7 +5,7 @@ import type {
   IAutoMovieSolvePreparedChainPlantProps,
 } from "@automovie/interface";
 
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { jointToQuaternion } from "../kinematics/internal/jointToQuaternion";
 import { Quaternion } from "../math/Quaternion";
 import type { prepareChainFit } from "./prepareChainFit";
 import { resolvePreparedChainEffector } from "./resolvePreparedChainEffector";

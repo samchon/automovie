@@ -5,7 +5,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { autoMovieInstanceAddress } from "../../autoMovieInstanceAddress";
+import { autoMovieInstanceAddress } from "../../populationRuntime/internal/autoMovieInstanceAddress";
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";

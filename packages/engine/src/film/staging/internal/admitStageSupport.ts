@@ -7,8 +7,8 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { prepareSurface } from "../../../space/prepareSurface";
-import { preparedSurfaceContains } from "../../../space/preparedSurfaceContains";
+import { prepareSurface } from "../../../space/internal/prepareSurface";
+import { preparedSurfaceContains } from "../../../space/internal/preparedSurfaceContains";
 
 /**
  * Admit actors' optional support windows against the prepared walkable set.

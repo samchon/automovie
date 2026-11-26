@@ -12,7 +12,7 @@ import type {
 import { Quaternion } from "../../math/Quaternion";
 import { adjacentAutoMovieFloat64 } from "../../math/internal/adjacentAutoMovieFloat64";
 import { physicalShapeNearest } from "./physicalShapeNearest";
-import { projectileAt } from "../projectileAt";
+import { projectileAt } from "./projectileAt";
 
 /**
  * Certify a separating prefix for one resolved sphere and finite convex shape.

@@ -1,4 +1,4 @@
-import { Vector3, simulateSoftBodyWithBoundaries } from "@automovie/engine";
+import { Vector3, AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanPerformanceSoft,
@@ -169,7 +169,7 @@ function solve(
       },
     };
     if (upto > 0)
-      simulateSoftBodyWithBoundaries(
+      AutoMovieEngineSoftBody.simulateSoftBodyWithBoundaries(
         anchored,
         upto,
         boundaries,

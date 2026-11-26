@@ -18,7 +18,7 @@ import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
 import { AutoMovieEngineSpace } from "../../space/index";
 
-import { surfaceHeightAt } from "../../space/surfaceHeightAt";
+import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 import { setPieceMatrix } from "../staging/internal/setPieceMatrix";
 
 /**

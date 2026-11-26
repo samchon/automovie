@@ -68,7 +68,7 @@ export * from "./constants";
 
 
 
-export * from "./generateAutoMovieSurfacePattern";
+
 
 
 
@@ -129,3 +129,5 @@ export { AutoMovieEngineBuiltEnvironmentWorkflow } from "./AutoMovieEngineBuiltE
 export { AutoMovieEngineDesignLineage } from "./AutoMovieEngineDesignLineage";
 
 export { AutoMovieEnginePlanarGeometry } from "./AutoMovieEnginePlanarGeometry";
+
+export { AutoMovieEngineSurfaceMaterial } from "./AutoMovieEngineSurfaceMaterial";

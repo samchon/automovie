@@ -1,4 +1,4 @@
-import { generateAutoMovieSurfacePattern } from "@automovie/engine";
+import { AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieSurfacePattern,
   IAutoMovieSurfacePatternResult,
@@ -18,7 +18,7 @@ const refuses: (
 ): boolean =>
   throwsError(
     (): IAutoMovieSurfacePatternResult =>
-      generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
+      AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({ pattern: pattern(overrides) }),
     message,
   );
 
@@ -120,7 +120,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       [
         "boundaryValues",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({
               joint: 0,
               jointTolerance: 0,
@@ -263,7 +263,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       [
         "touching",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({
               zones: [
                 zone({ id: "a", region: rectangle(0, 0, 1, 1) }),
@@ -333,7 +333,7 @@ export function test_architecture_surface_pattern_refusals(): void {
       [
         "touching",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: pattern({
               exclusions: [
                 { id: "left", polygon: rectangle(0.1, 0.1, 0.3, 0.4) },

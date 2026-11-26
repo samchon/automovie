@@ -2,15 +2,15 @@ export * from "./subject";
 export * from "./analysis";
 export * from "./anthropometry";
 export * from "./architecture";
-export * from "./autoMovieInstanceAddress";
-export * from "./autoMovieInstanceAddressSlot";
+
+
 export * from "./autoMovieModelGaits";
 export * from "./autoMovieModelPartMatrices";
 export * from "./autoMovieModelPartPoints";
 export * from "./composition";
 export * from "./constants";
 export * from "./createAutoMovieGeometryActorReader";
-export * from "./createAutoMovieSourceOracle";
+
 export * from "./drawing";
 export * from "./effectRuntime";
 export * from "./film";

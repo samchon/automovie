@@ -1,4 +1,4 @@
-import { measureAutoMoviePlacedContinuity } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMoviePlacedContinuity } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,7 +29,7 @@ export const test_engine_validation_placed_continuity = (): void => {
     kind: "transform",
     path: "props.lantern.world",
   };
-  const raw = measureAutoMoviePlacedContinuity({
+  const raw = AutoMovieEngineValidation.measurePlacedContinuity({
     ...transform,
     observation: {
       kind: "present",
@@ -51,14 +51,14 @@ export const test_engine_validation_placed_continuity = (): void => {
       ) &&
       raw.violations.some(({ path }) => path === "props.lantern.world.scale.y"),
   );
-  const missing = measureAutoMoviePlacedContinuity({
+  const missing = AutoMovieEngineValidation.measurePlacedContinuity({
     ...transform,
     observation: { kind: "missing" },
   });
   TestValidator.predicate(
     "confirmed missing transform fails and unavailable evidence does not claim coverage",
     () =>
-      measureAutoMoviePlacedContinuity(transform).status === "unsupported" &&
+      AutoMovieEngineValidation.measurePlacedContinuity(transform).status === "unsupported" &&
       missing.status === "checked" &&
       missing.violations.length === 1 &&
       missing.violations[0]?.path === "props.lantern.world",
@@ -82,7 +82,7 @@ export const test_engine_validation_placed_continuity = (): void => {
       },
     },
   };
-  const jump = measureAutoMoviePlacedContinuity({
+  const jump = AutoMovieEngineValidation.measurePlacedContinuity({
     ...edge,
     maxDistance: 0.25,
     maxAngle: 0.01,
@@ -97,7 +97,7 @@ export const test_engine_validation_placed_continuity = (): void => {
       jump.violations.length === 1 &&
       jump.violations[0]?.path === "actors.rook.root.distance",
   );
-  const unbounded = measureAutoMoviePlacedContinuity(edge);
+  const unbounded = AutoMovieEngineValidation.measurePlacedContinuity(edge);
   TestValidator.predicate(
     "declared pair without a limit exposes its measurements",
     () =>
@@ -108,7 +108,7 @@ export const test_engine_validation_placed_continuity = (): void => {
       unbounded.violations.length === 0,
   );
 
-  const seam = measureAutoMoviePlacedContinuity({
+  const seam = AutoMovieEngineValidation.measurePlacedContinuity({
     ...edge,
     after: {
       seconds: before.seconds,
@@ -130,7 +130,7 @@ export const test_engine_validation_placed_continuity = (): void => {
       seam.violations[0]?.path === "actors.rook.root.angle",
   );
 
-  const reverse = measureAutoMoviePlacedContinuity({
+  const reverse = AutoMovieEngineValidation.measurePlacedContinuity({
     ...edge,
     before: edge.after,
     after: edge.before,
@@ -138,13 +138,13 @@ export const test_engine_validation_placed_continuity = (): void => {
   TestValidator.predicate(
     "intentional boundaries exclude pairs while unavailable or unordered pairs remain explicit",
     () =>
-      measureAutoMoviePlacedContinuity({ ...edge, boundary: "cut" }).status ===
+      AutoMovieEngineValidation.measurePlacedContinuity({ ...edge, boundary: "cut" }).status ===
         "excluded" &&
-      measureAutoMoviePlacedContinuity({ ...edge, boundary: "discontinuity" })
+      AutoMovieEngineValidation.measurePlacedContinuity({ ...edge, boundary: "discontinuity" })
         .status === "excluded" &&
-      measureAutoMoviePlacedContinuity({ ...edge, boundary: "unavailable" })
+      AutoMovieEngineValidation.measurePlacedContinuity({ ...edge, boundary: "unavailable" })
         .status === "unsupported" &&
-      measureAutoMoviePlacedContinuity({
+      AutoMovieEngineValidation.measurePlacedContinuity({
         kind: "step",
         path: edge.path,
         boundary: "continuous",
@@ -160,27 +160,27 @@ export const test_engine_validation_placed_continuity = (): void => {
     kind: "custody",
     path: "props.lantern.custody",
   };
-  const after = measureAutoMoviePlacedContinuity({
+  const after = AutoMovieEngineValidation.measurePlacedContinuity({
     ...custody,
     allowed: ["receiver.hand"],
     holder: "receiver.hand",
   });
-  const closure = measureAutoMoviePlacedContinuity({
+  const closure = AutoMovieEngineValidation.measurePlacedContinuity({
     ...custody,
     allowed: ["giver.hand"],
     holder: "giver.hand",
   });
-  const early = measureAutoMoviePlacedContinuity({
+  const early = AutoMovieEngineValidation.measurePlacedContinuity({
     ...custody,
     allowed: ["giver.hand"],
     holder: "receiver.hand",
   });
-  const dropped = measureAutoMoviePlacedContinuity({
+  const dropped = AutoMovieEngineValidation.measurePlacedContinuity({
     ...custody,
     allowed: ["receiver.hand"],
     holder: null,
   });
-  const released = measureAutoMoviePlacedContinuity({
+  const released = AutoMovieEngineValidation.measurePlacedContinuity({
     ...custody,
     allowed: [null],
     holder: null,
@@ -198,7 +198,7 @@ export const test_engine_validation_placed_continuity = (): void => {
           result.violations.length === 1 &&
           result.violations[0]?.path === "props.lantern.custody.holder",
       ) &&
-      measureAutoMoviePlacedContinuity({
+      AutoMovieEngineValidation.measurePlacedContinuity({
         ...custody,
         allowed: ["receiver.hand"],
       }).status === "unsupported",

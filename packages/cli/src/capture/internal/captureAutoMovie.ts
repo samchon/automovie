@@ -11,8 +11,8 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
-import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
-import { readAutoMovieRevision } from "../../readAutoMovieRevision";
+import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
+import { readAutoMovieRevision } from "../../production/internal/readAutoMovieRevision";
 import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";
 import { runAutoMovieFfmpeg } from "../../runAutoMovieFfmpeg";
 import { AutoMovieCliCaptureHost } from "../AutoMovieCliCaptureHost";

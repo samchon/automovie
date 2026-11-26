@@ -8,11 +8,11 @@ import type {
   IAutoMovieSurfaceSample,
 } from "@automovie/interface";
 
-import { layoutAutoMovieSurfacePatches } from "../layoutAutoMovieSurfacePatches";
-import { layoutAutoMovieSurfaceTransition } from "../layoutAutoMovieSurfaceTransition";
+import { layoutAutoMovieSurfacePatches } from "./layoutAutoMovieSurfacePatches";
+import { layoutAutoMovieSurfaceTransition } from "./layoutAutoMovieSurfaceTransition";
 import { reachAutoMovieSurfaceCell } from "./reachAutoMovieSurfaceCell";
-import { rigAutoMovieSurfaceBridge } from "../rigAutoMovieSurfaceBridge";
-import { rigAutoMovieSurfaceCoons } from "../rigAutoMovieSurfaceCoons";
+import { rigAutoMovieSurfaceBridge } from "./rigAutoMovieSurfaceBridge";
+import { rigAutoMovieSurfaceCoons } from "./rigAutoMovieSurfaceCoons";
 
 /**
  * Lay out the sweep, transition, Coons and bridge blocks of a surface rig,

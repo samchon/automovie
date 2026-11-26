@@ -1,8 +1,4 @@
-import {
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-  resolveAutoMovieMutualGoal,
-} from "@automovie/engine";
+import { Vector3, resolveAutoMovieHumanoidSurfaces, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -107,11 +103,11 @@ function kind(side: AutoMovieHumanSide): IAutoMovieMotionMeetingKind {
           frame,
           helped.bones.get(frame.bone)!,
         ),
-        seat: resolveAutoMovieMutualGoal({
+        seat: AutoMovieEngineCompositionPose.mutualGoal({
           a: shoulder(helped, side, sitting),
           b: hold,
         }).point,
-        lift: resolveAutoMovieMutualGoal({
+        lift: AutoMovieEngineCompositionPose.mutualGoal({
           a: shoulder(helped, side, squat(helped, sitting)),
           b: hold,
         }).point,

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { realizeAutoMovieBicubicAtlas64 } from "./realizeAutoMovieBicubicAtlas64";
-import { tessellateToMesh } from "../tessellateToMesh";
+import { tessellateToMesh } from "./tessellateToMesh";
 
 /**
  * Resolve each public geometry recipe through its deterministic engine owner.

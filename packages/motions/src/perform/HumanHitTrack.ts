@@ -1,4 +1,4 @@
-import { resolveAutoMovieContactEvents } from "@automovie/engine";
+import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieInteractionEvent,
@@ -152,7 +152,7 @@ export namespace HumanHitTrack {
             ),
           );
           const events: IAutoMovieResolveContactEvents.IEvent[] =
-            resolveAutoMovieContactEvents({
+            AutoMovieEngineCompositionContact.resolveEvents({
               weapons: group.map(
                 (
                   w: IAutoMovieMotionWeaponPath,

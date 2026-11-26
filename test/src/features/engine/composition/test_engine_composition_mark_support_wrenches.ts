@@ -1,4 +1,4 @@
-import { markAutoMovieSupportWrenches } from "@automovie/engine";
+import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieMark,
   IAutoMoviePhysicalSupportWrench,
@@ -32,7 +32,7 @@ export function test_engine_composition_mark_support_wrenches(): void {
     wrenches: IAutoMoviePhysicalSupportWrench[],
     seconds: number,
   ): IAutoMovieMark[] =>
-    markAutoMovieSupportWrenches({
+    AutoMovieEngineCompositionContact.markSupportWrenches({
       wrenches,
       seconds,
       interval,
@@ -109,7 +109,7 @@ export function test_engine_composition_mark_support_wrenches(): void {
   // 4. Refusals.
   for (const value of [0, -1]) {
     TestValidator.error(`a step of ${value} is refused`, (): void => {
-      markAutoMovieSupportWrenches({
+      AutoMovieEngineCompositionContact.markSupportWrenches({
         wrenches: [],
         seconds: 0,
         interval: value,
@@ -117,7 +117,7 @@ export function test_engine_composition_mark_support_wrenches(): void {
       });
     });
     TestValidator.error(`a scale of ${value} is refused`, (): void => {
-      markAutoMovieSupportWrenches({
+      AutoMovieEngineCompositionContact.markSupportWrenches({
         wrenches: [],
         seconds: 0,
         interval,

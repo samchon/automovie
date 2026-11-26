@@ -1,9 +1,12 @@
-import type {
-  IAutoMoviePhysicalJointAxis,
-  IAutoMoviePhysicalTracking,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import { samplePhysicalTracking as samplePhysicalTrackingImplementation } from "./internal/samplePhysicalTracking";
+import { physicalTrackingWithdrawn as physicalTrackingWithdrawnImplementation } from "./internal/physicalTrackingWithdrawn";
+import { samplePhysicalTrackingTarget as samplePhysicalTrackingTargetImplementation } from "./internal/samplePhysicalTrackingTarget";
+import { type AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { type IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
+import { releasePhysicalTracking as releasePhysicalTrackingImplementation } from "./internal/releasePhysicalTracking";
+import { admitPhysicalReleasePolicy as admitPhysicalReleasePolicyImplementation } from "./internal/admitPhysicalReleasePolicy";
+
+import { type IAutoMoviePhysicalJointAxis, type IAutoMoviePhysicalTracking, type IAutoMovieQuaternion, type IAutoMovieVector3, type IAutoMoviePhysicalSimulationInput, type IAutoMoviePhysicsCache, type IAutoMoviePhysicalTrackingWithdrawn, type IAutoMovieContactReceipt } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
@@ -85,5 +88,53 @@ export namespace AutoMoviePhysicalTracking {
     return length > maximumForce
       ? Vector3.scale(value, maximumForce / length)
       : value;
+  }
+
+  /**
+   * Dense authored-relative joint errors at any cached film second, without
+   * retaining film-sized diagnostics. Error is the shortest relative-rotation
+   * distance in radians. Recovery retargets can intentionally depart from the
+   * original authored hint. Saturation entries remain the most recent completed
+   * step's pre-solve demand forecasts, never a claim to a native motor impulse
+   * that the pinned SDK does not expose.
+   */
+  export function sample(input: IAutoMoviePhysicalSimulationInput.IInput, cache: IAutoMoviePhysicsCache, diagnostics: readonly IAutoMoviePhysicalSimulationInput.IDiagnostic[], seconds: number): IAutoMoviePhysicalSimulationInput.IDiagnostic[] {
+    return samplePhysicalTrackingImplementation(input, cache, diagnostics, seconds);
+  }
+
+  /**
+   * Whether a body's default tracking is withdrawn at one tick.
+   *
+   * Tracking is withdrawn only when the effective body strength is zero and no
+   * explicit per-joint protective strength stays positive; an explicit joint
+   * keeps its own motor and therefore keeps the body under tracking.
+   */
+  export function withdrawn(target: IAutoMoviePhysicalTrackingWithdrawn.ITarget): boolean {
+    return physicalTrackingWithdrawnImplementation(target);
+  }
+
+  /**
+   * Resolve declared contact-triggered withdrawal from causal solver samples.
+   * Keep joint overrides for protective effort, and retain the transition in
+   * checkpoint-owned state. Geometric, future and zero-impulse observations
+   * cannot trigger release.
+   */
+  export function sampleTarget(body: IAutoMoviePhysicalSimulationInput.IBody, target: IAutoMoviePhysicalSimulationInput.ITarget, contacts: readonly IAutoMovieContactReceipt[], seconds: number, released: Set<string>): IAutoMoviePhysicalSimulationInput.ITarget {
+    return samplePhysicalTrackingTargetImplementation(body, target, contacts, seconds, released);
+  }
+
+  /**
+   * Withdraw all default actuator effort once: clear the body's forces and
+   * torques and set every joint's motors to zero strength, keeping passive
+   * damping and the joint constraints. The caller verifies that no explicit
+   * protective joint remains active.
+   */
+  export function release(world: AutoMovieXpbdWorld, body: IAutoMoviePhysicalSimulationInput.IBody, bound: Bound): void {
+    releasePhysicalTrackingImplementation(world, body, bound);
+  }
+
+  /** Contact withdrawal names actual other-body geometry and a local-time window. */
+  export function admitReleasePolicy(input: IAutoMoviePhysicalSimulationInput.IInput, body: IAutoMoviePhysicalSimulationInput.IBody): void {
+    admitPhysicalReleasePolicyImplementation(input, body);
   }
 }

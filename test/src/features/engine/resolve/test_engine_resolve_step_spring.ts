@@ -1,4 +1,4 @@
-import { Matrix4, stepSpring, AutoMovieEngineResolve } from "@automovie/engine";
+import { Matrix4, AutoMovieEngineResolve } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSpringDriver,
@@ -78,14 +78,14 @@ const driver: (
 export function test_engine_resolve_step_spring(): void {
   const rest: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
   const still: Map<string, number[]> = world();
-  stepSpring(driver({}), still, rest, 1, LOCAL);
+  AutoMovieEngineResolve.stepSpring(driver({}), still, rest, 1, LOCAL);
   TestValidator.predicate(
     "no gravity, no pull",
     vclose(Matrix4.position(still.get("b")!), { x: 0, y: -1, z: 0 }, ROUNDING),
   );
   const swung: Map<string, number[]> = world();
   const state: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
-  stepSpring(driver({ gravityPower: 1 }), swung, state, 1, LOCAL);
+  AutoMovieEngineResolve.stepSpring(driver({ gravityPower: 1 }), swung, state, 1, LOCAL);
   TestValidator.predicate(
     "gravity along X",
     vclose(
@@ -96,7 +96,7 @@ export function test_engine_resolve_step_spring(): void {
   );
   const pulled: Map<string, number[]> = world();
   const pulledState: IAutoMovieSpringState = AutoMovieEngineResolve.createSpringState();
-  stepSpring(
+  AutoMovieEngineResolve.stepSpring(
     driver({ gravityPower: 1, stiffness: 0.5 }),
     pulled,
     pulledState,
@@ -119,7 +119,7 @@ export function test_engine_resolve_step_spring(): void {
       ),
   );
   const hit: Map<string, number[]> = world();
-  stepSpring(
+  AutoMovieEngineResolve.stepSpring(
     driver({ gravityPower: 1, stiffness: 0.5 }),
     hit,
     AutoMovieEngineResolve.createSpringState(),

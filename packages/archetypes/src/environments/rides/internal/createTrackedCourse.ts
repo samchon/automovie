@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, frameAutoMovieSweepSpine, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineMath, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieQuaternion,
   IAutoMovieSweepFrame,
@@ -75,7 +75,7 @@ export function createTrackedCourse(
   if (Vector3.length(direction) < 1e-9)
     throw new Error("Closed track reverses at the seam");
   const defaultLateral: IAutoMovieVector3 = Vector3.cross(UP, direction);
-  const path: IAutoMovieSweepPath = frameAutoMovieSweepSpine({
+  const path: IAutoMovieSweepPath = AutoMovieEngineSweep.frameSweepSpine({
     points,
     normal:
       input.lateral ??

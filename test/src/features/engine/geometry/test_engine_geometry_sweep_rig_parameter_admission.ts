@@ -1,4 +1,4 @@
-import { rigAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type { IAutoMovieSweep, IAutoMovieSweepRig } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +35,7 @@ export function test_engine_geometry_sweep_rig_parameter_admission(): void {
         { x: 2 * a, y: 3 * a },
       ],
     };
-    return rigAutoMovieSweep({
+    return AutoMovieEngineSweep.rigSweep({
       sweep: {
         correspondence: "parameter",
         spine: {

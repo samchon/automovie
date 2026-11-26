@@ -1,4 +1,4 @@
-import { projectileAt, projectileFirstContact } from "@automovie/engine";
+import { projectileFirstContact, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieBody,
   IAutoMovieMotionHumanProp,
@@ -60,7 +60,7 @@ function scenario_test_motions_perform_prop_outcome_continuation(): void {
       struck: m.struck,
       point: m.hit.point,
       normal: m.hit.normal!,
-      velocity: projectileAt(p, m.hit.time).velocity,
+      velocity: AutoMovieAir.projectileAt(p, m.hit.time).velocity,
       offset: frame,
       outcome: "bounce",
     }),

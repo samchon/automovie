@@ -1,4 +1,4 @@
-import { surfaceHeightAt, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieBuiltSurface,
   IAutoMoviePropBox,
@@ -50,7 +50,7 @@ export function assertFilmPropSupportFaces(
               face !== null &&
               face.polygon.outer.points.length === 4 &&
               face.polygon.holes.length === 0 &&
-              nclose(surfaceHeightAt(face.height, 3, -2), 0, 0)
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 3, -2), 0, 0)
             );
           },
         ],
@@ -67,7 +67,7 @@ export function assertFilmPropSupportFaces(
             });
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 7, 1), 0.5, 0)
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 7, 1), 0.5, 0)
             );
           },
         ],
@@ -77,7 +77,7 @@ export function assertFilmPropSupportFaces(
             const face: IAutoMoviePropSupportFace | null = tableTop();
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 0, 0), 0.6, 0) &&
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 0), 0.6, 0) &&
               exactGap(
                 AutoMovieEngineFilm.propSupportGap({
                   face,
@@ -97,7 +97,7 @@ export function assertFilmPropSupportFaces(
             });
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 0, 0), 0.9) &&
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 0), 0.9) &&
               bearing(
                 AutoMovieEngineFilm.propSupportGap({
                   face,
@@ -122,15 +122,15 @@ export function assertFilmPropSupportFaces(
             const drop: number = 0.3 * Math.SQRT1_2;
             return (
               face !== null &&
-              nclose(surfaceHeightAt(face.height, 0, drop), 0.3 + drop) &&
+              nclose(AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, drop), 0.3 + drop) &&
               nclose(
-                surfaceHeightAt(face.height, 0, 0) -
-                  surfaceHeightAt(face.height, 0, 1),
+                AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 0) -
+                  AutoMovieEngineSpace.surfaceHeightAt(face.height, 0, 1),
                 1,
               ) &&
               nclose(
-                surfaceHeightAt(face.height, 1, 0),
-                surfaceHeightAt(face.height, -1, 0),
+                AutoMovieEngineSpace.surfaceHeightAt(face.height, 1, 0),
+                AutoMovieEngineSpace.surfaceHeightAt(face.height, -1, 0),
               )
             );
           },

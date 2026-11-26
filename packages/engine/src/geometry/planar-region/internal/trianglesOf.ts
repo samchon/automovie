@@ -4,9 +4,9 @@ import type {
 } from "@automovie/interface";
 
 import { PLANAR_EPSILON } from "../../constants/PLANAR_EPSILON";
-import { planarCross } from "../../planarCross";
-import { planarSegmentsMeet } from "../../planarSegmentsMeet";
-import { pointInPlanarRing } from "../../pointInPlanarRing";
+import { planarCross } from "../../internal/planarCross";
+import { planarSegmentsMeet } from "../../internal/planarSegmentsMeet";
+import { pointInPlanarRing } from "../../internal/pointInPlanarRing";
 
 /**
  * Triangulate a canonical region without changing its point identities.

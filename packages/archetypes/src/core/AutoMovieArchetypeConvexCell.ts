@@ -1,4 +1,4 @@
-import { buildAutoMovieConvexHull, AutoMovieEnginePhysics } from "@automovie/engine";
+import { AutoMovieEnginePhysics, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeshGeometry,
   IAutoMovieQuaternion,
@@ -57,7 +57,7 @@ export namespace AutoMovieArchetypeConvexCell {
       );
     return {
       points,
-      geometry: { type: "mesh", mesh: buildAutoMovieConvexHull(points) },
+      geometry: { type: "mesh", mesh: AutoMovieEngineGeometry.buildConvexHull(points) },
       volume: mass.volume,
       centroid: mass.centerOfMass,
       unit: mass.inertia,

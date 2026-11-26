@@ -1,4 +1,4 @@
-import { transformAutoMovieMesh, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,13 +29,13 @@ export function test_engine_geometry_vertex_colour(): void {
   const bare: IAutoMovieMesh = { ...coloured, colors: undefined };
 
   // 1.
-  const placed: IAutoMovieMesh = transformAutoMovieMesh(coloured, {
+  const placed: IAutoMovieMesh = AutoMovieEngineGeometry.transformMesh(coloured, {
     scale: { x: -2, y: 3, z: 1 },
   });
   TestValidator.equals("placement keeps RGB", placed.colors, rgb);
   TestValidator.predicate("placement copies RGB", placed.colors !== coloured.colors);
   TestValidator.equals("mirrored winding", placed.indices, [0, 2, 1]);
-  TestValidator.equals("bare stays bare", transformAutoMovieMesh(bare, {}).colors, undefined);
+  TestValidator.equals("bare stays bare", AutoMovieEngineGeometry.transformMesh(bare, {}).colors, undefined);
 
   // 2.
   TestValidator.equals(

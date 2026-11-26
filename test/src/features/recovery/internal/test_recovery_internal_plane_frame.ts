@@ -1,4 +1,4 @@
-import { planeFrame } from "@automovie/recovery";
+import { AutoMovieRecoveryGeometry } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,13 +14,13 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_plane_frame(): void {
   TestValidator.equals(
     "the frame",
-    planeFrame([1, 2, 3], [0, 0, 2], [1, 0, 1]),
+    AutoMovieRecoveryGeometry.planeFrame([1, 2, 3], [0, 0, 2], [1, 0, 1]),
     { origin: [1, 2, 3], n: [0, 0, 1], u: [0, -1, 0], v: [1, 0, 0] },
   );
   TestValidator.error("a zero normal", (): unknown =>
-    planeFrame([0, 0, 0], [0, 0, 0], [1, 0, 0]),
+    AutoMovieRecoveryGeometry.planeFrame([0, 0, 0], [0, 0, 0], [1, 0, 0]),
   );
   TestValidator.error("a parallel reference", (): unknown =>
-    planeFrame([0, 0, 0], [0, 0, 1], [0, 0, 3]),
+    AutoMovieRecoveryGeometry.planeFrame([0, 0, 0], [0, 0, 1], [0, 0, 3]),
   );
 }

@@ -1,4 +1,4 @@
-import { validateMeshTopology, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieMesh,
@@ -70,7 +70,7 @@ export function test_engine_geometry_physical_vertices_refusals(): void {
   ];
   for (const [label, mesh] of cases) {
     TestValidator.predicate(`${label} refused`, refused(mesh));
-    const result: IAutoMovieValidation = validateMeshTopology({ mesh, path: "$model.parts[0].mesh" });
+    const result: IAutoMovieValidation = AutoMovieEngineValidation.validateMeshTopology({ mesh, path: "$model.parts[0].mesh" });
     TestValidator.predicate(
       `${label} reported`,
       !result.success &&
@@ -83,12 +83,12 @@ export function test_engine_geometry_physical_vertices_refusals(): void {
 
   // 2.
   TestValidator.equals("valid resolves", refused(valid()), false);
-  TestValidator.equals("valid validates", validateMeshTopology({ mesh: valid() }), { success: true });
+  TestValidator.equals("valid validates", AutoMovieEngineValidation.validateMeshTopology({ mesh: valid() }), { success: true });
 
   // 3.
   const empty: IAutoMovieMesh = createPhysicalMesh([], [], []);
   empty.physicalVertices!.vertices.push(0);
-  TestValidator.equals("empty with a reference", validateMeshTopology({ mesh: empty }).success, false);
+  TestValidator.equals("empty with a reference", AutoMovieEngineValidation.validateMeshTopology({ mesh: empty }).success, false);
 
   // 4.
   const cell: IAutoMovieMesh = createPhysicalMesh([0, 0, 0, 0.49e-9, 0, 0], [], [0, 0]);

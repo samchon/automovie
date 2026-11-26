@@ -20,8 +20,8 @@ import { convertAutoMovieRecoveryCurves } from "../../curves/internal/convertAut
 import { RecoveryScalarIndex } from "../../internal/RecoveryScalarIndex";
 import { bindRecoverySavedSectionCuts } from "../../geometry/internal/bindRecoverySavedSectionCuts";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
-import { planeFrame } from "../../internal/mesh-observations/planeFrame";
-import { sourceOrientation } from "../../internal/mesh-observations/sourceOrientation";
+import { planeFrame } from "../../geometry/internal/planeFrame";
+import { sourceOrientation } from "../../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../../geometry/internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../../geometry/internal/prepareRecoveryMeshIncidence";
 

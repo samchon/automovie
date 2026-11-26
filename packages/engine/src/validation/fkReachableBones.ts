@@ -4,7 +4,7 @@ import {
   type IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { reachableBoneNames } from "../kinematics";
+import { AutoMovieEngineKinematics } from "../kinematics";
 
 /**
  * Return reachableBoneNames' fresh copy of root-reachable bone names, using a
@@ -14,5 +14,5 @@ export function fkReachableBones(
   skeleton: IAutoMovieSkeleton,
   topology?: IAutoMovieSkeletonTopology,
 ): Set<AutoMovieHumanoidBone> {
-  return reachableBoneNames(skeleton, topology);
+  return AutoMovieEngineKinematics.reachableBoneNames(skeleton, topology);
 }

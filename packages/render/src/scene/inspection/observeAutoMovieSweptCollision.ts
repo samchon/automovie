@@ -1,4 +1,4 @@
-import { measureAutoMovieSweptCapsuleCollision } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieInspectionDiagnostics as Diagnostic,
@@ -77,7 +77,7 @@ export function observeAutoMovieSweptCollision(
       report(identity, "deferred", "allowance-boundary-inside-cell");
       continue;
     }
-    const sweep: Sweep.IResult = measureAutoMovieSweptCapsuleCollision({
+    const sweep: Sweep.IResult = AutoMovieEngineValidation.measureSweptCapsuleCollision({
       ...interval.props,
       maxPenetration: allowance,
       maxIntervals: Math.min(interval.props.maxIntervals, budget.sweptCells),

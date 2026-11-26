@@ -4,7 +4,7 @@ import {
   AutoMovieArchetypeQuadrupedRest,
   type AutoMovieArchetypeQuadrupedRestPlan,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3, tessellate } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModelPart,
@@ -62,7 +62,7 @@ export namespace archetypeRestObservation {
         (part: IAutoMovieModelPart): [string, readonly number[]] => {
           if (part.geometry.type !== "primitive")
             throw new Error("The actual specimen must be primitive");
-          return [part.id, tessellate(part.geometry.shape).positions];
+          return [part.id, AutoMovieEngineGeometry.tessellate(part.geometry.shape).positions];
         },
       ),
     );

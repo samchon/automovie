@@ -1,4 +1,4 @@
-import { meshAutoMovieSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieMesh,
   IAutoMovieSweep,
@@ -63,5 +63,5 @@ export function sweepPolygonLoft(props: {
     ),
     correspondence: "parameter",
   };
-  return meshAutoMovieSweep({ sweep });
+  return AutoMovieEngineSweep.meshSweep({ sweep });
 }

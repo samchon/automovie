@@ -12,8 +12,8 @@ import type {
 } from "@automovie/interface";
 
 import { getConstraint } from "../rom/getConstraint";
-import { decomposeJointRotation } from "./decomposeJointRotation";
-import { jointToQuaternion } from "./jointToQuaternion";
+import { decomposeJointRotation } from "./internal/decomposeJointRotation";
+import { jointToQuaternion } from "./internal/jointToQuaternion";
 import { skeletonJointAxes } from "./internal/skeletonJointAxes";
 
 /**

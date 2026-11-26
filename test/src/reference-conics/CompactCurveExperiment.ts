@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { gzipSync } from "node:zlib";
-import { approximateAutoMovieRecoveryCompactCurves, approximateAutoMovieRecoveryConicsAhn, AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation, AutoMovieRecoveryCompactApproximation } from "@automovie/recovery";
 import { ConicPaperInput as I } from "./ConicPaperInput";
 import { ConicPaperRender as R } from "./ConicPaperRender";
 import { CompactCurveSource as S } from "./CompactCurveSource";
@@ -22,8 +22,8 @@ export async function CompactCurveExperiment(): Promise<void> {
   const hashes = async (): Promise<{ file: string; sha256: string }[]> => Promise.all(files.map(async (file: string): Promise<{ file: string; sha256: string }> => ({ file, sha256: createHash("sha256").update(await fs.readFile(path.join(root, file))).digest("hex") })));
   const sourceIdentity: { file: string; sha256: string }[] = await hashes();
   const loadedBodies = (): { name: string; sha256: string }[] => [
-    { name: "approximateAutoMovieRecoveryCompactCurves", body: approximateAutoMovieRecoveryCompactCurves.toString() },
-    { name: "approximateAutoMovieRecoveryConicsAhn", body: approximateAutoMovieRecoveryConicsAhn.toString() },
+    { name: "approximateAutoMovieRecoveryCompactCurves", body: AutoMovieRecoveryCompactApproximation.approximate.toString() },
+    { name: "approximateAutoMovieRecoveryConicsAhn", body: AutoMovieRecoveryConicApproximation.approximateAhn.toString() },
     { name: "ConicPaperInput.load", body: I.load.toString() },
     ...Object.entries(AutoMovieRecoveryConicApproximation).filter(([, value]): boolean => typeof value === "function").map(([name, value]): { name: string; body: string } => ({ name: "AutoMovieRecoveryConicApproximation." + name, body: value.toString() })),
   ].map((item: { name: string; body: string }): { name: string; sha256: string } => ({ name: item.name, sha256: createHash("sha256").update(item.body).digest("hex") }));

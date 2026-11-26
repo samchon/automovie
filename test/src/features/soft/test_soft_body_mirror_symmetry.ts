@@ -1,4 +1,4 @@
-import { simulateSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -102,7 +102,7 @@ const reflected: (values: number[]) => boolean = (
  */
 export function test_soft_body_mirror_symmetry(): void {
   const domain: IAutoMovieSoftBodyDomain = symmetric();
-  const solved: IAutoMovieSoftBodyState = simulateSoftBody(domain, 128);
+  const solved: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(domain, 128);
   TestValidator.equals(
     "a symmetric panel stays exactly symmetric",
     namedFacts([
@@ -135,7 +135,7 @@ export function test_soft_body_mirror_symmetry(): void {
   };
   TestValidator.equals(
     "breaking the authored symmetry breaks the reflection",
-    reflected(simulateSoftBody(lopsided, 128).positions),
+    reflected(AutoMovieEngineSoftBody.simulateSoftBody(lopsided, 128).positions),
     false,
   );
 }

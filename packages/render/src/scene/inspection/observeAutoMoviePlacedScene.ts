@@ -1,4 +1,4 @@
-import { measureAutoMoviePlacedContinuity } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieInspectionDiagnostics,
@@ -78,7 +78,7 @@ export function observeAutoMoviePlacedScene(
     for (const [body, segments] of Object.entries(physicalFrame.bodies))
       for (const [bone, segment] of Object.entries(segments)) {
         const result: IAutoMoviePlacedContinuity.IResult =
-          measureAutoMoviePlacedContinuity({
+          AutoMovieEngineValidation.measurePlacedContinuity({
             kind: "transform",
             path: `physical.bodies[${JSON.stringify(body)}][${JSON.stringify(bone)}]`,
             observation: {

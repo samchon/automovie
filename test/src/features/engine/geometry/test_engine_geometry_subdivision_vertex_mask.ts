@@ -1,4 +1,4 @@
-import { subdivisionVertexMask } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -26,33 +26,33 @@ export function test_engine_geometry_subdivision_vertex_mask(): void {
     ["smooth", [0, 0, 0, 0]],
     ["dart", [3, 0, 0, 0]],
   ] satisfies [string, number[]][])
-    TestValidator.equals(label, subdivisionVertexMask(sharpness, 4), {
+    TestValidator.equals(label, AutoMovieEngineGeometry.subdivisionVertexMask(sharpness, 4), {
       vertex: 0.5,
       edges: [s, s, s, s],
       faces: [s, s, s, s],
     });
 
   // 2.
-  TestValidator.equals("crease", subdivisionVertexMask([2, 0, 2, 0], 4), {
+  TestValidator.equals("crease", AutoMovieEngineGeometry.subdivisionVertexMask([2, 0, 2, 0], 4), {
     vertex: 0.75,
     edges: [0.125, 0, 0.125, 0],
     faces: [0, 0, 0, 0],
   });
-  TestValidator.equals("boundary", subdivisionVertexMask([10, 0, 10], 2), {
+  TestValidator.equals("boundary", AutoMovieEngineGeometry.subdivisionVertexMask([10, 0, 10], 2), {
     vertex: 0.75,
     edges: [0.125, 0, 0.125],
     faces: [0, 0],
   });
 
   // 3.
-  TestValidator.equals("corner", subdivisionVertexMask([10, 10, 10], 2), {
+  TestValidator.equals("corner", AutoMovieEngineGeometry.subdivisionVertexMask([10, 10, 10], 2), {
     vertex: 1,
     edges: [0, 0, 0],
     faces: [0, 0],
   });
 
   // 4.
-  TestValidator.equals("blend", subdivisionVertexMask([0.5, 0, 0.5, 0], 4), {
+  TestValidator.equals("blend", AutoMovieEngineGeometry.subdivisionVertexMask([0.5, 0, 0.5, 0], 4), {
     vertex: 0.625,
     edges: [0.09375, 0.03125, 0.09375, 0.03125],
     faces: [0.03125, 0.03125, 0.03125, 0.03125],

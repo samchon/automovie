@@ -5,7 +5,7 @@ import * as path from "node:path";
 
 import type { AutoMovieCliInspectTypes } from "../AutoMovieCliInspectTypes";
 import { formatAutoMovieInspectUrl } from "./formatAutoMovieInspectUrl";
-import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
+import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieInspectHostOptions } from "./readAutoMovieInspectHostOptions";
 import { serveAutoMovieInspectorPage } from "./serveAutoMovieInspectorPage";
 

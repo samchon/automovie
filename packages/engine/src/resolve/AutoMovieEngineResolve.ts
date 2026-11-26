@@ -1,4 +1,6 @@
-import { type IAutoMovieIKDriver, type IAutoMovieTransform, type IAutoMovieNode, type IAutoMovieSpringState, type IAutoMovieLowerSkeletonNodes, type IAutoMovieDriver, type IAutoMovieSampledChannel, type IAutoMovieResolveOutput, type IAutoMovieResolveInput, type IAutoMovieLight, type IAutoMovieShotLightingInput, type IAutoMovieSceneToNodes } from "@automovie/interface";
+import { stepSpring as stepSpringImplementation } from "./internal/stepSpring";
+
+import { type IAutoMovieIKDriver, type IAutoMovieTransform, type IAutoMovieNode, type IAutoMovieSpringState, type IAutoMovieLowerSkeletonNodes, type IAutoMovieDriver, type IAutoMovieSampledChannel, type IAutoMovieResolveOutput, type IAutoMovieResolveInput, type IAutoMovieLight, type IAutoMovieShotLightingInput, type IAutoMovieSceneToNodes, type IAutoMovieSpringDriver, type IAutoMovieSphere } from "@automovie/interface";
 import { applyIterativeIK as applyIterativeIKImplementation } from "./internal/applyIterativeIK";
 import { composeScene as composeSceneImplementation } from "./internal/composeScene";
 import { createSpringState as createSpringStateImplementation } from "./internal/createSpringState";
@@ -107,5 +109,16 @@ export namespace AutoMovieEngineResolve {
    */
   export function sceneToNodes(props: IAutoMovieSceneToNodes.IProps): IAutoMovieNode[] {
     return sceneToNodesImplementation(props);
+  }
+
+  /**
+   * Advance non-root spring joints with Verlet inertia, gravity, stiffness and
+   * length projection, then sphere collision projection. Caller state and world
+   * positions mutate in place; joint rotation/scale remain unchanged. Each
+   * centre/ordered-chain tuple transports its own previous translation, and
+   * collision projection can stretch the length projected earlier in the step.
+   */
+  export function stepSpring(d: IAutoMovieSpringDriver, world: Map<string, number[]>, state: IAutoMovieSpringState, dt: number, localById: Map<string, IAutoMovieTransform>, colliders?: readonly IAutoMovieSphere[]): void {
+    stepSpringImplementation(d, world, state, dt, localById, colliders);
   }
 }

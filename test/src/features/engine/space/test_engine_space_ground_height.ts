@@ -1,4 +1,4 @@
-import { spaceGround } from "@automovie/engine";
+import { AutoMovieEngineSpace } from "@automovie/engine";
 import type { IAutoMovieSpace, IAutoMovieSurface } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -61,7 +61,7 @@ export function test_engine_space_ground_height(): void {
       },
     ],
   };
-  const ground: ReturnType<typeof spaceGround> = spaceGround(space, -7);
+  const ground: ReturnType<typeof AutoMovieEngineSpace.spaceGround> = AutoMovieEngineSpace.spaceGround(space, -7);
   const answers: [number, number, number][] = [
     [-1, 0, 1],
     [0, 0, 1],

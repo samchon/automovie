@@ -13,11 +13,11 @@ import {
 import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/internal/sampleTimes";
-import { groundFunction } from "../space/groundFunction";
+import { groundFunction } from "../space/internal/groundFunction";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { fkReachableBones } from "./fkReachableBones";
 import { admitMotionSampleRate } from "./internal/admitMotionSampleRate";
-import { validateCapsule } from "./validateCapsule";
+import { validateCapsule } from "./internal/validateCapsule";
 
 const DEFAULT_FOOT_BONES: readonly ["leftFoot", "rightFoot"] = [
   "leftFoot",

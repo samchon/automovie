@@ -1,4 +1,4 @@
-import { tessellateSurface } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieSpace,
   IAutoMovieSurface,
@@ -85,7 +85,7 @@ const buildSurfaceGeometry: (
 ) => THREE.BufferGeometry | null = (
   surface: IAutoMovieSurface,
 ): THREE.BufferGeometry | null => {
-  const mesh: IAutoMovieTessellation | null = tessellateSurface(surface);
+  const mesh: IAutoMovieTessellation | null = AutoMovieEngineGeometry.tessellateSurface(surface);
   if (mesh === null) return null;
   const geometry: THREE.BufferGeometry<
     THREE.NormalBufferAttributes,

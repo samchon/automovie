@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, decomposeJointRotation, getConstraint, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, clampJointToSkeleton, getConstraint, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -240,8 +240,8 @@ function wrist(
         Quaternion.multiply(Quaternion.inverse(forearm), rotation),
       ),
     );
-    const angles: ReturnType<typeof decomposeJointRotation> =
-      decomposeJointRotation(
+    const angles: ReturnType<typeof AutoMovieEngineKinematics.decomposeJointRotation> =
+      AutoMovieEngineKinematics.decomposeJointRotation(
         local,
         axes[hand],
         HUMANOID_REST_FRAME[hand],

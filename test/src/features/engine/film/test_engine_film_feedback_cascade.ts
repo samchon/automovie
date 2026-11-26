@@ -1,4 +1,4 @@
-import { detectSupportToppling, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineValidation } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   IAutoMovieScriptNode,
@@ -30,7 +30,7 @@ export function test_engine_film_feedback_cascade(): void {
     { x: 0.1, y: 0, z: 0.1 },
     { x: -0.1, y: 0, z: 0.1 },
   ];
-  const result: IAutoMovieSupportResult = detectSupportToppling({
+  const result: IAutoMovieSupportResult = AutoMovieEngineValidation.detectSupportToppling({
     node: "crate",
     centerOfMass: { x: 0.5, y: 0.4, z: 0 },
     support,

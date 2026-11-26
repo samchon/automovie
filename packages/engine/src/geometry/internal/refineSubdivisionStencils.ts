@@ -3,8 +3,8 @@ import type {
   IAutoMovieSubdivisionVertexMask,
 } from "@automovie/interface";
 
-import { subdivisionEdgeSmoothness } from "../subdivisionEdgeSmoothness";
-import { subdivisionVertexMask } from "../subdivisionVertexMask";
+import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
+import { subdivisionVertexMask } from "./subdivisionVertexMask";
 
 /**
  * Compose one Catmull-Clark refinement with sparse affine source stencils.

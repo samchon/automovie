@@ -11,12 +11,12 @@ export type { AutoMovieCliCaptureTypes } from "./capture/AutoMovieCliCaptureType
 export * from "./capture/AutoMovieCliCaptureBackend";
 export * from "./capture/AutoMovieCliCaptureHost";
 export * from "./capture/IAutoMovieCliChromium";
-export * from "./loadAutoMovieProductionModule";
-export * from "./readAutoMovieRevision";
+export * from "./production/AutoMovieCliProduction";
+
 export * from "./resolveAutoMovieFfmpeg";
 export * from "./runAutoMovieFfmpeg";
 export * from "./serveAutoMovieDrawPage";
-export * from "./findAutoMovieFreePort";
+export * from "./page/AutoMovieCliPage";
 export * from "./inspect/AutoMovieCliInspect";
 export type { AutoMovieCliInspectTypes } from "./inspect/AutoMovieCliInspectTypes";
 export * from "./production/AutoMovieCliProductionPage";
@@ -27,4 +27,4 @@ export * from "./renderAutoMovieVideo";
 export * from "./review/AutoMovieCliReview";
 export type { AutoMovieCliReviewTypes } from "./review/AutoMovieCliReviewTypes";
 export * from "./review/IAutoMovieCliReviewObservation";
-export * from "./hashAutoMovieFile";
+export * from "./file/AutoMovieCliFile";

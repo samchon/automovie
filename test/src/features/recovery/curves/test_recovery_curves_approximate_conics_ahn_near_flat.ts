@@ -4,7 +4,7 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import { approximateAutoMovieRecoveryConicsAhn as approximate } from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { RecoveryConicSources } from "../../internal/RecoveryConicSources";
@@ -56,7 +56,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
               ? [0, 2 * c]
               : [0, 0],
   };
-  const flat: IAutoMovieConicApproximation.IResult = approximate(
+  const flat: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     shallow,
     options,
   );
@@ -96,7 +96,7 @@ export function test_recovery_curves_approximate_conics_ahn_near_flat(): void {
   );
   // A curved stretch whose chord leaves its samples farther than the tolerance is still subdivided, not drawn straight: the same chart
   // at a tolerance under its middle's sagitta measured at unit scale.
-  const unshifted: IAutoMovieConicApproximation.IResult = approximate(
+  const unshifted: IAutoMovieConicApproximation.IResult = AutoMovieRecoveryConicApproximation.approximateAhn(
     {
       ...shallow,
       evaluate: (t: number): Readonly<AutoMovieVector2Tuple> => [

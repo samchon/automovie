@@ -1,4 +1,4 @@
-import { transformAutoMovieMesh, validateMeshTopology, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineMath, AutoMovieEngineGeometry, AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -34,7 +34,7 @@ export function test_engine_geometry_physical_vertices_merge(): void {
   // 1.
   const combined: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([a, b]);
   TestValidator.equals("shared edge", vertices(combined), [0, 1, 2, 1, 0, 3]);
-  TestValidator.equals("manifold", validateMeshTopology({ mesh: combined }), { success: true });
+  TestValidator.equals("manifold", AutoMovieEngineValidation.validateMeshTopology({ mesh: combined }), { success: true });
   const remerged: IAutoMovieMesh = AutoMovieEngineGeometry.mergeMeshes([combined, a]);
   TestValidator.equals("remerge", vertices(remerged), [0, 1, 2, 1, 0, 3, 0, 1, 2]);
   TestValidator.equals(
@@ -56,7 +56,7 @@ export function test_engine_geometry_physical_vertices_merge(): void {
   TestValidator.equals("recomputed", vertices(mixed), [0, 1, 2, 3, 4, 5, 6, 4, 5]);
 
   // 4.
-  const moved: IAutoMovieMesh = transformAutoMovieMesh(a, { translation: { x: 2, y: 0, z: 0 } });
+  const moved: IAutoMovieMesh = AutoMovieEngineGeometry.transformMesh(a, { translation: { x: 2, y: 0, z: 0 } });
   TestValidator.predicate(
     "moved alias",
     throwsError((): unknown => AutoMovieEngineGeometry.mergeMeshes([a, moved]), ["physicalVertices", "aliases disagree"]),

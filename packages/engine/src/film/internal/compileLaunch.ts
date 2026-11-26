@@ -13,10 +13,10 @@ import {
 
 import { Vector3 } from "../../math/Vector3";
 import { AutoMovieGravity } from "../../physics/AutoMovieGravity";
-import { projectileAt } from "../../physics/projectileAt";
-import { projectileTrajectory } from "../../physics/projectileTrajectory";
-import { solveBallisticLaunch } from "../../physics/solveBallisticLaunch";
-import { solveMovingLaunch } from "../../physics/solveMovingLaunch";
+import { projectileAt } from "../../physics/internal/projectileAt";
+import { projectileTrajectory } from "../../physics/internal/projectileTrajectory";
+import { solveBallisticLaunch } from "../../physics/internal/solveBallisticLaunch";
+import { solveMovingLaunch } from "../../physics/internal/solveMovingLaunch";
 import { eventTimeKey } from "./eventTimeKey";
 
 /** The default fall the launch solves against: standard gravity, world −Y. */

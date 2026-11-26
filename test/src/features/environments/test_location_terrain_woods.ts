@@ -1,5 +1,5 @@
 import { AutoMovieEnvironment } from "@automovie/archetypes/environments";
-import { surfaceHeightAt, AutoMovieEnginePopulationRuntime } from "@automovie/engine";
+import { AutoMovieEnginePopulationRuntime, AutoMovieEngineSpace } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieExplicitInstanceTransform,
@@ -256,7 +256,7 @@ export function test_location_terrain_woods(): void {
             return (
               nclose(
                 t.translation.y,
-                surfaceHeightAt(
+                AutoMovieEngineSpace.surfaceHeightAt(
                   { height: rule },
                   anchor.x + t.translation.x,
                   anchor.z + t.translation.z,
@@ -265,7 +265,7 @@ export function test_location_terrain_woods(): void {
               ) &&
               nclose(
                 position.y,
-                surfaceHeightAt({ height: rule }, position.x, position.z),
+                AutoMovieEngineSpace.surfaceHeightAt({ height: rule }, position.x, position.z),
                 1e-12,
               )
             );

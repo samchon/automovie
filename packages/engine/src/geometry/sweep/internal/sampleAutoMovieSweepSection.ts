@@ -3,8 +3,8 @@ import type {
   IAutoMovieSweepSection,
 } from "@automovie/interface";
 
-import { interpolateAutoMovieSpline } from "../interpolateAutoMovieSpline";
-import { parameterizeAutoMovieSweepSection } from "../parameterizeAutoMovieSweepSection";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
+import { parameterizeAutoMovieSweepSection } from "./parameterizeAutoMovieSweepSection";
 
 /** Curve samples per segment when bracketing a polar angle. */
 const DENSITY: number = 64;

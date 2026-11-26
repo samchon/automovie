@@ -1,6 +1,6 @@
 import type { IAutoMovieSweep } from "@automovie/interface";
 
-import { interpolateAutoMovieSpline } from "../interpolateAutoMovieSpline";
+import { interpolateAutoMovieSpline } from "./interpolateAutoMovieSpline";
 
 /**
  * Compile a positive radius or scale profile spanning the sweep's whole spine.

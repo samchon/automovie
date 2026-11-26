@@ -21,7 +21,7 @@ import type {
  * resource measurement relies on this complete drawn/flattened model closure.
  */
 
-import { tessellateSurface } from "../../geometry/tessellateSurface";
+import { tessellateSurface } from "../../geometry/internal/tessellateSurface";
 import { AUTOMOVIE_INDEX_BYTES } from "../constants/AUTOMOVIE_INDEX_BYTES";
 import { AUTOMOVIE_NORMAL_BYTES } from "../constants/AUTOMOVIE_NORMAL_BYTES";
 import { AUTOMOVIE_POSITION_BYTES } from "../constants/AUTOMOVIE_POSITION_BYTES";

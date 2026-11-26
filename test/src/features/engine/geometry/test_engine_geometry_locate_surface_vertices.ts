@@ -1,4 +1,4 @@
-import { compileAutoMovieSweep, locateAutoMovieSurfaceVertices, AutoMovieEngineGeometry, AutoMovieEngineSweep } from "@automovie/engine";
+import { AutoMovieEngineGeometry, AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSubdivisionParameter,
   IAutoMovieSubdivisionSurface,
@@ -45,13 +45,13 @@ export function test_engine_geometry_locate_surface_vertices(): void {
       cage: { positions: cage.cage.positions, faces: cage.cage.faces },
       levels: 2,
     });
-    const located: IAutoMovieSurfaceLocation[] = locateAutoMovieSurfaceVertices({
+    const located: IAutoMovieSurfaceLocation[] = AutoMovieEngineSweep.locateSurfaceVertices({
       network,
       cage,
       parameters: surface.parameters,
     });
     const sweeps: Record<string, IAutoMovieSweepSurface> = Object.fromEntries(
-      Object.entries(network.sweeps).map(([key, sweep]: [string, IAutoMovieSweep]) => [key, compileAutoMovieSweep(sweep)]),
+      Object.entries(network.sweeps).map(([key, sweep]: [string, IAutoMovieSweep]) => [key, AutoMovieEngineSweep.compileSweep(sweep)]),
     );
     const distance = (sweep: string, u: number, v: number, at: number): number => {
       const p = sweeps[sweep]!.point(u, v);
@@ -91,6 +91,6 @@ export function test_engine_geometry_locate_surface_vertices(): void {
   ] satisfies [string, IAutoMovieSubdivisionParameter, IAutoMovieSurfaceNetwork, string][])
     TestValidator.predicate(
       label,
-      throwsError((): unknown => locateAutoMovieSurfaceVertices({ network: other, cage, parameters: [parameter] }), message),
+      throwsError((): unknown => AutoMovieEngineSweep.locateSurfaceVertices({ network: other, cage, parameters: [parameter] }), message),
     );
 }

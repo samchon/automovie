@@ -14,8 +14,8 @@ import type {
 } from "@automovie/interface";
 
 import { convertAutoMovieRecoveryCurve } from "../curves/internal/convertAutoMovieRecoveryCurve";
-import { planeFrame } from "./mesh-observations/planeFrame";
-import { sourceOrientation } from "./mesh-observations/sourceOrientation";
+import { planeFrame } from "../geometry/internal/planeFrame";
+import { sourceOrientation } from "../geometry/internal/sourceOrientation";
 import { observeRecoverySection } from "../geometry/internal/observeRecoverySection";
 import { prepareRecoveryMeshIncidence } from "../geometry/internal/prepareRecoveryMeshIncidence";
 

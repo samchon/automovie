@@ -1,4 +1,4 @@
-import { checkAutoMovieLegality } from "@automovie/engine";
+import { AutoMovieEngineSchedule } from "@automovie/engine";
 import type {
   IAutoMovieCheckLegality,
   IAutoMovieSchedule,
@@ -58,7 +58,7 @@ export function test_engine_composition_check_legality(): void {
   ];
   TestValidator.equals(
     "every finding, entry by entry and rule by rule",
-    checkAutoMovieLegality(schedule, rules),
+    AutoMovieEngineSchedule.checkLegality(schedule, rules),
     [
       { rule: "no-turn", entry: 1, detail: "turned" },
       { rule: "no-turn", entry: 2, detail: "turned" },
@@ -68,8 +68,8 @@ export function test_engine_composition_check_legality(): void {
   TestValidator.equals(
     "no rule, or a silent rule, reports nothing",
     [
-      checkAutoMovieLegality(schedule, []),
-      checkAutoMovieLegality(schedule, [
+      AutoMovieEngineSchedule.checkLegality(schedule, []),
+      AutoMovieEngineSchedule.checkLegality(schedule, [
         { id: "silent", check: (): string | null => null },
       ]),
     ],

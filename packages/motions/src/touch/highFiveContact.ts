@@ -1,4 +1,4 @@
-import { Vector3, resolveAutoMovieMutualGoal } from "@automovie/engine";
+import { Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -107,7 +107,7 @@ export namespace highFiveContact {
             a: IAutoMovieResolveMutualGoal.ISide,
             b: IAutoMovieResolveMutualGoal.ISide,
           ): IAutoMovieVector3 =>
-            resolveAutoMovieMutualGoal({
+            AutoMovieEngineCompositionPose.mutualGoal({
               a: translated(a, shifts[0]),
               b: translated(b, shifts[1]),
               height: preferred([a, b]),

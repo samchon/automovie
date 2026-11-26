@@ -1,4 +1,4 @@
-import { simulateSoftBodyCore, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyObserver,
@@ -193,7 +193,7 @@ export function test_soft_cord_xpbd(): void {
   });
   const solved = (refine: number): number =>
     sag(
-      simulateSoftBodyCore(
+      AutoMovieEngineSoftBody.simulateSoftBodyCore(
         {
           ...hung,
           solver: {
@@ -233,7 +233,7 @@ export function test_soft_cord_xpbd(): void {
   // 2. Iteration independence of an elastic cord.
   const elastic = (iterations: number): number =>
     sag(
-      simulateSoftBodyCore(
+      AutoMovieEngineSoftBody.simulateSoftBodyCore(
         {
           ...hung,
           solver: {
@@ -288,7 +288,7 @@ export function test_soft_cord_xpbd(): void {
           least = Math.min(least, segments(p, i, j));
     },
   };
-  simulateSoftBodyCore(coil, coil.solver.maxSteps, null, null, watch);
+  AutoMovieEngineSoftBody.simulateSoftBodyCore(coil, coil.solver.maxSteps, null, null, watch);
   const travel: number =
     coil.solver.fixedStepSeconds * coil.solver.referenceSpeed;
   check(
@@ -328,7 +328,7 @@ export function test_soft_cord_xpbd(): void {
       contact: { thickness: radius, friction: mu },
     };
     domain.solver = { ...domain.solver, maxSteps: 480 };
-    const end: IAutoMovieSoftBodyState = simulateSoftBodyCore(
+    const end: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBodyCore(
       domain,
       480,
       null,
@@ -354,7 +354,7 @@ export function test_soft_cord_xpbd(): void {
 
   // 5. The observer agrees with absolute seeks, and the budget counts pairs.
   const seen: Map<number, number[]> = new Map();
-  simulateSoftBodyCore(coil, 120, null, null, {
+  AutoMovieEngineSoftBody.simulateSoftBodyCore(coil, 120, null, null, {
     step: (step: number, positions: Float64Array): void => {
       if (step % 40 === 0) seen.set(step, Array.from(positions));
     },
@@ -362,7 +362,7 @@ export function test_soft_cord_xpbd(): void {
   check(
     "every observed step is the absolute seek's state to the bit",
     [40, 80, 120].every((step: number): boolean => {
-      const seek: number[] = simulateSoftBodyCore(
+      const seek: number[] = AutoMovieEngineSoftBody.simulateSoftBodyCore(
         coil,
         step,
         null,

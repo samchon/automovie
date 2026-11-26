@@ -1,3 +1,33 @@
+import { admitSubdivisionCage as admitSubdivisionCageImplementation } from "./internal/admitSubdivisionCage";
+import { buildAutoMovieConvexHull as buildAutoMovieConvexHullImplementation } from "./internal/buildAutoMovieConvexHull";
+import { buildAutoMovieWall as buildAutoMovieWallImplementation } from "./internal/buildAutoMovieWall";
+import { buildSubdivisionTopology as buildSubdivisionTopologyImplementation } from "./internal/buildSubdivisionTopology";
+import { checkAutoMovieFormExpectation as checkAutoMovieFormExpectationImplementation } from "./internal/checkAutoMovieFormExpectation";
+import { countAtLeast as countAtLeastImplementation } from "./internal/countAtLeast";
+import { createAutoMovieMeshWindingQuery as createAutoMovieMeshWindingQueryImplementation } from "./internal/createAutoMovieMeshWindingQuery";
+import { decaySubdivisionSharpness as decaySubdivisionSharpnessImplementation } from "./internal/decaySubdivisionSharpness";
+import { emptyMeshTarget as emptyMeshTargetImplementation } from "./internal/emptyMeshTarget";
+import { limitSubdivisionLevel as limitSubdivisionLevelImplementation } from "./internal/limitSubdivisionLevel";
+import { limitSubdivisionRing as limitSubdivisionRingImplementation } from "./internal/limitSubdivisionRing";
+import { measureAutoMovieModelContacts as measureAutoMovieModelContactsImplementation } from "./internal/measureAutoMovieModelContacts";
+import { meshOf as meshOfImplementation } from "./internal/meshOf";
+import { planarCross as planarCrossImplementation } from "./internal/planarCross";
+import { planarSegmentsMeet as planarSegmentsMeetImplementation } from "./internal/planarSegmentsMeet";
+import { pointInPlanarRing as pointInPlanarRingImplementation } from "./internal/pointInPlanarRing";
+import { pushFlatTriangle as pushFlatTriangleImplementation } from "./internal/pushFlatTriangle";
+import { refineSubdivisionLevel as refineSubdivisionLevelImplementation } from "./internal/refineSubdivisionLevel";
+import { refineSubdivisionPoints as refineSubdivisionPointsImplementation } from "./internal/refineSubdivisionPoints";
+import { refineSubdivisionUvs as refineSubdivisionUvsImplementation } from "./internal/refineSubdivisionUvs";
+import { signedArea as signedAreaImplementation } from "./internal/signedArea";
+import { stepSubdivisionRing as stepSubdivisionRingImplementation } from "./internal/stepSubdivisionRing";
+import { subdivisionEdgeSmoothness as subdivisionEdgeSmoothnessImplementation } from "./internal/subdivisionEdgeSmoothness";
+import { subdivisionRingEigenbasis as subdivisionRingEigenbasisImplementation } from "./internal/subdivisionRingEigenbasis";
+import { subdivisionVertexMask as subdivisionVertexMaskImplementation } from "./internal/subdivisionVertexMask";
+import { tessellate as tessellateImplementation } from "./internal/tessellate";
+import { tessellateSurface as tessellateSurfaceImplementation } from "./internal/tessellateSurface";
+import { tessellateToMesh as tessellateToMeshImplementation } from "./internal/tessellateToMesh";
+import { transformAutoMovieMesh as transformAutoMovieMeshImplementation } from "./internal/transformAutoMovieMesh";
+
 import { buildAutoMoviePolyhedron as buildAutoMoviePolyhedronImplementation } from "./internal/buildAutoMoviePolyhedron";
 import { displaceAutoMovieSurface as displaceAutoMovieSurfaceImplementation } from "./internal/displaceAutoMovieSurface";
 import { extrudeAutoMovieProfile as extrudeAutoMovieProfileImplementation } from "./internal/extrudeAutoMovieProfile";
@@ -14,7 +44,7 @@ import { separateAutoMovieMeshSequence as separateAutoMovieMeshSequenceImplement
 import { subdivideAutoMovieSurface as subdivideAutoMovieSurfaceImplementation } from "./internal/subdivideAutoMovieSurface";
 import { weldedDegenerateTriangles as weldedDegenerateTrianglesImplementation } from "./internal/weldedDegenerateTriangles";
 
-import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion, type IAutoMovieMeshDefect, type IAutoMovieMeasureMeshDefects, type IAutoMovieModelCrossing, type IAutoMovieModel, type IAutoMovieMeasureModelCrossings, type IAutoMovieSubdivideSurface, type IAutoMovieDisplaceSurface, type IAutoMovieExtrudeProfile, type IAutoMovieMeshTopology, type IAutoMovieMeshPiece, type IAutoMovieMeshAssembly, type IAutoMovieMeshPart, type IAutoMovieRevolveProfile } from "@automovie/interface";
+import { type IAutoMovieAdmitBicubicAtlas, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieFeatureEdgeDistance, type IAutoMovieVector3, type IAutoMovieSpatialQueryEntry, type IAutoMovieTriangleAttachmentContactBound, type IAutoMovieMeshQueryHierarchy, type IAutoMovieCreateEllipticLoftAtlas, type IAutoMovieMesh, type IAutoMovieMeshDeformationInfluence, type IAutoMovieMeshDeformationField, type IAutoMovieCreateMeshDepthSampler, type IAutoMovieMeshRayCaster, type IAutoMovieMeshSeparationQuery, type IAutoMovieSignedMeshQueryHit, type IAutoMovieSignedMeshQueryOptions, type IAutoMovieCreateSupportSectionQuery, type IAutoMovieEvaluateSupportSection, type IAutoMovieSubdivisionSurface, type IAutoMovieSubdivisionLevel, type IAutoMovieFitSubdivisionDomain, type IAutoMovieFitSubdivisionRegions, type IAutoMovieIntegrateRadialField, type IAutoMovieMark, type IAutoMovieMarkMeshClearance, type IAutoMovieMeasureFeatureEdges, type IAutoMovieMeasureMeshClearance, type IAutoMovieMeshClearanceWitness, type IAutoMovieProjectionIntervals, type IAutoMovieMinimizeMeshClearance, type IAutoMovieSweepFrame, type IAutoMovieSurfaceFrame, type IAutoMoviePreparedSurfaceFrame, type IAutoMovieRealizeBicubicAtlas64, type IAutoMovieRealizeGeometry, type IAutoMovieGeometry, type IAutoMovieSubdivisionTopology, type IAutoMovieSelectTriangleRegion, type IAutoMovieMeshDefect, type IAutoMovieMeasureMeshDefects, type IAutoMovieModelCrossing, type IAutoMovieModel, type IAutoMovieMeasureModelCrossings, type IAutoMovieSubdivideSurface, type IAutoMovieDisplaceSurface, type IAutoMovieExtrudeProfile, type IAutoMovieMeshTopology, type IAutoMovieMeshPiece, type IAutoMovieMeshAssembly, type IAutoMovieMeshPart, type IAutoMovieRevolveProfile, type IAutoMovieSubdivisionCage, type IAutoMovieBuildWall, type IAutoMovieFormCheck, type IAutoMovieFormExpectation, type IAutoMovieMeshWinding, type IAutoMovieMeshTarget, type IAutoMovieLimitSubdivisionLevel, type IAutoMovieLimitSubdivisionRing, type IAutoMovieSubdivisionRing, type IAutoMovieModelContact, type IAutoMovieMeasureModelContacts, type IAutoMoviePlanarPoint, type IAutoMovieRefineSubdivisionPoints, type IAutoMovieRefineSubdivisionUvs, type IAutoMovieSubdivisionVertexMask, type IAutoMovieProfilePoint, type IAutoMovieSubdivisionRingEigenbasis, type IAutoMovieTessellation, type IAutoMoviePrimitiveShape, type IAutoMovieSurface, type IAutoMovieMeshTransform } from "@automovie/interface";
 import { admitAutoMovieBicubicAtlas as admitAutoMovieBicubicAtlasImplementation } from "./internal/admitAutoMovieBicubicAtlas";
 import { assertAutoMovieDeformedTriangles as assertAutoMovieDeformedTrianglesImplementation } from "./internal/assertAutoMovieDeformedTriangles";
 import { autoMovieFeatureEdgeDistance as autoMovieFeatureEdgeDistanceImplementation } from "./internal/autoMovieFeatureEdgeDistance";
@@ -1530,5 +1560,736 @@ export namespace AutoMovieEngineGeometry {
    */
   export function revolveProfile(props: IAutoMovieRevolveProfile.IProps): IAutoMovieMesh {
     return revolveAutoMovieProfileImplementation(props);
+  }
+
+  /**
+   * Validate a subdivision cage and turn it into level zero.
+   *
+   * Refused, each with the offending index, before any refinement: positions that
+   * are empty, not packed in threes or not finite; no faces; a face with fewer
+   * than three corners, a corner that indexes no vertex, or a repeated vertex; a
+   * crease with an invalid end, equal ends, a sharpness outside 0 to 10, a
+   * repeated edge, or no matching cage edge; UVs without UV faces or the reverse,
+   * UVs not packed in pairs or not finite, UV faces not shaped like the faces, a
+   * UV index out of range, a UV shared by two vertices, or an unused UV; and
+   * every manifold refusal of `buildSubdivisionTopology`. Inputs are only read.
+   *
+   * @param cage The authored cage.
+   * @returns Level zero, with each quad corner at its parameter square corner and
+   *   each other corner at `(0, 0)` of its own sub-face.
+   */
+  export function admitSubdivisionCage(cage: IAutoMovieSubdivisionCage): IAutoMovieSubdivisionLevel {
+    return admitSubdivisionCageImplementation(cage);
+  }
+
+  /**
+   * Build the convex hull of a point set as one closed outward mesh.
+   *
+   * The hull's faces are the supporting planes `physicalHullFaces` finds, each
+   * with its loop counter-clockwise seen from outside, and
+   * `buildAutoMoviePolyhedron` fans each loop from its first corner with a flat
+   * normal and metric UVs. Archetype convex cells and the form expectation
+   * check's hull mutant are both this mesh. Points within the hull's coplanarity
+   * tolerance of a face lie on it, so a flat ring of many points makes one face.
+   * The points are read, and `physicalHullFaces` remembers the hull of this very
+   * array, so the array must not change after this call.
+   *
+   * @param points Points in metres, spanning positive volume.
+   * @returns The hull as a closed mesh, in the points' frame.
+   * @throws {Error} When the points span no volume: fewer than four points, all
+   *   of them in one plane, or a coordinate that is not finite, which leaves the
+   *   hull search no finite tolerance.
+   */
+  export function buildConvexHull(points: readonly IAutoMovieVector3[]): IAutoMovieMesh {
+    return buildAutoMovieConvexHullImplementation(points);
+  }
+
+  /**
+   * Build a rectangular wall in local XY, depth along Z, with rectangular door
+   * and window openings cut through it.
+   *
+   * The wall is partitioned at every opening edge, the cells an opening covers
+   * are dropped, and each standing cell emits only the faces no standing
+   * neighbour hides. Openings are therefore real holes in beauty, depth, normal
+   * and mask passes rather than metadata over an uncut wall, and the standing
+   * wall is a closed 2-manifold: a union of one box per cell would leave an
+   * interior face between every adjacent pair, an edge shared by four triangles
+   * that `validateMeshTopology`, and so `validateModel`, refuses, plus triangles
+   * no camera reaches that a budget still counts.
+   *
+   * Every cell corner is a lattice coordinate minus one half-extent, so the face
+   * two adjacent cells share reads the same pair of doubles from both sides and
+   * welds exactly. The result is centred on the wall and spans `-depth / 2` to
+   * `+depth / 2`; it carries flat per-face normals and no texture coordinates,
+   * because which cell a point belongs to depends on the opening list, and an
+   * atlas laid on that lattice would shift whenever an opening moves.
+   * `AutoMovieEnginePlanarRegion.extrude`, with the panel as its outer ring and
+   * the openings as holes, is the atlas-bearing form that also cuts arbitrary
+   * outlines.
+   *
+   * All openings are admitted before the lattice is built, so a refusal never
+   * leaves a partial mesh. Refused: a nonpositive or non-finite wall size; an
+   * opening with a repeated id, a non-finite origin, a nonpositive size, or a
+   * rectangle outside the wall; two overlapping openings; openings meeting only
+   * at a corner, which would pinch the wall to a line that needs a general
+   * boolean this kernel does not have; and openings that remove the whole wall.
+   * Opening records are only read.
+   *
+   * @param props.width Wall width along X in metres.
+   * @param props.height Wall height along Y in metres.
+   * @param props.depth Wall thickness along Z in metres.
+   * @param props.openings Rectangles to cut, in wall-local metres from the
+   *   bottom-left corner.
+   * @returns A closed mesh with flat normals and no UVs.
+   */
+  export function buildWall(props: IAutoMovieBuildWall.IProps): IAutoMovieMesh {
+    return buildAutoMovieWallImplementation(props);
+  }
+
+  /**
+   * Build the edges and vertex fans of polygon rows, refusing anything that is
+   * not an oriented manifold.
+   *
+   * Edges are numbered by first appearance walking faces in order and corners in
+   * order. Each fan is walked from its start by stepping to the opposite corner
+   * of the current corner's in-edge, which is the counter-clockwise neighbour
+   * when the two faces traverse the edge in opposite directions. Refused, by cage
+   * vertex and face indices: an edge used by more than two faces, an edge two
+   * faces traverse in the same direction, a vertex in no face, and a vertex whose
+   * faces form more than one fan. Rows must already hold valid, distinct vertex
+   * indices per face; `subdivideAutoMovieSurface` checks that before calling.
+   *
+   * @param vertexCount Number of vertices the rows index.
+   * @param faceOffsets Row starts, one more entry than faces.
+   * @param faceVertices Vertex of every corner.
+   * @param sharpnessOf Sharpness of the interior edge between two vertices.
+   * @returns The level's connectivity, with boundary edges at sharpness 10.
+   */
+  export function buildSubdivisionTopology(vertexCount: number, faceOffsets: number[], faceVertices: number[], sharpnessOf: (a: number, b: number) => number): IAutoMovieSubdivisionTopology {
+    return buildSubdivisionTopologyImplementation(vertexCount, faceOffsets, faceVertices, sharpnessOf);
+  }
+
+  /**
+   * Check a form against the expectation written before measuring it, and run the
+   * same shape expectation against the form's box and hull, which it must
+   * reject.
+   *
+   * Every part is realized and placed in the model frame as
+   * `measureAutoMovieModelContacts` places it, and the placed parts are merged
+   * into one mesh by concatenation. Each given field is then measured: `size`
+   * from the merged positions' axis-aligned extents, `pieces` and `genera` from
+   * `measureAutoMovieMeshPieces`, `solid` and `empty` from
+   * `createAutoMovieMeshWindingQuery`, and `pairs` from
+   * `measureAutoMovieModelContacts` with the expectation's `contact`. Each
+   * failure becomes one finding naming its field, its subject and the measured
+   * value against the expected one.
+   *
+   * The shape fields, every field but `pairs` and `contact`, also run on two
+   * one-part mutants built from every placed vertex: the 12-triangle axis-aligned
+   * box and the convex hull from `buildAutoMovieConvexHull`. Their failures are
+   * findings with subject `box` or `hull`. A mutant that fails no given shape
+   * field and is not listed in `matches` is `loose`: the expectation cannot tell
+   * it from the form, so it says too little. An expectation with no shape field
+   * therefore reports both mutants loose, and the mutants are not built. The form
+   * passes when no finding names the form and `loose` is empty.
+   *
+   * The model is only read. Throws when `pairs` is given without `contact`, when
+   * a pair names a part the model lacks or one part twice, when a shape field
+   * needs the hull of placed vertices that span no volume, and passes on the
+   * refusals of the realization, placement, winding query and contact report.
+   *
+   * @param model A built model, whatever composed it.
+   * @param expectation What the form must be.
+   * @returns The findings and the loose mutants.
+   */
+  export function checkFormExpectation(model: IAutoMovieModel, expectation: IAutoMovieFormExpectation): IAutoMovieFormCheck {
+    return checkAutoMovieFormExpectationImplementation(model, expectation);
+  }
+
+  /**
+   * Refuse a discrete sampling count that is not a safe integer of at least
+   * `least`, such as the segment count of a revolved profile.
+   *
+   * `label` names the count in the thrown message, which reads `<label> must be a
+   * safe integer >= <least>`. The check runs before the builder allocates any
+   * buffer sized by the count.
+   *
+   * @param value Count the author supplied.
+   * @param least Smallest count the operation can build from.
+   * @param label Name of the count in the diagnostic.
+   */
+  export function countAtLeast(value: number, least: number, label: string): void {
+    countAtLeastImplementation(value, least, label);
+  }
+
+  /**
+   * Compile any triangle surface into a query that tells solid from empty space
+   * at one point by the generalized winding number.
+   *
+   * The winding number is the sum of the signed solid angles every triangle
+   * subtends at the point, divided by 4 pi (Jacobson, Kavan and Sorkine-Hornung
+   * 2013, "Robust Inside-Outside Segmentation using Generalized Winding
+   * Numbers"); each triangle's solid angle is the closed form of Van Oosterom and
+   * Strackee (1983). Unlike the pseudonormal sign of
+   * `createAutoMovieSignedMeshQuery`, it needs no closed, embedded manifold: an
+   * open tube, overlapping shells in one index buffer, an edge shared by more
+   * than two triangles and a nearly closed surface all read as the share of the
+   * view they cover. A point counts as `inside` when it is not on the surface and
+   * its absolute winding number is at least 0.5, so an inward-wound shell is
+   * solid too and `winding` keeps the sign.
+   *
+   * Solid angles are singular on the surface, so the same pass first tests
+   * whether the point lies on a triangle: within a slack of 1e-9 of that
+   * triangle's doubled area from its plane and inside its three edges, edges and
+   * corners included, the test `builtSpaceContainsPoint` has always used. A
+   * triangle whose doubled area is at most 1e-12 m2 has no plane to test: it
+   * holds no surface point and contributes nothing to the sum, which is its exact
+   * solid angle when its area is zero; the closed form would instead give plus or
+   * minus 2 pi at a point on its line.
+   *
+   * The mesh is snapshotted, so changing it later needs a new query. Coordinates
+   * are metres in the mesh's frame. Admission throws on a malformed index buffer,
+   * a non-finite position and a mesh without triangles. A query throws on a point
+   * that is not three finite coordinates.
+   *
+   * @param mesh Surface to snapshot; only read.
+   * @returns The query for one XYZ point in metres.
+   */
+  export function createMeshWindingQuery(mesh: IAutoMovieMesh): ((point: readonly number[]) => IAutoMovieMeshWinding) {
+    return createAutoMovieMeshWindingQueryImplementation(mesh);
+  }
+
+  /**
+   * The sharpness an edge's two halves carry after one refinement step.
+   *
+   * DeRose, Kass and Truong (1998) lower a semi-sharp edge's sharpness by one per
+   * step, never below zero, so sharpness `s` keeps the sharp rules for `s` steps;
+   * the infinitely sharp value 10 never decays.
+   *
+   * @param sharpness Parent sharpness from 0 to 10.
+   * @returns Child sharpness from 0 to 10.
+   */
+  export function decaySubdivisionSharpness(sharpness: number): number {
+    return decaySubdivisionSharpnessImplementation(sharpness);
+  }
+
+  /**
+   * Create four new, empty attribute buffers for a flat-shaded procedural builder
+   * to append to.
+   *
+   * Each call returns arrays no other caller holds, so two builders running in
+   * one call stack never write into each other's mesh. The builder returns the
+   * filled target as its mesh, handing the arrays over without a copy.
+   *
+   * @returns Empty positions, normals, UVs and indices.
+   */
+  export function emptyMeshTarget(): IAutoMovieMeshTarget {
+    return emptyMeshTargetImplementation();
+  }
+
+  /**
+   * Evaluate the limit position and face-varying limit normals of every vertex of
+   * a level.
+   *
+   * A vertex's limit is the limit of its child, so the level's points are refined
+   * once without building the next level's connectivity, and each vertex reads
+   * its child's quad one-ring from them: its vertex point, the edge points of its
+   * fan edges and the face points of its fan faces. That ring is all quads even
+   * when the level has other polygons. While any ring edge keeps a semi-sharp
+   * sharpness between 0 and 10, the ring is refined on its own, so a crease that
+   * outlasts the requested level still rounds off in the limit exactly as further
+   * refinement would; at most ten such steps are needed. `limitSubdivisionRing`
+   * then applies the limit masks.
+   *
+   * Normals are numbered vertex by vertex, sector by sector in fan order, and
+   * each corner names the normal of the sector its face belongs to.
+   *
+   * @param level The final level.
+   * @returns Packed limit positions, packed unit normals, and each corner's
+   *   normal index.
+   */
+  export function limitSubdivisionLevel(level: IAutoMovieSubdivisionLevel): IAutoMovieLimitSubdivisionLevel.IResult {
+    return limitSubdivisionLevelImplementation(level);
+  }
+
+  /**
+   * The limit position of a ring's vertex and one limit normal per sector of
+   * faces between its infinitely sharp edges.
+   *
+   * Every edge must be smooth (0) or infinitely sharp (10); `stepSubdivisionRing`
+   * spends any semi-sharp remainder first. A vertex with no sharp edge is smooth:
+   * its limit is `(n^2 C + 4 sum E + sum D) / (n (n + 5))` and its tangents are
+   * the cosine and sine masks with `A = 1 + cos(2 pi / n) + cos(pi / n) sqrt(2
+   * (9
+   *
+   * - Cos(2 pi / n)))`on the edges and`cos(2 pi i / n) + cos(2 pi (i + 1) / n)`on
+   *   the diagonals (Halstead, Kass and DeRose 1993), giving one normal. A dart,
+   *   with one sharp edge, has another subdivision matrix, so its limit and
+   *   tangents come from that matrix's eigenvectors
+   *   through`subdivisionRingEigenbasis`. An interior vertex of valence two has
+   *   no tangent plane and is refused, as is any vanishing or non-finite normal.
+   *
+   * With two sharp edges the vertex is on a crease, whose limit is the B-spline
+   * point `(A + 4 C + B) / 6` of the crease neighbours. Each side's normal
+   * crosses the crease tangent with a cross tangent into that side. For a side of
+   * two faces this is the regular B-spline cross derivative, exact. A side of
+   * three faces refines on its own as a boundary ring whose dominant tangent
+   * eigenvalues, about 0.580 across and 0.5 along the crease, stand clear of the
+   * next, 0.410, so its exact tangents come from `subdivisionRingEigenbasis`.
+   * Other sides take OpenSubdiv's masks, Biermann, Levin and Zorin's (2000) for
+   * four or more faces and the vertex-to-mean-of-crease-neighbours mask for one
+   * face. Those are approximations with no exact replacement: under the standard
+   * crease rules a side of four faces has a tie for its second tangent eigenvalue
+   * and a wider side has two dominant eigenvalues above the crease's 0.5, while a
+   * side of one face has a degenerate parametrisation, so the limit surface has
+   * no tangent plane containing the crease there.
+   *
+   * With three or more sharp edges the vertex is a corner and stays put; each
+   * sector's normal crosses the tangents of its two bounding crease curves, which
+   * leave the corner along their edges, oriented by the sector's own winding. A
+   * corner sector whose two crease curves leave in one line has no tangent plane
+   * the curves determine, and takes the winding-weighted normal of its ring quads
+   * instead.
+   *
+   * @param ring A one-ring whose sharpness is only 0 or 10.
+   * @param vertex Vertex index, for the diagnostic.
+   * @returns The limit position, the unit normal of each sector, and each ring
+   *   face's sector.
+   */
+  export function limitSubdivisionRing(ring: IAutoMovieSubdivisionRing, vertex: number): IAutoMovieLimitSubdivisionRing.IResult {
+    return limitSubdivisionRingImplementation(ring, vertex);
+  }
+
+  /**
+   * Report how every pair of a model's parts meets: crossing, contained, touching
+   * or apart, with the least gap between their surfaces and how much of each lies
+   * inside the other.
+   *
+   * Every part is realized through `realizeAutoMovieGeometry`, primitives
+   * included, and carried into the model frame by `placeAutoMovieModelPartMesh`
+   * with its `autoMovieModelPartMatrices` entry, as
+   * `measureAutoMovieModelCrossings` places its parts. One record follows for
+   * every unordered pair, in model part order. A pair crosses when
+   * `AutoMovieEngineMeshCrossingQuery.measure` finds a transverse or coplanar
+   * crossing in either direction, which it can only where the two placed boxes
+   * overlap. The gap is 0 for a crossing pair and otherwise the least distance
+   * between the surfaces by `measureAutoMovieMeshGap`, for every pair however far
+   * apart. Each share is the area of one part's triangles whose centroids the
+   * other part's winding query, `createAutoMovieMeshWindingQuery`, finds
+   * `inside`, divided by the part's whole area; one centroid stands for each
+   * triangle, so a share resolves at the triangle size. A centroid too far from
+   * the other part for its winding number to reach 0.5, by an exact solid-angle
+   * bound, is decided without a query. The relation is the first that applies:
+   * `crossing`; `contained` when either share is exactly 1; `touching` when the
+   * gap is at most `options.contact`; `apart` otherwise.
+   *
+   * A gap below the contact distance keeps two faces from being coplanar, which
+   * the strict crossing test may otherwise count as a coplanar crossing where the
+   * faces are triangulated along different diagonals. The model is only read.
+   * Throws on a missing, negative or non-finite contact distance, on a part whose
+   * index buffer is malformed, whose positions are not finite or that has no
+   * triangle, naming the part, and passes on the realization's and the crossing
+   * measure's own refusals.
+   *
+   * @param model A built model, whatever composed it.
+   * @param options The contact distance in metres.
+   * @returns One record per unordered part pair, in model part order.
+   */
+  export function measureModelContacts(model: IAutoMovieModel, options: IAutoMovieMeasureModelContacts.IOptions): IAutoMovieModelContact[] {
+    return measureAutoMovieModelContactsImplementation(model, options);
+  }
+
+  /**
+   * Wrap a procedural builder's positions and indices as a rigid mesh whose
+   * vertex normals are computed from its own triangles.
+   *
+   * Each vertex normal is the normalized sum of its incident triangles'
+   * unnormalized face normals, so larger faces weigh more and the winding decides
+   * the side. `normalGroups` lists vertices that duplicate one smooth point at a
+   * texture seam; their sums are pooled before normalizing so the seam carries
+   * one normal while its positions and UVs stay separate. A vertex no triangle
+   * uses keeps the zero vector. The arrays passed in become the mesh's own and
+   * must not be reused by the caller; indices are trusted, since every caller
+   * generates them.
+   *
+   * @param positions Packed XYZ positions in metres, adopted by the mesh.
+   * @param indices Triangle corner indices, adopted by the mesh.
+   * @param uvs Packed UVs adopted by the mesh, or `null` for none.
+   * @param normalGroups Vertex sets that share one smooth normal.
+   * @returns A mesh with computed normals and no skin.
+   */
+  export function meshOf(positions: number[], indices: number[], uvs?: number[] | null, normalGroups?: readonly (readonly number[])[]): IAutoMovieMesh {
+    return meshOfImplementation(positions, indices, uvs, normalGroups);
+  }
+
+  /**
+   * Twice the signed area of the triangle `origin -> from -> to`, in square
+   * metres: positive for a counter-clockwise turn, negative for clockwise, and
+   * zero for collinear points.
+   *
+   * It is the free-form region kernel's raw orientation measure; callers compare
+   * it against the absolute `PLANAR_EPSILON`. The architecture graph's
+   * `planarSide` asks the same question with a tolerance that grows with the
+   * figure, which is why the two are not merged.
+   *
+   * @param origin Shared corner of both edges.
+   * @param from End of the first edge.
+   * @param to End of the second edge.
+   * @returns `(from - origin) x (to - origin)`.
+   */
+  export function planarCross(origin: IAutoMoviePlanarPoint, from: IAutoMoviePlanarPoint, to: IAutoMoviePlanarPoint): number {
+    return planarCrossImplementation(origin, from, to);
+  }
+
+  /**
+   * Whether two closed segments share any point, touching included.
+   *
+   * Touching counts because a region whose rings meet at one point is not two
+   * regions with a shared corner; it is a surface pinched to a line, the same
+   * shape `buildAutoMovieWall` refuses when two openings meet at a corner. A
+   * proper crossing needs each segment's endpoints on strictly opposite sides of
+   * the other's line, each side more than `PLANAR_EPSILON` from zero; otherwise
+   * the segments meet when an endpoint of one is collinear with the other within
+   * that absolute tolerance and its projection parameter lies in [0, 1] widened
+   * by the same constant. A zero-length segment never reports a touch through its
+   * own projection.
+   *
+   * @param fromA First endpoint of the first segment.
+   * @param toA Second endpoint of the first segment.
+   * @param fromB First endpoint of the second segment.
+   * @param toB Second endpoint of the second segment.
+   * @returns True when the closed segments share a point within tolerance.
+   */
+  export function planarSegmentsMeet(fromA: IAutoMoviePlanarPoint, toA: IAutoMoviePlanarPoint, fromB: IAutoMoviePlanarPoint, toB: IAutoMoviePlanarPoint): boolean {
+    return planarSegmentsMeetImplementation(fromA, toA, fromB, toB);
+  }
+
+  /**
+   * Whether a point lies inside a closed ring by the even-odd rule, casting a ray
+   * along +X.
+   *
+   * The answer is defined only for a point off the ring: both callers have
+   * already refused ring contact, so the point they probe never lies on an edge.
+   * The ring may be wound either way. Unlike the architecture graph's
+   * `pointInPolygon`, a boundary point is not classified as inside.
+   *
+   * @param point Point to classify.
+   * @param ring Closed ring, the last corner joined back to the first.
+   * @returns True when the ray crosses the ring an odd number of times.
+   */
+  export function pointInPlanarRing(point: IAutoMoviePlanarPoint, ring: readonly IAutoMoviePlanarPoint[]): boolean {
+    return pointInPlanarRingImplementation(point, ring);
+  }
+
+  /**
+   * Append one triangle that owns its three corners and its own plane normal.
+   *
+   * A lofted quad is only planar when its two sections match, so the two halves
+   * of a changing section's quad genuinely face different ways. Giving each
+   * triangle its own corners is what lets each carry the normal its own plane
+   * has, instead of one averaged direction that neither half points in.
+   *
+   * The normal is `(b - a) x (c - a)` normalized, so corners in counter-clockwise
+   * order seen from outside give an outward normal. A zero-area triangle has no
+   * plane and receives the zero vector as its normal.
+   *
+   * @param target Buffers to append to; three vertices and one triangle are
+   *   added.
+   * @param corners Each corner's position in metres with its metric `u` and `v`,
+   *   in winding order.
+   */
+  export function pushFlatTriangle(target: IAutoMovieMeshTarget, corners: readonly [
+    readonly [IAutoMovieVector3, number, number],
+    readonly [IAutoMovieVector3, number, number],
+    readonly [IAutoMovieVector3, number, number],
+  ]): void {
+    pushFlatTriangleImplementation(target, corners);
+  }
+
+  /**
+   * Refine a subdivision level once into an all-quad level.
+   *
+   * Parent corner `c`, at vertex `v` of face `f`, becomes child face `c` with
+   * corners `v`, the point of its out-edge, the point of `f`, and the point of
+   * its in-edge, which keeps the parent winding. The two halves of a parent edge
+   * take its decayed sharpness and the edges inside a parent face are smooth.
+   *
+   * Corner parameters halve: a child corner takes its parent corner's value, the
+   * midpoint towards the neighbouring corner, or the face centroid. The cage's
+   * non-quad faces instead give each child quad its own unit square on sub-face
+   * `k`, as `IAutoMovieSubdivisionParameter` documents.
+   *
+   * @param level The level to refine.
+   * @returns The next level.
+   */
+  export function refineSubdivisionLevel(level: IAutoMovieSubdivisionLevel): IAutoMovieSubdivisionLevel {
+    return refineSubdivisionLevelImplementation(level);
+  }
+
+  /**
+   * Apply one Catmull-Clark step to vertex positions: every vertex, edge and face
+   * point of the next level.
+   *
+   * The output holds the vertex points in vertex order, then the edge points in
+   * edge order, then the face points in face order. A face point is the average
+   * of its corners. An edge point is `(A + B + F0 + F1) / 4`, the ends and the
+   * two adjacent face points, blended towards the midpoint `(A + B) / 2` by
+   * `subdivisionEdgeSmoothness`, so boundary and sharp edges take the midpoint. A
+   * vertex point applies `subdivisionVertexMask` to the vertex, its edge
+   * neighbours and the new face points of its fan.
+   *
+   * @param topology Connectivity of the current level.
+   * @param positions Packed positions of the current level.
+   * @returns Packed next-level points and the vertex mask used for each vertex.
+   */
+  export function refineSubdivisionPoints(topology: IAutoMovieSubdivisionTopology, positions: readonly number[]): IAutoMovieRefineSubdivisionPoints.IResult {
+    return refineSubdivisionPointsImplementation(topology, positions);
+  }
+
+  /**
+   * Apply one Catmull-Clark step to face-varying UVs with every UV boundary
+   * pinned, OpenSubdiv's `FVAR_LINEAR_BOUNDARIES`.
+   *
+   * An edge is UV-continuous when it has two faces that name the same UV values
+   * at both ends; a mesh boundary edge or a seam is a UV boundary. A UV value at
+   * a vertex touching any UV boundary keeps its value, a UV boundary edge gives
+   * each side the midpoint of that side's two values, and everything else follows
+   * the same rules and masks as the positions, so creases sharpen UVs alike. Each
+   * chart's boundary therefore stays the piecewise-linear polygon of its cage UVs
+   * at every level while its interior smooths with the surface.
+   *
+   * Child values are numbered as positions are: one per parent UV value, then one
+   * per continuous edge or one per side of a UV boundary edge in edge order, then
+   * one per face. Child corner `4 c + j` belongs to the child quad of parent
+   * corner `c`, in the order vertex, out-edge, face, in-edge.
+   *
+   * @param topology Connectivity of the current level.
+   * @param uvs Packed UV values of the current level.
+   * @param cornerUvs UV value of every corner.
+   * @param masks Vertex masks the positions used, one per vertex.
+   * @returns Packed next-level UV values and the UV value of every child corner.
+   */
+  export function refineSubdivisionUvs(topology: IAutoMovieSubdivisionTopology, uvs: readonly number[], cornerUvs: readonly number[], masks: readonly IAutoMovieSubdivisionVertexMask[]): IAutoMovieRefineSubdivisionUvs.IResult {
+    return refineSubdivisionUvsImplementation(topology, uvs, cornerUvs, masks);
+  }
+
+  /**
+   * Signed area enclosed by a closed planar ring, positive when the ring runs
+   * counter-clockwise in its `x, y` plane.
+   *
+   * The last point joins back to the first. Coordinates are metres, so the result
+   * is square metres; a self-crossing ring returns the net of its oppositely
+   * wound lobes, and fewer than three points return zero.
+   *
+   * @param points Ring corners in order.
+   * @returns Signed area in square metres.
+   */
+  export function signedArea(points: readonly IAutoMovieProfilePoint[]): number {
+    return signedAreaImplementation(points);
+  }
+
+  /**
+   * Refine a vertex's quad one-ring once, giving the one-ring of the vertex's
+   * child.
+   *
+   * The child's diagonals are the new face points `(C + E_i + D_i + E_{i+1}) /
+   * 4`, its edge neighbours the new edge points of the ring edges, and its centre
+   * the new vertex point, by the same rules as `refineSubdivisionPoints`. Every
+   * point it needs lies inside the ring's quads, so the ring refines without the
+   * rest of the mesh.
+   *
+   * @param ring The current one-ring.
+   * @returns The child's one-ring with decayed sharpness.
+   */
+  export function stepSubdivisionRing(ring: IAutoMovieSubdivisionRing): IAutoMovieSubdivisionRing {
+    return stepSubdivisionRingImplementation(ring);
+  }
+
+  /**
+   * How much of the smooth Catmull-Clark edge rule an edge of the given sharpness
+   * takes; the rest is the sharp midpoint rule.
+   *
+   * DeRose, Kass and Truong (1998) use the sharp rule for sharpness of one or
+   * more and interpolate linearly between the smooth and sharp edge points for a
+   * fractional sharpness below one, so the smooth share is `1 - s` there and zero
+   * from one upwards, including boundary edges at 10.
+   *
+   * @param sharpness Edge sharpness from 0 to 10.
+   * @returns The weight of the smooth edge point, from 0 to 1.
+   */
+  export function subdivisionEdgeSmoothness(sharpness: number): number {
+    return subdivisionEdgeSmoothnessImplementation(sharpness);
+  }
+
+  /**
+   * The limit point and two tangent vectors of a ring's vertex, from the dominant
+   * left eigenvectors of the ring's own subdivision matrix.
+   *
+   * Refining a one-ring is linear in its points, so it is a square matrix `S`
+   * over the centre, edge neighbours and diagonals, built here by refining one
+   * unit ring per point with `stepSubdivisionRing`. Because the rules are affine,
+   * `S` keeps constants, so its dominant eigenvalue is 1 and the matching left
+   * eigenvector, scaled to sum 1, is the limit-position mask; the two dominant
+   * left eigenvectors among the masks that sum to zero span the tangent masks
+   * (Halstead, Kass and DeRose 1993 derive the smooth case in closed form). Both
+   * are found by iteration on `S` from the left: plain power iteration for the
+   * limit, and orthogonal iteration of a two-dimensional zero-sum subspace for
+   * the tangents, re-orthonormalised every step so the weaker tangent is never
+   * lost to the stronger one. `limitSubdivisionRing` uses this for darts and for
+   * crease sides of three faces, whose sharp edges give them other matrices than
+   * the published masks assume. The tangent search converges at the ratio of the
+   * third to the second dominant zero-sum eigenvalue, about 0.94 for a dart of
+   * valence 12, so `EIGEN_STEPS` iterations reach rounding.
+   *
+   * @param ring A one-ring whose sharpness is only 0 or 10.
+   * @returns The limit point and two vectors spanning the tangent plane,
+   *   unoriented.
+   */
+  export function subdivisionRingEigenbasis(ring: IAutoMovieSubdivisionRing): IAutoMovieSubdivisionRingEigenbasis.IResult {
+    return subdivisionRingEigenbasisImplementation(ring);
+  }
+
+  /**
+   * The Catmull-Clark vertex-point mask for a vertex with the given fan edge
+   * sharpness, including the semi-sharp transition blend.
+   *
+   * The rule follows the number of fan edges with positive sharpness (boundary
+   * edges count, at 10): none or one (smooth or dart) takes Catmull and Clark's
+   * `(F + 2R + (n - 3) P) / n`, which is `(n - 2) / n` on the vertex and `1 /
+   * n^2` on each edge neighbour and face point; two (crease) takes the crease
+   * rule `(6 P + A + B) / 8` over the two sharp neighbours; three or more
+   * (corner) keeps the vertex. When decaying the sharpness changes the rule, the
+   * mask is the blend DeRose, Kass and Truong (1998) give for fractional
+   * sharpness: the parent rule weighted by the mean parent sharpness of the edges
+   * that turn smooth, at most one, and the child rule weighted by the rest, as
+   * OpenSubdiv computes it.
+   *
+   * @param sharpness Sharpness of each fan edge, 10 for boundary edges.
+   * @param faceCount Number of fan faces.
+   * @returns The vertex, edge-neighbour and face-point weights.
+   */
+  export function subdivisionVertexMask(sharpness: readonly number[], faceCount: number): IAutoMovieSubdivisionVertexMask {
+    return subdivisionVertexMaskImplementation(sharpness, faceCount);
+  }
+
+  /**
+   * Tessellate a {@link AutoMoviePrimitiveShape} into a triangle mesh.
+   *
+   * Lets the LLM-authored "named dimensions" path (a 0.4 m sphere, a capsule)
+   * become concrete geometry a renderer can draw, without the model ever emitting
+   * vertices. The engine owns this fixed primitive recipe independently of the
+   * rendering host; renderer precision and appearance are separate observations.
+   *
+   * Coordinates are local metres, centred on the origin, and faces wind
+   * counter-clockwise from outside. Dimensions must already have passed model
+   * validation. Sphere, cylinder and cone use sixteen angular segments; the
+   * sphere has twelve latitude rings. Planes retain the zero-height box topology.
+   * Capsules share the sphere's latitude lattice, with two equator rings joined
+   * by the authored cylindrical body height and hemispheres centred at its ends.
+   * Each call returns fresh indexed position and normal arrays, without UVs.
+   * Finite admitted dimensions can still overflow derived capsule height or
+   * normal arithmetic; this producer does not refuse every extreme invalid mesh.
+   *
+   * @throws Error when the runtime primitive discriminator is unknown.
+   */
+  export function tessellate(shape: IAutoMoviePrimitiveShape): IAutoMovieTessellation {
+    return tessellateImplementation(shape);
+  }
+
+  /**
+   * Tessellate exactly the support surface that engine height queries read.
+   *
+   * The footprint is taken as the convex pieces whose union is the region itself,
+   * so an L-shaped plate keeps its notch and a slab with an atrium void is drawn
+   * with the void open. Drawing the hull instead would put floor under a camera
+   * looking down the atrium while `surfaceContains` said there was none, which is
+   * the same disagreement between the drawn ground and the queried ground that
+   * this function exists to prevent.
+   *
+   * Level and planar patches fan each piece. Heightfields split each piece at
+   * every lattice coordinate inside its plan bounds, clip each lattice cell
+   * against the piece, and evaluate every resulting vertex through
+   * {@link surfaceHeightAt}. Every vertex therefore sits exactly on the bilinear
+   * rule that feet and placement queries obey; inside a cell the drawn surface is
+   * the fan's planar interpolation of those vertices, which departs from the
+   * bilinear patch where a cell is twisted.
+   *
+   * Positions are world metres with Y up, triangles face +Y, and vertices with
+   * identical plan coordinates are shared, so their normals are the normalized
+   * sum of the incident face normals.
+   *
+   * @param surface Support surface to draw.
+   * @returns A new indexed mesh, or `null` when the footprint encloses no area.
+   */
+  export function tessellateSurface(surface: IAutoMovieSurface): IAutoMovieTessellation | null {
+    return tessellateSurfaceImplementation(surface);
+  }
+
+  /**
+   * Tessellate a primitive and wrap it as a complete {@link IAutoMovieMesh}.
+   *
+   * The mesh is indexed, carries the primitive's own normals, and has no UVs and
+   * no skin, because a primitive states no atlas and rides its part's bone as a
+   * rigid whole. Callers use it where a mesh is required, such as placing a
+   * primitive with {@link transformAutoMovieMesh} or merging it with authored
+   * parts.
+   *
+   * @param shape Primitive to tessellate.
+   * @returns A new mesh whose arrays are owned by the caller.
+   * @throws Error when `shape.type` is not a known primitive.
+   */
+  export function tessellateToMesh(shape: IAutoMoviePrimitiveShape): IAutoMovieMesh {
+    return tessellateToMeshImplementation(shape);
+  }
+
+  /**
+   * Place a rigid mesh by translation, unit quaternion, and per-axis scale.
+   *
+   * Positions take the full placement, normals take the inverse transpose (so a
+   * non-uniform scale does not tilt them off the surface), and a mirroring scale
+   * flips triangle winding so the outward face stays outward. UVs ride along
+   * untouched, because a placement moves a surface without re-cutting its atlas.
+   * Linear RGB and relief weights follow the same vertex identities and are
+   * copied unchanged. Physical correspondence is admitted, copied with its
+   * original source pairs, and admitted again on the placed positions, because a
+   * placement must not separate aliases on the shared weld grid. Reusing a pair
+   * in another placement still asserts one point; a later merge refuses
+   * disagreement rather than renaming the physical instance.
+   *
+   * That is what makes a placed member's coordinates local rather than global,
+   * and it is the one thing to know before rotating an atlas-bearing member.
+   * {@link buildAutoMoviePolyhedron} decides each face's frame from world up in
+   * the frame the mesh was built in, so a panel built upright and then laid down
+   * by a rotation keeps the upright face's frame while presenting a level face.
+   * Build the member in the orientation it will be seen in, or accept that its
+   * grain travels with it, which is what a real board does when it is turned.
+   *
+   * A rotation is where riding along is free. A scale is not, and it is the one
+   * case where carrying the atlas unchanged costs the set its unit. A metric set
+   * says one unit is one metre of surface, and a scaled placement stretches the
+   * surface while leaving the numbers where they were, so a member built at unit
+   * size and placed at three times it reads one metre where the surface now
+   * measures three: the finish comes out three times too large, uniformly. A
+   * non-uniform scale is worse than wrong by a constant, because each face takes
+   * its own factor and the set stops being metric by any single number at all.
+   *
+   * Nothing downstream recovers it. `validateTextureScale` measures a binding
+   * against the part's own coordinate span and never reads a placement, so a
+   * scaled member's declaration passes exactly as it did before it was scaled.
+   * Author an atlas-bearing member at the size it will be seen at and place it
+   * with translation and rotation, or drop `coordinateSource` on it rather than
+   * claiming metres a scale has already falsified.
+   *
+   * @param mesh Unskinned mesh in its local metre frame; never modified.
+   * @param transform Placement, each field defaulting to identity.
+   * @returns A new mesh whose arrays share nothing with the input; its index
+   *   buffer is always present.
+   * @throws Error when the mesh is skinned, its indices are incomplete or out of
+   *   range, its physical correspondence is malformed before or after placement,
+   *   a placement field is not finite, the rotation is not unit within 1e-6, or a
+   *   scale component is zero.
+   */
+  export function transformMesh(mesh: IAutoMovieMesh, transform: IAutoMovieMeshTransform): IAutoMovieMesh {
+    return transformAutoMovieMeshImplementation(mesh, transform);
   }
 }

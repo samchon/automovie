@@ -1,4 +1,4 @@
-import { resolveAutoMovieContactEvents } from "@automovie/engine";
+import { AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPerformanceState,
@@ -441,7 +441,7 @@ export namespace HumanPerformanceContacts {
       return best.subject;
     };
     const events: IAutoMovieResolveContactEvents.IEvent[] =
-      resolveAutoMovieContactEvents({
+      AutoMovieEngineCompositionContact.resolveEvents({
         weapons,
         bodies: HumanPerformanceContactBodies({
           people,

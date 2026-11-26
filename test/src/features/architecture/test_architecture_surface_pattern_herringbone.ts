@@ -1,4 +1,4 @@
-import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineText, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineText, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -138,7 +138,7 @@ const floor: (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The ten pieces reaching the room are laid in lattice order under their own).
  */
 export function test_architecture_surface_pattern_herringbone(): void {
-  const laid: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+  const laid: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: floor(),
   });
 
@@ -229,7 +229,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
   );
 
   const turning: IAutoMovieSurfacePatternResult =
-    generateAutoMovieSurfacePattern({
+    AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
       pattern: floor({ grainToleranceDeg: 5 }),
     });
   // Rectangle contacts independently enumerated from the ten authored pieces.
@@ -293,7 +293,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       [
         "tolerated",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: floor({ grainToleranceDeg: 90 }),
           }).findings.length === 0,
       ],
@@ -316,7 +316,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       [
         "above",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: floor({ minimumPiece: 0.6 }),
           })
             .findings.map(
@@ -334,7 +334,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
       [
         "below",
         (): boolean =>
-          generateAutoMovieSurfacePattern({
+          AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
             pattern: floor({ minimumPiece: 0.4 }),
           }).findings.length === 0,
       ],
@@ -423,7 +423,7 @@ export function test_architecture_surface_pattern_herringbone(): void {
   TestValidator.predicate(
     "the same herringbone laid twice preserves structure and numeric components",
     test12ValuesClose(
-      generateAutoMovieSurfacePattern({ pattern: floor() }),
+      AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({ pattern: floor() }),
       laid,
     ),
   );

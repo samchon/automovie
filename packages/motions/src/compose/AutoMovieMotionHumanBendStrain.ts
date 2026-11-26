@@ -1,11 +1,4 @@
-import {
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  decomposeJointRotation,
-  getConstraint,
-  swingTwist,
-} from "@automovie/engine";
+import { HUMANOID_REST_FRAME, Quaternion, Vector3, getConstraint, swingTwist, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieJointAxes,
@@ -152,7 +145,7 @@ export function AutoMovieMotionHumanBendStrain(
       const bent: AutoMovieMotionHumanBendSearch.IAngles | null =
         handAxes === undefined
           ? null
-          : decomposeJointRotation(
+          : AutoMovieEngineKinematics.decomposeJointRotation(
               Quaternion.normalize(split.swing),
               handAxes,
               HUMANOID_REST_FRAME[`${side}Hand`],

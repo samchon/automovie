@@ -1,4 +1,4 @@
-import { measureAutoMovieSceneCollision } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieInspectionDiagnostics as Diagnostic,
@@ -152,7 +152,7 @@ function observeLayer(
       part,
     ]),
   );
-  const result: Collision.IResult = measureAutoMovieSceneCollision({
+  const result: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: collected.parts,
     geometry: props.geometry,
     seconds: layer.localSeconds,

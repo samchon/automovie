@@ -5,7 +5,7 @@ import type {
   IAutoMoviePhysicalSegmentState,
 } from "@automovie/interface";
 
-import { motionAuditGeometry } from "./motionAuditGeometry";
+import { motionAuditGeometry } from "./internal/motionAuditGeometry";
 
 /**
  * Refuse consumer frames off the sampled clock, missing a carrier, or with a

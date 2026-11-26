@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, AutoMovieEnginePlanarRegion, heightAt, isWalkable, spaceGround, supportContactsFor, surfaceContains } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEnginePlanarRegion } from "@automovie/engine";
 import {
   IAutoMovieBuiltEnvironment,
   type IAutoMovieFootprint,
@@ -229,13 +229,13 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "a void in a plate is off the surface while its arms are on it",
     namedFacts([
-      ["inTheVoid", (): boolean => surfaceContains(plate, 4, 4) === false],
-      ["southArm", (): boolean => surfaceContains(plate, 4, 1)],
-      ["northArm", (): boolean => surfaceContains(plate, 4, 7)],
-      ["westArm", (): boolean => surfaceContains(plate, 1, 4)],
-      ["eastArm", (): boolean => surfaceContains(plate, 7, 4)],
-      ["beyondThePlate", (): boolean => surfaceContains(plate, 9, 4) === false],
-      ["voidCorner", (): boolean => surfaceContains(plate, 5.9, 5.9) === false],
+      ["inTheVoid", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 4, 4) === false],
+      ["southArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 4, 1)],
+      ["northArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 4, 7)],
+      ["westArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 1, 4)],
+      ["eastArm", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 7, 4)],
+      ["beyondThePlate", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 9, 4) === false],
+      ["voidCorner", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 5.9, 5.9) === false],
     ]),
     {
       inTheVoid: true,
@@ -251,9 +251,9 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "both rims belong to the slab, because the concrete reaches them",
     namedFacts([
-      ["onTheVoidRim", (): boolean => surfaceContains(plate, 2, 4)],
-      ["onTheVoidCorner", (): boolean => surfaceContains(plate, 6, 6)],
-      ["onTheOuterRim", (): boolean => surfaceContains(plate, 0, 4)],
+      ["onTheVoidRim", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 2, 4)],
+      ["onTheVoidCorner", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 6, 6)],
+      ["onTheOuterRim", (): boolean => AutoMovieEngineSpace.surfaceContains(plate, 0, 4)],
       [
         "ringPlacementSaysBoundary",
         (): boolean =>
@@ -273,13 +273,13 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "without the void the same plate answers what the convex query answered",
     namedFacts([
-      ["theVoidsPlace", (): boolean => surfaceContains(solid, 4, 4)],
-      ["southArm", (): boolean => surfaceContains(solid, 4, 1)],
-      ["northArm", (): boolean => surfaceContains(solid, 4, 7)],
-      ["westArm", (): boolean => surfaceContains(solid, 1, 4)],
-      ["eastArm", (): boolean => surfaceContains(solid, 7, 4)],
-      ["beyondThePlate", (): boolean => surfaceContains(solid, 9, 4) === false],
-      ["onTheOuterRim", (): boolean => surfaceContains(solid, 0, 4)],
+      ["theVoidsPlace", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 4, 4)],
+      ["southArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 4, 1)],
+      ["northArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 4, 7)],
+      ["westArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 1, 4)],
+      ["eastArm", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 7, 4)],
+      ["beyondThePlate", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 9, 4) === false],
+      ["onTheOuterRim", (): boolean => AutoMovieEngineSpace.surfaceContains(solid, 0, 4)],
     ]),
     {
       theVoidsPlace: true,
@@ -295,11 +295,11 @@ export function test_space_footprint_voids(): void {
   TestValidator.equals(
     "an L-shaped plate keeps its notch out and both arms in",
     namedFacts([
-      ["inTheNotch", (): boolean => surfaceContains(ell, 3, 3) === false],
-      ["longArm", (): boolean => surfaceContains(ell, 3, 1)],
-      ["shortArm", (): boolean => surfaceContains(ell, 1, 3)],
-      ["onTheInnerCorner", (): boolean => surfaceContains(ell, 2, 2)],
-      ["outside", (): boolean => surfaceContains(ell, 5, 5) === false],
+      ["inTheNotch", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 3, 3) === false],
+      ["longArm", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 3, 1)],
+      ["shortArm", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 1, 3)],
+      ["onTheInnerCorner", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 2, 2)],
+      ["outside", (): boolean => AutoMovieEngineSpace.surfaceContains(ell, 5, 5) === false],
     ]),
     {
       inTheNotch: true,
@@ -316,27 +316,27 @@ export function test_space_footprint_voids(): void {
     namedFacts([
       [
         "heightOverTheArm",
-        (): boolean => nclose(heightAt(holedSpace, 4, 1) ?? NaN, 3, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.heightAt(holedSpace, 4, 1) ?? NaN, 3, 0),
       ],
-      ["heightOverTheVoid", (): boolean => heightAt(holedSpace, 4, 4) === null],
-      ["walkableOverTheArm", (): boolean => isWalkable(holedSpace, 4, 1)],
+      ["heightOverTheVoid", (): boolean => AutoMovieEngineSpace.heightAt(holedSpace, 4, 4) === null],
+      ["walkableOverTheArm", (): boolean => AutoMovieEngineSpace.isWalkable(holedSpace, 4, 1)],
       [
         "walkableOverTheVoid",
-        (): boolean => isWalkable(holedSpace, 4, 4) === false,
+        (): boolean => AutoMovieEngineSpace.isWalkable(holedSpace, 4, 4) === false,
       ],
       [
         "onlyTheArmCornersSupport",
         (): boolean =>
-          supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
+          AutoMovieEngineSpace.supportContactsFor(holedSpace, [v(4, 1), v(4, 4), v(4, 7)]).length ===
           2,
       ],
       [
         "groundOverTheArm",
-        (): boolean => nclose(spaceGround(holedSpace)(4, 1), 3, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.spaceGround(holedSpace)(4, 1), 3, 0),
       ],
       [
         "groundOverTheVoid",
-        (): boolean => nclose(spaceGround(holedSpace, -1)(4, 4), -1, 0),
+        (): boolean => nclose(AutoMovieEngineSpace.spaceGround(holedSpace, -1)(4, 4), -1, 0),
       ],
     ]),
     {

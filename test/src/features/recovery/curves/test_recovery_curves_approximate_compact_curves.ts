@@ -3,11 +3,7 @@ import type {
   IAutoMovieCompactCurveApproximation,
   IAutoMoviePiecewisePlanarCurveSource,
 } from "@automovie/interface";
-import {
-  AutoMovieRecoveryCompactApproximation as C,
-  AutoMovieRecoveryConicApproximation as Q,
-  approximateAutoMovieRecoveryCompactCurves as approximate,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryCompactApproximation as C, AutoMovieRecoveryConicApproximation as Q } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -61,7 +57,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
       ];
     },
   };
-  const fitted: IAutoMovieCompactCurveApproximation.IResult = approximate(
+  const fitted: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
     cubic,
     options,
   );
@@ -88,7 +84,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
       [0, 5, 20, 60, 120, 120][order]! * t ** (5 - order),
     ],
   };
-  const high: IAutoMovieCompactCurveApproximation.IResult = approximate(
+  const high: IAutoMovieCompactCurveApproximation.IResult = C.approximate(
     quintic,
     { ...options, degree: 5 },
   );
@@ -96,7 +92,7 @@ export function test_recovery_curves_approximate_compact_curves(): void {
   TestValidator.equals("quintic complete", high.status, "complete");
   TestValidator.equals(
     "a one-piece cubic cannot meet the tolerance",
-    approximate(quintic, { ...options, maximumPieces: 1 }).status,
+    C.approximate(quintic, { ...options, maximumPieces: 1 }).status,
     "refused",
   );
 }

@@ -1,4 +1,4 @@
-import { AutoMovieEnginePlanarRegion, buildAutoMovieWall, tessellateToMesh, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEnginePlanarRegion, AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -87,8 +87,8 @@ export function test_engine_geometry_uv_coordinate_source(): void {
     "no UVs",
     [
       AutoMovieEngineGeometry.extrudeProfile({ profile: square(0.5), depth: 1 }).uvs,
-      buildAutoMovieWall({ width: 1, height: 1, depth: 0.1, openings: [] }).uvs,
-      tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 }).uvs,
+      AutoMovieEngineGeometry.buildWall({ width: 1, height: 1, depth: 0.1, openings: [] }).uvs,
+      AutoMovieEngineGeometry.tessellateToMesh({ type: "box", width: 1, height: 1, depth: 1 }).uvs,
     ],
     [null, null, null],
   );

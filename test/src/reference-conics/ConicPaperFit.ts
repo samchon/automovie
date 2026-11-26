@@ -4,11 +4,7 @@ import type {
   IAutoMoviePlanarCurveSource,
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
-import {
-  AutoMovieRecoveryConicApproximation as C,
-  approximateAutoMovieRecoveryConicsAhn,
-  approximateAutoMovieRecoveryConicsGhosh,
-} from "@automovie/recovery";
+import { AutoMovieRecoveryConicApproximation as C } from "@automovie/recovery";
 
 import { ConicPaperInput as I } from "./ConicPaperInput";
 
@@ -84,10 +80,10 @@ export namespace ConicPaperFit {
     wallBudgetMs: number,
   ): Result {
     const started: number = performance.now();
-    const solver: typeof approximateAutoMovieRecoveryConicsAhn =
+    const solver: typeof C.approximateAhn =
       method === "ahn"
-        ? approximateAutoMovieRecoveryConicsAhn
-        : approximateAutoMovieRecoveryConicsGhosh;
+        ? C.approximateAhn
+        : C.approximateGhosh;
     const result: Result = {
       method,
       milliseconds: 0,

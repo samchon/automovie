@@ -25,7 +25,7 @@ import { STATIC_SUPPORT_HEIGHT_EPSILON } from "../../motion/constants/STATIC_SUP
 import { plantStanceFeet } from "../../motion/plantStanceFeet";
 import { sampleMotion } from "../../motion/sampleMotion";
 import { sampleStanceTimes } from "../../motion/sampleStanceTimes";
-import { spaceGround } from "../../space/spaceGround";
+import { spaceGround } from "../../space/internal/spaceGround";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import type { IStageGround } from "../staging/IStageGround";
 import { prepareStageSupport } from "../staging/internal/prepareStageSupport";

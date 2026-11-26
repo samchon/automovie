@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieRelationalGoal,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineCompositionPose } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalSegment,
   IAutoMovieResolveRelationalGoal,
@@ -82,7 +78,7 @@ export function test_engine_composition_resolve_relational_goal(): void {
     lock: "freeze" | "track",
     seconds: number,
   ): IAutoMovieResolveRelationalGoal.IResult =>
-    resolveAutoMovieRelationalGoal({
+    AutoMovieEngineCompositionPose.relationalGoal({
       performer: "a",
       goal: {
         surface: { bone: "rightHand", localPoint: { x: -0.05, y: 0, z: 0 } },

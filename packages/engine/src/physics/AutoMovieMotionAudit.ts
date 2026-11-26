@@ -1,3 +1,6 @@
+import { motionAuditGeometry as motionAuditGeometryImplementation, motionAuditGeometry } from "./internal/motionAuditGeometry";
+import { admitPhysicalMotionAudit as admitPhysicalMotionAuditImplementation, admitPhysicalMotionAudit } from "./internal/admitPhysicalMotionAudit";
+
 import type {
   IAutoMovieMeasurePhysicalMotionConstraint,
   IAutoMovieMotionAudit,
@@ -8,11 +11,11 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { admitPhysicalMotionAudit } from "./admitPhysicalMotionAudit";
+
 import { admitPhysicalMotionFrame } from "./admitPhysicalMotionFrame";
 import { measurePhysicalJointLimits } from "./internal/measurePhysicalJointLimits";
 import { measurePhysicalMotionConstraint as Constraint } from "./internal/measurePhysicalMotionConstraint";
-import { motionAuditGeometry } from "./motionAuditGeometry";
+
 import { preparePhysicalGeometry as Geometry } from "./preparePhysicalGeometry";
 
 /**
@@ -219,5 +222,22 @@ export namespace AutoMovieMotionAudit {
       previous = frame;
     }
     return { samples: count + 1, findings };
+  }
+
+  /**
+   * Resolve the already admitted exclusive description; a physical profile
+   * structurally supplies the same collision and joint facts.
+   */
+  export function geometry(body: IAutoMovieMotionAudit.IBody): IAutoMovieMotionGeometry {
+    return motionAuditGeometryImplementation(body);
+  }
+
+  /**
+   * Invalid promises cannot produce a successful sampled audit by making
+   * comparisons false: intervals, limits, references and witnesses are admitted
+   * before any sample is read.
+   */
+  export function admitAudit(input: IAutoMovieMotionAudit.IInput): void {
+    admitPhysicalMotionAuditImplementation(input);
   }
 }

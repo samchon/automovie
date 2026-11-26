@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { decomposeJointRotation } from "../kinematics/decomposeJointRotation";
+import { decomposeJointRotation } from "../kinematics/internal/decomposeJointRotation";
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { channelKey } from "../resolve/channelKey";

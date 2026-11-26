@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, AutoMovieEnginePlanarRegion, surfaceHeightAt, AutoMovieEnginePlanarGeometry } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEnginePlanarRegion, AutoMovieEnginePlanarGeometry, AutoMovieEngineSpace } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -236,7 +236,7 @@ export function terrainWoods(
             id: `cell-${column}-${row}`,
             translation: {
               x,
-              y: surfaceHeightAt({ height: ground }, wx, wz),
+              y: AutoMovieEngineSpace.surfaceHeightAt({ height: ground }, wx, wz),
               z,
             },
             rotation: { x: 0, y: 0, z: 0, w: 1 },

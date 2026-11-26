@@ -1,4 +1,4 @@
-import { buildAutoMovieWall, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -52,7 +52,7 @@ export function test_engine_geometry_merge_meshes(): void {
   TestValidator.equals("final coordinate", merged.positions.at(-1), 0);
 
   // 4.
-  const wall: IAutoMovieMesh = buildAutoMovieWall({ width: 2, height: 2, depth: 0.2, openings: [] });
+  const wall: IAutoMovieMesh = AutoMovieEngineGeometry.buildWall({ width: 2, height: 2, depth: 0.2, openings: [] });
   const loose: IAutoMovieMesh = {
     positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
     normals: null,

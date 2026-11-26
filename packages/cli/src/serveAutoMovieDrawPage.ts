@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import { promisify } from "node:util";
 
-import { findAutoMovieFreePort } from "./findAutoMovieFreePort";
+import { findAutoMovieFreePort } from "./page/internal/findAutoMovieFreePort";
 import { planAutoMovieModulePageViteConfig } from "./production/internal/planAutoMovieModulePageViteConfig";
 import { writeAutoMovieModulePage } from "./production/internal/writeAutoMovieModulePage";
 

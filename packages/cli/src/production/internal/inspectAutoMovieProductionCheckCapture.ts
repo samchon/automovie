@@ -7,8 +7,8 @@ import type {
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { hashAutoMovieFile } from "../../hashAutoMovieFile";
-import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
+import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
+import { loadAutoMovieProductionModule } from "./loadAutoMovieProductionModule";
 
 /**
  * Read one source-owned diagnostic from a capture's selected camera and pass. A

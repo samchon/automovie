@@ -15,7 +15,7 @@ import type {
 import { indexSkeletonTopology } from "../kinematics/indexSkeletonTopology";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { groundFunction } from "../space/groundFunction";
+import { groundFunction } from "../space/internal/groundFunction";
 import { assemblePlantedFeet } from "./assemblePlantedFeet";
 import { HUMANOID_LEG_CHAINS } from "./constants/HUMANOID_LEG_CHAINS";
 import { pinStanceTargets } from "./pinStanceTargets";

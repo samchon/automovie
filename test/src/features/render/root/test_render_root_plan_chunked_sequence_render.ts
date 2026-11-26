@@ -51,13 +51,13 @@ const SPEC: IAutoMovieRenderSpec = {
  * 5. A chunk size of 0 is refused.
  */
 export function test_render_root_plan_chunked_sequence_render(): void {
-  const plan: IAutoMovieSequenceRenderPlan =AutoMovieRenderSequence.planr({
+  const plan: IAutoMovieSequenceRenderPlan = AutoMovieRenderSequence.plan({
     sequence: SEQUENCE,
     shots: [shot("shot:a", 2), shot("shot:b", 2)],
     spec: SPEC,
   });
   TestValidator.equals("frames", plan.frames.length, 10);
-  const chunked =AutoMovieRenderSequence.planChunkedr({ plan, spec: SPEC, chunkFrames: 4 });
+  const chunked = AutoMovieRenderSequence.planChunked({ plan, spec: SPEC, chunkFrames: 4 });
   TestValidator.equals("chunk count", chunked.chunkCount, 3);
   TestValidator.equals(
     "ranges",
@@ -103,7 +103,7 @@ export function test_render_root_plan_chunked_sequence_render(): void {
   );
   TestValidator.equals("no passes by default", chunked.passManifests, undefined);
 
-  const passes =AutoMovieRenderSequence.planChunkedr({
+  const passes = AutoMovieRenderSequence.planChunked({
     plan,
     spec: SPEC,
     chunkFrames: 4,
@@ -123,6 +123,6 @@ export function test_render_root_plan_chunked_sequence_render(): void {
     true,
   );
   TestValidator.error("zero chunk", (): void => {
-   AutoMovieRenderSequence.planChunkedr({ plan, spec: SPEC, chunkFrames: 0 });
+   AutoMovieRenderSequence.planChunked({ plan, spec: SPEC, chunkFrames: 0 });
   });
 }

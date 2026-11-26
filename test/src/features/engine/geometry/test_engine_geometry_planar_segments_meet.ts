@@ -1,4 +1,4 @@
-import { planarSegmentsMeet } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type { IAutoMoviePlanarPoint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -39,10 +39,10 @@ export function test_engine_geometry_planar_segments_meet(): void {
     IAutoMoviePlanarPoint,
     boolean,
   ][]) {
-    TestValidator.equals(label, planarSegmentsMeet(a0, a1, b0, b1), meet);
+    TestValidator.equals(label, AutoMovieEngineGeometry.planarSegmentsMeet(a0, a1, b0, b1), meet);
     TestValidator.equals(
       `${label} swapped`,
-      planarSegmentsMeet(b0, b1, a0, a1),
+      AutoMovieEngineGeometry.planarSegmentsMeet(b0, b1, a0, a1),
       meet,
     );
   }

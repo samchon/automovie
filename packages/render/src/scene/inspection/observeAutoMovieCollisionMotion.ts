@@ -1,4 +1,4 @@
-import { measureAutoMovieSceneCollision } from "@automovie/engine";
+import { AutoMovieEngineValidation } from "@automovie/engine";
 import type {
   IAutoMovieSceneCollision as Collision,
   IAutoMovieInspectionDiagnostics as Diagnostic,
@@ -442,7 +442,7 @@ function witnessAt(
   const first: Collision.IPart | undefined = state.parts.get(a);
   const second: Collision.IPart | undefined = state.parts.get(b);
   if (first === undefined || second === undefined) return null;
-  const result: Collision.IResult = measureAutoMovieSceneCollision({
+  const result: Collision.IResult = AutoMovieEngineValidation.measureSceneCollision({
     parts: [first, second],
     geometry: state.geometry,
     seconds: state.layer.localSeconds,

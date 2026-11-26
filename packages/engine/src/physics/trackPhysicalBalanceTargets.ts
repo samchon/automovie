@@ -18,12 +18,12 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalTargetInterval as Interval } from "./PhysicalTargetInterval";
 import { choosePhysicalSupportFit } from "./choosePhysicalSupportFit";
-import { physicalBalanceReference } from "./physicalBalanceReference";
+import { physicalBalanceReference } from "./internal/physicalBalanceReference";
 import { physicalRecoverySupportGoals } from "./physicalRecoverySupportGoals";
 import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSwingReference } from "./physicalSwingReference";
-import { planPhysicalBalanceTargets } from "./planPhysicalBalanceTargets";
+import { planPhysicalBalanceTargets } from "./internal/planPhysicalBalanceTargets";
 import { rebasePhysicalTargets } from "./internal/rebasePhysicalTargets";
 import { warmPhysicalSupportTargets } from "./internal/warmPhysicalSupportTargets";
 

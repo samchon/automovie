@@ -1,4 +1,10 @@
-import { type IAutoMovieFormationSlot, type IAutoMovieCompiledFormation, type IAutoMovieModel, type IAutoMovieCreateCompiledSlotSummary, type IAutoMovieInstanceSlot, type IAutoMovieInstanceSetPlacement, type IAutoMovieMaterializeCompiledFormationInventory, type IAutoMovieCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSetInventory, type IAutoMovieCompiledInstancePrototype, type IAutoMovieSelectInstancePrototype, type IAutoMovieSummarizeCompiledSlotChunks, type IAutoMovieVector3, type IAutoMoviePlacementSummary } from "@automovie/interface";
+import { autoMovieInstanceAddress as autoMovieInstanceAddressImplementation } from "./internal/autoMovieInstanceAddress";
+import { autoMovieInstanceAddressSlot as autoMovieInstanceAddressSlotImplementation } from "./internal/autoMovieInstanceAddressSlot";
+import { createAutoMovieSourceOracle as createAutoMovieSourceOracleImplementation } from "./internal/createAutoMovieSourceOracle";
+import { compiledPopulationRepresentation as compiledPopulationRepresentationImplementation } from "./internal/compiledPopulationRepresentation";
+import { instancePrototypeChoices as instancePrototypeChoicesImplementation } from "./internal/instancePrototypeChoices";
+
+import { type IAutoMovieFormationSlot, type IAutoMovieCompiledFormation, type IAutoMovieModel, type IAutoMovieCreateCompiledSlotSummary, type IAutoMovieInstanceSlot, type IAutoMovieInstanceSetPlacement, type IAutoMovieMaterializeCompiledFormationInventory, type IAutoMovieCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSet, type IAutoMovieMaterializeCompiledInstanceSetInventory, type IAutoMovieCompiledInstancePrototype, type IAutoMovieSelectInstancePrototype, type IAutoMovieSummarizeCompiledSlotChunks, type IAutoMovieVector3, type IAutoMoviePlacementSummary, type IAutoMovieSourceOracle, type IAutoMovieCreateSourceOracle, type IAutoMovieCompiledPopulationRepresentation, type IAutoMovieInstancePrototypeChoices } from "@automovie/interface";
 import { compiledFormationSlot as compiledFormationSlotImplementation } from "./internal/compiledFormationSlot";
 import { compiledLodModelDigest as compiledLodModelDigestImplementation } from "./internal/compiledLodModelDigest";
 import { createCompiledSlotSummary as createCompiledSlotSummaryImplementation } from "./internal/createCompiledSlotSummary";
@@ -182,5 +188,116 @@ export namespace AutoMovieEnginePopulationRuntime {
    */
   export function summarizeCompiledSlotRange(start: number, count: number, position: (slot: number) => IAutoMovieVector3): IAutoMoviePlacementSummary {
     return summarizeCompiledSlotRangeImplementation(start, count, position);
+  }
+
+  /**
+   * The stable address of one compact instance-set member.
+   *
+   * An explicit layout member is `instance:<set>:<explicit id>`, the id its
+   * author wrote; every other member is `instance:<set>:slot:<slot>` with the
+   * slot zero-padded to six digits, so slot order and address order agree up to a
+   * million members. The slot is not range-checked here; an explicit layout with
+   * no transform for the slot falls back to the slot form.
+   *
+   * @param set Compiled set the member belongs to.
+   * @param slot Zero-based member slot.
+   * @returns The member's address.
+   */
+  export function autoMovieInstanceAddress(set: IAutoMovieCompiledInstanceSet, slot: number): string {
+    return autoMovieInstanceAddressImplementation(set, slot);
+  }
+
+  /**
+   * The slot one compact-member address names in a set, or null when it names no
+   * member of that set.
+   *
+   * The inverse of `autoMovieInstanceAddress` for members inside the set: an
+   * explicit layout matches its transforms' ids, any other layout parses exactly
+   * six digits after `instance:<set>:slot:`. A slot at or past `set.count` is
+   * null, so an address left over from a larger revision does not resolve.
+   *
+   * @param set Compiled set to search.
+   * @param address Address to resolve.
+   * @returns The zero-based slot, or null.
+   */
+  export function autoMovieInstanceAddressSlot(set: IAutoMovieCompiledInstanceSet, address: string): number | null {
+    return autoMovieInstanceAddressSlotImplementation(set, address);
+  }
+
+  /**
+   * Build the deterministic helpers a shot source reads through its build
+   * context.
+   *
+   * A shot source asks where one member of a formation or instance set stands
+   * while the builder is still compiling the shot, so the answer has to be the
+   * one the compiled runtime holds. Both slot helpers regenerate from the
+   * compiled records the source's context carries, never from the designs beside
+   * them: a formation member stands on the terrain snapshot its unit was compiled
+   * against, and an instance member selects from the compiled prototype table,
+   * which already counts the default once. Distance is Euclidean in metres, and
+   * ground height is the first world surface under the point or zero over none.
+   *
+   * An id with no compiled record refuses with a `RangeError` naming it,
+   * including an id that only an inherited object property would otherwise
+   * answer.
+   *
+   * The oracle keeps references to the three props, not copies, so it answers
+   * from whatever those records hold when each method is called. Slot indices are
+   * passed through to the slot regenerators, which own their range checks.
+   *
+   * @param props.world World whose surfaces answer ground height.
+   * @param props.formationRuntime Compiled formations by id.
+   * @param props.instanceSetRuntime Compiled instance sets by id.
+   * @returns The oracle a shot source's build context exposes.
+   */
+  export function createAutoMovieSourceOracle(props: IAutoMovieCreateSourceOracle.IProps): IAutoMovieSourceOracle {
+    return createAutoMovieSourceOracleImplementation(props);
+  }
+
+  /**
+   * The compiled tiers and measured or fallback radius of one population
+   * prototype.
+   *
+   * A formation's anonymous members and each prototype of an instance set are
+   * drawn the same way: through the tiers the population design declares, or
+   * through one `near` tier of the base model group when it declares none, each
+   * bound to its model group digest and runtime model id. The member radius is
+   * the largest radius over those tiers, where a tier whose group has no known
+   * radius borrows the base group's, and one with neither is half a metre; no
+   * member is ever smaller than a centimetre for projection. The kernel does not
+   * verify supplied estimates against geometry; the fallback is an estimate for
+   * missing geometry, and any enclosure proof belongs to the host.
+   *
+   * Radii are supplied by the host, which measures its own model groups and
+   * adopted proxies, so this reads a table and never inspects geometry.
+   *
+   * The caller chooses which declared tiers apply: a formation's anonymous batch
+   * drops the `hero` tier, which is drawn by named nodes, while an instance set
+   * has no heroes and keeps every tier. Shared by both kernels; package-private.
+   */
+  export function compiledPopulationRepresentation(props: IAutoMovieCompiledPopulationRepresentation.IProps): IAutoMovieCompiledPopulationRepresentation.IResult {
+    return compiledPopulationRepresentationImplementation(props);
+  }
+
+  /**
+   * The prototype table one instance set draws its members from.
+   *
+   * A set with a prototype table draws from that table, which in a compiled set
+   * already starts with the base model's default, counted once. A set without a
+   * table draws only its base model, as one choice with the id `default` and
+   * weight 1. The returned array is the set's own table when it has one, so the
+   * caller must not mutate it.
+   *
+   * @param instanceSet Set whose table is read.
+   * @returns The choices in table order.
+   */
+  export function instancePrototypeChoices<Choice extends Pick<
+    IAutoMovieCompiledInstancePrototype,
+    "id" | "model" | "weight"
+  >>(instanceSet: IAutoMovieInstancePrototypeChoices.IInstanceSet<Choice>): readonly (
+  | Choice
+  | Pick<IAutoMovieCompiledInstancePrototype, "id" | "model" | "weight">
+)[] {
+    return instancePrototypeChoicesImplementation<Choice>(instanceSet);
   }
 }

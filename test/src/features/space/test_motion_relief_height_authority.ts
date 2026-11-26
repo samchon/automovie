@@ -1,4 +1,4 @@
-import { AutoMovieEngineWorld, heightAt, spaceGround, stageScene, surfaceHeightAt, AutoMovieEnginePopulationFormation } from "@automovie/engine";
+import { AutoMovieEngineWorld, stageScene, AutoMovieEnginePopulationFormation, AutoMovieEngineSpace } from "@automovie/engine";
 import {
   type IAutoMovieFormationPlacement,
   IAutoMovieSpace,
@@ -146,7 +146,7 @@ export function test_motion_relief_height_authority(): void {
     [-8, -4],
     [40, 40],
   ] as const) {
-    const y = surfaceHeightAt(patch, x, z);
+    const y = AutoMovieEngineSpace.surfaceHeightAt(patch, x, z);
     TestValidator.equals(
       "world and staged height agree exactly",
       AutoMovieEngineWorld.surfaceHeight(world, { x, z }),
@@ -163,7 +163,7 @@ export function test_motion_relief_height_authority(): void {
     TestValidator.equals(
       "slot stands on staged ground",
       point.y,
-      heightAt(space, point.x, point.z),
+      AutoMovieEngineSpace.heightAt(space, point.x, point.z),
     );
     TestValidator.predicate(
       "slot samples its own slope position",
@@ -180,10 +180,10 @@ export function test_motion_relief_height_authority(): void {
     [sill, 9, -9, 3],
     [stateless, 3, 4, 0],
   ] as const)
-    TestValidator.equals("anchored height", surfaceHeightAt(surface, x, z), y);
+    TestValidator.equals("anchored height", AutoMovieEngineSpace.surfaceHeightAt(surface, x, z), y);
   TestValidator.equals(
     "outside all surfaces uses the declared fallback",
-    [spaceGround(space)(50, 50), spaceGround(space, 7)(50, 50)],
+    [AutoMovieEngineSpace.spaceGround(space)(50, 50), AutoMovieEngineSpace.spaceGround(space, 7)(50, 50)],
     [0, 7],
   );
   const staged = stageScene(

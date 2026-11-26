@@ -14,7 +14,7 @@ import {
 
 import { builtEnvironmentPartBoxes } from "../architecture/internal/builtEnvironmentPartBoxes";
 import { builtPointBounds } from "../architecture/internal/builtPointBounds";
-import { autoMovieInstanceAddressSlot } from "../autoMovieInstanceAddressSlot";
+import { autoMovieInstanceAddressSlot } from "../populationRuntime/internal/autoMovieInstanceAddressSlot";
 import { autoMovieModelPartPoints } from "../autoMovieModelPartPoints";
 import { compareAutoMovieRenderIds } from "../render/internal/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./internal/autoMovieSubjectAddress";

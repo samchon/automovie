@@ -6,7 +6,7 @@ import * as path from "node:path";
 import type { AutoMovieCliRenderTypes } from "../AutoMovieCliRenderTypes";
 import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath";
 import { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
-import { loadAutoMovieProductionModule } from "../../loadAutoMovieProductionModule";
+import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
 import { renderAutoMovieVideo } from "../../renderAutoMovieVideo";
 import { resolveAutoMovieFfmpeg } from "../../resolveAutoMovieFfmpeg";

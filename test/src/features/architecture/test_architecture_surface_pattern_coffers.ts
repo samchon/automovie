@@ -1,4 +1,4 @@
-import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   IAutoMovieExplicitInstanceTransform,
   IAutoMoviePatternFinding,
@@ -124,7 +124,7 @@ const moulding: (
 const ceiling: (minimumPiece: number) => IAutoMovieSurfacePatternResult = (
   minimumPiece: number,
 ): IAutoMovieSurfacePatternResult =>
-  generateAutoMovieSurfacePattern({
+  AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: pattern({
       id: "coffered-ceiling",
       zones: [

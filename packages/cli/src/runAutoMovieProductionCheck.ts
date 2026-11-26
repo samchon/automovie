@@ -4,7 +4,7 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
 import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
-import { hashAutoMovieFile } from "./hashAutoMovieFile";
+import { hashAutoMovieFile } from "./file/internal/hashAutoMovieFile";
 import { createAutoMovieProductionCheckInputScope } from "./production/internal/createAutoMovieProductionCheckInputScope";
 import { createAutoMovieProductionCheckMediaHash } from "./production/internal/createAutoMovieProductionCheckMediaHash";
 import { inspectAutoMovieProductionCheckCapture } from "./production/internal/inspectAutoMovieProductionCheckCapture";
@@ -13,7 +13,7 @@ import { inspectAutoMovieProductionCheckReview } from "./production/internal/ins
 import { writeAutoMovieProductionCheckReceipt } from "./production/internal/writeAutoMovieProductionCheckReceipt";
 import type { readAutoMovieCheckOptions } from "./readAutoMovieCheckOptions";
 import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
-import { readAutoMovieRevision } from "./readAutoMovieRevision";
+import { readAutoMovieRevision } from "./production/internal/readAutoMovieRevision";
 
 /**
  * Evaluate selected targets in declaration order. A status read uses available

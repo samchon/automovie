@@ -1,4 +1,4 @@
-import { tessellate, AutoMovieEngineText } from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMoviePrimitiveShape,
   IAutoMovieTessellation,
@@ -134,7 +134,7 @@ export function test_engine_geometry_tessellate_closure(): void {
   for (const shape of solids)
     TestValidator.predicate(
       `${shape.type} watertight`,
-      watertight(tessellate(shape)),
+      watertight(AutoMovieEngineGeometry.tessellate(shape)),
     );
 
   // 2.
@@ -150,9 +150,9 @@ export function test_engine_geometry_tessellate_closure(): void {
   ] satisfies [string, IAutoMoviePrimitiveShape, number][])
     TestValidator.predicate(
       `${label} volume`,
-      close(volume(tessellate(shape)), expected, 1e-12),
+      close(volume(AutoMovieEngineGeometry.tessellate(shape)), expected, 1e-12),
     );
-  const capsule: number[] = tessellate({
+  const capsule: number[] = AutoMovieEngineGeometry.tessellate({
     type: "capsule",
     radius: 0.2,
     height: 1,
@@ -174,14 +174,14 @@ export function test_engine_geometry_tessellate_closure(): void {
   for (const shape of solids)
     TestValidator.predicate(
       `${shape.type} positive volume`,
-      volume(tessellate(shape)) > 0,
+      volume(AutoMovieEngineGeometry.tessellate(shape)) > 0,
     );
   for (const shape of [...solids, plane])
-    TestValidator.predicate(`${shape.type} winding`, agrees(tessellate(shape)));
+    TestValidator.predicate(`${shape.type} winding`, agrees(AutoMovieEngineGeometry.tessellate(shape)));
 
   // 4.
   for (const shape of solids) {
-    const n: number[] = tessellate(shape).normals;
+    const n: number[] = AutoMovieEngineGeometry.tessellate(shape).normals;
     TestValidator.predicate(
       `${shape.type} unit normals`,
       n.length > 0 &&
@@ -190,7 +190,7 @@ export function test_engine_geometry_tessellate_closure(): void {
         ).every((l: number): boolean => close(l, 1, 1e-9)),
     );
   }
-  const cone: number[] = tessellate({
+  const cone: number[] = AutoMovieEngineGeometry.tessellate({
     type: "cone",
     radius: 0.3,
     height: 1,
@@ -207,6 +207,6 @@ export function test_engine_geometry_tessellate_closure(): void {
   // 5.
   TestValidator.predicate(
     "plane volume",
-    close(volume(tessellate(plane)), 0, 1e-12),
+    close(volume(AutoMovieEngineGeometry.tessellate(plane)), 0, 1e-12),
   );
 }

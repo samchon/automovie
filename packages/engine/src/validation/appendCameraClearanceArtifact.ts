@@ -5,8 +5,8 @@ import type {
 
 import { sampleTimes } from "../motion/internal/sampleTimes";
 import { pushViolation } from "./pushViolation";
-import { validateRange } from "./validateRange";
-import { validateUniqueBy } from "./validateUniqueBy";
+import { validateRange } from "./internal/validateRange";
+import { validateUniqueBy } from "./internal/validateUniqueBy";
 
 /** Count shared-clock intervals without allocating a hostile-sized grid. */
 function clearanceIntervalCount(

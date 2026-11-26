@@ -11,7 +11,7 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { seededValue } from "../../math/internal/seededValue";
-import { surfaceHeightAt } from "../../space/surfaceHeightAt";
+import { surfaceHeightAt } from "../../space/internal/surfaceHeightAt";
 import { selectInstancePrototype } from "./selectInstancePrototype";
 
 /**

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, buildAutoMovieWall, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm, AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -197,7 +197,7 @@ function addWall(
     buildingModel(
       `${context.id}/${id}`,
       "wall",
-      { type: "mesh", mesh: buildAutoMovieWall(cut) },
+      { type: "mesh", mesh: AutoMovieEngineGeometry.buildWall(cut) },
       color,
     ),
   );

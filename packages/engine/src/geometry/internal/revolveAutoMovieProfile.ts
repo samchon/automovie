@@ -4,8 +4,8 @@ import {
   type IAutoMovieRevolveProfile,
 } from "@automovie/interface";
 
-import { countAtLeast } from "../countAtLeast";
-import { meshOf } from "../meshOf";
+import { countAtLeast } from "./countAtLeast";
+import { meshOf } from "./meshOf";
 
 /**
  * Revolve a radius/height profile around local Y into a closed surface.

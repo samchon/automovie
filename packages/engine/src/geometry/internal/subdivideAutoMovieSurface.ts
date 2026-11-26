@@ -4,9 +4,9 @@ import type {
   IAutoMovieSubdivisionSurface,
 } from "@automovie/interface";
 
-import { admitSubdivisionCage } from "../admitSubdivisionCage";
+import { admitSubdivisionCage } from "./admitSubdivisionCage";
 import { evaluateSubdivisionLevel } from "./evaluateSubdivisionLevel";
-import { refineSubdivisionLevel } from "../refineSubdivisionLevel";
+import { refineSubdivisionLevel } from "./refineSubdivisionLevel";
 
 /**
  * Most refinement steps one call admits. Each level multiplies the quad count

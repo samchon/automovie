@@ -12,7 +12,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { jointToQuaternion } from "../../kinematics/jointToQuaternion";
+import { jointToQuaternion } from "../../kinematics/internal/jointToQuaternion";
 import { skeletonJointAxes } from "../../kinematics/internal/skeletonJointAxes";
 import { Quaternion } from "../../math/Quaternion";
 import { MOTION_ROOT_NODE_ID } from "../../resolve/constants/MOTION_ROOT_NODE_ID";

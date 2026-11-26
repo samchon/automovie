@@ -20,19 +20,19 @@ export * from "./collectDeclaredIds";
 export * from "./compareContinuityBoundary";
 export * from "./constants";
 export * from "./describeInvalidValue";
-export * from "./detectBodyCollision";
-export * from "./detectFreeFall";
-export * from "./detectSupportToppling";
+
+
+
 export * from "./engineDiagnostic";
 export * from "./fkReachableBones";
 export * from "./isAutoMovieMaterialExtension";
 export * from "./lightClipChannelGate";
 export * from "./markAutoMovieSlip";
 export * from "./materialTextureSlots";
-export * from "./measureAutoMoviePlacedContact";
-export * from "./measureAutoMoviePlacedContinuity";
-export * from "./measureAutoMovieSceneCollision";
-export * from "./measureAutoMovieSweptCapsuleCollision";
+
+
+
+
 export * from "./pushViolation";
 export * from "./readAutoMovieImageFacts";
 export * from "./readContinuityTolerances";
@@ -46,8 +46,8 @@ export * from "./validateAutoMovieFormationMotions";
 export * from "./validateAutoMovieFormationOverlap";
 export * from "./validateAutoMovieFormationSlotMotions";
 export * from "./validateBalanceSupport";
-export * from "./validateBody";
-export * from "./validateCapsule";
+
+
 export * from "./validateClipArtifact";
 export * from "./validateColor";
 export * from "./validateContinuity";
@@ -65,15 +65,15 @@ export * from "./validateMaterialLobes";
 export * from "./validateMaterialOverlays";
 export * from "./validateMaterialProcedural";
 export * from "./validateMaterialWear";
-export * from "./validateMesh";
-export * from "./validateMeshTopology";
+
+
 export * from "./validateModel";
 export * from "./validateModelImages";
 export * from "./validateMotion";
 export * from "./validatePose";
 export * from "./validatePoseResult";
 export * from "./validateProfileCapabilities";
-export * from "./validateRange";
+
 export * from "./validateSceneEnvironment";
 export * from "./validateScriptTree";
 export * from "./validateSelfIntersection";
@@ -83,9 +83,11 @@ export * from "./validateSpace";
 export * from "./validateSurfaceHeightRule";
 export * from "./validateTextureAssets";
 export * from "./validateTextureBinding";
-export * from "./validateTextureScale";
-export * from "./validateTransformScalars";
-export * from "./validateUniqueBy";
+
+
+
 export * from "./validateUniqueIds";
-export * from "./validateUniqueValues";
+
 export * from "./violation";
+
+export { AutoMovieEngineValidation } from "./AutoMovieEngineValidation";

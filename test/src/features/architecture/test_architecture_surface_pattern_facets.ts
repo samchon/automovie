@@ -1,4 +1,4 @@
-import { Quaternion, generateAutoMovieSurfacePattern, AutoMovieEngineArchitecture } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineArchitecture, AutoMovieEngineSurfaceMaterial } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
   IAutoMovieExplicitInstanceTransform,
@@ -89,7 +89,7 @@ const wall: (
 const corner: (width: number) => IAutoMovieSurfacePatternResult = (
   width: number,
 ): IAutoMovieSurfacePatternResult =>
-  generateAutoMovieSurfacePattern({
+  AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
     pattern: pattern({
       id: "corner",
       zones: [wall("south", 0, 2, 0.49), wall("east", 2, 3, width)],
@@ -120,7 +120,7 @@ const seam: (index: number) => IAutoMovieVector3 = (
   return point;
 };
 
-const facade: IAutoMovieSurfacePatternResult = generateAutoMovieSurfacePattern({
+const facade: IAutoMovieSurfacePatternResult = AutoMovieEngineSurfaceMaterial.generateAutoMovieSurfacePattern({
   pattern: pattern({
     id: "facade",
     zones: [0, 1, 2, 3].map(

@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, armChainFault, prepareSkeletonPoseResolution } from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, prepareSkeletonPoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -60,7 +60,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   // 1.
   TestValidator.equals(
     "no fault",
-    [armChainFault(skeleton, "left"), armChainFault(skeleton, "right")],
+    [AutoMovieEngineKinematics.armChainFault(skeleton, "left"), AutoMovieEngineKinematics.armChainFault(skeleton, "right")],
     [null, null],
   );
 

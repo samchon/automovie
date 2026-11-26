@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, projectileAt } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieAir } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanProp,
@@ -28,7 +28,7 @@ export namespace HumanPropFlightFrame {
     seconds: number,
   ): IAutoMovieRigidTransform {
     if (seconds < latest.end) {
-      const state: IAutoMovieProjectileState = projectileAt(
+      const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
         latest.projectile,
         seconds - latest.launch,
       );
@@ -95,7 +95,7 @@ export namespace HumanPropFlightFrame {
     zero: number,
     sphere: IAutoMovieMotionPropLaunch["sphere"],
   ): IAutoMovieMotionHumanPropFlight.IContact {
-    const state: IAutoMovieProjectileState = projectileAt(
+    const state: IAutoMovieProjectileState = AutoMovieAir.projectileAt(
       projectile,
       meeting.hit.time,
     );

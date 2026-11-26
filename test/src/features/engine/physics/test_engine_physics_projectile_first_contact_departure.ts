@@ -1,9 +1,4 @@
-import {
-  projectileAt,
-  projectileContinue,
-  projectileFirstContact,
-  resolveAutoMovieContactEvents,
-} from "@automovie/engine";
+import { projectileContinue, projectileFirstContact, AutoMovieAir, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieHit,
   IAutoMoviePhysicalShape,
@@ -269,7 +264,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     );
     check("the resolved impact produces flight", next.kind === "flight");
     if (next.kind !== "flight") return;
-    const state: IAutoMovieVector3 = projectileAt(drop, first.time).position;
+    const state: IAutoMovieVector3 = AutoMovieAir.projectileAt(drop, first.time).position;
     check(
       "continuation preserves the actual penetrating impact origin",
       state.y < 0 && Object.is(next.projectile.origin.y, state.y),
@@ -388,7 +383,7 @@ export function test_engine_physics_projectile_first_contact_departure(): void {
     for (const seconds of [0, NaN, Infinity, 2, 0.5]) {
       let refused: boolean = false;
       try {
-        resolveAutoMovieContactEvents({
+        AutoMovieEngineCompositionContact.resolveEvents({
           from: 0,
           to: 1,
           step: 1,

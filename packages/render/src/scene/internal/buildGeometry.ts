@@ -1,4 +1,4 @@
-import { tessellate, AutoMovieEngineGeometry } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieGeometry,
   IAutoMovieMesh,
@@ -40,7 +40,7 @@ export const buildGeometry: (
         THREE.BufferGeometryEventMap
       > = own(new THREE.BufferGeometry());
       if (geometry.type === "primitive") {
-        const t: IAutoMovieTessellation = tessellate(geometry.shape);
+        const t: IAutoMovieTessellation = AutoMovieEngineGeometry.tessellate(geometry.shape);
         geo.setAttribute(
           "position",
           new THREE.Float32BufferAttribute(t.positions, 3),

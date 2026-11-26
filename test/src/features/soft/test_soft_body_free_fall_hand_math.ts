@@ -1,4 +1,4 @@
-import { simulateSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   IAutoMovieSoftBodyDomain,
   IAutoMovieSoftBodyState,
@@ -62,7 +62,7 @@ const freeSheet: (drag: number) => IAutoMovieSoftBodyDomain = (
  */
 export function test_soft_body_free_fall_hand_math(): void {
   const undamped: IAutoMovieSoftBodyDomain = freeSheet(0);
-  const fallen: IAutoMovieSoftBodyState = simulateSoftBody(undamped, 8);
+  const fallen: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(undamped, 8);
   const drop: number = 72 / 1024;
   TestValidator.equals(
     "an undamped free fall matches the semi-implicit Euler closed form exactly",
@@ -99,7 +99,7 @@ export function test_soft_body_free_fall_hand_math(): void {
   );
 
   const damped: IAutoMovieSoftBodyDomain = freeSheet(64);
-  const settled: IAutoMovieSoftBodyState = simulateSoftBody(damped, 4);
+  const settled: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(damped, 4);
   const dampedSpeed: number = 0.125 * (1 - 1 / 16);
   const dampedDrop: number = (4 - 1 + 1 / 16) / 512;
   TestValidator.equals(
@@ -123,7 +123,7 @@ export function test_soft_body_free_fall_hand_math(): void {
         "slowerThanUndamped",
         (): boolean =>
           dampedDrop <
-          undamped.rest[1] - simulateSoftBody(undamped, 4).positions[1],
+          undamped.rest[1] - AutoMovieEngineSoftBody.simulateSoftBody(undamped, 4).positions[1],
       ],
     ]),
     {

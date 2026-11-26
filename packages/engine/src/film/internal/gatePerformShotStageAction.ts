@@ -9,7 +9,7 @@ import {
   type IAutoMovieViolationAppendShotGateSink,
 } from "@automovie/interface";
 
-import { armChainFault } from "../../kinematics/armChainFault";
+import { armChainFault } from "../../kinematics/internal/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../../motion/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";

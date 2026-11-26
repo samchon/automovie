@@ -1,4 +1,4 @@
-import { Quaternion, affordanceSupportContacts } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineSpace } from "@automovie/engine";
 import {
   IAutoMovieAffordance,
   IAutoMovieQuaternion,
@@ -59,7 +59,7 @@ export function test_space_affordance_contacts(): void {
     scale: UNIT,
   };
 
-  const contacts: IAutoMovieVector3[] = affordanceSupportContacts({
+  const contacts: IAutoMovieVector3[] = AutoMovieEngineSpace.affordanceSupportContacts({
     affordance: top,
     parentWorld,
   });
@@ -71,7 +71,7 @@ export function test_space_affordance_contacts(): void {
     );
   });
 
-  const lofted: IAutoMovieVector3[] = affordanceSupportContacts({
+  const lofted: IAutoMovieVector3[] = AutoMovieEngineSpace.affordanceSupportContacts({
     affordance: { ...top, extent: [{ x: 0.5, y: 7, z: 0.5 }, ...SQUARE] },
     parentWorld,
   });
@@ -84,7 +84,7 @@ export function test_space_affordance_contacts(): void {
     "a point-like kind throws",
     throwsError(
       (): IAutoMovieVector3[] =>
-        affordanceSupportContacts({
+        AutoMovieEngineSpace.affordanceSupportContacts({
           affordance: { ...top, kind: "handle", extent: null },
           parentWorld,
         }),
@@ -95,7 +95,7 @@ export function test_space_affordance_contacts(): void {
     "a stack-top without an extent throws",
     throwsError(
       (): IAutoMovieVector3[] =>
-        affordanceSupportContacts({
+        AutoMovieEngineSpace.affordanceSupportContacts({
           affordance: { ...top, extent: null },
           parentWorld,
         }),

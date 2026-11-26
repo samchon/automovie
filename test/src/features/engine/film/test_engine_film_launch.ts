@@ -1,4 +1,4 @@
-import { AutoMovieGravity, projectileAt, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieGravity, AutoMovieEngineFilm, AutoMovieAir } from "@automovie/engine";
 import {
   AutoMovieInteractionEventKind,
   IAutoMovieInteractionEvent,
@@ -228,7 +228,7 @@ export function test_engine_film_launch(): void {
     (): boolean =>
       knock.x > 0 && Math.abs(knock.z) < 1e-9 && nclose(knock.z, 0, 1e-9),
   );
-  const vHit: IAutoMovieVector3 = projectileAt(
+  const vHit: IAutoMovieVector3 = AutoMovieAir.projectileAt(
     { origin, velocity: hit.velocity, gravity: AutoMovieGravity.DOWN },
     hit.hitTime,
   ).velocity;

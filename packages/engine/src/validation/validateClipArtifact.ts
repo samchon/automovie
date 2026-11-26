@@ -8,8 +8,8 @@ import type {
 import { clipTrackShapeFaults } from "./clipTrackShapeFaults";
 import { pushViolation } from "./pushViolation";
 import { validateHonorableChannel } from "./validateHonorableChannel";
-import { validateRange } from "./validateRange";
-import { validateUniqueBy } from "./validateUniqueBy";
+import { validateRange } from "./internal/validateRange";
+import { validateUniqueBy } from "./internal/validateUniqueBy";
 
 /**
  * Admit clip duration, track uniqueness, channel addressing and shared sampler

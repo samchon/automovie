@@ -1,4 +1,4 @@
-import { solveAutoMovieSubdivisionLimit } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type { IAutoMovieSubdivisionStencil } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +30,7 @@ export function test_engine_geometry_subdivision_limit_solve(): void {
   const authored: number[] = [1, 2, -3, -1, -2, 3];
   const targets: Float64Array = Float64Array.from(authored);
   const solve = (s: IAutoMovieSubdivisionStencil, free: number[], out: Float64Array): number =>
-    solveAutoMovieSubdivisionLimit({
+    AutoMovieEngineSweep.solveSubdivisionLimit({
       stencil: s,
       targets,
       free: Uint8Array.from(free),

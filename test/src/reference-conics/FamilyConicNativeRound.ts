@@ -5,7 +5,7 @@ import { FamilyConicNativePremises } from "./FamilyConicNativePremises";
 import {
   FamilyConicNativeRootObservations as Observation,
 } from "./FamilyConicNativeRootObservations";
-import { AutoMovieConstructionAdmission, AutoMovieSolidChain, AutoMovieViewLoft, pointInPlanarRing, AutoMovieEngineMath } from "@automovie/engine";
+import { AutoMovieConstructionAdmission, AutoMovieSolidChain, AutoMovieViewLoft, AutoMovieEngineMath, AutoMovieEngineGeometry } from "@automovie/engine";
 import {
   AutoMovieHumanConicLoft as Loft,
   AutoMovieHumanF1 as Figure,
@@ -370,7 +370,7 @@ namespace FamilyConicNativeRound {
       domain,
       planeY: y,
       crossingStations: roots,
-      inside: pointInPlanarRing(
+      inside: AutoMovieEngineGeometry.pointInPlanarRing(
         { x: joint.origin[0], y: joint.origin[2] },
         ring,
       ),

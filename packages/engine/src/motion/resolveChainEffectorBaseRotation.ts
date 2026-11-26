@@ -10,7 +10,7 @@ import type {
   IAutoMovieSkeletonTopology,
 } from "@automovie/interface";
 
-import { jointToQuaternion } from "../kinematics/jointToQuaternion";
+import { jointToQuaternion } from "../kinematics/internal/jointToQuaternion";
 import { preparePoseResolution } from "../kinematics/preparePoseResolution";
 import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { Quaternion } from "../math/Quaternion";

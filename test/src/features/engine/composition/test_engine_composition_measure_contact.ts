@@ -1,8 +1,4 @@
-import {
-  preparePhysicalGeometry as Geometry,
-  auditAutoMovieOutcome,
-  measureAutoMovieContact,
-} from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, AutoMovieEngineCompositionOutcome, AutoMovieEngineCompositionContact } from "@automovie/engine";
 import type {
   IAutoMovieAuditOutcome,
   IAutoMovieMeasureContact,
@@ -47,13 +43,13 @@ export async function test_engine_composition_measure_contact(): Promise<void> {
     },
     bones: ["root"],
   });
-  const touching: IAutoMovieMeasureContact.IResult = measureAutoMovieContact({
+  const touching: IAutoMovieMeasureContact.IResult = AutoMovieEngineCompositionContact.measure({
     a: side("a", 0),
     b: side("b", 0.19),
     queries,
     seconds: 1,
   });
-  const apart: IAutoMovieMeasureContact.IResult = measureAutoMovieContact({
+  const apart: IAutoMovieMeasureContact.IResult = AutoMovieEngineCompositionContact.measure({
     a: side("a", 0),
     b: side("b", 0.25),
     queries,
@@ -73,14 +69,14 @@ export async function test_engine_composition_measure_contact(): Promise<void> {
     "the measured contacts",
     Math.abs(touching.separation + 0.01) < ROUNDING &&
       touching.contact !== null &&
-      auditAutoMovieOutcome(outcome, [touching.contact]).length === 0 &&
+      AutoMovieEngineCompositionOutcome.audit(outcome, [touching.contact]).length === 0 &&
       Math.abs(apart.separation - 0.05) < ROUNDING &&
       apart.contact === null &&
-      auditAutoMovieOutcome(outcome, []).length === 1,
+      AutoMovieEngineCompositionOutcome.audit(outcome, []).length === 1,
   );
   let refused: boolean = false;
   try {
-    measureAutoMovieContact({
+    AutoMovieEngineCompositionContact.measure({
       a: { ...side("a", 0), bones: ["none"] },
       b: side("b", 0.19),
       queries,

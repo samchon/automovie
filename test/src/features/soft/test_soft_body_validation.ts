@@ -1,4 +1,4 @@
-import { simulateSoftBody, AutoMovieEngineSoftBody } from "@automovie/engine";
+import { AutoMovieEngineSoftBody } from "@automovie/engine";
 import {
   AutoMovieViolationKind,
   IAutoMovieSoftBodyDomain,
@@ -279,7 +279,7 @@ export function test_soft_body_validation(): void {
       [
         "solvedAnyway",
         (): boolean => {
-          const state: IAutoMovieSoftBodyState = simulateSoftBody(stacked(), 2);
+          const state: IAutoMovieSoftBodyState = AutoMovieEngineSoftBody.simulateSoftBody(stacked(), 2);
           return Object.is(state.positions[0], state.positions[3]);
         },
       ],

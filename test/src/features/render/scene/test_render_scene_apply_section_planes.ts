@@ -1,4 +1,4 @@
-import { autoMovieSectionPlanesKeepPoint } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieSectionPlane } from "@automovie/interface";
 import { AutoMovieThreeKind, AutoMovieRenderSceneLayout } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -139,7 +139,7 @@ export function test_render_scene_apply_section_planes(): void {
     TestValidator.equals(
       `renderer and engine agree ${label} the cut`,
       plane.distanceToPoint(new THREE.Vector3(0, y, 0)) >= 0,
-      autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y, z: 0 }),
+      AutoMovieEngineFilm.autoMovieSectionPlanesKeepPoint([CEILING], { x: 0, y, z: 0 }),
     );
 
   // 3. a non-unit declared normal still lands unit, at the same place

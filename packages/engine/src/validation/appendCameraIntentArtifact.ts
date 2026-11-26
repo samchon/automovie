@@ -4,7 +4,7 @@ import type {
 } from "@automovie/interface";
 
 import { pushViolation } from "./pushViolation";
-import { validateRange } from "./validateRange";
+import { validateRange } from "./internal/validateRange";
 
 /** Append camera-intent span, focus and focal-length findings. */
 export function appendCameraIntentArtifact(

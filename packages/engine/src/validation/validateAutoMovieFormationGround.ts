@@ -15,7 +15,7 @@ import { formationSlotPosition } from "../populationRuntime/formation/internal/f
 import { placeFormationSlot } from "../populationRuntime/formation/internal/placeFormationSlot";
 import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";
 import { sampleFormationSlotMotion } from "../populationRuntime/formation/sampleFormationSlotMotion";
-import { heightAt } from "../space/heightAt";
+import { heightAt } from "../space/internal/heightAt";
 import { engineDiagnostic } from "./engineDiagnostic";
 
 /**

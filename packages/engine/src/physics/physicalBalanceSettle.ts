@@ -7,8 +7,8 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalBalanceBracing } from "./physicalBalanceBracing";
-import { physicalBalanceExhaustion } from "./physicalBalanceExhaustion";
+import { physicalBalanceBracing } from "./internal/physicalBalanceBracing";
+import { physicalBalanceExhaustion } from "./internal/physicalBalanceExhaustion";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 

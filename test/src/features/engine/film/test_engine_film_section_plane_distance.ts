@@ -1,4 +1,4 @@
-import { autoMovieSectionPlaneDistance } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -18,9 +18,9 @@ export function test_engine_film_section_plane_distance(): void {
   TestValidator.equals(
     "signed distances along the normal",
     [
-      autoMovieSectionPlaneDistance(plane, { x: 3, y: 4, z: 5 }),
-      autoMovieSectionPlaneDistance(plane, { x: 0, y: -1, z: 7 }),
-      autoMovieSectionPlaneDistance(plane, { x: 9, y: 1, z: 9 }),
+      AutoMovieEngineFilm.autoMovieSectionPlaneDistance(plane, { x: 3, y: 4, z: 5 }),
+      AutoMovieEngineFilm.autoMovieSectionPlaneDistance(plane, { x: 0, y: -1, z: 7 }),
+      AutoMovieEngineFilm.autoMovieSectionPlaneDistance(plane, { x: 9, y: 1, z: 9 }),
     ],
     [3, -2, 0],
   );
@@ -28,7 +28,7 @@ export function test_engine_film_section_plane_distance(): void {
     "a zero normal is refused",
     throwsError(
       () =>
-        autoMovieSectionPlaneDistance(
+        AutoMovieEngineFilm.autoMovieSectionPlaneDistance(
           { point: plane.point, normal: { x: 0, y: 0, z: 0 } },
           plane.point,
         ),

@@ -10,7 +10,7 @@ import {
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
-import { validateRange } from "../validation/validateRange";
+import { validateRange } from "../validation/internal/validateRange";
 import { FLUID_MAX_CELLS } from "./constants/FLUID_MAX_CELLS";
 import { FLUID_MAX_FLOWS } from "./constants/FLUID_MAX_FLOWS";
 import { FLUID_MAX_SPRAYS } from "./constants/FLUID_MAX_SPRAYS";

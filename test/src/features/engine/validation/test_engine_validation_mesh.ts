@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, validateMesh } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineValidation } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -28,7 +28,7 @@ export function test_engine_validation_mesh(): void {
   });
   const paths = (mesh: IAutoMovieMesh): string[] => {
     const collector: AutoMovieEngineViolationCollector = new AutoMovieEngineViolationCollector();
-    validateMesh(mesh, "m", new Set<string>(), collector);
+    AutoMovieEngineValidation.validateMesh(mesh, "m", new Set<string>(), collector);
     return collector.items.map((row: { path: string }): string => row.path);
   };
   TestValidator.equals("base", paths(base()), []);

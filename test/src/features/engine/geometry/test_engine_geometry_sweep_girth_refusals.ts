@@ -1,4 +1,4 @@
-import { compileAutoMovieSweep, AutoMovieEngineSweep } from "@automovie/engine";
+import { AutoMovieEngineSweep } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceNetwork,
   IAutoMovieSweepSurface,
@@ -30,7 +30,7 @@ import { throwsError } from "../../internal/throwsError";
  *    and two rings at one u ("share one u") are refused at the medium tier.
  */
 export function test_engine_geometry_sweep_girth_refusals(): void {
-  const sweep: IAutoMovieSweepSurface = compileAutoMovieSweep(
+  const sweep: IAutoMovieSweepSurface = AutoMovieEngineSweep.compileSweep(
     sweepGirthTube({ exponent: 2 }).sweeps.tube!,
   );
   let perimeter: number = 0;

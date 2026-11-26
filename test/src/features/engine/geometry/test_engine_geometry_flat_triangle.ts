@@ -1,4 +1,4 @@
-import { emptyMeshTarget, pushFlatTriangle } from "@automovie/engine";
+import { AutoMovieEngineGeometry } from "@automovie/engine";
 import type {
   IAutoMovieMeshTarget,
   IAutoMovieVector3,
@@ -26,8 +26,8 @@ export function test_engine_geometry_flat_triangle(): void {
   });
 
   // 1.
-  const a: IAutoMovieMeshTarget = emptyMeshTarget();
-  const b: IAutoMovieMeshTarget = emptyMeshTarget();
+  const a: IAutoMovieMeshTarget = AutoMovieEngineGeometry.emptyMeshTarget();
+  const b: IAutoMovieMeshTarget = AutoMovieEngineGeometry.emptyMeshTarget();
   TestValidator.equals("empty", a, {
     positions: [],
     normals: [],
@@ -43,7 +43,7 @@ export function test_engine_geometry_flat_triangle(): void {
   );
 
   // 2.
-  pushFlatTriangle(a, [
+  AutoMovieEngineGeometry.pushFlatTriangle(a, [
     [p(0, 0, 0), 0, 0],
     [p(2, 0, 0), 2, 0],
     [p(0, 2, 0), 0, 2],
@@ -56,7 +56,7 @@ export function test_engine_geometry_flat_triangle(): void {
   });
 
   // 3.
-  pushFlatTriangle(a, [
+  AutoMovieEngineGeometry.pushFlatTriangle(a, [
     [p(0, 0, 0), 0, 0],
     [p(0, 0, 1), 0, 1],
     [p(1, 0, 0), 1, 0],
@@ -69,7 +69,7 @@ export function test_engine_geometry_flat_triangle(): void {
   TestValidator.equals("second indices", a.indices, [0, 1, 2, 3, 4, 5]);
 
   // 4.
-  pushFlatTriangle(b, [
+  AutoMovieEngineGeometry.pushFlatTriangle(b, [
     [p(0, 0, 0), 0, 0],
     [p(1, 0, 0), 1, 0],
     [p(2, 0, 0), 2, 0],

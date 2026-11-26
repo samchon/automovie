@@ -30,12 +30,12 @@ export * from "./accumulatePhysicalMotorTorques";
 
 export * from "./admitPhysicalBody";
 
-export * from "./admitPhysicalMotionAudit";
+
 export * from "./admitPhysicalMotionFrame";
 export * from "./admitPhysicalOutcomes";
 export * from "./admitPhysicalPlaybackMetadata";
 export * from "./admitPhysicalPointBounds";
-export * from "./admitPhysicalReleasePolicy";
+
 export * from "./admitPhysicalSimulation";
 
 export * from "./admitPhysicalTargets";
@@ -77,13 +77,13 @@ export * from "./linearizePhysicalSeparation";
 
 
 
-export * from "./motionAuditGeometry";
-export * from "./physicalBalanceBracing";
-export * from "./physicalBalanceExhaustion";
+
+
+
 export * from "./physicalBalanceHandoff";
 export * from "./physicalBalancePlan";
 export * from "./physicalBalanceRamp";
-export * from "./physicalBalanceReference";
+
 export * from "./physicalBalanceSense";
 export * from "./physicalBalanceSettle";
 export * from "./physicalBalanceStance";
@@ -165,8 +165,8 @@ export * from "./physicalStanceSwing";
 
 export * from "./physicalSwingReference";
 
-export * from "./physicalTrackingWithdrawn";
-export * from "./planPhysicalBalanceTargets";
+
+
 
 
 
@@ -185,19 +185,19 @@ export * from "./preparePhysicalTargetSampler";
 
 
 export * from "./projectPhysicalTargets";
-export * from "./projectileAt";
+
 export * from "./projectileContinue";
 export * from "./projectileDragFlight";
 export * from "./projectileFirstContact";
 export * from "./projectileSphereHit";
-export * from "./projectileTrajectory";
+
 export * from "./readPhysicalFrame";
 export * from "./readPhysicalScene";
 
 
 
 export * from "./recordPhysicalSpanContacts";
-export * from "./releasePhysicalTracking";
+
 
 
 export * from "./resolvePhysicalPerformanceMode";
@@ -212,14 +212,14 @@ export * from "./samplePhysicalOwnership";
 
 
 export * from "./samplePhysicalTarget";
-export * from "./samplePhysicalTracking";
-export * from "./samplePhysicalTrackingTarget";
+
+
 export * from "./seedPhysicalChainTarget";
 export * from "./segmentSphere";
 
-export * from "./solveBallisticLaunch";
+
 export * from "./solveDenseActiveSet";
-export * from "./solveMovingLaunch";
+
 
 
 

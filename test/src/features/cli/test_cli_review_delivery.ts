@@ -1,5 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
-import { AutoMovieCliReview, hashAutoMovieFile } from "automovie";
+import { AutoMovieCliFile, AutoMovieCliReview } from "automovie";
 import * as fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -89,7 +89,7 @@ export async function test_cli_review_delivery(): Promise<void> {
   };
   const publish = async (bytes: string): Promise<void> => {
     await fs.writeFile(file, bytes);
-    const digest: string = await hashAutoMovieFile(file);
+    const digest: string = await AutoMovieCliFile.hash(file);
     original.source.sha256 = digest;
     original.delivery.source.sha256 = digest;
     await fs.writeFile(report, JSON.stringify(original));
