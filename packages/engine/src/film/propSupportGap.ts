@@ -6,7 +6,7 @@ import {
 } from "@automovie/interface";
 
 import { midpoint } from "../math/midpoint";
-import { footprintContains } from "../space/footprintContains";
+import { AutoMovieEngineSpace } from "../space/";
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 
 /**
@@ -42,7 +42,7 @@ export function propSupportGap(
   const bounds: IAutoMoviePropBox = props.bounds;
   const probes: IAutoMovieVector3[] = [
     ...footprintProbes(bounds).filter((probe: IAutoMovieVector3): boolean =>
-      footprintContains(props.face.polygon, probe.x, probe.z),
+      AutoMovieEngineSpace.footprintContains(props.face.polygon, probe.x, probe.z),
     ),
     ...[
       ...props.face.polygon.outer.points,

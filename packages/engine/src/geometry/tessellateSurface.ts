@@ -6,8 +6,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { footprintConvexPieces } from "../space/footprintConvexPieces";
-import { surfaceFootprint } from "../space/surfaceFootprint";
+import { AutoMovieEngineSpace } from "../space/";
+
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 
 /**
@@ -46,8 +46,8 @@ export const tessellateSurface: (
 ) => IAutoMovieTessellation | null = (
   surface: IAutoMovieSurface,
 ): IAutoMovieTessellation | null => {
-  const footprint: IAutoMovieFootprint = surfaceFootprint(surface);
-  const pieces: IAutoMovieVector3[][] = footprintConvexPieces(footprint);
+  const footprint: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint(surface);
+  const pieces: IAutoMovieVector3[][] = AutoMovieEngineSpace.footprintConvexPieces(footprint);
   if (pieces.length === 0) return null;
   if (surface.height?.kind !== "heightfield")
     return tessellatePolygons(surface, pieces);

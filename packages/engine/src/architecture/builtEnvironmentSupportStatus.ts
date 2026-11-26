@@ -13,9 +13,9 @@ import {
 } from "@automovie/interface";
 
 import { propSupportGap } from "../film/propSupportGap";
-import { footprintConvexPieces } from "../space/footprintConvexPieces";
-import { footprintRing } from "../space/footprintRing";
-import { surfaceFootprint } from "../space/surfaceFootprint";
+import { AutoMovieEngineSpace } from "../space/";
+
+
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { builtEnvironmentPlacementBounds } from "./builtEnvironmentPlacementBounds";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
@@ -154,8 +154,8 @@ const resolveSupport: (
         candidate.surface.id === locator.id,
     );
     if (entry === undefined) return null;
-    const polygon: IAutoMovieFootprint = surfaceFootprint(entry.surface);
-    if (footprintConvexPieces(polygon).length === 0) return null;
+    const polygon: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint(entry.surface);
+    if (AutoMovieEngineSpace.footprintConvexPieces(polygon).length === 0) return null;
     return {
       face: { polygon, height: entry.surface },
       basis: "surface-height-rule",
@@ -172,7 +172,7 @@ const resolveSupport: (
   return {
     face: {
       polygon: {
-        outer: footprintRing([
+        outer: AutoMovieEngineSpace.footprintRing([
           { x: min.x, y: max.y, z: min.z },
           { x: max.x, y: max.y, z: min.z },
           { x: max.x, y: max.y, z: max.z },

@@ -16,8 +16,8 @@ import { builtElementRestMatrices } from "../architecture/builtElementRestMatric
 import { Matrix4 } from "../math/Matrix4";
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
-import { footprintInteriorPoint } from "../space/footprintInteriorPoint";
-import { surfaceFootprint } from "../space/surfaceFootprint";
+import { AutoMovieEngineSpace } from "../space/";
+
 import { surfaceHeightAt } from "../space/surfaceHeightAt";
 import { setPieceMatrix } from "./staging/setPieceMatrix";
 
@@ -129,8 +129,8 @@ export function propAnchorFrame(
       // The anchor has to be on the patch, and a vertex mean is not: the mean
       // of an L-shaped plate's corners falls in its notch, and the mean of a
       // holed slab's falls down the atrium.
-      const anchor: { x: number; z: number } | null = footprintInteriorPoint(
-        surfaceFootprint(entry.surface),
+      const anchor: { x: number; z: number } | null = AutoMovieEngineSpace.footprintInteriorPoint(
+        AutoMovieEngineSpace.surfaceFootprint(entry.surface),
       );
       if (anchor === null) return null;
       return Transform.of(

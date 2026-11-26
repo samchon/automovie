@@ -3,7 +3,7 @@ import {
   IAutoMovieSurface,
 } from "@automovie/interface";
 
-import { surfaceFootprint } from "./surfaceFootprint";
+import { AutoMovieEngineSpace } from "./AutoMovieEngineSpace";
 
 /** Prepare one borrowed surface and its actual outer-and-hole footprint. */
 export const prepareSurface: (
@@ -12,5 +12,5 @@ export const prepareSurface: (
   surface: IAutoMovieSurface,
 ): IAutoMoviePreparedSurface => ({
   surface,
-  footprint: surfaceFootprint(surface),
+  footprint: AutoMovieEngineSpace.surfaceFootprint(surface),
 });

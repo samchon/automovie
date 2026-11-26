@@ -1,13 +1,4 @@
-import {
-  footprintRing,
-  propAnchorFrame,
-  propBoundsOverlap,
-  propClearanceBounds,
-  propOccupancyBounds,
-  propSpaceContainsBounds,
-  propSupportFace,
-  validatePropPlacements,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, propAnchorFrame, propBoundsOverlap, propClearanceBounds, propOccupancyBounds, propSpaceContainsBounds, propSupportFace, validatePropPlacements } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMoviePropBox,
@@ -87,7 +78,7 @@ const patch: (props: IFilmPropPatchInput) => IAutoMoviePropSupportFace = (
   const centre: number = props.atX ?? 0;
   return {
     polygon: {
-      outer: footprintRing([
+      outer: AutoMovieEngineSpace.footprintRing([
         { x: centre - props.half, y: 0, z: -props.half },
         { x: centre + props.half, y: 0, z: -props.half },
         { x: centre + props.half, y: 0, z: props.half },

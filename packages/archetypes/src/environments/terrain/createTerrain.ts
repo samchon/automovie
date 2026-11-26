@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, Quaternion, footprintContains, footprintConvexPieces, srgbHexToLinearColor, surfaceFootprint, surfaceHeightAt, validateSpace } from "@automovie/engine";
+import { AutoMovieEngineSpace, AutoMovieEngineRandom, Quaternion, srgbHexToLinearColor, surfaceHeightAt, validateSpace } from "@automovie/engine";
 
 import type {
   IAutoMovieEnvironmentContribution,
@@ -188,7 +188,7 @@ export function createTerrain(
         `Terrain "${context.id}" ${failure.path}: ${failure.expected}.`,
       );
     }
-    const land: IAutoMovieFootprint = surfaceFootprint({
+    const land: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint({
       ...ground,
       holes: landHoles,
     });
@@ -221,7 +221,7 @@ export function createTerrain(
     for (const [name, [px, pz]] of Object.entries(recipe.amenities ?? {})) {
       const wx: number = origin.x + px;
       const wz: number = origin.z + pz;
-      if (!footprintContains(land, wx, wz))
+      if (!AutoMovieEngineSpace.footprintContains(land, wx, wz))
         throw new Error(
           `Terrain amenity "${context.id}/amenities/${name}" must rest on parcel land.`,
         );
@@ -405,7 +405,7 @@ function worldPieces(
   const polygons: IAutoMovieVector3[][] =
     (surface.holes?.length ?? 0) === 0
       ? [surface.polygon]
-      : footprintConvexPieces(surfaceFootprint(surface));
+      : AutoMovieEngineSpace.footprintConvexPieces(AutoMovieEngineSpace.surfaceFootprint(surface));
   return polygons.map(
     (polygon: IAutoMovieVector3[], index: number): IAutoMovieWorldSurface => ({
       id: index === 0 ? surface.id : `${surface.id}/piece/${index}`,

@@ -3,7 +3,7 @@ import type {
   IAutoMovieFootprintRing,
 } from "@automovie/interface";
 
-import { footprintRingPlacement } from "./footprintRingPlacement";
+import { AutoMovieEngineSpace } from "../AutoMovieEngineSpace";
 
 /**
  * Is `(x, z)` on the surface the footprint describes?
@@ -27,9 +27,9 @@ export const footprintContains: (
   z: number,
 ): boolean => {
   if (footprint.outer.doubleArea === 0) return false;
-  if (footprintRingPlacement(footprint.outer, x, z) === "outside") return false;
+  if (AutoMovieEngineSpace.footprintRingPlacement(footprint.outer, x, z) === "outside") return false;
   return footprint.holes.every(
     (hole: IAutoMovieFootprintRing): boolean =>
-      footprintRingPlacement(hole, x, z) !== "inside",
+      AutoMovieEngineSpace.footprintRingPlacement(hole, x, z) !== "inside",
   );
 };

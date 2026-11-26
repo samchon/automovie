@@ -16,8 +16,8 @@ import { validateBuiltEnvironment } from "../architecture/validateBuiltEnvironme
 import { Vector3 } from "../math/Vector3";
 import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
 import { compareAutoMovieRenderIds } from "../render/compareAutoMovieRenderIds";
-import { footprintArea } from "../space/footprintArea";
-import { surfaceFootprint } from "../space/surfaceFootprint";
+import { AutoMovieEngineSpace } from "../space/";
+
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingCellVolume } from "./autoMovieDrawingCellVolume";
 import { autoMovieOpeningArea } from "./autoMovieOpeningArea";
@@ -157,7 +157,7 @@ export function measureAutoMovieQuantities(
     add(
       "space-floor-area",
       entry.space,
-      footprintArea(surfaceFootprint(entry.surface)),
+      AutoMovieEngineSpace.footprintArea(AutoMovieEngineSpace.surfaceFootprint(entry.surface)),
     );
 
   let unmeasuredCells: number = 0;

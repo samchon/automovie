@@ -4,8 +4,8 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { footprintConvexPieces } from "./footprintConvexPieces";
-import { footprintRing } from "./footprintRing";
+import { AutoMovieEngineSpace } from "../AutoMovieEngineSpace";
+
 
 /** Choose an anchor from the widest convex piece of a footprint. */
 export const footprintInteriorPoint: (
@@ -15,8 +15,8 @@ export const footprintInteriorPoint: (
 ): IAutoMovieFootprintInteriorPoint.IResult => {
   let best: IAutoMovieVector3[] | null = null;
   let bestArea: number = 0;
-  for (const piece of footprintConvexPieces(footprint)) {
-    const area: number = Math.abs(footprintRing(piece).doubleArea);
+  for (const piece of AutoMovieEngineSpace.footprintConvexPieces(footprint)) {
+    const area: number = Math.abs(AutoMovieEngineSpace.footprintRing(piece).doubleArea);
     if (area > bestArea) {
       best = piece;
       bestArea = area;

@@ -1,4 +1,4 @@
-import { footprintArea } from "@automovie/engine";
+import { AutoMovieEngineSpace } from "@automovie/engine";
 import type { IAutoMovieFootprintRing } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,12 +22,12 @@ export function test_engine_space_footprint_area(): void {
   });
   TestValidator.equals(
     "a ring with a hole",
-    footprintArea({ outer: ring(-24), holes: [ring(2)] }),
+    AutoMovieEngineSpace.footprintArea({ outer: ring(-24), holes: [ring(2)] }),
     11,
   );
   TestValidator.equals(
     "no hole",
-    footprintArea({ outer: ring(24), holes: [] }),
+    AutoMovieEngineSpace.footprintArea({ outer: ring(24), holes: [] }),
     12,
   );
 }

@@ -11,8 +11,8 @@ import {
 import { polygonInside } from "../architecture/polygonInside";
 import { polygonIsSimple } from "../architecture/polygonIsSimple";
 import { polygonsOverlap } from "../architecture/polygonsOverlap";
-import { footprintRing } from "../space/footprintRing";
-import { footprintRingPlacement } from "../space/footprintRingPlacement";
+import { AutoMovieEngineSpace } from "../space/";
+
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateColor } from "./validateColor";
 import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
@@ -210,11 +210,11 @@ const ringsTouch: (
 ): boolean =>
   hole.points.some(
     (point: IAutoMovieVector3): boolean =>
-      footprintRingPlacement(outer, point.x, point.z) === "boundary",
+      AutoMovieEngineSpace.footprintRingPlacement(outer, point.x, point.z) === "boundary",
   ) ||
   outer.points.some(
     (point: IAutoMovieVector3): boolean =>
-      footprintRingPlacement(hole, point.x, point.z) === "boundary",
+      AutoMovieEngineSpace.footprintRingPlacement(hole, point.x, point.z) === "boundary",
   );
 
 /**
@@ -256,7 +256,7 @@ const validateRing: (
     );
     return null;
   }
-  const ring: IAutoMovieFootprintRing = footprintRing(points);
+  const ring: IAutoMovieFootprintRing = AutoMovieEngineSpace.footprintRing(points);
   if (Math.abs(ring.doubleArea) <= MIN_RING_DOUBLE_AREA) {
     collector.push(
       "type",

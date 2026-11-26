@@ -5,9 +5,9 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieEnginePlanarRegion } from "../geometry/planar-region/AutoMovieEnginePlanarRegion";
-import { planarCross } from "../geometry/planarCross";
-import { convexHull2D } from "../math/convexHull2D";
+import { AutoMovieEnginePlanarRegion } from "../../geometry/planar-region/AutoMovieEnginePlanarRegion";
+import { planarCross } from "../../geometry/planarCross";
+import { convexHull2D } from "../../math/convexHull2D";
 
 /** Produce convex pieces for the footprint's exact-region contract. */
 export const footprintConvexPieces: (

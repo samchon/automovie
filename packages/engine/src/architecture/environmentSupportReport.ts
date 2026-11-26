@@ -21,7 +21,7 @@ import { propSupportGap } from "../film/propSupportGap";
 import { setPieceMatrix } from "../film/staging/setPieceMatrix";
 import { Matrix4 } from "../math/Matrix4";
 import { transformedBoxBounds } from "../math/transformedBoxBounds";
-import { surfaceFootprint } from "../space/surfaceFootprint";
+import { AutoMovieEngineSpace } from "../space/";
 import { builtEnvironmentSupportSweep } from "./builtEnvironmentSupportSweep";
 import { builtFootprintsOverlap } from "./builtFootprintsOverlap";
 import { AUTOMOVIE_SUPPORT_TOLERANCE } from "./constants/AUTOMOVIE_SUPPORT_TOLERANCE";
@@ -116,7 +116,7 @@ export function environmentSupportReport(
         surface: IAutoMovieSurface,
       ): { id: string; face: IAutoMoviePropSupportFace } => ({
         id: surface.id,
-        face: { polygon: surfaceFootprint(surface), height: surface },
+        face: { polygon: AutoMovieEngineSpace.surfaceFootprint(surface), height: surface },
       }),
     );
 

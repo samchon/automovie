@@ -1,12 +1,4 @@
-import {
-  closestPointOnSegmentXZ,
-  footprintContains,
-  footprintConvexPieces,
-  footprintRingPlacement,
-  intersectAutoMovieConvexPolygons,
-  signedArea,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { AutoMovieEngineSpace, closestPointOnSegmentXZ, intersectAutoMovieConvexPolygons, signedArea, surfaceHeightAt } from "@automovie/engine";
 import type {
   IAutoMovieFootprint,
   IAutoMovieFootprintRing,
@@ -37,10 +29,10 @@ export function admitTerrainRoute(
 ): void {
   const obstructions: IAutoMovieVector3[][] = footprint.holes.flatMap(
     (outer: IAutoMovieFootprintRing): IAutoMovieVector3[][] =>
-      footprintConvexPieces({ outer, holes: [] }),
+      AutoMovieEngineSpace.footprintConvexPieces({ outer, holes: [] }),
   );
   for (const [index, point] of path.points.entries()) {
-    if (!footprintContains(footprint, point.x, point.z))
+    if (!AutoMovieEngineSpace.footprintContains(footprint, point.x, point.z))
       throw new Error(
         `Terrain path "${path.id}" waypoint ${index} is outside parcel land.`,
       );
@@ -96,7 +88,7 @@ function stripFits(
   for (const end of [from, to])
     for (const side of [-radius, radius])
       if (
-        footprintRingPlacement(
+        AutoMovieEngineSpace.footprintRingPlacement(
           outer,
           end.x + acrossX * side,
           end.z + acrossZ * side,

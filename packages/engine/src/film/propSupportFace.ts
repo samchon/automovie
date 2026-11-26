@@ -13,9 +13,9 @@ import {
 import { Matrix4 } from "../math/Matrix4";
 import { Vector3 } from "../math/Vector3";
 import { convexHull2D } from "../math/convexHull2D";
-import { footprintConvexPieces } from "../space/footprintConvexPieces";
-import { footprintRing } from "../space/footprintRing";
-import { surfaceFootprint } from "../space/surfaceFootprint";
+import { AutoMovieEngineSpace } from "../space/";
+
+
 import { setPieceMatrix } from "./staging/setPieceMatrix";
 
 /** Relative tolerance below which a face normal counts as horizontal. */
@@ -68,8 +68,8 @@ export function propSupportFace(
           candidate.surface.id === target.surface,
       );
     if (entry === undefined) return null;
-    const polygon: IAutoMovieFootprint = surfaceFootprint(entry.surface);
-    if (footprintConvexPieces(polygon).length === 0) return null;
+    const polygon: IAutoMovieFootprint = AutoMovieEngineSpace.surfaceFootprint(entry.surface);
+    if (AutoMovieEngineSpace.footprintConvexPieces(polygon).length === 0) return null;
     return { polygon, height: entry.surface };
   }
   const spec: IAutoMoviePropSpec | undefined = (props.props ?? []).find(
@@ -99,7 +99,7 @@ export function propSupportFace(
   if (height === null) return null;
   return {
     polygon: {
-      outer: footprintRing(
+      outer: AutoMovieEngineSpace.footprintRing(
         convexHull2D(
           affordance.extent.map(
             (corner: IAutoMovieVector3): IAutoMovieVector3 =>

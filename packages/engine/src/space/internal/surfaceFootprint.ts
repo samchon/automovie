@@ -3,7 +3,7 @@ import {
   IAutoMovieSurface,
 } from "@automovie/interface";
 
-import { footprintRing } from "./footprintRing";
+import { AutoMovieEngineSpace } from "../AutoMovieEngineSpace";
 
 /** Project a surface's outer ring and optional holes into one footprint record. */
 export const surfaceFootprint: (
@@ -11,6 +11,6 @@ export const surfaceFootprint: (
 ) => IAutoMovieFootprint = (
   surface: IAutoMovieSurface,
 ): IAutoMovieFootprint => ({
-  outer: footprintRing(surface.polygon),
-  holes: (surface.holes ?? []).map(footprintRing),
+  outer: AutoMovieEngineSpace.footprintRing(surface.polygon),
+  holes: (surface.holes ?? []).map(AutoMovieEngineSpace.footprintRing),
 });
