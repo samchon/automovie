@@ -1,4 +1,8 @@
 import type * as THREE from "three";
+import type { IViewerCameraStateSnapshot } from "../IViewerCameraStateSnapshot.js";
+import { applyCaptureCanvasSize as applyViewerCaptureCanvasSize } from "./internal/applyCaptureCanvasSize.js";
+import { createViewerCameraState } from "./internal/createViewerCameraState.js";
+import { createViewerViewportResize } from "./internal/createViewerViewportResize.js";
 
 import type { IAutoMovieViewerCompletedFrame } from "../IAutoMovieViewerCompletedFrame.js";
 import type { IAutoMovieViewerDisplayMetadata } from "../IAutoMovieViewerDisplayMetadata.js";
@@ -164,4 +168,57 @@ export namespace AutoMovieViewerDisplay {
     redrawViewerCompletedFrame(request);
   }
 
+
+  /** Public snapshot of native camera lens and transform state. */
+  export type ICameraStateSnapshot = IViewerCameraStateSnapshot;
+
+  /** Camera state capture and restoration through its native lens and transform. */
+  export interface ICameraState {
+    /** Capture supported camera state. */
+    capture(): IViewerCameraStateSnapshot;
+    /** Restore a compatible snapshot without mutating on refusal. */
+    restore(state: IViewerCameraStateSnapshot): void;
+  }
+
+  /** Camera supplied to its native transfer owner. */
+  export interface ICameraStateRequest {
+    /** Detached auto-updating perspective or orthographic camera. */
+    camera: THREE.Camera;
+  }
+
+  /** Renderer and perspective camera whose viewport are synchronized. */
+  export interface IViewportResizeRequest {
+    /** Renderer whose drawing buffer is resized. */
+    renderer: Pick<THREE.WebGLRenderer, "getSize" | "getPixelRatio" | "setDrawingBufferSize">;
+    /** Perspective camera whose aspect follows the CSS dimensions. */
+    camera: THREE.PerspectiveCamera;
+  }
+
+  /** Reports whether a viewport resize changed the raster or projection. */
+  export type IViewportResizer = (width: number, height: number, pixelRatio: number) => boolean;
+
+  /** Canvas style and CSS dimensions for a capture host. */
+  export interface IApplyCaptureCanvasSizeRequest {
+    /** Canvas-like object whose CSS dimensions are set. */
+    canvas: { style: Pick<HTMLCanvasElement["style"], "width" | "height"> };
+    /** CSS width in pixels. */
+    width: number;
+    /** CSS height in pixels. */
+    height: number;
+  }
+
+  /** Create a native camera capture/restore controller. */
+  export function createCameraState(request: ICameraStateRequest): ICameraState {
+    return createViewerCameraState(request);
+  }
+
+  /** Create a synchronizer for CSS viewport dimensions and renderer raster. */
+  export function createViewportResize(request: IViewportResizeRequest): IViewportResizer {
+    return createViewerViewportResize(request);
+  }
+
+  /** Apply positive CSS dimensions to the capture canvas; nonpositive dimensions leave it unchanged. */
+  export function applyCaptureCanvasSize(request: IApplyCaptureCanvasSizeRequest): void {
+    applyViewerCaptureCanvasSize(request);
+  }
 }

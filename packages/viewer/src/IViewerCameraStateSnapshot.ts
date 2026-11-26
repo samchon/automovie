@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 /**
- * Detached native camera state admitted by createViewerCameraState.restore.
+ * Detached native camera state admitted by AutoMovieViewerDisplay.createCameraState.restore.
  * Vectors and lens values are local native camera data, not a world hierarchy.
  */
 export interface IViewerCameraStateSnapshot {

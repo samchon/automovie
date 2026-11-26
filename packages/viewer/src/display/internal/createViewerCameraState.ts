@@ -1,7 +1,8 @@
 import { AutoMovieThreeKind } from "@automovie/render";
 import * as THREE from "three";
 
-import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js";
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
 
 /**
  * Transfer detached, auto-updating Perspective/Orthographic cameras through
@@ -10,10 +11,8 @@ import type { IViewerCameraStateSnapshot } from "./IViewerCameraStateSnapshot.js
  * another owner must transfer those relationships rather than guess them. A
  * degenerate state is refused before the original camera is mutated.
  */
-export function createViewerCameraState(camera: THREE.Camera): {
-  capture: () => IViewerCameraStateSnapshot;
-  restore: (state: IViewerCameraStateSnapshot) => void;
-} {
+export function createViewerCameraState(request: AutoMovieViewerDisplay.ICameraStateRequest): AutoMovieViewerDisplay.ICameraState {
+  const camera: THREE.Camera = request.camera;
   const supported: () =>
     | THREE.PerspectiveCamera
     | THREE.OrthographicCamera = ():

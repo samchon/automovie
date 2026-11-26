@@ -1,4 +1,4 @@
-import type { IAutoMovieAudioCue } from "./IAutoMovieAudioCue.js";
+import type { IAutoMovieViewerAudioCue } from "./IAutoMovieViewerAudioCue.js";
 import { planAutoMovieAudioPlayback } from "./internal/planAutoMovieAudioPlayback.js";
 import { playAutoMovieAudioCues } from "./internal/playAutoMovieAudioCues.js";
 
@@ -7,7 +7,7 @@ export namespace AutoMovieViewerAudio {
   /** Inputs for planning the cue starts audible from a film instant. */
   export interface IPlanPlaybackRequest {
     /** Cues to consider. */
-    cues: readonly IAutoMovieAudioCue[];
+    cues: readonly IAutoMovieViewerAudioCue[];
     /** Film second playback begins at. */
     seconds: number;
     /** Film seconds per wall second; must be positive. */
@@ -23,7 +23,7 @@ export namespace AutoMovieViewerAudio {
     /** Decoded buffers keyed by asset id. */
     decoded: Readonly<Record<string, AudioBuffer>>;
     /** Cues to play. */
-    cues: readonly IAutoMovieAudioCue[];
+    cues: readonly IAutoMovieViewerAudioCue[];
     /** Film second playback begins at. */
     seconds: number;
     /** Film seconds per wall second. */

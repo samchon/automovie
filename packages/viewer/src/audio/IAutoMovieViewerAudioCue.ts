@@ -3,7 +3,7 @@
  * from engine's `renderProductionSound`; to hear what the delivery encodes,
  * play the film's mixed soundtrack as one cue at second 0 and unit gain.
  */
-export interface IAutoMovieAudioCue {
+export interface IAutoMovieViewerAudioCue {
   /** Source id. */
   asset: string;
 

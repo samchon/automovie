@@ -6,7 +6,7 @@ import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
 import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompletedFrame.js";
 import type { IViewerCameraStateSnapshot } from "../../IViewerCameraStateSnapshot.js";
 import type { IViewerFrameTransfer } from "../../IViewerFrameTransfer.js";
-import { createViewerCameraState } from "../../createViewerCameraState.js";
+import { createViewerCameraState } from "./createViewerCameraState.js";
 
 /**
  * Own a mounted frame's camera/time controller and nested playback freezes.
@@ -20,7 +20,7 @@ export function createViewerFrameControl(
   options: AutoMovieViewerDisplay.IFrameControlRequest,
 ): AutoMovieViewerDisplay.IFrameControl {
   const cameraState: ReturnType<typeof createViewerCameraState> =
-    createViewerCameraState(options.camera);
+    createViewerCameraState({ camera: options.camera });
   let leases: number = 0;
   let releaseProducer: ((resume: boolean) => void) | undefined;
   let closed: boolean = false;

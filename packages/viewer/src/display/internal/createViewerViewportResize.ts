@@ -1,5 +1,7 @@
 import * as THREE from "three";
 
+import type { AutoMovieViewerDisplay } from "../AutoMovieViewerDisplay.js";
+
 /**
  * Synchronize a perspective viewport with its CSS size and selected pixel
  * ratio. The renderer updates its drawing buffer without changing authored CSS
@@ -7,12 +9,9 @@ import * as THREE from "three";
  * caller can redraw its original producer at the current completed time.
  */
 export function createViewerViewportResize(
-  renderer: Pick<
-    THREE.WebGLRenderer,
-    "getSize" | "getPixelRatio" | "setDrawingBufferSize"
-  >,
-  camera: THREE.PerspectiveCamera,
-): (width: number, height: number, pixelRatio: number) => boolean {
+  request: AutoMovieViewerDisplay.IViewportResizeRequest,
+): AutoMovieViewerDisplay.IViewportResizer {
+  const { renderer, camera } = request;
   const size: THREE.Vector2 = new THREE.Vector2();
   return (width: number, height: number, pixelRatio: number): boolean => {
     if (width <= 0 || height <= 0 || pixelRatio <= 0)

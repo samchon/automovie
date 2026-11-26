@@ -1,8 +1,8 @@
-import { applyCaptureCanvasSize } from "@automovie/viewer/internal";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `applyCaptureCanvasSize` sets a capture canvas's CSS size.
+ * `AutoMovieViewerDisplay.applyCaptureCanvasSize` sets a capture canvas's CSS size.
  *
  * Scenarios:
  *
@@ -13,9 +13,9 @@ export function test_viewer_root_apply_capture_canvas_size(): void {
   const canvas: { style: { width: string; height: string } } = {
     style: { width: "", height: "" },
   };
-  applyCaptureCanvasSize(canvas, 640, 360);
+  AutoMovieViewerDisplay.applyCaptureCanvasSize({ canvas, width: 640, height: 360 });
   TestValidator.equals("size", canvas.style, { width: "640px", height: "360px" });
-  applyCaptureCanvasSize(canvas, 0, 100);
-  applyCaptureCanvasSize(canvas, 100, -1);
+  AutoMovieViewerDisplay.applyCaptureCanvasSize({ canvas, width: 0, height: 100 });
+  AutoMovieViewerDisplay.applyCaptureCanvasSize({ canvas, width: 100, height: -1 });
   TestValidator.equals("kept", canvas.style, { width: "640px", height: "360px" });
 }

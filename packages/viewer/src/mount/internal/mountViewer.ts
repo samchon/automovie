@@ -11,7 +11,7 @@ import type { IAutoMovieViewerCompletedFrame } from "../../IAutoMovieViewerCompl
 import type { IAutoMovieViewerHandle } from "../../IAutoMovieViewerHandle.js";
 import type { IMountViewerOptions } from "../../IMountViewerOptions.js";
 import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
-import { createViewerViewportResize } from "../../createViewerViewportResize.js";
+import { AutoMovieViewerDisplay } from "../../display/AutoMovieViewerDisplay.js";
 import type { AutoMovieViewer } from "../AutoMovieViewer.js";
 import { releaseMountedViewer } from "./releaseMountedViewer.js";
 
@@ -50,8 +50,8 @@ export function mountViewer(
   let scheduled: number | undefined;
   let frameControl: AutoMovieViewerDisplay.IFrameControl | undefined;
   try {
-    const resize: ReturnType<typeof createViewerViewportResize> =
-      createViewerViewportResize(renderer, camera);
+    const resize: AutoMovieViewerDisplay.IViewportResizer =
+      AutoMovieViewerDisplay.createViewportResize({ renderer, camera });
     function synchronizeViewport(): boolean {
       return resize(
         canvas.clientWidth || 1,

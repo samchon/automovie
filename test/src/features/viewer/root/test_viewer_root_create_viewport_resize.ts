@@ -1,4 +1,4 @@
-import { createViewerViewportResize } from "@automovie/viewer";
+import { AutoMovieViewerDisplay } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -41,8 +41,8 @@ export function test_viewer_root_create_viewport_resize(): void {
     0.2,
     90,
   );
-  const resize: ReturnType<typeof createViewerViewportResize> =
-    createViewerViewportResize(renderer, camera);
+  const resize: AutoMovieViewerDisplay.IViewportResizer =
+    AutoMovieViewerDisplay.createViewportResize({ renderer, camera });
   TestValidator.predicate(
     "CSS-only resize invalidates original frame",
     resize(1100, 619, 1),
