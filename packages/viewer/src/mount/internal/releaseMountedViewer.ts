@@ -12,15 +12,11 @@ import type * as THREE from "three";
  * owners release independently even when another listener fails. The shadow
  * owner enforces its exclusive-context and external-borrower boundary.
  */
-export const releaseMountedViewer: (
+export function releaseMountedViewer(
   renderer: THREE.WebGLRenderer,
   scene: THREE.Scene,
   stopLoop: () => void,
-) => void = (
-  renderer: THREE.WebGLRenderer,
-  scene: THREE.Scene,
-  stopLoop: () => void,
-): void =>
+): void {
   restoreAutoMovieRenderModeState([
     stopLoop,
     (): void => {
@@ -30,3 +26,4 @@ export const releaseMountedViewer: (
       releaseViewerRenderer(renderer);
     },
   ]);
+}

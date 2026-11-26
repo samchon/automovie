@@ -1,7 +1,8 @@
 import type * as THREE from "three";
+import type { AutoMovieViewer } from "./mount/AutoMovieViewer.js";
 
 /**
- * Handle returned by {@link mountViewer}; call `stop()` to end the loop and
+ * Handle returned by {@link AutoMovieViewer.mount}; call `stop()` to end the loop and
  * release the renderer, including any dissolve GPU state the frames created.
  */
 export interface IAutoMovieViewerHandle {

@@ -7,7 +7,10 @@ import {
   buildModel,
   parseAutoMovieInspectionRequest,
 } from "@automovie/render";
-import { type IAutoMovieViewerHandle, mountViewer } from "@automovie/viewer";
+import {
+  AutoMovieViewer,
+  type IAutoMovieViewerHandle,
+} from "@automovie/viewer";
 import * as THREE from "three";
 
 import type { IGalleryAdapter } from "../IGalleryAdapter";
@@ -22,8 +25,8 @@ import { GalleryArchetype } from "./GalleryArchetype";
  * Everything drawn comes from the packages. A model is built by `render`'s
  * `buildModel`, the affordance marks by `AutoMovieArchetypeMarks` and drawn by
  * `render`'s inspection, and the
- * canvas loop is `viewer`'s `mountViewer`. This module owns only the camera's
- * orbit and where the affordance ids are placed over the canvas.
+ * canvas loop is `viewer`'s `AutoMovieViewer.mount`. This module owns only the
+ * camera's orbit and where the affordance ids are placed over the canvas.
  */
 export namespace GalleryStage {
   /**
@@ -140,7 +143,7 @@ export namespace GalleryStage {
     const tags: Map<string, HTMLElement> = new Map();
     const projected: THREE.Vector3 = new THREE.Vector3();
 
-    const viewer: IAutoMovieViewerHandle = mountViewer(
+    const viewer: IAutoMovieViewerHandle = AutoMovieViewer.mount(
       canvas,
       scene,
       camera,

@@ -1,6 +1,5 @@
-export * from "./mountViewer.js";
+export * from "./mount/AutoMovieViewer.js";
 export * from "./IAutoMovieViewerHandle.js";
-export * from "./releaseMountedViewer.js";
 export * from "./captureSize.js";
 export * from "./createViewerDisplaySave.js";
 export * from "./IAutoMovieViewerDisplayMetadata.js";
