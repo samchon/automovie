@@ -19,13 +19,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { walkPoleFrame } from "../actions/walkPoleFrame";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
-import { HumanPropFrame } from "../perform/HumanPropFrame";
-import { HumanPostureRaw } from "../posture/HumanPostureRaw";
-import type { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { GymnasticsFlight } from "./GymnasticsFlight";
+import { walkPoleFrame } from "../../actions/walkPoleFrame";
+import { AutoMovieMotionHumanBend } from "../../compose/AutoMovieMotionHumanBend";
+import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { HumanPostureRaw } from "../../posture/HumanPostureRaw";
+import type { poseBones } from "../../posture/poseBones";
+import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { GymnasticsFlight } from "../GymnasticsFlight";
 import { poleVaultBend } from "./poleVaultBend";
 import { poleVaultSwing } from "./poleVaultSwing";
 import { preparePoleVaultLinks } from "./preparePoleVaultLinks";

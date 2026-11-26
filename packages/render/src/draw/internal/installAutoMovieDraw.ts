@@ -103,11 +103,11 @@ const SUPERSAMPLE = 2 as const;
  * result's `mouths` are what the subject read for the drawn second.
  *
  * ```ts
- * import { installAutoMovieDraw } from "@automovie/render";
+ * import { AutoMovieRenderDraw } from "@automovie/render";
  *
  * import { subjects } from "./subjects";
  *
- * installAutoMovieDraw(subjects);
+ * AutoMovieRenderDraw.installAutoMovieDraw(subjects);
  * ```
  */
 export function installAutoMovieDraw<Props = unknown>(

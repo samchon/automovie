@@ -9,10 +9,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { walkPoleFrame } from "../actions/walkPoleFrame";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import type { walkPoleFrame } from "../../actions/walkPoleFrame";
+import { poseBones } from "../../posture/poseBones";
+import { prepareHumanPostureProjection } from "../../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
 
 /**
  * The plant's shoulders and root on the take-off's trunk (`poleVault.plan`):

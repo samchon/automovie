@@ -8,13 +8,13 @@ import { poleVaultSwing } from "./poleVaultSwing";
  *
  * The pole between the planted tip and the top hand is the pinned elastica
  * whose chord is the swing's (`pinnedElastica`; Timoshenko and Gere 1961,
- * §2.7), the shape Linthorne 2000's force law is drawn from (Hubbard 1980's
+ * 짠2.7), the shape Linthorne 2000's force law is drawn from (Hubbard 1980's
  * elastica without an end moment); above the hand the pole runs straight on.
  * The elastica's parameter is solved once at each of the swing's integrated
  * instants and read between them linearly. The chain's links (the vaulting
  * pole's hinges, `createVaultingPole`) take the discrete elastic rod's reading
  * of a smooth curve (Bergou, Wardetzky, Robinson, Audoly and Grinspun 2008,
- * "Discrete Elastic Rods", SIGGRAPH, §4.1): each hinge turns by the curve's
+ * "Discrete Elastic Rods", SIGGRAPH, 짠4.1): each hinge turns by the curve's
  * integrated curvature over its dual domain, from the middle of the link below
  * it to the middle of the link above, so each link lies along the curve's
  * tangent at its middle.

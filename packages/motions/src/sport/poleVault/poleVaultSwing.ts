@@ -1,4 +1,4 @@
-import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanRefusal } from "../../law/HumanRefusal";
 
 /**
  * A vaulter's swing on a flexible pole: Linthorne's flexible-pole model

@@ -1,7 +1,7 @@
 /**
  * The two names a draw page and its host share on the page's global object:
  * `props`, where the host's init script puts the `IAutoMovieDrawProps` before
- * the page loads, and `draw`, where `installAutoMovieDraw` puts the
+ * the page loads, and `draw`, where `AutoMovieRenderDraw.installAutoMovieDraw` puts the
  * `IAutoMovieDrawFunction` the host calls.
  *
  * Both start with `__automovie` so they cannot collide with a page's own

@@ -1,13 +1,15 @@
 import type {
   IAutoMovieProductionAudioProbe,
-  IAutoMovieAssertProductionVideoProfileProps,
-  IAutoMovieProductionVideoProfile,
-  IAutoMovieResolveProductionVideoProfileProps,
+  IAutoMovieAssertProductionPngPictureProps,
+  IAutoMovieProductionPngProfile,
+  IAutoMovieResolveProductionPngProfileProps,
 } from "@automovie/interface";
 
-import { assertProductionAacProfile } from "./assertProductionAacProfile.js";
-import { assertProductionVideoProfile } from "./assertProductionVideoProfile.js";
-import { resolveProductionVideoProfile } from "./resolveProductionVideoProfile.js";
+import { assertProductionAacProfile } from "./internal/assertProductionAacProfile.js";
+import { assertProductionVideoProfile } from "./internal/assertProductionVideoProfile.js";
+import { resolveProductionVideoProfile } from "./internal/resolveProductionVideoProfile.js";
+import { assertProductionPngPicture } from "./internal/assertProductionPngPicture.js";
+import { resolveProductionPngProfile } from "./internal/resolveProductionPngProfile.js";
 
 /** Render-owned delivery profile operations. */
 export class AutoMovieRenderDelivery {
@@ -30,5 +32,19 @@ export class AutoMovieRenderDelivery {
     props: IAutoMovieResolveProductionVideoProfileProps,
   ): IAutoMovieProductionVideoProfile {
     return resolveProductionVideoProfile(props);
+  }
+
+  /** Refuse a decoded PNG picture that differs from its output role profile. */
+  public static assertPngPicture(
+    props: IAutoMovieAssertProductionPngPictureProps,
+  ): void {
+    assertProductionPngPicture(props);
+  }
+
+  /** Resolve the PNG profile one output role must emit. */
+  public static resolvePngProfile(
+    props: IAutoMovieResolveProductionPngProfileProps,
+  ): IAutoMovieProductionPngProfile {
+    return resolveProductionPngProfile(props);
   }
 }

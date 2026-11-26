@@ -14,12 +14,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanHand } from "../posture/HumanHand";
-import { poseBones } from "../posture/poseBones";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { GymnasticsFlight } from "./GymnasticsFlight";
+import { HumanHand } from "../../posture/HumanHand";
+import { poseBones } from "../../posture/poseBones";
+import { prepareHumanPoseResolution } from "../../posture/prepareHumanPoseResolution";
+import { prepareHumanPostureProjection } from "../../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { GymnasticsFlight } from "../GymnasticsFlight";
 
 /** The record of `IPreparePoleVaultPlantLast`'s site. */
 type IPreparePoleVaultPlantLast = { y: number; miss: number };

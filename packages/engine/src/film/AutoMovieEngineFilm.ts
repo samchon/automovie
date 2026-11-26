@@ -247,7 +247,11 @@ export namespace AutoMovieEngineFilm {
     return autoMovieStoryIntervalImplementation(pin, window);
   }
 
-  export function bakedTransformFromChannels(sampled: ReadonlyMap<string, IAutoMovieSampledChannel>, node: string): IAutoMovieTransform | null {
+  /** Assemble a node's baked world transform from sampled channels, or return null until both translation and rotation have started. */
+  export function bakedTransformFromChannels(
+    sampled: ReadonlyMap<string, IAutoMovieSampledChannel>,
+    node: string,
+  ): IAutoMovieTransform | null {
     return bakedTransformFromChannelsImplementation(sampled, node);
   }
 
@@ -2247,7 +2251,11 @@ export namespace AutoMovieEngineFilm {
     return propBoxAxisIsSoundImplementation(box, axis);
   }
 
-  export function propBoundsOverlap(left: IAutoMoviePropBox, right: IAutoMoviePropBox): boolean {
+  /** Test whether two world-space prop boxes overlap strictly along every axis. */
+  export function propBoundsOverlap(
+    left: IAutoMoviePropBox,
+    right: IAutoMoviePropBox,
+  ): boolean {
     return propBoundsOverlapImplementation(left, right);
   }
 

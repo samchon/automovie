@@ -1,7 +1,7 @@
 // The sport internals the test programme reads directly, re-exported by `../internal`.
 
 export * from "./chiSau";
-export * from "./poleVaultTakeoffAngle";
+export * from "./poleVault/poleVaultTakeoffAngle";
 export * from "./aquatic";
 export * from "./aquaticArtisticSchedule";
 export * from "./AquaticCrew";
@@ -43,11 +43,11 @@ export * from "./swim";
 export * from "./swimImmersedCoast";
 export * from "./kickboxing/KickboxingRules";
 export * from "./kickboxing/KnockdownCount";
-export * from "./poleVaultBend";
-export * from "./preparePoleVaultLinks";
-export * from "./poleVaultOnLine";
+export * from "./poleVault/poleVaultBend";
+export * from "./poleVault/preparePoleVaultLinks";
+export * from "./poleVault/poleVaultOnLine";
 export * from "./pocketedBalls";
-export * from "./poleVaultSwing";
+export * from "./poleVault/poleVaultSwing";
 export * from "./stickBallClock";
 export * from "./stickBallModel";
 export * from "./stickBallPoint";

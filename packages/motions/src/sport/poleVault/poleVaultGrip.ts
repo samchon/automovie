@@ -4,9 +4,9 @@ import type {
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 
-import { walkPoleFrame } from "../actions/walkPoleFrame";
-import { HumanRefusal } from "../law/HumanRefusal";
-import { poleVault } from "./poleVault";
+import { walkPoleFrame } from "../../actions/walkPoleFrame";
+import { HumanRefusal } from "../../law/HumanRefusal";
+import { poleVaultLean } from "./poleVaultLean";
 import { poleVaultSwing } from "./poleVaultSwing";
 import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
 
@@ -24,7 +24,7 @@ const SPLITS: number = 24;
  * a slower run grips lower, as coaches set a beginner's grip from the approach
  * speed.
  *
- * Each grip ℓ is planted as the vault plants (`walkPoleFrame.plant`, the
+ * Each grip ??is planted as the vault plants (`walkPoleFrame.plant`, the
  * straight top arm at the body's power-grip angle, `walkPoleFrame.power`), and
  * its swing judged by the vault's own model (`poleVaultSwing.integrate`): the
  * grip behind the planted end at its plant height, the run's speed kept and
@@ -67,7 +67,7 @@ export function poleVaultGrip(
       reach,
       l,
       neutral,
-      poleVault.LEAN,
+      poleVaultLean,
     );
     if (at === undefined) return false;
     // The grip behind the planted end along the run, at its plant height.
@@ -91,7 +91,7 @@ export function poleVaultGrip(
   // hand hanging straight down, leaning `LEAN`.
   let low: number = Math.max(
     0,
-    (shoulder - reach) / Math.cos((poleVault.LEAN * Math.PI) / 180),
+    (shoulder - reach) / Math.cos((poleVaultLean * Math.PI) / 180),
   );
   let high: number = length;
   if (!swings(low))

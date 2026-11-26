@@ -12,7 +12,7 @@ import { writeAutoMovieModulePage } from "./production/internal/writeAutoMovieMo
  *
  * The page is generated in a scratch folder under
  * `<root>/node_modules/.cache/automovie/`: an `index.html` with no interface
- * and a script that calls `installAutoMovieDraw` with the module's `subjects`
+ * and a script that calls `AutoMovieRenderDraw.installAutoMovieDraw` with the module's `subjects`
  * export. The build takes `planAutoMovieModulePageViteConfig`, the one
  * configuration both page hosts share: the production's `vite.config.ts` when
  * it has one and its `public` folder as its public files, with the generated
@@ -50,7 +50,7 @@ export async function serveAutoMovieDrawPage(props: {
       title: "draw",
       body: "",
       script: (specifier: string): string =>
-        `import { installAutoMovieDraw } from "@automovie/render";\nimport { subjects } from ${JSON.stringify(specifier)};\n\ninstallAutoMovieDraw(subjects);\n`,
+        `import { AutoMovieRenderDraw } from "@automovie/render";\nimport { subjects } from ${JSON.stringify(specifier)};\n\nAutoMovieRenderDraw.installAutoMovieDraw(subjects);\n`,
     });
   const scratch: string = page.folder;
   const remove: () => void = page.remove;

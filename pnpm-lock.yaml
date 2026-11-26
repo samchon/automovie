@@ -845,6 +845,9 @@ importers:
 
   packages/viewer:
     dependencies:
+      '@automovie/interface':
+        specifier: workspace:^
+        version: link:../interface
       '@automovie/render':
         specifier: workspace:^
         version: link:../render

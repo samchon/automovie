@@ -25,21 +25,21 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { walkPoleFrame } from "../actions/walkPoleFrame";
-import { WorkoutSupport } from "../exercise/WorkoutSupport";
-import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanPropFrame } from "../perform/HumanPropFrame";
-import { HumanHand } from "../posture/HumanHand";
-import { HumanMaterialContact } from "../posture/HumanMaterialContact";
-import type { poseBones } from "../posture/poseBones";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { GymnasticsFlight } from "./GymnasticsFlight";
-import { GymnasticsMat } from "./GymnasticsMat";
-import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
+import type { walkPoleFrame } from "../../actions/walkPoleFrame";
+import { WorkoutSupport } from "../../exercise/WorkoutSupport";
+import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanPropFrame } from "../../perform/HumanPropFrame";
+import { HumanHand } from "../../posture/HumanHand";
+import { HumanMaterialContact } from "../../posture/HumanMaterialContact";
+import type { poseBones } from "../../posture/poseBones";
+import { prepareHumanPostureProjection } from "../../posture/prepareHumanPostureProjection";
+import { resolveHumanPosture } from "../../posture/resolveHumanPosture";
+import { GymnasticsFlight } from "../GymnasticsFlight";
+import { GymnasticsMat } from "../GymnasticsMat";
+import { GymnasticsTakeoff } from "../GymnasticsTakeoff";
 import type { poleVaultBend } from "./poleVaultBend";
 import type { poleVaultSwing } from "./poleVaultSwing";
-import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
+import { prepareGymnasticsPlacement } from "../prepareGymnasticsPlacement";
 
 /**
  * A vault from its release on (`poleVault.plan`): the grip's state where the

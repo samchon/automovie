@@ -150,7 +150,7 @@ interface IStoredStill {
 function isStill(row: IFields): row is IFields & IStoredStill {
   return (
     row.state === "drawn" &&
-    isFileName(row.file) &&
+    AutoMovieEngineCaptureRecord.isFileName(row.file) &&
     (row.hash === undefined || typeof row.hash === "string") &&
     (row.fileSha256 === undefined || typeof row.fileSha256 === "string")
   );
@@ -186,8 +186,8 @@ function isComparisonCell(
   const selection: IFields | null = fieldsOf(row.selection);
   if (
     !isCount(row.index) ||
-    !isFileName(row.name) ||
-    !isFileName(row.sheet) ||
+    !AutoMovieEngineCaptureRecord.isFileName(row.name) ||
+    !AutoMovieEngineCaptureRecord.isFileName(row.sheet) ||
     !isCount(row.row) ||
     !isCount(row.column) ||
     !isNullableString(row.label) ||

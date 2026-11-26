@@ -11,7 +11,7 @@ import type {
  * film's dialogue mouths when it has a sound list, then draw one call at a
  * time.
  *
- * `installAutoMovieDraw` provides it; `AutoMovieDrawSession` calls it from Node
+ * `AutoMovieRenderDraw.installAutoMovieDraw` provides it; `AutoMovieDrawSession` calls it from Node
  * through the browser driver. Calls must not overlap, because they share one
  * scene and one renderer.
  */

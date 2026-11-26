@@ -186,7 +186,7 @@ const addSdkConsumer = (directory, { parity = true } = {}) => {
   );
   fs.writeFileSync(
     path.join(directory, "src", "composition", "films", "starter.ts"),
-    `import { createBuilding, createEnvironment, createEnvironmentProp } from "@automovie/archetypes/environments";
+    `import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing, createBuilding } from "@automovie/archetypes/environments";
 import { createBookcase, createSeat } from "@automovie/archetypes/furniture";
 import { compileDefinedShot, defineShot } from "@automovie/engine";
 import type { IAutoMovieCompiledDefinedShot, IAutoMovieEnvironment, IAutoMovieModel, IAutoMovieStage } from "@automovie/interface";
@@ -213,7 +213,7 @@ export function starter(): IFilm {
     width: 640,
     height: 360,
     create: async (): Promise<IFilmProduction> => {
-      const room: IAutoMovieEnvironment = createEnvironment({
+      const room: IAutoMovieEnvironment = AutoMovieEnvironment.create({
         id: "installed-room",
         items: {
           hall: { use: createBuilding({ levels: [{
@@ -221,8 +221,8 @@ export function starter(): IFilm {
             rooms: { studio: [0, 0, 6, 4] },
             openings: [{ id: "entry", kind: "passage", between: ["studio", null], edge: [[0, 0], [6, 0]], width: 1.2, height: 2.1 }],
           }] }) },
-          bench: { use: createEnvironmentProp({ model: createSeat({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
-          bookcase: { use: createEnvironmentProp({ model: createBookcase() }), at: { x: 4.6, y: 0, z: 2.85 } },
+          bench: { use: AutoMovieEnvironmentFurnishing.prop({ model: createSeat({ kind: "bench" }) }), at: { anchor: "hall/ground/studio" } },
+          bookcase: { use: AutoMovieEnvironmentFurnishing.prop({ model: createBookcase() }), at: { x: 4.6, y: 0, z: 2.85 } },
         },
       });
       const id: string = "starter";

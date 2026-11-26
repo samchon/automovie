@@ -4,7 +4,7 @@ import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 /**
  * The global object a draw page and its host share, under the names
  * `AUTO_MOVIE_DRAW_GLOBALS` holds: the host's init script puts the props on it
- * before the page loads, and `installAutoMovieDraw` puts the draw function on
+ * before the page loads, and `AutoMovieRenderDraw.installAutoMovieDraw` puts the draw function on
  * it and releases the page's resources when the page is hidden. The same two
  * names are declared on `globalThis`, so a page's own global object is one.
  */

@@ -1,4 +1,5 @@
 import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { poleVaultLean } from "./poleVault/poleVaultLean";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -26,13 +27,13 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
-import { poleVaultFinish } from "./poleVaultFinish";
-import { poleVaultGrip } from "./poleVaultGrip";
-import { poleVaultOnLine } from "./poleVaultOnLine";
-import { poleVaultSwinging } from "./poleVaultSwinging";
-import { poleVaultTakeoffAngle } from "./poleVaultTakeoffAngle";
-import { poleVaultTakeoffFrame } from "./poleVaultTakeoffFrame";
-import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
+import { poleVaultFinish } from "./poleVault/poleVaultFinish";
+import { poleVaultGrip } from "./poleVault/poleVaultGrip";
+import { poleVaultOnLine } from "./poleVault/poleVaultOnLine";
+import { poleVaultSwinging } from "./poleVault/poleVaultSwinging";
+import { poleVaultTakeoffAngle } from "./poleVault/poleVaultTakeoffAngle";
+import { poleVaultTakeoffFrame } from "./poleVault/poleVaultTakeoffFrame";
+import { preparePoleVaultPlant } from "./poleVault/preparePoleVaultPlant";
 
 /**
  * A pole vault: out of a run, the hand that holds the pole plants its end on
@@ -107,7 +108,7 @@ export namespace poleVault {
    * The least lean of the pole from upright at the plant, degrees
    * (provisional).
    */
-  export const LEAN: number = 20;
+  export const LEAN: number = poleVaultLean;
 
   /** The least run-up speed a vault is planned from, m/s (provisional). */
   export const RUN: number = 1;

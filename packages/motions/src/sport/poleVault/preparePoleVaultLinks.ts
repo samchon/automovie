@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanObject } from "../perform/HumanObject";
-import { HumanPropFrame } from "../perform/HumanPropFrame";
+import { HumanRefusal } from "../../law/HumanRefusal";
+import { HumanObject } from "../../perform/HumanObject";
+import { HumanPropFrame } from "../../perform/HumanPropFrame";
 
 /**
  * Bind the material link beneath every actual shaft grip, including when a grip

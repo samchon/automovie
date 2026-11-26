@@ -1,11 +1,8 @@
-import {
-  assertProductionPngPicture,
-  resolveProductionPngProfile,
-} from "@automovie/render";
+import { AutoMovieRenderDelivery } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `assertProductionPngPicture` accepts a decoded picture that has the profile.
+ * `AutoMovieRenderDelivery.assertPngPicture` accepts a decoded picture that has the profile.
  *
  * Scenarios:
  *
@@ -15,14 +12,14 @@ import { TestValidator } from "@nestia/e2e";
  *    aspect are each refused.
  */
 export function test_render_delivery_assert_production_png_picture(): void {
-  const profile = resolveProductionPngProfile({
+  const profile = AutoMovieRenderDelivery.resolvePngProfile({
     role: "preview",
     width: 64,
     height: 32,
   });
   const picture = (
-    patch: Partial<Parameters<typeof assertProductionPngPicture>[0]["actual"]>,
-  ): Parameters<typeof assertProductionPngPicture>[0]["actual"] => ({
+    patch: Partial<Parameters<typeof AutoMovieRenderDelivery.assertPngPicture>[0]["actual"]>,
+  ): Parameters<typeof AutoMovieRenderDelivery.assertPngPicture>[0]["actual"] => ({
     width: 64,
     height: 32,
     bitDepth: 8,
@@ -34,8 +31,8 @@ export function test_render_delivery_assert_production_png_picture(): void {
     orientation: "upright",
     ...patch,
   });
-  assertProductionPngPicture({ profile, actual: picture({}) });
-  assertProductionPngPicture({
+  AutoMovieRenderDelivery.assertPngPicture({ profile, actual: picture({}) });
+  AutoMovieRenderDelivery.assertPngPicture({
     profile,
     actual: picture({ pixelAspect: { kind: "explicit", x: 1, y: 1, unit: 0 } }),
   });
@@ -45,6 +42,6 @@ export function test_render_delivery_assert_production_png_picture(): void {
     { pixelAspect: { kind: "explicit" as const, x: 2, y: 1, unit: 0 as const } },
   ])
     TestValidator.error(JSON.stringify(patch), (): void => {
-      assertProductionPngPicture({ profile, actual: picture(patch) });
+      AutoMovieRenderDelivery.assertPngPicture({ profile, actual: picture(patch) });
     });
 }
