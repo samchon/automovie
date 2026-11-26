@@ -1,12 +1,10 @@
 import { TestValidator } from "@nestia/e2e";
-import {
-  AUTOMOVIE_DEFAULT_PROJECT_NAME,
-  selectAutoMovieProjectName,
-} from "automovie";
+import { AutoMovieCliScaffold } from "automovie";
 import * as path from "node:path";
 
 /**
- * `create` takes a typed name, derives one from a new target directory, and asks only when the target is the working directory itself.
+ * `create` takes a typed name, derives one from a new target directory, and
+ * asks only when the target is the working directory itself.
  *
  * Scenarios:
  *
@@ -26,32 +24,46 @@ export function test_cli_project_name_selection(): void {
   for (const directory of [".", "./", cwd])
     TestValidator.equals(
       `${JSON.stringify(directory)} asks for a name`,
-      selectAutoMovieProjectName({ directory, cwd }),
+      AutoMovieCliScaffold.selectProjectName({ directory, cwd }),
       undefined,
     );
   TestValidator.equals(
     "typed name for the working directory",
-    selectAutoMovieProjectName({ directory: ".", cwd, name: "studio" }),
+    AutoMovieCliScaffold.selectProjectName({
+      directory: ".",
+      cwd,
+      name: "studio",
+    }),
     "studio",
   );
   TestValidator.equals(
     "typed name for a new directory",
-    selectAutoMovieProjectName({ directory: "films", cwd, name: "studio" }),
+    AutoMovieCliScaffold.selectProjectName({
+      directory: "films",
+      cwd,
+      name: "studio",
+    }),
     "studio",
   );
   TestValidator.equals(
     "nested child",
-    selectAutoMovieProjectName({ directory: "films/My Film", cwd }),
+    AutoMovieCliScaffold.selectProjectName({
+      directory: "films/My Film",
+      cwd,
+    }),
     "my-film",
   );
   TestValidator.equals(
     "sibling",
-    selectAutoMovieProjectName({ directory: "../Other", cwd }),
+    AutoMovieCliScaffold.selectProjectName({
+      directory: "../Other",
+      cwd,
+    }),
     "other",
   );
   TestValidator.equals(
     "default name",
-    AUTOMOVIE_DEFAULT_PROJECT_NAME,
+    AutoMovieCliScaffold.DEFAULT_PROJECT_NAME,
     "automovie-examples",
   );
 }

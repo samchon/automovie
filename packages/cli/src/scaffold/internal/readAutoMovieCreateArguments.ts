@@ -1,4 +1,4 @@
-import type { AutoMovieCommand } from "./AutoMovieCommand";
+import type { AutoMovieCommand } from "../../AutoMovieCommand";
 import { readAutoMovieNameOption } from "./readAutoMovieNameOption";
 
 /**

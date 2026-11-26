@@ -1,5 +1,6 @@
 import * as path from "node:path";
 
+import type { AutoMovieCliProjectNameSelection } from "../AutoMovieCliProjectNameSelection";
 import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 
 /**
@@ -15,16 +16,9 @@ import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
  *   if any.
  * @returns The chosen name, or `undefined` when the name must be asked for.
  */
-export function selectAutoMovieProjectName(props: {
-  /** Target directory as typed. */
-  directory: string;
-
-  /** The working directory the target resolves against. */
-  cwd: string;
-
-  /** The typed `--name`, if any. */
-  name?: string;
-}): string | undefined {
+export function selectAutoMovieProjectName(
+  props: AutoMovieCliProjectNameSelection,
+): string | undefined {
   if (props.name !== undefined) return props.name;
   const target: string = path.resolve(props.cwd, props.directory);
   if (target === path.resolve(props.cwd)) return undefined;

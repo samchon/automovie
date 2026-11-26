@@ -1,5 +1,5 @@
 import { TestValidator } from "@nestia/e2e";
-import { deriveAutoMovieProjectName } from "automovie";
+import { AutoMovieCliScaffold } from "automovie";
 import * as path from "node:path";
 
 /**
@@ -8,13 +8,13 @@ import * as path from "node:path";
  *
  * Scenarios:
  *
- * 1. An already valid lowercase basename stays unchanged, keeping inner `.`,
- *    `_` and `-`.
+ * 1. An already valid lowercase basename stays unchanged, keeping inner `.`, `_`
+ *    and `-`.
  * 2. Uppercase letters, spaces and other characters become lowercase and `-`.
  * 3. A leading `_` or `.` and trailing `-` or `.` are removed.
  * 4. A 300-character basename is cut to npm's 214-character limit.
- * 5. Only the basename counts, and a basename with no valid character falls
- *    back to `automovie-examples`.
+ * 5. Only the basename counts, and a basename with no valid character falls back
+ *    to `automovie-examples`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `deriveAutoMovieProjectName`, the function `run` uses to name the scaffold, and asserts the returned names, catching an uppercase, leading-underscore, over-long or empty npm name while allowing any valid name to pass unchanged.
  * @evidence contracts/development/testing.md#independent-expectations Expected names follow npm's published package-name rules for new packages (lowercase, URL-safe, no leading `.` or `_`, at most 214 characters) and the documented fallback, written out by hand rather than computed by the function under test.
@@ -35,12 +35,12 @@ export function test_cli_project_name(): void {
   for (const [basename, expected] of cases)
     TestValidator.equals(
       `name of ${JSON.stringify(basename)}`,
-      deriveAutoMovieProjectName(basename),
+      AutoMovieCliScaffold.deriveProjectName(basename),
       expected,
     );
   TestValidator.equals(
     "npm length limit",
-    deriveAutoMovieProjectName("a".repeat(300)),
+    AutoMovieCliScaffold.deriveProjectName("a".repeat(300)),
     "a".repeat(214),
   );
 }

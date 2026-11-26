@@ -1,6 +1,5 @@
 import { type AutoMovieCommand } from "./AutoMovieCommand";
-import { readAutoMovieAddArguments } from "./readAutoMovieAddArguments";
-import { readAutoMovieCreateArguments } from "./readAutoMovieCreateArguments";
+import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
 
 /**
  * Resolve one complete CLI request before any scaffold publication begins.
@@ -8,9 +7,10 @@ import { readAutoMovieCreateArguments } from "./readAutoMovieCreateArguments";
  * `args` excludes the node executable and script positions. No arguments, or a
  * lone `-h`/`--help`, means help; a lone `-v`/`--version` means version.
  * `create` and `add` delegate their grammars to
- * {@link readAutoMovieCreateArguments} and {@link readAutoMovieAddArguments}.
- * Production operations keep their tokens for their own option reader. Every
- * refusal throws an `Error` whose message names the correction.
+ * {@link AutoMovieCliScaffold.readCreateArguments} and
+ * {@link AutoMovieCliScaffold.readAddArguments}. Production operations keep
+ * their tokens for their own option reader. Every refusal throws an `Error`
+ * whose message names the correction.
  *
  * @param args The command-line tokens after the executable and script.
  * @returns The admitted request.
@@ -25,8 +25,9 @@ export function readAutoMovieCommandArguments(
     return standalone(command, rest, { command: "help" });
   if (command === "-v" || command === "--version")
     return standalone(command, rest, { command: "version" });
-  if (command === "create") return readAutoMovieCreateArguments(rest);
-  if (command === "add") return readAutoMovieAddArguments(rest);
+  if (command === "create")
+    return AutoMovieCliScaffold.readCreateArguments(rest);
+  if (command === "add") return AutoMovieCliScaffold.readAddArguments(rest);
   if (command === "capture") return { command: "capture", args: [...rest] };
   if (command === "inspect") return { command: "inspect", args: [...rest] };
   if (command === "render") return { command: "render", args: [...rest] };

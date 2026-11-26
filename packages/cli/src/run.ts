@@ -9,14 +9,11 @@ import * as path from "node:path";
 import type { AutoMovieCommand } from "./AutoMovieCommand";
 import { captureAutoMovie } from "./captureAutoMovie";
 import { checkAutoMovie } from "./checkAutoMovie";
-import { deriveAutoMovieProjectName } from "./deriveAutoMovieProjectName";
 import { inspectAutoMovie } from "./inspectAutoMovie";
-import { promptAutoMovieProjectName } from "./promptAutoMovieProjectName";
 import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
 import { renderAutoMovie } from "./renderAutoMovie";
-import { renderAutoMovieScaffoldNextSteps } from "./renderAutoMovieScaffoldNextSteps";
 import { reviewAutoMovie } from "./reviewAutoMovie";
-import { selectAutoMovieProjectName } from "./selectAutoMovieProjectName";
+import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
 
 const USAGE: string = `automovie: scaffold an automovie project, and capture, render and review it
 
@@ -178,7 +175,9 @@ export async function run(argv: readonly string[]): Promise<number> {
         path.join(root, "movies", command.family, command.directory),
         {
           kind: "workspace-production",
-          name: command.name ?? deriveAutoMovieProjectName(command.directory),
+          name:
+            command.name ??
+            AutoMovieCliScaffold.deriveProjectName(command.directory),
         },
         command.force,
         path.join(root, "pnpm-workspace.yaml"),
@@ -192,11 +191,11 @@ export async function run(argv: readonly string[]): Promise<number> {
       {
         kind: command.workspace ? "workspace" : "production",
         name:
-          selectAutoMovieProjectName({
+          AutoMovieCliScaffold.selectProjectName({
             directory: command.directory,
             cwd: process.cwd(),
             ...(command.name === undefined ? {} : { name: command.name }),
-          }) ?? (await promptAutoMovieProjectName()),
+          }) ?? (await AutoMovieCliScaffold.promptProjectName()),
       },
       command.force,
     );
@@ -238,7 +237,7 @@ function write(
       Object.keys(files)
         .map((relative: string): string => `  ${relative}`)
         .join("\n") +
-      renderAutoMovieScaffoldNextSteps(directory, props.kind),
+      AutoMovieCliScaffold.renderNextSteps(directory, props.kind),
   );
 }
 
