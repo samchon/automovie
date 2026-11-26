@@ -1,7 +1,6 @@
 import {
   AutoMovieEnginePlanarRegion,
-  footprintConvexPieces,
-  footprintRing,
+  AutoMovieEngineSpace,
   AutoMovieEngineDrawing,
 } from "@automovie/engine";
 import type {
@@ -93,7 +92,7 @@ export function test_engine_canonical_planar_region(): void {
     true,
   );
   const footprint: { outer: IAutoMovieFootprintRing; holes: never[] } = {
-    outer: footprintRing(
+    outer: AutoMovieEngineSpace.footprintRing(
       crossing.map(
         (point: {
           x: number;
@@ -120,10 +119,10 @@ export function test_engine_canonical_planar_region(): void {
           AutoMovieEngineDrawing.triangulateAutoMoviePolygon(crossing),
         "crosses itself",
       ),
-      footprint: footprintConvexPieces(footprint).length,
-      staleArea: footprintConvexPieces({
+      footprint: AutoMovieEngineSpace.footprintConvexPieces(footprint).length,
+      staleArea: AutoMovieEngineSpace.footprintConvexPieces({
         outer: {
-          ...footprintRing(
+          ...AutoMovieEngineSpace.footprintRing(
             square.map(
               (point: {
                 x: number;

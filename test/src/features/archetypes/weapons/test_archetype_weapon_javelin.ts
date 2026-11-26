@@ -1,6 +1,6 @@
 import {
   AutoMovieArchetypeRefusal,
-  createJavelin,
+  AutoMovieArchetypeJavelin,
   createPolearm,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
@@ -23,7 +23,7 @@ export function test_archetype_weapon_javelin(): void {
   const findings: string[] = [];
   const rule: Readonly<
     Record<
-      createJavelin.Kind,
+      AutoMovieArchetypeJavelin.Kind,
       {
         length: readonly [number, number];
         balance: readonly [number, number];
@@ -34,10 +34,10 @@ export function test_archetype_weapon_javelin(): void {
     men: { length: [2.6, 2.7], balance: [0.9, 1.06], mass: 0.8 },
     women: { length: [2.2, 2.3], balance: [0.8, 0.92], mass: 0.6 },
   };
-  for (const kind of createJavelin.KINDS)
+  for (const kind of AutoMovieArchetypeJavelin.KINDS)
     for (const length of rule[kind].length)
       for (const balance of rule[kind].balance) {
-        const javelin: ReturnType<typeof createJavelin> = createJavelin({
+        const javelin: ReturnType<typeof AutoMovieArchetypeJavelin.create> = AutoMovieArchetypeJavelin.create({
           kind,
           length,
           balance,
@@ -61,7 +61,7 @@ export function test_archetype_weapon_javelin(): void {
           findings.push(`${label}: ${javelin.dimensions.length} m long`);
       }
   // 3. A millimetre past either end of either band is refused on that dimension.
-  for (const kind of createJavelin.KINDS)
+  for (const kind of AutoMovieArchetypeJavelin.KINDS)
     for (const axis of ["length", "balance"] as const)
       for (const value of [
         rule[kind][axis][0] - 0.001,
@@ -69,7 +69,7 @@ export function test_archetype_weapon_javelin(): void {
       ]) {
         let refused: string | null = null;
         try {
-          createJavelin({ kind, [axis]: value });
+          AutoMovieArchetypeJavelin.create({ kind, [axis]: value });
         } catch (error) {
           refused =
             error instanceof AutoMovieArchetypeRefusal
