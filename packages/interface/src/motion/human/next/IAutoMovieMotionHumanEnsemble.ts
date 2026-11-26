@@ -3,42 +3,11 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
 import type { IAutoMovieMotionHumanAttribute } from "../ensemble/IAutoMovieMotionHumanAttribute";
 import type { IAutoMovieMotionHumanEnsemblePreset } from "../ensemble/IAutoMovieMotionHumanEnsemblePreset";
 import type { IAutoMovieMotionHumanFormation } from "../ensemble/IAutoMovieMotionHumanFormation";
-import type { IAutoMovieMotionHumanInstance } from "../ensemble/IAutoMovieMotionHumanInstance";
 import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 
 /**
- * Groups of people: a formation, a crowd and a manoeuvre.
- *
- * A method here is a method of `HumanChain` when its name is in
- * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
- * row: pass it in `laws: [...]` to the performance, taking it from
- * `AutoMovieMotionHumanEnsemble` or from the row namespace of the family, and
- * append it with `chain.registered("<name>", params)`. A member that is a
- * function, a reader or a layer says so in its own comment.
- *
- * @template Chain The chain every method returns; the chain implements this
- *   interface.
+ * Staging data for arranging performers as an ensemble.
  */
-export interface IAutoMovieMotionHumanEnsemble<Chain> {
-  /**
-   * An instanced member: a performer that displays a template member's placed
-   * posture, read whole film frames earlier and moved rigidly by the offset it
-   * stands at from the template, so a rear rank marching with its front rank
-   * costs no plans and no fits of its own.
-   *
-   * Registered law: `registered("instance", params)`; not a chain method.
-   *
-   * @param params The `of`, `duration` and `shift` of
-   *   `IAutoMovieMotionHumanInstance.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  instance(
-    params: IAutoMovieMotionHumanInstance.IParams,
-    anchor?: string,
-  ): Chain;
-}
-
 export namespace IAutoMovieMotionHumanEnsemble {
   /**
    * A group of people written once: its members are performers of the grammar,

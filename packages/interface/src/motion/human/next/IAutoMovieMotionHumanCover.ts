@@ -1,44 +1,7 @@
 import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 
 /**
- * Moving against a cover: peeking, sidling, a window and a breach, with the
- * back or the chest against the wall.
- *
- * A method here is a method of `HumanChain` when its name is in
- * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
- * row: pass it in `laws: [...]` to the performance, taking it from
- * `AutoMovieMotionHumanCover` or from the row namespace of the family, and
- * append it with `chain.registered("<name>", params)`. A member that is a
- * function, a reader or a layer says so in its own comment.
- *
- * @template Chain The chain every method returns; the chain implements this
- *   interface.
- */
-export interface IAutoMovieMotionHumanCover<Chain> {
-  /**
-   * Take cover: peek round it, sidle along it, look out of a window or breach.
-   *
-   * Registered law: `registered("cover", params)`; not a chain method.
-   *
-   * @param params One of the variants of `IAutoMovieMotionHumanCover.IParams`:
-   *   `IPeek`, `ISidle`, `IWindow` or `IBreach`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  cover(params: IAutoMovieMotionHumanCover.IParams, anchor?: string): Chain;
-}
-
-/**
- * Moving in cover along staged walls and doors: peeking past a wall's end,
- * sidling along its face, passing under a window and breaching a door. Register
- * `HumanCover.moveInCover` to use it. A door stack is a composition of sidles
- * to slots beside the door and `passThrough` entries in order.
- *
- * Every variant reads the named prop's own affordances: a wall's `face` surface
- * gives its plane and its two ends, a window's `aperture` and `sill` give the
- * opening to stay below, and a door's `hinge` articulation and its handle give
- * the leaf to drive and where to strike it. Refusals name the dimension that
- * does not fit.
+ * Authoring inputs for peeking from, hiding behind and breaching cover.
  */
 export namespace IAutoMovieMotionHumanCover {
   /** Which way the body faces the wall it sidles along. */

@@ -2,137 +2,13 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
 import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
 import type { IAutoMovieMotionHumanArmPhrase } from "../compose/IAutoMovieMotionHumanArmPhrase";
 import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
-import type { IAutoMovieMotionHumanHandToFace } from "../daily/IAutoMovieMotionHumanHandToFace";
 import type { IAutoMovieMotionHumanHandToFaceRows } from "../daily/IAutoMovieMotionHumanHandToFaceRows";
-import type { IAutoMovieMotionHumanHeadTilt } from "../everyday/IAutoMovieMotionHumanHeadTilt";
 import type { IAutoMovieMotionHumanHeldUse } from "../handling/IAutoMovieMotionHumanHeldUse";
 import type { IAutoMovieMotionHumanHand } from "../posture/IAutoMovieMotionHumanHand";
-import type { IAutoMovieMotionHumanSelfAction } from "../touch/IAutoMovieMotionHumanSelfAction";
 
 /**
- * The hand's own-body actions: touching the face, and self-directed touch such
- * as scratching or smoothing.
- *
- * A method here is a method of `HumanChain` when its name is in
- * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
- * row: pass it in `laws: [...]` to the performance, taking it from
- * `AutoMovieMotionHumanHandToBody` or from the row namespace of the family, and
- * append it with `chain.registered("<name>", params)`. A member that is a
- * function, a reader or a layer says so in its own comment.
- *
- * @template Chain The chain every method returns; the chain implements this
- *   interface.
+ * Inputs, choices and presets for hand-to-body actions.
  */
-export interface IAutoMovieMotionHumanHandToBody<Chain> {
-  /**
-   * A hand-to-face task of daily living while standing: drinking, sipping,
-   * eating with a spoon, biting held food, a phone at the ear, reading a held
-   * sheet, brushing the teeth, combing the hair, washing the face and wiping
-   * the mouth.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims the acting arms, their hands and the head.
-   *
-   * @param params The `task`, `hand`, `count`, `hold`, `prop`, `point`,
-   *   `grasp`, `other` and `manner` of
-   *   `IAutoMovieMotionHumanHandToFace.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  handToFace(
-    params: IAutoMovieMotionHumanHandToFace.IParams,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * A whole-body self action while standing: the yawn-and-stretch with both
-   * arms overhead, both arms raised in victory, a fist pump, a neck roll and a
-   * shoulder roll.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims only the parts it moves.
-   *
-   * @param params The `kind`, `hand`, `count` and `manner` of
-   *   `IAutoMovieMotionHumanSelfAction.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  selfAction(
-    params: IAutoMovieMotionHumanSelfAction.IParams,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * A conversational head tilt toward either shoulder, held and then returned
-   * to the posture underneath: a roll of the cervical chain over the entry
-   * posture or a carrier that yields its head.
-   *
-   * Registered law: `registered("headTilt", params)`; not a chain method.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * claims the head only; it can be cut into any action at any time.
-   *
-   * @param params The `degrees` and `duration` of
-   *   `IAutoMovieMotionHumanHeadTilt`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  headTilt(params: IAutoMovieMotionHumanHeadTilt, anchor?: string): Chain;
-
-  /**
-   * Covering the face with both bare hands: the open palms settle on the cheeks
-   * with the fingers upward, and the head bows 15 degrees into the cover as
-   * both hands arrive; the hold after `taskEnd` is 1.2 s when `hold` is
-   * absent.
-   *
-   * Registered law: `registered("coverFace", params)`; not a chain method.
-   *
-   * @param params The `hold` and `manner` of
-   *   `IAutoMovieMotionHumanHandToBody.ICoverFace`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  coverFace(
-    params: IAutoMovieMotionHumanHandToBody.ICoverFace,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * Brushing tears from one cheek: the chosen hand rises to its own cheek,
-   * wipes up and down along it and returns to its entry pose; `atCheek` marks
-   * the arrival and `taskEnd` the end of the wipe.
-   *
-   * Registered law: `registered("wipeTears", params)`; not a chain method.
-   *
-   * @param params The `hand`, `count`, `hold`, `prop`, `point`, `grasp` and
-   *   `manner` of `IAutoMovieMotionHumanHandToBody.IWipeTears`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  wipeTears(
-    params: IAutoMovieMotionHumanHandToBody.IWipeTears,
-    anchor?: string,
-  ): Chain;
-
-  /**
-   * Tucking hair behind the ear: the relaxed index fingertip sweeps from in
-   * front of the same-side ear to behind it, then retracts; `both` sweeps each
-   * ear on the same clock.
-   *
-   * Registered law: `registered("tuckHair", params)`; not a chain method.
-   *
-   * @param params The `hand` and `manner` of
-   *   `IAutoMovieMotionHumanHandToBody.ITuckHair`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  tuckHair(
-    params: IAutoMovieMotionHumanHandToBody.ITuckHair,
-    anchor?: string,
-  ): Chain;
-}
-
-/** The parameter types of the HandToBody methods. */
 export namespace IAutoMovieMotionHumanHandToBody {
   /**
    * Seconds at the face after the repetitions: one duration, or two bounds the

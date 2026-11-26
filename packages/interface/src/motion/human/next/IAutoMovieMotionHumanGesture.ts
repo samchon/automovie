@@ -8,82 +8,8 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
 import type { IAutoMovieMotionHumanHandShape } from "../posture/IAutoMovieMotionHumanHandShape";
 
 /**
- * Gestures of the hands and arms: emblems, beats and pointing, as arm phrases.
- *
- * The family carries its fixed-parameter gestures as presets, data on
- * `AutoMovieMotionHumanGesture`: the beats and body gestures `WAVE`,
- * `RAISE_HAND`, `CHEER`, `STOP_PALM`, `POINT`, `PALMS_UP`, `BECKON`, `CLAP`,
- * `RUB_HANDS`, `PALMS_TOGETHER`, `THUMBS_DOWN`, `TOUCH_FACE`, `PUSH_GLASSES`,
- * `SCRATCH_HEAD`, `SHRUG`, `NOD`, `SHAKE_HEAD`, `BOW`, `CHIN_LIFT`,
- * `SQUARE_SHOULDERS` and `SLUMP`, read by the rows of `HumanGestureRows`; the
- * emblems `EMBLEM_PALMS_TOGETHER`, `EMBLEM_HANDS_UP`, `EMBLEM_HALT`,
- * `EMBLEM_COME_HERE`, `EMBLEM_DONT_KNOW`, `EMBLEM_THUMBS_UP`,
- * `EMBLEM_THUMBS_DOWN`, `EMBLEM_OK_SIGN`, `EMBLEM_VICTORY_SIGN`,
- * `EMBLEM_CROSSED_FINGERS`, `EMBLEM_COUNT_ONE` to `EMBLEM_COUNT_FIVE`,
- * `EMBLEM_SHAKE_FIST`, `EMBLEM_FINGER_SNAP` and `EMBLEM_AIR_QUOTES`, read by
- * the rows of `HumanEmblem`; and the arm phrases `PHRASE_*`
- * (`PHRASE_WAVE_HAND`, `PHRASE_POINT_AT`, `PHRASE_TAP_ON`, `PHRASE_FOLD_ARMS`,
- * `PHRASE_HAND_ON_HIP`, `PHRASE_PHONE_TO_EAR` and the rest of that group), read
- * by the rows of `HumanUpperRows`. A preset adds no method and is spread into
- * the parameters of `gesture` or `armPhrase`; each row and its preset share one
- * value.
- *
- * A method here is a method of `HumanChain` when its name is in
- * `AutoMovieMotionHumanActionName`. Any other member is a registered law or
- * row: pass it in `laws: [...]` to the performance, taking it from
- * `AutoMovieMotionHumanGesture` or from the row namespace of the family, and
- * append it with `chain.registered("<name>", params)`. A member that is a
- * function, a reader or a layer says so in its own comment.
- *
- * @template Chain The chain every method returns; the chain implements this
- *   interface.
+ * Authoring inputs and presets for gesture and arm phrase operations.
  */
-export interface IAutoMovieMotionHumanGesture<Chain> {
-  /**
-   * A communicative gesture while standing: the hand, head or trunk moves
-   * through Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind):
-   * preparation from rest to the stroke's start, the stroke that carries the
-   * meaning, an optional post-stroke hold, and retraction to rest.
-   *
-   * Overlay law: it rides a stand, a walk or a run, which yield the arms. It
-   * claims the moving arms with their hands, and the head or the trunk when its
-   * kind moves them, and yields nothing itself, so a second gesture on the same
-   * hand cannot overlap it. It can be cut into `stand`, `walk`, `look` and
-   * `gesture`, a gesture only from its `retract` instant, which is how a count
-   * of one number a second is made: cut each gesture `until({ event: "retract"
-   * })`.
-   *
-   * @param params The `balance`, `kind`, `hand`, `target`, `region`, `count`,
-   *   `hold`, `depth`, `effort`, `turn`, `shape`, `aim` and `manner` of
-   *   `IAutoMovieMotionHumanGesture.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  gesture(params: IAutoMovieMotionHumanGesture.IParams, anchor?: string): Chain;
-
-  /**
-   * Arm primitives: a hand surface carried to a target, kept on it and taken
-   * back.
-   *
-   * Registered law: `registered("armPhrase", params)`; not a chain method.
-   *
-   * Overlay law: it rides a carrier that yields the channels it claims. It
-   * rides a carrier that yields its arm and hand; it can be cut into any action
-   * from its `relax` instant.
-   *
-   * @param params The `phrase`, `target`, `offset`, `from`, `swing`, `cycles`,
-   *   `mirror`, `side`, `surface`, `shape`, `facing`, `hold`, `manner`, `held`
-   *   and `point` of `IAutoMovieMotionHumanArmPhrase.IParams`.
-   * @param anchor The action's id for `sync` and `until`; none when absent.
-   * @returns The chain with the action appended.
-   */
-  armPhrase(
-    params: IAutoMovieMotionHumanArmPhrase.IParams,
-    anchor?: string,
-  ): Chain;
-}
-
-/** The parameter types of the Gesture methods. */
 export namespace IAutoMovieMotionHumanGesture {
   /** The `gesture` parameters a preset fixes: `kind`. */
   export type IGestureKindPreset = Pick<
