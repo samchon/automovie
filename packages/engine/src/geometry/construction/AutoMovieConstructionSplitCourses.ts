@@ -174,7 +174,7 @@ export namespace AutoMovieConstructionSplitCourses {
         count: number;
         point: (t: number) => { p: P3; d: P3 };
         angle: (t: number) => { value: number; rate: number };
-        direction: (t: number, frm: P3, to: P3) => P3;
+        direction: (from: P3, to: P3) => (t: number) => P3;
         second: (t: number, speed: P3, frm: P3, to: P3) => P3;
         bodyPhase?: (t: number) => number;
         seam?: Arc["seam"];
@@ -207,7 +207,11 @@ export namespace AutoMovieConstructionSplitCourses {
         const native = (t: number): Solid.IJet => parent.cut.jet(bodyPhase(t));
         const p0 = native(0);
         const p1 = native(1);
-        const raw = [Cubic.unitCross(p0), Cubic.unitCross(p1)];
+        const bearing = (j: Solid.IJet, direction: P3): number =>
+          Math.atan2(
+            Vec.dot(direction, Vec.unit(j.v)!),
+            Vec.dot(direction, Cubic.unitCross(j)),
+          );
         const point = (t: number) => {
           const j = native(t);
           return { p: j.p, d: Vec.scale(j.v, end - begin) };
@@ -227,21 +231,25 @@ export namespace AutoMovieConstructionSplitCourses {
               (part.samples * cycle(angle(1).value - angle(0).value)) / TURN,
             ),
           ),
-          direction: (t, from, to): P3 => {
-            if (t === 0) return from;
-            if (t === 1) return to;
-            const j = native(t);
-            // ESTIMATE. The minimal affine change in the native tangent field
-            // carries both owned fork rays. Project into the exact local plane.
-            const n = Vec.unit(Vec.cross(j.u, j.v))!;
-            const expected = Vec.combine([
-              [1, Cubic.unitCross(j)],
-              [1 - t, Vec.sub(from, raw[0]!)],
-              [t, Vec.sub(to, raw[1]!)],
-            ]);
-            return Vec.unit(
-              Vec.sub(expected, Vec.scale(n, Vec.dot(n, expected))),
-            )!;
+          direction: (from, to) => {
+            const first: number = bearing(p0, from);
+            const difference: number = bearing(p1, to) - first;
+            const turn: number = Math.atan2(
+              Math.sin(difference),
+              Math.cos(difference),
+            );
+            return (t: number): P3 => {
+              if (t === 0) return from;
+              if (t === 1) return to;
+              const j = native(t);
+              const angle: number = first + t * turn;
+              // ESTIMATE. Carry the shortest change in the fork's bearing
+              // in the original parent tangent frame along its phase.
+              return Vec.combine([
+                [Math.cos(angle), Cubic.unitCross(j)],
+                [Math.sin(angle), Vec.unit(j.v)!],
+              ]);
+            };
           },
         });
       };
@@ -311,22 +319,24 @@ export namespace AutoMovieConstructionSplitCourses {
               share * curvature * Vec.dot(speed, speed),
             );
           },
-          direction: (t, from, to): P3 => {
-            if (t === 0) return from;
-            if (t === 1) return to;
+          direction: (from, to) => {
             const [a, c] = coeff(0, reverse ? to : from);
             const [b, d] = coeff(1, reverse ? from : to);
-            const s = at(t);
-            const { along, across } = basis(s);
-            // Both source jets carry their actual values. T changes the sign of
-            // its forward component at the shared physical saddle, so its
-            // coefficient uses the same zero. The transverse term is affine.
-            return Vec.unit(
-              Vec.combine([
-                [(1 - 2 * s) * ((1 - s) * a - s * b), along],
-                [(1 - s) * c + s * d, across],
-              ]),
-            )!;
+            return (t: number): P3 => {
+              if (t === 0) return from;
+              if (t === 1) return to;
+              const s = at(t);
+              const { along, across } = basis(s);
+              // Both source jets carry their actual values. T changes the sign of
+              // its forward component at the shared physical saddle, so its
+              // coefficient uses the same zero. The transverse term is affine.
+              return Vec.unit(
+                Vec.combine([
+                  [(1 - 2 * s) * ((1 - s) * a - s * b), along],
+                  [(1 - s) * c + s * d, across],
+                ]),
+              )!;
+            };
           },
         });
       };
@@ -351,6 +361,7 @@ export namespace AutoMovieConstructionSplitCourses {
       const nativeEdges: Arc[] = paths.map((path, j) => {
         const start = corners[(j + corners.length - 1) % corners.length]!;
         const end = corners[j]!;
+        const direction = path.direction(start, end);
         const rates = radial
           ? []
           : [0, 1].map((t): number => {
@@ -380,7 +391,7 @@ export namespace AutoMovieConstructionSplitCourses {
                 {
                   p,
                   d,
-                  across: path.direction(t, start, end),
+                  across: direction(t),
                   normalSecond: (speed) => path.second(t, speed, start, end),
                 },
                 clock.read(clock.phase(p)),
@@ -397,7 +408,7 @@ export namespace AutoMovieConstructionSplitCourses {
               q,
               forward,
               (j): P3 => constrain(Cubic.unitCross(j), j.p, reach, 1),
-              (): P3 => constrain(path.direction(t, start, end), p, reach, -1),
+              (): P3 => constrain(direction(t), p, reach, -1),
             );
             return preserveSecond
               ? Cubic.withCurvature(
