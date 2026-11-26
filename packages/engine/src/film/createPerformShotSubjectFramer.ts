@@ -20,19 +20,19 @@ import {
 } from "@automovie/interface";
 
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { animatedBaseAt } from "./animatedBaseAt";
-import { bakedTransformFromChannels } from "./bakedTransformFromChannels";
-import { computeModelRestExtent } from "./computeModelRestExtent";
-import { computeRestHeight } from "./computeRestHeight";
+import { animatedBaseAt } from "./internal/animatedBaseAt";
+import { bakedTransformFromChannels } from "./internal/bakedTransformFromChannels";
+import { computeModelRestExtent } from "./internal/computeModelRestExtent";
+import { computeRestHeight } from "./internal/computeRestHeight";
 import { DEFAULT_SUBJECT_HEIGHT } from "./constants/DEFAULT_SUBJECT_HEIGHT";
 import { MIN_MEASURED_SUBJECT_HEIGHT } from "./constants/MIN_MEASURED_SUBJECT_HEIGHT";
-import { formationMemberExtent } from "./formationMemberExtent";
-import { formationSubjectBox } from "./formationSubjectBox";
-import { framedBoxOf } from "./framedBoxOf";
-import { nodeSubjectBox } from "./nodeSubjectBox";
-import { nodeSubjectExtent } from "./nodeSubjectExtent";
+import { formationMemberExtent } from "./internal/formationMemberExtent";
+import { formationSubjectBox } from "./internal/formationSubjectBox";
+import { framedBoxOf } from "./internal/framedBoxOf";
+import { nodeSubjectBox } from "./internal/nodeSubjectBox";
+import { nodeSubjectExtent } from "./internal/nodeSubjectExtent";
 import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
-import { unionSubjectBoxes } from "./unionSubjectBoxes";
+import { unionSubjectBoxes } from "./internal/unionSubjectBoxes";
 
 /** Staged data used by the framer and its already-gated target resolver. */
 type SubjectFramingContext = Pick<

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, buildAutoMovieWall, placeTransformedPoint, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
+import { Quaternion, Vector3, buildAutoMovieWall, AutoMovieEngineBuiltEnvironment, AutoMovieEngineMath, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltConnector,
   IAutoMovieBuiltEnvironment,
@@ -348,7 +348,7 @@ function addThreshold(
         thickness,
       ).map(
         (point: IAutoMoviePlanarPoint): IAutoMovieVector3 =>
-          placeTransformedPoint(world, Vector3.create(point.x, 0, point.y)),
+          AutoMovieEngineFilm.placeTransformedPoint(world, Vector3.create(point.x, 0, point.y)),
       ),
       height: { kind: "constant", value: world.translation.y },
       ...(availableFrom === undefined ? {} : { availableFrom }),
@@ -364,7 +364,7 @@ function addThreshold(
       bidirectional: true,
       route: [-thickness / 2, thickness / 2].map(
         (z: number): IAutoMovieVector3 =>
-          placeTransformedPoint(world, Vector3.create(center, 0, z)),
+          AutoMovieEngineFilm.placeTransformedPoint(world, Vector3.create(center, 0, z)),
       ),
       width,
       clearHeight: clearance,

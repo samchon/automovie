@@ -1,7 +1,4 @@
-import {
-  autoMovieRenderTextureDigest,
-  measureAutoMovieRenderTextureClosure,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import {
   IAutoMovieMaterial,
   IAutoMovieRenderTextureCost,
@@ -70,7 +67,7 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
       IAutoMovieRenderTextureResidency["runtimeTextures"]
     > = [first, second],
   ): IAutoMovieRenderTextureCost[] =>
-    measureAutoMovieRenderTextureClosure({
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [],
       sources: [],
       environment: null,
@@ -101,7 +98,7 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
     normalTexture: "table",
   };
   const shared: IAutoMovieRenderTextureCost[] =
-    measureAutoMovieRenderTextureClosure({
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [binding],
       sources: [{ ...texture, asset: "table" }],
       environment: null,
@@ -143,13 +140,13 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
       "contradictory resident",
     ),
   );
-  const digest: string = autoMovieRenderTextureDigest(
+  const digest: string = AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest(
     [],
     profile([first, second]),
   );
   TestValidator.equals(
     "runtime object token spelling is irrelevant",
-    autoMovieRenderTextureDigest(
+    AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest(
       [],
       profile(
         [first, second].map(
@@ -174,7 +171,7 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
   );
   TestValidator.predicate(
     "runtime decode affects target",
-    autoMovieRenderTextureDigest(
+    AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest(
       [],
       profile([
         { ...first, texture: { ...texture, colorSpace: "srgb" } },
@@ -184,7 +181,7 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
   );
   TestValidator.predicate(
     "runtime source split affects target",
-    autoMovieRenderTextureDigest(
+    AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest(
       [],
       profile([
         first,
@@ -195,7 +192,7 @@ export async function test_render_scene_read_texture_source_runtime_texture_stor
   TestValidator.predicate(
     "runtime digest owner refusal",
     throwsError(
-      (): string => autoMovieRenderTextureDigest([], profile([first, first])),
+      (): string => AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest([], profile([first, first])),
       "Runtime texture owner",
     ),
   );

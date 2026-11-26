@@ -14,7 +14,7 @@ import type {
   IAutoMovieWorldRoute,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
+import { autoMovieRenderDigest } from "../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_INSTANCE_CHUNK_SIZE } from "./constants/AUTOMOVIE_INSTANCE_CHUNK_SIZE";

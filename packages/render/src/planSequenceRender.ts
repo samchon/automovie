@@ -1,8 +1,4 @@
-import {
-  playbackCursor,
-  preparePlaybackTimeline,
-  sequenceEditorialMarkerTimeline,
-} from "@automovie/engine";
+import { sequenceEditorialMarkerTimeline, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMoviePlanSequenceRenderProps,
   IAutoMoviePlaybackEditorialMarker,
@@ -38,7 +34,7 @@ export const planSequenceRender: (
     );
 
   const playback: IAutoMoviePreparePlaybackTimeline.IResult =
-    preparePlaybackTimeline(props.sequence, props.shots);
+    AutoMovieEngineFilm.preparePlaybackTimeline(props.sequence, props.shots);
   const timeline: IAutoMoviePlaybackTimeline = playback.timeline;
   const times: number[] = frameTimes(
     props.spec.frameFormat.fps,
@@ -138,7 +134,7 @@ const frameSamples: (
   times: number[],
   frameDir: string,
 ): IAutoMovieSequenceRenderFrame[] => {
-  const cursor: ReturnType<typeof playbackCursor> = playbackCursor(
+  const cursor: ReturnType<typeof AutoMovieEngineFilm.playbackCursor> = AutoMovieEngineFilm.playbackCursor(
     sequence,
     timeline,
   );

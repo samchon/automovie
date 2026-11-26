@@ -1,4 +1,4 @@
-import { normalizeAutoMovieShadowFilter } from "@automovie/engine";
+import { AutoMovieEngineRenderShadow } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -14,9 +14,9 @@ export function test_engine_render_normalize_shadow_filter(): void {
   TestValidator.equals(
     "folded filters",
     [
-      normalizeAutoMovieShadowFilter("pcf"),
-      normalizeAutoMovieShadowFilter("pcfSoft"),
-      normalizeAutoMovieShadowFilter("vsm"),
+      AutoMovieEngineRenderShadow.normalizeAutoMovieShadowFilter("pcf"),
+      AutoMovieEngineRenderShadow.normalizeAutoMovieShadowFilter("pcfSoft"),
+      AutoMovieEngineRenderShadow.normalizeAutoMovieShadowFilter("vsm"),
     ],
     ["pcf", "pcf", "vsm"],
   );

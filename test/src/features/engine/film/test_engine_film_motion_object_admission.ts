@@ -1,4 +1,4 @@
-import { gateAuthoredObjectMotions } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
@@ -47,7 +47,7 @@ function gate(
     duration: 2,
     path: "$input.objectMotions",
   };
-  return gateAuthoredObjectMotions(input);
+  return AutoMovieEngineFilm.gateAuthoredObjectMotions(input);
 }
 function rejects(
   clips: readonly IAutoMovieClip[],

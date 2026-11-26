@@ -16,9 +16,9 @@ import {
   type IAutoMovieWallMount,
 } from "@automovie/interface";
 
-import { computeModelRestExtent } from "../../film/computeModelRestExtent";
-import { propSupportGap } from "../../film/propSupportGap";
-import { setPieceMatrix } from "../../film/staging/setPieceMatrix";
+import { computeModelRestExtent } from "../../film/internal/computeModelRestExtent";
+import { propSupportGap } from "../../film/internal/propSupportGap";
+import { setPieceMatrix } from "../../film/staging/internal/setPieceMatrix";
 import { Matrix4 } from "../../math/Matrix4";
 import { transformedBoxBounds } from "../../math/transformedBoxBounds";
 import { AutoMovieEngineSpace } from "../../space/index";

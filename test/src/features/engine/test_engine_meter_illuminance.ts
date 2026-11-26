@@ -1,7 +1,4 @@
-import {
-  autoMovieIncidentEv100,
-  meterAutoMovieIlluminance,
-} from "@automovie/engine";
+import { AutoMovieEngineExposure } from "@automovie/engine";
 import type {
   IAutoMovieLight,
   IAutoMovieMeterIlluminance,
@@ -52,7 +49,7 @@ export function test_engine_meter_illuminance(): void {
     lights: IAutoMovieLight[],
     environment?: IAutoMovieSceneEnvironment | null,
   ): IAutoMovieMeterIlluminance.IResult =>
-    meterAutoMovieIlluminance({
+    AutoMovieEngineExposure.meterAutoMovieIlluminance({
       lights,
       point: origin,
       normal: up,
@@ -193,16 +190,16 @@ export function test_engine_meter_illuminance(): void {
   // 6. EV100 and refusals.
   TestValidator.predicate(
     "100000 lux sets EV100 log2(40000)",
-    nclose(autoMovieIncidentEv100(100000), Math.log2(40000), 1e-12) &&
-      nclose(autoMovieIncidentEv100(100000), 15.288, 1e-3),
+    nclose(AutoMovieEngineExposure.autoMovieIncidentEv100(100000), Math.log2(40000), 1e-12) &&
+      nclose(AutoMovieEngineExposure.autoMovieIncidentEv100(100000), 15.288, 1e-3),
   );
   TestValidator.equals(
     "no light and no normal are refused",
     [
-      throwsError((): number => autoMovieIncidentEv100(0), "lux"),
+      throwsError((): number => AutoMovieEngineExposure.autoMovieIncidentEv100(0), "lux"),
       throwsError(
         (): IAutoMovieMeterIlluminance.IResult =>
-          meterAutoMovieIlluminance({
+          AutoMovieEngineExposure.meterAutoMovieIlluminance({
             lights: [sun],
             point: origin,
             normal: { x: 0, y: 0, z: 0 },

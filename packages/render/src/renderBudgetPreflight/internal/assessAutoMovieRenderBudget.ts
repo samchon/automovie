@@ -1,11 +1,4 @@
-import {
-  autoMovieRenderSubjectOfCompiledShot,
-  autoMovieRenderTextureDigest,
-  deriveAutoMovieSemanticMask,
-  evaluateAutoMovieRenderBudget,
-  measureAutoMovieRenderInventory,
-  sealAutoMovieRenderTarget,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderSubject, AutoMovieEngineRenderTexture, AutoMovieEngineRenderSemanticMask, AutoMovieEngineRenderTarget, AutoMovieEngineRenderMeasure } from "@automovie/engine";
 import type {
   IAutoMovieAssessRenderBudgetProps,
   IAutoMovieRenderBudgetAssessment,
@@ -48,24 +41,24 @@ export const assessAutoMovieRenderBudget: (
   try {
     // The film's settings are a draw-scene fact no compiled shot carries, so
     // they join the subject here, where the inventory reads them.
-    const subject: ReturnType<typeof autoMovieRenderSubjectOfCompiledShot> = {
-      ...autoMovieRenderSubjectOfCompiledShot({
+    const subject: ReturnType<typeof AutoMovieEngineRenderSubject.autoMovieRenderSubjectOfCompiledShot> = {
+      ...AutoMovieEngineRenderSubject.autoMovieRenderSubjectOfCompiledShot({
         compiled: props.compiled,
         textures: props.textures,
         textureResidency: props.textureResidency,
       }),
       ...(props.film === undefined ? {} : { film: props.film }),
     };
-    const mask: ReturnType<typeof deriveAutoMovieSemanticMask> =
-      deriveAutoMovieSemanticMask(subject);
-    const targetBase: ReturnType<typeof sealAutoMovieRenderTarget> =
-      sealAutoMovieRenderTarget({
+    const mask: ReturnType<typeof AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask> =
+      AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask(subject);
+    const targetBase: ReturnType<typeof AutoMovieEngineRenderTarget.sealAutoMovieRenderTarget> =
+      AutoMovieEngineRenderTarget.sealAutoMovieRenderTarget({
         renderer: props.renderer,
         settings: props.settings,
         assets: props.assets,
       });
-    const inventory: ReturnType<typeof measureAutoMovieRenderInventory> =
-      measureAutoMovieRenderInventory({
+    const inventory: ReturnType<typeof AutoMovieEngineRenderMeasure.measureAutoMovieRenderInventory> =
+      AutoMovieEngineRenderMeasure.measureAutoMovieRenderInventory({
         subject,
         mask,
         settings: targetBase.settings,
@@ -76,12 +69,12 @@ export const assessAutoMovieRenderBudget: (
           row.assets ?? (row.asset === null ? [] : [row.asset]),
       ),
     );
-    const target: ReturnType<typeof sealAutoMovieRenderTarget> =
-      sealAutoMovieRenderTarget({
+    const target: ReturnType<typeof AutoMovieEngineRenderTarget.sealAutoMovieRenderTarget> =
+      AutoMovieEngineRenderTarget.sealAutoMovieRenderTarget({
         renderer: props.renderer,
         settings: targetBase.settings,
         assets: props.assets,
-        textureDigest: autoMovieRenderTextureDigest(
+        textureDigest: AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest(
           (props.textures ?? []).filter(
             (source: IAutoMovieRenderTextureSource): boolean =>
               required.has(source.asset),
@@ -89,8 +82,8 @@ export const assessAutoMovieRenderBudget: (
           props.textureResidency,
         ),
       });
-    const report: ReturnType<typeof evaluateAutoMovieRenderBudget> =
-      evaluateAutoMovieRenderBudget({
+    const report: ReturnType<typeof AutoMovieEngineRenderTarget.evaluateAutoMovieRenderBudget> =
+      AutoMovieEngineRenderTarget.evaluateAutoMovieRenderBudget({
         inventory,
         budget: props.budget,
         mask,

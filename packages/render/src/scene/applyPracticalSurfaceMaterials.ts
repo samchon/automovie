@@ -1,4 +1,4 @@
-import { samplePracticalSurfaceTrackMaterial } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieShot } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -54,7 +54,7 @@ export function applyPracticalSurfaceMaterials(
         `Practical surface "${track.node}" part "${track.part}" has no distinct single-material mesh`,
       );
 
-    const selected: string = samplePracticalSurfaceTrackMaterial(
+    const selected: string = AutoMovieEngineFilm.samplePracticalSurfaceTrackMaterial(
       track,
       seconds,
     );

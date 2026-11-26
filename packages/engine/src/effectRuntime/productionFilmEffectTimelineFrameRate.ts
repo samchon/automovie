@@ -3,7 +3,7 @@ import {
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
 
 /**

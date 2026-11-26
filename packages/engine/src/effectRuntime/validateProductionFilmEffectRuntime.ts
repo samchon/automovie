@@ -3,8 +3,8 @@ import {
   IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
 
-import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
-import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
+import { productionFrameBoundaryToSeconds } from "../film/internal/productionFrameBoundaryToSeconds";
+import { autoMovieRenderDigest } from "../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJsonError } from "../text/AutoMovieEngineCanonicalJsonError";
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";

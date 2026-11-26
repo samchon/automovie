@@ -1,7 +1,4 @@
-import {
-  AutoMovieEngineViolationCollector,
-  gatePerformShotStageAction,
-} from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachAction,
   IAutoMovieEnginePerformShotActionPlan,
@@ -86,7 +83,7 @@ export function test_engine_film_gate_attach_stage_action(): void {
     authored,
   ];
   requests.forEach((request: IAutoMovieAttachAction, index: number): void =>
-    gatePerformShotStageAction(
+    AutoMovieEngineFilm.gatePerformShotStageAction(
       context,
       plan,
       request,

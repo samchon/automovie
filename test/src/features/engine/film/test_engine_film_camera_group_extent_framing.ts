@@ -1,8 +1,4 @@
-import {
-  FRAMING_AIM_FRACTION,
-  FRAMING_HEIGHT_FRACTION,
-  compileCameraMove,
-} from "@automovie/engine";
+import { FRAMING_AIM_FRACTION, FRAMING_HEIGHT_FRACTION, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -49,7 +45,7 @@ const framedDistance: (
   subject: IAutoMovieFramedSubject,
   aspect?: number,
 ) => number = (subject: IAutoMovieFramedSubject, aspect?: number): number => {
-  const clip: ReturnType<typeof compileCameraMove> = compileCameraMove({
+  const clip: ReturnType<typeof AutoMovieEngineFilm.compileCameraMove> = AutoMovieEngineFilm.compileCameraMove({
     clipId: "clip",
     camera: camera(),
     entries: [{ action: WIDE, subject }],

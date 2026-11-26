@@ -1,7 +1,4 @@
-import {
-  AutoMovieEngineAnalysis,
-  meterAutoMovieIlluminance,
-} from "@automovie/engine";
+import { AutoMovieEngineAnalysis, AutoMovieEngineExposure } from "@automovie/engine";
 import type {
   IAutoMovieAnalysisMetric,
   IAutoMovieAnalysisRun,
@@ -65,7 +62,7 @@ export function test_engine_meter_daylight(): void {
     instant,
     diffuseSamples: 64,
   };
-  const staged: IAutoMovieMeterIlluminance.IResult = meterAutoMovieIlluminance({
+  const staged: IAutoMovieMeterIlluminance.IResult = AutoMovieEngineExposure.meterAutoMovieIlluminance({
     lights: [
       aimedLight({
         id: "sun",
@@ -127,7 +124,7 @@ export function test_engine_meter_daylight(): void {
       nclose(sky.lux, studied, 1e-9),
   );
 
-  const unlit: IAutoMovieMeterIlluminance.IResult = meterAutoMovieIlluminance({
+  const unlit: IAutoMovieMeterIlluminance.IResult = AutoMovieEngineExposure.meterAutoMovieIlluminance({
     lights: [],
     point,
     normal,

@@ -1,4 +1,4 @@
-import { Quaternion, resolveBeatEnd } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieBeatEndActorState,
   type IAutoMovieBeatEndState,
@@ -140,7 +140,7 @@ const shot: IAutoMovieShot = {
  *    missing-motion Error.
  */
 export function test_engine_film_beat_end(): void {
-  const end: IAutoMovieBeatEndState = resolveBeatEnd({
+  const end: IAutoMovieBeatEndState = AutoMovieEngineFilm.resolveBeatEnd({
     beat: "beat-1",
     scene,
     shot,
@@ -217,7 +217,7 @@ export function test_engine_film_beat_end(): void {
     "missing motion throws",
     throwsError(
       (): IAutoMovieBeatEndState =>
-        resolveBeatEnd({ beat: "beat-1", scene, shot, motions: [idleMotion] }),
+        AutoMovieEngineFilm.resolveBeatEnd({ beat: "beat-1", scene, shot, motions: [idleMotion] }),
       'motion "walk" was not provided',
     ),
   );

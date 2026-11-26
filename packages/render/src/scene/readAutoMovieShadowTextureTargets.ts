@@ -1,4 +1,4 @@
-import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import { AutoMovieEngineRenderShadow } from "@automovie/engine";
 import type {
   IAutoMovieRenderTextureTarget,
   IAutoMovieSceneEnvironment,
@@ -52,8 +52,8 @@ export const readAutoMovieShadowTextureTargets: (
       return source === null ? [] : [{ id, light, source }];
     },
   );
-  const profile: ReturnType<typeof resolveAutoMovieShadowProfile> =
-    resolveAutoMovieShadowProfile({
+  const profile: ReturnType<typeof AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile> =
+    AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile({
       lights: records.map(
         (record: {
           id: string;

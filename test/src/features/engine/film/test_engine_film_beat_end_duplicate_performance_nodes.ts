@@ -1,4 +1,4 @@
-import { resolveBeatEnd } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieMotion,
   IAutoMovieScene,
@@ -61,7 +61,7 @@ const shot: IAutoMovieShot = {
 export function test_engine_film_beat_end_duplicate_performance_nodes(): void {
   let thrown: unknown = null;
   try {
-    resolveBeatEnd({
+    AutoMovieEngineFilm.resolveBeatEnd({
       beat: "beat-1",
       scene,
       shot,

@@ -1,7 +1,7 @@
 import { IAutoMovieSubjectMemberSummary } from "@automovie/interface";
 
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 
 /**
  * One page of a subject id list: the total, and at most

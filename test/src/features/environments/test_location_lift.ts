@@ -1,9 +1,5 @@
 import type { createLift } from "@automovie/archetypes/environments";
-import {
-  Quaternion,
-  Vector3,
-  bakedTransformFromClipsAt,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieTransform,
@@ -47,7 +43,7 @@ export function test_location_lift(): void {
     environmentLiftActor(fixture);
   const cab: string = `${fixture.id}/cab`;
   const at = (node: string, time: number): IAutoMovieTransform =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       fixture.environment.runtime.objectMotions,
       node,
       time,
@@ -164,7 +160,7 @@ export function test_location_lift(): void {
     "another authored rise changes the sill, with the travelling cab at unit scale",
     nclose(taller.environment.anchors["lift/upper"]!.translation.y, 4.1) &&
       vclose(
-        bakedTransformFromClipsAt(
+        AutoMovieEngineFilm.bakedTransformFromClipsAt(
           taller.environment.runtime.objectMotions,
           cab,
           halfway,

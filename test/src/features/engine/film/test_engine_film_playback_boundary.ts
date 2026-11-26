@@ -1,7 +1,4 @@
-import {
-  classifyAutoMoviePlaybackBoundary,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClassifyPlaybackBoundary,
   IAutoMoviePlaybackTimeline,
@@ -78,7 +75,7 @@ export function test_engine_film_playback_boundary(): void {
       },
     ],
   };
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     sequence,
     shots,
   );
@@ -89,7 +86,7 @@ export function test_engine_film_playback_boundary(): void {
     cut: IAutoMovieSequence = sequence,
     layout: IAutoMoviePlaybackTimeline = timeline,
   ) =>
-    classifyAutoMoviePlaybackBoundary({
+    AutoMovieEngineFilm.classifyAutoMoviePlaybackBoundary({
       sequence: cut,
       timeline: layout,
       before,
@@ -115,7 +112,7 @@ export function test_engine_film_playback_boundary(): void {
       index === 1 ? { ...entry, trim: { start: 2.1, duration: 0.9 } } : entry,
     ),
   };
-  const skippedTimeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const skippedTimeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     skipped,
     shots,
   );

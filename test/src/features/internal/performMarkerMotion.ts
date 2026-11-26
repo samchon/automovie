@@ -1,4 +1,4 @@
-import { performShot } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachJob,
   IAutoMovieClip,
@@ -51,7 +51,7 @@ export function performMarkerMotion(
       pose: null,
     }),
   );
-  return performShot({
+  return AutoMovieEngineFilm.performShot({
     script,
     staged: {
       success: true,

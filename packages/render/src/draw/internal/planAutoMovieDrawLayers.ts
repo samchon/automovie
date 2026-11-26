@@ -1,4 +1,4 @@
-import { playbackLayersAt } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
@@ -28,7 +28,7 @@ export function planAutoMovieDrawLayers(
   seconds: number,
 ): IAutoMoviePlaybackLayer[] | null {
   if (scene.sequence === undefined || scene.cut === undefined) return null;
-  const layers: IAutoMoviePlaybackLayer[] = playbackLayersAt(
+  const layers: IAutoMoviePlaybackLayer[] = AutoMovieEngineFilm.playbackLayersAt(
     scene.sequence,
     scene.cut,
     seconds,

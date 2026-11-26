@@ -1,4 +1,4 @@
-import { normalizeAutoMovieShadowFilter } from "@automovie/engine";
+import { AutoMovieEngineRenderShadow } from "@automovie/engine";
 import type {
   AutoMovieGuidePass,
   IAutoMovieSceneEnvironment,
@@ -140,6 +140,6 @@ const shadowType: (
 ) => THREE.ShadowMapType = (
   type: IAutoMovieSceneEnvironment["shadows"]["type"],
 ): THREE.ShadowMapType =>
-  normalizeAutoMovieShadowFilter(type) === "pcf"
+  AutoMovieEngineRenderShadow.normalizeAutoMovieShadowFilter(type) === "pcf"
     ? THREE.PCFShadowMap
     : THREE.VSMShadowMap;

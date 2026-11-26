@@ -1,4 +1,4 @@
-import { coupleObjects, resolveBeatSnapshot } from "@automovie/engine";
+import { coupleObjects, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachJob,
   IAutoMovieBeatEndActorState,
@@ -91,7 +91,7 @@ export function test_engine_film_motion_follow_handoff(): void {
     input: IAutoMovieResolveBeatProps,
     id: string,
   ): IAutoMovieBeatEndActorState {
-    const state: IAutoMovieBeatEndActorState | undefined = resolveBeatSnapshot(
+    const state: IAutoMovieBeatEndActorState | undefined = AutoMovieEngineFilm.resolveBeatSnapshot(
       input,
       2,
     ).actors.find((a: IAutoMovieBeatEndActorState): boolean => a.node === id);

@@ -30,7 +30,7 @@ import { gestureMotion } from "../motion/gestureMotion";
 import { holdMotion } from "../motion/holdMotion";
 import { locomoteMotion } from "../motion/locomoteMotion";
 import { reactMotion } from "../motion/reactMotion";
-import { timeScaleMotion } from "../motion/timeScaleMotion";
+import { timeScaleMotion } from "../motion/internal/timeScaleMotion";
 import { actorAimPoints } from "./actorAimPoints";
 import { actorContextWorldFrame } from "./actorContextWorldFrame";
 import { actorPointInModelSpace } from "./actorPointInModelSpace";

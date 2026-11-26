@@ -1,4 +1,4 @@
-import { productionFrameBoundaryToSeconds } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieHumanSkeleton,
   IAutoMovieProductionFrameRate,
@@ -70,7 +70,7 @@ export function buildPolygonShotActor(input: {
     drawLayer: (layer: IAutoMovieProductionRenderLayer): void => {
       if (layer.shot !== shotId)
         throw new Error(`Polygon actor ${subject} belongs to shot ${shotId}`);
-      const seconds: number = productionFrameBoundaryToSeconds({
+      const seconds: number = AutoMovieEngineFilm.productionFrameBoundaryToSeconds({
         frame: layer.sourceFrame,
         frameRate,
       });

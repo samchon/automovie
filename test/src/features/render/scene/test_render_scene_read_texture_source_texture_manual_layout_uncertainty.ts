@@ -1,4 +1,4 @@
-import { measureAutoMovieRenderTextureClosure } from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -83,8 +83,8 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
           fact.allocationStateKnown,
           false,
         );
-        const cost: ReturnType<typeof measureAutoMovieRenderTextureClosure> =
-          measureAutoMovieRenderTextureClosure({
+        const cost: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =
+          AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
             materials: [material("surface", "manual")],
             sources: [fact],
             environment: null,
@@ -107,14 +107,14 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
       }
   }
   texture.mipmaps = [first];
-  const environment: ReturnType<typeof measureAutoMovieRenderTextureClosure> =
-    measureAutoMovieRenderTextureClosure({
+  const environment: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [material("pbr")],
       sources: [read()],
       environment: "manual",
     });
   const environmentProducts: ReturnType<
-    typeof measureAutoMovieRenderTextureClosure
+    typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure
   > = environment.filter(
     (
       row: import("@automovie/interface").IAutoMovieRenderTextureCost,
@@ -191,8 +191,8 @@ export async function test_render_scene_read_texture_source_texture_manual_layou
       fact.mipmapped,
       filter !== THREE.NearestFilter && filter !== THREE.LinearFilter,
     );
-    const cost: ReturnType<typeof measureAutoMovieRenderTextureClosure> =
-      measureAutoMovieRenderTextureClosure({
+    const cost: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =
+      AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
         materials: [material("copy", "framebuffer")],
         sources: [fact],
         environment: null,

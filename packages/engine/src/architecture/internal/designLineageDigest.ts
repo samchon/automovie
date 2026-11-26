@@ -10,7 +10,7 @@ import {
   IAutoMovieDesignVariant,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
+import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { designLineageRecord } from "./designLineageRecord";
 import { requireValidDesignLineage } from "./requireValidDesignLineage";

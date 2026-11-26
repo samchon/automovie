@@ -3,7 +3,7 @@ import type {
   IAutoMovieShot,
 } from "@automovie/interface";
 
-import { samplePracticalSurfaceTrackMaterial } from "./samplePracticalSurfaceTrackMaterial";
+import { samplePracticalSurfaceTrackMaterial } from "./internal/samplePracticalSurfaceTrackMaterial";
 
 /** The shot clock and admitted tracks used by practical surface reads. */
 type PracticalSurfaceShot = Pick<

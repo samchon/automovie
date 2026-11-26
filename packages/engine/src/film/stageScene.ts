@@ -23,18 +23,18 @@ import { Transform } from "../math/Transform";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
-import { lookRotation } from "./lookRotation";
+import { lookRotation } from "./internal/lookRotation";
 import { admitStageCast } from "./staging/admitStageCast";
 import { admitStageSupport } from "./staging/admitStageSupport";
-import { lightTypeOf } from "./staging/lightTypeOf";
-import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
-import { lowerLightPlacement } from "./staging/lowerLightPlacement";
+import { lightTypeOf } from "./staging/internal/lightTypeOf";
+import { lowerCameraClearanceEnvelope } from "./staging/internal/lowerCameraClearanceEnvelope";
+import { lowerLightPlacement } from "./staging/internal/lowerLightPlacement";
 import { prepareStageNodeClaim } from "./staging/prepareStageNodeClaim";
 import { resolveStagedFog } from "./staging/resolveStagedFog";
 import { resolveStagedMedium } from "./staging/resolveStagedMedium";
-import { setPieceScale } from "./staging/setPieceScale";
-import { setPieceTransform } from "./staging/setPieceTransform";
-import { validateLightPlacementShape } from "./staging/validateLightPlacementShape";
+import { setPieceScale } from "./staging/internal/setPieceScale";
+import { setPieceTransform } from "./staging/internal/setPieceTransform";
+import { validateLightPlacementShape } from "./staging/internal/validateLightPlacementShape";
 import { validateStageCamera } from "./staging/validateStageCamera";
 
 /** World up, the axis an actor's `facingDeg` turns about. */

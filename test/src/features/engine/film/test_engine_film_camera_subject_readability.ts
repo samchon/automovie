@@ -1,9 +1,4 @@
-import {
-  compileCameraMove,
-  intersectsPerspectiveFrustumSegment,
-  projectToNdc,
-  resolveCameraAt,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -47,12 +42,12 @@ const frame: (
 const solved: (
   framing: IAutoMovieCameraAction["framing"],
   base: IAutoMovieVector3,
-) => ReturnType<typeof resolveCameraAt> = (
+) => ReturnType<typeof AutoMovieEngineFilm.resolveCameraAt> = (
   framing: IAutoMovieCameraAction["framing"],
   base: IAutoMovieVector3,
-): ReturnType<typeof resolveCameraAt> => {
+): ReturnType<typeof AutoMovieEngineFilm.resolveCameraAt> => {
   const live: IAutoMovieCamera = camera();
-  const clip: ReturnType<typeof compileCameraMove> = compileCameraMove({
+  const clip: ReturnType<typeof AutoMovieEngineFilm.compileCameraMove> = AutoMovieEngineFilm.compileCameraMove({
     clipId: "clip",
     camera: live,
     entries: [
@@ -60,7 +55,7 @@ const solved: (
     ],
     shotDuration: 4,
   });
-  return resolveCameraAt(live.transform, clip, live.id, 2);
+  return AutoMovieEngineFilm.resolveCameraAt(live.transform, clip, live.id, 2);
 };
 
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -79,7 +74,7 @@ const readable: (
   base: IAutoMovieVector3,
   framedOn: IAutoMovieVector3 = base,
 ): boolean =>
-  intersectsPerspectiveFrustumSegment({
+  AutoMovieEngineFilm.intersectsPerspectiveFrustumSegment({
     camera: solved(framing, framedOn),
     from: base,
     to: { x: base.x, y: base.y + HEIGHT, z: base.z },
@@ -150,12 +145,12 @@ export function test_engine_film_camera_subject_readability(): void {
   const groundOnly: (framing: IAutoMovieCameraAction["framing"]) => boolean = (
     framing: IAutoMovieCameraAction["framing"],
   ): boolean => {
-    const resolved: ReturnType<typeof resolveCameraAt> = solved(
+    const resolved: ReturnType<typeof AutoMovieEngineFilm.resolveCameraAt> = solved(
       framing,
       ORIGIN,
     );
     const halfY: number = Math.tan((camera().fovY * Math.PI) / 360);
-    const projection: ReturnType<typeof projectToNdc> = projectToNdc(
+    const projection: ReturnType<typeof AutoMovieEngineFilm.projectToNdc> = AutoMovieEngineFilm.projectToNdc(
       resolved,
       ORIGIN,
       halfY,
@@ -185,7 +180,7 @@ export function test_engine_film_camera_subject_readability(): void {
     from: IAutoMovieVector3,
     to: IAutoMovieVector3,
   ) => boolean = (from: IAutoMovieVector3, to: IAutoMovieVector3): boolean =>
-    intersectsPerspectiveFrustumSegment({
+    AutoMovieEngineFilm.intersectsPerspectiveFrustumSegment({
       camera: solved("wide", ORIGIN),
       from,
       to,

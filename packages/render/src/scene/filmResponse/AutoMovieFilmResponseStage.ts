@@ -1,4 +1,4 @@
-import { autoMovieFilmResponseMatrix } from "@automovie/engine";
+import { AutoMovieEngineFilmResponse } from "@automovie/engine";
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -369,7 +369,7 @@ export class AutoMovieFilmResponseStage {
     }
     const targets: allocateAutoMovieFilmTargets.ITargets = this.targets_;
     const uniforms: Record<string, THREE.IUniform> = this.final_.uniforms;
-    const m: number[] = autoMovieFilmResponseMatrix(optics);
+    const m: number[] = AutoMovieEngineFilmResponse.autoMovieFilmResponseMatrix(optics);
     uniforms.tLinear!.value = targets.linear.texture;
     uniforms.tDepth!.value = targets.linear.depthTexture;
     this.response_.set(

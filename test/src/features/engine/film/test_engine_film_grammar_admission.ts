@@ -1,4 +1,4 @@
-import { classifyGrammarShotSize } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieGrammarDiagnostic,
   IAutoMovieGrammarShotObservation,
@@ -51,17 +51,17 @@ export function test_engine_film_grammar_admission(): void {
   );
   TestValidator.equals(
     "smallest positive occupancy remains wide",
-    classifyGrammarShotSize(Number.MIN_VALUE),
+    AutoMovieEngineFilm.classifyGrammarShotSize(Number.MIN_VALUE),
     "wide",
   );
   TestValidator.equals(
     "largest finite occupancy remains close",
-    classifyGrammarShotSize(Number.MAX_VALUE),
+    AutoMovieEngineFilm.classifyGrammarShotSize(Number.MAX_VALUE),
     "close",
   );
   TestValidator.equals(
     "occupancy classification follows framing-height grammar",
-    classifyGrammarShotSize(1 / 4),
+    AutoMovieEngineFilm.classifyGrammarShotSize(1 / 4),
     "wide",
   );
   TestValidator.equals(
@@ -69,15 +69,15 @@ export function test_engine_film_grammar_admission(): void {
     namedFacts([
       [
         "classifyGrammarShotSizeFull",
-        (): boolean => classifyGrammarShotSize(1 / 1.15) === "full",
+        (): boolean => AutoMovieEngineFilm.classifyGrammarShotSize(1 / 1.15) === "full",
       ],
       [
         "classifyGrammarShotSizeMedium",
-        (): boolean => classifyGrammarShotSize(1 / 0.62) === "medium",
+        (): boolean => AutoMovieEngineFilm.classifyGrammarShotSize(1 / 0.62) === "medium",
       ],
       [
         "classifyGrammarShotSizeClose",
-        (): boolean => classifyGrammarShotSize(1 / 0.28) === "close",
+        (): boolean => AutoMovieEngineFilm.classifyGrammarShotSize(1 / 0.28) === "close",
       ],
     ]),
     {
@@ -109,7 +109,7 @@ export function test_engine_film_grammar_admission(): void {
   TestValidator.predicate(
     "zero occupancy is invalid",
     throwsError(
-      (): "wide" | "full" | "medium" | "close" => classifyGrammarShotSize(0),
+      (): "wide" | "full" | "medium" | "close" => AutoMovieEngineFilm.classifyGrammarShotSize(0),
       ["frameOccupancy", "finite and positive"],
     ),
   );

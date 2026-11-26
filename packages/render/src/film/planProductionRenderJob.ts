@@ -1,15 +1,4 @@
-import {
-  AutoMovieFilmEffectRuntimeError,
-  autoMovieRenderDigest,
-  equalProductionFrameRates,
-  productionFilmEffectEditFingerprint,
-  productionFrameBoundaryToGridTick,
-  resolveProductionFrameRate,
-  sampleProductionRenderFrame,
-  verifyProductionFilmEffectPopulation,
-  AutoMovieEngineCanonicalJson,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { AutoMovieFilmEffectRuntimeError, productionFilmEffectEditFingerprint, verifyProductionFilmEffectPopulation, AutoMovieEngineCanonicalJson, AutoMovieEngineText, AutoMovieEngineRenderTarget, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieGuidePass,
   IAutoMovieCompiledFilmEffect,
@@ -94,20 +83,20 @@ export const planProductionRenderJob: (
   const frameFormat: IAutoMovieProductionDesign["frameFormat"] =
     resolveProductionRenderTierFrameFormat(props.production.frameFormat, tier);
   const outputRate: IAutoMovieProductionFrameRate =
-    resolveProductionFrameRate(frameFormat);
+    AutoMovieEngineFilm.resolveProductionFrameRate(frameFormat);
   if (frameFormat.width % 2 !== 0 || frameFormat.height % 2 !== 0)
     throw new Error(
       "The production H.264 render adapter requires even width and height.",
     );
   const timelineRate: IAutoMovieProductionFrameRate =
-    resolveProductionFrameRate(props.timeline);
+    AutoMovieEngineFilm.resolveProductionFrameRate(props.timeline);
   const productionRate: IAutoMovieProductionFrameRate =
-    resolveProductionFrameRate(props.production.frameFormat);
+    AutoMovieEngineFilm.resolveProductionFrameRate(props.production.frameFormat);
   if (
     props.production.id.trim().length === 0 ||
     props.timeline.id !== props.production.id ||
     validDigest(props.timeline.inputFingerprint) === false ||
-    equalProductionFrameRates(timelineRate, productionRate) === false ||
+    AutoMovieEngineFilm.equalProductionFrameRates(timelineRate, productionRate) === false ||
     props.production.targetRuntimeSeconds !==
       (props.timeline.totalFrames * productionRate.denominator) /
         productionRate.numerator
@@ -141,7 +130,7 @@ export const planProductionRenderJob: (
     if (
       asset === undefined ||
       asset.sourceFrames !==
-        productionFrameBoundaryToGridTick({
+        AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
           frame: cue.sourceDurationFrames,
           frameRate: timelineRate,
           ticksPerSecond: asset.sampleRate,
@@ -175,7 +164,7 @@ export const planProductionRenderJob: (
     (_: unknown, outputFrame: number): IAutoMovieProductionRenderFrame => {
       const timelineFrame: number = outputFrame * tier.frameStep;
       return {
-        ...sampleProductionRenderFrame(props.timeline, timelineFrame),
+        ...AutoMovieEngineFilm.sampleProductionRenderFrame(props.timeline, timelineFrame),
         globalFrame: outputFrame,
         timelineFrame,
         timeSeconds:
@@ -201,7 +190,7 @@ export const planProductionRenderJob: (
     ranges.forEach((range: IRange, index: number): void => {
       chunks.push({
         slot: `${props.production.id}:${tier.kind}:${deliverable.id}:${pass}:${index}`,
-        id: autoMovieRenderDigest(
+        id: AutoMovieEngineRenderTarget.autoMovieRenderDigest(
           AutoMovieEngineCanonicalJson.canonicalize({
             protocol: "automovie.production-render-chunk.v4",
             production: props.production.id,

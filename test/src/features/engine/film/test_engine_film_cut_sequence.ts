@@ -1,4 +1,4 @@
-import { cutSequence } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieSequenceEntry,
   IAutoMovieShot,
@@ -39,7 +39,7 @@ export function test_engine_film_cut_sequence(): void {
     duration,
   });
 
-  const cut = cutSequence(
+  const cut = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "seq-duel", name: "the duel" },
       fps: 24,
@@ -75,7 +75,7 @@ export function test_engine_film_cut_sequence(): void {
     TestValidator.predicate("runtime", nclose(cut.runtime, 7.5, 1e-12));
   }
 
-  const duplicate = cutSequence(
+  const duplicate = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "seq-duplicate-shot", name: "ambiguous source shots" },
       fps: 24,
@@ -99,7 +99,7 @@ export function test_engine_film_cut_sequence(): void {
   );
 
   const empty = shot("shot:zero", 0);
-  const zero = cutSequence(
+  const zero = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "seq-bad-shot-duration", name: "bad source shots" },
       fps: 24,
@@ -118,7 +118,7 @@ export function test_engine_film_cut_sequence(): void {
     zero.success === false && hasViolation(zero, "range", "$shots[1].duration"),
   );
 
-  const nothing = cutSequence(
+  const nothing = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "seq-empty", name: "nothing" },
       fps: 0,

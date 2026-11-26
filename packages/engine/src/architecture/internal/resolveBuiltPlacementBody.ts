@@ -5,7 +5,7 @@ import {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { unionSubjectBoxes } from "../../film/unionSubjectBoxes";
+import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBounds";
 
 /**

@@ -1,4 +1,4 @@
-import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import { AutoMovieEngineRenderShadow } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieRenderSoftPropFrame,
@@ -69,8 +69,8 @@ export const buildScene: (
   environmentTexture?: THREE.Texture,
   softFrame?: readonly IAutoMovieRenderSoftPropFrame[],
 ): IAutoMovieSceneObject => {
-  const shadowProfile: ReturnType<typeof resolveAutoMovieShadowProfile> =
-    resolveAutoMovieShadowProfile({
+  const shadowProfile: ReturnType<typeof AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile> =
+    AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile({
       lights: scene.lights,
       shadows: scene.environment?.shadows,
     });

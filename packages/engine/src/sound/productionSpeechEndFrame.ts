@@ -3,8 +3,8 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { productionFrameBoundaryToGridTick } from "../film/internal/productionFrameBoundaryToGridTick";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 
 /**
  * The exclusive end frame of a line's speech span: the first frame whose

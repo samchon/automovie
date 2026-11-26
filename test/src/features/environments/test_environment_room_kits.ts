@@ -5,7 +5,7 @@ import {
   createLivingRoomKit,
   createOfficeKit,
 } from "@automovie/archetypes/environments";
-import { Quaternion, computeModelRestExtent } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieEnvironment,
@@ -99,7 +99,7 @@ export function test_environment_room_kits(): void {
   ) => IAutoMoviePropBox = (
     environment: IAutoMovieEnvironment,
     role: string,
-  ): IAutoMoviePropBox => computeModelRestExtent(modelOf(environment, role))!;
+  ): IAutoMoviePropBox => AutoMovieEngineFilm.computeModelRestExtent(modelOf(environment, role))!;
   const box: (environment: IAutoMovieEnvironment, role: string) => IBox = (
     environment: IAutoMovieEnvironment,
     role: string,

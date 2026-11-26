@@ -1,4 +1,4 @@
-import { evaluateAutoMovieRenderBudget } from "@automovie/engine";
+import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import {
   IAutoMovieRenderBudget,
   IAutoMovieRenderInventory,
@@ -13,7 +13,7 @@ export const evaluateRenderBudgetFixture = (
   target: IAutoMovieRenderTarget,
   maxContributors?: number,
 ): IAutoMovieRenderReport =>
-  evaluateAutoMovieRenderBudget({
+  AutoMovieEngineRenderTarget.evaluateAutoMovieRenderBudget({
     inventory,
     budget,
     mask: {

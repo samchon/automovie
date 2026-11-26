@@ -3,7 +3,7 @@ import {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { unionSubjectBoxes } from "../../film/unionSubjectBoxes";
+import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 
 /**

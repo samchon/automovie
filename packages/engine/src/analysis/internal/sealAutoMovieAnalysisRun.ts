@@ -6,7 +6,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
+import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
 import { autoMovieAnalysisRunDigest } from "./autoMovieAnalysisRunDigest";
 import { validateAutoMovieAnalysisRunContents } from "./validateAutoMovieAnalysisRunContents";

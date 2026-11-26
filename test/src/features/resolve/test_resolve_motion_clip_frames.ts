@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, motionToClip, resolveFrame, sampleMotion, sceneToNodes, stageScene } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, resolveFrame, sampleMotion, sceneToNodes, stageScene, AutoMovieEngineMotionClip } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -54,7 +54,7 @@ export function test_resolve_motion_clip_frames(): void {
     loop: false,
     tracks: players.flatMap(
       ([actor, motion]) =>
-        motionToClip({ motion, skeleton, nodePrefix: actor + "/" }).clip.tracks,
+        AutoMovieEngineMotionClip.motionToClip({ motion, skeleton, nodePrefix: actor + "/" }).clip.tracks,
     ),
   };
   const times = bakeTimes(clip.duration);

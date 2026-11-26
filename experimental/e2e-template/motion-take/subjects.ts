@@ -1,4 +1,4 @@
-import { admitMotionTake } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieMotionTake,
   IAutoMovieVector3,
@@ -29,7 +29,7 @@ export const subjects: AutoMovieDrawSubjects = (
       const source: ReturnType<typeof createMotionTakeSource> =
         createMotionTakeSource();
       const take: IAutoMovieMotionTake | null =
-        props === undefined || props === null ? null : admitMotionTake(props);
+        props === undefined || props === null ? null : AutoMovieEngineFilm.admitMotionTake(props);
       const performance: HumanPerformance =
         take === null
           ? new HumanPerformance(source.human["staged-catch"]!)

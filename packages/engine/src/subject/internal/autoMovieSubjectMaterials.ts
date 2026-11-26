@@ -5,7 +5,7 @@ import {
   IAutoMovieSubjectMaterial,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 
 /**
  * The materials a subject draws with, as id and name, in render-id order.

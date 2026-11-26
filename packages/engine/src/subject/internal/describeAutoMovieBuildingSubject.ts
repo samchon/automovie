@@ -7,7 +7,7 @@ import {
 
 import { builtInstanceSetPlacementBounds } from "../../architecture/internal/builtInstanceSetPlacementBounds";
 import { builtSpaceSubtree } from "../../architecture/internal/builtSpaceSubtree";
-import { unionSubjectBoxes } from "../../film/unionSubjectBoxes";
+import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMemberSummary } from "./autoMovieSubjectMemberSummary";
 

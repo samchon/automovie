@@ -1,7 +1,4 @@
-import {
-  bakedTransformFromClipsAt,
-  compileCameraMove,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -101,7 +98,7 @@ function easeInOut(p: number): number {
 
 /** Camera translation the clip plays at one shot-local instant. */
 function at(clip: IAutoMovieClip, t: number): IAutoMovieVector3 {
-  const transform: IAutoMovieTransform | null = bakedTransformFromClipsAt(
+  const transform: IAutoMovieTransform | null = AutoMovieEngineFilm.bakedTransformFromClipsAt(
     [clip],
     "cam",
     t,
@@ -130,7 +127,7 @@ function compile(
   }>,
   frameRate: IAutoMovieProductionFrameRate | null = RATE,
 ): IAutoMovieClip {
-  return compileCameraMove({
+  return AutoMovieEngineFilm.compileCameraMove({
     clipId: "clip",
     camera: CAMERA,
     entries: entries.map(

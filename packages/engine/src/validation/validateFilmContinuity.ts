@@ -7,8 +7,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { resolveBeatEnd } from "../film/resolveBeatEnd";
-import { resolveBeatOpening } from "../film/resolveBeatOpening";
+import { resolveBeatEnd } from "../film/internal/resolveBeatEnd";
+import { resolveBeatOpening } from "../film/internal/resolveBeatOpening";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { compareContinuityBoundary } from "./compareContinuityBoundary";
 import { readContinuityTolerances } from "./readContinuityTolerances";

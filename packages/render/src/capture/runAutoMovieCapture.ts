@@ -1,4 +1,4 @@
-import { digestAutoMovieBytes } from "@automovie/engine";
+import { AutoMovieEnginePicture } from "@automovie/engine";
 import type {
   IAutoMovieCaptureCell,
   IAutoMovieCaptureCellRecord,
@@ -185,7 +185,7 @@ export async function runAutoMovieCapture(
       state: "drawn",
       file,
       hash: AutoMovieRenderPicture.hashRasterImage(picture),
-      fileSha256: digestAutoMovieBytes(bytes).slice("sha256:".length),
+      fileSha256: AutoMovieEnginePicture.digestAutoMovieBytes(bytes).slice("sha256:".length),
       backend: drawing.backend ?? null,
       camera: drawing.camera ?? null,
       repeat: drawing.repeat ?? null,

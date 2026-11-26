@@ -11,7 +11,7 @@ import {
   IAutoMovieWorldDesign,
 } from "@automovie/interface";
 
-import { placeTransformedPoint } from "./film/placeTransformedPoint";
+import { placeTransformedPoint } from "./film/internal/placeTransformedPoint";
 import { HUMANOID_JOINT_AXES } from "./kinematics/constants/HUMANOID_JOINT_AXES";
 import { resolvePose } from "./kinematics/resolvePose";
 import { Transform } from "./math/Transform";

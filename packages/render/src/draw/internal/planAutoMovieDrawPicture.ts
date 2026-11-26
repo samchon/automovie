@@ -1,4 +1,4 @@
-import { playbackEntryAt, playbackShownLayer } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMoviePlaybackLayer } from "@automovie/interface";
 
 import type { IAutoMovieDrawScene } from "../IAutoMovieDrawScene.js";
@@ -47,7 +47,7 @@ export function planAutoMovieDrawPicture(
     seconds,
   );
   const shown: IAutoMoviePlaybackLayer | null =
-    layers === null ? null : playbackShownLayer(layers);
+    layers === null ? null : AutoMovieEngineFilm.playbackShownLayer(layers);
   return {
     layers,
     shown,
@@ -55,6 +55,6 @@ export function planAutoMovieDrawPicture(
       shown ??
       (scene.cut === undefined
         ? null
-        : playbackEntryAt(scene.cut.entries, seconds)),
+        : AutoMovieEngineFilm.playbackEntryAt(scene.cut.entries, seconds)),
   };
 }

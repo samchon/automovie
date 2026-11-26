@@ -1,8 +1,4 @@
-import {
-  playbackCursor,
-  playbackLayersAt,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMoviePlaybackLayer,
   IAutoMoviePlaybackSample,
@@ -99,13 +95,13 @@ function layered(
  *    the live layer the sample's shot and the outgoing layer its blend.
  */
 export function test_engine_film_playback_layers(): void {
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     SEQUENCE,
     SHOTS,
   );
   const at: (seconds: number) => IAutoMoviePlaybackLayer[] = (
     seconds: number,
-  ): IAutoMoviePlaybackLayer[] => playbackLayersAt(SEQUENCE, timeline, seconds);
+  ): IAutoMoviePlaybackLayer[] => AutoMovieEngineFilm.playbackLayersAt(SEQUENCE, timeline, seconds);
 
   // 1. Direct.
   TestValidator.predicate(
@@ -159,7 +155,7 @@ export function test_engine_film_playback_layers(): void {
   );
 
   // 7. The layers sit on the cursor's samples.
-  const cursor: (seconds: number) => IAutoMoviePlaybackSample = playbackCursor(
+  const cursor: (seconds: number) => IAutoMoviePlaybackSample = AutoMovieEngineFilm.playbackCursor(
     SEQUENCE,
     timeline,
   );

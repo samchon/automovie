@@ -1,4 +1,4 @@
-import { cutSequence } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEditorialMarker,
   IAutoMoviePlaybackEditorialMarker,
@@ -46,12 +46,12 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
   };
   const renderSequence: (
     source: IAutoMovieShot,
-    entries: Parameters<typeof cutSequence>[0]["entries"],
+    entries: Parameters<typeof AutoMovieEngineFilm.cutSequence>[0]["entries"],
   ) => ReturnType<typeof planSequenceRender> = (
     source: IAutoMovieShot,
-    entries: Parameters<typeof cutSequence>[0]["entries"],
+    entries: Parameters<typeof AutoMovieEngineFilm.cutSequence>[0]["entries"],
   ): ReturnType<typeof planSequenceRender> => {
-    const cut: ReturnType<typeof cutSequence> = cutSequence(
+    const cut: ReturnType<typeof AutoMovieEngineFilm.cutSequence> = AutoMovieEngineFilm.cutSequence(
       {
         sequence: { id: "marker-playback", name: "Marker playback" },
         fps: 24,
@@ -76,7 +76,7 @@ export function test_render_root_plan_sequence_render_editorial_marker_seam(): v
     });
   };
 
-  const incoming: Parameters<typeof cutSequence>[0]["entries"][number] = {
+  const incoming: Parameters<typeof AutoMovieEngineFilm.cutSequence>[0]["entries"][number] = {
     shot: shot.id,
     trim: { start: seam, duration: 0.25 },
     transition: null,

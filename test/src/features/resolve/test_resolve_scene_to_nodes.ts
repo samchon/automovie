@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, composeScene, motionToClip, resolveFrame, sceneToNodes } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, composeScene, resolveFrame, sceneToNodes, AutoMovieEngineMotionClip } from "@automovie/engine";
 import {
   IAutoMovieModel,
   type IAutoMovieMotion,
@@ -190,7 +190,7 @@ export function test_resolve_scene_to_nodes(): void {
     [keyframe(0, pose), keyframe(1, pose)],
     1,
   );
-  const bridge: IAutoMovieMotionClipBridge = motionToClip({
+  const bridge: IAutoMovieMotionClipBridge = AutoMovieEngineMotionClip.motionToClip({
     motion: held,
     skeleton,
     nodePrefix: "actor/",

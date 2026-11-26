@@ -1,8 +1,4 @@
-import {
-  AutoMovieEngineCanonicalJson,
-  autoMovieRenderDigest,
-  digestAutoMovieBytes,
-} from "@automovie/engine";
+import { AutoMovieEngineCanonicalJson, AutoMovieEngineRenderTarget, AutoMovieEnginePicture } from "@automovie/engine";
 import type {
   IAutoMovieAdmitProductionTtsReceipt,
   IAutoMovieDecodedProductionAudioAsset,
@@ -85,7 +81,7 @@ export function admitProductionTtsReceipt(
   native.samples.forEach((sample: number, index: number): void =>
     view.setFloat32(index * 4, sample, true),
   );
-  const digest: string = digestAutoMovieBytes(bytes);
+  const digest: string = AutoMovieEnginePicture.digestAutoMovieBytes(bytes);
   if (digest !== receipt.pcmDigest)
     fail(
       "pcmDigest",
@@ -111,7 +107,7 @@ export function admitProductionTtsReceipt(
     },
   );
 
-  const cacheKey: string = autoMovieRenderDigest(
+  const cacheKey: string = AutoMovieEngineRenderTarget.autoMovieRenderDigest(
     AutoMovieEngineCanonicalJson.canonicalize([
       receipt.text,
       receipt.model,

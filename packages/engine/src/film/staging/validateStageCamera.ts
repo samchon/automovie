@@ -6,8 +6,8 @@ import type {
 
 import { Vector3 } from "../../math/Vector3";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
-import { validateCameraClearanceEnvelope } from "./validateCameraClearanceEnvelope";
-import { validateCameraDepthPrecision } from "./validateCameraDepthPrecision";
+import { validateCameraClearanceEnvelope } from "./internal/validateCameraClearanceEnvelope";
+import { validateCameraDepthPrecision } from "./internal/validateCameraDepthPrecision";
 
 /** A camera and its target closer than this, in metres, have no look axis. */
 const LOOK_DISTANCE_EPSILON: number = 1e-9;

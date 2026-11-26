@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, seededSmoothNoise, warpRoot } from "@automovie/engine";
+import { AutoMovieEngineRandom, seededSmoothNoise, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 
 import type {
   IAutoMovieRandom,
@@ -139,7 +139,7 @@ export function test_engine_motion_seeded_warp(): void {
     start: 0.5,
     end: 1.5,
   };
-  const moved = (t: number): IAutoMovieTransform => warpRoot(root, warp, t);
+  const moved = (t: number): IAutoMovieTransform => AutoMovieEngineMotionTrajectory.warpRoot(root, warp, t);
   const end: IAutoMovieTransform = moved(warp.end);
   const h: number = 1e-5;
   TestValidator.predicate(
@@ -154,7 +154,7 @@ export function test_engine_motion_seeded_warp(): void {
         1e-6 &&
       throwsError(
         (): IAutoMovieTransform =>
-          warpRoot(root, { ...warp, end: warp.start }, 1),
+          AutoMovieEngineMotionTrajectory.warpRoot(root, { ...warp, end: warp.start }, 1),
       ),
   );
 }

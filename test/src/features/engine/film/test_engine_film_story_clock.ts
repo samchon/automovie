@@ -1,8 +1,4 @@
-import {
-  autoMovieStoryInterval,
-  autoMovieStoryTime,
-  evaluateAutoMovieStorySync,
-} from "@automovie/engine";
+import { autoMovieStoryInterval, autoMovieStoryTime, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieShotStoryTime,
   IAutoMovieStorySyncPoint,
@@ -46,15 +42,15 @@ const sync: (
     pin?: (shot: string) => IAutoMovieShotStoryTime | null;
     realized?: (shot: string, event: string) => number | null;
   },
-) => ReturnType<typeof evaluateAutoMovieStorySync> = (
+) => ReturnType<typeof AutoMovieEngineFilm.evaluateAutoMovieStorySync> = (
   events: ReadonlyArray<{ shot: string; event: string }>,
   toleranceSeconds: number,
   overrides: {
     pin?: (shot: string) => IAutoMovieShotStoryTime | null;
     realized?: (shot: string, event: string) => number | null;
   } = {},
-): ReturnType<typeof evaluateAutoMovieStorySync> =>
-  evaluateAutoMovieStorySync({
+): ReturnType<typeof AutoMovieEngineFilm.evaluateAutoMovieStorySync> =>
+  AutoMovieEngineFilm.evaluateAutoMovieStorySync({
     events,
     toleranceSeconds,
     pin:

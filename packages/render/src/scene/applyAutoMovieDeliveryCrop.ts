@@ -1,4 +1,4 @@
-import { resolveAutoMovieDeliveryCrop } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieDeliveryCrop } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -21,7 +21,7 @@ export const applyAutoMovieDeliveryCrop: (
   camera: THREE.PerspectiveCamera,
   crop: IAutoMovieDeliveryCrop | undefined,
 ): void => {
-  const resolved: IAutoMovieDeliveryCrop = resolveAutoMovieDeliveryCrop(crop);
+  const resolved: IAutoMovieDeliveryCrop = AutoMovieEngineFilm.resolveAutoMovieDeliveryCrop(crop);
   if (
     resolved.left === 0 &&
     resolved.top === 0 &&

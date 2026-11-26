@@ -1,8 +1,4 @@
-import {
-  compileDefinedShot,
-  defineShot,
-  makeActorSynthesizer,
-} from "@automovie/engine";
+import { compileDefinedShot, makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -152,7 +148,7 @@ function compileSupport(
     reviewFrames: [{ id: "middle", time: seconds / 2, passes: ["beauty"] }],
   };
   return compileDefinedShot({
-    shot: defineShot("level-support", {
+    shot: AutoMovieEngineFilm.defineShot("level-support", {
       scene: stage.scene.id,
       contract: shotContract,
       build: (): IAutoMovieShotProgram => ({

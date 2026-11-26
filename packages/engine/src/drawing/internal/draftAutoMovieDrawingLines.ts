@@ -13,7 +13,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { autoMovieBoundaryShellTriangles } from "./autoMovieBoundaryShellTriangles";
 import { autoMovieDrawingCutEdges } from "./autoMovieDrawingCutEdges";
 import { autoMovieDrawingElementTriangles } from "./autoMovieDrawingElementTriangles";

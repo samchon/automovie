@@ -23,8 +23,8 @@ import {
 
 import { validateBuiltEnvironment } from "../../architecture/internal/validateBuiltEnvironment";
 import { Vector3 } from "../../math/Vector3";
-import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingExtent } from "./autoMovieDrawingExtent";
 import { autoMovieDrawingFrame } from "./autoMovieDrawingFrame";

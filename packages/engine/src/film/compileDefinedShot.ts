@@ -19,14 +19,14 @@ import {
   type IAutoMovieStagedSet,
 } from "@automovie/interface";
 
-import { blockBeat } from "./blockBeat";
-import { performShot } from "./performShot";
-import { realizeShotContract } from "./realizeShotContract";
-import { resolveBeatEnd } from "./resolveBeatEnd";
-import { resolveBeatOpening } from "./resolveBeatOpening";
+import { blockBeat } from "./internal/blockBeat";
+import { performShot } from "./internal/performShot";
+import { realizeShotContract } from "./internal/realizeShotContract";
+import { resolveBeatEnd } from "./internal/resolveBeatEnd";
+import { resolveBeatOpening } from "./internal/resolveBeatOpening";
 import { stageScene } from "./stageScene";
-import { validateShotPhysicsAdvice } from "./validateShotPhysicsAdvice";
-import { validateShotProgramContract } from "./validateShotProgramContract";
+import { validateShotPhysicsAdvice } from "./internal/validateShotPhysicsAdvice";
+import { validateShotProgramContract } from "./internal/validateShotProgramContract";
 
 /** Prior beat state per actor node, read once for every resume step. */
 type IPriorActors = ReadonlyMap<string, IAutoMovieBeatEndActorState>;

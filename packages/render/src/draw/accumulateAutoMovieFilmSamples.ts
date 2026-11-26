@@ -1,4 +1,4 @@
-import { planAutoMovieFilmSamples } from "@automovie/engine";
+import { AutoMovieEngineFilmResponse } from "@automovie/engine";
 import type {
   IAutoMovieFilmOptics,
   IAutoMoviePlanFilmSamples,
@@ -88,7 +88,7 @@ export async function accumulateAutoMovieFilmSamples(props: {
     draw: () => void,
   ) => void;
 }): Promise<IAutoMoviePlanFilmSamples.ISample[]> {
-  const samples: IAutoMoviePlanFilmSamples.ISample[] = planAutoMovieFilmSamples(
+  const samples: IAutoMoviePlanFilmSamples.ISample[] = AutoMovieEngineFilmResponse.planAutoMovieFilmSamples(
     {
       seconds: props.seconds,
       fps: props.fps,

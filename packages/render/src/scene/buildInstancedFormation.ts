@@ -1,13 +1,4 @@
-import {
-  composeFormationHeroTransform,
-  formationCadenceSegments,
-  formationSlotPosition,
-  intersectsPerspectiveFrustumSphere,
-  rotateFormationLocalOffset,
-  sampleFormationMotion,
-  sampleFormationSlotMotion,
-  selectFormationLod,
-} from "@automovie/engine";
+import { composeFormationHeroTransform, formationCadenceSegments, formationSlotPosition, rotateFormationLocalOffset, sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieCompiledFormationHero,
   IAutoMovieCompiledFormationLod,
@@ -567,7 +558,7 @@ export const buildInstancedFormation: (
                 Math.abs(transformed.scale.y),
                 Math.abs(transformed.scale.z),
               );
-            object.visible = intersectsPerspectiveFrustumSphere({
+            object.visible = AutoMovieEngineFilm.intersectsPerspectiveFrustumSphere({
               camera: {
                 position: {
                   x: cameraPosition.x,

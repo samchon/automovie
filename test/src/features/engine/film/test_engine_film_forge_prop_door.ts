@@ -1,4 +1,4 @@
-import { forgeProp, resolveFrame } from "@automovie/engine";
+import { resolveFrame, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieClip,
   type IAutoMovieForgedProp,
@@ -72,7 +72,7 @@ function basisX(m: number[]): [number, number, number] {
  *    violations tagged by the forged profile's id.
  */
 export function test_engine_film_forge_prop_door(): void {
-  const forged: IAutoMovieForgedProp = forgeProp(createDoorPropSpec());
+  const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(createDoorPropSpec());
   TestValidator.equals("the door forges", forged.success, true);
   if (forged.success !== true) return;
 

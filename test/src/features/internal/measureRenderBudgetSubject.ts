@@ -1,7 +1,4 @@
-import {
-  deriveAutoMovieSemanticMask,
-  measureAutoMovieRenderInventory,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderSemanticMask, AutoMovieEngineRenderMeasure } from "@automovie/engine";
 import {
   IAutoMovieRenderInventory,
   type IAutoMovieRenderSubject,
@@ -13,7 +10,7 @@ export const measureRenderBudgetSubject: (
 ) => IAutoMovieRenderInventory = (
   subject: IAutoMovieRenderSubject,
 ): IAutoMovieRenderInventory =>
-  measureAutoMovieRenderInventory({
+  AutoMovieEngineRenderMeasure.measureAutoMovieRenderInventory({
     subject,
-    mask: deriveAutoMovieSemanticMask(subject),
+    mask: AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask(subject),
   });

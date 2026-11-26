@@ -1,10 +1,12 @@
-export * from "./lightTypeOf";
-export * from "./lowerCameraClearanceEnvelope";
-export * from "./lowerLightPlacement";
-export * from "./setPieceMatrix";
-export * from "./setPieceScale";
-export * from "./setPieceTransform";
-export * from "./validateCameraClearanceEnvelope";
-export * from "./validateCameraDepthPrecision";
-export * from "./validateFogPlacement";
-export * from "./validateLightPlacementShape";
+
+
+
+
+
+
+
+
+
+
+
+export { AutoMovieEngineStaging } from "./AutoMovieEngineStaging";

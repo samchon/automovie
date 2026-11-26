@@ -24,13 +24,13 @@ import { sampleMotion } from "../motion/sampleMotion";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { validateModel } from "../validation/validateModel";
-import { cameraClearanceDeformationRadius } from "./cameraClearanceDeformationRadius";
-import { cameraClearanceSampleTimes } from "./cameraClearanceSampleTimes";
-import { computeModelRestExtent } from "./computeModelRestExtent";
+import { cameraClearanceDeformationRadius } from "./internal/cameraClearanceDeformationRadius";
+import { cameraClearanceSampleTimes } from "./internal/cameraClearanceSampleTimes";
+import { computeModelRestExtent } from "./internal/computeModelRestExtent";
 import { evaluateCameraClearance } from "./evaluateCameraClearance";
-import { foldRoot } from "./foldRoot";
-import { nodeSubjectBox } from "./nodeSubjectBox";
-import { resolveCameraAt } from "./resolveCameraAt";
+import { foldRoot } from "./internal/foldRoot";
+import { nodeSubjectBox } from "./internal/nodeSubjectBox";
+import { resolveCameraAt } from "./internal/resolveCameraAt";
 
 /** One take's input to the evaluator. */
 type IEvaluation = [IAutoMovieCameraClearanceEvaluation][0];

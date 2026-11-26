@@ -1,7 +1,4 @@
-import {
-  classifyAutoMoviePlaybackBoundary,
-  measureAutoMoviePlacedContinuity,
-} from "@automovie/engine";
+import { measureAutoMoviePlacedContinuity, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClassifyPlaybackBoundary,
   IAutoMoviePlacedContinuity,
@@ -191,7 +188,7 @@ function trackChecks(
   const before: number =
     frame === undefined ? after - 1 / props.fps : (frame - 1) / props.fps;
   const classify = (from: number): IAutoMovieClassifyPlaybackBoundary.IResult =>
-    classifyAutoMoviePlaybackBoundary({
+    AutoMovieEngineFilm.classifyAutoMoviePlaybackBoundary({
       sequence: continuity.sequence,
       timeline: continuity.timeline,
       before: from,

@@ -5,8 +5,8 @@ import type {
   IAutoMovieRenderedProductionSound,
 } from "@automovie/interface";
 
-import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { productionFrameBoundaryToGridTick } from "../film/internal/productionFrameBoundaryToGridTick";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 import { AUTOMOVIE_TRUE_PEAK_LIMITER } from "./AUTOMOVIE_TRUE_PEAK_LIMITER";
 import { analyzeProductionSound } from "./analyzeProductionSound";
 import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";

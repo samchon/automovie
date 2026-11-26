@@ -7,7 +7,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { heskestadFlameHeight } from "../film/flame/heskestadFlameHeight";
+import { heskestadFlameHeight } from "../film/flame/internal/heskestadFlameHeight";
 import { validateColor } from "./validateColor";
 
 /** A flame uses its registered model only to find the declared emitter. */

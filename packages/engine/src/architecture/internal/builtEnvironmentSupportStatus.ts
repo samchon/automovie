@@ -12,7 +12,7 @@ import {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { propSupportGap } from "../../film/propSupportGap";
+import { propSupportGap } from "../../film/internal/propSupportGap";
 import { AutoMovieEngineSpace } from "../../space/index";
 
 

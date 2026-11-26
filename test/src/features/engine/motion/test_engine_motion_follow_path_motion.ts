@@ -1,4 +1,4 @@
-import { followPathMotion, AutoMovieEngineMotionSampling } from "@automovie/engine";
+import { AutoMovieEngineMotionSampling, AutoMovieEngineMotionTrajectory } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -26,8 +26,8 @@ const END: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
 export function test_engine_motion_follow_path_motion(): void {
   const walk = (
     waypoints: IAutoMovieVector3[],
-  ): ReturnType<typeof followPathMotion> =>
-    followPathMotion({
+  ): ReturnType<typeof AutoMovieEngineMotionTrajectory.followPathMotion> =>
+    AutoMovieEngineMotionTrajectory.followPathMotion({
       id: "path",
       gait: { ...createValidMotion(), loop: true },
       waypoints,
@@ -43,9 +43,9 @@ export function test_engine_motion_follow_path_motion(): void {
   // 2. Refusals.
   TestValidator.predicate(
     "no path without two distinct waypoints",
-    throwsError((): ReturnType<typeof followPathMotion> => walk([START])) &&
+    throwsError((): ReturnType<typeof AutoMovieEngineMotionTrajectory.followPathMotion> => walk([START])) &&
       throwsError(
-        (): ReturnType<typeof followPathMotion> => walk([START, START]),
+        (): ReturnType<typeof AutoMovieEngineMotionTrajectory.followPathMotion> => walk([START, START]),
       ),
   );
 

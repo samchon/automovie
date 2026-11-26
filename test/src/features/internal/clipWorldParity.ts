@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, Matrix4, motionToClip, resolveFrame, sampleMotion } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, resolveFrame, sampleMotion, AutoMovieEngineMotionClip } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
@@ -43,7 +43,7 @@ export const clipWorldParity: (props: {
   posEps?: number;
   rotEps?: number;
 }): boolean => {
-  const bridge: IAutoMovieMotionClipBridge = motionToClip({
+  const bridge: IAutoMovieMotionClipBridge = AutoMovieEngineMotionClip.motionToClip({
     motion: props.motion,
     skeleton: props.skeleton,
     jointAxes: props.jointAxes,

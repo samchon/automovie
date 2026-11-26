@@ -1,4 +1,4 @@
-import { playbackEntryAt, playbackEntryTime } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMoviePlaybackEntry,
   IAutoMoviePlaybackLayer,
@@ -54,13 +54,13 @@ export async function placeAutoMovieDrawLayer(
     );
   if (
     seconds >= entry.start &&
-    playbackEntryAt(entries, seconds).entry === layer.entry
+    AutoMovieEngineFilm.playbackEntryAt(entries, seconds).entry === layer.entry
   )
     return scene.seek(seconds);
   if (scene.seekShot !== undefined)
     return scene.seekShot(
       layer.shot,
-      playbackEntryTime(entry, seconds),
+      AutoMovieEngineFilm.playbackEntryTime(entry, seconds),
       seconds,
     );
 

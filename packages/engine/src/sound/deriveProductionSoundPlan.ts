@@ -22,7 +22,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveCameraAt } from "../film/resolveCameraAt";
+import { resolveCameraAt } from "../film/internal/resolveCameraAt";
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { sampleFormationMotion } from "../populationRuntime/formation/sampleFormationMotion";

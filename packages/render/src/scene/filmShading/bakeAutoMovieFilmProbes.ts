@@ -1,7 +1,4 @@
-import {
-  autoMovieIrradianceGrid,
-  projectAutoMovieIrradianceProbe,
-} from "@automovie/engine";
+import { AutoMovieEngineFilmShading } from "@automovie/engine";
 import type {
   IAutoMovieFilmShading,
   IAutoMovieIrradianceProbe,
@@ -73,8 +70,8 @@ export function bakeAutoMovieFilmProbes(props: {
     throw new Error(
       "Film shading probes need a renderer that can clear and read back targets",
     );
-  const grid: ReturnType<typeof autoMovieIrradianceGrid> =
-    autoMovieIrradianceGrid(probes);
+  const grid: ReturnType<typeof AutoMovieEngineFilmShading.autoMovieIrradianceGrid> =
+    AutoMovieEngineFilmShading.autoMovieIrradianceGrid(probes);
   const target: THREE.WebGLRenderTarget = new THREE.WebGLRenderTarget(
     6 * FACE,
     FACE,
@@ -195,7 +192,7 @@ export function bakeAutoMovieFilmProbes(props: {
           };
         },
       );
-      probesBaked.push(projectAutoMovieIrradianceProbe({ size: FACE, faces }));
+      probesBaked.push(AutoMovieEngineFilmShading.projectAutoMovieIrradianceProbe({ size: FACE, faces }));
     }
   } finally {
     scene.background = prior.background;

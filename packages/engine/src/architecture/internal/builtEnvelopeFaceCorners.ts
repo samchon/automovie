@@ -5,7 +5,7 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { ObservationGeometry } from "./ObservationGeometry";
 
 /**

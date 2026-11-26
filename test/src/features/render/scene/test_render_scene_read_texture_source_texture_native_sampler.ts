@@ -1,7 +1,4 @@
-import {
-  autoMovieRenderTextureDigest,
-  measureAutoMovieRenderTextureClosure,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderTexture } from "@automovie/engine";
 import type { IAutoMovieRenderTextureSource } from "@automovie/interface";
 import { readAutoMovieTextureSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -46,16 +43,16 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   );
   const close: (
     source?: IAutoMovieRenderTextureSource,
-  ) => ReturnType<typeof measureAutoMovieRenderTextureClosure> = (
+  ) => ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> = (
     source: IAutoMovieRenderTextureSource = second,
-  ): ReturnType<typeof measureAutoMovieRenderTextureClosure> =>
-    measureAutoMovieRenderTextureClosure({
+  ): ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure> =>
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: [material("first", "a"), material("second", "b")],
       sources: [first, source],
       environment: null,
     }).filter(
       (
-        row: ReturnType<typeof measureAutoMovieRenderTextureClosure>[number],
+        row: ReturnType<typeof AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure>[number],
       ): boolean => row.asset !== null,
     );
   TestValidator.equals(
@@ -72,10 +69,10 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
     ),
     [84],
   );
-  const digest: string = autoMovieRenderTextureDigest([second]);
+  const digest: string = AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest([second]);
   TestValidator.predicate(
     "native filter changes freshness",
-    autoMovieRenderTextureDigest([{ ...first, asset: "b" }]) !== digest,
+    AutoMovieEngineRenderTexture.autoMovieRenderTextureDigest([{ ...first, asset: "b" }]) !== digest,
   );
   const fixed: [DataTexture, DataTexture] = [a.clone(), a.clone()];
   fixed[0].anisotropy = 2;
@@ -90,7 +87,7 @@ export async function test_render_scene_read_texture_source_texture_native_sampl
   );
   TestValidator.equals(
     "fixed native variants retain two bounds",
-    measureAutoMovieRenderTextureClosure({
+    AutoMovieEngineRenderTexture.measureAutoMovieRenderTextureClosure({
       materials: fixedFacts.map(
         (
           source: IAutoMovieRenderTextureSource,

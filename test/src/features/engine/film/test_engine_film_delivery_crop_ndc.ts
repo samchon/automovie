@@ -1,4 +1,4 @@
-import { deliveryCropNdc } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieDeliveryCropNdc } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -29,8 +29,8 @@ export function test_engine_film_delivery_crop_ndc(): void {
   TestValidator.equals(
     "each crop in device coordinates",
     [
-      deliveryCropNdc(undefined),
-      deliveryCropNdc({ left: 0.25, top: 0.125, right: 0.75, bottom: 0.875 }),
+      AutoMovieEngineFilm.deliveryCropNdc(undefined),
+      AutoMovieEngineFilm.deliveryCropNdc({ left: 0.25, top: 0.125, right: 0.75, bottom: 0.875 }),
     ],
     [
       whole,
@@ -48,7 +48,7 @@ export function test_engine_film_delivery_crop_ndc(): void {
   TestValidator.predicate(
     "an unordered crop is refused",
     throwsError(
-      () => deliveryCropNdc({ left: 0.75, top: 0, right: 0.25, bottom: 1 }),
+      () => AutoMovieEngineFilm.deliveryCropNdc({ left: 0.75, top: 0, right: 0.25, bottom: 1 }),
       "ordered",
     ),
   );

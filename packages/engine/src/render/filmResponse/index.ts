@@ -1,6 +1,8 @@
 export * from "./AUTOMOVIE_FILM_GLARE_KERNELS";
 export * from "./AUTOMOVIE_REC709_XYZ";
-export * from "./autoMovieFilmResponseMatrix";
-export * from "./autoMoviePlanckianWhite";
-export * from "./planAutoMovieFilmSamples";
-export * from "./respondAutoMovieFilmColor";
+
+
+
+
+
+export { AutoMovieEngineFilmResponse } from "./AutoMovieEngineFilmResponse";

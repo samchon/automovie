@@ -1,10 +1,4 @@
-import {
-  autoMovieFlameNodeName,
-  autoMovieFluidSurfaceNodeName,
-  autoMoviePlantingNodeName,
-  autoMovieSoftBodyNodeName,
-  autoMovieSurfaceGraphicNodeName,
-} from "@automovie/engine";
+import { autoMovieFlameNodeName, AutoMovieEngineRenderNode } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -20,16 +14,16 @@ export function test_engine_render_node_names(): void {
     "two-part names",
     [
       autoMovieFlameNodeName("torch", "cue1"),
-      autoMovieSurfaceGraphicNodeName("wall", "sign"),
+      AutoMovieEngineRenderNode.autoMovieSurfaceGraphicNodeName("wall", "sign"),
     ],
     ["flame:torch/cue1", "surface-graphic:wall/sign"],
   );
   TestValidator.equals(
     "one-part names",
     [
-      autoMovieFluidSurfaceNodeName("lake"),
-      autoMoviePlantingNodeName("orchard"),
-      autoMovieSoftBodyNodeName("cloth"),
+      AutoMovieEngineRenderNode.autoMovieFluidSurfaceNodeName("lake"),
+      AutoMovieEngineRenderNode.autoMoviePlantingNodeName("orchard"),
+      AutoMovieEngineRenderNode.autoMovieSoftBodyNodeName("cloth"),
     ],
     ["water:lake", "planting:orchard", "soft:cloth"],
   );

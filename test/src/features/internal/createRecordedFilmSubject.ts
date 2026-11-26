@@ -1,4 +1,4 @@
-import { sequenceTimeline } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieFilmOptics,
   IAutoMovieSequence,
@@ -69,7 +69,7 @@ export function createRecordedFilmSubject(props: {
     width: 64,
     height: 36,
     sequence,
-    cut: sequenceTimeline(sequence, [shot("shot:a", 3), shot("shot:b", 4)]),
+    cut: AutoMovieEngineFilm.sequenceTimeline(sequence, [shot("shot:a", 3), shot("shot:b", 4)]),
     seek: async (seconds: number): Promise<void> => {
       calls.push({ name: "seek", shot: null, numbers: [seconds] });
       show(seconds < start ? "shot:a" : "shot:b");

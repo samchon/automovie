@@ -6,7 +6,7 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { resolveAutoMovieShadowProfile } from "../render/resolveAutoMovieShadowProfile";
+import { resolveAutoMovieShadowProfile } from "../render/internal/resolveAutoMovieShadowProfile";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
 import { validateColor } from "./validateColor";
 

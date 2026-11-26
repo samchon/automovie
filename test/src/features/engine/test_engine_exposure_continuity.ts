@@ -1,4 +1,4 @@
-import { checkAutoMovieExposureContinuity } from "@automovie/engine";
+import { AutoMovieEngineExposure } from "@automovie/engine";
 import type { IAutoMovieCheckExposureContinuity } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -43,13 +43,13 @@ export function test_engine_exposure_continuity(): void {
   ];
   TestValidator.equals(
     "one jump between the second and third cuts",
-    checkAutoMovieExposureContinuity({ cuts }),
+    AutoMovieEngineExposure.checkAutoMovieExposureContinuity({ cuts }),
     expected,
   );
 
   TestValidator.equals(
     "an interleaved location is compared only with its own cuts",
-    checkAutoMovieExposureContinuity({
+    AutoMovieEngineExposure.checkAutoMovieExposureContinuity({
       cuts: [
         cuts[0]!,
         cuts[1]!,
@@ -64,8 +64,8 @@ export function test_engine_exposure_continuity(): void {
   TestValidator.equals(
     "a wider tolerance reports nothing, and the boundary is allowed",
     [
-      checkAutoMovieExposureContinuity({ cuts, tolerance: 1 }),
-      checkAutoMovieExposureContinuity({
+      AutoMovieEngineExposure.checkAutoMovieExposureContinuity({ cuts, tolerance: 1 }),
+      AutoMovieEngineExposure.checkAutoMovieExposureContinuity({
         cuts: [
           { index: 0, group: kitchen, ev100: 5 },
           { index: 1, group: kitchen, ev100: 5.5 },
@@ -80,7 +80,7 @@ export function test_engine_exposure_continuity(): void {
     "two cuts with one index are refused",
     throwsError(
       (): IAutoMovieCheckExposureContinuity.IFinding[] =>
-        checkAutoMovieExposureContinuity({
+        AutoMovieEngineExposure.checkAutoMovieExposureContinuity({
           cuts: [cuts[0]!, { ...cuts[1]!, index: 0 }],
         }),
       "index 0",

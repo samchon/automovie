@@ -1,9 +1,4 @@
-import {
-  blackbodyAutoMovieColor,
-  heskestadFlameHeight,
-  puffingFrequency,
-  sampleAutoMovieFlame,
-} from "@automovie/engine";
+import { AutoMovieEngineFlame } from "@automovie/engine";
 import type { IAutoMovieFlameCue } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -24,12 +19,12 @@ export function test_engine_film_sample_auto_movie_flame(): void {
   const correlationRoundoff: number = 8 * Number.EPSILON;
   TestValidator.predicate(
     "Heskestad signed height follows the correlation",
-    Math.abs(heskestadFlameHeight(32, 0.5) - 0.43) <= correlationRoundoff &&
-      Math.abs(heskestadFlameHeight(1, 0.5) + 0.275) <= correlationRoundoff,
+    Math.abs(AutoMovieEngineFlame.heskestadFlameHeight(32, 0.5) - 0.43) <= correlationRoundoff &&
+      Math.abs(AutoMovieEngineFlame.heskestadFlameHeight(1, 0.5) + 0.275) <= correlationRoundoff,
   );
   TestValidator.predicate(
     "the quarter-metre bed's frequency",
-    puffingFrequency(0.25) === 3,
+    AutoMovieEngineFlame.puffingFrequency(0.25) === 3,
   );
 
   const cue: Pick<IAutoMovieFlameCue, "id" | "seed" | "size"> = {
@@ -37,7 +32,7 @@ export function test_engine_film_sample_auto_movie_flame(): void {
     seed: 7,
     size: { kind: "small", height: 0.125, radius: 0.03125 },
   };
-  const sampled: ReturnType<typeof sampleAutoMovieFlame> = sampleAutoMovieFlame(
+  const sampled: ReturnType<typeof AutoMovieEngineFlame.sampleAutoMovieFlame> = AutoMovieEngineFlame.sampleAutoMovieFlame(
     cue,
     1.375,
   );
@@ -50,16 +45,16 @@ export function test_engine_film_sample_auto_movie_flame(): void {
       Math.max(...heights) === 0.125 &&
       sampled.area > 0,
   );
-  sampleAutoMovieFlame(cue, 2);
-  sampleAutoMovieFlame(cue, 0);
+  AutoMovieEngineFlame.sampleAutoMovieFlame(cue, 2);
+  AutoMovieEngineFlame.sampleAutoMovieFlame(cue, 0);
   TestValidator.equals(
     "backward and forward seeks give the same seeded mesh and area",
-    sampleAutoMovieFlame(cue, 1.375),
+    AutoMovieEngineFlame.sampleAutoMovieFlame(cue, 1.375),
     sampled,
   );
 
-  const color: ReturnType<typeof blackbodyAutoMovieColor> =
-    blackbodyAutoMovieColor(1900);
+  const color: ReturnType<typeof AutoMovieEngineFlame.blackbodyAutoMovieColor> =
+    AutoMovieEngineFlame.blackbodyAutoMovieColor(1900);
   TestValidator.predicate(
     "warm source orders the primary channels",
     color.r > color.g && color.g > color.b,

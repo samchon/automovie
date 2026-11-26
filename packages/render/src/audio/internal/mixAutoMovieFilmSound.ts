@@ -1,4 +1,4 @@
-import { AutoMovieEngineRandom, AutoMovieEngineSound, autoMovieRenderDigest, AutoMovieEngineCanonicalJson, digestAutoMovieBytes, utf8Bytes } from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineSound, AutoMovieEngineCanonicalJson, AutoMovieEngineRenderTarget, AutoMovieEnginePicture } from "@automovie/engine";
 
 import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
@@ -68,7 +68,7 @@ export async function mixAutoMovieFilmSound(
   for (const cue of sound.cues) {
     if (assets.has(cue.asset)) continue;
     const bytes: Uint8Array = await read(cue.asset);
-    assetDigests[cue.asset] = digestAutoMovieBytes(bytes);
+    assetDigests[cue.asset] = AutoMovieEnginePicture.digestAutoMovieBytes(bytes);
     assets.set(
       cue.asset,
       AutoMovieIngestAudio.decodeAsset({
@@ -79,7 +79,7 @@ export async function mixAutoMovieFilmSound(
     );
   }
 
-  const fingerprint: string = autoMovieRenderDigest(
+  const fingerprint: string = AutoMovieEngineRenderTarget.autoMovieRenderDigest(
     AutoMovieEngineCanonicalJson.canonicalize({
       sound,
       lines: lines.map(
@@ -119,7 +119,7 @@ export async function mixAutoMovieFilmSound(
       ): IAutoMovieProductionSoundPlan["cues"][number] => ({
         ...cue,
         seed: Number.parseInt(
-          AutoMovieEngineRandom.hashFnv1a64(utf8Bytes(`${fingerprint}|cue|${cue.id}`)).slice(
+          AutoMovieEngineRandom.hashFnv1a64(AutoMovieEnginePicture.utf8Bytes(`${fingerprint}|cue|${cue.id}`)).slice(
             8,
           ),
           16,
@@ -168,7 +168,7 @@ export async function mixAutoMovieFilmSound(
   const wav: Uint8Array = encodeAutoMovieWavPcm16(left, right, SAMPLE_RATE);
   return {
     wav,
-    sha256: digestAutoMovieBytes(wav),
+    sha256: AutoMovieEnginePicture.digestAutoMovieBytes(wav),
     plan,
     analysis: rendered.analysis,
     loudness: rendered.loudness,

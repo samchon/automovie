@@ -1,12 +1,4 @@
-import {
-  AutoMovieEngineWorld,
-  Quaternion,
-  Vector3,
-  bakedTransformFromClipsAt,
-  heightAt,
-  sampleClipSequence,
-  sampleMotion,
-} from "@automovie/engine";
+import { AutoMovieEngineWorld, Quaternion, Vector3, heightAt, sampleClipSequence, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieMotion,
   IAutoMovieMotionHumanBody,
@@ -274,7 +266,7 @@ export function test_environment_production(): void {
   const getFloor = (node: string): IAutoMovieVector3 =>
     floors.find((actor) => actor.node === node)!.transform.translation;
   const cab = (time: number): IAutoMovieVector3 =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       bridge.shot.source.shot.objectMotions,
       "campus/lift/cab",
       time,
@@ -303,7 +295,7 @@ export function test_environment_production(): void {
   const park: compileEnvironmentExample.IOutput =
     compileEnvironmentExample(parkInput);
   const coaster = (time: number): IAutoMovieVector3 =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       park.shot.source.shot.objectMotions,
       "park/coaster/carrier",
       time,
@@ -331,7 +323,7 @@ export function test_environment_production(): void {
     compileEnvironmentExample(trainInput);
   const rider: string = trainInput.actors[0]!.node;
   const coach = (time: number): IAutoMovieVector3 =>
-    bakedTransformFromClipsAt(
+    AutoMovieEngineFilm.bakedTransformFromClipsAt(
       train.shot.source.shot.objectMotions,
       "rail/shuttle/carrier",
       time,

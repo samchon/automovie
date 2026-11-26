@@ -1,4 +1,4 @@
-import { admitMotionTake } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieMotionTake } from "@automovie/interface";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
@@ -26,7 +26,7 @@ export async function readMotionTakeArtifact(
     throw new Error(`take-schema: malformed JSON in ${reference}`, { cause });
   }
   return {
-    take: admitMotionTake(raw),
+    take: AutoMovieEngineFilm.admitMotionTake(raw),
     sha256: createHash("sha256").update(bytes).digest("hex"),
   };
 }

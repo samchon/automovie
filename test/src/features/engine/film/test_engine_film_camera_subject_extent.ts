@@ -1,9 +1,4 @@
-import {
-  FRAMING_AIM_FRACTION,
-  FRAMING_HEIGHT_FRACTION,
-  computeModelRestExtentY,
-  computeRestHeight,
-} from "@automovie/engine";
+import { FRAMING_AIM_FRACTION, FRAMING_HEIGHT_FRACTION, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieModel,
   IAutoMovieModelPart,
@@ -142,9 +137,9 @@ const model: () => IAutoMovieModel = (): IAutoMovieModel => ({
  *    own fallback in charge instead of inventing a height.
  */
 export function test_engine_film_camera_subject_extent(): void {
-  const jointSpan: number = computeRestHeight(skeleton());
-  const extent: ReturnType<typeof computeModelRestExtentY> =
-    computeModelRestExtentY(model());
+  const jointSpan: number = AutoMovieEngineFilm.computeRestHeight(skeleton());
+  const extent: ReturnType<typeof AutoMovieEngineFilm.computeModelRestExtentY> =
+    AutoMovieEngineFilm.computeModelRestExtentY(model());
 
   TestValidator.predicate(
     "the rig measurement is the joint span, not the figure",
@@ -205,8 +200,8 @@ export function test_engine_film_camera_subject_extent(): void {
     ],
     skeleton: null,
   };
-  const propExtent: ReturnType<typeof computeModelRestExtentY> =
-    computeModelRestExtentY(prop);
+  const propExtent: ReturnType<typeof AutoMovieEngineFilm.computeModelRestExtentY> =
+    AutoMovieEngineFilm.computeModelRestExtentY(prop);
   TestValidator.equals(
     "a rigless prop measures from its own geometry",
     namedFacts([
@@ -227,7 +222,7 @@ export function test_engine_film_camera_subject_extent(): void {
   );
   TestValidator.equals(
     "a model with nothing drawn measures nothing",
-    computeModelRestExtentY({ ...model(), parts: [] }),
+    AutoMovieEngineFilm.computeModelRestExtentY({ ...model(), parts: [] }),
     null,
   );
 }

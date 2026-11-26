@@ -1,4 +1,4 @@
-import { AutoMovieEngineSpace, propSupportFace, propSupportGap, surfaceHeightAt, tessellateSurface, validateSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment } from "@automovie/engine";
+import { AutoMovieEngineSpace, surfaceHeightAt, tessellateSurface, validateSpace, AutoMovieEngineDrawing, AutoMovieEngineBuiltEnvironment, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   AutoMovieSurfaceKind,
   IAutoMovieBuiltEnvironment,
@@ -239,7 +239,7 @@ export const assertFootprintVoidGeometry: (
   );
 
   const environment: IAutoMovieBuiltEnvironment = gallery();
-  const face: IAutoMoviePropSupportFace = propSupportFace({
+  const face: IAutoMoviePropSupportFace = AutoMovieEngineFilm.propSupportFace({
     target: { kind: "surface", environment: "gallery", surface: "plate" },
     environments: [environment],
   })!;
@@ -266,16 +266,16 @@ export const assertFootprintVoidGeometry: (
       [
         "aCrateOverAnArmBears",
         (): boolean =>
-          nclose(propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
+          nclose(AutoMovieEngineFilm.propSupportGap({ face, bounds: crate(1, 4) }) ?? NaN, 0, 0),
       ],
       [
         "aCrateOverTheAtriumBearsOnNothing",
-        (): boolean => propSupportGap({ face, bounds: crate(4, 4) }) === null,
+        (): boolean => AutoMovieEngineFilm.propSupportGap({ face, bounds: crate(4, 4) }) === null,
       ],
       [
         "aPatchWithNoAreaIsNoFace",
         (): boolean =>
-          propSupportFace({
+          AutoMovieEngineFilm.propSupportFace({
             target: {
               kind: "surface",
               environment: "gallery",

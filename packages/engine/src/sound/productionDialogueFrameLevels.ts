@@ -1,7 +1,7 @@
 import type { IAutoMovieProductionSoundPlan } from "@automovie/interface";
 
-import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { productionFrameBoundaryToGridTick } from "../film/internal/productionFrameBoundaryToGridTick";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 
 /**
  * A dialogue line's frame levels: for each film frame of its span, the RMS

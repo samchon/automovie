@@ -1,8 +1,4 @@
-import {
-  autoMovieRenderDigest,
-  AutoMovieEngineCanonicalJsonError,
-  AutoMovieEngineCanonicalJson,
-} from "@automovie/engine";
+import { AutoMovieEngineCanonicalJsonError, AutoMovieEngineCanonicalJson, AutoMovieEngineRenderTarget } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
@@ -50,9 +46,9 @@ export function test_text_canonical_json_runtime_parity(): void {
   TestValidator.equals(
     "the pure digest reproduces the FIPS 180-4 example digests",
     [
-      autoMovieRenderDigest(""),
-      autoMovieRenderDigest("abc"),
-      autoMovieRenderDigest(
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest(""),
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest("abc"),
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest(
         "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
       ),
     ],
@@ -111,7 +107,7 @@ export function test_text_canonical_json_runtime_parity(): void {
   TestValidator.equals(
     "the pure engine digest equals node:crypto over the hand-written bytes",
     cases.map((item: (typeof cases)[number]): string =>
-      autoMovieRenderDigest(
+      AutoMovieEngineRenderTarget.autoMovieRenderDigest(
         AutoMovieEngineCanonicalJson.canonicalize(item.value),
       ),
     ),
@@ -128,11 +124,11 @@ export function test_text_canonical_json_runtime_parity(): void {
         Z: 3,
       }),
       omitted:
-        autoMovieRenderDigest(
+        AutoMovieEngineRenderTarget.autoMovieRenderDigest(
           AutoMovieEngineCanonicalJson.canonicalize({ skip: undefined, a: 1 }),
         ) === nodeDigest('{"a":1}'),
       changed:
-        autoMovieRenderDigest(
+        AutoMovieEngineRenderTarget.autoMovieRenderDigest(
           AutoMovieEngineCanonicalJson.canonicalize({ a: 2 }),
         ) === nodeDigest('{"a":1}'),
     },

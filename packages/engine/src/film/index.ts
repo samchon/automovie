@@ -1,141 +1,143 @@
 export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
-export * from "./admitMotionTake";
-export * from "./animatedBaseAt";
-export * from "./assertGrammarPositive";
-export * from "./authoredRotationCriticalTimes";
+
+
+
+
 export * from "./autoMovieSectionPlaneDistance";
 export * from "./autoMovieSectionPlanesKeepPoint";
 export * from "./autoMovieStoryInterval";
 export * from "./autoMovieStoryTime";
-export * from "./bakedTransformFromChannels";
-export * from "./bakedTransformFromClipsAt";
-export * from "./beatNodeOf";
-export * from "./blockBeat";
-export * from "./cameraClearanceDeformationRadius";
-export * from "./cameraClearanceSampleTimes";
-export * from "./canonicalProductionFrameRate";
-export * from "./classifyAutoMoviePlaybackBoundary";
-export * from "./classifyAutoMovieSectionPlaneBox";
-export * from "./classifyGrammarShotSize";
+
+
+
+
+
+
+
+
+
+
 export * from "./compileAttach";
 export * from "./compileCameraClearanceReports";
-export * from "./compileCameraCoverage";
-export * from "./compileCameraMove";
+
+
 export * from "./compileDefinedShot";
-export * from "./compileLaunch";
-export * from "./compilePerformShotCameras";
-export * from "./compilePerformShotLaunches";
-export * from "./compilePracticalLightMotion";
-export * from "./computeModelRestExtent";
-export * from "./computeModelRestExtentY";
-export * from "./computeRestHeight";
+
+
+
+
+
+
+
 export * from "./constants";
 export * from "./coupleObjects";
 export * from "./createPerformShotSubjectFramer";
-export * from "./createPropPassageBlocker";
-export * from "./createShotContractSubjectReader";
-export * from "./cutSequence";
-export * from "./defineShot";
-export * from "./deliveryCropNdc";
-export * from "./equalProductionFrameRates";
-export * from "./evaluateAutoMovieCameraDepthPrecision";
-export * from "./evaluateAutoMovieStorySync";
+
+
+
+
+
+
+
+
 export * from "./evaluateCameraClearance";
-export * from "./evaluateShotPredicate";
-export * from "./eventTimeKey";
+
+
 export * from "./flame";
-export * from "./foldRoot";
-export * from "./forgeCast";
-export * from "./forgeProp";
-export * from "./formationMemberExtent";
-export * from "./formationSubjectBox";
-export * from "./framedBoxOf";
-export * from "./gaitPhaseOf";
-export * from "./gateAuthoredObjectMotions";
-export * from "./gatePerformShotActions";
-export * from "./gatePerformShotBlocking";
-export * from "./gatePerformShotCamera";
-export * from "./gatePerformShotFrameOverlaps";
-export * from "./gatePerformShotRegionOverlaps";
-export * from "./gatePerformShotStageAction";
-export * from "./grammarDiagnosticsToReviewNotes";
-export * from "./handoffEvents";
-export * from "./inheritProductionLighting";
-export * from "./inspectGrammarCut";
-export * from "./intersectsPerspectiveFrustumBox";
-export * from "./intersectsPerspectiveFrustumSegment";
-export * from "./intersectsPerspectiveFrustumSphere";
-export * from "./localSegmentMeetsPerspectiveFrustum";
-export * from "./locateOnBeat";
-export * from "./lookRotation";
-export * from "./measureGrammarShotSize";
-export * from "./nodeSubjectBox";
-export * from "./nodeSubjectExtent";
-export * from "./normalizeGrammarShot";
-export * from "./performShot";
-export * from "./performShotActionSpan";
-export * from "./performShotActors";
-export * from "./placeTransformedPoint";
-export * from "./plantPerformShotStanceFeet";
-export * from "./plantsAtEnd";
-export * from "./playbackCursor";
-export * from "./playbackEntryAt";
-export * from "./playbackEntryTime";
-export * from "./playbackFrameSamples";
-export * from "./playbackLayersAt";
-export * from "./playbackSampleAt";
-export * from "./playbackShownLayer";
-export * from "./pointSubjectBox";
-export * from "./preparePlaybackTimeline";
-export * from "./productionFrameBoundaryToGridTick";
-export * from "./productionFrameBoundaryToSeconds";
-export * from "./productionFrameIntervalToGridTicks";
-export * from "./productionRenderLayersForPass";
-export * from "./projectToNdc";
-export * from "./propAnchorFrame";
-export * from "./propBlockedPassages";
-export * from "./propBoundsOverlap";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./propBoxAxisIsSound";
-export * from "./propClearanceBounds";
-export * from "./propOccupancyBounds";
-export * from "./propSpaceContainsBounds";
-export * from "./propSupportFace";
-export * from "./propSupportGap";
-export * from "./readFilmGrammar";
-export * from "./realizeShotContract";
-export * from "./resolveAutoMovieDeliveryCrop";
-export * from "./resolveAutoMovieLensAt";
-export * from "./resolveBeatEnd";
-export * from "./resolveBeatOpening";
-export * from "./resolveBeatSnapshot";
-export * from "./resolveCameraAt";
-export * from "./resolveFromTimeline";
-export * from "./resolveMotionTakeAnchor";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export * from "./resolvePerformShotTarget";
-export * from "./resolvePoseKeypoints";
-export * from "./resolveProductionFrameRate";
-export * from "./resolveProductionLighting";
-export * from "./resolveSequencePlayback";
+
+
+
+
 export * from "./resolvedPerformShotPoint";
-export * from "./reviewVisualRead";
-export * from "./rootVelocityOf";
+
+
 export * from "./samplePracticalSurfaceMaterial";
-export * from "./samplePracticalSurfaceTrackMaterial";
-export * from "./sampleProductionRenderFrame";
-export * from "./sampleSurfaceGraphicKey";
-export * from "./scriptAncestors";
+
+
+
+
 export * from "./sequenceEditorialMarkerTimeline";
-export * from "./sequenceEventTimeline";
-export * from "./sequenceTimeline";
-export * from "./skeletonRestFrames";
+
+
+
 export * from "./stageScene";
 export * from "./staging";
-export * from "./unionSubjectBoxes";
-export * from "./validatePerformShotFraming";
-export * from "./validatePropAffordanceTarget";
-export * from "./validatePropPlacementGeometry";
-export * from "./validatePropPlacements";
-export * from "./validatePropSupportCycles";
-export * from "./validateShotPhysicsAdvice";
-export * from "./validateShotProgramContract";
-export * from "./verifyMotionTake";
+
+
+
+
+
+
+
+
+
+
+export { AutoMovieEngineFilm } from "./AutoMovieEngineFilm";

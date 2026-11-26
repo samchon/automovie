@@ -1,4 +1,4 @@
-import { digestAutoMovieBytes } from "@automovie/engine";
+import { AutoMovieEnginePicture } from "@automovie/engine";
 import type {
   AutoMovieGuidePass,
   IAutoMovieControlRecord,
@@ -96,7 +96,7 @@ export class AutoMovieControlChannelWriter {
       this.frames[slot]!.push({
         index,
         seconds,
-        sha256: hex(digestAutoMovieBytes(bytes)),
+        sha256: hex(AutoMovieEnginePicture.digestAutoMovieBytes(bytes)),
       });
     }
   }
@@ -127,7 +127,7 @@ export class AutoMovieControlChannelWriter {
           inputPattern: guidePassFramePattern(pass),
           frameCount: frames.length,
           sequenceSha256: hex(
-            digestAutoMovieBytes(new TextEncoder().encode(lines)),
+            AutoMovieEnginePicture.digestAutoMovieBytes(new TextEncoder().encode(lines)),
           ),
           frames,
         };

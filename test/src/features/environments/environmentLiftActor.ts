@@ -1,9 +1,5 @@
 import type { createLift } from "@automovie/archetypes/environments";
-import {
-  Quaternion,
-  Vector3,
-  bakedTransformFromClipsAt,
-} from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieEnvironment,
@@ -55,7 +51,7 @@ export function environmentLiftActor(input: {
       (candidate): boolean => candidate.node === node,
     )!;
     const frame = (time: number): IAutoMovieRigidTransform => {
-      const placed: IAutoMovieTransform | null = bakedTransformFromClipsAt(
+      const placed: IAutoMovieTransform | null = AutoMovieEngineFilm.bakedTransformFromClipsAt(
         environment.runtime.objectMotions,
         node,
         time,

@@ -1,10 +1,4 @@
-import {
-  Vector3,
-  compileDefinedShot,
-  defineShot,
-  makeActorSynthesizer,
-  sampleMotion,
-} from "@automovie/engine";
+import { Vector3, compileDefinedShot, makeActorSynthesizer, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieActorContext,
   IAutoMovieBeatEndActorState,
@@ -228,7 +222,7 @@ export function assertFilmVelocityAndOpeningContinuity(
         [camera.node, camera.position] as const,
     ),
   ]);
-  const shot: ReturnType<typeof defineShot> = defineShot("SB-CONTINUITY", {
+  const shot: ReturnType<typeof AutoMovieEngineFilm.defineShot> = AutoMovieEngineFilm.defineShot("SB-CONTINUITY", {
     scene: "scene-duel",
     contract: {
       beat: "beat-1",

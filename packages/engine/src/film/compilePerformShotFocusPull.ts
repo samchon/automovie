@@ -16,7 +16,7 @@ import { sampleFormationMotion } from "../populationRuntime/formation/sampleForm
 import { transformFormationPoint } from "../populationRuntime/formation/transformFormationPoint";
 import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
-import { animatedBaseAt } from "./animatedBaseAt";
+import { animatedBaseAt } from "./internal/animatedBaseAt";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
 /**

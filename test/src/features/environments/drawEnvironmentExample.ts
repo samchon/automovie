@@ -1,8 +1,4 @@
-import {
-  computeModelRestExtent,
-  materializeCompiledInstanceSetInventory,
-  sampleMotion,
-} from "@automovie/engine";
+import { materializeCompiledInstanceSetInventory, sampleMotion, AutoMovieEngineFilm } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieCamera,
@@ -131,7 +127,7 @@ export function drawEnvironmentExample(
     const model: IAutoMovieModel | undefined = modelTable.get(set.model);
     if (model === undefined || projectionRadii.has(model.id)) continue;
     const extent: IAutoMovieComputeModelRestExtent.IResult =
-      computeModelRestExtent(model);
+      AutoMovieEngineFilm.computeModelRestExtent(model);
     if (extent !== null)
       projectionRadii.set(
         model.id,

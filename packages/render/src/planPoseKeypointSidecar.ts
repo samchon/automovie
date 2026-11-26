@@ -1,14 +1,4 @@
-import {
-  foldRoot,
-  playbackLayersAt,
-  playbackShownLayer,
-  projectToNdc,
-  resolveCameraAt,
-  resolvePoseKeypoints,
-  sampleMotion,
-  sceneFogTransmittance,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { sampleMotion, AutoMovieEngineFilm, AutoMovieEngineScene } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieDeliveryCrop,
@@ -61,7 +51,7 @@ export const planPoseKeypointSidecar: (
 ): IAutoMoviePoseKeypointSidecar => {
   if (props.fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${props.fps}`);
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(
     props.sequence,
     props.shots,
   );
@@ -105,8 +95,8 @@ export const planPoseKeypointSidecar: (
   const stagingByShot: Map<string, IShotStaging | null> = new Map();
   const frames: IAutoMoviePoseKeypointFrame[] = times.map(
     (time: number, frame: number): IAutoMoviePoseKeypointFrame => {
-      const sample: IAutoMoviePlaybackLayer = playbackShownLayer(
-        playbackLayersAt(props.sequence, timeline, time),
+      const sample: IAutoMoviePlaybackLayer = AutoMovieEngineFilm.playbackShownLayer(
+        AutoMovieEngineFilm.playbackLayersAt(props.sequence, timeline, time),
       );
       // sequenceTimeline already threw for any entry whose shot was not
       // provided, so every cursor sample names a known shot.
@@ -210,7 +200,7 @@ const actorsAt: (
     const fog: IAutoMovieScene["fog"] = staging.scene.fog;
     actors.push({
       node: performance.node,
-      keypoints: resolvePoseKeypoints({
+      keypoints: AutoMovieEngineFilm.resolvePoseKeypoints({
         pose,
         skeleton,
         node,
@@ -228,13 +218,13 @@ const actorsAt: (
       ...(fog === undefined || fog === null
         ? {}
         : {
-            atmosphere: sceneFogTransmittance(
+            atmosphere: AutoMovieEngineScene.sceneFogTransmittance(
               fog,
               cameraDepth(
                 staging.camera,
                 shot.cameraMotion,
                 time,
-                foldRoot(node.transform, pose.root).translation,
+                AutoMovieEngineFilm.foldRoot(node.transform, pose.root).translation,
               ),
             ),
           }),
@@ -263,8 +253,8 @@ const cameraDepth: (
   time: number,
   point: IAutoMovieVector3,
 ): number =>
-  projectToNdc(
-    resolveCameraAt(camera.transform, cameraMotion, camera.id, time),
+  AutoMovieEngineFilm.projectToNdc(
+    AutoMovieEngineFilm.resolveCameraAt(camera.transform, cameraMotion, camera.id, time),
     point,
     1,
     1,

@@ -1,8 +1,4 @@
-import {
-  productionFrameIntervalToGridTicks,
-  resolveProductionFrameRate,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { AutoMovieEngineText, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieFilmTimeline,
   IAutoMovieProductionFrameRate,
@@ -35,7 +31,7 @@ export const canonicalProductionWebVtt: (
   timeline: IAutoMovieFilmTimeline,
 ) => string = (timeline: IAutoMovieFilmTimeline): string => {
   const frameRate: IAutoMovieProductionFrameRate =
-    resolveProductionFrameRate(timeline);
+    AutoMovieEngineFilm.resolveProductionFrameRate(timeline);
   const cues: ICaptionCue[] = [...timeline.tracks.captions].sort(
     (left: ICaptionCue, right: ICaptionCue): number =>
       left.startFrame - right.startFrame ||
@@ -47,7 +43,7 @@ export const canonicalProductionWebVtt: (
     "",
     ...cues.flatMap((cue: ICaptionCue): string[] => {
       const interval: { start: number; end: number } =
-        productionFrameIntervalToGridTicks({
+        AutoMovieEngineFilm.productionFrameIntervalToGridTicks({
           startFrame: cue.startFrame,
           endFrame: cue.endFrame,
           frameRate,

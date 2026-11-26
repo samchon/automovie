@@ -10,9 +10,9 @@ import type {
   IAutoMovieRenderTextureCost,
 } from "@automovie/interface";
 
-import { measureAutoMovieRenderTextureClosure } from "./measureAutoMovieRenderTextureClosure";
-import { resolveAutoMovieShadowProfile } from "./resolveAutoMovieShadowProfile";
-import { sumAutoMovieRenderTextureAllocations } from "./sumAutoMovieRenderTextureAllocations";
+import { measureAutoMovieRenderTextureClosure } from "./internal/measureAutoMovieRenderTextureClosure";
+import { resolveAutoMovieShadowProfile } from "./internal/resolveAutoMovieShadowProfile";
+import { sumAutoMovieRenderTextureAllocations } from "./internal/sumAutoMovieRenderTextureAllocations";
 
 /**
  * The render inventory's material and texture phase: resolve the shadow

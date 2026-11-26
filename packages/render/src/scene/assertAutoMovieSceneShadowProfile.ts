@@ -1,4 +1,4 @@
-import { resolveAutoMovieShadowProfile } from "@automovie/engine";
+import { AutoMovieEngineRenderShadow } from "@automovie/engine";
 import type {
   IAutoMovieLight,
   IAutoMovieSceneEnvironment,
@@ -28,8 +28,8 @@ export const assertAutoMovieSceneShadowProfile: (
       readAutoMovieShadowLightSource(object.name || object.uuid, object);
     if (light !== null) lights.push(light);
   });
-  const profile: ReturnType<typeof resolveAutoMovieShadowProfile> =
-    resolveAutoMovieShadowProfile({ lights, shadows });
+  const profile: ReturnType<typeof AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile> =
+    AutoMovieEngineRenderShadow.resolveAutoMovieShadowProfile({ lights, shadows });
   if (!profile.success)
     throw new Error(
       "Unsupported shadow profile: " + JSON.stringify(profile.violations),

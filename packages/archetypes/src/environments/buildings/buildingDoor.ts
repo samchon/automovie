@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, computeModelRestExtent } from "@automovie/engine";
+import { Quaternion, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -97,7 +97,7 @@ export function buildingDoor(
     asset: null,
   };
   const bounds: IAutoMovieComputeModelRestExtent.IResult =
-    computeModelRestExtent(fixed);
+    AutoMovieEngineFilm.computeModelRestExtent(fixed);
   if (bounds === null) throw new Error(`door "${id}" has no fixed frame`);
   const aperture: IAutoMovieAffordance = door.affordance("aperture");
 

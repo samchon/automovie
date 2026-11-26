@@ -18,7 +18,7 @@ export * from "./fitSeededChainToTarget";
 export * from "./readHingedChainSeed";
 export * from "./fitHingedChainCandidate";
 export * from "./fitHingedRotationError";
-export * from "./followPathMotion";
+
 export * from "./gaitLimbFlexion";
 export * from "./gaitMotion";
 export * from "./gestureMotion";
@@ -33,7 +33,7 @@ export * from "./solveAirborneTakeoff";
 
 export * from "./locomoteMotion";
 export * from "./minimumJerk";
-export * from "./motionToClip";
+
 export * from "./orientChainEffector";
 export * from "./pinStanceTargets";
 export * from "./plantStanceFeet";
@@ -42,12 +42,12 @@ export * from "./prepareChainConstants";
 export * from "./prepareChainRigConstants";
 export * from "./placeChainPlant";
 export * from "./prepareJointRotationProjection";
-export * from "./preserveRetargetContacts";
+
 export * from "./reactMotion";
 export * from "./rekeyPlantedFeet";
 export * from "./resolveBoneMap";
 export * from "./resolvePreparedChainEffector";
-export * from "./retargetHumanoidMotion";
+
 export * from "./sampleMotion";
 export * from "./samplePoseVelocity";
 
@@ -60,10 +60,16 @@ export * from "./speedProfile";
 export * from "./splitDistalTwist";
 export * from "./steerAutoMovieCrowd";
 export * from "./superposeMinimumJerk";
-export * from "./timeScaleMotion";
-export * from "./travelMotion";
-export * from "./validateRetargetContacts";
-export * from "./warpRoot";
+
+
+
+
 
 
 export { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
+
+export { AutoMovieEngineMotionClip } from "./AutoMovieEngineMotionClip";
+
+export { AutoMovieEngineMotionRetargeting } from "./AutoMovieEngineMotionRetargeting";
+
+export { AutoMovieEngineMotionTrajectory } from "./AutoMovieEngineMotionTrajectory";

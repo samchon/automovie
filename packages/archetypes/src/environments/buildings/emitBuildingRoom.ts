@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Transform,
-  Vector3,
-  placeTransformedPoint,
-} from "@automovie/engine";
+import { Quaternion, Transform, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConvexSpaceCell,
@@ -40,7 +35,7 @@ export function emitBuildingRoom(
     room.support.anchor.y,
   );
   const world: IAutoMovieTransform = Transform.of(
-    placeTransformedPoint(root, origin),
+    AutoMovieEngineFilm.placeTransformedPoint(root, origin),
     root.rotation,
   );
   anchors[name] = world;
@@ -48,7 +43,7 @@ export function emitBuildingRoom(
     (ring: IAutoMovieProfilePoint[]): IAutoMovieVector3[] =>
       ring.map(
         (point: IAutoMovieProfilePoint): IAutoMovieVector3 =>
-          placeTransformedPoint(
+          AutoMovieEngineFilm.placeTransformedPoint(
             root,
             Vector3.create(point.x, level.elevation, point.y),
           ),
@@ -120,7 +115,7 @@ function prismCells(
 ): IAutoMovieConvexSpaceCell[] {
   const points: IAutoMovieVector3[] = region.points.map(
     (point: IAutoMovieProfilePoint): IAutoMovieVector3 =>
-      placeTransformedPoint(root, Vector3.create(point.x, bottom, point.y)),
+      AutoMovieEngineFilm.placeTransformedPoint(root, Vector3.create(point.x, bottom, point.y)),
   );
   const y: number = root.translation.y + bottom;
   const cells: IAutoMovieConvexSpaceCell[] = [];

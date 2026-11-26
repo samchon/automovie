@@ -1,1 +1,3 @@
-export * from "./sceneFogTransmittance";
+
+
+export { AutoMovieEngineScene } from "./AutoMovieEngineScene";

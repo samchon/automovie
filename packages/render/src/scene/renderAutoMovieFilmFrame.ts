@@ -1,4 +1,4 @@
-import { productionRenderLayersForPass } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { AutoMovieGuidePass } from "@automovie/interface";
 import type * as THREE from "three";
 
@@ -57,8 +57,8 @@ export const renderAutoMovieFilmFrame: <Layer extends { weight: number }>(
     renderLayer(layer, pass);
   };
   if (pass !== "beauty") {
-    const selected: ReturnType<typeof productionRenderLayersForPass<Layer>> =
-      productionRenderLayersForPass({ layers }, pass);
+    const selected: ReturnType<typeof AutoMovieEngineFilm.productionRenderLayersForPass<Layer>> =
+      AutoMovieEngineFilm.productionRenderLayersForPass({ layers }, pass);
     draw(selected[0]!);
   } else if (composition.kind === "direct") draw(composition.layer);
   else if (composition.kind === "fade")

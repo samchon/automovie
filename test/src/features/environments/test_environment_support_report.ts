@@ -14,7 +14,7 @@ import {
   createFurnishedRoom,
   createTerrain,
 } from "@automovie/archetypes/environments";
-import { computeModelRestExtent, AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow } from "@automovie/engine";
+import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
@@ -68,7 +68,7 @@ import { namedFacts, nclose } from "../internal/predicates";
  */
 export function test_environment_support_report(): void {
   const crate: IAutoMovieModel = createMoldedCrate({}, 1021);
-  const crateRest: IAutoMoviePropBox = computeModelRestExtent(crate)!;
+  const crateRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(crate)!;
   const level: () => IAutoMovieEnvironmentItem =
     (): IAutoMovieEnvironmentItem => ({
       at: { x: -10, y: 0, z: -10 },

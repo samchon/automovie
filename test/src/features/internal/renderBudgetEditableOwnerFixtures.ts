@@ -1,9 +1,4 @@
-import {
-  deriveAutoMovieSemanticMask,
-  evaluateAutoMovieRenderBudget,
-  measureAutoMovieRenderInventory,
-  sealAutoMovieRenderTarget,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderSemanticMask, AutoMovieEngineRenderTarget, AutoMovieEngineRenderMeasure } from "@automovie/engine";
 import type {
   AutoMovieRenderMetric,
   IAutoMovieModel,
@@ -91,7 +86,7 @@ function budget(
 
 /** The same target premises, freshly sealed for every report invocation. */
 function target(): IAutoMovieRenderTarget {
-  return sealAutoMovieRenderTarget({
+  return AutoMovieEngineRenderTarget.sealAutoMovieRenderTarget({
     renderer: { api: "webgl2", vendor: "test", device: "swiftshader" },
     settings: {
       width: 640,
@@ -112,11 +107,11 @@ function report(props: {
   metric: AutoMovieRenderMetric;
   limit: number;
 }): IAutoMovieRenderReport["findings"][number] {
-  const inventory: IAutoMovieRenderInventory = measureAutoMovieRenderInventory({
+  const inventory: IAutoMovieRenderInventory = AutoMovieEngineRenderMeasure.measureAutoMovieRenderInventory({
     subject: props.subject,
-    mask: deriveAutoMovieSemanticMask(props.subject),
+    mask: AutoMovieEngineRenderSemanticMask.deriveAutoMovieSemanticMask(props.subject),
   });
-  return evaluateAutoMovieRenderBudget({
+  return AutoMovieEngineRenderTarget.evaluateAutoMovieRenderBudget({
     inventory,
     budget: budget(props.metric, props.limit),
     mask: {

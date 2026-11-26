@@ -9,7 +9,7 @@ import { autoMovieInstanceAddress } from "../../autoMovieInstanceAddress";
 import { AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT } from "../../constants/AUTOMOVIE_SUBJECT_MEMBER_SAMPLE_LIMIT";
 import { Quaternion } from "../../math/Quaternion";
 import { Transform } from "../../math/Transform";
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { autoMovieSubjectAddress } from "./autoMovieSubjectAddress";
 import { autoMovieSubjectMaterials } from "./autoMovieSubjectMaterials";
 

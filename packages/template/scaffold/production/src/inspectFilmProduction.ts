@@ -1,4 +1,4 @@
-import { classifyAutoMoviePlaybackBoundary } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieInspectionDiagnostics,
   IAutoMoviePreparePhysicalGeometry,
@@ -231,7 +231,7 @@ function observeMotion(
   const relation: string =
     playback === undefined || !(from >= 0)
       ? "continuous"
-      : classifyAutoMoviePlaybackBoundary({
+      : AutoMovieEngineFilm.classifyAutoMoviePlaybackBoundary({
           sequence: playback.sequence,
           timeline: playback.timeline,
           before: from,

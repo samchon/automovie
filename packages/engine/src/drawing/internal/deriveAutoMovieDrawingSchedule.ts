@@ -27,8 +27,8 @@ import { builtEnvironmentSpaceContentBounds } from "../../architecture/internal/
 import { builtEnvironmentSpaceFidelity } from "../../architecture/internal/builtEnvironmentSpaceFidelity";
 import { builtEnvironmentSpaceNodes } from "../../architecture/internal/builtEnvironmentSpaceNodes";
 import { validateBuiltEnvironment } from "../../architecture/internal/validateBuiltEnvironment";
-import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
-import { compareAutoMovieRenderIds } from "../../render/compareAutoMovieRenderIds";
+import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
+import { compareAutoMovieRenderIds } from "../../render/internal/compareAutoMovieRenderIds";
 import { AutoMovieEngineCanonicalJson } from "../../text/AutoMovieEngineCanonicalJson";
 import { autoMovieDrawingRange } from "./autoMovieDrawingRange";
 import { autoMovieDrawingSpaceBox } from "./autoMovieDrawingSpaceBox";

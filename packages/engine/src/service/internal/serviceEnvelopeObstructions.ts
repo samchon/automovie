@@ -4,7 +4,7 @@ import {
   IAutoMovieServiceNode,
 } from "@automovie/interface";
 
-import { propBoundsOverlap } from "../../film/propBoundsOverlap";
+import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 
 /**

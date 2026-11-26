@@ -1,12 +1,4 @@
-import {
-  compileCameraMove,
-  computeModelRestExtent,
-  intersectsPerspectiveFrustumBox,
-  nodeSubjectBox,
-  nodeSubjectExtent,
-  realizeShotContract,
-  resolveCameraAt,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieCameraAction,
@@ -29,7 +21,7 @@ interface IWidthFixture {
   worldBox: (
     model: IAutoMovieModel,
     placement: IAutoMovieTransform,
-  ) => ReturnType<typeof nodeSubjectBox>;
+  ) => ReturnType<typeof AutoMovieEngineFilm.nodeSubjectBox>;
   solve: (subject: IFilmFacadeSubject) => IAutoMovieClip;
   grade: (
     model: IAutoMovieModel,
@@ -128,15 +120,15 @@ export function createFilmCameraWidthFixture(props: {
   const worldBox: IWidthFixture["worldBox"] = (
     model: IAutoMovieModel,
     placement: IAutoMovieTransform,
-  ): ReturnType<typeof nodeSubjectBox> =>
-    nodeSubjectBox(
+  ): ReturnType<typeof AutoMovieEngineFilm.nodeSubjectBox> =>
+    AutoMovieEngineFilm.nodeSubjectBox(
       placement,
-      nodeSubjectExtent(computeModelRestExtent(model), null),
+      AutoMovieEngineFilm.nodeSubjectExtent(AutoMovieEngineFilm.computeModelRestExtent(model), null),
     );
   const solve: IWidthFixture["solve"] = (
     subject: IFilmFacadeSubject,
   ): IAutoMovieClip =>
-    compileCameraMove({
+    AutoMovieEngineFilm.compileCameraMove({
       clipId: "clip",
       camera: camera(),
       entries: [{ action, subject: { ...subject, at: null } }],
@@ -148,7 +140,7 @@ export function createFilmCameraWidthFixture(props: {
     placement: IAutoMovieTransform,
     cameraMotion: IAutoMovieClip,
   ): IFilmFacadeGrade => {
-    const result: ReturnType<typeof realizeShotContract> = realizeShotContract({
+    const result: ReturnType<typeof AutoMovieEngineFilm.realizeShotContract> = AutoMovieEngineFilm.realizeShotContract({
       contract: createFilmFacadeContract(props.node),
       production: null,
       frameFormat: { width: 1920, height: 1080 },
@@ -198,8 +190,8 @@ export function createFilmCameraWidthFixture(props: {
     cameraMotion: IAutoMovieClip,
     point: IAutoMovieVector3,
   ): boolean =>
-    intersectsPerspectiveFrustumBox({
-      camera: resolveCameraAt(camera().transform, cameraMotion, "cam", 0),
+    AutoMovieEngineFilm.intersectsPerspectiveFrustumBox({
+      camera: AutoMovieEngineFilm.resolveCameraAt(camera().transform, cameraMotion, "cam", 0),
       min: { x: point.x - 0.05, y: point.y - 0.05, z: point.z - 0.05 },
       max: { x: point.x + 0.05, y: point.y + 0.05, z: point.z + 0.05 },
       near: camera().near,
@@ -211,7 +203,7 @@ export function createFilmCameraWidthFixture(props: {
     cameraMotion: IAutoMovieClip,
     aim: IAutoMovieVector3,
   ): number => {
-    const eye: IAutoMovieVector3 = resolveCameraAt(
+    const eye: IAutoMovieVector3 = AutoMovieEngineFilm.resolveCameraAt(
       camera().transform,
       cameraMotion,
       "cam",

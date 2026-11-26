@@ -1,4 +1,4 @@
-import { sampleSurfaceGraphicKey } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieSurfaceGraphic,
   IAutoMovieSurfaceGraphicTrack,
@@ -30,14 +30,14 @@ export function test_engine_film_sample_surface_graphic_key(): void {
   TestValidator.equals(
     "upper bound is stable in either seek direction",
     [0, 0.125, 0.25, 0.5, 0.75, 1, 0.375, 0].map((t: number) =>
-      sampleSurfaceGraphicKey(track, t),
+      AutoMovieEngineFilm.sampleSurfaceGraphicKey(track, t),
     ),
     [0, 0, 1, 2, 3, 3, 1, 0],
   );
   TestValidator.predicate(
     "before opening has no key",
     throwsError(
-      (): number => sampleSurfaceGraphicKey(track, -0.125),
+      (): number => AutoMovieEngineFilm.sampleSurfaceGraphicKey(track, -0.125),
       'Surface graphic "panel/face" cannot be sampled',
     ),
   );

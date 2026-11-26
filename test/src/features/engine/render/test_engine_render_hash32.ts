@@ -1,4 +1,4 @@
-import { autoMovieRenderHash32 } from "@automovie/engine";
+import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -15,9 +15,9 @@ export function test_engine_render_hash32(): void {
   TestValidator.equals(
     "FNV-1a vectors",
     [
-      autoMovieRenderHash32(""),
-      autoMovieRenderHash32("a"),
-      autoMovieRenderHash32("foobar"),
+      AutoMovieEngineRenderTarget.autoMovieRenderHash32(""),
+      AutoMovieEngineRenderTarget.autoMovieRenderHash32("a"),
+      AutoMovieEngineRenderTarget.autoMovieRenderHash32("foobar"),
     ],
     [0x811c9dc5, 0xe40c292c, 0xbf9cf968],
   );

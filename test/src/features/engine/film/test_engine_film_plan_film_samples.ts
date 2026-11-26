@@ -1,4 +1,4 @@
-import { planAutoMovieFilmSamples } from "@automovie/engine";
+import { AutoMovieEngineFilmResponse } from "@automovie/engine";
 import type {
   IAutoMovieFilmOptics,
   IAutoMoviePlanFilmSamples,
@@ -25,7 +25,7 @@ export function test_engine_film_plan_film_samples(): void {
     samples: number,
     members: Partial<IAutoMovieFilmOptics>,
   ): IAutoMoviePlanFilmSamples.ISample[] =>
-    planAutoMovieFilmSamples({
+    AutoMovieEngineFilmResponse.planAutoMovieFilmSamples({
       seconds: 2,
       fps: 24,
       fovY: 40,

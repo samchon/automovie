@@ -4,7 +4,7 @@ import type {
   IAutoMovieRenderProductionSound,
 } from "@automovie/interface";
 
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 import { roundProductionGridTick } from "../film/roundProductionGridTick";
 import { assertProductionScoreDucking } from "./assertProductionScoreDucking";
 

@@ -5,7 +5,7 @@ import type {
   IAutoMovieRenderModelCost,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "./internal/compareAutoMovieRenderIds";
 
 /**
  * The render inventory's geometry memory phase: the resident buffer bytes of

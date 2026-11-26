@@ -4,7 +4,7 @@ import type {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { unionSubjectBoxes } from "../film/unionSubjectBoxes";
+import { unionSubjectBoxes } from "../film/internal/unionSubjectBoxes";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 
 /** A finite world box prepared once for this part. */

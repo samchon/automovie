@@ -11,7 +11,7 @@ import {
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
 import { sampleCompiledEffect } from "./effectRuntime/internal/sampleCompiledEffect";
-import { resolveCameraAt } from "./film/resolveCameraAt";
+import { resolveCameraAt } from "./film/internal/resolveCameraAt";
 import { Quaternion } from "./math/Quaternion";
 import { Vector3 } from "./math/Vector3";
 

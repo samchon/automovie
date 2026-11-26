@@ -9,7 +9,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { unionSubjectBoxes } from "../../film/unionSubjectBoxes";
+import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { Matrix4 } from "../../math/Matrix4";
 import { Vector3 } from "../../math/Vector3";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";

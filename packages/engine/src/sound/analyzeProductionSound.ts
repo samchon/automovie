@@ -6,7 +6,7 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 import { createAutoMovieLoudnessMeter } from "./createAutoMovieLoudnessMeter";
 
 /**

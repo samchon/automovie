@@ -4,7 +4,7 @@ import type {
   IAutoMovieResolveMaterial,
 } from "@automovie/interface";
 
-import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
+import { compareAutoMovieRenderIds } from "./internal/compareAutoMovieRenderIds";
 
 /**
  * Resolve one cross-model material id to one complete material definition.

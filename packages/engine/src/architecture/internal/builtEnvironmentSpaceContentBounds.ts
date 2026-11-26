@@ -4,7 +4,7 @@ import {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { unionSubjectBoxes } from "../../film/unionSubjectBoxes";
+import { unionSubjectBoxes } from "../../film/internal/unionSubjectBoxes";
 import { builtEnvironmentWorldMatrices } from "./builtEnvironmentWorldMatrices";
 import { builtInstanceSetPlacementBounds } from "./builtInstanceSetPlacementBounds";
 import { builtPlacedPartBoxes } from "./builtPlacedPartBoxes";

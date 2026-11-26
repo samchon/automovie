@@ -1,4 +1,4 @@
-import { Quaternion, compilePracticalLightMotion } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompilePracticalLightMotion,
@@ -88,7 +88,7 @@ export function test_engine_film_compile_practical_light_motion(): void {
     sampleTimes: [0.75, 0.375, 0.75],
     on: [0.25, 0.75],
   };
-  const clip: IAutoMovieClip = compilePracticalLightMotion(input);
+  const clip: IAutoMovieClip = AutoMovieEngineFilm.compilePracticalLightMotion(input);
   const [position, rotation, intensity]: IAutoMovieTrack[] = clip.tracks;
   TestValidator.equals(
     "escaped track ids",
@@ -141,7 +141,7 @@ export function test_engine_film_compile_practical_light_motion(): void {
     [intensity!.interpolation, intensity!.times, intensity!.values],
     ["step", [0, 0.25, 0.75], [0, 8, 0]],
   );
-  const flicker: IAutoMovieClip = compilePracticalLightMotion({
+  const flicker: IAutoMovieClip = AutoMovieEngineFilm.compilePracticalLightMotion({
     ...input,
     flicker: {
       times,
@@ -156,7 +156,7 @@ export function test_engine_film_compile_practical_light_motion(): void {
     [0, 4, 12, 0, 0],
   );
 
-  const still: IAutoMovieClip = compilePracticalLightMotion({
+  const still: IAutoMovieClip = AutoMovieEngineFilm.compilePracticalLightMotion({
     ...input,
     light: {
       id: light.id,
@@ -182,17 +182,17 @@ export function test_engine_film_compile_practical_light_motion(): void {
     "bad sample and interval premises fail at compilation",
     throwsError(
       (): unknown =>
-        compilePracticalLightMotion({ ...input, on: [0.75, 0.25] }),
+        AutoMovieEngineFilm.compilePracticalLightMotion({ ...input, on: [0.75, 0.25] }),
       "practical light interval",
     ) &&
       throwsError(
         (): unknown =>
-          compilePracticalLightMotion({ ...input, sampleTimes: [2] }),
+          AutoMovieEngineFilm.compilePracticalLightMotion({ ...input, sampleTimes: [2] }),
         "sample times must lie",
       ) &&
       throwsError(
         (): unknown =>
-          compilePracticalLightMotion({ ...input, sampleTimes: [] }),
+          AutoMovieEngineFilm.compilePracticalLightMotion({ ...input, sampleTimes: [] }),
         "sample times are required",
       ),
   );

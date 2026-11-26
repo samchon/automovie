@@ -1,4 +1,4 @@
-import { validatePropPlacements } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltEnvironment,
   IAutoMovieConstraintViolation,
@@ -75,7 +75,7 @@ export function createFilmPropPlacementScenario(): {
     set: IAutoMovieStageSetPiece[] = propSet(),
     builtEnvironments: IAutoMovieBuiltEnvironment[] = [propEnvironment()],
   ): IAutoMovieValidation =>
-    validatePropPlacements({ props, set, builtEnvironments });
+    AutoMovieEngineFilm.validatePropPlacements({ props, set, builtEnvironments });
 
   /**
    * A mutated registry must fail at `path`, and with `message` when one is given.

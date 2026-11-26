@@ -9,7 +9,7 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../../render/autoMovieRenderDigest";
+import { autoMovieRenderDigest } from "../../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { AUTOMOVIE_ANALYSIS_DOMAINS } from "../constants/AUTOMOVIE_ANALYSIS_DOMAINS";
 import { AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS } from "../constants/AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS";

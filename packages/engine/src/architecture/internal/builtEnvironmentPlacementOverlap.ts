@@ -5,7 +5,7 @@ import {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { propBoundsOverlap } from "../../film/propBoundsOverlap";
+import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { builtEnvironmentElementPartBounds } from "./builtEnvironmentElementPartBounds";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 

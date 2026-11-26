@@ -1,4 +1,4 @@
-import { bakedTransformFromClipsAt } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieModel,
   IAutoMovieMotionHumanObject,
@@ -30,7 +30,7 @@ export function locationTrackedRidePassenger(
     (prop: IAutoMoviePropSpec): boolean => prop.node === carrier,
   )!.model;
   const placed = (time: number): IAutoMovieMotionHumanObject.Placement => {
-    const frame: IAutoMovieTransform = bakedTransformFromClipsAt(
+    const frame: IAutoMovieTransform = AutoMovieEngineFilm.bakedTransformFromClipsAt(
       environment.runtime.objectMotions,
       carrier,
       time,

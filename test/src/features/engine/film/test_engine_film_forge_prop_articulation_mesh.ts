@@ -1,4 +1,4 @@
-import { forgeProp, placementChildNode, sceneToNodes } from "@automovie/engine";
+import { placementChildNode, sceneToNodes, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieConstraintViolation,
   type IAutoMovieForgedProp,
@@ -68,7 +68,7 @@ function drives(index: number, part: string): IAutoMoviePropSpec {
  */
 export function test_engine_film_forge_prop_articulation_mesh(): void {
   const driven: IAutoMoviePropSpec = drives(1, "panel");
-  const forged: IAutoMovieForgedProp = forgeProp(driven);
+  const forged: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(driven);
   TestValidator.equals(
     "a hinge driving a declared part forges",
     forged.success,
@@ -104,7 +104,7 @@ export function test_engine_film_forge_prop_articulation_mesh(): void {
     [[placementChildNode("frontDoor", "hinge"), "panel"]],
   );
 
-  const unknown: IAutoMovieForgedProp = forgeProp(drives(1, "sash"));
+  const unknown: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(drives(1, "sash"));
   TestValidator.predicate(
     "a joint driving a part the model does not declare violates",
     hasViolation(unknown, "type", "$input.articulation.nodes[1].mesh"),
@@ -120,7 +120,7 @@ export function test_engine_film_forge_prop_articulation_mesh(): void {
     1,
   );
 
-  const twice: IAutoMovieForgedProp = forgeProp(
+  const twice: IAutoMovieForgedProp = AutoMovieEngineFilm.forgeProp(
     withNodes((nodes: IAutoMovieNode[]): IAutoMovieNode[] =>
       nodes.map(
         (node: IAutoMovieNode, i: number): IAutoMovieNode =>
@@ -151,7 +151,7 @@ export function test_engine_film_forge_prop_articulation_mesh(): void {
 
   TestValidator.equals(
     "a prop whose joints drive nothing still forges",
-    forgeProp(createDoorPropSpec()).success,
+    AutoMovieEngineFilm.forgeProp(createDoorPropSpec()).success,
     true,
   );
 }

@@ -1,4 +1,4 @@
-import { cutSequence, sequenceEventTimeline } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieConstraintViolation,
   IAutoMovieCut,
@@ -84,7 +84,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     pacing: "Move through the handoff.",
     continuity: "Meet at the handoff.",
   };
-  const cut: IAutoMovieCut = cutSequence(plan, [shot]);
+  const cut: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(plan, [shot]);
   if (!cut.success) throw new Error("both symbolic trims must be admitted");
   TestValidator.predicate("retimed runtime", nclose(cut.runtime, 1.5));
   // The whole entry is compared, so a symbolic `trimByEvents` left on the
@@ -111,7 +111,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     normalized,
     expected,
   );
-  const seamPlays: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+  const seamPlays: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
     cut.sequence,
     [shot],
   ).filter((event): boolean => event.id === seam.id);
@@ -131,7 +131,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     events: IAutoMovieInteractionEvent[],
     trim: IAutoMovieTrim | null = null,
   ): string[] {
-    const result: IAutoMovieCut = cutSequence(
+    const result: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
       {
         ...plan,
         requiredEvents: [],
@@ -191,7 +191,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
       { ...end, time: 0.009 },
     ],
   };
-  const boundary: IAutoMovieCut = cutSequence(
+  const boundary: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...plan,
       requiredEvents: [{ entry: 0, event: end.id }],
@@ -218,13 +218,13 @@ export function test_engine_film_cut_sequence_event_trim(): void {
   TestValidator.predicate(
     "the selected end maps exactly to the output end",
     boundary.sequence.shots[0]!.exactSourceEnd === short.duration &&
-      sequenceEventTimeline(boundary.sequence, [short]).some(
+      AutoMovieEngineFilm.sequenceEventTimeline(boundary.sequence, [short]).some(
         (event): boolean =>
           event.id === end.id && event.globalTime === boundary.runtime,
       ),
   );
 
-  const numeric: IAutoMovieCut = cutSequence(
+  const numeric: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...plan,
       requiredEvents: [],
@@ -286,12 +286,12 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     ],
   ];
   for (const [label, entry, rate] of exactCases) {
-    const result: IAutoMovieCut = cutSequence(
+    const result: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
       { ...exactPlan, entries: [entry] },
       [exactShot],
     );
     if (!result.success) throw new Error(label + " span must be admitted");
-    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+    const events: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
       result.sequence,
       [exactShot],
     );
@@ -307,7 +307,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
         events[2]?.globalTime === 1 / rate,
     );
   }
-  const excluded: IAutoMovieCut = cutSequence(
+  const excluded: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...exactPlan,
       requiredEvents: [before, after].map(
@@ -385,7 +385,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     ],
   ];
   for (const [label, outgoing, incoming, boundaryEntry] of plays) {
-    const result: IAutoMovieCut = cutSequence(
+    const result: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
       {
         ...exactPlan,
         entries: [outgoing, incoming],
@@ -394,7 +394,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
       [seamShot],
     );
     if (!result.success) throw new Error(label + " must be admitted");
-    const events: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
+    const events: IAutoMoviePlaybackEvent[] = AutoMovieEngineFilm.sequenceEventTimeline(
       result.sequence,
       [seamShot],
     );
@@ -423,7 +423,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
       { ...after, time: 0.30000000000000004 },
     ],
   };
-  const decimal: IAutoMovieCut = cutSequence(
+  const decimal: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       ...exactPlan,
       entries: [
@@ -437,7 +437,7 @@ export function test_engine_film_cut_sequence_event_trim(): void {
     throw new Error("the decimal hard cut must be admitted");
   TestValidator.equals(
     "decimal boundary uses the incoming source time",
-    sequenceEventTimeline(decimal.sequence, [decimalShot]).map(
+    AutoMovieEngineFilm.sequenceEventTimeline(decimal.sequence, [decimalShot]).map(
       (event): [string, number] => [event.id, event.entry],
     ),
     [

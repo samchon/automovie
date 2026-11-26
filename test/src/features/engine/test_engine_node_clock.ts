@@ -1,8 +1,4 @@
-import {
-  cutSequence,
-  resolveFromTimeline,
-  sequenceTimeline,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCut,
   IAutoMoviePlaybackSample,
@@ -39,7 +35,7 @@ export function test_engine_node_clock(): void {
     objectMotions: [],
     duration: 2,
   };
-  const cut: IAutoMovieCut = cutSequence(
+  const cut: IAutoMovieCut = AutoMovieEngineFilm.cutSequence(
     {
       sequence: { id: "continuous-cut", name: "Continuous performance" },
       fps: 4,
@@ -52,12 +48,12 @@ export function test_engine_node_clock(): void {
   TestValidator.equals("continuous cut admitted", cut.success, true);
   if (!cut.success) throw new Error("Continuous cut was refused.");
 
-  const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(cut.sequence, [
+  const timeline: IAutoMoviePlaybackTimeline = AutoMovieEngineFilm.sequenceTimeline(cut.sequence, [
     shot,
   ]);
   TestValidator.predicate("two-second runtime", nclose(timeline.runtime, 2));
   for (const seconds of [1.75, 0.75, 0]) {
-    const sample: IAutoMoviePlaybackSample = resolveFromTimeline(
+    const sample: IAutoMoviePlaybackSample = AutoMovieEngineFilm.resolveFromTimeline(
       cut.sequence,
       timeline,
       seconds,
@@ -70,13 +66,13 @@ export function test_engine_node_clock(): void {
     TestValidator.equals("no transition", sample.blend, null);
   }
 
-  const first: IAutoMoviePlaybackSample = resolveFromTimeline(
+  const first: IAutoMoviePlaybackSample = AutoMovieEngineFilm.resolveFromTimeline(
     cut.sequence,
     timeline,
     0.75,
   );
   first.time = 99;
-  const repeated: IAutoMoviePlaybackSample = resolveFromTimeline(
+  const repeated: IAutoMoviePlaybackSample = AutoMovieEngineFilm.resolveFromTimeline(
     cut.sequence,
     timeline,
     0.75,

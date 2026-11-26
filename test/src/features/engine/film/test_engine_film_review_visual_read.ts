@@ -1,4 +1,4 @@
-import { reviewVisualRead } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieCamera,
   IAutoMovieClip,
@@ -67,7 +67,7 @@ const framing: (
   actor: IAutoMovieMotion,
   shotOver: Partial<IAutoMovieShot> = {},
 ): IAutoMovieReviewNote[] =>
-  reviewVisualRead({
+  AutoMovieEngineFilm.reviewVisualRead({
     beat: "b1",
     scene: scene(cam),
     shot: shot(shotOver),
@@ -107,7 +107,7 @@ const contact: (
   events: IAutoMovieInteractionEvent[],
   contactRadius?: number,
 ): IAutoMovieReviewNote[] =>
-  reviewVisualRead({
+  AutoMovieEngineFilm.reviewVisualRead({
     beat: "b1",
     scene: scene(camera()),
     shot: shot({ camera: "nope", events }),
@@ -126,7 +126,7 @@ const silhouette: (
   b: IAutoMovieMotion,
   silhouetteRadius?: number,
 ): IAutoMovieReviewNote[] =>
-  reviewVisualRead({
+  AutoMovieEngineFilm.reviewVisualRead({
     beat: "b1",
     scene: {
       id: "s",
@@ -187,7 +187,7 @@ export function test_engine_film_review_visual_read(): void {
   // defaults hold: omit sampleRate (→ 12) and pass an explicit aspect.
   TestValidator.equals(
     "the default sample rate and an explicit aspect still frame a centered subject",
-    reviewVisualRead({
+    AutoMovieEngineFilm.reviewVisualRead({
       beat: "b1",
       scene: scene(camera()),
       shot: shot(),
@@ -397,7 +397,7 @@ export function test_engine_film_review_visual_read(): void {
   );
   TestValidator.equals(
     "an event whose target is held (null motion) is skipped",
-    reviewVisualRead({
+    AutoMovieEngineFilm.reviewVisualRead({
       beat: "b1",
       scene: scene(camera()),
       shot: shot({
@@ -474,7 +474,7 @@ export function test_engine_film_review_visual_read(): void {
     ]),
     { nearGuard: true, nearGuardIssueIncludes: true, nearGuardNN: true },
   );
-  const grammar: IAutoMovieReviewNote[] = reviewVisualRead({
+  const grammar: IAutoMovieReviewNote[] = AutoMovieEngineFilm.reviewVisualRead({
     beat: "b1",
     scene: scene(camera()),
     shot: shot({ camera: "nope", performances: [] }),

@@ -1,4 +1,4 @@
-import { lookRotation, readFilmGrammar } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieGrammarDiagnosticCode,
   IAutoMovieGrammarCameraObservation,
@@ -46,7 +46,7 @@ export function createFilmGrammarCase(): {
   ): IAutoMovieGrammarShotObservation["camera"]["start"] {
     return {
       position,
-      rotation: lookRotation({
+      rotation: AutoMovieEngineFilm.lookRotation({
         x: focus.x - position.x,
         y: focus.y - position.y,
         z: focus.z - position.z,
@@ -112,7 +112,7 @@ export function createFilmGrammarCase(): {
   function reportedGrammar(
     input: IAutoMovieGrammarInput,
   ): IAutoMovieGrammarDiagnostic[] {
-    return readFilmGrammar(input).reported;
+    return AutoMovieEngineFilm.readFilmGrammar(input).reported;
   }
 
   function codes(shots: readonly IAutoMovieGrammarShotObservation[]): string[] {

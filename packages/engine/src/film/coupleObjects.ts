@@ -19,9 +19,9 @@ import type {
 import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
 import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
 import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
-import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
+import { bakedTransformFromClipsAt } from "./internal/bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
-import { handoffEvents } from "./handoffEvents";
+import { handoffEvents } from "./internal/handoffEvents";
 
 /** A coupled parent's world frame over shot time, null where none moves it. */
 type ParentPath = (t: number) => IAutoMovieTransform | null;

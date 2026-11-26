@@ -1,7 +1,4 @@
-import {
-  canonicalProductionFrameRate,
-  resolveProductionFrameRate,
-} from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieProductionDesign,
   IAutoMovieProductionFrameRate,
@@ -33,8 +30,8 @@ export const resolveProductionRenderTierFrameFormat: (
   const even: (value: number) => number = (value: number): number =>
     Math.max(2, Math.floor((value * normalized.resolutionScale) / 2) * 2);
   const sourceRate: IAutoMovieProductionFrameRate =
-    resolveProductionFrameRate(source);
-  const frameRate: IAutoMovieProductionFrameRate = canonicalProductionFrameRate(
+    AutoMovieEngineFilm.resolveProductionFrameRate(source);
+  const frameRate: IAutoMovieProductionFrameRate = AutoMovieEngineFilm.canonicalProductionFrameRate(
     {
       numerator: sourceRate.numerator,
       denominator: sourceRate.denominator * normalized.frameStep,

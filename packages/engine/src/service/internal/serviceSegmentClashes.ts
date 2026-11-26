@@ -6,7 +6,7 @@ import {
   IAutoMovieServiceSegment,
 } from "@automovie/interface";
 
-import { propBoundsOverlap } from "../../film/propBoundsOverlap";
+import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { portOwners } from "./portOwners";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";
 

@@ -1,4 +1,4 @@
-import { autoMovieSemanticMaskNodeIndex } from "@automovie/engine";
+import { AutoMovieEngineRenderSemanticMask } from "@automovie/engine";
 import type {
   IAutoMovieScene,
   IAutoMovieSemanticMask,
@@ -39,8 +39,8 @@ export const maskRoots: (props: {
     throw new Error(
       `semantic mask cannot resolve staged nodes: the scene holds ${scene.children.length} top-level children for ${design.nodes.length} designed nodes`,
     );
-  const byNode: ReturnType<typeof autoMovieSemanticMaskNodeIndex> =
-    autoMovieSemanticMaskNodeIndex(mask);
+  const byNode: ReturnType<typeof AutoMovieEngineRenderSemanticMask.autoMovieSemanticMaskNodeIndex> =
+    AutoMovieEngineRenderSemanticMask.autoMovieSemanticMaskNodeIndex(mask);
   const roots: Map<THREE.Object3D, IAutoMovieSemanticMaskEntry> = new Map<
     THREE.Object3D,
     IAutoMovieSemanticMaskEntry

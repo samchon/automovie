@@ -1,4 +1,4 @@
-import { resolveAutoMovieLensAt } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCameraIntent } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -30,7 +30,7 @@ export function test_engine_film_lens_pull(): void {
     fNumber: 2,
   };
   const depth = (seconds: number): number | undefined =>
-    resolveAutoMovieLensAt({
+    AutoMovieEngineFilm.resolveAutoMovieLensAt({
       intents: [intent],
       seconds,
       position: { x: 0, y: 0, z: 0 },

@@ -1,4 +1,4 @@
-import { grammarDiagnosticsToReviewNotes } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import {
   type IAutoMovieGrammarDiagnostic,
   type IAutoMovieGrammarShotObservation,
@@ -322,7 +322,7 @@ export function test_engine_film_grammar(): void {
     ]),
     { pacingReported: true, allCarryGuidance: true },
   );
-  const notes: IAutoMovieReviewNote[] = grammarDiagnosticsToReviewNotes({
+  const notes: IAutoMovieReviewNote[] = AutoMovieEngineFilm.grammarDiagnosticsToReviewNotes({
     beat: "beat-grammar",
     diagnostics,
   });

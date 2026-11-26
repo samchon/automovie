@@ -1,8 +1,4 @@
-import {
-  autoMovieSurfaceFeedWidth,
-  autoMovieSurfaceGraphicNodeName,
-  sampleSurfaceGraphicKey,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderTexture, AutoMovieEngineRenderNode, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieFilmOptics,
@@ -112,7 +108,7 @@ export async function prepareAutoMovieSurfaceGraphics(
               : { readAsset: props.readFontAsset }),
           });
     for (const track of tracks) {
-      const label: string = autoMovieSurfaceGraphicNodeName(
+      const label: string = AutoMovieEngineRenderNode.autoMovieSurfaceGraphicNodeName(
         track.node,
         track.surface,
       );
@@ -167,7 +163,7 @@ export async function prepareAutoMovieSurfaceGraphics(
               // rule the render inventory counts the target with.
               const target: THREE.WebGLRenderTarget =
                 new THREE.WebGLRenderTarget(
-                  autoMovieSurfaceFeedWidth(
+                  AutoMovieEngineRenderTexture.autoMovieSurfaceFeedWidth(
                     layer,
                     surface.width!,
                     surface.depth!,
@@ -245,7 +241,7 @@ export async function prepareAutoMovieSurfaceGraphics(
         );
       tracks.forEach(
         (track: IAutoMovieSurfaceGraphicTrack, index: number): void => {
-          const shown: number = sampleSurfaceGraphicKey(track, seconds);
+          const shown: number = AutoMovieEngineFilm.sampleSurfaceGraphicKey(track, seconds);
           keyGroups[index]!.forEach((group: THREE.Group, key: number): void => {
             group.visible = key === shown;
           });

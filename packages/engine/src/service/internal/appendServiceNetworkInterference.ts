@@ -7,7 +7,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { propBoundsOverlap } from "../../film/propBoundsOverlap";
+import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { serviceMaintenanceBounds } from "./serviceMaintenanceBounds";
 import { serviceSegmentClashes } from "./serviceSegmentClashes";
 import { serviceSegmentSpanBounds } from "./serviceSegmentSpanBounds";

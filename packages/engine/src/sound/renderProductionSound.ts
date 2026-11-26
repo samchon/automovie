@@ -10,9 +10,9 @@ import {
   type IAutoMovieRenderedProductionSound,
 } from "@automovie/interface";
 
-import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
-import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
-import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
+import { productionFrameBoundaryToGridTick } from "../film/internal/productionFrameBoundaryToGridTick";
+import { productionFrameIntervalToGridTicks } from "../film/internal/productionFrameIntervalToGridTicks";
+import { resolveProductionFrameRate } from "../film/internal/resolveProductionFrameRate";
 import { overflowsBinary64 } from "../math/internal/overflowsBinary64";
 import { AutoMovieEngineRandom } from "../random";
 

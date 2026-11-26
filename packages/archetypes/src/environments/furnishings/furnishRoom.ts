@@ -1,4 +1,4 @@
-import { Quaternion, computeModelRestExtent } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
   IAutoMovieEnvironmentContribution,
@@ -412,7 +412,7 @@ export namespace furnishRoom {
    * @throws If the model has no measurable rest extent.
    */
   export function measure(model: IAutoMovieModel): IAutoMoviePropBox {
-    const result: IAutoMoviePropBox | null = computeModelRestExtent(model);
+    const result: IAutoMoviePropBox | null = AutoMovieEngineFilm.computeModelRestExtent(model);
     if (result === null)
       throw new Error(`${model.id} has no measurable furniture geometry`);
     return result;

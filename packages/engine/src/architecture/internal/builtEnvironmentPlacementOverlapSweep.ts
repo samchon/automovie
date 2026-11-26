@@ -9,7 +9,7 @@ import {
   IAutoMovieSubjectBox,
 } from "@automovie/interface";
 
-import { propBoundsOverlap } from "../../film/propBoundsOverlap";
+import { propBoundsOverlap } from "../../film/internal/propBoundsOverlap";
 import { builtEnvironmentPartBoxes } from "./builtEnvironmentPartBoxes";
 import { resolveBuiltPlacementBody } from "./resolveBuiltPlacementBody";
 

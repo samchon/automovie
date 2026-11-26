@@ -1,4 +1,4 @@
-import { Quaternion, computeModelRestExtent, AutoMovieEngineMath } from "@automovie/engine";
+import { Quaternion, AutoMovieEngineMath, AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieComputeModelRestExtent, IAutoMovieCrowdAgent, IAutoMovieModel, IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
 import type { AutoMovieArchetypeCourse } from "./AutoMovieArchetypeCourse";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
@@ -129,7 +129,7 @@ export namespace AutoMovieArchetypePassage {
    */
   export function footprint(model: IAutoMovieModel): IFootprint {
     const extent: IAutoMovieComputeModelRestExtent.IResult =
-      computeModelRestExtent(model);
+      AutoMovieEngineFilm.computeModelRestExtent(model);
     if (extent === null)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
@@ -192,7 +192,7 @@ export namespace AutoMovieArchetypePassage {
       const sample: AutoMovieArchetypeRide.ISample<string, string> =
         ride.at(seconds);
       const posed: IAutoMovieComputeModelRestExtent.IResult =
-        computeModelRestExtent(sample.archetype);
+        AutoMovieEngineFilm.computeModelRestExtent(sample.archetype);
       if (posed !== null) {
         grow(posed.min.x, posed.min.z);
         grow(posed.max.x, posed.max.z);

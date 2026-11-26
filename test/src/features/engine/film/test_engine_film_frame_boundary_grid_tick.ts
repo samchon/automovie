@@ -1,4 +1,4 @@
-import { productionFrameBoundaryToGridTick } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -23,37 +23,37 @@ export function test_engine_film_frame_boundary_grid_tick(): void {
   TestValidator.equals(
     "each boundary's tick",
     [
-      productionFrameBoundaryToGridTick({
+      AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
         frame: 1,
         frameRate: ntsc,
         ticksPerSecond: 48000,
         rounding: "floor",
       }),
-      productionFrameBoundaryToGridTick({
+      AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
         frame: 1,
         frameRate: ntsc,
         ticksPerSecond: 48000,
         rounding: "ceiling",
       }),
-      productionFrameBoundaryToGridTick({
+      AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
         frame: 1,
         frameRate: ntsc,
         ticksPerSecond: 48000,
         rounding: "nearest",
       }),
-      productionFrameBoundaryToGridTick({
+      AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
         frame: 1,
         frameRate: two,
         ticksPerSecond: 3,
         rounding: "nearest",
       }),
-      productionFrameBoundaryToGridTick({
+      AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
         frame: 1,
         frameRate: two,
         ticksPerSecond: 3,
         rounding: "floor",
       }),
-      productionFrameBoundaryToGridTick({
+      AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
         frame: 0,
         frameRate: ntsc,
         ticksPerSecond: 48000,
@@ -66,7 +66,7 @@ export function test_engine_film_frame_boundary_grid_tick(): void {
     "a negative frame and a zero clock are refused",
     throwsError(
       () =>
-        productionFrameBoundaryToGridTick({
+        AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
           frame: -1,
           frameRate: two,
           ticksPerSecond: 3,
@@ -76,7 +76,7 @@ export function test_engine_film_frame_boundary_grid_tick(): void {
     ) &&
       throwsError(
         () =>
-          productionFrameBoundaryToGridTick({
+          AutoMovieEngineFilm.productionFrameBoundaryToGridTick({
             frame: 1,
             frameRate: two,
             ticksPerSecond: 0,

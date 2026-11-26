@@ -17,11 +17,11 @@ import {
 } from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-import { intersectsPerspectiveFrustumSphere } from "./film/intersectsPerspectiveFrustumSphere";
-import { placeTransformedPoint } from "./film/placeTransformedPoint";
-import { projectToNdc } from "./film/projectToNdc";
-import { resolveAutoMovieDeliveryCrop } from "./film/resolveAutoMovieDeliveryCrop";
-import { resolveCameraAt } from "./film/resolveCameraAt";
+import { intersectsPerspectiveFrustumSphere } from "./film/internal/intersectsPerspectiveFrustumSphere";
+import { placeTransformedPoint } from "./film/internal/placeTransformedPoint";
+import { projectToNdc } from "./film/internal/projectToNdc";
+import { resolveAutoMovieDeliveryCrop } from "./film/internal/resolveAutoMovieDeliveryCrop";
+import { resolveCameraAt } from "./film/internal/resolveCameraAt";
 import { composeFormationHeroTransform } from "./populationRuntime/formation/composeFormationHeroTransform";
 import { formationSlotPosition } from "./populationRuntime/formation/formationSlotPosition";
 import { placeFormationSlot } from "./populationRuntime/formation/placeFormationSlot";

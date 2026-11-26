@@ -10,8 +10,8 @@ import {
 } from "@automovie/interface";
 
 import { createAutoMovieGeometryActorReader } from "./createAutoMovieGeometryActorReader";
-import { projectToNdc } from "./film/projectToNdc";
-import { resolveCameraAt } from "./film/resolveCameraAt";
+import { projectToNdc } from "./film/internal/projectToNdc";
+import { resolveCameraAt } from "./film/internal/resolveCameraAt";
 
 /**
  * Project unique requested actor root points through the sampled camera and

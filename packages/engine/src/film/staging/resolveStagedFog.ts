@@ -6,7 +6,7 @@ import type {
 
 import { overflowsBinary64 } from "../../math/internal/overflowsBinary64";
 import { validateColor } from "../../validation/validateColor";
-import { validateFogPlacement } from "./validateFogPlacement";
+import { validateFogPlacement } from "./internal/validateFogPlacement";
 
 /**
  * Admit the authored fog forms and produce the one canonical scene fog.

@@ -9,10 +9,10 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { evaluateAutoMovieCameraDepthPrecision } from "./evaluateAutoMovieCameraDepthPrecision";
-import { intersectsPerspectiveFrustumBox } from "./intersectsPerspectiveFrustumBox";
-import { projectToNdc } from "./projectToNdc";
-import { resolveCameraAt } from "./resolveCameraAt";
+import { evaluateAutoMovieCameraDepthPrecision } from "./internal/evaluateAutoMovieCameraDepthPrecision";
+import { intersectsPerspectiveFrustumBox } from "./internal/intersectsPerspectiveFrustumBox";
+import { projectToNdc } from "./internal/projectToNdc";
+import { resolveCameraAt } from "./internal/resolveCameraAt";
 
 /**
  * Grade the live camera at one shot-local second against the contract's

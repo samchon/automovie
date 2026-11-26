@@ -19,7 +19,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { mixSeed } from "../math/internal/mixSeed";
-import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
+import { autoMovieRenderDigest } from "../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { compiledPopulationRepresentation } from "./compiledPopulationRepresentation";
 import { AUTOMOVIE_FORMATION_CHUNK_SIZE } from "./constants/AUTOMOVIE_FORMATION_CHUNK_SIZE";

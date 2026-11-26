@@ -1,4 +1,4 @@
-import { resolveProductionFrameRate } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../internal/throwsError";
@@ -19,12 +19,12 @@ export function test_engine_film_resolve_frame_rate(): void {
   TestValidator.equals(
     "the exact rate of each production",
     [
-      resolveProductionFrameRate({ fps: 24 }),
-      resolveProductionFrameRate({
+      AutoMovieEngineFilm.resolveProductionFrameRate({ fps: 24 }),
+      AutoMovieEngineFilm.resolveProductionFrameRate({
         fps: 30,
         frameRate: { numerator: 60, denominator: 2 },
       }),
-      resolveProductionFrameRate({ fps: 30000 / 1001, frameRate: ntsc }),
+      AutoMovieEngineFilm.resolveProductionFrameRate({ fps: 30000 / 1001, frameRate: ntsc }),
     ],
     [
       { numerator: 24, denominator: 1 },
@@ -35,7 +35,7 @@ export function test_engine_film_resolve_frame_rate(): void {
   TestValidator.predicate(
     "a rational rate disagreeing with fps is refused",
     throwsError(
-      () => resolveProductionFrameRate({ fps: 29.97, frameRate: ntsc }),
+      () => AutoMovieEngineFilm.resolveProductionFrameRate({ fps: 29.97, frameRate: ntsc }),
       "does not equal",
     ),
   );

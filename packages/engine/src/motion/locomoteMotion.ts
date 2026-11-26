@@ -6,8 +6,8 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { timeScaleMotion } from "./timeScaleMotion";
-import { travelMotion } from "./travelMotion";
+import { timeScaleMotion } from "./internal/timeScaleMotion";
+import { travelMotion } from "./internal/travelMotion";
 
 /** Rotations about the fixed world-up axis. */
 const yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> =

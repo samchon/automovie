@@ -9,11 +9,7 @@ import {
   createEnvironment,
   createFurnishedRoom,
 } from "@automovie/archetypes/environments";
-import {
-  Quaternion,
-  Transform,
-  computeModelRestExtent,
-} from "@automovie/engine";
+import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
   IAutoMovieEnvironment,
@@ -115,7 +111,7 @@ export function test_environment_furnishing_relations(): void {
     model: IAutoMovieModel,
   ): IBox => {
     const frame: IAutoMovieTransform = environment.anchors[`room/${role}`]!;
-    const rest: IAutoMoviePropBox = computeModelRestExtent(model)!;
+    const rest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(model)!;
     const corners: IAutoMovieVector3[] = [];
     for (const x of [rest.min.x, rest.max.x])
       for (const y of [rest.min.y, rest.max.y])
@@ -186,7 +182,7 @@ export function test_environment_furnishing_relations(): void {
   const widthOf: (model: IAutoMovieModel) => number = (
     model: IAutoMovieModel,
   ): number => {
-    const rest: IAutoMoviePropBox = computeModelRestExtent(model)!;
+    const rest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(model)!;
     return rest.max.x - rest.min.x;
   };
   const first: IAutoMovieEnvironment = lounge(sofaA);
@@ -237,7 +233,7 @@ export function test_environment_furnishing_relations(): void {
 
   // Scenario 4: a wall mirror on +x and a sofa on -z.
   const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, 1019);
-  const mirrorRest: IAutoMoviePropBox = computeModelRestExtent(mirror)!;
+  const mirrorRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(mirror)!;
   const hungPieces: Readonly<Record<string, IAutoMovieFurnishingPiece>> = {
     sofa: { model: sofaA, place: { kind: "wall", wall: "-z", offset: 0.4 } },
     mirror: { model: mirror, place: { kind: "wall", wall: "+x", offset: 1.0 } },
@@ -274,7 +270,7 @@ export function test_environment_furnishing_relations(): void {
         place: { kind: "wall", wall: "-z", after: "bed", gap },
       },
     });
-  const sofaRest: IAutoMoviePropBox = computeModelRestExtent(sofaA)!;
+  const sofaRest: IAutoMoviePropBox = AutoMovieEngineFilm.computeModelRestExtent(sofaA)!;
 
   const facts: Record<string, boolean> = namedFacts([
     [

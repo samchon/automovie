@@ -1,4 +1,4 @@
-import { equalProductionFrameRates } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAssertProductionVideoProfileProps,
   IAutoMovieProductionFrameRate,
@@ -66,8 +66,8 @@ export const assertProductionVideoProfile: (
       "frameRate",
       true,
       clockValid &&
-        equalProductionFrameRates(expected.frameRate, actualRate) &&
-        equalProductionFrameRates(actual.frameRate, actualRate),
+        AutoMovieEngineFilm.equalProductionFrameRates(expected.frameRate, actualRate) &&
+        AutoMovieEngineFilm.equalProductionFrameRates(actual.frameRate, actualRate),
     ],
     ["samples.firstDts", 0, actual.samples.firstDts],
     ["samples.lastDts", lastSampleTime, actual.samples.lastDts],

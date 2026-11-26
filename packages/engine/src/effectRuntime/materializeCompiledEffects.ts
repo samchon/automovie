@@ -6,7 +6,7 @@ import {
   IAutoMovieWorldEffectZone,
 } from "@automovie/interface";
 
-import { autoMovieRenderDigest } from "../render/autoMovieRenderDigest";
+import { autoMovieRenderDigest } from "../render/internal/autoMovieRenderDigest";
 import { AutoMovieEngineCanonicalJson } from "../text/AutoMovieEngineCanonicalJson";
 import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
 import { admitEffectTransport } from "./admitEffectTransport";

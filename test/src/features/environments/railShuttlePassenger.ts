@@ -1,9 +1,4 @@
-import {
-  Quaternion,
-  Transform,
-  Vector3,
-  bakedTransformFromClipsAt,
-} from "@automovie/engine";
+import { Quaternion, Transform, Vector3, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieModel,
@@ -35,7 +30,7 @@ export function railShuttlePassenger(
     (prop) => prop.node === carrier,
   )!.model;
   const placement = (time: number): IAutoMovieRigidTransform => {
-    const frame: IAutoMovieTransform = bakedTransformFromClipsAt(
+    const frame: IAutoMovieTransform = AutoMovieEngineFilm.bakedTransformFromClipsAt(
       environment.runtime.objectMotions,
       carrier,
       Math.max(0, time),

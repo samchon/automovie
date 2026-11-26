@@ -4,7 +4,7 @@ import {
   type IAutoMovieSampleProductionFilmEffects,
 } from "@automovie/interface";
 
-import { productionFrameBoundaryToSeconds } from "../film/productionFrameBoundaryToSeconds";
+import { productionFrameBoundaryToSeconds } from "../film/internal/productionFrameBoundaryToSeconds";
 import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeError";
 import { sampleCompiledEffect } from "./internal/sampleCompiledEffect";
 import { validateProductionFilmEffectIdentity } from "./validateProductionFilmEffectIdentity";

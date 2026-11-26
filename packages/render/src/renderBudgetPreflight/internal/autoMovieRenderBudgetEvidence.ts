@@ -1,7 +1,4 @@
-import {
-  autoMovieRenderDigest,
-  compareAutoMovieRenderIds,
-} from "@automovie/engine";
+import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import type {
   IAutoMovieRenderBudget,
   IAutoMovieRenderBudgetAssessment,
@@ -42,7 +39,7 @@ export const autoMovieRenderBudgetEvidence: (
     (
       left: IAutoMovieRenderBudgetAssessment,
       right: IAutoMovieRenderBudgetAssessment,
-    ): number => compareAutoMovieRenderIds(left.shot, right.shot),
+    ): number => AutoMovieEngineRenderTarget.compareAutoMovieRenderIds(left.shot, right.shot),
   );
   const status: IAutoMovieRenderBudgetAssessment["status"] =
     shots.length === 0
@@ -63,7 +60,7 @@ export const autoMovieRenderBudgetEvidence: (
         (budget: IAutoMovieRenderBudget): string => budget.tier,
       ),
     ),
-  ].sort(compareAutoMovieRenderIds);
+  ].sort(AutoMovieEngineRenderTarget.compareAutoMovieRenderIds);
   return {
     version: 1,
     protocol: "automovie.render-budget-evidence.v1",
@@ -72,7 +69,7 @@ export const autoMovieRenderBudgetEvidence: (
     budgeted: selectAutoMovieRenderBudget(props.budgets, props.tier) !== null,
     status,
     shots,
-    digest: autoMovieRenderDigest(
+    digest: AutoMovieEngineRenderTarget.autoMovieRenderDigest(
       JSON.stringify({
         protocol: "automovie.render-budget-evidence.v1",
         tier: props.tier,

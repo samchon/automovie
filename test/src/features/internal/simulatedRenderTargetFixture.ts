@@ -1,10 +1,10 @@
-import { sealAutoMovieRenderTarget } from "@automovie/engine";
+import { AutoMovieEngineRenderTarget } from "@automovie/engine";
 import type { IAutoMovieRenderTarget } from "@automovie/interface";
 
 /** Seal the fixed renderer and raster settings used by budget scenarios. */
 export const simulatedRenderTargetFixture: () => IAutoMovieRenderTarget =
   (): IAutoMovieRenderTarget =>
-    sealAutoMovieRenderTarget({
+    AutoMovieEngineRenderTarget.sealAutoMovieRenderTarget({
       renderer: { api: "webgl2", vendor: "test", device: "swiftshader" },
       settings: {
         width: 640,

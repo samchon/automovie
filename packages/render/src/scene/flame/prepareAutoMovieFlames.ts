@@ -1,8 +1,4 @@
-import {
-  autoMovieFlameNodeName,
-  compileAutoMovieFlameFlicker,
-  sampleAutoMovieFlame,
-} from "@automovie/engine";
+import { autoMovieFlameNodeName, AutoMovieEngineFlame } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
   IAutoMovieClip,
@@ -93,7 +89,7 @@ export function prepareAutoMovieFlames(
       const emission: { color: IAutoMovieColor; luminance: number } =
         cue.light === undefined ? cue.emission! : boundEmission(cue, props);
       const geometry: THREE.BufferGeometry = toGeometry(
-        sampleAutoMovieFlame(cue, 0).mesh,
+        AutoMovieEngineFlame.sampleAutoMovieFlame(cue, 0).mesh,
       );
       const mesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial> =
         new THREE.Mesh(
@@ -126,7 +122,7 @@ export function prepareAutoMovieFlames(
           cue.on === undefined || (cue.on[0] <= seconds && seconds < cue.on[1]);
         if (!mesh.visible) return;
         const sample: { mesh: IAutoMovieMesh; area: number } =
-          sampleAutoMovieFlame(cue, seconds);
+          AutoMovieEngineFlame.sampleAutoMovieFlame(cue, seconds);
         const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
           mesh.geometry,
           "position",
@@ -211,7 +207,7 @@ function boundEmission(
     throw new Error(
       `Flame "${autoMovieFlameNodeName(cue.node, cue.id)}" names light binding "${cue.light}", which drives no staged light`,
     );
-  const mean: number = compileAutoMovieFlameFlicker(
+  const mean: number = AutoMovieEngineFlame.compileAutoMovieFlameFlicker(
     cue,
     props.shot.duration,
   ).mean;

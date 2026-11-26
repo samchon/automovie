@@ -1,4 +1,4 @@
-import { evaluateAutoMovieCameraDepthPrecision } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type { IAutoMovieCameraDepthPrecisionConstraint } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -12,14 +12,14 @@ const CONSTRAINT: IAutoMovieCameraDepthPrecisionConstraint = {
 
 const evaluate: (
   overrides?: Partial<
-    Parameters<typeof evaluateAutoMovieCameraDepthPrecision>[0]
+    Parameters<typeof AutoMovieEngineFilm.evaluateAutoMovieCameraDepthPrecision>[0]
   >,
-) => ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> = (
+) => ReturnType<typeof AutoMovieEngineFilm.evaluateAutoMovieCameraDepthPrecision> = (
   overrides: Partial<
-    Parameters<typeof evaluateAutoMovieCameraDepthPrecision>[0]
+    Parameters<typeof AutoMovieEngineFilm.evaluateAutoMovieCameraDepthPrecision>[0]
   > = {},
-): ReturnType<typeof evaluateAutoMovieCameraDepthPrecision> =>
-  evaluateAutoMovieCameraDepthPrecision({
+): ReturnType<typeof AutoMovieEngineFilm.evaluateAutoMovieCameraDepthPrecision> =>
+  AutoMovieEngineFilm.evaluateAutoMovieCameraDepthPrecision({
     camera: "camera-main",
     time: 1.25,
     near: 1,

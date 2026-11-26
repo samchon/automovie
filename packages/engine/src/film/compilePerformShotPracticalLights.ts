@@ -13,8 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { appendLightMotionsArtifact } from "../validation/appendLightMotionsArtifact";
-import { compilePracticalLightMotion } from "./compilePracticalLightMotion";
-import { compileAutoMovieFlameFlicker } from "./flame/compileAutoMovieFlameFlicker";
+import { compilePracticalLightMotion } from "./internal/compilePracticalLightMotion";
+import { compileAutoMovieFlameFlicker } from "./flame/internal/compileAutoMovieFlameFlicker";
 
 /**
  * Resolve practical bindings against the staged scene and models and bake them

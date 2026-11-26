@@ -1,4 +1,4 @@
-import { AutoMovieEngineViolationCollector, gatePerformShotStageAction } from "@automovie/engine";
+import { AutoMovieEngineViolationCollector, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieEnginePerformShotActionPlan,
   IAutoMovieEnginePerformShotGateContext,
@@ -50,7 +50,7 @@ export function test_engine_film_enact_clip_gate(): void {
     attachments: [],
   };
   ["entrance-move", "", " \t"].forEach((clip: string, index: number): void =>
-    gatePerformShotStageAction(
+    AutoMovieEngineFilm.gatePerformShotStageAction(
       context,
       plan,
       { verb: "enact", actor: "actor", start: 0, duration: 1, clip },
