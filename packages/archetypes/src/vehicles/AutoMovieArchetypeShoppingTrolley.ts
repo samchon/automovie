@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createShoppingTrolleyImpl } from "./cart/createShoppingTrolley";
+import { createShoppingTrolley } from "./cart/createShoppingTrolley";
 
 /** Canonical producer and authoring contract for Shopping Trolley. */
 export namespace AutoMovieArchetypeShoppingTrolley {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeShoppingTrolley {
     AutoMovieArchetypeShoppingTrolley.Affordance,
     AutoMovieArchetypeShoppingTrolley.Dimension
   > {
-    return createShoppingTrolleyImpl(params, seed);
+    return createShoppingTrolley(params, seed);
   }
 
   /**

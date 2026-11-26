@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeWagon } from "../AutoMovieArchetypeWagon";
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createWagonImpl(
+export function createWagon(
   params: AutoMovieArchetypeWagon.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<AutoMovieArchetypeWagon.Affordance, AutoMovieArchetypeWagon.Dimension> {

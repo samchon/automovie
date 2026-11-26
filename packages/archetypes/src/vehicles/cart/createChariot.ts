@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeChariot } from "../AutoMovieArchetypeChariot";
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createChariotImpl(
+export function createChariot(
   params: AutoMovieArchetypeChariot.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<AutoMovieArchetypeChariot.Affordance, AutoMovieArchetypeChariot.Dimension> {

@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createCarriageImpl } from "./cart/createCarriage";
+import { createCarriage } from "./cart/createCarriage";
 
 /** Canonical producer and authoring contract for Carriage. */
 export namespace AutoMovieArchetypeCarriage {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeCarriage {
     AutoMovieArchetypeCarriage.Affordance,
     AutoMovieArchetypeCarriage.Dimension
   > {
-    return createCarriageImpl(params, seed);
+    return createCarriage(params, seed);
   }
 
   /** The `model` choices this producer admits. */

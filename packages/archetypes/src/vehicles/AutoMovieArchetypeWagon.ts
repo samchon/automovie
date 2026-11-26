@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createWagonImpl } from "./cart/createWagon";
+import { createWagon } from "./cart/createWagon";
 
 /** Canonical producer and authoring contract for Wagon. */
 export namespace AutoMovieArchetypeWagon {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeWagon {
     AutoMovieArchetypeWagon.Affordance,
     AutoMovieArchetypeWagon.Dimension
   > {
-    return createWagonImpl(params, seed);
+    return createWagon(params, seed);
   }
 
   /**

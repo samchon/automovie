@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createChariotImpl } from "./cart/createChariot";
+import { createChariot } from "./cart/createChariot";
 
 /** Canonical producer and authoring contract for Chariot. */
 export namespace AutoMovieArchetypeChariot {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeChariot {
     AutoMovieArchetypeChariot.Affordance,
     AutoMovieArchetypeChariot.Dimension
   > {
-    return createChariotImpl(params, seed);
+    return createChariot(params, seed);
   }
 
   /**

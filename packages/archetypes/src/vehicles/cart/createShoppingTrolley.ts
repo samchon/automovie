@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeShoppingTrolley } from "../AutoMovieArchetypeSho
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createShoppingTrolleyImpl(
+export function createShoppingTrolley(
   params: AutoMovieArchetypeShoppingTrolley.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<

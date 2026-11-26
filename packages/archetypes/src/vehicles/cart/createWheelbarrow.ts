@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeWheelbarrow } from "../AutoMovieArchetypeWheelba
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createWheelbarrowImpl(
+export function createWheelbarrow(
   params: AutoMovieArchetypeWheelbarrow.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<

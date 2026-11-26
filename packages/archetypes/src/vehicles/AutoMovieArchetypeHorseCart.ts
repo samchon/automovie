@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createHorseCartImpl } from "./cart/createHorseCart";
+import { createHorseCart } from "./cart/createHorseCart";
 
 /** Canonical producer and authoring contract for Horse Cart. */
 export namespace AutoMovieArchetypeHorseCart {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeHorseCart {
     AutoMovieArchetypeHorseCart.Affordance,
     AutoMovieArchetypeHorseCart.Dimension
   > {
-    return createHorseCartImpl(params, seed);
+    return createHorseCart(params, seed);
   }
 
   /** The `model` choices this producer admits. */

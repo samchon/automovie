@@ -17,7 +17,7 @@ import type { AutoMovieArchetypeHorseCart } from "../AutoMovieArchetypeHorseCart
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createHorseCartImpl(
+export function createHorseCart(
   params: AutoMovieArchetypeHorseCart.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<AutoMovieArchetypeHorseCart.Affordance, AutoMovieArchetypeHorseCart.Dimension> {

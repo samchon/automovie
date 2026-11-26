@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeCarriage } from "../AutoMovieArchetypeCarriage";
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createCarriageImpl(
+export function createCarriage(
   params: AutoMovieArchetypeCarriage.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<AutoMovieArchetypeCarriage.Affordance, AutoMovieArchetypeCarriage.Dimension> {

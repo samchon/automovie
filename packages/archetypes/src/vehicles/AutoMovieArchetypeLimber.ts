@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createLimberImpl } from "./cart/createLimber";
+import { createLimber } from "./cart/createLimber";
 
 /** Canonical producer and authoring contract for Limber. */
 export namespace AutoMovieArchetypeLimber {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeLimber {
     AutoMovieArchetypeLimber.Affordance,
     AutoMovieArchetypeLimber.Dimension
   > {
-    return createLimberImpl(params, seed);
+    return createLimber(params, seed);
   }
 
   /**

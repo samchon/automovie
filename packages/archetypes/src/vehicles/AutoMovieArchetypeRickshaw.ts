@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createRickshawImpl } from "./cart/createRickshaw";
+import { createRickshaw } from "./cart/createRickshaw";
 
 /** Canonical producer and authoring contract for Rickshaw. */
 export namespace AutoMovieArchetypeRickshaw {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeRickshaw {
     AutoMovieArchetypeRickshaw.Affordance,
     AutoMovieArchetypeRickshaw.Dimension
   > {
-    return createRickshawImpl(params, seed);
+    return createRickshaw(params, seed);
   }
 
   /** The `model` choices this producer admits. */

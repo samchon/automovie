@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeLimber } from "../AutoMovieArchetypeLimber";
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createLimberImpl(
+export function createLimber(
   params: AutoMovieArchetypeLimber.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<AutoMovieArchetypeLimber.Affordance, AutoMovieArchetypeLimber.Dimension> {

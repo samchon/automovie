@@ -16,7 +16,7 @@ import type { AutoMovieArchetypeRickshaw } from "../AutoMovieArchetypeRickshaw";
  * @throws {AutoMovieArchetypeRefusal} For inputs the selected catalogue profile
  *   cannot use.
  */
-export function createRickshawImpl(
+export function createRickshaw(
   params: AutoMovieArchetypeRickshaw.IParams = {},
   seed?: number,
 ): AutoMovieArchetype<AutoMovieArchetypeRickshaw.Affordance, AutoMovieArchetypeRickshaw.Dimension> {

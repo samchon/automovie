@@ -1,6 +1,6 @@
 import type { AutoMovieArchetype } from "../core";
 import type { createCart } from "./createCart";
-import { createWheelbarrowImpl } from "./cart/createWheelbarrow";
+import { createWheelbarrow } from "./cart/createWheelbarrow";
 
 /** Canonical producer and authoring contract for Wheelbarrow. */
 export namespace AutoMovieArchetypeWheelbarrow {
@@ -24,7 +24,7 @@ export namespace AutoMovieArchetypeWheelbarrow {
     AutoMovieArchetypeWheelbarrow.Affordance,
     AutoMovieArchetypeWheelbarrow.Dimension
   > {
-    return createWheelbarrowImpl(params, seed);
+    return createWheelbarrow(params, seed);
   }
 
   /**
