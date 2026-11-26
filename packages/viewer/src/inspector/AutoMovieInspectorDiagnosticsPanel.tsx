@@ -4,12 +4,12 @@ import type { ChangeEvent, JSX } from "react";
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
-import { showAutoMovieInspectorFinding } from "./showAutoMovieInspectorFinding.js";
+import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
 
 /**
  * Diagnostics: the confirmed errors this mount has reported, newest first, each with buttons that show its evidence.
  *
- * A first visit offers its witness; a span offers its first and its worst witness and says whether consecutive frames or uninterrupted playback joined it. A button stops the playhead at the witness and locates the request there through `showAutoMovieInspectorFinding`, so the picture, the address and the capture command name that second with the finding's drawn entities labelled. The checkbox shows or hides the witness cubes and the status line; checks and reports continue either way.
+ * A first visit offers its witness; a span offers its first and its worst witness and says whether consecutive frames or uninterrupted playback joined it. A button stops the playhead at the witness and locates the request there through `AutoMovieViewerInspector.showFinding`, so the picture, the address and the capture command name that second with the finding's drawn entities labelled. The checkbox shows or hides the witness cubes and the status line; checks and reports continue either way.
  */
 export function AutoMovieInspectorDiagnosticsPanel(props: {
   /** Reported incidents, newest first. */
@@ -35,7 +35,7 @@ export function AutoMovieInspectorDiagnosticsPanel(props: {
   ) => void = (
     observation: IAutoMovieInspectionDiagnostics.IObservation,
   ): void =>
-    showAutoMovieInspectorFinding({
+    AutoMovieViewerInspector.showFinding({
       observation,
       paths: props.paths,
       playhead: props.playhead,

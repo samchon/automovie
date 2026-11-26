@@ -1,12 +1,11 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
   AutoMovieInspectorPlayhead,
+  AutoMovieViewerInspector,
   type IAutoMovieInspectorAction,
   type IAutoMovieInspectorState,
   createAutoMovieInspectorState,
-  locateAutoMovieInspectorFinding,
   reduceAutoMovieInspectorState,
-  showAutoMovieInspectorFinding,
   stopAutoMovieInspectorTime,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
@@ -46,7 +45,7 @@ export function test_viewer_inspector_show_inspector_finding(): void {
   // 1. The handler, then the readout's effect.
   const shown: IRun = run(
     (playhead: AutoMovieInspectorPlayhead, dispatch: IDispatch): void =>
-      showAutoMovieInspectorFinding({
+      AutoMovieViewerInspector.showFinding({
         observation: witness,
         paths,
         playhead,
@@ -75,7 +74,7 @@ export function test_viewer_inspector_show_inspector_finding(): void {
   const earlier: IRun = run(
     (playhead: AutoMovieInspectorPlayhead, dispatch: IDispatch): void => {
       playhead.pause();
-      dispatch(locateAutoMovieInspectorFinding(witness, paths));
+      dispatch(AutoMovieViewerInspector.locateFinding({ observation: witness, paths }));
     },
   );
   TestValidator.equals(

@@ -1,23 +1,44 @@
-import type { IAutoMovieCapturePlanRequest } from "@automovie/interface";
+import type {
+  IAutoMovieCapturePlanRequest,
+  IAutoMovieInspectionDiagnostics,
+} from "@automovie/interface";
 import type { IAutoMovieDrawSubject } from "@automovie/render";
 
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
+import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
+import { locateAutoMovieInspectorFinding } from "./internal/locateAutoMovieInspectorFinding.js";
 import { mountAutoMovieInspectorPage } from "./internal/mountAutoMovieInspectorPage.js";
 import { mountAutoMovieInspectorScene } from "./internal/mountAutoMovieInspectorScene.js";
+import { showAutoMovieInspectorFinding } from "./internal/showAutoMovieInspectorFinding.js";
 
 /**
  * Owns the imperative entry points for the Viewer inspector.
  *
  * `mountPage` mounts the existing React inspector as a complete page and
  * returns its unmount operation. `mountScene` mounts one subject on a host
- * canvas and returns the controls used by the React component. Hosts should
- * use `mountPage`; React applications that want their own controls can render
- * `AutoMovieInspector` directly.
+ * canvas and returns the controls used by the React component. Finding methods
+ * locate and show diagnostic witnesses without changing the React UI.
  */
 export namespace AutoMovieViewerInspector {
+  /** Witness and drawn paths used to create a request edit for a finding. */
+  export interface IFindingLocationRequest {
+    /** The inspection observation whose witness should be shown. */
+    observation: IAutoMovieInspectionDiagnostics.IObservation;
+    /** The identity paths drawn by the mounted subject. */
+    paths: readonly string[];
+  }
+
+  /** Finding navigation dependencies supplied by the diagnostics panel. */
+  export interface IShowFindingRequest extends IFindingLocationRequest {
+    /** The inspector playhead moved to the witness. */
+    playhead: AutoMovieInspectorPlayhead;
+    /** Receives the location edit after the playhead is stopped. */
+    dispatch: (action: IAutoMovieInspectorAction) => void;
+  }
+
   /** Inputs the host supplies to mount the complete inspector page. */
   export interface IPageProps {
     /** The element the page renders into. */
@@ -52,6 +73,18 @@ export namespace AutoMovieViewerInspector {
   export interface IPageHandle {
     /** Unmount the page and release everything it holds. */
     unmount(): void;
+  }
+
+  /** Resolve the closest drawn owners for the paths named by one finding. */
+  export function locateFinding(
+    request: IFindingLocationRequest,
+  ): IAutoMovieInspectorAction.ILocate {
+    return locateAutoMovieInspectorFinding(request);
+  }
+
+  /** Stop at a finding witness and dispatch its location edit. */
+  export function showFinding(request: IShowFindingRequest): void {
+    showAutoMovieInspectorFinding(request);
   }
 
   /**

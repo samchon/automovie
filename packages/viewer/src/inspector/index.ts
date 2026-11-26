@@ -17,8 +17,6 @@ export * from "./createAutoMovieInspectorState.js";
 export * from "./formatAutoMovieInspectorAddress.js";
 export * from "./formatAutoMovieInspectorCommand.js";
 export * from "./handleAutoMovieInspectorKey.js";
-export * from "./locateAutoMovieInspectorFinding.js";
-export * from "./showAutoMovieInspectorFinding.js";
 export * from "./stopAutoMovieInspectorTime.js";
 export * from "./IAutoMovieInspectorAction.js";
 export * from "./IAutoMovieInspectorPathNode.js";
