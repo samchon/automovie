@@ -1,11 +1,5 @@
-import {
-  AutoMovieEngineSound,
-  autoMovieRenderDigest,
-  AutoMovieEngineCanonicalJson,
-  digestAutoMovieBytes,
-  hashAutoMovieFnv1a64,
-  utf8Bytes,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEngineSound, autoMovieRenderDigest, AutoMovieEngineCanonicalJson, digestAutoMovieBytes, utf8Bytes } from "@automovie/engine";
+
 import { AutoMovieIngestAudio } from "@automovie/ingest";
 import type {
   IAutoMovieFilmSound,
@@ -125,7 +119,7 @@ export async function mixAutoMovieFilmSound(
       ): IAutoMovieProductionSoundPlan["cues"][number] => ({
         ...cue,
         seed: Number.parseInt(
-          hashAutoMovieFnv1a64(utf8Bytes(`${fingerprint}|cue|${cue.id}`)).slice(
+          AutoMovieEngineRandom.hashFnv1a64(utf8Bytes(`${fingerprint}|cue|${cue.id}`)).slice(
             8,
           ),
           16,

@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, seededSmoothNoise } from "@automovie/engine";
+import { AutoMovieEngineRandom, seededSmoothNoise } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionPlan,
@@ -472,7 +473,7 @@ export namespace walkStation {
     );
     const from: number = context.start;
     const span: number = Math.max(rests(context, station) - from, 1e-6);
-    const random: IAutoMovieRandom = createAutoMovieRandom(dress.seed);
+    const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(dress.seed);
     const lateral: IAutoMovieRandom = random.stream("lateral");
     const depth: IAutoMovieRandom = random.stream("depth");
     return (seconds: number): IAutoMovieVector3 => {

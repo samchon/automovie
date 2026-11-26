@@ -1,4 +1,5 @@
-import { createAutoMovieRandom } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanWalkCadence,
   IAutoMovieRandom,
@@ -30,7 +31,7 @@ const ROUNDING: number = 64 * Number.EPSILON * 16;
  *    that cannot match a much slower beat is refused.
  */
 export function test_motions_actions_walk_cadence_strikes(): void {
-  const random: IAutoMovieRandom = createAutoMovieRandom("0000000000000000");
+  const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("0000000000000000");
   const centered: IAutoMovieRandom = {
     ...random,
     float: (index: number): number => (index === 0 ? 0.5 : 0.25),

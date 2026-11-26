@@ -6,8 +6,9 @@ import type {
 
 import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
-import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
-import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
+import { AutoMovieEngineRandom } from "../random";
+
+
 import { AUTOMOVIE_ROOM_TONE } from "./AUTOMOVIE_ROOM_TONE";
 
 /**
@@ -15,7 +16,7 @@ import { AUTOMOVIE_ROOM_TONE } from "./AUTOMOVIE_ROOM_TONE";
  * to an interleaved stereo mix.
  *
  * Source: the bed's seed keys a counter-based Philox stream
- * (`createAutoMovieRandom`, purpose `room-tone`), read at consecutive indices
+ * (`AutoMovieEngineRandom.createRandom`, purpose `room-tone`), read at consecutive indices
  * as uniform noise in (−1, 1). Shape: a fixed bank of fourth-order band-pass
  * filters, each a second-order section run twice, at the base-two octave
  * centres from 31.25 Hz to 16 kHz (`AUTOMOVIE_ROOM_TONE.bandsHz`), each with
@@ -102,8 +103,8 @@ export function mixProductionRoomTone(
     const bank: IBand[] = createBank(bed.tiltDbPerOctave, rate);
     const scale: number =
       10 ** (bed.levelDbfs / 20) / Math.sqrt(bankPower(bank) / 3);
-    const noise: IAutoMovieRandom = createAutoMovieRandom(
-      deriveAutoMovieSeed(String(bed.seed), "room-tone"),
+    const noise: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed(String(bed.seed), "room-tone"),
     );
     for (let at: number = first - warmUp; at < last; ++at) {
       const x: number = 2 * noise.float(at - first + warmUp) - 1;

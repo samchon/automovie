@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanAttribute,
   IAutoMovieMotionHumanAttributeEffects,
@@ -45,8 +46,8 @@ export namespace HumanAttribute {
     index: number,
     name: string,
   ): IAutoMovieRandom {
-    return createAutoMovieRandom(
-      deriveAutoMovieSeed(seed, "ensemble", ensemble, String(index), name),
+    return AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed(seed, "ensemble", ensemble, String(index), name),
     );
   }
 

@@ -1,4 +1,5 @@
-import { Vector3, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom, Vector3 } from "@automovie/engine";
+
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -92,8 +93,8 @@ export function createRock(
   );
   if (shape === "irregular") {
     const form: ReturnType<typeof irregularRockForm> = irregularRockForm(
-      deriveAutoMovieSeed(
-        deriveAutoMovieSeed(String(seed ?? 0), "archetype", "rock"),
+      AutoMovieEngineRandom.deriveSeed(
+        AutoMovieEngineRandom.deriveSeed(String(seed ?? 0), "archetype", "rock"),
         "form",
       ),
       d.diameter,

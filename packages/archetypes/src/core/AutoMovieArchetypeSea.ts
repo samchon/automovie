@@ -1,9 +1,5 @@
-import {
-  AutoMovieGravity,
-  Quaternion,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieGravity, Quaternion } from "@automovie/engine";
+
 import type {
   IAutoMovieRandom,
   IAutoMovieTransform,
@@ -140,8 +136,8 @@ export namespace AutoMovieArchetypeSea {
         reason: `a significant wave height of ${height} m is no sea`,
         fix: "give the significant height in metres, 0 or more",
       });
-    const random: IAutoMovieRandom = createAutoMovieRandom(
-      deriveAutoMovieSeed(String(options.seed), "archetype", "sea"),
+    const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed(String(options.seed), "archetype", "sea"),
     );
     const heading: number =
       options.heading === undefined ? random.float(0) * 360 : options.heading;

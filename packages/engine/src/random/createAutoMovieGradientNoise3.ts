@@ -3,6 +3,7 @@ import type { IAutoMovieRandom } from "@automovie/interface";
 import { admitAutoMovieNoiseCoordinate } from "./admitAutoMovieNoiseCoordinate";
 import { createAutoMovieRandom } from "./createAutoMovieRandom";
 import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
+import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
 /**
  * Seeded three-dimensional gradient noise, a smooth non-periodic value over
@@ -19,7 +20,7 @@ import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
  * ({@link createAutoMovieRandom}) at the corner's own index, uniform over the
  * sphere by Archimedes' hat-box theorem (height uniform in [-1, 1], azimuth
  * uniform). Corner `(i, j, k)` reads index `((i + B) N + (j + B)) N + (k + B)`
- * with `B = 2^16` ({@link createAutoMovieGradientNoise3.BOUND}) and `N = 2B +
+ * with `B = 2^16` ({@link AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND}) and `N = 2B +
  * 2`. A point admitted by the bound has corners in `[-B, B + 1]` on each axis,
  * so every digit lies in `[0, N)` and the mixed-radix index is one-to-one, with
  * largest value `N^3 - 1`, about 2.25e15, below 2^53.
@@ -32,13 +33,13 @@ import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @returns The noise, taking coordinates in lattice cells; it throws naming
- *   `x`, `y` or `z` when a coordinate is not finite or exceeds `±B`.
+ *   `x`, `y` or `z` when a coordinate is not finite or exceeds `짹B`.
  */
 export function createAutoMovieGradientNoise3(
   seed: string,
 ): (x: number, y: number, z: number) => number {
   const random: IAutoMovieRandom = createAutoMovieRandom(seed);
-  const bound: number = createAutoMovieGradientNoise3.BOUND;
+  const bound: number = AutoMovieEngineRandomBounds.GRADIENT_NOISE_3;
   const radix: number = 2 * bound + 2;
   const scale: number = 2 / Math.sqrt(3);
 
@@ -105,10 +106,3 @@ export function createAutoMovieGradientNoise3(
 }
 
 /** The three-dimensional noise's domain bound. */
-export namespace createAutoMovieGradientNoise3 {
-  /**
-   * The largest admitted lattice coordinate magnitude, `2^16` cells on each
-   * axis; `(2^17 + 2)^3` corner indices fit within the stream's 2^53.
-   */
-  export const BOUND: number = 65_536;
-}

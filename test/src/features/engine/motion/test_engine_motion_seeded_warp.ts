@@ -1,9 +1,5 @@
-import {
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-  seededSmoothNoise,
-  warpRoot,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, seededSmoothNoise, warpRoot } from "@automovie/engine";
+
 import type {
   IAutoMovieRandom,
   IAutoMovieTransform,
@@ -42,7 +38,7 @@ export function test_engine_motion_seeded_warp(): void {
   // 1. The spectrum.
   const draws: number[] = [];
   const stream: IAutoMovieRandom = {
-    ...createAutoMovieRandom(deriveAutoMovieSeed("spectrum")),
+    ...AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("spectrum")),
     float(i: number): number {
       draws.push(i);
       return i / 8;
@@ -112,8 +108,8 @@ export function test_engine_motion_seeded_warp(): void {
   // 3. Seeds.
   const at = (seed: string, u: number): number =>
     seededSmoothNoise(
-      createAutoMovieRandom(
-        deriveAutoMovieSeed(seed, "walker", "walk", "tempo"),
+      AutoMovieEngineRandom.createRandom(
+        AutoMovieEngineRandom.deriveSeed(seed, "walker", "walk", "tempo"),
       ),
       u,
       0.8,

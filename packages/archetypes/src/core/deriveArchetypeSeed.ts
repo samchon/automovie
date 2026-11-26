@@ -1,4 +1,5 @@
-import { deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 
 /**
  * The seed of a part drawn under a parent seed: an environment occurrence under
@@ -6,7 +7,7 @@ import { deriveAutoMovieSeed } from "@automovie/engine";
  * its kit.
  *
  * It is the top 52 bits of the 64-bit FNV-1a (Fowler–Noll–Vo) hash that the
- * engine's `deriveAutoMovieSeed` takes of the parent seed's decimal text and
+ * engine's `AutoMovieEngineRandom.deriveSeed` takes of the parent seed's decimal text and
  * the part's ids, read as an integer. Fifty-two bits is the widest integer a
  * double holds exactly below `Number.MAX_SAFE_INTEGER` in whole hexadecimal
  * digits, so the derived seed is itself a valid archetype seed and is drawn
@@ -19,7 +20,7 @@ import { deriveAutoMovieSeed } from "@automovie/engine";
  */
 export function deriveArchetypeSeed(seed: number, ...ids: string[]): number {
   return Number.parseInt(
-    deriveAutoMovieSeed(String(seed), ...ids).slice(0, 13),
+    AutoMovieEngineRandom.deriveSeed(String(seed), ...ids).slice(0, 13),
     16,
   );
 }

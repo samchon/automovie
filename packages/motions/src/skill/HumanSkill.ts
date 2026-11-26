@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieProficiency,
@@ -33,7 +34,7 @@ type LEVELSEntryItem = "novice" | "amateur" | "trained" | "elite";
  * - Postural sway RMS, a factor of 1.6 to 1.0 on the `balance` axis (experts sway
  *   less, Perrin et al. 2002; factor provisional).
  *
- * Draws come from counter-based streams (`createAutoMovieRandom`, Philox,
+ * Draws come from counter-based streams (`AutoMovieEngineRandom.createRandom`, Philox,
  * Salmon et al. 2011) keyed by the chain seed, the performer, the action, its
  * instance and the channel, so adding or removing one action never changes
  * another's draws. Skill never raises a range of motion.
@@ -145,8 +146,8 @@ export namespace HumanSkill {
     instance: number,
     channel: string,
   ): IAutoMovieRandom {
-    return createAutoMovieRandom(
-      deriveAutoMovieSeed(
+    return AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed(
         skill.seed,
         subject,
         action,
@@ -172,8 +173,8 @@ export namespace HumanSkill {
     action: string,
     channel: string,
   ): IAutoMovieRandom {
-    return createAutoMovieRandom(
-      deriveAutoMovieSeed(skill.seed, subject, action, "series", channel),
+    return AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed(skill.seed, subject, action, "series", channel),
     );
   }
 

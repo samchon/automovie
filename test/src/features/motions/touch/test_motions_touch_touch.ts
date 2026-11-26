@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -144,7 +145,7 @@ export async function test_motions_touch_touch(): Promise<void> {
   // 3. Sites.
   const context: Parameters<typeof touchSite>[0] = {
     series: () => ({
-      random: createAutoMovieRandom(deriveAutoMovieSeed("site")),
+      random: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("site")),
       index: 1,
     }),
   };

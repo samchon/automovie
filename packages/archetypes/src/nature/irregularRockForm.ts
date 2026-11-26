@@ -1,7 +1,5 @@
-import {
-  createAutoMovieFractalNoise3,
-  physicalHullFaces,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, physicalHullFaces } from "@automovie/engine";
+
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMovieVector3,
@@ -62,7 +60,7 @@ export function irregularRockForm(
   side: IAutoMovieVector3;
 } {
   const noise: (x: number, y: number, z: number) => number =
-    createAutoMovieFractalNoise3(seed, OCTAVES, ROUGHNESS);
+    AutoMovieEngineRandom.createFractalNoise3(seed, OCTAVES, ROUGHNESS);
   const golden: number = Math.PI * (3 - Math.sqrt(5));
   const radius: number = diameter / 2;
   const raw: IAutoMovieVector3[] = [];

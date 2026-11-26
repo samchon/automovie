@@ -1,4 +1,5 @@
-import { createAutoMovieRandom } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanSkill,
   IAutoMovieRandom,
@@ -23,7 +24,7 @@ const ROUNDING: number = 32 * Number.EPSILON;
  */
 export function test_motions_skill_human_response(): void {
   const elite: IAutoMovieMotionHumanSkill = HumanSkill.resolve({ p: 1 }, "cue");
-  const source: IAutoMovieRandom = createAutoMovieRandom("0000000000000000");
+  const source: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("0000000000000000");
   const centered: IAutoMovieRandom = {
     ...source,
     float: (index: number): number => [0.5, 0.25, 0][index]!,

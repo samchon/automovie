@@ -1,4 +1,5 @@
-import { createAutoMovieRandom } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionClock,
   IAutoMovieMotionClockInstant,
@@ -124,7 +125,7 @@ export function test_motions_compose_manner_pace(): void {
         names(clock).join(),
   );
 
-  const random: IAutoMovieRandom = createAutoMovieRandom("manner-axes");
+  const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("manner-axes");
   const context: Parameters<typeof AutoMovieMotionManner>[0] = {
     skill: HumanSkill.resolve(
       { level: "trained", axes: { timing: 1, path: 0 } },

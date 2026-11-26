@@ -4,6 +4,7 @@ import { admitAutoMovieNoiseCoordinate } from "./admitAutoMovieNoiseCoordinate";
 import { admitAutoMovieNoiseOctaves } from "./admitAutoMovieNoiseOctaves";
 import { createAutoMovieGradientNoise3 } from "./createAutoMovieGradientNoise3";
 import { createAutoMovieRandom } from "./createAutoMovieRandom";
+import { AutoMovieEngineRandomBounds } from "./AutoMovieEngineRandomBounds";
 
 /**
  * Seeded three-dimensional fractal noise in [-1, 1]: a sum of octaves of
@@ -16,7 +17,7 @@ import { createAutoMovieRandom } from "./createAutoMovieRandom";
  * so it stays in [-1, 1] and keeps every octave's continuity. Octave 0 uses
  * `seed`; octave `o >= 1` uses the stream derived from `seed` by the ids
  * `"octave"` and `o`. A coordinate is admitted when its magnitude times
- * `2^(octaves-1)` is at most {@link createAutoMovieGradientNoise3.BOUND}.
+ * `2^(octaves-1)` is at most {@link AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND}.
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @param octaves Number of octaves, a positive integer.
@@ -46,7 +47,7 @@ export function createAutoMovieFractalNoise3(
     amplitude *= roughness;
   }
   const finest: number = 2 ** (octaves - 1);
-  const bound: number = createAutoMovieGradientNoise3.BOUND;
+  const bound: number = AutoMovieEngineRandomBounds.GRADIENT_NOISE_3;
   return (x: number, y: number, z: number): number => {
     admitAutoMovieNoiseCoordinate("x", x, finest, bound);
     admitAutoMovieNoiseCoordinate("y", y, finest, bound);

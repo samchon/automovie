@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 
 import { ArchetypeDraw } from "./ArchetypeDraw";
 import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
@@ -19,7 +20,7 @@ import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
  *
  * Each dimension is drawn on its own counter-based stream, keyed by the seed,
  * the producer's name and the dimension's name (the engine's Philox streams,
- * `createAutoMovieRandom`), so the same parameters and seed give the same
+ * `AutoMovieEngineRandom.createRandom`), so the same parameters and seed give the same
  * values bit for bit, a dimension's value does not depend on which others exist
  * or in what order they are read, and two producers given one seed do not move
  * together. A model is picked on its axis's stream, keyed the same way by the
@@ -87,7 +88,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
     this.#root =
       seed === undefined
         ? null
-        : deriveAutoMovieSeed(String(seed), "archetype", archetype);
+        : AutoMovieEngineRandom.deriveSeed(String(seed), "archetype", archetype);
     this.#fixed = fixed;
   }
 
@@ -207,8 +208,8 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
             : band.minimum / 2 + band.maximum / 2;
       } else {
         const width: number = band.maximum - band.minimum;
-        const share: number = createAutoMovieRandom(
-          deriveAutoMovieSeed(this.#root, name),
+        const share: number = AutoMovieEngineRandom.createRandom(
+          AutoMovieEngineRandom.deriveSeed(this.#root, name),
         ).float(0);
         // If the interval spans zero and its width overflows, the two
         // weighted endpoints remain finite and their sum cannot overflow.
@@ -295,8 +296,8 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
               Math.min(
                 Math.floor(
                   names.length *
-                    createAutoMovieRandom(
-                      deriveAutoMovieSeed(this.#root, axis),
+                    AutoMovieEngineRandom.createRandom(
+                      AutoMovieEngineRandom.deriveSeed(this.#root, axis),
                     ).float(0),
                 ),
                 names.length - 1,

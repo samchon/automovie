@@ -1,8 +1,5 @@
-import {
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-  minimumJerk,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, minimumJerk } from "@automovie/engine";
+
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionClock,
@@ -422,7 +419,7 @@ const COUGHS: readonly number[] = [1, 28.5 / 53.2, 18.8 / 53.2];
 
 /** The seeded draw stream of one display's irregular timing. */
 function stream(seed: string): IAutoMovieRandom {
-  return createAutoMovieRandom(deriveAutoMovieSeed("affect", seed));
+  return AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("affect", seed));
 }
 
 /**

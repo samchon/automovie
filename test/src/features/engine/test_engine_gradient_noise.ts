@@ -1,10 +1,5 @@
-import {
-  createAutoMovieFractalNoise2,
-  createAutoMovieFractalNoise3,
-  createAutoMovieGradientNoise2,
-  createAutoMovieGradientNoise3,
-  deriveAutoMovieSeed,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import { TestValidator } from "@nestia/e2e";
 
 import { makeRng } from "../internal/makeRng";
@@ -42,16 +37,16 @@ type Sampler = (point: readonly number[]) => number;
  * @evidence contracts/development/common.md#meaningful-documentation Lists its seven scenarios with the input and expected behavior of each.
  */
 export function test_engine_gradient_noise(): void {
-  const seed: string = deriveAutoMovieSeed("noise", "a");
-  const other: string = deriveAutoMovieSeed("noise", "b");
+  const seed: string = AutoMovieEngineRandom.deriveSeed("noise", "a");
+  const other: string = AutoMovieEngineRandom.deriveSeed("noise", "b");
   const noise2: (x: number, y: number) => number =
-    createAutoMovieGradientNoise2(seed);
+    AutoMovieEngineRandom.createGradientNoise2(seed);
   const noise3: (x: number, y: number, z: number) => number =
-    createAutoMovieGradientNoise3(seed);
+    AutoMovieEngineRandom.createGradientNoise3(seed);
   const fractal2: (x: number, y: number) => number =
-    createAutoMovieFractalNoise2(seed, 4, 0.5);
+    AutoMovieEngineRandom.createFractalNoise2(seed, 4, 0.5);
   const fractal3: (x: number, y: number, z: number) => number =
-    createAutoMovieFractalNoise3(seed, 4, 0.5);
+    AutoMovieEngineRandom.createFractalNoise3(seed, 4, 0.5);
   const samplers: Record<string, [Sampler, number]> = {
     noise2: [(p: readonly number[]): number => noise2(p[0]!, p[1]!), 2],
     noise3: [(p: readonly number[]): number => noise3(p[0]!, p[1]!, p[2]!), 3],
@@ -110,9 +105,9 @@ export function test_engine_gradient_noise(): void {
             const p: number[] = point(dimension, 100);
             return sample(p) === sample([...p]);
           }) &&
-          createAutoMovieGradientNoise2(seed)(3.25, -7.5) ===
+          AutoMovieEngineRandom.createGradientNoise2(seed)(3.25, -7.5) ===
             noise2(3.25, -7.5) &&
-          createAutoMovieFractalNoise3(seed, 4, 0.5)(1.5, 2.25, -0.75) ===
+          AutoMovieEngineRandom.createFractalNoise3(seed, 4, 0.5)(1.5, 2.25, -0.75) ===
             fractal3(1.5, 2.25, -0.75),
       ],
       [
@@ -125,7 +120,7 @@ export function test_engine_gradient_noise(): void {
                 (n: (x: number, y: number) => number) =>
                 (p: readonly number[]): number =>
                   n(p[0]!, p[1]!)
-              )(createAutoMovieGradientNoise2(other)),
+              )(AutoMovieEngineRandom.createGradientNoise2(other)),
             ],
             [
               (p: readonly number[]): number => noise3(p[0]!, p[1]!, 0.5),
@@ -133,7 +128,7 @@ export function test_engine_gradient_noise(): void {
                 (n: (x: number, y: number, z: number) => number) =>
                 (p: readonly number[]): number =>
                   n(p[0]!, p[1]!, 0.5)
-              )(createAutoMovieGradientNoise3(other)),
+              )(AutoMovieEngineRandom.createGradientNoise3(other)),
             ],
           ];
           return others.every(([a, b]: [Sampler, Sampler]): boolean => {
@@ -203,8 +198,8 @@ export function test_engine_gradient_noise(): void {
       [
         "refusals",
         (): boolean => {
-          const b2: number = createAutoMovieGradientNoise2.BOUND;
-          const b3: number = createAutoMovieGradientNoise3.BOUND;
+          const b2: number = AutoMovieEngineRandom.GRADIENT_NOISE_2_BOUND;
+          const b3: number = AutoMovieEngineRandom.GRADIENT_NOISE_3_BOUND;
           return (
             b2 === 2 ** 25 &&
             b3 === 2 ** 16 &&
@@ -226,15 +221,15 @@ export function test_engine_gradient_noise(): void {
               ["z", String(b3)],
             ) &&
             throwsError(
-              () => createAutoMovieFractalNoise2(seed, 0, 0.5),
+              () => AutoMovieEngineRandom.createFractalNoise2(seed, 0, 0.5),
               ["octaves"],
             ) &&
             throwsError(
-              () => createAutoMovieFractalNoise2(seed, 4, 0),
+              () => AutoMovieEngineRandom.createFractalNoise2(seed, 4, 0),
               ["roughness"],
             ) &&
             throwsError(
-              () => createAutoMovieFractalNoise3(seed, 4, 1),
+              () => AutoMovieEngineRandom.createFractalNoise3(seed, 4, 1),
               ["roughness"],
             )
           );

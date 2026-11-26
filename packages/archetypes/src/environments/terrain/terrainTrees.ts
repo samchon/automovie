@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -51,7 +52,7 @@ export function terrainTrees(
       throw new Error(
         `Terrain trees "${id}" need finite geometry, positive radius and scale, and a count from one to 100,000.`,
       );
-    const seed: string = deriveAutoMovieSeed(
+    const seed: string = AutoMovieEngineRandom.deriveSeed(
       String(context.seed ?? 0),
       "trees",
       name,
@@ -86,7 +87,7 @@ export function terrainTrees(
       layout: { kind: "scatter", radius: trees.radius, ground },
       anchor: { x: center.x, y: 0, z: center.y },
       facingDeg: 0,
-      seed: createAutoMovieRandom(seed).uint32(0),
+      seed: AutoMovieEngineRandom.createRandom(seed).uint32(0),
       variation: {
         scale: { min: scale, max: scale },
         palette: ["#ffffff"],

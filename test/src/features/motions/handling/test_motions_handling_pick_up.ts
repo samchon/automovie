@@ -1,4 +1,5 @@
-import { Quaternion, createAutoMovieRandom } from "@automovie/engine";
+import { AutoMovieEngineRandom, Quaternion } from "@automovie/engine";
+
 import type { IAutoMovieAffordance, IAutoMovieMotionHumanGrasp, IAutoMovieMotionHumanHand, IAutoMovieMotionHumanPrehension, IAutoMovieVector3 } from "@automovie/interface";
 import { HumanGraspRoll, HumanGrip, HumanPrehension, HumanRefusal, pickUpAlong, pickUpStepReach } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -62,7 +63,7 @@ export function test_motions_handling_pick_up(): void {
       ) &&
       HumanPrehension.nominal(0.1, 0) > 0.1875,
   );
-  const peak: number = HumanPrehension.peak(createAutoMovieRandom("peak"));
+  const peak: number = HumanPrehension.peak(AutoMovieEngineRandom.createRandom("peak"));
   TestValidator.predicate("the peak", peak >= 0.6 && peak <= 0.7);
   const rotation: IAutoMovieMotionHumanPrehension.ITransportRotation = {
     from: Quaternion.identity(),

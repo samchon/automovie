@@ -1,10 +1,5 @@
-import {
-  AutoMovieEnginePlanarRegion,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-  pointInPolygon,
-  surfaceHeightAt,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, AutoMovieEnginePlanarRegion, pointInPolygon, surfaceHeightAt } from "@automovie/engine";
+
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -58,7 +53,7 @@ const MAX_CELLS: number = 1_000_000;
  * a trail through the wood removes only the trees it touches. The trunk radius
  * is the largest among the weighted species, at the wood's scale.
  *
- * Every draw reads the counter stream of `deriveAutoMovieSeed(seed, "woods",
+ * Every draw reads the counter stream of `AutoMovieEngineRandom.deriveSeed(seed, "woods",
  * name)` at the cell's index, so a site depends only on the seed, the recipe
  * and its cell: the block's first two words jitter it, the third chooses its
  * species by weight and the fourth orders it. With `count`, the first `count`
@@ -131,7 +126,7 @@ export function terrainWoods(
       );
 
     // The weighted species in a fixed order, each with its own prototype.
-    const seed: string = deriveAutoMovieSeed(
+    const seed: string = AutoMovieEngineRandom.deriveSeed(
       String(context.seed ?? 0),
       "woods",
       name,
@@ -198,7 +193,7 @@ export function terrainWoods(
       throw new Error(
         `Terrain woods "${id}" need ${columns * rows} grid cells, more than ${MAX_CELLS}; widen the spacing or shrink the outline.`,
       );
-    const random: IAutoMovieRandom = createAutoMovieRandom(seed);
+    const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(seed);
     const sites: ISite[] = [];
     for (let row: number = 0; row < rows; ++row)
       for (let column: number = 0; column < columns; ++column) {
@@ -290,7 +285,7 @@ export function terrainWoods(
       },
       anchor: { x: origin.x, y: 0, z: origin.z },
       facingDeg: 0,
-      seed: createAutoMovieRandom(deriveAutoMovieSeed(seed, "slots")).uint32(0),
+      seed: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed(seed, "slots")).uint32(0),
       variation: {
         scale: { min: scale, max: scale },
         palette: ["#ffffff"],

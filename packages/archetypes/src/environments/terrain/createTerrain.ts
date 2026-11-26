@@ -1,15 +1,5 @@
-import {
-  Quaternion,
-  createAutoMovieFractalNoise2,
-  createAutoMovieRandom,
-  deriveAutoMovieSeed,
-  footprintContains,
-  footprintConvexPieces,
-  srgbHexToLinearColor,
-  surfaceFootprint,
-  surfaceHeightAt,
-  validateSpace,
-} from "@automovie/engine";
+import { AutoMovieEngineRandom, Quaternion, footprintContains, footprintConvexPieces, srgbHexToLinearColor, surfaceFootprint, surfaceHeightAt, validateSpace } from "@automovie/engine";
+
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
@@ -317,9 +307,9 @@ function terrainBase(
       throw new Error(
         `Terrain "${context.id}" requires positive finite rolling amplitude and wavelength.`,
       );
-    const random: ReturnType<typeof createAutoMovieRandom> =
-      createAutoMovieRandom(
-        deriveAutoMovieSeed(String(context.seed ?? 0), "terrain"),
+    const random: ReturnType<typeof AutoMovieEngineRandom.createRandom> =
+      AutoMovieEngineRandom.createRandom(
+        AutoMovieEngineRandom.deriveSeed(String(context.seed ?? 0), "terrain"),
       );
     const phaseX: number = 2 * Math.PI * random.float(0);
     const phaseZ: number = 2 * Math.PI * random.float(1);
@@ -385,8 +375,8 @@ function noiseBase(
     throw new Error(
       `Terrain "${context.id}" requires noise roughness strictly between 0 and 1: ${roughness}.`,
     );
-  const noise: (x: number, y: number) => number = createAutoMovieFractalNoise2(
-    deriveAutoMovieSeed(String(context.seed ?? 0), "terrain"),
+  const noise: (x: number, y: number) => number = AutoMovieEngineRandom.createFractalNoise2(
+    AutoMovieEngineRandom.deriveSeed(String(context.seed ?? 0), "terrain"),
     octaves,
     roughness,
   );

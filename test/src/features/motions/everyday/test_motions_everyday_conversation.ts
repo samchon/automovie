@@ -1,4 +1,5 @@
-import { createAutoMovieRandom, deriveAutoMovieSeed } from "@automovie/engine";
+import { AutoMovieEngineRandom } from "@automovie/engine";
+
 import type {
   IAutoMovieMotionHumanConversation,
   IAutoMovieMotionHumanGaze,
@@ -58,7 +59,7 @@ namespace part_conversation_gaze {
         subject: "a",
         partner: "b",
         turns,
-        random: createAutoMovieRandom(deriveAutoMovieSeed("talk", seed)),
+        random: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("talk", seed)),
         eyes: EYES,
       });
     }
@@ -138,7 +139,7 @@ namespace part_conversation_gaze {
           subject: "a",
           partner: "b",
           turns: [{ speaker: "a", from: 2, to: 1 }],
-          random: createAutoMovieRandom(deriveAutoMovieSeed("x")),
+          random: AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed("x")),
           eyes: EYES,
         }),
       ),
@@ -187,8 +188,8 @@ namespace part_conversation_group_gaze {
       { speaker: "a", addressee: "c", from: 2, to: 3 },
       { speaker: "b", addressee: "a", from: 4, to: 5 },
     ];
-    const random: IAutoMovieRandom = createAutoMovieRandom(
-      deriveAutoMovieSeed("group-conversation", "gaze"),
+    const random: IAutoMovieRandom = AutoMovieEngineRandom.createRandom(
+      AutoMovieEngineRandom.deriveSeed("group-conversation", "gaze"),
     );
     function requests(id: string): IAutoMovieMotionHumanGaze.ILayer[] {
       return AutoMovieMotionHumanConversation.groupGaze({
@@ -244,7 +245,7 @@ namespace part_conversation_group_gaze {
         },
       ),
     );
-    const held: IAutoMovieRandom = createAutoMovieRandom("000000000000000a");
+    const held: IAutoMovieRandom = AutoMovieEngineRandom.createRandom("000000000000000a");
     TestValidator.predicate(
       "three of four seconds on a face",
       nclose(

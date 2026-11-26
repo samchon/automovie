@@ -14,8 +14,9 @@ import { productionFrameBoundaryToGridTick } from "../film/productionFrameBounda
 import { productionFrameIntervalToGridTicks } from "../film/productionFrameIntervalToGridTicks";
 import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
 import { overflowsBinary64 } from "../math/overflowsBinary64";
-import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
-import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
+import { AutoMovieEngineRandom } from "../random";
+
+
 import { analyzeProductionSound } from "./analyzeProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
 import { levelProductionDialogueLine } from "./levelProductionDialogueLine";
@@ -399,7 +400,7 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
 const noiseStream: (seed: number) => IAutoMovieRandom = (
   seed: number,
 ): IAutoMovieRandom =>
-  createAutoMovieRandom(deriveAutoMovieSeed(String(seed), "noise"));
+  AutoMovieEngineRandom.createRandom(AutoMovieEngineRandom.deriveSeed(String(seed), "noise"));
 
 /**
  * One stateless signed noise sample in (-1, 1): the prepared stream read at the
