@@ -183,7 +183,7 @@ export namespace AutoMovieHumanHeadSectionConstraints {
         shoulders,
       );
       throw new Error(
-        `Head point constraint reached a nonfinite original section: box=[${extents}], shoulders=[${shoulders}], angle=${angle}, radius=${value}, source=${AutoMovieViewSection.fault(section)}`,
+        `Head point constraint reached a nonfinite original section: box=[${extents}], shoulders=[${shoulders}], angle=${angle}, radius=${value}, source=${AutoMovieViewSection.geometryFault(section)}`,
       );
     }
     return value;

@@ -216,7 +216,7 @@ Combines rational source admission with independent observations of the actual s
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Delegates one diagnostic policy to the same owner as arclength.
+Delegates measured and geometry-only admission to the owner of the prepared section.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -224,11 +224,11 @@ Retains the existing curvature/support thresholds and original failure instead o
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Bare zero girth is unevaluated; computed nonfinite girth is a failure.
+The measured diagnostic requires a positive finite girth. The geometry-only diagnostic reads prepared coordinates and jets from bare and measured sections.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most388 prepared polar readings.
+At most 388 prepared polar readings.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

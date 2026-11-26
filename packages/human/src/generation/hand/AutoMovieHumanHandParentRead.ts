@@ -114,7 +114,7 @@ export namespace AutoMovieHumanHandParentRead {
       { extents: values.extents as Quarters },
       values.shoulders as Quarters,
     );
-    const fault: string | null = AutoMovieViewSection.fault(section);
+    const fault: string | null = AutoMovieViewSection.geometryFault(section);
     if (fault !== null) throw new Error(fault);
     return section;
   }
