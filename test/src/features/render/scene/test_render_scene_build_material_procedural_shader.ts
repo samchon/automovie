@@ -1,8 +1,4 @@
-import {
-  autoMovieProceduralFrame,
-  autoMovieProceduralPattern,
-  sampleAutoMovieProceduralSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieMaterial,
@@ -28,10 +24,11 @@ import { nclose } from "../../internal/nclose";
  *    after the chunks they extend.
  * 2. The sample point the uniforms give, `(uvTransform · (u, v, 1)).xy × tile +
  *    pieceOffset` with the normal offset as third coordinate, yields through
- *    `autoMovieProceduralPattern` the same value as
- *    `sampleAutoMovieProceduralSurface` at 64 UV points, within 1e-12.
- * 3. The axis frame uniforms equal `autoMovieProceduralFrame`, and the colour,
- *    roughness and relief uniforms equal the surface's.
+ *    `AutoMovieEngineMaterial.proceduralPattern` the same value as
+ *    `AutoMovieEngineMaterial.sampleProceduralSurface` at 64 UV points, within
+ *    1e-12.
+ * 3. The axis frame uniforms equal `AutoMovieEngineMaterial.proceduralFrame`, and
+ *    the colour, roughness and relief uniforms equal the surface's.
  * 4. Two stone materials with different seeds share a program key, a stone and a
  *    wood material do not, and a piece material's key differs from an
  *    object-space one.
@@ -90,14 +87,14 @@ export function test_render_scene_build_material_procedural_shader(): void {
     const sheet: THREE.Vector3 = new THREE.Vector3(u, v, 1).applyMatrix3(
       transform,
     );
-    const value: number = autoMovieProceduralPattern(piece, [
+    const value: number = AutoMovieEngineMaterial.proceduralPattern(piece, [
       sheet.x * tile.x + shift.x,
       sheet.y * tile.y + shift.y,
       0.004 + shift.z,
     ]);
     agree &&= nclose(
       value,
-      sampleAutoMovieProceduralSurface({
+      AutoMovieEngineMaterial.sampleProceduralSurface({
         surface: piece,
         uv: { u, v },
         offset: 0.004,
@@ -111,8 +108,8 @@ export function test_render_scene_build_material_procedural_shader(): void {
   );
 
   // 3. Frame and the interpolated pairs.
-  const frame: ReturnType<typeof autoMovieProceduralFrame> =
-    autoMovieProceduralFrame(piece.axis!);
+  const frame: ReturnType<typeof AutoMovieEngineMaterial.proceduralFrame> =
+    AutoMovieEngineMaterial.proceduralFrame(piece.axis!);
   const vector: (name: string) => number[] = (name: string): number[] =>
     uniforms[name]!.value.toArray();
   const roughnessMatches: boolean = uniforms.uProceduralRoughness!.value.equals(

@@ -1,7 +1,4 @@
-import {
-  autoMovieProceduralFrame,
-  autoMovieProceduralPieceOffset,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -12,8 +9,8 @@ import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
 
 /**
  * Shade a material from an admitted procedural surface, evaluating the engine's
- * `sampleAutoMovieProceduralSurface` per fragment through one material shader
- * patch.
+ * `AutoMovieEngineMaterial.sampleProceduralSurface` per fragment through one
+ * material shader patch.
  *
  * The vertex stage passes the sample point: the bind-pose object-space
  * `position` attribute, read before morphing and skinning so the pattern stays
@@ -40,8 +37,12 @@ export const applyProceduralSurface: (
   material: THREE.MeshStandardMaterial,
   surface: IAutoMovieProceduralSurface,
 ): void => {
-  const frame: ReturnType<typeof autoMovieProceduralFrame> | null =
-    surface.axis === undefined ? null : autoMovieProceduralFrame(surface.axis);
+  const frame: ReturnType<
+    typeof AutoMovieEngineMaterial.proceduralFrame
+  > | null =
+    surface.axis === undefined
+      ? null
+      : AutoMovieEngineMaterial.proceduralFrame(surface.axis);
   const [low, high]: IAutoMovieProceduralSurface["colors"] = surface.colors;
   const uniforms: Record<string, THREE.IUniform> = {
     uProceduralSeed: { value: surface.seed },
@@ -86,7 +87,7 @@ export const applyProceduralSurface: (
     uniforms.uProceduralPieceOffset = {
       value: new THREE.Vector3(
         ...(piece.sheet === "module"
-          ? autoMovieProceduralPieceOffset(
+          ? AutoMovieEngineMaterial.proceduralPieceOffset(
               surface.seed,
               piece.transform.id,
               surface.scale,

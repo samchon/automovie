@@ -1,8 +1,4 @@
-import {
-  autoMovieProceduralFractal,
-  autoMovieProceduralNoise,
-  sampleAutoMovieProceduralSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieProceduralSurface,
@@ -44,7 +40,7 @@ export function test_material_procedural_statistics(): void {
     const values: number[] = Array.from(
       { length: 4096 },
       (_: unknown, index: number): number =>
-        sampleAutoMovieProceduralSurface({
+        AutoMovieEngineMaterial.sampleProceduralSurface({
           surface,
           point: {
             x: ((index * 0.6180339887) % 1) * 1.7,
@@ -74,7 +70,7 @@ export function test_material_procedural_statistics(): void {
   for (let i: number = -4; i <= 4; ++i)
     for (let j: number = -4; j <= 4; ++j)
       lattice &&=
-        sampleAutoMovieProceduralSurface({
+        AutoMovieEngineMaterial.sampleProceduralSurface({
           surface: plaster,
           point: { x: i * 0.25, y: j * 0.25, z: (i - j) * 0.25 },
         }).value === 0.5;
@@ -84,14 +80,14 @@ export function test_material_procedural_statistics(): void {
   TestValidator.predicate(
     "noise is continuous across a cell face",
     nclose(
-      autoMovieProceduralNoise(4, 1, 3 - 1e-9, 0.37, 0.81),
-      autoMovieProceduralNoise(4, 1, 3 + 1e-9, 0.37, 0.81),
+      AutoMovieEngineMaterial.proceduralNoise(4, 1, 3 - 1e-9, 0.37, 0.81),
+      AutoMovieEngineMaterial.proceduralNoise(4, 1, 3 + 1e-9, 0.37, 0.81),
       1e-6,
     ),
   );
   let bounded: boolean = true;
   for (let index: number = 0; index < 2000; ++index) {
-    const value: number = autoMovieProceduralFractal(
+    const value: number = AutoMovieEngineMaterial.proceduralFractal(
       8,
       index * 0.173,
       index * 0.031,
@@ -104,7 +100,7 @@ export function test_material_procedural_statistics(): void {
   // 4. Fabric over and under; axis Y, so along = y and across = normalize(Y × Z) = X.
   const fabric: IAutoMovieProceduralSurface = make("fabric", 0.01);
   const at: (b: number, a: number) => number = (b: number, a: number): number =>
-    sampleAutoMovieProceduralSurface({
+    AutoMovieEngineMaterial.sampleProceduralSurface({
       surface: fabric,
       point: { x: b * 0.01, y: a * 0.01, z: 0 },
     }).value;

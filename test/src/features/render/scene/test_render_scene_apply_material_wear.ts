@@ -1,6 +1,6 @@
 import {
+  AutoMovieEngineMaterial,
   autoMovieFeatureEdgeDistance,
-  autoMovieWearWeight,
   measureAutoMovieFeatureEdges,
   tessellate,
 } from "@automovie/engine";
@@ -38,8 +38,8 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  *    `b.xyz, 0`.
  * 3. Decoding the texture as the shader does, the distances at 200 surface points
  *    equal `autoMovieFeatureEdgeDistance` within 1e-12, and the edge weight
- *    `autoMovieWearWeight` is zero at and beyond the layer width and positive
- *    on an edge.
+ *    `AutoMovieEngineMaterial.wearWeight` is zero at and beyond the layer width
+ *    and positive on an edge.
  * 4. The compile hook on three's physical program reads the list and the bind-pose
  *    position in the vertex stage, mixes colour before the alpha map and
  *    roughness before the metalness map, and names its layers in the program
@@ -146,9 +146,9 @@ export function test_render_scene_apply_material_wear(): void {
   const onEdge: IAutoMovieVector3 = { x: 0.5, y: 0.5, z: 0.1 };
   TestValidator.predicate(
     "the edge weight is positive on the edge and zero at its width",
-    autoMovieWearWeight(wear.edge!, 0, 3, onEdge) > 0 &&
-      autoMovieWearWeight(wear.edge!, 0.03, 3, onEdge) === 0 &&
-      autoMovieWearWeight(wear.edge!, 0.2, 3, onEdge) === 0,
+    AutoMovieEngineMaterial.wearWeight(wear.edge!, 0, 3, onEdge) > 0 &&
+      AutoMovieEngineMaterial.wearWeight(wear.edge!, 0.03, 3, onEdge) === 0 &&
+      AutoMovieEngineMaterial.wearWeight(wear.edge!, 0.2, 3, onEdge) === 0,
   );
 
   // 4. Splices and key.

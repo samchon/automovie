@@ -1,4 +1,4 @@
-import { sampleAutoMovieProceduralSurface } from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieMaterial,
   IAutoMovieModel,
@@ -110,8 +110,10 @@ export function test_render_scene_build_model_procedural_skinned(): void {
       z: before[3 * index + 2]!,
     };
     same =
-      sampleAutoMovieProceduralSurface({ surface, point }).value ===
-      sampleAutoMovieProceduralSurface({ surface, point: rest }).value;
+      AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point })
+        .value ===
+      AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point: rest })
+        .value;
   }
   TestValidator.predicate(
     `the bend moves the skin (${moved.toFixed(3)} m) but not the sampled bind pose`,

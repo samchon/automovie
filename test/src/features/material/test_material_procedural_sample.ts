@@ -1,8 +1,4 @@
-import {
-  autoMovieProceduralCells,
-  autoMovieProceduralHash,
-  sampleAutoMovieProceduralSurface,
-} from "@automovie/engine";
+import { AutoMovieEngineMaterial } from "@automovie/engine";
 import type {
   IAutoMovieColor,
   IAutoMovieProceduralSurface,
@@ -56,9 +52,9 @@ export function test_material_procedural_sample(): void {
     let equal: boolean = true;
     for (const point of points) {
       const a: IAutoMovieSampleProceduralSurface.IResult =
-        sampleAutoMovieProceduralSurface({ surface, point });
+        AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point });
       const b: IAutoMovieSampleProceduralSurface.IResult =
-        sampleAutoMovieProceduralSurface({ surface, point });
+        AutoMovieEngineMaterial.sampleProceduralSurface({ surface, point });
       equal &&=
         a.color.r === b.color.r &&
         a.color.g === b.color.g &&
@@ -66,7 +62,10 @@ export function test_material_procedural_sample(): void {
         a.roughness === b.roughness &&
         a.height === b.height;
       const c: IAutoMovieSampleProceduralSurface.IResult =
-        sampleAutoMovieProceduralSurface({ surface: reseeded, point });
+        AutoMovieEngineMaterial.sampleProceduralSurface({
+          surface: reseeded,
+          point,
+        });
       if (c.color.r !== a.color.r || c.color.g !== a.color.g) ++changed;
     }
     TestValidator.predicate(`${kind} samples are bitwise repeatable`, equal);
@@ -81,7 +80,7 @@ export function test_material_procedural_sample(): void {
   let rings: number = 0;
   let low: boolean = true;
   for (let step: number = 0; step <= 100000; ++step) {
-    const value: number = sampleAutoMovieProceduralSurface({
+    const value: number = AutoMovieEngineMaterial.sampleProceduralSurface({
       surface: wood,
       point: { x: step / 100000, y: 0.37, z: 0 },
     }).value;
@@ -106,7 +105,7 @@ export function test_material_procedural_sample(): void {
     j: number,
     k: number,
   ): [number, number, number] => {
-    const h: [number, number, number] = autoMovieProceduralHash(
+    const h: [number, number, number] = AutoMovieEngineMaterial.proceduralHash(
       seed,
       16,
       i,
@@ -126,7 +125,8 @@ export function test_material_procedural_sample(): void {
   for (let i: number = -3; i <= 3; ++i)
     for (let j: number = -3; j <= 3; ++j) {
       const p: [number, number, number] = feature(i, j, 0);
-      zeroAtFeatures &&= autoMovieProceduralCells(seed, ...p)[0] < 1e-12;
+      zeroAtFeatures &&=
+        AutoMovieEngineMaterial.proceduralCells(seed, ...p)[0] < 1e-12;
       const q: [number, number, number] = feature(i + 1, j, 0);
       const m: [number, number, number] = [
         (p[0] + q[0]) / 2,
@@ -152,7 +152,8 @@ export function test_material_procedural_sample(): void {
       if (crowded || half > 1) continue;
       ++midpoints;
       pair ??= [p, q];
-      const [f1, f2]: [number, number] = autoMovieProceduralCells(seed, ...m);
+      const [f1, f2]: [number, number] =
+        AutoMovieEngineMaterial.proceduralCells(seed, ...m);
       zeroAtMidpoints &&= nclose(f2 - f1, 0, 1e-9);
     }
   TestValidator.predicate("F1 is zero at every feature point", zeroAtFeatures);
@@ -164,7 +165,7 @@ export function test_material_procedural_sample(): void {
   // two feature points is a joint, whose cellular term is zero.
   const stone: IAutoMovieProceduralSurface = make("stone", 0.1, seed);
   const [a, b]: [[number, number, number], [number, number, number]] = pair!;
-  const joint: number = sampleAutoMovieProceduralSurface({
+  const joint: number = AutoMovieEngineMaterial.sampleProceduralSurface({
     surface: stone,
     point: {
       x: ((a[0] + b[0]) / 2) * 0.1,
@@ -180,7 +181,10 @@ export function test_material_procedural_sample(): void {
   // 5. Interpolation by the reported value.
   const clay: IAutoMovieProceduralSurface = make("clay", 0.2, 9);
   const sample: IAutoMovieSampleProceduralSurface.IResult =
-    sampleAutoMovieProceduralSurface({ surface: clay, point: points[7]! });
+    AutoMovieEngineMaterial.sampleProceduralSurface({
+      surface: clay,
+      point: points[7]!,
+    });
   const [c0, c1]: [IAutoMovieColor, IAutoMovieColor] = clay.colors;
   TestValidator.predicate(
     "colour, roughness and height follow the value",

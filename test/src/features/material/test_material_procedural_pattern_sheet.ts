@@ -1,7 +1,7 @@
 import {
+  AutoMovieEngineMaterial,
   autoMoviePatternTextureTransforms,
   generateAutoMovieSurfacePattern,
-  sampleAutoMovieProceduralSurface,
 } from "@automovie/engine";
 import type {
   AutoMovieSurfacePatternGenerator,
@@ -143,7 +143,7 @@ export function test_material_procedural_pattern_sheet(): void {
   TestValidator.predicate(
     "a point for a piece throws",
     throwsError(() =>
-      sampleAutoMovieProceduralSurface({
+      AutoMovieEngineMaterial.sampleProceduralSurface({
         surface,
         point: { x: 0, y: 0, z: 0 },
       }),
@@ -154,7 +154,7 @@ export function test_material_procedural_pattern_sheet(): void {
   TestValidator.predicate(
     "a UV for a surface without a piece throws",
     throwsError(() =>
-      sampleAutoMovieProceduralSurface({
+      AutoMovieEngineMaterial.sampleProceduralSurface({
         surface: plain,
         uv: { u: 0, v: 0 },
         offset: 0,
@@ -243,7 +243,7 @@ function sample(
   u: number,
   v: number,
 ): IAutoMovieColor {
-  return sampleAutoMovieProceduralSurface({
+  return AutoMovieEngineMaterial.sampleProceduralSurface({
     surface: finish(sheet, transform),
     uv: {
       u: (u - (board.center.u - board.size.u / 2)) / board.size.u,
