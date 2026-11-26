@@ -1,8 +1,4 @@
-import {
-  indexSkeletonTopology,
-  resolveAutoMovieBoneRates,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, indexSkeletonTopology, resolveAutoMovieBoneRates } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -280,7 +276,7 @@ function rig(
  */
 function native(skeleton: IAutoMovieSkeleton, pose: IAutoMoviePose): Bones {
   const bones: Bones = new Map();
-  for (const bone of resolvePose(pose, skeleton)) bones.set(bone.bone, bone);
+  for (const bone of AutoMovieEngineKinematics.resolvePose(pose, skeleton)) bones.set(bone.bone, bone);
   return bones;
 }
 

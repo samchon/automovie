@@ -10,7 +10,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { indexSkeletonTopology, resolvePose } from "../kinematics";
+import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
 import { groundFunction } from "../space/groundFunction";
@@ -85,7 +85,7 @@ export function validateGroundContact(
     (time: number, index: number): void => {
       const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
         new Map(
-          resolvePose(
+          AutoMovieEngineKinematics.resolvePose(
             sampleMotion.pose(props.motion, time),
             props.skeleton,
             props.jointAxes,

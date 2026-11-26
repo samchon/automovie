@@ -1,4 +1,5 @@
 export * from "./RigidCarrierSample";
+export * from "./AutoMovieEngineKinematics";
 export * from "./aimRotation";
 export * from "./aimYawPitch";
 export * from "./alternateRigJointAngles";
@@ -41,8 +42,8 @@ export * from "./AutoMovieHumanoidSurfaceExtents";
 export * from "./AutoMovieHumanoidSurfaceRays";
 export * from "./AutoMovieHumanoidSurfaceRegions";
 export * from "./resolveAutoMovieHumanoidSurfaces";
-export * from "./resolveLookAt";
-export * from "./resolvePose";
+
+
 export * from "./skeletonJointAxes";
 export * from "./solveResolvedRate";
 export * from "./solveTwoBoneIK";

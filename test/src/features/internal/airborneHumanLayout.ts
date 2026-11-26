@@ -1,4 +1,4 @@
-import { Vector3, resolvePose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
@@ -37,7 +37,7 @@ export const airborneHumanLayout: (
     joints: IAutoMovieJointPose[],
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         { skeleton: person.skeleton.id, root: null, joints },
         person.skeleton,
       ).map(

@@ -1,11 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  fitChainToTarget,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitChainToTarget } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -70,7 +63,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         pose,
         body.skeleton,
         HUMANOID_JOINT_AXES,
@@ -230,7 +223,7 @@ export async function test_engine_kinematics_fit_chain_to_target(): Promise<void
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
-      resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, offset).map(
+      AutoMovieEngineKinematics.resolvePose(pose, body.skeleton, HUMANOID_JOINT_AXES, offset).map(
         (
           b: IAutoMovieResolvedBone,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],

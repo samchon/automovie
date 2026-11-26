@@ -1,11 +1,4 @@
-import {
-  Matrix4,
-  composeScene,
-  motionToClip,
-  resolveFrame,
-  resolvePose,
-  sceneToNodes,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, composeScene, motionToClip, resolveFrame, sceneToNodes } from "@automovie/engine";
 import {
   IAutoMovieModel,
   type IAutoMovieMotion,
@@ -208,7 +201,7 @@ export function test_resolve_scene_to_nodes(): void {
     limits: [],
     seconds: 0.5,
   }).world;
-  const expected: IAutoMovieResolvedBone[] = resolvePose(pose, skeleton);
+  const expected: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(pose, skeleton);
   let bonesMatch: boolean = true;
   for (const bone of expected) {
     const matrix: number[] | undefined = world.get(`actor/${bone.bone}`);

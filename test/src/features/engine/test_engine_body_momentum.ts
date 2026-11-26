@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieMomentum,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, Vector3, resolveAutoMovieCenterOfMass, resolveAutoMovieMomentum } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBodyMomentum,
@@ -94,7 +88,7 @@ export function test_engine_body_momentum(): void {
     joints: IAutoMovieJointPose[],
   ): Bones =>
     new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         { skeleton: body.skeleton.id, root: null, joints },
         body.skeleton,
       ).map(

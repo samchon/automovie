@@ -1,8 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -104,7 +100,7 @@ export function test_engine_kinematics_resolve_pose_arm_raise_rest_frame(): void
     b: AutoMovieHumanoidBone,
     frames: boolean = false,
   ): number =>
-    resolvePose(
+    AutoMovieEngineKinematics.resolvePose(
       p,
       skeleton,
       HUMANOID_JOINT_AXES,

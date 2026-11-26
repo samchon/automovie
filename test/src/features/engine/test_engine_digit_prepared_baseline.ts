@@ -1,9 +1,4 @@
-import {
-  ROM_TOLERANCE,
-  fitDigitToTarget,
-  prepareSkeletonPoseResolution,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, ROM_TOLERANCE, fitDigitToTarget, prepareSkeletonPoseResolution } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -83,7 +78,7 @@ export function test_engine_digit_prepared_baseline(): void {
     const feasible: IAutoMoviePose = { ...pose, joints: [pose.joints[0]!, ...names.map(
       (name: AutoMovieHumanoidBone, index: number): IAutoMovieJointPose => joint(name, { flexion: angles[index]! }),
     )] };
-    const witness: IAutoMovieResolvedBone = resolvePose(feasible, skeleton).find(
+    const witness: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(feasible, skeleton).find(
       (value: IAutoMovieResolvedBone): boolean => value.bone === names[2],
     )!;
     const witnessAngle: number = 2 * Math.atan2(witness.worldRotation.z, witness.worldRotation.w);
@@ -101,7 +96,7 @@ export function test_engine_digit_prepared_baseline(): void {
         ...(rate === undefined ? {} : { rate }),
       });
       const fitted: IAutoMoviePose = { ...pose, joints: [pose.joints[0]!, ...result.joints] };
-      const frame: IAutoMovieResolvedBone = resolvePose(fitted, skeleton).find(
+      const frame: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(fitted, skeleton).find(
         (value: IAutoMovieResolvedBone): boolean => value.bone === names[2],
       )!;
       const z: number = Math.atan2(frame.worldRotation.z, frame.worldRotation.w) * 2;

@@ -1,9 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -249,7 +244,7 @@ function rotation(
     twist: null,
     [c.axis]: neutral + ANGLE,
   };
-  return resolvePose(
+  return AutoMovieEngineKinematics.resolvePose(
     { skeleton: skeleton.id, root: null, joints: [joint] },
     skeleton,
     HUMANOID_JOINT_AXES,

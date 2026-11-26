@@ -11,7 +11,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { indexSkeletonTopology, resolvePose } from "../kinematics";
+import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
 import { segmentSegmentDistance } from "../math/segmentSegmentDistance";
 import { sampleMotion } from "../motion/sampleMotion";
 import { sampleTimes } from "../motion/sampleTimes";
@@ -74,7 +74,7 @@ export function validateSelfIntersection(
           (time: number, sampleIndex: number): void => {
             const resolved: Map<AutoMovieHumanoidBone, IAutoMovieVector3> =
               new Map(
-                resolvePose(
+                AutoMovieEngineKinematics.resolvePose(
                   sampleMotion.pose(props.motion, time),
                   props.skeleton,
                   props.jointAxes,

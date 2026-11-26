@@ -1,10 +1,4 @@
-import {
-  Matrix4,
-  motionToClip,
-  resolveFrame,
-  resolvePose,
-  sampleMotion,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, motionToClip, resolveFrame, sampleMotion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieJointAxes,
@@ -57,7 +51,7 @@ export const clipWorldParity: (props: {
     sampleRate: props.sampleRate,
   });
   for (const time of props.times) {
-    const expected: IAutoMovieResolvedBone[] = resolvePose(
+    const expected: IAutoMovieResolvedBone[] = AutoMovieEngineKinematics.resolvePose(
       sampleMotion(props.motion, time).pose,
       props.skeleton,
       props.jointAxes,

@@ -1,11 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  resolvePose,
-  rotationBetween,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, rotationBetween } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -152,7 +145,7 @@ export namespace AutoMovieHumanCanonicalBody {
   export function place(body: IAutoMovieHumanCanonicalBody.IBody, pose: IAutoMoviePose): IAutoMovieHumanCanonicalBody.IPlacement[] {
     const resolved: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
       new Map(
-        resolvePose(
+        AutoMovieEngineKinematics.resolvePose(
           pose,
           body.skeleton,
           HUMANOID_JOINT_AXES,

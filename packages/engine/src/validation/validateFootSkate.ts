@@ -14,7 +14,7 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { indexSkeletonTopology, resolvePose } from "../kinematics";
+import { AutoMovieEngineKinematics, indexSkeletonTopology } from "../kinematics";
 import { sampleMotion } from "../motion/sampleMotion";
 import { windowSampleTimes } from "../motion/windowSampleTimes";
 import { AutoMovieEngineViolationCollector } from "./AutoMovieEngineViolationCollector";
@@ -188,7 +188,7 @@ const sampleWindow: (
 ): Array<{ time: number; position: IAutoMovieVector3 }> =>
   windowSampleTimes(contact.start, contact.end, sampleRate).map(
     (time: number): { time: number; position: IAutoMovieVector3 } => {
-      const resolved: IAutoMovieResolvedBone | undefined = resolvePose(
+      const resolved: IAutoMovieResolvedBone | undefined = AutoMovieEngineKinematics.resolvePose(
         sampleMotion.pose(motion, time),
         skeleton,
         jointAxes,

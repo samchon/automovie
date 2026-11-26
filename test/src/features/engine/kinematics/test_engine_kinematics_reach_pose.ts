@@ -1,13 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Vector3,
-  armChainFault,
-  prepareSkeletonPoseResolution,
-  reachPose,
-  resolvePose,
-  skeletonJointAxes,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Vector3, armChainFault, prepareSkeletonPoseResolution, reachPose, skeletonJointAxes } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -46,7 +37,7 @@ export async function test_engine_kinematics_reach_pose(): Promise<void> {
   const skeleton: IAutoMovieSkeleton = body.skeleton;
   const axes = skeletonJointAxes(skeleton, HUMANOID_JOINT_AXES);
   const resolve = (pose: IAutoMoviePose): IAutoMovieResolvedBone[] =>
-    resolvePose(pose, skeleton, axes, HUMANOID_REST_FRAME);
+    AutoMovieEngineKinematics.resolvePose(pose, skeleton, axes, HUMANOID_REST_FRAME);
   const at = (
     bones: IAutoMovieResolvedBone[],
     name: AutoMovieHumanoidBone,

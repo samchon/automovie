@@ -1,15 +1,4 @@
-import {
-  DEFAULT_HUMANOID_ROM,
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  fitChainToTarget,
-  indexSkeletonTopology,
-  jointRomOvershoot,
-  resolvePose,
-  rotationBetween,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, DEFAULT_HUMANOID_ROM, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, fitChainToTarget, indexSkeletonTopology, jointRomOvershoot, rotationBetween } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -94,7 +83,7 @@ export namespace motionFitArms {
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
     return new Map(
-      resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
+      AutoMovieEngineKinematics.resolvePose(pose, skeleton, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME).map(
         (
           r: IAutoMovieResolvedBone,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [r.bone, r],

@@ -1,10 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  resolveAttachment,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, resolveAttachment } from "@automovie/engine";
 import {
   IAutoMovieAttachment,
   IAutoMoviePose,
@@ -171,7 +165,7 @@ export function test_engine_kinematics_resolve_attachment(): void {
     { parentBone: "leftHand", offset: idOffset },
     HUMANOID_JOINT_AXES,
   );
-  const visibleHand: IAutoMovieResolvedBone = resolvePose(
+  const visibleHand: IAutoMovieResolvedBone = AutoMovieEngineKinematics.resolvePose(
     raised,
     skeleton,
     HUMANOID_JOINT_AXES,

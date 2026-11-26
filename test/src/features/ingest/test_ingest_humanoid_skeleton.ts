@@ -1,4 +1,4 @@
-import { resolvePose } from "@automovie/engine";
+import { AutoMovieEngineKinematics } from "@automovie/engine";
 import { AutoMovieIngestDocument } from "@automovie/ingest";
 import {
   IAutoMovieBone,
@@ -132,7 +132,7 @@ export function test_ingest_humanoid_skeleton(): void {
     skeleton: { id: string; bones: IAutoMovieBone[] },
     bone: string,
   ): IAutoMovieResolvedBone =>
-    resolvePose(restPose(skeleton.id), skeleton).find(
+    AutoMovieEngineKinematics.resolvePose(restPose(skeleton.id), skeleton).find(
       (r: IAutoMovieResolvedBone): boolean => r.bone === bone,
     )!;
 

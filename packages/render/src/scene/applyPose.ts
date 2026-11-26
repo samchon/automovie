@@ -1,4 +1,4 @@
-import { resolveMorphTargetWeights, resolvePose } from "@automovie/engine";
+import { AutoMovieEngineKinematics, resolveMorphTargetWeights } from "@automovie/engine";
 import {
   AutoMovieHumanoidBone,
   type IAutoMovieJointAxes,
@@ -58,7 +58,7 @@ export const applyPose: (
   restFrames?: Partial<Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>>,
 ): AutoMovieHumanoidBone[] => {
   const skipped: AutoMovieHumanoidBone[] = [];
-  for (const r of resolvePose(pose, skeleton, jointAxes, restFrames)) {
+  for (const r of AutoMovieEngineKinematics.resolvePose(pose, skeleton, jointAxes, restFrames)) {
     const bone: THREE.Object3D | undefined = target.bones.get(r.bone);
     if (bone === undefined) {
       skipped.push(r.bone);

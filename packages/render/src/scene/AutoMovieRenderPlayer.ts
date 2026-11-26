@@ -1,9 +1,4 @@
-import {
-  clampPose,
-  dampedSpring,
-  resolveLookAt,
-  sampleMotion,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, clampPose, dampedSpring, sampleMotion } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieExpression,
@@ -103,7 +98,7 @@ export class AutoMovieRenderPlayer {
     this.lastUpdateSeconds = seconds;
     // A bone gaze moves the gaze channels from the expression onto the eye
     // joints before the ROM clamp and springs see the pose.
-    const sample: IAutoMovieMotionSample = resolveLookAt(
+    const sample: IAutoMovieMotionSample = AutoMovieEngineKinematics.resolveLookAt(
       sampleMotion(this.motion, seconds),
       this.target.lookAt,
     );

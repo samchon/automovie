@@ -1,8 +1,4 @@
-import {
-  Quaternion,
-  resolveAutoMovieCenterOfMass,
-  resolvePose,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, Quaternion, resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMoviePhysicalProfile,
@@ -65,7 +61,7 @@ export async function test_engine_kinematics_resolve_center_of_mass(): Promise<v
 
     // 2. The rest centre from the profile alone.
     const rest: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = new Map(
-      resolvePose(
+      AutoMovieEngineKinematics.resolvePose(
         { skeleton: person.skeleton.id, root: null, joints: [] },
         person.skeleton,
       ).map(

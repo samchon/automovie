@@ -1,10 +1,4 @@
-import {
-  prepareAutoMovieMassModel,
-  resolveAutoMovieCenterOfMass,
-  resolveAutoMovieMomentum,
-  resolvePose,
-  AutoMovieEngineText,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, prepareAutoMovieMassModel, resolveAutoMovieCenterOfMass, resolveAutoMovieMomentum, AutoMovieEngineText } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
@@ -46,7 +40,7 @@ export async function test_engine_kinematics_mass_model(): Promise<void> {
     pose: IAutoMoviePose,
   ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
     new Map(
-      resolvePose(pose, body.skeleton).map(
+      AutoMovieEngineKinematics.resolvePose(pose, body.skeleton).map(
         (
           b: IAutoMovieResolvedBone,
         ): [AutoMovieHumanoidBone, IAutoMovieResolvedBone] => [b.bone, b],

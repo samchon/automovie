@@ -1,12 +1,4 @@
-import {
-  Matrix4,
-  motionToClip,
-  resolveFrame,
-  resolvePose,
-  sampleMotion,
-  sceneToNodes,
-  stageScene,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, Matrix4, motionToClip, resolveFrame, sampleMotion, sceneToNodes, stageScene } from "@automovie/engine";
 import type { IAutoMovieClip, IAutoMovieMotion } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -78,7 +70,7 @@ export function test_resolve_motion_clip_frames(): void {
         placement.rotation,
         placement.scale,
       );
-      for (const joint of resolvePose(
+      for (const joint of AutoMovieEngineKinematics.resolvePose(
         sampleMotion(motion, seconds).pose,
         skeleton,
       )) {

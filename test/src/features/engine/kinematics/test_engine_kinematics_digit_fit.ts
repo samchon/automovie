@@ -1,13 +1,4 @@
-import {
-  HUMANOID_JOINT_AXES,
-  HUMANOID_REST_FRAME,
-  Quaternion,
-  Vector3,
-  curlChainUntilContact,
-  fitDigitToTarget,
-  resolvePose,
-  skeletonJointAxes,
-} from "@automovie/engine";
+import { AutoMovieEngineKinematics, HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, curlChainUntilContact, fitDigitToTarget, skeletonJointAxes } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieFitDigitToTarget,
@@ -57,7 +48,7 @@ export async function test_engine_kinematics_digit_fit(): Promise<void> {
     pose: IAutoMoviePose,
     name: AutoMovieHumanoidBone,
   ): IAutoMovieResolvedBone =>
-    resolvePose(pose, skeleton, jointAxes, HUMANOID_REST_FRAME).find(
+    AutoMovieEngineKinematics.resolvePose(pose, skeleton, jointAxes, HUMANOID_REST_FRAME).find(
       (b: IAutoMovieResolvedBone): boolean => b.bone === name,
     )!;
   const flexed: IAutoMoviePose = {
