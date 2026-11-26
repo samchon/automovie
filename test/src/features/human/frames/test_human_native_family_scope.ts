@@ -87,7 +87,7 @@ export function test_human_native_family_scope(): void {
     axis,
     scale: (): AutoMovieVector2Tuple => [radial, radial],
     station: (s: number): number => s * along,
-    features: AutoMovieHumanNativeFeatureLaw(
+    features: AutoMovieHumanNativeFeatureLaw.resolve(
       prior.reliefs ?? [],
       bone.reliefs ?? [],
       (): AutoMovieVector2Tuple => [radial, radial],

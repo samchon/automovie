@@ -321,7 +321,7 @@ export function AutoMovieHumanF1NativeRoots(context: IContext): IResult {
           ? rootRatio
           : own((net.stations[0] + net.stations[1]) / 2);
       }
-      const features: IAutoMovieLoftRelief[] = AutoMovieHumanNativeFeatureLaw(
+      const features: IAutoMovieLoftRelief[] = AutoMovieHumanNativeFeatureLaw.resolve(
         prior.reliefs ?? [],
         placed.reliefs ?? [],
         featureScale,

@@ -64,8 +64,8 @@ export function test_human_native_source_authority(): void {
   const originals: Map<string, IAutoMovieViewPart> = new Map([
     [original.name!, original], [mirrorOriginal.name!, mirrorOriginal],
   ]);
-  const source: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw(original, axis, [2, 3], []);
-  const mirror: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw(mirrorOriginal, mirrorAxis, [2, 3], []);
+  const source: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw.create(original, axis, [2, 3], []);
+  const mirror: IAutoMovieViewPart = AutoMovieHumanNativeSourceLaw.create(mirrorOriginal, mirrorAxis, [2, 3], []);
   const sources: Map<string, IAutoMovieViewPart> = new Map([
     ["made", source], ["made.mirror", mirror],
   ]);

@@ -104,6 +104,11 @@ export function test_recovery_fitting_image_admission(): void {
     | "maxEvents"
     | "maxCells"
     | "maxVertices";
+  const positiveBudgetKeys: readonly ControlName[] = [
+    "maxPlanes",
+    "maxCells",
+    "maxVertices",
+  ];
   const invalidControls: [ControlName, number][] = [
     ...[Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 0].map(
       (value: number): [ControlName, number] => ["tolerance", value],
@@ -118,16 +123,15 @@ export function test_recovery_fitting_image_admission(): void {
       "minimumDirectionSine",
       value,
     ]),
-    ...["maxPlanes", "maxCells", "maxVertices"].flatMap(
-      (key: ControlName): [ControlName, number][] =>
-        [
-          Number.NaN,
-          Number.POSITIVE_INFINITY,
-          Number.NEGATIVE_INFINITY,
-          0,
-          1.5,
-          Number.MAX_SAFE_INTEGER + 1,
-        ].map((value: number): [ControlName, number] => [key, value]),
+    ...positiveBudgetKeys.flatMap((key: ControlName): [ControlName, number][] =>
+      [
+        Number.NaN,
+        Number.POSITIVE_INFINITY,
+        Number.NEGATIVE_INFINITY,
+        0,
+        1.5,
+        Number.MAX_SAFE_INTEGER + 1,
+      ].map((value: number): [ControlName, number] => [key, value]),
     ),
     ...[
       Number.NaN,
@@ -177,8 +181,12 @@ export function test_recovery_fitting_image_admission(): void {
   });
   TestValidator.equals(
     "valid Recovery vertex cap exhaustion is refused",
-    [exhausted.status, exhausted.value],
-    ["refused", undefined],
+    exhausted.status,
+    "refused",
+  );
+  TestValidator.predicate(
+    "Recovery transfers no value after vertex cap exhaustion",
+    !Object.hasOwn(exhausted, "value"),
   );
   TestValidator.predicate(
     "Recovery preserves the no-partial-transfer diagnosis",

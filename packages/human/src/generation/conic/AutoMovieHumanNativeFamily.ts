@@ -312,9 +312,9 @@ export namespace AutoMovieHumanNativeFamily {
         const source: IAutoMovieViewPart =
           selected ??
           (sameControls && sameCaps && uniform && !centred
-            ? AutoMovieHumanNativeSourceLaw(original, spec.axis, firstScale, [])
+            ? AutoMovieHumanNativeSourceLaw.create(original, spec.axis, firstScale, [])
             : sameControls && profile !== null && material
-              ? AutoMovieHumanNativeSourceLaw(
+              ? AutoMovieHumanNativeSourceLaw.create(
                   sameCaps ? original : requested(),
                   spec.axis,
                   profile,

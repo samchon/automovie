@@ -204,7 +204,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       maps.set(prior.name, { forward });
       const features: IAutoMovieLoftRelief[] =
         resolvedFeatures ??
-        AutoMovieHumanNativeFeatureLaw(
+        AutoMovieHumanNativeFeatureLaw.resolve(
           prior.reliefs ?? [],
           placed.reliefs ?? [],
           featureScale,
@@ -238,7 +238,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       const sources: Map<string, IAutoMovieViewPart> = new Map([
         [
           prior.name,
-          AutoMovieHumanNativeSourceLaw(source, axis, scale, features),
+          AutoMovieHumanNativeSourceLaw.create(source, axis, scale, features),
         ],
       ]);
       // Section symmetry is not tree replication: the central nose/trunk
@@ -249,7 +249,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       if (mirror !== undefined)
         sources.set(
           prior.name + ".mirror",
-          AutoMovieHumanNativeSourceLaw(
+          AutoMovieHumanNativeSourceLaw.create(
             mirror,
             reflectedAxis(axis),
             scale,
@@ -315,7 +315,7 @@ export namespace AutoMovieHumanF1NativeBuild {
           fields.breastProjection,
       );
     const trunkFeatures: IAutoMovieLoftRelief[] =
-      AutoMovieHumanNativeFeatureLaw(
+      AutoMovieHumanNativeFeatureLaw.resolve(
         original.body.trunk.reliefs ?? [],
         bone.body.trunk.reliefs ?? [],
         trunkFeature,
@@ -395,7 +395,7 @@ export namespace AutoMovieHumanF1NativeBuild {
       [ARM.at(-1)![1], ratio(fullFields.arm.wrist, zero.arm.wrist)],
       [EXTREMITIES.hand, handScale],
     ]);
-    const handFeatures: IAutoMovieLoftRelief[] = AutoMovieHumanNativeFeatureLaw(
+    const handFeatures: IAutoMovieLoftRelief[] = AutoMovieHumanNativeFeatureLaw.resolve(
       original.body.hand.reliefs ?? [],
       bone.body.hand.reliefs ?? [],
       (net: IAutoMovieLoftRelief): AutoMovieVector2Tuple =>

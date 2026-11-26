@@ -154,7 +154,7 @@ export function test_human_native_centred_scale(): void {
     own = H.source(
       create(Profile.create(anchors), fixed(e), [
         {
-          sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw(original, axis, [1.2, 0.9], [], fixed(e))]]),
+          sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw.create(original, axis, [1.2, 0.9], [], fixed(e))]]),
           requirement: { type: "junction", station: 30 },
         },
       ]),

@@ -1,13 +1,4 @@
 import {
-  AutoMovieHumanNativeScaleCentre as Centre,
-} from "./AutoMovieHumanNativeScaleCentre";
-import {
-  AutoMovieHumanNativeScaleProfile as Profile,
-} from "./AutoMovieHumanNativeScaleProfile";
-import {
-  AutoMovieHumanNativeSourceAuthority as A,
-} from "./AutoMovieHumanNativeSourceAuthority";
-import {
   AutoMovieLoftContract,
   AutoMovieViewOutline,
   AutoMovieViewParameter,
@@ -20,27 +11,43 @@ import type {
   IAutoMovieViewPart,
 } from "@automovie/interface";
 
+import { AutoMovieHumanNativeScaleCentre as Centre } from "./AutoMovieHumanNativeScaleCentre";
+import { AutoMovieHumanNativeScaleProfile as Profile } from "./AutoMovieHumanNativeScaleProfile";
+import { AutoMovieHumanNativeSourceAuthority as A } from "./AutoMovieHumanNativeSourceAuthority";
+
 /**
- * One directional native source definition from complete native source controls, under a constant scale or a station-varying one.
+ * One directional native source definition from complete native source
+ * controls, under a constant scale or a station-varying one.
  *
- * Constant scale: coordinate functions scale exactly. A changed tangent-angle law is a native shared-jet quintic through the transformed
- * original knots, with its actual derivatives there; it is not claimed the exact nonlinear angular pullback between knots. Uniform scale
- * retains the original angle/fullness functions.
+ * Constant scale: coordinate functions scale exactly. A changed tangent-angle
+ * law is a native shared-jet quintic through the transformed original knots,
+ * with its actual derivatives there; it is not claimed the exact nonlinear
+ * angular pullback between knots. Uniform scale retains the original
+ * angle/fullness functions.
  *
- * Station-varying scale (a profile that carries its jet and is not constant): the scale applies to the source function, not to the
- * family's knots. Each coordinate becomes c(s)·f(s) with c the scale of its direction, and its 2-jet follows the product rule from the
- * scale's own jet. Each tangent angle becomes atan2(b(s) sin θ(s), a(s) cos θ(s)) with the chain rule through a, b and θ. Shoulders are
- * affine invariants and stay the original's. Every original knot keeps its site, and each break of the scale law inside the domain
- * becomes a knot of its own, so the law's C2 joins are represented exactly and a site junction reads the same value and jets as this
- * source to binary64 rounding.
+ * Station-varying scale (a profile that carries its jet and is not constant):
+ * the scale applies to the source function, not to the family's knots. Each
+ * coordinate becomes c(s)·f(s) with c the scale of its direction, and its 2-jet
+ * follows the product rule from the scale's own jet. Each tangent angle becomes
+ * atan2(b(s) sin θ(s), a(s) cos θ(s)) with the chain rule through a, b and θ.
+ * Shoulders are affine invariants and stay the original's. Every original knot
+ * keeps its site, and each break of the scale law inside the domain becomes a
+ * knot of its own, so the law's C2 joins are represented exactly and a site
+ * junction reads the same value and jets as this source to binary64 rounding.
  *
- * Scaling centre (optional): the scale acts about the line e(s) the consumer passes, not about the course point. Each coordinate becomes
- * e(s) + c(s)·(f(s) - e(s)) along its own chart direction (AutoMovieHumanNativeScaleCentre.apply, with all three jets in the outline's
- * parameter), for the four extremes, the touch offsets and every piece point; the line's breaks become knots like the scale's. A tangent
- * angle is a direction, which a translation leaves alone, so its transform is the same about any centre, and shoulders stay the
- * original's. A constant ratio about a centre is still a station function and takes this path; a ratio of exactly 1 returns the original
- * outlines, and no centre is the law above, number for number. The source must carry touch offsets, and at a closing pole, where every
- * radial coordinate is 0, the centre must stand on the course or the ratio be 1: both are refused otherwise.
+ * Scaling centre (optional): the scale acts about the line e(s) the consumer
+ * passes, not about the course point. Each coordinate becomes e(s) + c(s)·(f(s)
+ * - e(s)) along its own chart direction (AutoMovieHumanNativeScaleCentre.apply,
+ * with all three jets in the outline's parameter), for the four extremes, the
+ * touch offsets and every piece point; the line's breaks become knots like the
+ * scale's. A tangent angle is a direction, which a translation leaves alone, so
+ * its transform is the same about any centre, and shoulders stay the
+ * original's. A constant ratio about a centre is still a station function and
+ * takes this path; a ratio of exactly 1 returns the original outlines, and no
+ * centre is the law above, number for number. The source must carry touch
+ * offsets, and at a closing pole, where every radial coordinate is 0, the
+ * centre must stand on the course or the ratio be 1: both are refused
+ * otherwise.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Affine coordinate scaling carries every extreme, touch and split point. atan2(b*sin(theta),a*cos(theta)) with analytic first/second chain rules defines the new tangent knots and preserves the original winding branch. A varying scale uses the product rule g' = c'f + cf', g'' = c''f + 2c'f' + cf'' in the outline's own parameter, with the station chain rule c_x = c' s_x, c_xx = c'' s_x^2 + c' s_xx.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One complete-source pass retains actual scalar parameters, cap/domain and shared feature definitions; no loft or boundary rediscovery occurs. Constant and varying scales share the outline selection and differ only in the per-outline law.
@@ -50,170 +57,185 @@ import type {
  * @evidence contracts/development/implementation.md#reuse-equivalent-work Unit coordinate factors and uniform-scale angle/shoulder owners are borrowed exactly; a constant profile takes the constant path; the supplied feature list is shared with the emitted source.
  * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned definition owns changed scalar controls and borrows immutable originals/features for its invocation lifetime without a global cache.
  */
-export function AutoMovieHumanNativeSourceLaw(
-  original: IAutoMovieViewPart,
-  axis: IAutoMovieViewAxis.IAxis,
-  scale: AutoMovieVector2Tuple | Profile.IScale,
-  features: IAutoMovieLoftRelief[],
-  centre?: Profile.ICentre,
-): IAutoMovieViewPart {
-  if (!Array.isArray(scale) && scale.constant === null)
-    return varying(original, axis, scale, features, centre);
-  const [a, b]: AutoMovieVector2Tuple = Array.isArray(scale) ? scale : scale.constant!;
+export namespace AutoMovieHumanNativeSourceLaw {
+  /** Build an actual native source under the requested directional scale. */
+  export function create(
+    original: IAutoMovieViewPart,
+    axis: IAutoMovieViewAxis.IAxis,
+    scale: AutoMovieVector2Tuple | Profile.IScale,
+    features: IAutoMovieLoftRelief[],
+    centre?: Profile.ICentre,
+  ): IAutoMovieViewPart {
+    if (!Array.isArray(scale) && scale.constant === null)
+      return varying(original, axis, scale, features, centre);
+    const [a, b]: AutoMovieVector2Tuple = Array.isArray(scale)
+      ? scale
+      : scale.constant!;
 
-  // A constant ratio about a centre line is still a station function, e(s)·(1 - c) + c·f(s), unless the ratio is exactly 1.
-  if (centre !== undefined && !(a === 1 && b === 1))
-    return varying(
-      original,
-      axis,
-      Array.isArray(scale) ? Profile.constant(scale) : scale,
-      features,
-      centre,
-    );
-  if (![a, b].every(Number.isFinite) || !(a > 0 && b > 0))
-    throw new Error("native root calipers require positive finite factors");
-  const coordinate = (
-    source: IAutoMovieViewPart.IOutline,
-    factor: number,
-  ): IAutoMovieViewPart.IOutline =>
-    factor === 1
-      ? source
-      : {
-          ...source,
-          knots: source.knots.map(
-            (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
-              ...k,
-              value: k.value * factor,
-              ...(k.jet === undefined
-                ? {}
-                : {
-                    jet: {
-                      first: k.jet.first === null ? null : k.jet.first * factor,
-                      second:
-                        k.jet.second === null ? null : k.jet.second * factor,
-                    },
-                  }),
-            }),
-          ),
-          ...(source.range === undefined
-            ? {}
-            : {
-                range: {
-                  minimum:
-                    source.range.minimum === null
-                      ? null
-                      : source.range.minimum * factor,
-                  maximum:
-                    source.range.maximum === null
-                      ? null
-                      : source.range.maximum * factor,
-                },
+    // A constant ratio about a centre line is still a station function, e(s)·(1 - c) + c·f(s), unless the ratio is exactly 1.
+    if (centre !== undefined && !(a === 1 && b === 1))
+      return varying(
+        original,
+        axis,
+        Array.isArray(scale) ? Profile.constant(scale) : scale,
+        features,
+        centre,
+      );
+    if (![a, b].every(Number.isFinite) || !(a > 0 && b > 0))
+      throw new Error("native root calipers require positive finite factors");
+    const coordinate = (
+      source: IAutoMovieViewPart.IOutline,
+      factor: number,
+    ): IAutoMovieViewPart.IOutline =>
+      factor === 1
+        ? source
+        : {
+            ...source,
+            knots: source.knots.map(
+              (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => ({
+                ...k,
+                value: k.value * factor,
+                ...(k.jet === undefined
+                  ? {}
+                  : {
+                      jet: {
+                        first:
+                          k.jet.first === null ? null : k.jet.first * factor,
+                        second:
+                          k.jet.second === null ? null : k.jet.second * factor,
+                      },
+                    }),
               }),
-        };
-  const angle = (
-    source: IAutoMovieViewPart.IOutline,
-  ): IAutoMovieViewPart.IOutline => {
-    if (a === b) return source;
-    const prepared = AutoMovieViewOutline.create(source);
-    if ("contract" in prepared) throw new Error(prepared.detail);
-    const span: number = prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
-    const transform = (theta: number): number => {
-      const raw: number = Math.atan2(b * Math.sin(theta), a * Math.cos(theta));
-      return raw + 2 * Math.PI * Math.round((theta - raw) / (2 * Math.PI));
-    };
-    return {
-      ...source,
-      knots: source.knots.map(
-        (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
-          const read = AutoMovieViewOutline.at(prepared, k.station);
-          if (typeof read === "string") throw new Error(read);
-          const theta: number = read.value;
-          const [c, s] = [Math.cos(theta), Math.sin(theta)];
-          const denominator: number = a * a * c * c + b * b * s * s;
-          const first: number = (a * b) / denominator;
-          const second: number =
-            (2 * a * b * (a * a - b * b) * s * c) / (denominator * denominator);
-          const value: number = transform(theta);
-          const d1: number = first * read.parameterJet[0] * span;
-          const d2: number =
-            (second * read.parameterJet[0] ** 2 +
-              first * read.parameterJet[1]) *
-            span *
-            span;
-          if (![value, d1, d2].every(Number.isFinite))
-            throw new Error("native transformed angle2 is not representable");
-          return { ...k, value, jet: { first: d1, second: d2 } };
-        },
-      ),
-      ...(source.range === undefined
-        ? {}
-        : {
-            range: {
-              minimum:
-                source.range.minimum === null
-                  ? null
-                  : transform(source.range.minimum),
-              maximum:
-                source.range.maximum === null
-                  ? null
-                  : transform(source.range.maximum),
-            },
-          }),
-    };
-  };
-  const quarters = <T>(
-    items: IAutoMovieViewPart.IQuarters<T>,
-    map: (item: T, k: number) => T,
-  ): IAutoMovieViewPart.IQuarters<T> =>
-    items.map(map) as IAutoMovieViewPart.IQuarters<T>;
-  if (original.fullness.kind !== "top")
-    throw new Error(
-      "native F1 root controls require the actual complete top source",
-    );
-  const top: IAutoMovieViewPart.ITop = original.fullness;
-  const split = (
-    part: IAutoMovieViewPart.ISplit,
-  ): IAutoMovieViewPart.ISplit => ({
-    u: coordinate(part.u, a),
-    v: coordinate(part.v, b),
-    angle: angle(part.angle),
-    shoulder: part.shoulder,
-  });
-  return {
-    ...original,
-    axis,
-    front: {
-      positive: coordinate(original.front.positive, a),
-      negative: coordinate(original.front.negative, a),
-    },
-    side: {
-      positive: coordinate(original.side.positive, b),
-      negative: coordinate(original.side.negative, b),
-    },
-    fullness: {
-      ...top,
-      ...(top.touch === undefined
-        ? {}
-        : {
-            touch: quarters(top.touch, (item, q) =>
-              coordinate(item, q % 2 === 0 ? b : a),
             ),
-          }),
-      ...(top.splits === undefined
-        ? {}
-        : { splits: quarters(top.splits, (item) => split(item)) }),
-      ...(top.pieces === undefined
-        ? {}
-        : { pieces: quarters(top.pieces, (items) => items.map(split)) }),
-    },
-    ...(features.length === 0 ? { reliefs: undefined } : { reliefs: features }),
-  };
+            ...(source.range === undefined
+              ? {}
+              : {
+                  range: {
+                    minimum:
+                      source.range.minimum === null
+                        ? null
+                        : source.range.minimum * factor,
+                    maximum:
+                      source.range.maximum === null
+                        ? null
+                        : source.range.maximum * factor,
+                  },
+                }),
+          };
+    const angle = (
+      source: IAutoMovieViewPart.IOutline,
+    ): IAutoMovieViewPart.IOutline => {
+      if (a === b) return source;
+      const prepared = AutoMovieViewOutline.create(source);
+      if ("contract" in prepared) throw new Error(prepared.detail);
+      const span: number = prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
+      const transform = (theta: number): number => {
+        const raw: number = Math.atan2(
+          b * Math.sin(theta),
+          a * Math.cos(theta),
+        );
+        return raw + 2 * Math.PI * Math.round((theta - raw) / (2 * Math.PI));
+      };
+      return {
+        ...source,
+        knots: source.knots.map(
+          (k: IAutoMovieViewPart.IKnot): IAutoMovieViewPart.IKnot => {
+            const read = AutoMovieViewOutline.at(prepared, k.station);
+            if (typeof read === "string") throw new Error(read);
+            const theta: number = read.value;
+            const [c, s] = [Math.cos(theta), Math.sin(theta)];
+            const denominator: number = a * a * c * c + b * b * s * s;
+            const first: number = (a * b) / denominator;
+            const second: number =
+              (2 * a * b * (a * a - b * b) * s * c) /
+              (denominator * denominator);
+            const value: number = transform(theta);
+            const d1: number = first * read.parameterJet[0] * span;
+            const d2: number =
+              (second * read.parameterJet[0] ** 2 +
+                first * read.parameterJet[1]) *
+              span *
+              span;
+            if (![value, d1, d2].every(Number.isFinite))
+              throw new Error("native transformed angle2 is not representable");
+            return { ...k, value, jet: { first: d1, second: d2 } };
+          },
+        ),
+        ...(source.range === undefined
+          ? {}
+          : {
+              range: {
+                minimum:
+                  source.range.minimum === null
+                    ? null
+                    : transform(source.range.minimum),
+                maximum:
+                  source.range.maximum === null
+                    ? null
+                    : transform(source.range.maximum),
+              },
+            }),
+      };
+    };
+    const quarters = <T>(
+      items: IAutoMovieViewPart.IQuarters<T>,
+      map: (item: T, k: number) => T,
+    ): IAutoMovieViewPart.IQuarters<T> =>
+      items.map(map) as IAutoMovieViewPart.IQuarters<T>;
+    if (original.fullness.kind !== "top")
+      throw new Error(
+        "native F1 root controls require the actual complete top source",
+      );
+    const top: IAutoMovieViewPart.ITop = original.fullness;
+    const split = (
+      part: IAutoMovieViewPart.ISplit,
+    ): IAutoMovieViewPart.ISplit => ({
+      u: coordinate(part.u, a),
+      v: coordinate(part.v, b),
+      angle: angle(part.angle),
+      shoulder: part.shoulder,
+    });
+    return {
+      ...original,
+      axis,
+      front: {
+        positive: coordinate(original.front.positive, a),
+        negative: coordinate(original.front.negative, a),
+      },
+      side: {
+        positive: coordinate(original.side.positive, b),
+        negative: coordinate(original.side.negative, b),
+      },
+      fullness: {
+        ...top,
+        ...(top.touch === undefined
+          ? {}
+          : {
+              touch: quarters(top.touch, (item, q) =>
+                coordinate(item, q % 2 === 0 ? b : a),
+              ),
+            }),
+        ...(top.splits === undefined
+          ? {}
+          : { splits: quarters(top.splits, (item) => split(item)) }),
+        ...(top.pieces === undefined
+          ? {}
+          : { pieces: quarters(top.pieces, (items) => items.map(split)) }),
+      },
+      ...(features.length === 0
+        ? { reliefs: undefined }
+        : { reliefs: features }),
+    };
+  }
 }
 
 /** A value and its first and second derivatives in one outline's own parameter. */
 type IJet3 = [number, number, number];
 
-/** The scale's value and its first two derivatives in an outline's own parameter, per direction (depth, breadth). */
+/**
+ * The scale's value and its first two derivatives in an outline's own
+ * parameter, per direction (depth, breadth).
+ */
 interface IScaleJet {
   value: AutoMovieVector2Tuple;
   first: AutoMovieVector2Tuple;
@@ -221,8 +243,9 @@ interface IScaleJet {
 }
 
 /**
- * The source under a station-varying scale: every coordinate c(s)·f(s), every tangent angle through the scaled tangent, every shoulder
- * unchanged, with the scale law's breaks added as knots.
+ * The source under a station-varying scale: every coordinate c(s)·f(s), every
+ * tangent angle through the scaled tangent, every shoulder unchanged, with the
+ * scale law's breaks added as knots.
  */
 function varying(
   original: IAutoMovieViewPart,
@@ -309,8 +332,7 @@ function varying(
       ends,
     );
     if ("contract" in prepared) throw new Error(prepared.detail);
-    const span: number =
-      prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
+    const span: number = prepared.spline.xs.at(-1)! - prepared.spline.xs[0]!;
     const [from, to]: readonly [number, number] = prepared.domain;
     const gap: number = AutoMovieLoftContract.splineGap([from, to]);
 
@@ -377,7 +399,9 @@ function varying(
       });
     return { ...source, knots };
   };
-  const split = (part: IAutoMovieViewPart.ISplit): IAutoMovieViewPart.ISplit => ({
+  const split = (
+    part: IAutoMovieViewPart.ISplit,
+  ): IAutoMovieViewPart.ISplit => ({
     u: rebuild(part.u, radial, coordinate(0)),
     v: rebuild(part.v, radial, coordinate(1)),
     angle: rebuild(part.angle, {}, angle),

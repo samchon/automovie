@@ -107,6 +107,8 @@ export namespace AutoMovieEngineScheduleCut {
     else if (!tagged && owns("event"))
       variant = owns("of") ? "anchor-event" : "event";
     switch (variant) {
+      case undefined:
+        break;
       case "share":
         if (
           hasKeys(record, tagged ? ["type", "share"] : ["share"]) &&

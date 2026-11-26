@@ -67,6 +67,7 @@ export namespace IAutoMovieIntent {
 
   /** Cut at a share of the intent's duration. */
   export interface IUntilShare {
+    /** Discriminator for a duration share. */
     type: "share";
     /** Fraction of the full, uncut duration in [0, 1]. */
     share: number;
@@ -74,6 +75,7 @@ export namespace IAutoMovieIntent {
 
   /** Cut at one of the intent's own named events. */
   export interface IUntilEvent {
+    /** Discriminator for an event of this intent. */
     type: "event";
     /** Event name in this intent's timing. */
     event: string;
@@ -81,6 +83,7 @@ export namespace IAutoMovieIntent {
 
   /** Cut at a named event of an earlier anchor or cue track. */
   export interface IUntilAnchorEvent {
+    /** Discriminator for an event from another anchor or cue track. */
     type: "anchor-event";
     /** Earlier placed intent's anchor or cue track id. */
     of: string;
@@ -92,6 +95,7 @@ export namespace IAutoMovieIntent {
 
   /** Cut when the until law reports the requested proximity. */
   export interface IUntilProximity {
+    /** Discriminator for a geometric proximity cut. */
     type: "proximity";
     /** Geometric stopping request interpreted by the production's until law. */
     proximity: IProximity;

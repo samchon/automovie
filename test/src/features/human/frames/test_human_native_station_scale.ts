@@ -83,7 +83,7 @@ export function test_human_native_station_scale(): void {
   const originals: Map<string, IAutoMovieViewPart> = new Map([[prior.name, original]]);
   const axis: IAutoMovieViewAxis.IAxis = H.axis(prior);
   const bound = (station: number, ratio: AutoMovieVector2Tuple): Native.ISpec["protection"][number] => ({
-    sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw(original, axis, ratio, [])]]),
+    sources: new Map([[prior.name, AutoMovieHumanNativeSourceLaw.create(original, axis, ratio, [])]]),
     requirement: { type: "junction", station },
   });
   const build = (
@@ -325,7 +325,7 @@ export function test_human_native_station_scale(): void {
   const scopedOriginal: IAutoMovieViewPart = H.part({ ...scoped, tips: [null, null] }, stations);
   const scopedAxis: IAutoMovieViewAxis.IAxis = H.axis(scoped);
   const scopedBound = (station: number, ratio: AutoMovieVector2Tuple): Native.ISpec["protection"][number] => ({
-    sources: new Map([[scoped.name, AutoMovieHumanNativeSourceLaw(scopedOriginal, scopedAxis, ratio, [])]]),
+    sources: new Map([[scoped.name, AutoMovieHumanNativeSourceLaw.create(scopedOriginal, scopedAxis, ratio, [])]]),
     requirement: { type: "junction", station },
   });
   let scopedPart: IAutoMovieViewPart | undefined;
