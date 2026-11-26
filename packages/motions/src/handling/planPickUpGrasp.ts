@@ -23,6 +23,7 @@ import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
+import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
@@ -37,6 +38,7 @@ import { pickUpOver } from "./pickUpOver";
 import { pickUpPosture } from "./pickUpPosture";
 import type { pickUpSearch } from "./pickUpSearch";
 import { pickUpStance } from "./pickUpStance";
+import { preparePickUpDigitCourse } from "./preparePickUpDigitCourse";
 
 /**
  * Plan a pick-up's reach, grasp and lift from the action context and an
@@ -91,14 +93,48 @@ export function planPickUpGrasp(
   // The body the grip is taken and the lift made from: the entry's, or the
   // entry lowered, turned or stepped, and how it carries the lift
   // (`pickUpStance`).
-  const { found, lowered, raise }: pickUpStance.IChosen = pickUpStance(
-    context,
-    side,
-    lift,
-    authored,
-    carried,
-    interception?.frame,
-  );
+
+  const original = pickUpStance(context, side, lift, authored, carried, interception?.frame);
+  const collider = authored.colliders.length === 1 ? authored.colliders[0] : undefined;
+  const fixable =
+    interception === undefined &&
+    !steadied &&
+    context.entry.base.kind === "standing" &&
+    context.params.use === undefined &&
+    authored.grip === "power" &&
+    collider?.shape.kind === "capsule" &&
+    Math.abs(authored.width - 2 * collider.shape.radius) < 1e-8;
+  const first = fixable
+    ? HumanGrip.close(body, side, authored.grip, original.found.chosen.shown, authored.colliders)
+    : undefined;
+  const aperture = HumanPrehension.aperture(authored.width);
+  const candidate =
+    first !== undefined &&
+    collider !== undefined &&
+    Object.values(first.gaps).some((gap) => gap < -0.001)
+      ? preparePickUpDigitCourse(body, side, collider)
+      : undefined;
+  let chosenStance = original;
+  let fingers = first?.joints;
+  let preparedDigits: ReturnType<typeof preparePickUpDigitCourse> | undefined;
+  if (candidate !== undefined) {
+    const settled = pickUpStance(
+      context,
+      side,
+      lift,
+      { ...authored, width: authored.width + 0.006 },
+      carried,
+      interception?.frame,
+    );
+    const held = HumanGrip.close(body, side, authored.grip, settled.found.chosen.shown, authored.colliders);
+    const corrected = candidate.close(settled.found.chosen.shown, held.joints, aperture);
+    if (corrected !== undefined) {
+      chosenStance = settled;
+      fingers = corrected;
+      preparedDigits = candidate;
+    }
+  }
+  const { found, lowered, raise }: pickUpStance.IChosen = chosenStance;
   const { chosen, bend, stance }: pickUpSearch.ISearched = found;
   const held: IAutoMovieMotionHumanPosture = stance.posture;
   const target: IAutoMovieMotionHumanGrasp.ITarget = HumanGrasp.around(
@@ -149,14 +185,7 @@ export function planPickUpGrasp(
     way,
   );
 
-  // The digits close on the prop where the arm actually puts the hand.
-  const closed: IAutoMovieMotionHumanPosture["joints"] = HumanGrip.close(
-    body,
-    side,
-    target.grip,
-    chosen.shown,
-    target.colliders,
-  ).joints;
+  const closed = fingers ?? HumanGrip.close(body, side, target.grip, chosen.shown, target.colliders).joints;
   const open: IAutoMovieMotionHumanPosture["joints"] = HumanPreshape.open(
     body,
     side,
@@ -223,6 +252,7 @@ export function planPickUpGrasp(
     open,
     closed,
   };
+  let digitCourse: ((share: number) => IAutoMovieMotionHumanPosture["joints"]) | undefined;
   const shapeAt: ReturnType<typeof HumanPrehension.prepareShape> =
     HumanPrehension.prepareShape(shapes, peak);
   const limb: AutoMovieHumanLimb = side === "left" ? "leftArm" : "rightArm";
@@ -387,5 +417,61 @@ export function planPickUpGrasp(
     span: { start: 0, ready: reach, relax: end, end },
     after: "angles",
   });
-  return coursed;
+
+
+  if (preparedDigits === undefined) return coursed;
+  const fit = preparedDigits;
+  const handBone: AutoMovieHumanoidBone = `${side}Hand`;
+  const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
+    seconds, channels, resolution, projection, evaluation,
+  ) => {
+    const laid = coursed.posture(seconds, channels, resolution, projection, evaluation);
+    const digits = digitCourse?.(seconds / reach);
+    return digits === undefined ? laid : {
+      ...laid,
+      joints: { ...laid.joints, ...digits },
+    };
+  };
+  const cannotGrip = (): HumanRefusal => new HumanRefusal({
+    kind: "reach",
+    axis: "grip",
+    value: context.params.handle,
+    reason: "the displayed finger path cannot reach this power grip within the hand's clearance and aperture",
+    fix: "move the handle outside the hand's sweep or author its approach from a clearer side",
+  });
+  return {
+    ...coursed,
+    posture,
+    prepare: () => {
+      coursed.prepare?.();
+      digitCourse = undefined;
+      const world = (share: number) => poseBones(body, resolveHumanPosture(body, posture(share * reach)));
+      const cache = new Map<number, IAutoMovieMotionHumanHand.IWrist>();
+      const frames = fit.course({
+        closed,
+        apex: aperture,
+        peak,
+        reference: shapeAt,
+        wrist: (share) => {
+          const old = cache.get(share);
+          if (old !== undefined) return old;
+          const hand = world(share).get(handBone)!;
+          const at = { point: hand.worldPosition, rotation: hand.worldRotation };
+          cache.set(share, at);
+          return at;
+        },
+        display: (share, at) => {
+          digitCourse = at;
+          return world(share);
+        },
+      });
+      digitCourse = frames;
+      if (frames === undefined) throw cannotGrip();
+    },
+    verifyDisplayed: (bones) => {
+      if (!fit.verifies((share) => bones(context.start + reach * share)))
+        throw cannotGrip();
+    },
+  };
+
 }
