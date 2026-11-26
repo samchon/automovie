@@ -127,7 +127,13 @@ export namespace AutoMovieHumanF1Nails {
     const first: number = Math.max(from, joint - SKIN.before);
     const rows: number = Math.ceil((end - first) / SKIN.station) + 1;
     const pitch: number = (end - first) / (rows - 1);
-    const net: number[][][] = Array.from({ length: rows }, (_: unknown, i: number): number[][] => Array.from({ length: SKIN.phases }, (__: unknown, j: number): number[] => AutoMovieLoftChain.point(chain, i === rows - 1 ? end : first + pitch * i, (2 * Math.PI * j) / SKIN.phases)));
+    const net: AutoMovieVector3Tuple[][] = Array.from({ length: rows }, (_, i) => {
+      const station = i === rows - 1 ? end : first + pitch * i;
+      const at = AutoMovieLoftChain.sampler(chain, station);
+      return Array.from({ length: SKIN.phases }, (_, j) =>
+        at((2 * Math.PI * j) / SKIN.phases),
+      );
+    });
     const point = (station: number, phase: number): readonly number[] => {
       const a: number = Math.max(0, Math.min(rows - 1, (station - first) / pitch));
       const i: number = Math.min(rows - 2, Math.floor(a));
