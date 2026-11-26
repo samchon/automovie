@@ -2,7 +2,7 @@ import {
   AutoMovieArchetypeCar,
   AutoMovieArchetypeMotorcycle,
   AutoMovieArchetypeRefusal,
-  createBoat,
+  AutoMovieArchetypeBoat,
 } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
@@ -74,11 +74,11 @@ export function test_archetype_vehicle_models(): void {
       ]);
   const boat =
     (
-      kind: createBoat.Kind,
+      kind: AutoMovieArchetypeBoat.Kind,
       names: readonly string[],
     ): ((seed: number) => number[]) =>
     (seed: number): number[] =>
-      figures(createBoat({ kind }, seed).dimensions, names);
+      figures(AutoMovieArchetypeBoat.create({ kind }, seed).dimensions, names);
   const canoe = (
     length: number,
     beam: number,

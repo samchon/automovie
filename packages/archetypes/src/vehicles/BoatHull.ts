@@ -6,7 +6,7 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
-import { createBoat } from "./createBoat";
+import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 
 /**
  * An open boat's hull boards: its flat side panels and its thwarts with their
@@ -32,8 +32,8 @@ export namespace BoatHull {
    */
   export function panel(
     builder: AutoMovieArchetypeBuilder<
-      createBoat.Affordance,
-      createBoat.Dimension
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
     >,
     id: string,
     from: IAutoMovieVector3,
@@ -46,7 +46,11 @@ export namespace BoatHull {
       Math.atan2(to.x - from.x, to.z - from.z) / AutoMovieArchetypeUnits.DEGREE;
     builder.box(
       id,
-      Vector3.create(createBoat.ESTIMATES.plank, gunwale - bottom, run),
+      Vector3.create(
+        AutoMovieArchetypeBoat.ESTIMATES.plank,
+        gunwale - bottom,
+        run,
+      ),
       Vector3.create(
         (from.x + to.x) / 2,
         (gunwale + bottom) / 2,
@@ -74,18 +78,18 @@ export namespace BoatHull {
    */
   export function thwart(
     builder: AutoMovieArchetypeBuilder<
-      createBoat.Affordance,
-      createBoat.Dimension
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
     >,
-    id: createBoat.Affordance,
+    id: AutoMovieArchetypeBoat.Affordance,
     height: number,
     edge: number,
     width: number,
     facing: number,
     workingSeat: boolean = false,
   ): void {
-    const depth: number = createBoat.THWART;
-    const board: number = createBoat.ESTIMATES.seat;
+    const depth: number = AutoMovieArchetypeBoat.THWART;
+    const board: number = AutoMovieArchetypeBoat.ESTIMATES.seat;
     builder.box(
       `seat-${id}`,
       Vector3.create(width, board, depth),

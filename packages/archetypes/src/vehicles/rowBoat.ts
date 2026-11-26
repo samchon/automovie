@@ -12,18 +12,18 @@ import {
 } from "../core";
 import { ArchetypeCourseLegs } from "../core/ArchetypeCourseLegs";
 import { BoatOars } from "./BoatOars";
-import { createBoat } from "./createBoat";
+import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 
 /** Complete rowboat state at a film second. */
 type Sample = AutoMovieArchetypeRide.ISample<
-  createBoat.Affordance,
-  createBoat.Dimension
+  AutoMovieArchetypeBoat.Affordance,
+  AutoMovieArchetypeBoat.Dimension
 >;
 
 /** A rowboat and its authored clock and articulation readers. */
 type Ride = AutoMovieArchetypeRide.IRide<
-  createBoat.Affordance,
-  createBoat.Dimension
+  AutoMovieArchetypeBoat.Affordance,
+  AutoMovieArchetypeBoat.Dimension
 >;
 
 /**
@@ -58,7 +58,7 @@ type Ride = AutoMovieArchetypeRide.IRide<
  *   `AutoMovieArchetypeCourse.plan` does for a malformed course.
  */
 export function rowBoat(
-  boat: AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>,
+  boat: AutoMovieArchetype<AutoMovieArchetypeBoat.Affordance, AutoMovieArchetypeBoat.Dimension>,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
   options: { sea?: AutoMovieArchetypeSea.IOptions } = {},
 ): rowBoat.IRowRide {
@@ -119,11 +119,11 @@ export function rowBoat(
   function sample(seconds: number): Sample;
   function sample(
     seconds: number,
-    id: createBoat.Affordance,
+    id: AutoMovieArchetypeBoat.Affordance,
   ): IAutoMovieTransform;
   function sample(
     seconds: number,
-    ...socket: [] | [createBoat.Affordance]
+    ...socket: [] | [AutoMovieArchetypeBoat.Affordance]
   ): Sample | IAutoMovieTransform {
     const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
     const turns: number = state.distance / rowBoat.STROKE;
@@ -144,7 +144,7 @@ export function rowBoat(
         (BoatOars.ARC.catch + BoatOars.ARC.finish) * ease(q);
       lift = g.touch + (g.clear - g.touch) * Math.sin(Math.PI * q);
     }
-    const travels: Partial<Record<createBoat.Affordance, number>> = {
+    const travels: Partial<Record<AutoMovieArchetypeBoat.Affordance, number>> = {
       leftOarlock: sweep,
       rightOarlock: sweep,
       leftOar: lift,
@@ -181,7 +181,7 @@ export function rowBoat(
         a.seconds - b.seconds,
     ),
     at: (seconds: number): Sample => sample(seconds),
-    frame: (id: createBoat.Affordance, seconds: number): IAutoMovieTransform =>
+    frame: (id: AutoMovieArchetypeBoat.Affordance, seconds: number): IAutoMovieTransform =>
       sample(seconds, id),
   };
   return {
@@ -215,8 +215,8 @@ export namespace rowBoat {
   export interface IRowing {
     /** The boat at rest. */
     readonly boat: AutoMovieArchetype<
-      createBoat.Affordance,
-      createBoat.Dimension
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
     >;
 
     /** The floated root placement at a course second. */
@@ -278,9 +278,9 @@ export namespace rowBoat {
         };
       },
       (id: string, seconds: number): IAutoMovieTransform => {
-        const affordance: createBoat.Affordance | undefined =
-          createBoat.AFFORDANCES.find(
-            (known: createBoat.Affordance): boolean => known === id,
+        const affordance: AutoMovieArchetypeBoat.Affordance | undefined =
+          AutoMovieArchetypeBoat.AFFORDANCES.find(
+            (known: AutoMovieArchetypeBoat.Affordance): boolean => known === id,
           );
         if (affordance === undefined)
           throw new RangeError(`A boat has no affordance "${id}".`);

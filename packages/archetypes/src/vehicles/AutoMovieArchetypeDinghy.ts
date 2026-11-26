@@ -22,8 +22,8 @@ const FLOOR: number = 0.02;
 const MAIN_AREA: number = 5.5;
 
 type Build = AutoMovieArchetypeBuilder<
-  createDinghy.Affordance,
-  createDinghy.Dimension
+  AutoMovieArchetypeDinghy.Affordance,
+  AutoMovieArchetypeDinghy.Dimension
 >;
 
 /**
@@ -50,45 +50,50 @@ interface IRing {
   outer: IAutoMovieVector3[];
 }
 
-/**
- * A two-person open sailing dinghy. The hull's reference waterline is Y = 0 and
- * +Z points at the bow. Two standing areas share the footwell, the helm's aft
- * of the crew's. The boom pivots about the mast and carries the mainsail and
- * clew; the visible sheet runs from the clew to a floor block and its tail up
- * to the helm's hand end, which stays fixed in the hull. The tiller and the
- * rudder pivot together about the stern, and the tiller extension swings and
- * lifts on a universal joint at the tiller's end. Hull envelope and club sail
- * area follow the Feva Mk2. Intermediate sections, the spars and prepared part
- * dimensions are staged estimates.
- *
- * @param params Optional scene identity and reference dimensions.
- * @param seed Provenance seed. The reference dimensions are fixed.
- * @returns A hull with an open footwell and the two independent controls.
- */
-export function createDinghy(
-  params: createDinghy.IParams = {},
-  seed?: number,
-): AutoMovieArchetype<createDinghy.Affordance, createDinghy.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createDinghy.Dimension> =
-    new AutoMovieArchetypeDrawSession(
-      "dinghy",
-      createDinghy.UNITS,
-      seed,
-      params,
-    );
-  const dimensions: Record<createDinghy.Dimension, number> = draw.dimensions(
-    createDinghy.BANDS,
-  );
-  const builder: Build = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    name: "two-person sailing dinghy",
-    id: params.id,
-    draw,
-  });
-  hull(builder, dimensions.length, dimensions.beam);
-  mainRig(builder, dimensions.length);
-  helm(builder, dimensions.length);
-  return builder.build(dimensions.mass);
+/** The canonical producer and authoring contract for a sailing dinghy. */
+export namespace AutoMovieArchetypeDinghy {
+  /**
+   * A two-person open sailing dinghy. The hull's reference waterline is Y = 0 and
+   * +Z points at the bow. Two standing areas share the footwell, the helm's aft
+   * of the crew's. The boom pivots about the mast and carries the mainsail and
+   * clew; the visible sheet runs from the clew to a floor block and its tail up
+   * to the helm's hand end, which stays fixed in the hull. The tiller and the
+   * rudder pivot together about the stern, and the tiller extension swings and
+   * lifts on a universal joint at the tiller's end. Hull envelope and club sail
+   * area follow the Feva Mk2. Intermediate sections, the spars and prepared part
+   * dimensions are staged estimates.
+   *
+   * @param params Optional scene identity and reference dimensions.
+   * @param seed Provenance seed. The reference dimensions are fixed.
+   * @returns A hull with an open footwell and the two independent controls.
+   */
+  export function create(
+    params: AutoMovieArchetypeDinghy.IParams = {},
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeDinghy.Affordance,
+    AutoMovieArchetypeDinghy.Dimension
+  > {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeDinghy.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "dinghy",
+        AutoMovieArchetypeDinghy.UNITS,
+        seed,
+        params,
+      );
+    const dimensions: Record<AutoMovieArchetypeDinghy.Dimension, number> =
+      draw.dimensions(AutoMovieArchetypeDinghy.BANDS);
+    const builder: Build = new AutoMovieArchetypeBuilder({
+      material: "composite",
+      name: "two-person sailing dinghy",
+      id: params.id,
+      draw,
+    });
+    hull(builder, dimensions.length, dimensions.beam);
+    mainRig(builder, dimensions.length);
+    helm(builder, dimensions.length);
+    return builder.build(dimensions.mass);
+  }
 }
 
 /**
@@ -298,7 +303,11 @@ function mainRig(builder: Build, length: number): void {
 function helm(builder: Build, length: number): void {
   const pivot: IAutoMovieVector3 = v(0, 0.32, -length / 2);
   const end: IAutoMovieVector3 = v(0, 0.42, -0.95);
-  const tip: IAutoMovieVector3 = v(0, end.y, end.z + createDinghy.EXTENSION);
+  const tip: IAutoMovieVector3 = v(
+    0,
+    end.y,
+    end.z + AutoMovieArchetypeDinghy.EXTENSION,
+  );
   const grip: IAutoMovieVector3 = Vector3.lerp(end, tip, 0.6);
   builder.box(
     "rudder-blade",
@@ -357,7 +366,7 @@ function helm(builder: Build, length: number): void {
   });
 }
 /** Reference dimensions and the model's named crew and rig contacts. */
-export namespace createDinghy {
+export namespace AutoMovieArchetypeDinghy {
   /** Two deck stations, rotation drivers and real hand and line attachments. */
   export type Affordance =
     | "helmDeck"

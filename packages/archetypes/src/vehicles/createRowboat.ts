@@ -1,8 +1,8 @@
 import { type AutoMovieArchetype } from "../core";
+import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
 import { BoatOars } from "./BoatOars";
-import { createBoat } from "./createBoat";
 
 /**
  * Fixed-seat rowboat.
@@ -34,17 +34,20 @@ export namespace createRowboat {
    * producer records beam, bladeLength, bladeWidth, depth, draft, length,
    * mass.
    */
-  export type Dimension = createBoat.Dimension;
+  export type Dimension = AutoMovieArchetypeBoat.Dimension;
 
   /**
    * The boat construction's contact set, which the rowing ride reads. This
    * producer builds bow, floor, gunwale, leftHandle, leftOar, leftOarlock,
    * rightHandle, rightOar, rightOarlock, stern, sternSeat, thwart0, thwart1.
    */
-  export type Affordance = createBoat.Affordance;
+  export type Affordance = AutoMovieArchetypeBoat.Affordance;
 
   /** The model identity, dimensions and this form's catalogue choices. */
-  export interface IParams extends Pick<createBoat.IParams, "id" | "draft"> {
+  export interface IParams extends Pick<
+    AutoMovieArchetypeBoat.IParams,
+    "id" | "draft"
+  > {
     /** A model from this form's catalogue. */
     model?: Model;
   }
@@ -55,9 +58,10 @@ function outfit(
   builder: Parameters<BoatConstruction.Outfit>[0],
   { d, length, beam, gunwale, stern }: BoatConstruction.IHull,
 ): void {
-  const e: typeof createBoat.ESTIMATES = createBoat.ESTIMATES;
+  const e: typeof AutoMovieArchetypeBoat.ESTIMATES =
+    AutoMovieArchetypeBoat.ESTIMATES;
   const span: number = beam;
-  const pivot: number = gunwale + createBoat.LOCK;
+  const pivot: number = gunwale + AutoMovieArchetypeBoat.LOCK;
   const seat: number = pivot - BoatOars.HEIGHT * span;
   const aft: number = BoatOars.AFT * span;
   // The rowing station's height comes from the oarlock geometry rather
@@ -75,7 +79,7 @@ function outfit(
     builder,
     "thwart1",
     seat,
-    aft + createBoat.ROWBOAT.forward,
+    aft + AutoMovieArchetypeBoat.ROWBOAT.forward,
     beam * e.seats.forward,
     -1,
   );
@@ -83,7 +87,7 @@ function outfit(
     builder,
     "sternSeat",
     seat,
-    -length / 2 + createBoat.ROWBOAT.stern,
+    -length / 2 + AutoMovieArchetypeBoat.ROWBOAT.stern,
     2 * stern,
     1,
   );

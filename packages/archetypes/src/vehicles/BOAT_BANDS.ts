@@ -3,7 +3,7 @@ import {
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import type { createBoat } from "./createBoat";
+import type { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 
 /** Fixed-seat rowboats read at their designers' pages. */
 const ROWBOAT: string =
@@ -15,13 +15,15 @@ const LAUNCH: string =
 
 /**
  * The band of each free dimension of a boat, by kind, with the source it was
- * read at; `createBoat.BANDS` is this table. A rowboat's and a canoe's hull and
- * mass are their read model's (`BOAT_MODELS`), not bands.
+ * read at; `AutoMovieArchetypeBoat.BANDS` is this table. A rowboat's and a
+ * canoe's hull and mass are their read model's (`BOAT_MODELS`), not bands.
  */
 export const BOAT_BANDS: Readonly<
   Record<
-    createBoat.Kind,
-    Readonly<Partial<Record<createBoat.Dimension, IAutoMovieArchetypeBand>>>
+    AutoMovieArchetypeBoat.Kind,
+    Readonly<
+      Partial<Record<AutoMovieArchetypeBoat.Dimension, IAutoMovieArchetypeBand>>
+    >
   >
 > = {
   rowboat: {

@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core";
+import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 import { BoatConstruction } from "./BoatConstruction";
 import { BoatHull } from "./BoatHull";
-import { createBoat } from "./createBoat";
 
 /**
  * Pulling boat.
@@ -32,18 +32,18 @@ export namespace createPullingBoat {
    * The boat construction's dimension set, which the rowing ride reads. This
    * producer records beam, depth, length, mass.
    */
-  export type Dimension = createBoat.Dimension;
+  export type Dimension = AutoMovieArchetypeBoat.Dimension;
 
   /**
-   * The createBoat contact set its shared construction types. This producer
-   * builds bow, floor, gunwale, stern, thwart0, thwart1, thwart2, thwart3,
-   * thwart4.
+   * The AutoMovieArchetypeBoat contact set its shared construction types. This
+   * producer builds bow, floor, gunwale, stern, thwart0, thwart1, thwart2,
+   * thwart3, thwart4.
    */
-  export type Affordance = createBoat.Affordance;
+  export type Affordance = AutoMovieArchetypeBoat.Affordance;
 
   /** The model identity, dimensions. */
   export type IParams = Pick<
-    createBoat.IParams,
+    AutoMovieArchetypeBoat.IParams,
     "id" | "length" | "beam" | "depth" | "mass"
   >;
 }
@@ -53,22 +53,24 @@ function outfit(
   builder: Parameters<BoatConstruction.Outfit>[0],
   { beam, gunwale }: BoatConstruction.IHull,
 ): void {
-  const e: typeof createBoat.ESTIMATES = createBoat.ESTIMATES;
-  const seat: number = gunwale - createBoat.LAUNCH.below;
-  const thwarts: readonly createBoat.Affordance[] = [
+  const e: typeof AutoMovieArchetypeBoat.ESTIMATES =
+    AutoMovieArchetypeBoat.ESTIMATES;
+  const seat: number = gunwale - AutoMovieArchetypeBoat.LAUNCH.below;
+  const thwarts: readonly AutoMovieArchetypeBoat.Affordance[] = [
     "thwart0",
     "thwart1",
     "thwart2",
     "thwart3",
     "thwart4",
   ];
-  for (let k: number = 0; k < createBoat.LAUNCH.thwarts; k++)
+  for (let k: number = 0; k < AutoMovieArchetypeBoat.LAUNCH.thwarts; k++)
     BoatHull.thwart(
       builder,
       thwarts[k]!,
       seat,
-      (k - (createBoat.LAUNCH.thwarts - 1) / 2) * createBoat.LAUNCH.room -
-        createBoat.THWART / 2,
+      (k - (AutoMovieArchetypeBoat.LAUNCH.thwarts - 1) / 2) *
+        AutoMovieArchetypeBoat.LAUNCH.room -
+        AutoMovieArchetypeBoat.THWART / 2,
       beam * e.seats.launch,
       -1,
     );

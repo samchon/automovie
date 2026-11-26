@@ -1,4 +1,4 @@
-import { createBoat, rowBoat } from "@automovie/archetypes";
+import { AutoMovieArchetypeBoat, rowBoat } from "@automovie/archetypes";
 import { RigidCarrierSample } from "@automovie/engine";
 import { HumanObject } from "@automovie/motions";
 import { TestValidator } from "@nestia/e2e";
@@ -14,7 +14,7 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A wrapped socket callback cannot inherit the source's stationary domain.
  */
 export function test_motions_perform_object_rowboat_binding(): void {
-  const boat: ReturnType<typeof createBoat> = createBoat(
+  const boat: ReturnType<typeof AutoMovieArchetypeBoat.create> = AutoMovieArchetypeBoat.create(
     { kind: "rowboat" },
     2,
   );

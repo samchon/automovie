@@ -72,7 +72,7 @@ import {
   AutoMovieArchetypeBicycle,
   AutoMovieArchetypeCar,
   AutoMovieArchetypeMotorcycle,
-  createBoat,
+  AutoMovieArchetypeBoat,
   createCart,
   createDeck,
   createWheelchair,
@@ -306,8 +306,9 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       ...kinds(
         "boat",
-        createBoat.KINDS,
-        (kind: createBoat.Kind): AutoMovieArchetype => createBoat({ kind }),
+        AutoMovieArchetypeBoat.KINDS,
+        (kind: AutoMovieArchetypeBoat.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeBoat.create({ kind }),
       ),
       deck: createDeck(createDeck.REFERENCE),
     }),

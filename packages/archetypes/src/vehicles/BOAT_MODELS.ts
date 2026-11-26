@@ -1,8 +1,10 @@
 import { AutoMovieArchetypeUnits } from "../core";
-import type { createBoat } from "./createBoat";
+import type { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 
 /** One boat's or option's figures by dimension. */
-type Figures = Readonly<Partial<Record<createBoat.Dimension, number>>>;
+type Figures = Readonly<
+  Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>
+>;
 
 /** Inches. */
 const IN: number = AutoMovieArchetypeUnits.INCH;
@@ -23,7 +25,7 @@ const LB: number = AutoMovieArchetypeUnits.POUND;
  * https://www.glen-l.com/17-Whitehall-traditional-rowing-craft/products/190/).
  * The Glen-L page gives no draft: no law gives a hull's draft from these
  * figures, so its draft is the other two rowboats' 5 to 7 in, borrowed
- * (`createBoat.BANDS`), provisional.
+ * (`AutoMovieArchetypeBoat.BANDS`), provisional.
  *
  * Canoes, at their makers' pages, the gunwale width taken as the beam and the
  * bow's depth as the ends' height: the Nova Craft Prospector 16 (16 ft, 36 in,
@@ -44,15 +46,15 @@ const LB: number = AutoMovieArchetypeUnits.POUND;
 export const BOAT_MODELS: Readonly<{
   hulls: Readonly<
     Record<
-      createBoat.Kind,
-      Readonly<Partial<Record<createBoat.Model, Figures>>>
+      AutoMovieArchetypeBoat.Kind,
+      Readonly<Partial<Record<AutoMovieArchetypeBoat.Model, Figures>>>
     >
   >;
   layups: Readonly<
     Partial<
       Record<
-        createBoat.Model,
-        Readonly<Partial<Record<createBoat.Layup, Figures>>>
+        AutoMovieArchetypeBoat.Model,
+        Readonly<Partial<Record<AutoMovieArchetypeBoat.Layup, Figures>>>
       >
     >
   >;

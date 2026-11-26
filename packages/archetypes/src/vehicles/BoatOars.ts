@@ -6,8 +6,8 @@ import {
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeUnits,
 } from "../core";
+import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 import { BOAT_MODELS } from "./BOAT_MODELS";
-import { createBoat } from "./createBoat";
 
 /**
  * A rowboat's oars: their sizes from the oarlocks' span, their places in the
@@ -156,10 +156,10 @@ export namespace BoatOars {
    * @returns The geometry.
    */
   export function geometry(
-    d: Readonly<Partial<Record<createBoat.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>>,
   ): IGeometry {
     const span: number = d.beam!;
-    const pivot: number = d.depth! - d.draft! + createBoat.LOCK;
+    const pivot: number = d.depth! - d.draft! + AutoMovieArchetypeBoat.LOCK;
     const inboard: number = span / 2 + INBOARD;
     const outboard: number = inboard * RATIO - inboard;
     const half: number = d.bladeWidth! / 2;
@@ -197,10 +197,10 @@ export namespace BoatOars {
    */
   export function build(
     builder: AutoMovieArchetypeBuilder<
-      createBoat.Affordance,
-      createBoat.Dimension
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
     >,
-    d: Readonly<Partial<Record<createBoat.Dimension, number>>>,
+    d: Readonly<Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>>,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const g: IGeometry = geometry(d);

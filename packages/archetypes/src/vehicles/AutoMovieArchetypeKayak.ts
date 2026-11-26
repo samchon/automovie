@@ -22,77 +22,87 @@ const WALL: number = 0.012;
 const FLOOR: number = -0.14;
 
 type Build = AutoMovieArchetypeBuilder<
-  createKayak.Affordance,
-  createKayak.Dimension
+  AutoMovieArchetypeKayak.Affordance,
+  AutoMovieArchetypeKayak.Dimension
 >;
 
-/**
- * A sit-inside kayak based on the published Pungo 120 envelope. The bow points
- * along +Z and Y = 0 is the reference waterline. The cockpit has an opening, a
- * low seat and separate tilted footbraces. The deck and floor share the same
- * hull section family. Wall thickness and the installed seat and brace geometry
- * are staging estimates.
- *
- * @param params Optional scene identity and fixed reference dimensions.
- * @param seed Provenance seed. The reference dimensions are fixed.
- * @returns One enclosed-deck hull with an open cockpit.
- */
-export function createKayak(
-  params: createKayak.IParams = {},
-  seed?: number,
-): AutoMovieArchetype<createKayak.Affordance, createKayak.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createKayak.Dimension> =
-    new AutoMovieArchetypeDrawSession("kayak", createKayak.UNITS, seed, params);
-  const dimensions: Record<createKayak.Dimension, number> = draw.dimensions(
-    createKayak.BANDS,
-  );
-  const builder: Build = new AutoMovieArchetypeBuilder({
-    material: "composite",
-    name: "sit-inside kayak",
-    id: params.id,
-    draw,
-  });
-  hull(builder, dimensions);
-  const seat: IAutoMovieVector3 = v(0, FLOOR + 0.094, -0.29);
-  const seatDepth: number = 0.32;
-  const seatWidth: number = 0.39;
-  builder.box(
-    "seat-pan",
-    v(seatWidth, 0.058, seatDepth),
-    { ...seat, y: seat.y - 0.029 },
-    {
-      color: POLYMER,
-    },
-  );
-  builder.box(
-    "seat-back",
-    v(seatWidth * 0.84, 0.17, 0.064),
-    v(0, seat.y + 0.062, seat.z - seatDepth * 0.48),
-    { color: POLYMER, rotation: Quaternion.fromAxisAngle(v(1, 0, 0), -9) },
-  );
-  builder.affordance({
-    id: "seat",
-    kind: "seat",
-    frame: AutoMovieArchetypeFrame.upright({
-      ...seat,
-      z: seat.z + seatDepth / 2,
-    }),
-    extent: null,
-    width: seatWidth,
-    depth: seatDepth,
-  });
-  for (const [name, sign] of [
-    ["leftFoot", 1],
-    ["rightFoot", -1],
-  ] as const)
-    brace(builder, name, sign);
-  return builder.build(dimensions.mass);
+/** The canonical producer and authoring contract for a kayak. */
+export namespace AutoMovieArchetypeKayak {
+  /**
+   * A sit-inside kayak based on the published Pungo 120 envelope. The bow points
+   * along +Z and Y = 0 is the reference waterline. The cockpit has an opening, a
+   * low seat and separate tilted footbraces. The deck and floor share the same
+   * hull section family. Wall thickness and the installed seat and brace geometry
+   * are staging estimates.
+   *
+   * @param params Optional scene identity and fixed reference dimensions.
+   * @param seed Provenance seed. The reference dimensions are fixed.
+   * @returns One enclosed-deck hull with an open cockpit.
+   */
+  export function create(
+    params: AutoMovieArchetypeKayak.IParams = {},
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeKayak.Affordance,
+    AutoMovieArchetypeKayak.Dimension
+  > {
+    const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeKayak.Dimension> =
+      new AutoMovieArchetypeDrawSession(
+        "kayak",
+        AutoMovieArchetypeKayak.UNITS,
+        seed,
+        params,
+      );
+    const dimensions: Record<AutoMovieArchetypeKayak.Dimension, number> =
+      draw.dimensions(AutoMovieArchetypeKayak.BANDS);
+    const builder: Build = new AutoMovieArchetypeBuilder({
+      material: "composite",
+      name: "sit-inside kayak",
+      id: params.id,
+      draw,
+    });
+    hull(builder, dimensions);
+    const seat: IAutoMovieVector3 = v(0, FLOOR + 0.094, -0.29);
+    const seatDepth: number = 0.32;
+    const seatWidth: number = 0.39;
+    builder.box(
+      "seat-pan",
+      v(seatWidth, 0.058, seatDepth),
+      { ...seat, y: seat.y - 0.029 },
+      {
+        color: POLYMER,
+      },
+    );
+    builder.box(
+      "seat-back",
+      v(seatWidth * 0.84, 0.17, 0.064),
+      v(0, seat.y + 0.062, seat.z - seatDepth * 0.48),
+      { color: POLYMER, rotation: Quaternion.fromAxisAngle(v(1, 0, 0), -9) },
+    );
+    builder.affordance({
+      id: "seat",
+      kind: "seat",
+      frame: AutoMovieArchetypeFrame.upright({
+        ...seat,
+        z: seat.z + seatDepth / 2,
+      }),
+      extent: null,
+      width: seatWidth,
+      depth: seatDepth,
+    });
+    for (const [name, sign] of [
+      ["leftFoot", 1],
+      ["rightFoot", -1],
+    ] as const)
+      brace(builder, name, sign);
+    return builder.build(dimensions.mass);
+  }
 }
 
 /** One longitudinal family with an unobstructed cockpit inside its deck strips. */
 function hull(
   builder: Build,
-  d: Readonly<Record<createKayak.Dimension, number>>,
+  d: Readonly<Record<AutoMovieArchetypeKayak.Dimension, number>>,
 ): void {
   const half: number = d.length / 2;
   const middle: number = d.cockpitLength / 2;
@@ -196,7 +206,11 @@ function hull(
 }
 
 /** Put an angled brace face and foot contact inside the coaming. */
-function brace(builder: Build, id: createKayak.Brace, sign: number): void {
+function brace(
+  builder: Build,
+  id: AutoMovieArchetypeKayak.Brace,
+  sign: number,
+): void {
   const at: IAutoMovieVector3 = v(sign * 0.16, FLOOR + 0.125, 0.53);
   const rotation: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     v(1, 0, 0),
@@ -226,7 +240,7 @@ function brace(builder: Build, id: createKayak.Brace, sign: number): void {
 }
 
 /** Fixed dimension sites and the three contact affordance names. */
-export namespace createKayak {
+export namespace AutoMovieArchetypeKayak {
   /** The pan and paired footbrace faces. */
   export type Affordance = "seat" | Brace;
 

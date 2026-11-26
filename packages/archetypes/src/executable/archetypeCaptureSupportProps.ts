@@ -6,7 +6,7 @@ import {
   type AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
 } from "../core";
-import { createBoat, createCart, rowBoat } from "../vehicles";
+import { AutoMovieArchetypeBoat, createCart, rowBoat } from "../vehicles";
 import { createCannon } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -27,7 +27,7 @@ import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
 export function archetypeCaptureSupportProps(): Readonly<
   Record<string, archetypeCaptureCatalog.ISubject>
 > {
-  const boat: ReturnType<typeof createBoat> = createBoat(
+  const boat: ReturnType<typeof AutoMovieArchetypeBoat.create> = AutoMovieArchetypeBoat.create(
     { kind: "rowboat" },
     17,
   );

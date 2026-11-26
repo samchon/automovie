@@ -1,8 +1,11 @@
 import {
   AutoMovieArchetype,
   AutoMovieArchetypeBicycle,
+  AutoMovieArchetypeBoat,
   AutoMovieArchetypeCar,
+  AutoMovieArchetypeDinghy,
   AutoMovieArchetypeFrame,
+  AutoMovieArchetypeKayak,
   AutoMovieArchetypeMotorcycle,
   createQuadruped,
   rideQuadruped,
@@ -50,6 +53,8 @@ export function checkArchetypeAliases(): void {
   assert.equal(listed.filter((id) => id === "createCar").length, 1);
   assert.equal(listed.filter((id) => id === "createBicycle").length, 1);
   assert.equal(listed.filter((id) => id === "createMotorcycle").length, 1);
+  assert.equal(listed.filter((id) => id === "createDinghy").length, 1);
+  assert.equal(listed.filter((id) => id === "createKayak").length, 1);
   assert(
     catalogue.groups
       .find((group) => group.name === "vehicles")!
@@ -69,6 +74,9 @@ export function checkArchetypeAliases(): void {
   assert.equal(Object.hasOwn(archetypes, "createCar"), false);
   assert.equal(Object.hasOwn(archetypes, "createBicycle"), false);
   assert.equal(Object.hasOwn(archetypes, "createMotorcycle"), false);
+  assert.equal(Object.hasOwn(archetypes, "createBoat"), false);
+  assert.equal(Object.hasOwn(archetypes, "createDinghy"), false);
+  assert.equal(Object.hasOwn(archetypes, "createKayak"), false);
   assert.equal(
     ArchetypeRegistry.get("createCar")?.call,
     AutoMovieArchetypeCar.create,
@@ -104,6 +112,42 @@ export function checkArchetypeAliases(): void {
   assert.deepEqual(ArchetypeRegistry.get("createMotorcycle")?.variant, {
     key: "kind",
     values: AutoMovieArchetypeMotorcycle.KINDS,
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createBoat")?.call,
+    AutoMovieArchetypeBoat.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createBoat")?.expression,
+    "archetypes.AutoMovieArchetypeBoat.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createBoat")?.variant, {
+    key: "kind",
+    values: AutoMovieArchetypeBoat.KINDS,
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createDinghy")?.call,
+    AutoMovieArchetypeDinghy.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createDinghy")?.expression,
+    "archetypes.AutoMovieArchetypeDinghy.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createDinghy")?.variant, {
+    key: "",
+    values: [],
+  });
+  assert.equal(
+    ArchetypeRegistry.get("createKayak")?.call,
+    AutoMovieArchetypeKayak.create,
+  );
+  assert.equal(
+    ArchetypeRegistry.get("createKayak")?.expression,
+    "archetypes.AutoMovieArchetypeKayak.create",
+  );
+  assert.deepEqual(ArchetypeRegistry.get("createKayak")?.variant, {
+    key: "",
+    values: [],
   });
   assert.equal(
     new Set(listed).size,
@@ -161,6 +205,31 @@ export function checkArchetypeAliases(): void {
         z: 0,
         yaw: 0,
       },
+      {
+        subject: "rowboat",
+        producer: "createBoat",
+        kind: "rowboat",
+        seed: 7,
+        x: 0,
+        z: 2,
+        yaw: 0,
+      },
+      {
+        subject: "dinghy",
+        producer: "createDinghy",
+        seed: 7,
+        x: 0,
+        z: 4,
+        yaw: 0,
+      },
+      {
+        subject: "kayak",
+        producer: "createKayak",
+        seed: 7,
+        x: 0,
+        z: 6,
+        yaw: 0,
+      },
     ],
   };
   assert.deepEqual(SceneStatus.lacks(savedVehicles), []);
@@ -171,6 +240,18 @@ export function checkArchetypeAliases(): void {
   assert.deepEqual(
     SceneArchetype.model(savedVehicles.objects![1]!),
     AutoMovieArchetypeMotorcycle.create({ kind: "motorcycle" }, 5),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![2]!),
+    AutoMovieArchetypeBoat.create({ kind: "rowboat" }, 7),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![3]!),
+    AutoMovieArchetypeDinghy.create({}, 7),
+  );
+  assert.deepEqual(
+    SceneArchetype.model(savedVehicles.objects![4]!),
+    AutoMovieArchetypeKayak.create({}, 7),
   );
   const savedVehiclesCode: string = formatSceneChain(
     savedVehicles,
@@ -184,7 +265,20 @@ export function checkArchetypeAliases(): void {
     savedVehiclesCode,
     /archetypes\.AutoMovieArchetypeMotorcycle\.create\(/,
   );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeBoat\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeDinghy\.create\(/,
+  );
+  assert.match(
+    savedVehiclesCode,
+    /archetypes\.AutoMovieArchetypeKayak\.create\(/,
+  );
   const aliased = new Set(aliases.map((alias) => alias.id));
+  assert(aliased.has("createBoat"));
   assert(
     listed.every((id) => !aliased.has(id)),
     "no saved dispatcher is also listed beside its named forms",

@@ -10,61 +10,93 @@ import { createCanoe } from "./createCanoe";
 import { createPullingBoat } from "./createPullingBoat";
 import { createRowboat } from "./createRowboat";
 
-/**
- * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy
- * pulling boat for a landing party.
- *
- * The boat floats with its root on still water under the middle of its length,
- * its bow toward `+Z`: its bottom `draft` below the water and its gunwale
- * `depth` above the bottom. People sit on its `thwart<k>` seats, a rowboat's
- * and a launch's facing aft as rowers do, a canoe's facing forward as paddlers
- * do, and a rowboat's `sternSeat` facing forward; they stand on its `floor`,
- * take its `gunwale` boarding, and step over its `bow` and `stern`. A rowboat's
- * two oars each turn in an oarlock about the upright (`leftOarlock`,
- * `rightOarlock`), lift about the oarlock's pin riding that (`leftOar`,
- * `rightOar`), and are held by their `leftHandle` and `rightHandle`; `rowBoat`
- * rows it along a course. A racing shell's sliding seat is out of scope: on a
- * fixed thwart the trunk and arms make the stroke.
- *
- * @param params The kind, its read hull and a canoe's layup, and any dimension
- *   the author fixes.
- * @param seed The seed that draws every dimension left free inside its band;
- *   absent, each takes the middle of its band.
- * @returns The boat.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
- *   one the kind lacks.
- */
-export function createBoat(
-  params: createBoat.IParams,
-  seed?: number,
-): AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> {
-  const kind: createBoat.Kind = ArchetypeDraw.choice(
-    "boat",
-    "kind",
-    params.kind,
-    createBoat.KINDS,
-  );
-  // The selected producer validates its options from the saved parameter union.
-  // The saved input spans every variant, so each variant narrows its own kind
-  // and model against the lists it makes before it draws.
-  const variants: Readonly<
-    Record<
-      createBoat.Kind,
-      (
-        params: createBoat.IParams,
-        seed?: number,
-      ) => AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension>
-    >
-  > = {
-    rowboat: (p, s) => createRowboat({ ...p, model: ArchetypeDraw.admit("boat", "model", p.model, ["thamesSkiff", "whitehallSkiff", "whitehall17"] as const) }, s),
-    canoe: (p, s) => createCanoe({ ...p, model: ArchetypeDraw.admit("boat", "model", p.model, ["prospector16", "discovery169", "spiritII", "minnesotaII"] as const) }, s),
-    launch: ({ model: _model, ...rest }, s) => createPullingBoat(rest, s),
-  };
-  return variants[kind](params, seed);
+/** The canonical producer and authoring contract for boats. */
+export namespace AutoMovieArchetypeBoat {
+  /**
+   * An open boat: a fixed-seat rowboat with its oars, a tandem canoe, or a Navy
+   * pulling boat for a landing party.
+   *
+   * The boat floats with its root on still water under the middle of its length,
+   * its bow toward `+Z`: its bottom `draft` below the water and its gunwale
+   * `depth` above the bottom. People sit on its `thwart<k>` seats, a rowboat's
+   * and a launch's facing aft as rowers do, a canoe's facing forward as paddlers
+   * do, and a rowboat's `sternSeat` facing forward; they stand on its `floor`,
+   * take its `gunwale` boarding, and step over its `bow` and `stern`. A rowboat's
+   * two oars each turn in an oarlock about the upright (`leftOarlock`,
+   * `rightOarlock`), lift about the oarlock's pin riding that (`leftOar`,
+   * `rightOar`), and are held by their `leftHandle` and `rightHandle`; `rowBoat`
+   * rows it along a course. A racing shell's sliding seat is out of scope: on a
+   * fixed thwart the trunk and arms make the stroke.
+   *
+   * @param params The kind, its read hull and a canoe's layup, and any dimension
+   *   the author fixes.
+   * @param seed The seed that draws every dimension left free inside its band;
+   *   absent, each takes the middle of its band.
+   * @returns The boat.
+   * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band or
+   *   one the kind lacks.
+   */
+  export function create(
+    params: AutoMovieArchetypeBoat.IParams,
+    seed?: number,
+  ): AutoMovieArchetype<
+    AutoMovieArchetypeBoat.Affordance,
+    AutoMovieArchetypeBoat.Dimension
+  > {
+    const kind: AutoMovieArchetypeBoat.Kind = ArchetypeDraw.choice(
+      "boat",
+      "kind",
+      params.kind,
+      AutoMovieArchetypeBoat.KINDS,
+    );
+    // The selected producer validates its options from the saved parameter union.
+    // The saved input spans every variant, so each variant narrows its own kind
+    // and model against the lists it makes before it draws.
+    const variants: Readonly<
+      Record<
+        AutoMovieArchetypeBoat.Kind,
+        (
+          params: AutoMovieArchetypeBoat.IParams,
+          seed?: number,
+        ) => AutoMovieArchetype<
+          AutoMovieArchetypeBoat.Affordance,
+          AutoMovieArchetypeBoat.Dimension
+        >
+      >
+    > = {
+      rowboat: (p, s) =>
+        createRowboat(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("boat", "model", p.model, [
+              "thamesSkiff",
+              "whitehallSkiff",
+              "whitehall17",
+            ] as const),
+          },
+          s,
+        ),
+      canoe: (p, s) =>
+        createCanoe(
+          {
+            ...p,
+            model: ArchetypeDraw.admit("boat", "model", p.model, [
+              "prospector16",
+              "discovery169",
+              "spiritII",
+              "minnesotaII",
+            ] as const),
+          },
+          s,
+        ),
+      launch: ({ model: _model, ...rest }, s) => createPullingBoat(rest, s),
+    };
+    return variants[kind](params, seed);
+  }
 }
 
-/** Companion types, constants and bands of {@link createBoat}. */
-export namespace createBoat {
+/** Companion types, constants and bands of {@link AutoMovieArchetypeBoat}. */
+export namespace AutoMovieArchetypeBoat {
   /** The canonical factories for saved kinds, read after the catalogue loads. */
   export const PRODUCERS = {
     get rowboat(): typeof createRowboat {

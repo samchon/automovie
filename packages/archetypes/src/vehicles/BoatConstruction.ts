@@ -6,10 +6,10 @@ import {
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
 } from "../core";
+import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
 import { BOAT_MODELS } from "./BOAT_MODELS";
 import { BoatHull } from "./BoatHull";
 import { BoatOars } from "./BoatOars";
-import { createBoat } from "./createBoat";
 
 /**
  * Assemble a boat with its fixed, positive-Z bow.
@@ -26,36 +26,46 @@ import { createBoat } from "./createBoat";
  *   cannot use.
  */
 export function BoatConstruction(
-  kind: createBoat.Kind,
-  params: Omit<createBoat.IParams, "kind">,
+  kind: AutoMovieArchetypeBoat.Kind,
+  params: Omit<AutoMovieArchetypeBoat.IParams, "kind">,
   seed: number | undefined,
   outfit: BoatConstruction.Outfit,
-): AutoMovieArchetype<createBoat.Affordance, createBoat.Dimension> {
-  const draw: AutoMovieArchetypeDrawSession<createBoat.Dimension> =
-    new AutoMovieArchetypeDrawSession<createBoat.Dimension>(
+): AutoMovieArchetype<
+  AutoMovieArchetypeBoat.Affordance,
+  AutoMovieArchetypeBoat.Dimension
+> {
+  const draw: AutoMovieArchetypeDrawSession<AutoMovieArchetypeBoat.Dimension> =
+    new AutoMovieArchetypeDrawSession<AutoMovieArchetypeBoat.Dimension>(
       "boat",
-      createBoat.UNITS,
+      AutoMovieArchetypeBoat.UNITS,
       seed,
       params,
     );
   // One read hull whole and, for a canoe, one of its layups; a rowboat's blades are the oar its span calls for.
   const hull: {
-    name: createBoat.Model | undefined;
-    figures: Readonly<Partial<Record<createBoat.Dimension, number>>>;
-  } = draw.model<createBoat.Model>(
+    name: AutoMovieArchetypeBoat.Model | undefined;
+    figures: Readonly<
+      Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>
+    >;
+  } = draw.model<AutoMovieArchetypeBoat.Model>(
     "model",
     params.model,
     BOAT_MODELS.hulls[kind],
   );
   const layup: {
-    figures: Readonly<Partial<Record<createBoat.Dimension, number>>>;
-  } = draw.model<createBoat.Layup>(
+    figures: Readonly<
+      Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>
+    >;
+  } = draw.model<AutoMovieArchetypeBoat.Layup>(
     "layup",
     params.layup,
     hull.name === undefined ? undefined : BOAT_MODELS.layups[hull.name],
   );
-  const drawn: Partial<Record<createBoat.Dimension, number>> = {
-    ...draw.dimensions(createBoat.BANDS[kind], createBoat.BANDS),
+  const drawn: Partial<Record<AutoMovieArchetypeBoat.Dimension, number>> = {
+    ...draw.dimensions(
+      AutoMovieArchetypeBoat.BANDS[kind],
+      AutoMovieArchetypeBoat.BANDS,
+    ),
     ...hull.figures,
     ...layup.figures,
   };
@@ -63,17 +73,17 @@ export function BoatConstruction(
   const derived = (blade: {
     bladeLength: number;
     bladeWidth: number;
-  }): Partial<Record<createBoat.Dimension, number>> => ({
+  }): Partial<Record<AutoMovieArchetypeBoat.Dimension, number>> => ({
     bladeLength: draw.derive("bladeLength", blade.bladeLength),
     bladeWidth: draw.derive("bladeWidth", blade.bladeWidth),
   });
-  const d: Partial<Record<createBoat.Dimension, number>> =
+  const d: Partial<Record<AutoMovieArchetypeBoat.Dimension, number>> =
     kind === "rowboat"
       ? { ...drawn, ...derived(BoatOars.blade(drawn.beam!)) }
       : drawn;
   const builder: AutoMovieArchetypeBuilder<
-    createBoat.Affordance,
-    createBoat.Dimension
+    AutoMovieArchetypeBoat.Affordance,
+    AutoMovieArchetypeBoat.Dimension
   > = new AutoMovieArchetypeBuilder({
     material: "composite",
     id: params.id,
@@ -83,13 +93,15 @@ export function BoatConstruction(
   const v: typeof Vector3.create = Vector3.create;
   const length: number = d.length!;
   const beam: number = d.beam!;
-  const draft: number = d.draft ?? createBoat.DRAFT[kind];
+  const draft: number = d.draft ?? AutoMovieArchetypeBoat.DRAFT[kind];
   const bottom: number = -draft;
   const gunwale: number = d.depth! - draft;
-  const stern: number = kind === "canoe" ? 0 : (createBoat.TRANSOM * beam) / 2;
+  const stern: number =
+    kind === "canoe" ? 0 : (AutoMovieArchetypeBoat.TRANSOM * beam) / 2;
   const ends: number = kind === "canoe" ? bottom + d.endHeight! : gunwale;
 
-  const e: typeof createBoat.ESTIMATES = createBoat.ESTIMATES;
+  const e: typeof AutoMovieArchetypeBoat.ESTIMATES =
+    AutoMovieArchetypeBoat.ESTIMATES;
 
   // The hull: a bottom, and each side in two flat panels, aft from the transom's corner (a canoe's stern post) to the widest beam amidships, and forward to the stem.
   builder.box(
@@ -158,7 +170,7 @@ export function BoatConstruction(
   });
   builder.rod(
     "gunwale",
-    createBoat.RAIL / 2,
+    AutoMovieArchetypeBoat.RAIL / 2,
     v(beam / 2, gunwale, -length / 8),
     v(beam / 2, gunwale, length / 8),
     { color: BoatHull.WOOD, surface: "wood" },
@@ -174,7 +186,7 @@ export function BoatConstruction(
     ),
     extent: null,
     grip: "power",
-    aperture: createBoat.RAIL,
+    aperture: AutoMovieArchetypeBoat.RAIL,
     length: length / 4,
   });
   builder.affordance({
@@ -205,7 +217,7 @@ export namespace BoatConstruction {
   /** Measured support frame inputs in the unposed hull's coordinate system. */
   export interface IHull {
     /** The resolved base dimensions, including rowboat blade sizes. */
-    d: Readonly<Partial<Record<createBoat.Dimension, number>>>;
+    d: Readonly<Partial<Record<AutoMovieArchetypeBoat.Dimension, number>>>;
     /** The bow-to-stern extent. */
     length: number;
     /** The widest span across the hull. */
@@ -221,8 +233,8 @@ export namespace BoatConstruction {
   /** Builds the interior and its contacts over the finished hull. */
   export type Outfit = (
     builder: AutoMovieArchetypeBuilder<
-      createBoat.Affordance,
-      createBoat.Dimension
+      AutoMovieArchetypeBoat.Affordance,
+      AutoMovieArchetypeBoat.Dimension
     >,
     hull: IHull,
   ) => void;
