@@ -11,6 +11,7 @@ import {
 } from "@automovie/human/capture";
 import type {
   IAutoMovieHumanConicLoft,
+  IAutoMovieMeshSectionFrame,
   IAutoMovieMillimeterMesh,
 } from "@automovie/interface";
 import fs from "node:fs/promises";
@@ -461,27 +462,26 @@ namespace FamilyConicArmscye {
       joint[1]!,
       Math.abs(joint[2]!),
     ];
+
+    // Stations in this frame are world Y coordinates in millimetres.
+    const frame: IAutoMovieMeshSectionFrame = {
+      origin: [0, 0, 0],
+      axes: [
+        [0, 1, 0],
+        [1, 0, 0],
+        [0, 0, 1],
+      ],
+    };
     for (const [label, mesh] of [
       ["reference", source.body],
       ["generated", generated],
     ] as [string, IAutoMovieMillimeterMesh][]) {
-      // The level's closed loops on the +Z side, in (x, z), mm.
+      const outline: ReturnType<typeof AutoMovieMeshExtract.prepareOutline> =
+        AutoMovieMeshExtract.prepareOutline(mesh, frame, 0);
+
+      // Read the closed loops in (x, z), mm, with each level cut in isolation.
       const level = (y: number): [number, number][][] =>
-        AutoMovieMeshExtract.outline(
-          mesh,
-          {
-            origin: [0, y, 0],
-            axes: [
-              [0, 1, 0],
-              [1, 0, 0],
-              [0, 0, 1],
-            ],
-          },
-          [0],
-          0,
-          0.5,
-          0,
-        )[0]!
+        outline([y], 0.5, 0)[0]!
           .loops.filter((loop): boolean => loop.closed)
           .map((loop): [number, number][] =>
             loop.points.map((p): [number, number] => [p[0], p[1]]),

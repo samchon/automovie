@@ -2,31 +2,29 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Linear interpolation on each sign-changing edge is the exact intersection of a flat triangle with a plane; the symbolic perturbation (a vertex on the plane counts as above) removes the degenerate cases, so every cut is a set of chains through edges.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One pass per station collects crossings, segments and their chains; the jump flags are a second pass over neighbours.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Dangling crossings and jumps are flagged and never smoothed; the raw loops stay unbridged, and every gap the outer boundaries bridge is flagged with its length for the viewer check.
+Linear interpolation on each sign-changing edge gives the plane intersection. Counting a vertex on the plane as above assigns a consistent side at ties. Crossings chain through original mesh edges. The raw loops preserve open ends and the separate outer boundary flags each bridged gap.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the perturbation, the chaining, the extreme set and both flags.
+States the millimetre frame, station axis, tolerance and bridge defaults, plane-vertex rule, extremes, loops and diagnostic flags.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(S T) for S stations over T triangles, plus O(S P) for P crossings per station; heights along the axis are computed once.
+The public function projects V vertices once in O(V) time and space and runs one station list through the shared query. Each station scans T triangles in their original order, then chains and encloses its crossings. A second pass checks jumps between neighbours. The heights and station scratch are released when the query returns. The caller retains only its cut records.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+# src/geometry/extract/AutoMovieMeshExtract.ts#AutoMovieMeshExtract.prepareOutline
 
-Vertex heights are shared across all stations.
+## @evidence contracts/development/common.md#meaningful-documentation
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+Documents the fixed mesh and frame, the axis and station units, the query defaults, and the station list that supplies jump neighbours.
 
-Per-station maps are released after the station; only the returned sections remain.
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Each stored height is the vertex's displacement from the fixed origin dotted with the station axis. The station query subtracts the station from this height and applies the same edge interpolation, plane-vertex rule and traversal as `outline`.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Projection takes O(V) time and retains one double per vertex while the query function is reachable. Reads borrow the mesh, frame and stored heights. Each read scans the triangles in their original order at each station to preserve the first crossing and traversal order. Queries retain no intermediate results after returning their cuts.
 
 # src/geometry/extract/AutoMovieMeshExtract.ts#AutoMovieMeshExtract.reduce
 
