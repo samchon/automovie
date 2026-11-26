@@ -1,9 +1,10 @@
+import {
+  AutoMovieArchetypeQuadrupedJoints,
+  archetypeCaptureRest,
+  archetypeQuadrupedMarks,
+} from "@automovie/archetypes/executable/internal";
 import { Vector3 } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-
-import { AutoMovieArchetypeQuadrupedJoints } from "../../../../../packages/archetypes/src/animals/AutoMovieArchetypeQuadrupedJoints";
-import { archetypeCaptureRest } from "../../../../../packages/archetypes/src/executable/archetypeCaptureRest";
-import { archetypeQuadrupedMarks } from "../../../../../packages/archetypes/src/executable/archetypeQuadrupedMarks";
 
 /** Draw-time support marks follow the actual fitted solids through rest. */
 export function test_archetypes_animals_rest_capture(): void {
