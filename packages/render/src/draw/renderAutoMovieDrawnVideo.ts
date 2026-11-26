@@ -11,7 +11,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieRenderAudio } from "../audio/AutoMovieRenderAudio.js";
-import { measureAutoMovieDialogueLipSync } from "../audio/measureAutoMovieDialogueLipSync.js";
 import { AutoMovieControlChannelWriter } from "../delivery/AutoMovieControlChannelWriter.js";
 import { admitAutoMovieControlPasses } from "../delivery/admitAutoMovieControlPasses.js";
 import { planAutoMovieAlphaWrap } from "../delivery/planAutoMovieAlphaWrap.js";
@@ -62,7 +61,7 @@ interface ISpeech {
  * lines are admitted by `AutoMovieRenderAudio.admitDialogue` without a mix.
  * Each frame's beauty pass carries the mouths the subject read for that frame,
  * and the sound record's `lipSync` measures each line against them
- * (`measureAutoMovieDialogueLipSync`), so the lag is the lag of the mouth
+ * (`AutoMovieRenderAudio.measureDialogueLipSync`), so the lag is the lag of the mouth
  * actually handed to the drawing.
  *
  * A subject that supplies a `cut` gets the result's `cut`: one row per entry
@@ -315,7 +314,7 @@ export async function renderAutoMovieDrawnVideo(props: {
           ),
           analysis: mixed.analysis,
           loudness: mixed.loudness,
-          lipSync: measureAutoMovieDialogueLipSync({
+          lipSync: AutoMovieRenderAudio.measureDialogueLipSync({
             lines: speech.lines,
             track: speech.track,
             plan: mixed.plan,

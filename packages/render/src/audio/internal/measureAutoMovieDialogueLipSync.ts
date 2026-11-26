@@ -7,7 +7,7 @@ import type {
   IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
-import { autoMovieVisemeChannelWeights } from "../scene/autoMovieVisemeChannelWeights.js";
+import { autoMovieVisemeChannelWeights } from "../../scene/autoMovieVisemeChannelWeights.js";
 
 /**
  * Measure each adopted line's lip-sync lag from the mouth the drawn subject

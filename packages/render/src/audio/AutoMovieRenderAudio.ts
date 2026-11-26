@@ -1,14 +1,18 @@
 import type {
+  IAutoMovieDialogueLipSync,
   IAutoMovieDialogueMouthTrack,
+  IAutoMovieDrawnMouth,
   IAutoMovieDialogueSpeakerBinding,
   IAutoMovieMixFilmSound,
   IAutoMovieProductionFrameRate,
+  IAutoMovieProductionSoundPlan,
 } from "@automovie/interface";
 
 import { admitAutoMovieFilmDialogue } from "./internal/admitAutoMovieFilmDialogue.js";
 import { encodeAutoMovieWavPcm16 } from "./internal/encodeAutoMovieWavPcm16.js";
 import { mixAutoMovieFilmSound } from "./internal/mixAutoMovieFilmSound.js";
 import { planAutoMovieDialogueMouths } from "./internal/planAutoMovieDialogueMouths.js";
+import { measureAutoMovieDialogueLipSync } from "./internal/measureAutoMovieDialogueLipSync.js";
 
 /** Render's film audio admission, planning and encoding operations. */
 export class AutoMovieRenderAudio {
@@ -77,5 +81,45 @@ export class AutoMovieRenderAudio {
     frameRate: IAutoMovieProductionFrameRate;
   }): IAutoMovieDialogueMouthTrack {
     return planAutoMovieDialogueMouths(props);
+  }
+
+  /**
+   * Measure each adopted line's lip-sync lag from the mouths read on drawn
+   * frames, without reading pixels. Unbound lines report speaker-not-bound.
+   * Lines without phoneme ranges report envelope-jaw; otherwise the viseme jaw
+   * channel is compared with the line level over its speech span widened by
+   * ceil(0.25 * fps). A read jaw without visemes reports envelope-jaw, and a
+   * line with neither read reports mouth-not-drawn.
+   *
+   * @param props The adopted lines, handed mouth track, film plan and drawn
+   *   frame mouths.
+   * @returns One measurement entry per line in list order.
+   */
+  public static measureDialogueLipSync(
+    props: AutoMovieRenderAudio.IMeasureDialogueLipSyncProps,
+  ): IAutoMovieDialogueLipSync[] {
+    return measureAutoMovieDialogueLipSync(props);
+  }
+
+}
+
+
+/** Props for measuring the adopted dialogue's drawn lip-sync. */
+export namespace AutoMovieRenderAudio {
+  export interface IMeasureDialogueLipSyncProps {
+    /** The adopted lines with receipts and 48 kHz samples. */
+    lines: readonly IAutoMovieMixFilmSound.ILine[];
+
+    /** The mouth track handed to the subject. */
+    track: IAutoMovieDialogueMouthTrack;
+
+    /** The 48 kHz film clock and its frame count. */
+    plan: Pick<
+      IAutoMovieProductionSoundPlan,
+      "fps" | "frameRate" | "sampleRate" | "totalFrames"
+    >;
+
+    /** Mouths read by the subject at each output frame, absent when none. */
+    drawn: readonly (readonly IAutoMovieDrawnMouth[] | undefined)[];
   }
 }
