@@ -12,7 +12,7 @@ const parity = process.argv[3] !== "--sdk-only";
 const require = createRequire(path.join(root, "package.json"));
 const { chromium } = require("playwright-core");
 const {
-  decodeAutoMovieRasterPng,
+  AutoMovieRenderPicture,
   guidePassFrameName,
 } = require("@automovie/render");
 process.env.VITE_CJS_IGNORE_WARNING = "true";
@@ -83,7 +83,7 @@ try {
         command = await installedFrameParity.inspector({
           page,
           url,
-          decodePng: decodeAutoMovieRasterPng,
+          decodePng: AutoMovieRenderPicture.decodeRasterPng,
         });
       assert.deepEqual(errors, [], "no browser errors");
       console.log(
@@ -179,7 +179,7 @@ if (parity)
   await installedFrameParity.deliver({
     root,
     command,
-    decodePng: decodeAutoMovieRasterPng,
+    decodePng: AutoMovieRenderPicture.decodeRasterPng,
     guideFrameName: guidePassFrameName,
     ffmpeg: process.env.FFMPEG_PATH?.trim() || require("ffmpeg-static"),
   });

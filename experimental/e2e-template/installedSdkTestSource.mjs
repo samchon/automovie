@@ -3,8 +3,8 @@ export const installedSdkTestSource = (
   contactBody,
 ) => `import assert from "node:assert/strict";
 import {
-  createCamera, createCargoPod, createDesktopKeyboard, createLaptop, createPhone,
-  createRadio, createRemote, createRing, createScenicContainer, createTablet,
+  AutoMovieArchetypeCamera, AutoMovieArchetypePhone, AutoMovieArchetypeRemote, AutoMovieArchetypeTablet,
+  createCargoPod, createDesktopKeyboard, createLaptop, createRadio, createRing, createScenicContainer,
 } from "@automovie/archetypes";
 import * as props from "@automovie/archetypes/props";
 import { Quaternion, Vector3 } from "@automovie/engine";
@@ -28,14 +28,14 @@ import { starter } from "../../../src/composition/films/starter";
  */
 export async function test_installed_sdk(): Promise<void> {
   assert.ok(createRing({ id: "sdk-consumer" }).parts.length > 0);
-  assert.equal(createCamera, props.createCamera);
+  assert.equal(AutoMovieArchetypeCamera, props.AutoMovieArchetypeCamera);
   assert.equal(createDesktopKeyboard, props.createDesktopKeyboard);
   assert.equal(createLaptop, props.createLaptop);
-  assert.equal(createPhone, props.createPhone);
+  assert.equal(AutoMovieArchetypePhone, props.AutoMovieArchetypePhone);
   assert.equal(createRadio, props.createRadio);
-  assert.equal(createRemote, props.createRemote);
-  assert.equal(createTablet, props.createTablet);
-  assert.equal(createCamera({ model: "grIII" }).dimensions.width, 0.1094);
+  assert.equal(AutoMovieArchetypeRemote, props.AutoMovieArchetypeRemote);
+  assert.equal(AutoMovieArchetypeTablet, props.AutoMovieArchetypeTablet);
+  assert.equal(AutoMovieArchetypeCamera.create({ model: "grIII" }).dimensions.width, 0.1094);
   const oldPod = createScenicContainer({ kind: "cargoPod" }, 7);
   const pod = createCargoPod({}, 7);
   assert.deepEqual(oldPod.affordances.map((contact) => contact.id), ["top"]);
@@ -53,7 +53,7 @@ export async function test_installed_sdk(): Promise<void> {
   const Chain = HumanChain.extend({ swipeTouchscreen: AutoMovieMotionHumanOperate.swipeTouchscreen });
   // The contact matrix retains seed zero and seed 180, the largest measured gap in the native sweep.
   for (const seed of [0, 180]) {
-    const phone = createPhone({}, seed);
+    const phone = AutoMovieArchetypePhone.create({}, seed);
     const shell = phone.shapes().find((shape) => shape.id === "body");
     assert(shell?.kind === "box");
     assert.equal(phone.affordance("screen").kind, "surface");
