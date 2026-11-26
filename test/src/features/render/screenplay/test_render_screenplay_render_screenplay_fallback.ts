@@ -1,5 +1,5 @@
 import { IAutoMovieScript } from "@automovie/interface";
-import { renderScreenplay } from "@automovie/render";
+import { AutoMovieRenderScreenplay } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { TREE_SCRIPT } from "../../internal/TREE_SCRIPT";
@@ -22,7 +22,7 @@ import { screenplayNode } from "../../internal/screenplayNode";
  */
 export function test_render_screenplay_render_screenplay_fallback(): void {
   const flat: IAutoMovieScript = { ...TREE_SCRIPT, tree: null };
-  const text: string = renderScreenplay(flat);
+  const text: string = AutoMovieRenderScreenplay.render(flat);
   TestValidator.equals(
     "flat header from the script fields",
     namedFacts([
@@ -70,19 +70,20 @@ export function test_render_screenplay_render_screenplay_fallback(): void {
   };
   TestValidator.predicate(
     "ghost beat id passes through",
-    renderScreenplay(ghost).includes("BEAT, ghost"),
+    AutoMovieRenderScreenplay.render(ghost).includes("BEAT, ghost"),
   );
 
   TestValidator.equals(
     "empty tree renders empty body",
-    renderScreenplay({ ...TREE_SCRIPT, tree: [] }),
+    AutoMovieRenderScreenplay.render({ ...TREE_SCRIPT, tree: [] }),
     "\n",
   );
 
   TestValidator.predicate(
     "zero beats throw",
     throwsError(
-      (): string => renderScreenplay({ ...TREE_SCRIPT, beats: [] }),
+      (): string =>
+        AutoMovieRenderScreenplay.render({ ...TREE_SCRIPT, beats: [] }),
       "no beats",
     ),
   );

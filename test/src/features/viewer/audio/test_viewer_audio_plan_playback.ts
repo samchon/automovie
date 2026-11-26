@@ -1,8 +1,8 @@
-import { planAutoMovieAudioPlayback } from "@automovie/viewer";
+import { AutoMovieViewerAudio } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `planAutoMovieAudioPlayback` starts each still-sounding cue: a sounding cue
+ * `AutoMovieViewerAudio.planPlayback` starts each still-sounding cue: a sounding cue
  * at once, part-way in by its rate times the elapsed film time; a later cue
  * after its film delay over the transport rate; an ended cue not at all.
  *
@@ -18,8 +18,8 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_audio_plan_playback(): void {
   TestValidator.equals(
     "the starts",
-    planAutoMovieAudioPlayback(
-      [
+    AutoMovieViewerAudio.planPlayback({
+      cues: [
         { asset: "a", seconds: 0, gain: 0.5, offsetSeconds: 1 },
         {
           asset: "b",
@@ -31,10 +31,10 @@ export function test_viewer_audio_plan_playback(): void {
         },
         { asset: "c", seconds: 0, gain: 1, durationSeconds: 1 },
       ],
-      2,
-      2,
-      { a: 10, b: 4, c: 4 },
-    ),
+      seconds: 2,
+      rate: 2,
+      lengths: { a: 10, b: 4, c: 4 },
+    }),
     [
       {
         asset: "a",
@@ -58,12 +58,12 @@ export function test_viewer_audio_plan_playback(): void {
   );
   TestValidator.error(
     "an unknown asset",
-    (): planAutoMovieAudioPlayback.IStart[] =>
-      planAutoMovieAudioPlayback(
-        [{ asset: "x", seconds: 0, gain: 1 }],
-        0,
-        1,
-        {},
-      ),
+    (): AutoMovieViewerAudio.IStart[] =>
+      AutoMovieViewerAudio.planPlayback({
+        cues: [{ asset: "x", seconds: 0, gain: 1 }],
+        seconds: 0,
+        rate: 1,
+        lengths: {},
+      }),
   );
 }

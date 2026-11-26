@@ -1,4 +1,4 @@
-import type { IAutoMovieAudioCue } from "./IAutoMovieAudioCue.js";
+import type { AutoMovieViewerAudio } from "../AutoMovieViewerAudio.js";
 
 /**
  * Which cues sound when playback starts at a film instant and runs at a
@@ -9,21 +9,15 @@ import type { IAutoMovieAudioCue } from "./IAutoMovieAudioCue.js";
  * multiplies the cue rate by the transport rate. Pure, so a seek and a resume
  * plan the same playback from the same instant.
  *
- * @param cues The cue list.
- * @param seconds The film instant playback starts from.
- * @param rate Film seconds per wall second; positive.
- * @param lengths Source length in seconds by asset, for cues without a
- *   duration.
+ * @param request Cues, film instant, transport rate and source lengths.
  * @returns One start per sounding cue, in cue order.
  */
 export function planAutoMovieAudioPlayback(
-  cues: readonly IAutoMovieAudioCue[],
-  seconds: number,
-  rate: number,
-  lengths: Readonly<Record<string, number>>,
-): planAutoMovieAudioPlayback.IStart[] {
+  request: AutoMovieViewerAudio.IPlanPlaybackRequest,
+): AutoMovieViewerAudio.IStart[] {
+  const { cues, seconds, rate, lengths } = request;
   if (!(rate > 0)) throw new Error("Invalid audio playback instant or rate");
-  const starts: planAutoMovieAudioPlayback.IStart[] = [];
+  const starts: AutoMovieViewerAudio.IStart[] = [];
   for (const cue of cues) {
     const speed: number = cue.rate ?? 1;
     const offset: number = cue.offsetSeconds ?? 0;
@@ -44,30 +38,4 @@ export function planAutoMovieAudioPlayback(
     });
   }
   return starts;
-}
-/** Companion types of {@link planAutoMovieAudioPlayback}. */
-export namespace planAutoMovieAudioPlayback {
-  /** One planned source start. */
-  export interface IStart {
-    /** Source id. */
-    asset: string;
-
-    /** Wall seconds from now until it starts. */
-    delay: number;
-
-    /** Source seconds it starts from. */
-    offset: number;
-
-    /** Wall seconds it sounds. */
-    duration: number;
-
-    /** Linear gain. */
-    gain: number;
-
-    /** Equal-power pan in [-1, 1]. */
-    pan: number;
-
-    /** Source seconds per wall second. */
-    playbackRate: number;
-  }
 }

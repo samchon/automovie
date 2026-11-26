@@ -1,4 +1,4 @@
-import { renderScreenplay } from "@automovie/render";
+import { AutoMovieRenderScreenplay } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 import { TREE_SCRIPT } from "../../internal/TREE_SCRIPT";
@@ -19,7 +19,7 @@ import { TREE_SCRIPT } from "../../internal/TREE_SCRIPT";
  * 4. Determinism: rendering twice yields byte-identical text.
  */
 export function test_render_screenplay_render_screenplay(): void {
-  const text: string = renderScreenplay(TREE_SCRIPT);
+  const text: string = AutoMovieRenderScreenplay.render(TREE_SCRIPT);
 
   const order: string[] = [
     "LOGLINE: A knight faces his rival.",
@@ -52,7 +52,7 @@ export function test_render_screenplay_render_screenplay(): void {
   );
   TestValidator.equals(
     "deterministic bytes",
-    renderScreenplay(TREE_SCRIPT),
+    AutoMovieRenderScreenplay.render(TREE_SCRIPT),
     text,
   );
 }

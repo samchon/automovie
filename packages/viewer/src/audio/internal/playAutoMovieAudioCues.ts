@@ -1,27 +1,20 @@
-import type { IAutoMovieAudioCue } from "./IAutoMovieAudioCue.js";
+import type { AutoMovieViewerAudio } from "../AutoMovieViewerAudio.js";
 import { planAutoMovieAudioPlayback } from "./planAutoMovieAudioPlayback.js";
 
 /**
  * Play a cue list through Web Audio from a film instant at a transport rate, as
- * {@link planAutoMovieAudioPlayback} plans it: one buffer source per sounding
+ * {@link AutoMovieViewerAudio.planPlayback} plans it: one buffer source per sounding
  * cue, through a gain and an equal-power stereo panner, started at the
  * context's current time plus its delay. The returned stop releases every
  * started source, so a pause, seek or rate change stops and replans.
  *
- * @param context The audio context.
- * @param decoded Decoded buffers by asset.
- * @param cues The cue list.
- * @param seconds The film instant to start from.
- * @param rate Film seconds per wall second.
+ * @param request Context, decoded buffers, cues, film instant and rate.
  * @returns A function stopping every started source once.
  */
 export function playAutoMovieAudioCues(
-  context: BaseAudioContext,
-  decoded: Readonly<Record<string, AudioBuffer>>,
-  cues: readonly IAutoMovieAudioCue[],
-  seconds: number,
-  rate: number,
-): () => void {
+  request: AutoMovieViewerAudio.IPlayCuesRequest,
+): AutoMovieViewerAudio.IStop {
+  const { context, decoded, cues, seconds, rate } = request;
   const lengths: Record<string, number> = Object.fromEntries(
     Object.entries(decoded).map(
       ([id, buffer]: [string, AudioBuffer]): [string, number] => [
@@ -32,12 +25,12 @@ export function playAutoMovieAudioCues(
   );
   const now: number = context.currentTime;
   const sources: AudioBufferSourceNode[] = [];
-  for (const start of planAutoMovieAudioPlayback(
+  for (const start of planAutoMovieAudioPlayback({
     cues,
     seconds,
     rate,
     lengths,
-  )) {
+  })) {
     const source: AudioBufferSourceNode = context.createBufferSource();
     source.buffer = decoded[start.asset]!;
     source.playbackRate.value = start.playbackRate;

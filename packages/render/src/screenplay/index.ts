@@ -1,1 +1,1 @@
-export * from "./renderScreenplay.js";
+export * from "./AutoMovieRenderScreenplay.js";
