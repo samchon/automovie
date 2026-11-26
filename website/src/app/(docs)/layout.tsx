@@ -21,12 +21,12 @@ const COLUMNS: readonly {
       },
       { label: "Reference", href: `${SITE_BASE}/reference/` },
       { label: "API", href: `${SITE_BASE}/api/` },
-      { label: "Playground", href: `${SITE_BASE}/playground/` },
     ],
   },
   {
     title: "Catalogues",
     links: [
+      { label: "Gallery", href: `${SITE_BASE}/gallery/` },
       { label: "Scene studies", href: `${SITE_BASE}/scenes/` },
       { label: "Motions", href: `${SITE_BASE}/motions/` },
       { label: "Archetypes", href: `${SITE_BASE}/archetypes/` },

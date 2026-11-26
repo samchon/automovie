@@ -2,13 +2,13 @@ import type { IAutoMovieMotionHumanEffort } from "../everyday/IAutoMovieMotionHu
 
 /**
  * The authored manner shared by human motion primitives: effort, intensity,
- * pace, proficiency and variation. AutoMovieMotionManner resolves these
+ * pace, consistency and variation. AutoMovieMotionManner resolves these
  * controls into motion-specific modifiers.
  *
  * A manner changes how an action is performed and never which contacts it
  * makes: a goal on a solid place keeps its place. A member reaches an action
  * only where that action's `manner` admits it; the punch admits `variation` and
- * `proficiency` alone and takes its timing from the performer's skill. Every
+ * `consistency` alone and takes its timing from the performer's skill. Every
  * member is neutral when absent, and the action then performs its own natural
  * timing and size, stated on the action's type.
  */
@@ -44,8 +44,8 @@ export interface IAutoMovieMotionManner {
    * `variation` 1 the duration and the size differ by up to 14 % and 20 % for 0
    * and 5 % and 8 % for 1, in proportion between
    * (`AutoMovieMotionManner.BOUNDS`; the duration's are measured, the size's
-   * provisional). It changes nothing at `variation` 0. The performer's own
-   * timing skill when absent.
+   * provisional). It changes nothing at `variation` 0. Omit it to keep the
+   * performer's timing skill for duration and path skill for spatial extent.
    */
   consistency?: number;
 

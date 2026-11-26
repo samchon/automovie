@@ -364,7 +364,7 @@ export namespace IAutoMovieMotionHumanGesture {
     /**
      * How much repeats of the gesture differ: `variation` in [0, 1] scales the
      * spread of the preparation's length and of where a `wave` or a `stopPalm`
-     * holds the hand within its named place, and `proficiency` replaces the
+     * holds the hand within its named place, and `consistency` replaces the
      * performer's skill for those spreads. Absent or 0, every repeat is the
      * same.
      */

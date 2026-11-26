@@ -26,6 +26,8 @@ import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMo
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFrame } from "../posture/HumanFrame";
+import { hipJoints } from "../posture/hipJoints";
+import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { exercise } from "./exercise";
 import { exerciseLunge } from "./exerciseLunge";
 
@@ -198,6 +200,33 @@ export function exercisePlan(
   switch (p.kind) {
     case "squat": {
       const depth: IAutoMovieMotionHumanExercise.Depth = p.depth ?? "parallel";
+      const hips: ReturnType<typeof hipJoints> = hipJoints(
+        body,
+        entry.root,
+        humanPostureHeading(entry),
+        entry.joints.hips,
+      );
+      const offset: IAutoMovieVector3 = Vector3.scale(
+        Vector3.subtract(
+          Vector3.add(hips.left, hips.right),
+          Vector3.add(stance.left.ankle, stance.right.ankle),
+        ),
+        0.5,
+      );
+      const bottom: ReturnType<typeof exercise.bottom> = exercise.bottom(
+        m,
+        depth,
+        modifiers.extent,
+      );
+      // Carry the real entry stance at zero intensity. At full intensity the
+      // two leg angles determine both components of the hip displacement.
+      const remaining: number = Math.max(0, 1 - modifiers.extent);
+      const drop: number = Math.max(
+        0,
+        offset.y - bottom.height - (offset.y - m.shank - m.thigh) * remaining,
+      );
+      const back: number =
+        (1 - remaining) * Vector3.dot(offset, forward) - bottom.forward;
       for (let i: number = 1; i <= reps; i++)
         primitives.push(
           AutoMovieMotionHumanTrunk.crouch(
@@ -207,7 +236,8 @@ export function exercisePlan(
               clock,
               rise: [`eccentricStart${i}`, `bottom${i}`],
               fall: [`concentricStart${i}`, `top${i}`],
-              depth: exercise.drop(m, depth) * modifiers.extent,
+              depth: drop,
+              back,
               pitch: exercise.PITCH[depth] * modifiers.extent,
             },
             window,

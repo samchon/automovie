@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -106,8 +106,9 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param to The original ending arm rotations.
    * @param source Optional exact FK source borrowed only until this measurement
    *   returns or throws.
-   * @returns The reach-to-grasp movement time in seconds of this base's actual
-   *   wrist arc.
+   * @param maximumSpeed Optional elbow and wrist travel limit in metres per
+   *   second over minimum-jerk progress.
+   * @returns The transport time in seconds.
    */
   export function reachingPose(
     body: IAutoMovieMotionHumanBody,
@@ -116,14 +117,17 @@ export namespace AutoMovieMotionHumanArmObservation {
     from: IAutoMovieMotionHumanArmClearance.IArm,
     to: IAutoMovieMotionHumanArmClearance.IArm,
     source?: Parameters<typeof prepareHumanPoseResolution>[0],
+    maximumSpeed?: number,
   ): number {
     // The wrist's travel timed as a reach-to-grasp to a point (McIntosh,
     // Mon-Williams and Tresilian 2018, `AutoMovieMotionHumanTiming.aimed`);
     // the longest arc is the planner's to pace by (`longest`).
-    return AutoMovieMotionHumanTiming.aimed(
-      arcs(body, base, side, from, to, source)[1]!,
-      0,
-    );
+    const rate = maximumSpeed === undefined ? undefined : { peak: 0 };
+    const wrist: number = arcs(body, base, side, from, to, source, rate)[1]!;
+    const aimed: number = AutoMovieMotionHumanTiming.aimed(wrist, 0);
+    return maximumSpeed === undefined
+      ? aimed
+      : Math.max(aimed, rate!.peak / maximumSpeed);
   }
 
   /**
@@ -164,6 +168,8 @@ export namespace AutoMovieMotionHumanArmObservation {
    * @param side The arm.
    * @param from The arm at the start.
    * @param goal The arm's goal at the end, world or attached.
+   * @param maximumSpeed Optional elbow and wrist travel limit in metres per
+   *   second during transport.
    * @returns Seconds.
    */
   export function reachingGoal(
@@ -172,6 +178,7 @@ export namespace AutoMovieMotionHumanArmObservation {
     side: AutoMovieHumanSide,
     from: IAutoMovieMotionHumanArmClearance.IArm,
     goal: IAutoMovieHumanLimbGoal,
+    maximumSpeed?: number,
   ): number {
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
@@ -216,6 +223,7 @@ export namespace AutoMovieMotionHumanArmObservation {
       from,
       AutoMovieMotionHumanArmAngles.angles(fitted, side),
       resolution,
+      maximumSpeed,
     );
   }
 
@@ -401,6 +409,7 @@ function arcs(
   from: IAutoMovieMotionHumanArmClearance.IArm,
   to: IAutoMovieMotionHumanArmClearance.IArm,
   source?: Parameters<typeof prepareHumanPoseResolution>[0],
+  rate?: { peak: number },
 ): number[] {
   const probes: readonly AutoMovieHumanoidBone[] = [
     `${side}LowerArm`,
@@ -437,9 +446,15 @@ function arcs(
   const samples: number = arcSamples(body, side, probes);
   let last: IAutoMovieVector3[] = points(0);
   for (let i: number = 1; i <= samples; ++i) {
-    const next: IAutoMovieVector3[] = points(i / samples);
+    const time: number = i / samples;
+    const next: IAutoMovieVector3[] = points(
+      rate === undefined ? time : minimumJerk.share(time),
+    );
     next.forEach((p: IAutoMovieVector3, j: number): void => {
-      length[j]! += Vector3.length(Vector3.subtract(p, last[j]!));
+      const distance: number = Vector3.length(Vector3.subtract(p, last[j]!));
+      length[j]! += distance;
+      if (rate !== undefined && j < 2)
+        rate.peak = Math.max(rate.peak, distance * samples);
     });
     last = next;
   }

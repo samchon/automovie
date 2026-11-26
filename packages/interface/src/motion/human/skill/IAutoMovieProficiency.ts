@@ -25,8 +25,8 @@
  * distance over the time times 0.012 s at novice to 0.004 s at elite (`path`,
  * provisional); and the postural sway, 1.6 times at novice to 1.0 at elite
  * (`balance`, provisional). The performer's `proficiency` is its skill for
- * every action; an action's `manner.proficiency` only narrows the offsets its
- * `variation` draws ({@link IAutoMovieMotionManner.proficiency}). *
+ * every action. An action's `manner.consistency` overrides the timing and path
+ * skill used for that action's `variation` offsets.
  */
 export type IAutoMovieProficiency =
   | {

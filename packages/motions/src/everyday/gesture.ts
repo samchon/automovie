@@ -122,6 +122,9 @@ export namespace gesture {
    */
   export const BOW: number = 30;
 
+  /** The wave's elbow and wrist travel limit outside the stroke, m/s. */
+  export const WAVE_TRANSPORT_SPEED: number = 2.5;
+
   /**
    * The deepest bow accepted, degrees: two standard deviations past the mean
    * deepest trunk angle of 33 men's standing bows, 60.0 +- 11.1 degrees
@@ -252,7 +255,13 @@ export namespace gesture {
     // The bend of the trunk the gesture is entered on, read once: the places
     // of the air ride it (`gestureStroke.bend`).
     const bent: gestureStroke.IBend | undefined =
-      sides.length === 0 ? undefined : gestureStroke.bend(body, at0);
+      sides.length === 0
+        ? undefined
+        : gestureStroke.bend(
+            body,
+            at0,
+            p.kind === "stopPalm" ? body.upright.joints : undefined,
+          );
     const restPose: IAutoMoviePose | undefined =
       sides.length === 0 ? undefined : resolveHumanPosture(body, at0);
     const begin: Partial<
@@ -349,6 +358,7 @@ export namespace gesture {
             from[side]!,
             hands[side]!,
             gestureStroke.hand(p.kind, side, u, cycles, input(at0, 0, side)),
+            p.kind === "wave" ? WAVE_TRANSPORT_SPEED : undefined,
           ),
         ),
       );

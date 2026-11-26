@@ -38,10 +38,13 @@ type IToolCasesWorst = { value: number; where: string };
  * 11's declared accuracy).
  *
  * @param bodies The sweep bodies; `m-average` when absent.
+ * @param only Whether to build a case with this name, or every case when
+ *   absent.
  * @returns The cases.
  */
 export function toolCases(
   bodies: readonly string[] = ["m-average"],
+  only?: (name: string) => boolean,
 ): IMotionCaptureCase[] {
   const out: IMotionCaptureCase[] = [];
   for (const id of bodies) {
@@ -56,6 +59,8 @@ export function toolCases(
     const bench: number =
       who.body.measure.shoulderHeight - who.body.measure.upperArm - 0.15;
     for (const [tool, point] of tools) {
+      const name: string = `tool-${tool}${suffix}`;
+      if (only?.(name) === false) continue;
       const props: IAutoMovieMotionHumanProp[] = [
         toolCaseHeld(tool, { x: -0.2, y: bench, z: 0.3 }),
       ];
@@ -69,26 +74,29 @@ export function toolCases(
             ? { kind: "prop", subject: "pot", point: "inside" }
             : { kind: "point", at: point, frame: "world" },
       };
-      const performance: IAutoMovieMotionHumanPerformance =
-        FamilyCaseKit.perform(
-          "tool",
-          [{ subject: "a", body: who.body }],
-          HumanChain.subject("a")
-            .stand({ hold: 0.3 })
-            .pickUp({
-              prop: "tool",
-              handle: "grip",
-              use: {
-                tip: "face",
-                line:
-                  tool === "saw" || tool === "screwdriver"
-                    ? "forearm"
-                    : "square",
-              },
-            })
-            .act("useTool", params).node,
-          props,
+      const performance: IAutoMovieMotionHumanPerformance | null =
+        FamilyCaseKit.attempt(out, name, () =>
+          FamilyCaseKit.perform(
+            "tool",
+            [{ subject: "a", body: who.body }],
+            HumanChain.subject("a")
+              .stand({ hold: 0.3 })
+              .pickUp({
+                prop: "tool",
+                handle: "grip",
+                use: {
+                  tip: "face",
+                  line:
+                    tool === "saw" || tool === "screwdriver"
+                      ? "forearm"
+                      : "square",
+                },
+              })
+              .act("useTool", params).node,
+            props,
+          ),
         );
+      if (performance === null) continue;
       const offer: IAutoMovieMotionHumanActionPlan.IOffer | undefined =
         performance
           .segments("a")
@@ -126,7 +134,7 @@ export function toolCases(
       for (let t: number = 0; t <= performance.duration + 1e-9; t += 1 / 24)
         trail.push(tip(t));
       out.push({
-        name: `tool-${tool}${suffix}`,
+        name,
         times: FamilyCaseKit.times(performance, 0.15, [
           [FamilyCaseKit.event(performance, "contact1"), "contact1"],
         ]),

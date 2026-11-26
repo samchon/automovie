@@ -1,6 +1,6 @@
 # Design
 
-How the site's pages are laid out and styled, and why. The [website skill](../.agents/skills/website/SKILL.md) sets what the site says and how a change is verified; this note owns how each page looks and is arranged, and the visual rules a change keeps. `src/app/site.css` imports every stylesheet in the order the cascade depends on, and the root layout imports it alone, so an import sorter cannot reorder them. The tokens are in `src/app/tokens.css`; `global.css` holds the faces, the footer and the application frame, `playground.css` the playground and an archetype's page, `shared.css` the buttons and pieces every page shares, `landing.css` and `landing-band.css` the landing page, `catalogue.css` and `motions.css` the catalogues and a motion's page, and `scenes.css` the scene pages and the player.
+How the site's pages are laid out and styled, and why. The [website skill](../.agents/skills/website/SKILL.md) sets what the site says and how a change is verified; this note owns how each page looks and is arranged, and the visual rules a change keeps. `src/app/site.css` imports every stylesheet in the order the cascade depends on, and the root layout imports it alone, so an import sorter cannot reorder them. The tokens are in `src/app/tokens.css`; `global.css` holds the faces, the footer and the application frame, `archetypes.css` the archetype viewport and controls, `shared.css` the buttons and pieces every page shares, `landing.css` and `landing-band.css` the landing page, `catalogue.css` and `motions.css` the catalogues and a motion's page, and `scenes.css` the scene pages and the player.
 
 Two readers come. A visitor comes to learn what AutoMovie does, so the landing page follows one scene from the decision it rests on to the frames it computes. A developer or a coding agent comes to look up what the vocabulary holds, so the catalogues and the docs are dense, plain and exact, with ids, values and messages in monospace.
 
@@ -25,7 +25,7 @@ Rejected:
 
 ## The frame
 
-Nextra draws the navigation bar: the logo, Docs, Reference and Playground, then the search, the repository link and the theme switch. The guide at `/docs/` serves the person who makes a film and the reference at `/reference/` whoever writes against the packages, each with its own sidebar; the search covers both. The reference's sidebar lists the catalogues a film is composed from (Motions, Archetypes, Scene studies) after its pages, and an Appendix with the TypeDoc API and the example productions; the guide's sidebar ends with an Appendix linking the Reference and the API. The scenes on this site are studies of what the motion grammar composes, not films, so a showcase of finished films gets a place of its own when there are films to show.
+Nextra draws the navigation bar: the logo, Docs, Reference and Gallery, then the search, the repository link and the theme switch. The guide at `/docs/` serves the person who makes a film and the reference at `/reference/` whoever writes against the packages, each with its own sidebar; the search covers both. The reference's sidebar lists the catalogues a film is composed from (Motions, Archetypes, Scene studies) after its pages, and an Appendix with the TypeDoc API and the example productions; the guide's sidebar ends with an Appendix linking the Reference and the API. The scenes on this site are studies of what the motion grammar composes, not films, so a showcase of finished films gets a place of its own when there are films to show.
 
 The footer holds the brand line and three columns of links: Learn, Catalogues and Project.
 
@@ -37,7 +37,7 @@ The page follows one scene, the kickboxing round, from its brief to its frames. 
 2. Why. Two columns: what a prompt cannot fix about motion, and what a motion hint gives a model.
 3. The chain. Five steps, Decide, Write, Program, Answer and Render, each a text beside the document it produces: a brief file, a beat record, the scene module stating how it plays its beats, a beat's answer file stating how it keeps each principle and decision, and the take's still with the channels a hint delivers.
 4. The evidence graph, the page's one dark band and its peak. The brief's decisions, the beats, the modules and the film; pointing at a node lights what it answers to and what answers to it and shows the written statement, and a switch deletes one statement so the report beside the graph fails.
-5. The library. How any action is composed from the engine's primitives, a rail of motion stills, and links to the scene studies, the motions, the archetypes and the playground. No page states how many motions, rows or archetypes there are: the number changes with every release, and the claim is the composition, not the size.
+5. The library. How any action is composed from the engine's primitives, a rail of motion stills, and links to the scene studies, the motion and archetype catalogues, and their gallery. No page states how many motions, rows or archetypes there are: the number changes with every release, and the claim is the composition, not the size.
 6. Simple bodies, precise motion. The second module of the hero's scene, from Kai's answer to the knockdown, its key lines marked. The hero already plays the motion, so the page shows the code behind it rather than the same take again in 3D; the landing page creates no WebGL context.
 7. Start. The commands, the kind of sentence to say to the agent, and links to Setup and Your first film.
 
@@ -53,7 +53,7 @@ Each take also gets a still, `<id>.svg`, drawn by `FigurePoster` in the manner o
 
 The gallery groups the scenes that play by setting, combat first, with chips that filter by setting and a field that searches titles, roles and actions, both kept in the query. A card shows its still; pointing at it or focusing it plays the baked take in 3D in place of the still, and leaving lets the view go. A scene its record marks refused, or that waits on a release, is listed under a folded In the works.
 
-A scene's page has a breadcrumb, the title in the display serif and the summary; the player beside an aside of the cast, the objects, the composition's features, the actions as tags that open their motions, and Open in the playground. Under them three tabs: Code, the chain an agent writes; Timeline, read from the drawn take; and Takes, which computes the other takes in the page when opened.
+A scene's page has a breadcrumb, the title in the display serif and the summary. Its player sits beside the cast, objects, composition features, action links to the motion catalogue and a button that copies the scene address. Three tabs show the authored chain, the timeline of the drawn take, and the other takes, which compute when opened.
 
 States of a scene:
 
@@ -68,15 +68,17 @@ States of a scene:
 
 The catalogue arranges the vocabulary by `MOTION_CATEGORIES`: the core actions, then the lexicon's families under Movement and position, Combat, Sport and exercise, Gesture and expression, Daily habits, and Hands and work; a family a release adds and the table lacks is listed under More. An index of the categories and families with their counts sticks beside the sections, with the search above it. A card shows the motion's still, or a scene's still faded when the motion is tried only in a scene, or "no scene yet"; pointing at a motion tried alone plays it flat in place. An address naming a motion in its fragment goes on to that motion's page.
 
-A motion's page has a breadcrumb to its category and family, the name in monospace, and what kind of motion it is; the 3D player with the motion alone or in the first scene that performs it; an aside with how a chain writes it, the scenes that use it, Open in the playground and the previous and next motions of its family; and the parameters as a table of name, type, whether it is required, and meaning.
+A motion's page has a breadcrumb to its category and family, the name in monospace, and what kind of motion it is; the 3D player with the motion alone or in the first scene that performs it; an aside with how a chain writes it, the scenes that use it, and the previous and next motions of its family; and the parameters as a table of name, type, whether it is required, and meaning.
 
 ## Archetypes
 
 The same layout as the motions: an index of the families beside a section per family, each with one sentence of what it holds and a grid of cards drawing the producer's first kind on the page's shared renderer, turning while pointed at. An archetype's page keeps its view at 4:3 with the named views and zoom under it, and beside it Specs (the dimensions the seed drew on their bands, the affordances by id and kind) and Customise (the seed and one slider per articulation). Changing the seed or an articulation keeps the camera where it is.
 
-## Playground
+## Gallery
 
-On a screen 1280 px wide or wider, the composition is a panel 22 rem wide on the left, scrolling by itself, with the one primary button, Perform, at its foot; the result fills the rest: the performance in the inspector, the timeline over a table of the same in seconds, and the verdicts read on request. Below 1280 px the two become tabs, and Perform switches to the result. A refusal shows twice on purpose: the package's message where the performance would be, and the refused action outlined in the composition with its fix and a button per accepted value.
+The gallery introduces the motions and archetype catalogues and a grid of short composed takes. Both catalogues keep their established addresses and show the same section navigation. A saved composition address opens the gallery with an explicit control to load its take.
+
+For a focused review, bake the desired takes with `pnpm run bake -- --only '^(scene collect-and-shoot|motion cartwheelLeft)$'`. Export and serve the site, then run `pnpm run gallery:stills -- http://127.0.0.1:4173/automovie/ collect-and-shoot` to capture named views and source frames around the scene's events.
 
 ## The player
 
@@ -104,7 +106,7 @@ Colour. Every colour is a token with a light and a dark value:
 | Dark band text | `--am-room-fg`, `--am-room-muted`, `--am-room-code` |
 | Dark band states | `--am-room-lit`, `--am-room-danger`, `--am-room-danger-fg`, `--am-room-success` |
 | Dark band switch | `--am-room-switch-*`, and `--am-room-alarm-*` while pressed |
-| The inspector and shadows | `--am-instrument-bg`, `--am-instrument-fg`, `--am-shadow` |
+| Shadows | `--am-shadow` |
 
 The ground is a warm off-white and the ink near black; the one accent is tungsten amber, the favicon's, used for what is selected, the one primary action and a motion's paths. The viewport ground is the same warm grey in both themes, because the packages' coarse colours are chosen for a light ground. `pnpm check` computes the contrast of every token pair in `build/contrast.ts` in both themes and stops the build when one is below its bound.
 

@@ -23,6 +23,7 @@ import { HumanSkill } from "../../skill/HumanSkill";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
+import { FamilyCaseKit } from "./FamilyCaseKit";
 import { MotionPlaceVerdicts } from "./MotionPlaceVerdicts";
 import { VariationSeries } from "./VariationSeries";
 import { VariationStrikes } from "./VariationStrikes";
@@ -33,7 +34,7 @@ import { VariationStrikes } from "./VariationStrikes";
  *
  * Each case performs `VariationSeries.REPEATS` repeats in a row of `wave`, of
  * `stopPalm` and of a straight punch at the partner's abdomen, at `variation` 1
- * with the manner's proficiency 0 and 1, and reads the displayed poses. `RATIO`
+ * with the manner's consistency 0 and 1, and reads the displayed poses. `RATIO`
  * below is `VariationSeries.RATIO`; `ON` and `SPAN` are `VariationStrikes`'s,
  * which reads the strike and the defence:
  *
@@ -69,7 +70,11 @@ export function* variationCases(
   for (const who of MotionBodies.SWEEP) {
     const name: string = `variation-${who}`;
     if (only !== undefined && !only(name)) continue;
-    yield build(name, who);
+    try {
+      yield build(name, who);
+    } catch (error: unknown) {
+      yield FamilyCaseKit.refused(name, error);
+    }
   }
 }
 /**
@@ -140,8 +145,8 @@ function build(name: string, who: string): IMotionCaptureCase {
   const times: IMotionCaptureCase.ITime[] = [];
 
   for (const kind of ["wave", "stopPalm"] as const) {
-    const novice = gestures(body, kind, { variation: 1, proficiency: 0 });
-    const expert = gestures(body, kind, { variation: 1, proficiency: 1 });
+    const novice = gestures(body, kind, { variation: 1, consistency: 0 });
+    const expert = gestures(body, kind, { variation: 1, consistency: 1 });
     const still = gestures(body, kind, undefined);
     for (const [label, run] of [
       ["0", novice],
@@ -257,7 +262,7 @@ type IGesturesResult = {
 };
 
 /** The record of `IGesturesManner`'s site. */
-type IGesturesManner = { variation: number; proficiency: number };
+type IGesturesManner = { variation: number; consistency: number };
 
 /** The alternatives of `GesturesKind`'s site. */
 type GesturesKind = "wave" | "stopPalm";
@@ -274,10 +279,15 @@ function gestures(
       kind,
       ...(manner === undefined ? {} : { manner }),
     });
-  const performance: IAutoMovieMotionHumanPerformance = VariationSeries.perform(
-    body,
-    chain,
-  );
+  let performance: IAutoMovieMotionHumanPerformance;
+  try {
+    performance = VariationSeries.perform(body, chain);
+  } catch (cause: unknown) {
+    throw new Error(
+      `${kind} at consistency ${manner?.consistency ?? "unvaried"} ${String(cause)}`,
+      { cause },
+    );
+  }
   const middles: number[] = [];
   const repeats: IRepeat[] = performance
     .segments("a")

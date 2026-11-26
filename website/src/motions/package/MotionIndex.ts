@@ -1,6 +1,5 @@
 import { BakedManifest } from "../../baked/BakedManifest";
 import type { IBakedManifest } from "../../baked/IBakedManifest";
-import { PlaygroundAddress } from "../../playground/PlaygroundAddress";
 import { SCENES } from "../../scenes/SCENES";
 import type { IScene } from "../../scenes/structures/IScene";
 import type { IMotionCategory } from "../IMotionCategory";
@@ -10,10 +9,10 @@ import type { IMotionReference } from "../structures/IMotionReference";
 import { MotionReference } from "./MotionReference";
 
 /**
- * The motion catalogue and each motion's page, read while the site is
- * exported: the installed vocabulary arranged by `MOTION_CATEGORIES`, each
- * motion with the still a card shows, and each motion's parameters, uses
- * and the take its page plays.
+ * The motion catalogue and each motion's page, read while the site is exported:
+ * the installed vocabulary arranged by `MOTION_CATEGORIES`, each motion with
+ * the still a card shows, and each motion's parameters, uses and the take its
+ * page plays.
  */
 export namespace MotionIndex {
   /** The catalogue. */
@@ -24,7 +23,10 @@ export namespace MotionIndex {
     /** How many motions there are. */
     total: number;
 
-    /** Seconds a motion tried alone stands before it starts, which a card's loop skips. */
+    /**
+     * Seconds a motion tried alone stands before it starts, which a card's loop
+     * skips.
+     */
     opening: number;
   }
 
@@ -60,7 +62,10 @@ export namespace MotionIndex {
     /** The name a chain appends it by. */
     name: string;
 
-    /** The still a card shows: the motion's own, a scene's that performs it, or none. */
+    /**
+     * The still a card shows: the motion's own, a scene's that performs it, or
+     * none.
+     */
     poster: { kind: "motion" | "scene"; id: string } | null;
   }
 
@@ -78,21 +83,24 @@ export namespace MotionIndex {
     /** The exported namespace a lexicon row is taken from; null for an action. */
     namespace: string | null;
 
-    /** Its entry in the API reference, a path under the site such as `/api/classes/_automovie_motions.HumanChain.html#walk`. */
+    /**
+     * Its entry in the API reference, a path under the site such as
+     * `/api/classes/_automovie_motions.HumanChain.html#walk`.
+     */
     api: string;
 
     /** The scenes that compose it. */
     uses: { id: string; title: string }[];
 
-    /** What its page plays: the motion alone or the first scene that performs it, with whether it was baked; null when nothing would play. */
+    /**
+     * What its page plays: the motion alone or the first scene that performs
+     * it, with whether it was baked; null when nothing would play.
+     */
     play: {
       record: IScene;
       baked: "motion" | "scene" | null;
       label: string;
     } | null;
-
-    /** The playground's address of its trial; null when none would play. */
-    playground: string | null;
 
     /** The motion before it in its family; null for the first. */
     previous: string | null;
@@ -161,7 +169,10 @@ export namespace MotionIndex {
     return found;
   }
 
-  /** Arrange the installed vocabulary by the categories, once, with each motion's page. */
+  /**
+   * Arrange the installed vocabulary by the categories, once, with each
+   * motion's page.
+   */
   function build(): { index: IIndex; details: Map<string, IDetail> } {
     if (cached !== null) return cached;
     const reference: IMotionReference = MotionReference.read();
@@ -323,13 +334,6 @@ export namespace MotionIndex {
           : `/api/variables/_automovie_motions.${row.namespace}.${row.name}.html`,
       uses: uses.scenes,
       play,
-      playground:
-        trial === null
-          ? null
-          : `/playground/${PlaygroundAddress.encode({
-              ...trial.composition,
-              version: PlaygroundAddress.VERSION,
-            })}`,
       previous,
       next,
     };

@@ -145,7 +145,7 @@ export const SCENES_HANDLING: readonly IScene[] = [
       id: "entry-gate",
       title: "At the entry gate",
       summary:
-        "An attendant lets two visitors through a turnstile, halting the second before beckoning.",
+        "An attendant presses the entry button twice, using a stop signal and a beckon between presses.",
       setting: "everyday",
       roles: { attendant: "attendant" },
       needs: [],

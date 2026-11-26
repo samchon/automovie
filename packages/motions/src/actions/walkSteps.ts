@@ -307,12 +307,21 @@ export namespace walkSteps {
     // shorter steps takes its share of that.
     const turnStep: number =
       (walkReach.TWIST - stand.TOE_OUT) * (input.gait?.turn ?? 1);
-    // An arrival turned about takes step turns at the arrival (`walkHeading.closing`).
-    const closing: number = walkHeading.closing(
-      inPlace || facing !== undefined ? 0 : ending - along$(D),
-      turnStep,
-    );
-    // A turned-about arrival turns only on footfalls taken in place at it, each a step turn round the standing foot; the walking ones keep their way. A walk facing off its entry turns a step turn a footfall, so its outside foot never swings across the stance leg, with footfalls added in place where its own are too few.
+    const arrival: number =
+      inPlace || facing !== undefined ? 0 : ending - along$(D);
+    const closing: number = walkHeading.closing(arrival, turnStep);
+
+    // Each of the two travelling footfalls before the closing pair can take
+    // one supported turn. A larger rotation needs steps around the standing
+    // foot at arrival to keep the closing pair from crossing. A station
+    // sets its own travel clock.
+    const turnAtArrival: boolean =
+      closing > walkHeading.CLOSING ||
+      (input.travel === undefined &&
+        swing < T &&
+        Math.abs(arrival) > (walkHeading.CLOSING - 1) * turnStep);
+
+    // A walk facing off its entry turns by at most one step turn per footfall.
     const extra: number =
       facing !== undefined
         ? Math.max(
@@ -321,7 +330,7 @@ export namespace walkSteps {
               pace.steps -
               turning,
           )
-        : closing > walkHeading.CLOSING
+        : turnAtArrival
           ? closing
           : 0;
     const n: number = inPlace

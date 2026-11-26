@@ -89,6 +89,7 @@ export function prepareWalkReachSwing(
   given?: number,
 ) => prepareWalkReachSwing.IReached {
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  const straight: number = m.thigh + m.shank;
   const limit: number = Math.sqrt(
     m.thigh ** 2 +
       m.shank ** 2 +
@@ -341,6 +342,18 @@ export function prepareWalkReachSwing(
       turned = ankleRange(h, joined, asked);
       const under: number = lowest({ ankle: joined, rotation: turned });
       if (under < target) joined = { ...joined, y: joined.y + target - under };
+    } else if (leaving === undefined) {
+      // The sole-anchor blend can pull the ankle beyond the leg's length as
+      // the pelvis recedes from a backward step. Keep the boundary at full
+      // extension, bringing in the swing's knee limit with its reach weight.
+      const span: IAutoMovieVector3 = Vector3.subtract(joined, h);
+      const squared: number = Vector3.dot(span, span);
+      const maximum: number = straight + (limit - straight) * held;
+      if (squared > maximum * maximum) {
+        joined = Vector3.addScaled(h, span, maximum / Math.sqrt(squared));
+        const bounded: IAutoMovieQuaternion = ankleRange(h, joined, asked);
+        turned = share > 0.5 ? Quaternion.slerp(asked, bounded, held) : bounded;
+      }
     }
     return { ankle: joined, rotation: turned, toes: foot.toes, lift: raised };
   };

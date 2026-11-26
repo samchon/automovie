@@ -1,7 +1,23 @@
-import type { IAutoMovieMotionEvent, IAutoMovieMotionHumanPosture } from "@automovie/interface";
-import { WalkTurn, walkHeading, type walkStation, walkTempo } from "@automovie/motions/internal";
+import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionEvent,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanSegment,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import { HumanChain, HumanPerformance } from "@automovie/motions";
+import {
+  WalkTurn,
+  walkHeading,
+  type walkStation,
+  walkTempo,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
@@ -23,8 +39,8 @@ namespace part_walk_turn {
    *    45.
    * 2. Turning 90 degrees over 1 s and then 180 more over 2 s, both slopes 90
    *    degrees a second, the knot at 1 s takes rate 90: at 1.5 s, u = 1/4 of a
-   *    2 s span ending at rest, the heading is 0.84375 * 90 + 0.140625 * 2 * 90
-   *    + 0.15625 * 270 = 143.4375.
+   *    2 s span ending at rest, the heading is `0.84375 * 90 + 0.140625 * 2 *
+   *    90 + 0.15625 * 270 = 143.4375`.
    * 3. Before the first knot and after the last the end headings hold, and two
    *    knots at one second step the heading there: the earlier at the second,
    *    the later after it.
@@ -328,6 +344,74 @@ namespace part_walk_heading_footfalls {
 }
 
 /**
+ * Displayed ankles remain reachable during a curved approach and turn.
+ *
+ * Scenarios:
+ *
+ * 1. A 90° arrival after passing a via point keeps ankle errors below 2 mm
+ *    immediately before toe-offs and heel strikes.
+ * 2. The pelvis finishes at the requested destination and faces +X.
+ */
+async function arrivalTurn(): Promise<void> {
+  const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
+  const to: IAutoMovieVector3 = { x: 1.5, y: 0, z: 4 };
+  const performance: HumanPerformance = new HumanPerformance({
+    seed: "walk",
+    performers: [
+      {
+        subject: "w0",
+        body,
+        at: { x: 0, y: 0, z: 0 },
+        yaw: 0,
+        proficiency: { level: "trained" },
+      },
+    ],
+    composition: HumanChain.subject("w0").walk({
+      to,
+      via: [{ x: 1.5, y: 0, z: 1.5 }],
+      face: 90,
+      stride: 0.9,
+      armSwing: 1.5,
+      elbows: 10,
+    }).node,
+  });
+  const segment: IAutoMovieMotionHumanSegment = performance.segments("w0")[0]!;
+  for (const e of segment.plan.events) {
+    if (!/HeelStrike|ToeOff/.test(e.name)) continue;
+    const seconds: number =
+      segment.start + e.share * segment.plan.duration - 0.002;
+    if (seconds < segment.entryTime) continue;
+    const posture: IAutoMovieMotionHumanPosture = performance.posture(
+      "w0",
+      seconds,
+    );
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      performance.bones("w0", seconds);
+    for (const side of ["left", "right"] as const) {
+      const goal: IAutoMovieVector3 = posture.limbs[`${side}Leg`]!.point;
+      const shown: IAutoMovieVector3 = bones.get(`${side}Foot`)!.worldPosition;
+      const miss: number = Vector3.distance(goal, shown);
+      TestValidator.predicate(
+        `${e.name} keeps the ${side} ankle within 2 mm (miss ${miss} m)`,
+        miss <= 0.002,
+      );
+    }
+  }
+  const hips: IAutoMovieResolvedBone = performance
+    .bones("w0", performance.duration)
+    .get("hips")!;
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    hips.worldRotation,
+    { x: 0, y: 0, z: 1 },
+  );
+  TestValidator.predicate(
+    "the pelvis stands within 2 cm of its goal and faces +X within 3°",
+    Math.hypot(hips.worldPosition.x - to.x, hips.worldPosition.z - to.z) <=
+      0.02 && Math.atan2(Math.abs(forward.z), forward.x) <= Math.PI / 60,
+  );
+}
+
+/**
  * `walk`'s unit contract: its turns, tempo, path, footfalls and lowered stance
  * course.
  *
@@ -337,9 +421,11 @@ namespace part_walk_heading_footfalls {
  *   cubic Hermite curve (Fritsch and Butland 1984):
  * - `walk_tempo`: `walkTempo` takes a stepping plan's steps unevenly in time:
  * - `walk_heading_footfalls`: `walkHeading`'s footfall rules:
+ * - `arrivalTurn`: Displayed foot and pelvis placement through an arrival turn.
  */
 export async function test_motions_actions_walk(): Promise<void> {
   part_walk_turn.verify();
   part_walk_tempo.verify();
   part_walk_heading_footfalls.verify();
+  await arrivalTurn();
 }

@@ -489,12 +489,22 @@ export const SCENES_GAMES: readonly IScene[] = [
     },
     "jumps",
     [
-      person("hj", "f1", -4, 0, 90, [
+      person("hj", "f1", -4, -1.5, 90, [
         act("legSwings", { count: 4 }),
         act("armCircles", { count: 1 }),
         act("stand", { hold: 1 }),
         act("gestureClap", {}, { anchor: "hj-clap" }),
-        act("strides", { to: to(-1.5, 0) }),
+        // The approach meets the bar on a curve, then passes the right
+        // footfall as the jump's planted entry.
+        act(
+          "run",
+          {
+            to: to(0.8, 0.57),
+            via: [to(-3.2, -1.25), to(-2.1, -0.86), to(-1.35, -0.28)],
+            pace: "run",
+          },
+          { until: { event: "rightHeelStrike2" } },
+        ),
         act(
           "fosburyFlop",
           {
@@ -502,6 +512,7 @@ export const SCENES_GAMES: readonly IScene[] = [
             bar: "bar",
             on: "mat",
             apexReserve: 0.35,
+            takeoffFoot: "right",
           },
           { anchor: "hj-flop" },
         ),
