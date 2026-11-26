@@ -26,4 +26,4 @@ One descent owns its copied point, two projected probe arrays per live column, t
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the returned point/linearization relationship, pure callback scope, original stop and the public/continuation consumers.
+The function and its result type document the final projected point, the primary residual in metres and the feasible-probe derivatives at that point. The variable-only wrapper returns the point. Digit continuation uses the residual and Jacobian in its existing restart test. The caller owns the returned arrays.

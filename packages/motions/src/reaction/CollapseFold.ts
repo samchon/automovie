@@ -201,9 +201,6 @@ export namespace CollapseFold {
    * Scheidt and Rymer measured relaxed forearm pendular motion. The drop clock
    * supplies the existing minimum-jerk share.
    *
-   * @evidence contracts/development/implementation.md#principled-implementation Uses the actual entry pose, the given body's quiet-stance clearance and the existing drop phase.
-   * @evidence contracts/development/implementation.md#efficient-algorithms Reads both endpoints once through the shared arm-angle reader and retains their fixed triples for constant scalar work per sample.
-   * @evidence contracts/development/common.md#meaningful-documentation Specifies the release phase, anatomical input, relaxed hinge estimate and physical scope.
    * @see https://doi.org/10.1016/j.jbiomech.2019.109569
    * @see https://doi.org/10.1152/jn.2000.83.1.1
    */

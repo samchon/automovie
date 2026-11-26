@@ -20,11 +20,13 @@ Every member is always present.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the inputs and the result.
+States the inputs and result of the fold. The passive arm reader documents the release phase, the anatomical inputs and the forearm extension estimate.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
 Linear blends of each direction's knee, trunk and lying angles by the shares, the profiles' minimum-jerk shape coming from the caller's clock.
+
+`preparePassive` blends the entry arm angles toward the same body's relaxed shoulder and an extended forearm. A missing relaxed shoulder record uses the entry shoulder for that side. The existing drop share sets the blend, and its end pose holds on the floor.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -34,9 +36,9 @@ One branch per direction, then the tone's arms.
 
 The named provisional angles remain with the fold. The forward lie can take its terminal knee angle from the body's measured support fit.
 
-## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Constant arithmetic.
+The fold takes constant scalar work per sample. `preparePassive` reads the entry and relaxed endpoint angles once. Its reader retains the fixed angle triples and blends them in constant scalar work per sample until the plan releases it.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
