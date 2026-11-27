@@ -14,6 +14,8 @@ Use `src/<topic>/` for public API files and `src/<topic>/<subfolder>/` for inter
 
 Outside barrels, export one symbol named after its file. Export internal declarations only for cross-module imports and keep them out of public entry points.
 
+Use `export *` in public barrels when the owner file exports only the symbol named after that file.
+
 ## Coding style
 
 Put exports above private declarations in files and namespaces.
