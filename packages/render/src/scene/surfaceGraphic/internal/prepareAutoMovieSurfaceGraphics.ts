@@ -15,7 +15,7 @@ import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IAutoMovieModelObject } from "../../IAutoMovieModelObject.js";
 import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { decodeAutoMovieImage } from "../../internal/decodeAutoMovieImage.js";
 import { AutoMovieFilmResponseStage } from "../../filmResponse/AutoMovieFilmResponseStage.js";
 import type { IAutoMovieFilmResponseRenderer } from "../../filmResponse/IAutoMovieFilmResponseRenderer.js";
@@ -213,7 +213,7 @@ export async function prepareAutoMovieSurfaceGraphics(
           made.forEach((feed: IFeed, index: number): void => {
             feed.mesh = meshes[index]!;
             feed.group = group;
-            addMaterialShaderPatch(
+            AutoMovieRenderMaterial.addShaderPatch(
               feed.mesh.material,
               decodeFeedPatch(encoded),
             );

@@ -79,13 +79,11 @@ export * from "./createRecoveryObservationPolicy";
 export * from "./createRecoverySceneSeedReportObserver";
 export * from "./describeRecoveryDomains";
 export * from "./describeRecoveryNamedDomains";
-export * from "./describeRecoveryOpenRun";
 export * from "./describeRecoverySceneRegistration";
 export * from "./differentiateRecoveryMapProjection";
 export * from "./differentiateRecoveryMapTangent";
 export * from "./encodeRecoveryDiagnosticNumber";
 export * from "./evaluateRecoveryScenePoint";
-export * from "./extractRecoveryImageFeatures";
 
 export * from "./factorRecoveryMapCurvature";
 export * from "./factorRecoveryMapDesign";
@@ -93,24 +91,20 @@ export * from "./factorRecoveryMapMetric";
 export * from "./filterRecoveryImageGaussian";
 
 
-export * from "./fitRecoveryImageProfiles";
 
 
-export * from "./fitRecoveryScalarProfiles";
 export * from "./growRecoverySceneLandmarks";
 
 export * from "./isRecoveryCameraNumericalRefusal";
 export * from "./isRecoveryMapIdentityGauge";
 
 
-export * from "./linkRecoveryCameraTracks";
 
 export * from "./measureRecoveryFeasibleArithmetic";
 export * from "./mesh-observations";
 export * from "./mixRecoveryFeasibleSqpStep";
 export * from "./normalizeRecoveryCourse";
 export * from "./normalizeRecoveryImagePoints";
-export * from "./observeRecoveryCameraSet";
 
 
 
@@ -124,10 +118,8 @@ export * from "./prepareRecoveryFeasibleMapReporting";
 export * from "./prepareRecoveryFeasibleMapWork";
 export * from "./prepareRecoveryFeasibleReportCapacity";
 
-export * from "./prepareRecoveryLocalContinuation";
 export * from "./prepareRecoveryMapJointBlocks";
 
-export * from "./prepareRecoveryOpenRuns";
 export * from "./prepareRecoveryOpenSlabGraph";
 export * from "./prepareRecoverySceneFeasibleRouting";
 export * from "./prepareRecoverySceneReportCapacity";
@@ -136,7 +128,6 @@ export * from "./readRecoveryEventCurveControls";
 export * from "./readRecoveryEventCurveParent";
 export * from "./rebindRecoveryCurveAuthorities";
 export * from "./reconstructRecovery";
-export * from "./reconstructRecoveryOpen";
 
 
 
@@ -149,7 +140,6 @@ export * from "./restoreRecoveryCurveBasis";
 
 
 export * from "./selectRecoveryFeasibleTrial";
-export * from "./selectRecoveryScalarIntervals";
 export * from "./solveRecoveryFeasibleDirection";
 
 

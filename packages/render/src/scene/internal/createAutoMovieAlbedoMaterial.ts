@@ -15,7 +15,7 @@ import * as THREE from "three";
  *
  * Coverage follows the beauty pass. A surface the beauty pass skips, a material
  * with `visible` false such as a fully transparent blended surface with no
- * transmission (`buildMaterial`), stays hidden. An alpha-test cutout keeps its
+ * transmission (`AutoMovieRenderMaterial.build`), stays hidden. An alpha-test cutout keeps its
  * `alphaTest`, `alphaMap` and opacity, so the same texels are discarded. Every
  * other surface is drawn opaque, because the pass reports colour, not coverage
  * by translucency. Face culling follows the original's `side`.

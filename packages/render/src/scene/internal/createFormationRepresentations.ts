@@ -10,7 +10,7 @@ import type { IFormationTierRepresentation } from "./IFormationTierRepresentatio
 import { applyFormationCycleMaterial } from "./applyFormationCycleMaterial.js";
 import { createFormationCycleShadowMaterials } from "../createFormationCycleShadowMaterials.js";
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
-import { flattenInstancedModel } from "../flattenInstancedModel.js";
+import { flattenInstancedModel } from "./flattenInstancedModel.js";
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
 
 /**

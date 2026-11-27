@@ -1,4 +1,4 @@
-import { createBowl, createTableKnife, AutoMovieArchetypeChopsticks, AutoMovieArchetypeFoodPortion, AutoMovieArchetypeFork } from "@automovie/archetypes";
+import { AutoMovieArchetypeBowl, createTableKnife, AutoMovieArchetypeChopsticks, AutoMovieArchetypeFoodPortion, AutoMovieArchetypeFork } from "@automovie/archetypes";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBody,
@@ -81,7 +81,7 @@ export namespace diningScene {
       rice: AutoMovieArchetypeFoodPortion.create({ id: "rice", kind: "steak" }),
       morsel: AutoMovieArchetypeFoodPortion.create({ id: "morsel", kind: "morsel" }),
       sticks: AutoMovieArchetypeChopsticks.create({ id: "sticks" }),
-      bowl: createBowl({ id: "bowl" }),
+      bowl: AutoMovieArchetypeBowl.create({ id: "bowl" }),
     };
     return {
       ...hands(side),

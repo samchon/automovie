@@ -1,8 +1,10 @@
 import type {
   IAutoMovieRecoveryCameraSceneInput,
   IAutoMovieRecoveryMapPose,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
 } from "@automovie/interface";
-import { type extractRecoveryImageFeatures, type linkRecoveryCameraTracks, AutoMovieRecoveryTrackLineage } from "@automovie/recovery";
+import { AutoMovieRecoveryTrackLineage } from "@automovie/recovery";
 
 import { createRecoveryMapNumericalFixture } from "./createRecoveryMapNumericalFixture";
 
@@ -11,8 +13,8 @@ interface IRecoverySceneFixture {
   points: [number, number, number][];
   poses: IAutoMovieRecoveryMapPose[];
   identities: number[][];
-  features: ReturnType<typeof extractRecoveryImageFeatures>[];
-  pairs: Parameters<typeof linkRecoveryCameraTracks>[1][number][];
+  features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[];
+  pairs: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[1][number][];
   comparisons: number;
 }
 
@@ -98,11 +100,11 @@ export function createRecoverySceneNumericalFixture(): IRecoverySceneFixture {
           : [],
       ),
   );
-  const features: ReturnType<typeof extractRecoveryImageFeatures>[] = views.map(
+  const features: ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[] = views.map(
     (
       view: (typeof views)[number],
       at: number,
-    ): ReturnType<typeof extractRecoveryImageFeatures> => ({
+    ): ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation> => ({
       rawCorners: identities[at]!.length,
       validCandidates: identities[at]!.length,
       selectedBeforeDescriptor: identities[at]!.length,
@@ -112,7 +114,7 @@ export function createRecoverySceneNumericalFixture(): IRecoverySceneFixture {
         (
           identity: number,
         ): ReturnType<
-          typeof extractRecoveryImageFeatures
+          IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation
         >["points"][number] => {
           const point: [number, number, number] = points[identity]!,
             pose: IAutoMovieRecoveryMapPose = poses[at]!;
@@ -149,7 +151,7 @@ export function createRecoverySceneNumericalFixture(): IRecoverySceneFixture {
       ),
     }),
   );
-  const pairs: Parameters<typeof linkRecoveryCameraTracks>[1][number][] = [];
+  const pairs: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[1][number][] = [];
   let comparisons: number = 0;
   for (let first: number = 0; first < views.length; first++)
     for (let second: number = first + 1; second < views.length; second++) {

@@ -21,10 +21,8 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
 import type { IBuildInstancedInstanceSetProps } from "../IBuildInstancedInstanceSetProps.js";
 import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
 import { readAutoMovieDeliveryCrop } from "../deliveryCrop.js";
-import {
-  flattenInstancedModel,
-  flattenInstancedObject,
-} from "../formation/index.js";
+import { flattenInstancedModel } from "./flattenInstancedModel.js";
+import { flattenInstancedObject } from "./flattenInstancedObject.js";
 import { regenerateInstanceSlot } from "./regenerateInstanceSlot.js";
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
 

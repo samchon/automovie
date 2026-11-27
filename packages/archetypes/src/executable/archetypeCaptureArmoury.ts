@@ -1,5 +1,5 @@
 import type { AutoMovieArchetype } from "../core";
-import { createBaseballBat } from "../sport";
+import { AutoMovieArchetypeBaseballBat } from "../sport";
 import { createBow, createCannon, createClub, createHandgun, createHolster, createLongGun, createMagazine, createPell, createPolearm, createProjectile, createShield, createSword, AutoMovieArchetypePracticeBaton, AutoMovieArchetypeStageBallProp, AutoMovieArchetypeStageBladeCarrier, AutoMovieArchetypeStageCartridgeProp, AutoMovieArchetypeStageGrenadeProp, AutoMovieArchetypeStageHandBowProp, AutoMovieArchetypeStageHolster, AutoMovieArchetypeStagePouch, AutoMovieArchetypeStageQuiver, AutoMovieArchetypeStageRoundProp, AutoMovieArchetypeStageShaftToken, AutoMovieArchetypeStageStockBowProp, AutoMovieArchetypeStageStoneProp } from "../weapons";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
@@ -33,7 +33,7 @@ function bow(kind: createBow.Kind): AutoMovieArchetype {
 
 /** The named bat or baton for each saved club kind. */
 function club(kind: createClub.Kind): AutoMovieArchetype {
-  return kind === "bat" ? createBaseballBat() : AutoMovieArchetypePracticeBaton.create();
+  return kind === "bat" ? AutoMovieArchetypeBaseballBat.create() : AutoMovieArchetypePracticeBaton.create();
 }
 
 /**

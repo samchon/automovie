@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { getSubsurfaceTexture } from "./getSubsurfaceTexture.js";
 import { subsurfaceFragment } from "./internal/subsurfaceFragment.js";
 
@@ -24,7 +24,7 @@ export function applySubsurfaceShading(
   };
   material.userData.autoMovieSubsurfaceTexture = tableUniform.value;
   material.userData.subsurfaceRadius = { ...radius };
-  addMaterialShaderPatch(material, {
+  AutoMovieRenderMaterial.addShaderPatch(material, {
     key: "automovie-subsurface",
     apply: (shader: IMaterialShaderSource): void => {
       shader.uniforms.subsurfaceRadius = radiusUniform;

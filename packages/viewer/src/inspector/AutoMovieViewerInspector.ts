@@ -6,21 +6,28 @@ import type { IAutoMovieDrawSubject } from "@automovie/render";
 
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
+import type { IAutoMovieInspectorPathNode } from "./IAutoMovieInspectorPathNode.js";
 import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorSceneHost } from "./IAutoMovieInspectorSceneHost.js";
+import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
+import { buildAutoMovieInspectorPathTree } from "./internal/buildAutoMovieInspectorPathTree.js";
+import { createAutoMovieInspectorAddressWriter } from "./internal/createAutoMovieInspectorAddressWriter.js";
+import { createAutoMovieInspectorState } from "./internal/createAutoMovieInspectorState.js";
+import { formatAutoMovieInspectorAddress } from "./internal/formatAutoMovieInspectorAddress.js";
+import { formatAutoMovieInspectorCommand } from "./internal/formatAutoMovieInspectorCommand.js";
+import { handleAutoMovieInspectorKey } from "./internal/handleAutoMovieInspectorKey.js";
 import { locateAutoMovieInspectorFinding } from "./internal/locateAutoMovieInspectorFinding.js";
+import { readAutoMovieInspectorAddress } from "./internal/readAutoMovieInspectorAddress.js";
 import { mountAutoMovieInspectorPage } from "./internal/mountAutoMovieInspectorPage.js";
 import { mountAutoMovieInspectorScene } from "./internal/mountAutoMovieInspectorScene.js";
 import { showAutoMovieInspectorFinding } from "./internal/showAutoMovieInspectorFinding.js";
+import { stopAutoMovieInspectorTime } from "./internal/stopAutoMovieInspectorTime.js";
 
 /**
  * Owns the imperative entry points for the Viewer inspector.
- *
- * `mountPage` mounts the existing React inspector as a complete page and
- * returns its unmount operation. `mountScene` mounts one subject on a host
- * canvas and returns the controls used by the React component. Finding methods
- * locate and show diagnostic witnesses without changing the React UI.
+ * Page and scene mounts retain their React and renderer lifecycles; helper
+ * operations work from explicit values and host dependencies.
  */
 export namespace AutoMovieViewerInspector {
   /** Witness and drawn paths used to create a request edit for a finding. */
@@ -37,6 +44,28 @@ export namespace AutoMovieViewerInspector {
     playhead: AutoMovieInspectorPlayhead;
     /** Receives the location edit after the playhead is stopped. */
     dispatch: (action: IAutoMovieInspectorAction) => void;
+  }
+
+  /** Keyboard values inspected by the inspector playback shortcut handler. */
+  export interface IHandleKeyEvent {
+    key: string;
+    ctrlKey: boolean;
+    metaKey: boolean;
+    altKey: boolean;
+    target: { closest(selectors: string): unknown } | null;
+  }
+
+  /** Whether a key was consumed and the resulting seek second, if any. */
+  export interface IHandleKeyResult {
+    handled: boolean;
+    seconds: number | null;
+  }
+  /** Host address dependencies used to write inspector request text. */
+  export interface IAddressWriterProps {
+    /** The page location, read for the current path, query and fragment. */
+    location: Pick<Location, "pathname" | "search" | "hash">;
+    /** The page's history, whose current entry is replaced when text changes. */
+    history: Pick<History, "replaceState" | "state">;
   }
 
   /** Inputs the host supplies to mount the complete inspector page. */
@@ -69,6 +98,22 @@ export namespace AutoMovieViewerInspector {
     report: IAutoMovieInspectorScene.IReport;
   }
 
+  /** Shell and host arguments for formatting a capture command. */
+  export interface IFormatCommandProps {
+    /** Executable and fixed arguments supplied by the capture host. */
+    command?: readonly [string, ...string[]];
+    /** Shell syntax for the copied text. Defaults to POSIX. */
+    shell?: "posix" | "powershell";
+  }
+
+  /** Request options and shell-ready command text. */
+  export interface IFormatCommandResult {
+    /** Request options, one argument each. */
+    options: string[];
+    /** Command with host and request arguments quoted for the shell. */
+    text: string;
+  }
+
   /** Handle returned by `mountPage`, used to release the React root. */
   export interface IPageHandle {
     /** Unmount the page and release everything it holds. */
@@ -87,34 +132,63 @@ export namespace AutoMovieViewerInspector {
     showAutoMovieInspectorFinding(request);
   }
 
-  /**
-   * Mount the React inspector page, initialized from the supplied address and
-   * keeping its query synchronized through the supplied history.
-   *
-   * The host owns the root element, subject record, location and history. The
-   * address writer preserves the path, fragment and current history state.
-   * Unmounting releases the component's scene and renderer through its effect
-   * cleanup; React StrictMode may mount, clean up and mount that scene again.
-   *
-   * @param props Page root, named subjects, location, history and optional capture command.
-   * @returns An idempotent React root unmount operation.
-   */
+  /** Build the ordered path tree used by the inspector selection panel. */
+  export function buildPathTree(paths: readonly string[]): IAutoMovieInspectorPathNode[] {
+    return buildAutoMovieInspectorPathTree(paths);
+  }
+
+  /** Create a listener that writes request text through the supplied page history. */
+  export function createAddressWriter(
+    props: IAddressWriterProps,
+  ): (text: string) => void {
+    return createAutoMovieInspectorAddressWriter(props);
+  }
+
+  /** Return the time edit implied when a previously playing playhead stops. */
+  export function stopTime(
+    playing: boolean,
+    snapshot: AutoMovieInspectorPlayhead.ISnapshot,
+  ): IAutoMovieInspectorAction.ITime | null {
+    return stopAutoMovieInspectorTime(playing, snapshot);
+  }
+
+  /** Initialize inspector request state from the page's address text. */
+  export function createState(text: string): IAutoMovieInspectorState {
+    return createAutoMovieInspectorState(text);
+  }
+
+  /** Handle one inspector playback shortcut, preserving controls and browser modifiers. */
+  export function handleKey(
+    event: IHandleKeyEvent,
+    playhead: AutoMovieInspectorPlayhead,
+    fps: number | null,
+  ): IHandleKeyResult {
+    return handleAutoMovieInspectorKey(event, playhead, fps);
+  }
+  /** Format an inspection request as readable address query text. */
+  export function formatAddress(request: IAutoMovieCapturePlanRequest): string {
+    return formatAutoMovieInspectorAddress(request);
+  }
+
+  /** Read address query text through the capture request grammar. */
+  export function readAddress(text: string): IAutoMovieCapturePlanRequest {
+    return readAutoMovieInspectorAddress(text);
+  }
+
+  /** Format request options and an optional host command for the selected shell. */
+  export function formatCommand(
+    request: IAutoMovieCapturePlanRequest,
+    props: IFormatCommandProps = {},
+  ): IFormatCommandResult {
+    return formatAutoMovieInspectorCommand(request, props);
+  }
+
+  /** Mount the React inspector page; unmount releases its React root and scene. */
   export function mountPage(props: IPageProps): IPageHandle {
     return mountAutoMovieInspectorPage(props);
   }
 
-  /**
-   * Mount one subject's scene for the inspector component.
-   *
-   * The subject is created asynchronously. Applying a refused request keeps
-   * the last accepted request drawn and reports the refusal. Disposing cancels
-   * the pending frame, restores inspection changes and releases the renderer
-   * and instance; an instance arriving after disposal is released immediately.
-   * Calls to `dispose` are safe to repeat.
-   *
-   * @param props Subject identity, name, initial request, borrowed playhead, host and report callbacks.
-   * @returns The mounted scene's apply, overlay and dispose controls.
-   */
+  /** Mount one scene; disposal cancels frames, restores inspection and releases its renderer. */
   export function mountScene(props: ISceneProps): IAutoMovieInspectorScene {
     return mountAutoMovieInspectorScene(props);
   }

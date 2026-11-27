@@ -1,6 +1,6 @@
 import {
   type IMaterialShaderPatch,
-  addMaterialShaderPatch,
+  AutoMovieRenderMaterial,
   readMaterialShaderPatches,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -23,8 +23,8 @@ export function test_render_scene_add_material_shader_patch(): void {
   const second: IMaterialShaderPatch = { key: "second", apply: () => {} };
   const replacement: IMaterialShaderPatch = { key: "first", apply: () => {} };
 
-  addMaterialShaderPatch(material, first);
-  addMaterialShaderPatch(material, second);
+  AutoMovieRenderMaterial.addShaderPatch(material, first);
+  AutoMovieRenderMaterial.addShaderPatch(material, second);
   const original: readonly IMaterialShaderPatch[] =
     readMaterialShaderPatches(material);
   TestValidator.predicate(
@@ -37,7 +37,7 @@ export function test_render_scene_add_material_shader_patch(): void {
     "first+second",
   );
 
-  addMaterialShaderPatch(material, replacement);
+  AutoMovieRenderMaterial.addShaderPatch(material, replacement);
   const registered: readonly IMaterialShaderPatch[] =
     readMaterialShaderPatches(material);
   TestValidator.predicate(

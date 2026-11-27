@@ -4,9 +4,9 @@ import {
   AutoMovieViewerInspector,
   type IAutoMovieInspectorAction,
   type IAutoMovieInspectorState,
-  createAutoMovieInspectorState,
+
   reduceAutoMovieInspectorState,
-  stopAutoMovieInspectorTime,
+
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -90,8 +90,8 @@ export function test_viewer_inspector_show_inspector_finding(): void {
   TestValidator.equals(
     "playing and already stopped snapshots imply nothing",
     [
-      stopAutoMovieInspectorTime(true, playing.getSnapshot()),
-      stopAutoMovieInspectorTime(false, {
+      AutoMovieViewerInspector.stopTime(true, playing.getSnapshot()),
+      AutoMovieViewerInspector.stopTime(false, {
         ...playing.getSnapshot(),
         playing: false,
       }),
@@ -126,12 +126,12 @@ function run(
     actions.push(action);
   });
   const stop: IAutoMovieInspectorAction.ITime | null =
-    stopAutoMovieInspectorTime(was, playhead.getSnapshot());
+    AutoMovieViewerInspector.stopTime(was, playhead.getSnapshot());
   if (stop !== null) actions.push(stop);
   return {
     state: actions.reduce(
       reduceAutoMovieInspectorState,
-      createAutoMovieInspectorState("?from=0&to=4&rate=24"),
+      AutoMovieViewerInspector.createState("?from=0&to=4&rate=24"),
     ),
     playhead,
   };

@@ -10,7 +10,7 @@ import type {
 
 import { admitRecoveryCameraScene } from "./admitRecoveryCameraScene";
 import { createRecoveryCameraScene } from "./createRecoveryCameraScene";
-import { observeRecoveryCameraSet } from "../../internal/observeRecoveryCameraSet";
+import { observeRecoveryCameraSet } from "./observeRecoveryCameraSet";
 
 /**
  * Estimate one bounded sparse component from fixed calibrated RGB images. Views

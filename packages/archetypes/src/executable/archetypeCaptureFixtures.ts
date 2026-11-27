@@ -1,8 +1,33 @@
-import { createAppliance, createBar, createBin, createBoard, createCellFront, createControl, createDoor, createElevator, createGate, createHandhold, createHatch, createLadder, createMachine, createMirror, createObstacle, createRamp, createSaloonDoor, createSanitary, createStairs, createStreetFixture, createSwitch, createWall, createWindow, AutoMovieArchetypeBeerTap, AutoMovieArchetypeValve } from "../architecture";
+import {
+  createAppliance,
+  AutoMovieArchetypeBar,
+  createBin,
+  AutoMovieArchetypeBoard,
+  createCellFront,
+  AutoMovieArchetypeControl,
+  createDoor,
+  createElevator,
+  createGate,
+  createHandhold,
+  createHatch,
+  createLadder,
+  createMachine,
+  createMirror,
+  AutoMovieArchetypeObstacle,
+  createRamp,
+  createSaloonDoor,
+  createSanitary,
+  createStairs,
+  AutoMovieArchetypeStreetFixture,
+  createSwitch,
+  createWall,
+  createWindow,
+  AutoMovieArchetypeBeerTap,
+  AutoMovieArchetypeValve,
+} from "../architecture";
 import type { AutoMovieArchetype } from "../core";
 import type { archetypeCaptureCatalog } from "./archetypeCaptureCatalog";
 import { archetypeCaptureSubject } from "./archetypeCaptureSubject";
-
 /**
  * The capture catalog's building subjects: doors and the windows, switches and
  * controls beside them, the climbing aids, the fixtures, the obstacles and the
@@ -36,9 +61,9 @@ export function archetypeCaptureFixtures(
       ),
       ...kinds(
         "control",
-        createControl.KINDS,
-        (kind: createControl.Kind): AutoMovieArchetype =>
-          createControl({ kind }),
+        AutoMovieArchetypeControl.KINDS,
+        (kind: AutoMovieArchetypeControl.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeControl.create({ kind }),
       ),
       hatch: createHatch(),
       beerTap: AutoMovieArchetypeBeerTap.create(),
@@ -54,8 +79,9 @@ export function archetypeCaptureFixtures(
       ),
       ...kinds(
         "bar",
-        createBar.KINDS,
-        (kind: createBar.Kind): AutoMovieArchetype => createBar({ kind }),
+        AutoMovieArchetypeBar.KINDS,
+        (kind: AutoMovieArchetypeBar.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeBar.create({ kind }),
       ),
       ...kinds(
         "wall",
@@ -80,17 +106,17 @@ export function archetypeCaptureFixtures(
     obstacles: still(
       kinds(
         "obstacle",
-        createObstacle.KINDS,
-        (kind: createObstacle.Kind): AutoMovieArchetype =>
-          createObstacle({ kind }),
+        AutoMovieArchetypeObstacle.KINDS,
+        (kind: AutoMovieArchetypeObstacle.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeObstacle.create({ kind }),
       ),
     ),
     street: still({
       ...kinds(
         "streetFixture",
-        createStreetFixture.KINDS,
-        (kind: createStreetFixture.Kind): AutoMovieArchetype =>
-          createStreetFixture({ kind }),
+        AutoMovieArchetypeStreetFixture.KINDS,
+        (kind: AutoMovieArchetypeStreetFixture.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeStreetFixture.create({ kind }),
       ),
       ...kinds(
         "bin",
@@ -125,8 +151,9 @@ export function archetypeCaptureFixtures(
       ),
       ...kinds(
         "board",
-        createBoard.KINDS,
-        (kind: createBoard.Kind): AutoMovieArchetype => createBoard({ kind }),
+        AutoMovieArchetypeBoard.KINDS,
+        (kind: AutoMovieArchetypeBoard.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeBoard.create({ kind }),
       ),
     }),
   };

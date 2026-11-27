@@ -3,7 +3,7 @@ import { AutoMovieRenderCapture } from "@automovie/render";
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
-import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
+import { readAutoMovieInspectorAddress } from "./internal/readAutoMovieInspectorAddress.js";
 
 /** The key each toggle edits. */
 const LISTS: Record<IAutoMovieInspectorAction.IToggle["type"], string> = {

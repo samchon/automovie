@@ -12,7 +12,7 @@ import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
  * [0, duration). Resolve scene node ids to the distinct model objects mounted
  * for those placements, for example by keeping the results supplied to
  * buildScene. Resolve each model-scoped material id to a prepared, geometry-
- * compatible material for that node and part. The host can use buildMaterial
+ * compatible material for that node and part. The host can use AutoMovieRenderMaterial.build
  * with its existing texture resolver and retains ownership of those materials
  * and textures. An initial key can select the part's original material by
  * supplying that same reference.

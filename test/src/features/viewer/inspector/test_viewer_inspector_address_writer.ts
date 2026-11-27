@@ -1,8 +1,8 @@
-import { createAutoMovieInspectorAddressWriter } from "@automovie/viewer";
+import { AutoMovieViewerInspector } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `createAutoMovieInspectorAddressWriter` replaces the page address's query
+ * `AutoMovieViewerInspector.createAddressWriter` replaces the page address's query
  * with the inspector's text, keeping its path and hash, and only when it
  * changes.
  *
@@ -20,7 +20,7 @@ export function test_viewer_inspector_address_writer(): void {
     search: "",
     hash: "#t",
   };
-  const write: (text: string) => void = createAutoMovieInspectorAddressWriter({
+  const write: (text: string) => void = AutoMovieViewerInspector.createAddressWriter({
     location,
     history: {
       state: null,

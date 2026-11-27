@@ -1,7 +1,7 @@
 import type * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { createDetailNormalShaderPatch } from "../createDetailNormalShaderPatch.js";
 
 /**
@@ -31,5 +31,5 @@ export const applyDetailNormal: (
     ) => void;
   } = createDetailNormalShaderPatch(texture, scale);
   material.userData.detailNormal = { texture, scale };
-  addMaterialShaderPatch(material, patch);
+  AutoMovieRenderMaterial.addShaderPatch(material, patch);
 };

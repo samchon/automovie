@@ -6,7 +6,7 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { LIGHT_BANDS } from "./LIGHT_BANDS";
-import { createCandle } from "./createCandle";
+import { AutoMovieArchetypeCandle } from "./AutoMovieArchetypeCandle";
 import { AutoMovieArchetypeFireTorch } from "./AutoMovieArchetypeFireTorch";
 import { AutoMovieArchetypeLantern } from "./AutoMovieArchetypeLantern";
 import { AutoMovieArchetypePendantLamp } from "./AutoMovieArchetypePendantLamp";
@@ -48,7 +48,7 @@ export function createLight(
       >
     >
   > = {
-    candle: { build: createCandle },
+    candle: { build: AutoMovieArchetypeCandle.create },
     fireTorch: { build: AutoMovieArchetypeFireTorch.create },
     pendant: { build: AutoMovieArchetypePendantLamp.create },
     tableLamp: { build: AutoMovieArchetypeStandingLamp.create },
@@ -63,7 +63,7 @@ export namespace createLight {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `candle` selector. */
-    candle: typeof createCandle;
+    candle: typeof AutoMovieArchetypeCandle.create;
 
     /** The named producer for the saved `fireTorch` selector. */
     fireTorch: typeof AutoMovieArchetypeFireTorch.create;
@@ -83,8 +83,8 @@ export namespace createLight {
 
   /** Resolve the exact named producer for a saved selector on demand. */
   export const PRODUCERS: Readonly<IProducers> = {
-    get candle(): typeof createCandle {
-      return createCandle;
+    get candle(): typeof AutoMovieArchetypeCandle.create {
+      return AutoMovieArchetypeCandle.create;
     },
     get fireTorch(): typeof AutoMovieArchetypeFireTorch.create {
       return AutoMovieArchetypeFireTorch.create;

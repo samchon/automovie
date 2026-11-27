@@ -1,1 +1,1 @@
-export * from "./applyMaterialWear.js";
+export * from "./AutoMovieRenderWearShading.js";

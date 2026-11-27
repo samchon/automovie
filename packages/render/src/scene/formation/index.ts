@@ -1,7 +1,7 @@
 /**
  * Stable formation import surface. Runtime state, geometry, placement and type
- * contracts live with their respective owners; these exports preserve existing
- * callers without introducing another implementation or a forwarding function.
+ * contracts live with their respective owners; the package exposes grouped
+ * owner namespaces and the stable shared formation utilities.
  */
 export {
   sampleFormationMotion,
@@ -10,9 +10,7 @@ export {
 } from "@automovie/engine";
 export type { IAutoMovieFormationViewerStats } from "../IAutoMovieFormationViewerStats.js";
 export type { IAutoMovieFormationViewerObject } from "../IAutoMovieFormationViewerObject.js";
-export { buildInstancedFormation } from "../buildInstancedFormation.js";
-export { regenerateFormationSlot } from "../regenerateFormationSlot.js";
-export {
-  flattenInstancedModel,
-  flattenInstancedObject,
-} from "../formationGeometry/index.js";
+
+
+export { AutoMovieRenderFormation } from "./AutoMovieRenderFormation.js";
+export { AutoMovieRenderFormationGeometry } from "../formationGeometry/index.js";

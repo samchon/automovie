@@ -1,4 +1,4 @@
-import { createBag, createBowl, AutoMovieArchetypeServingTray } from "@automovie/archetypes";
+import { createBag, AutoMovieArchetypeBowl, AutoMovieArchetypeServingTray } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -256,7 +256,7 @@ export namespace carriageScene {
         z: 0.3,
       }),
       {
-        ...everydayTake.prop("bowl", createBowl({ id: "bowl" }), {
+        ...everydayTake.prop("bowl", AutoMovieArchetypeBowl.create({ id: "bowl" }), {
           x: -0.3,
           y: 1.01,
           z: 0.3,

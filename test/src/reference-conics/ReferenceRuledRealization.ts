@@ -13,9 +13,8 @@ import type {
 } from "@automovie/interface";
 import {
   describeRecoveryNamedDomains,
-  describeRecoveryOpenRun,
+  AutoMovieRecoveryOpenRun,
   normalizeRecoveryCourse,
-  prepareRecoveryLocalContinuation,
   AutoMovieRecoveryReconstruction,
   reconstructRecovery,
   restoreRecoveryCurveBasis,
@@ -41,9 +40,9 @@ interface Options {
 type Node = { section: number; arc: number };
 /** Closed diagnostic messages kept verbatim in the summary; the rest are counted. */
 const DIAGNOSTIC_EXAMPLES: number = 32;
-/** Same explicit graph edge accepted by prepareRecoveryLocalContinuation. */
+/** Same explicit graph edge accepted by AutoMovieRecoveryOpenRun.prepareLocalContinuation. */
 type Edge =
-  ReturnType<typeof prepareRecoveryLocalContinuation>["outgoing"] extends Map<
+  ReturnType<typeof AutoMovieRecoveryOpenRun.prepareLocalContinuation>["outgoing"] extends Map<
     string,
     infer E
   >
@@ -151,8 +150,8 @@ export async function ReferenceRuledRealization(
   const analytic: ReturnType<
     typeof AutoMovieRecoveryReconstruction.realizeAnalyticDomains
   > = AutoMovieRecoveryReconstruction.realizeAnalyticDomains(bundle, graph);
-  const prepared: ReturnType<typeof prepareRecoveryLocalContinuation> =
-    prepareRecoveryLocalContinuation(bundle, graph, analytic);
+  const prepared: ReturnType<typeof AutoMovieRecoveryOpenRun.prepareLocalContinuation> =
+    AutoMovieRecoveryOpenRun.prepareLocalContinuation(bundle, graph, analytic);
   const {
     key,
     outgoing,
@@ -278,8 +277,8 @@ export async function ReferenceRuledRealization(
       current = outgoing.get(key(current.after));
     }
     const id: string = "recovery.local." + key(nodes[0]!);
-    const metadata: ReturnType<typeof describeRecoveryOpenRun> =
-      describeRecoveryOpenRun(bundle, nodes);
+    const metadata: ReturnType<typeof AutoMovieRecoveryOpenRun.describeOpenRun> =
+      AutoMovieRecoveryOpenRun.describeOpenRun(bundle, nodes);
     const record: IAutoMovieRecoveryLocalRunReport = {
       id,
       firstSection: nodes[0]!.section,

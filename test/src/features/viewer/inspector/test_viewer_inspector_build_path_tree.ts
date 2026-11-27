@@ -1,11 +1,11 @@
 import {
+  AutoMovieViewerInspector,
   type IAutoMovieInspectorPathNode,
-  buildAutoMovieInspectorPathTree,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `buildAutoMovieInspectorPathTree` nests slash-separated paths into a tree in
+ * `AutoMovieViewerInspector.buildPathTree` nests slash-separated paths into a tree in
  * first-appearance order. A listed path is drawn, a prefix only is not; a
  * top-level node's pattern selects it and everything beneath (`name/**`), a
  * deeper node's pattern is its path, and the empty path has none.
@@ -34,7 +34,7 @@ export function test_viewer_inspector_build_path_tree(): void {
   ): IAutoMovieInspectorPathNode => ({ name, path, pattern, drawn, children });
   TestValidator.equals(
     "the tree",
-    buildAutoMovieInspectorPathTree([
+    AutoMovieViewerInspector.buildPathTree([
       "hero/torso",
       "hero/torso/arm",
       "prop",
@@ -51,5 +51,5 @@ export function test_viewer_inspector_build_path_tree(): void {
       node("", "", null, true),
     ],
   );
-  TestValidator.equals("empty", buildAutoMovieInspectorPathTree([]), []);
+  TestValidator.equals("empty", AutoMovieViewerInspector.buildPathTree([]), []);
 }

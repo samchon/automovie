@@ -1,4 +1,4 @@
-import { applyMaterialShaderPatches } from "@automovie/render";
+import { AutoMovieRenderMaterial } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -19,7 +19,7 @@ export function test_render_scene_apply_material_shader_patches(): void {
     edits: [],
   };
   const callerState: { owner: string } = state.rendererState;
-  applyMaterialShaderPatches(
+  AutoMovieRenderMaterial.applyShaderPatches(
     [
       {
         apply: (program: typeof state): void => {
@@ -47,7 +47,7 @@ export function test_render_scene_apply_material_shader_patches(): void {
     "first",
     "second",
   ]);
-  applyMaterialShaderPatches([], state);
+  AutoMovieRenderMaterial.applyShaderPatches([], state);
   TestValidator.predicate(
     "an empty list preserves caller state identity",
     state.rendererState === callerState,
@@ -60,7 +60,7 @@ export function test_render_scene_apply_material_shader_patches(): void {
   const failure: Error = new Error("caller operation failed");
   let caught: unknown;
   try {
-    applyMaterialShaderPatches(
+    AutoMovieRenderMaterial.applyShaderPatches(
       [
         {
           apply: (program: typeof state): void => {

@@ -1,6 +1,6 @@
 import {
   AutoMovieInspectorPlayhead,
-  handleAutoMovieInspectorKey,
+  AutoMovieViewerInspector,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
@@ -67,12 +67,12 @@ export function test_viewer_inspector_handle_inspector_key(): void {
     key: string,
     fps?: number | null,
     more?: { modifier?: "ctrlKey" | "metaKey" | "altKey"; target?: Target },
-  ) => { handled: boolean; seconds: number | null } = (
+  ) => AutoMovieViewerInspector.IHandleKeyResult = (
     key: string,
     fps: number | null = 24,
     more: { modifier?: "ctrlKey" | "metaKey" | "altKey"; target?: Target } = {},
-  ): { handled: boolean; seconds: number | null } =>
-    handleAutoMovieInspectorKey(
+  ): AutoMovieViewerInspector.IHandleKeyResult =>
+    AutoMovieViewerInspector.handleKey(
       {
         key,
         ctrlKey: more.modifier === "ctrlKey",

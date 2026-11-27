@@ -3,7 +3,7 @@ import type { IAutoMovieProceduralSurface } from "@automovie/interface";
 import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
 import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
 
@@ -23,7 +23,7 @@ import { proceduralPatternGlsl } from "./proceduralPatternGlsl.js";
  * The fragment stage computes the kind's pattern value once and then replaces
  * the base colour after the colour map (vertex colours still multiply it), the
  * roughness after the roughness map, and perturbs the shading normal after the
- * normal maps by the height `value × relief`: the screen-space derivatives of
+ * normal maps by the height `value 횞 relief`: the screen-space derivatives of
  * the height and the view-space position give Blinn's bump (Blinn 1978,
  * "Simulation of wrinkled surfaces", SIGGRAPH) in Mikkelsen's surface-gradient
  * form, the same construction three uses for bump maps. Every uniform is set
@@ -97,7 +97,7 @@ export const applyProceduralSurface: (
     };
   }
   material.userData.procedural = surface;
-  addMaterialShaderPatch(material, {
+  AutoMovieRenderMaterial.addShaderPatch(material, {
     key: `automovie-procedural-${surface.kind}${piece === undefined ? "" : "-piece"}`,
     apply: (shader: IMaterialShaderSource): void => {
       Object.assign(shader.uniforms, uniforms);

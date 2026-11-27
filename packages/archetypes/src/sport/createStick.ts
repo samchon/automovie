@@ -1,8 +1,8 @@
 import { ArchetypeDraw, type AutoMovieArchetype } from "../core";
 import { StickBuild } from "./StickBuild";
-import { createCricketBat } from "./createCricketBat";
-import { createFieldHockeyStick } from "./createFieldHockeyStick";
-import { createIceHockeyStick } from "./createIceHockeyStick";
+import { AutoMovieArchetypeCricketBat } from "./AutoMovieArchetypeCricketBat";
+import { AutoMovieArchetypeFieldHockeyStick } from "./AutoMovieArchetypeFieldHockeyStick";
+import { AutoMovieArchetypeIceHockeyStick } from "./AutoMovieArchetypeIceHockeyStick";
 import { AutoMovieArchetypeLacrosseCrosse } from "./AutoMovieArchetypeLacrosseCrosse";
 
 /**
@@ -91,23 +91,23 @@ export namespace createStick {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `iceHockey` selector. */
-    iceHockey: typeof createIceHockeyStick;
+    iceHockey: typeof AutoMovieArchetypeIceHockeyStick.create;
 
     /** The named producer for the saved `fieldHockey` selector. */
-    fieldHockey: typeof createFieldHockeyStick;
+    fieldHockey: typeof AutoMovieArchetypeFieldHockeyStick.create;
 
     /** The named producer for the saved `lacrosse` selector. */
     lacrosse: typeof AutoMovieArchetypeLacrosseCrosse.create;
 
     /** The named producer for the saved `cricketBat` selector. */
-    cricketBat: typeof createCricketBat;
+    cricketBat: typeof AutoMovieArchetypeCricketBat.create;
   }
 
   /** The canonical producer for each saved kind. */
   export const PRODUCERS: Readonly<IProducers> = {
-    iceHockey: createIceHockeyStick,
-    fieldHockey: createFieldHockeyStick,
+    iceHockey: AutoMovieArchetypeIceHockeyStick.create,
+    fieldHockey: AutoMovieArchetypeFieldHockeyStick.create,
     lacrosse: AutoMovieArchetypeLacrosseCrosse.create,
-    cricketBat: createCricketBat,
+    cricketBat: AutoMovieArchetypeCricketBat.create,
   };
 }

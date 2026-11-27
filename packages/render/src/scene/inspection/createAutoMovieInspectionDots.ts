@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "./AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /**
@@ -45,7 +45,7 @@ export function createAutoMovieInspectionDots(
     fog: false,
   });
   if (!options.xray)
-    addMaterialShaderPatch(material, {
+    AutoMovieRenderMaterial.addShaderPatch(material, {
       key: "automovie-inspection-dot-lead",
       apply: (shader: IMaterialShaderSource): void => {
         // Lead the view-space position toward the eye, then project it again.

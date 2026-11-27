@@ -15,7 +15,7 @@ import type {
 
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
 import { fitRecoveryResectionConsensus } from "../../geometry/internal/fitRecoveryResectionConsensus";
-import { linkRecoveryCameraTracks } from "../../internal/linkRecoveryCameraTracks";
+import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryCameraMap } from "./refineRecoveryCameraMap";
 import { triangulateRecoveryCameraPoint } from "../../internal/triangulateRecoveryCameraPoint";

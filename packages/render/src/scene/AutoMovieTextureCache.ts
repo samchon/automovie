@@ -18,7 +18,7 @@ import { textureBindingAsset } from "./textureBindingAsset.js";
  * from that image's own bytes; either way this cache owns it.
  *
  * Two facts pull in opposite directions and this class is where they meet.
- * {@link buildMaterial} writes a binding's color space, UV transform and sampler
+ * `AutoMovieRenderMaterial.build` writes a binding's color space, UV transform and sampler
  * ONTO the texture object it is given, so two slots that name the same image
  * must not receive the same object: a floor repeating its tile 40 times and a
  * table top repeating the same tile twice would otherwise fight over one
@@ -108,7 +108,7 @@ export class AutoMovieTextureCache {
    * {@link resolve} sees only the id.
    *
    * Awaiting this is what makes {@link resolve} synchronous, which is what lets
-   * {@link buildMaterial} stay a pure function of a material. A binding whose
+   * `AutoMovieRenderMaterial.build` stay a pure function of a material. A binding whose
    * asset fails to decode rejects here, naming every asset that failed, rather
    * than surfacing later as a silently untextured surface.
    */
@@ -162,7 +162,7 @@ export class AutoMovieTextureCache {
   }
 
   /**
-   * A binding-private texture over the primed source, for {@link buildMaterial}.
+   * A binding-private texture over the primed source, for `AutoMovieRenderMaterial.build`.
    *
    * A bound field rather than a method so it can be handed straight to
    * {@link buildModel} as the resolver itself. An asset that was never primed
@@ -175,7 +175,7 @@ export class AutoMovieTextureCache {
 
   /**
    * A material wrapper shared by every equal binding, for {@link buildModel} and
-   * {@link buildMaterial} when one shot builds several models or rebuilds one.
+   * `AutoMovieRenderMaterial.build` when one shot builds several models or rebuilds one.
    *
    * Two object bindings that carry the same fields (asset, coordinate set and
    * source, colour space, UV transform and sampler) make

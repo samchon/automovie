@@ -3,7 +3,7 @@ import { LineSegments2 } from "three/examples/jsm/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/examples/jsm/lines/LineSegmentsGeometry.js";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { AUTO_MOVIE_INSPECTION_DEPTH_LEAD } from "../AUTO_MOVIE_INSPECTION_DEPTH_LEAD.js";
 
 /** The line of three.js's line shader after which both ends are in view space. */
@@ -58,7 +58,7 @@ export function createAutoMovieInspectionStrokes(
     toneMapped: false,
   });
   if (!options.xray)
-    addMaterialShaderPatch(material, {
+    AutoMovieRenderMaterial.addShaderPatch(material, {
       key: "automovie-inspection-stroke-lead",
       apply: (shader: IMaterialShaderSource): void => {
         // Lead both view-space ends toward the eye before the segment is widened.

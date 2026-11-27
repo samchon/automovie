@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { createDualQuaternionSkinningShaderPatch } from "./createDualQuaternionSkinningShaderPatch.js";
 
 /**
@@ -12,5 +12,5 @@ import { createDualQuaternionSkinningShaderPatch } from "./createDualQuaternionS
 export const applyDualQuaternionSkinning: (material: THREE.Material) => void = (
   material: THREE.Material,
 ): void => {
-  addMaterialShaderPatch(material, createDualQuaternionSkinningShaderPatch());
+  AutoMovieRenderMaterial.addShaderPatch(material, createDualQuaternionSkinningShaderPatch());
 };

@@ -4,5 +4,4 @@
  */
 export * from "../IAutoMovieInstancedGeometry.js";
 export * from "../IAutoMovieInstancedModelRepresentation.js";
-export * from "../flattenInstancedModel.js";
-export * from "../flattenInstancedObject.js";
+export { AutoMovieRenderFormationGeometry } from "./AutoMovieRenderFormationGeometry.js";

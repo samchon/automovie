@@ -8,7 +8,7 @@ import type {
 import {
   AutoMovieThreeKind,
   type IMaterialShaderSource,
-  applyMaterialWear,
+  AutoMovieRenderWearShading,
   readAutoMovieBufferAttribute,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
@@ -41,8 +41,8 @@ import { surfaceTriangleOf } from "../../internal/surfaceTriangleOf";
  *    key.
  *
  * GPU arithmetic is checked by a float-target capture under the
- * visual-debugging skill: at 1280 × 720, the 24-vertex box and the box
- * subdivided 8 × 8 per face each write their edge weight and their interpolated
+ * visual-debugging skill: at 1280 횞 720, the 24-vertex box and the box
+ * subdivided 8 횞 8 per face each write their edge weight and their interpolated
  * bind-pose point, and every covered pixel's weight must equal the CPU weight
  * at that pixel's own point within 1e-3. Comparing the two boxes' weights pixel
  * by pixel is not a valid check: the rasterizer snaps each triangle's vertices
@@ -78,7 +78,7 @@ export function test_render_scene_apply_material_wear(): void {
   };
   const material: THREE.MeshStandardMaterial = new THREE.MeshStandardMaterial();
   const worn: { geometry: THREE.BufferGeometry; texture: THREE.DataTexture } =
-    applyMaterialWear(geometry, material, wear);
+    AutoMovieRenderWearShading.apply(geometry, material, wear);
   const measured: IAutoMovieMeasureFeatureEdges.IResult =
     AutoMovieEngineGeometry.measureFeatureEdges({
       positions: geometry.getAttribute("position").array,

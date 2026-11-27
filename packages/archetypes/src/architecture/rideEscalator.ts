@@ -3,25 +3,21 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
 import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { createEscalator } from "./createEscalator";
-
+import { AutoMovieArchetypeEscalator } from "./AutoMovieArchetypeEscalator";
 /** A unit scale: the rides move rigid frames. */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
 /** The identity rotation of a level tread. */
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
-
 /**
  * An escalator running at its rated speed in one direction, read on the ride's
  * clock: second 0 is when each named station holds its tread.
  *
- * Every tread moves along the step band (`createEscalator.station`) at the
+ * Every tread moves along the step band (`AutoMovieArchetypeEscalator.station`) at the
  * rated speed and stays level. On the straight incline all treads move
  * together, so the inclined flight is one rigid frame translating along the
  * incline, which a climb on the moving steps reads. Each handrail moves at the
@@ -36,13 +32,14 @@ const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
  */
 export function rideEscalator(
   escalator: AutoMovieArchetype<
-    createEscalator.Affordance,
-    createEscalator.Dimension
+    AutoMovieArchetypeEscalator.Affordance,
+    AutoMovieArchetypeEscalator.Dimension
   >,
   placement: IAutoMovieTransform,
   direction: rideEscalator.Direction,
 ): rideEscalator.IRide {
-  const profile: createEscalator.IProfile = createEscalator.profile(escalator);
+  const profile: AutoMovieArchetypeEscalator.IProfile =
+    AutoMovieArchetypeEscalator.profile(escalator);
   const sign: number = direction === "up" ? 1 : -1;
   const at = (offset: IAutoMovieVector3): IAutoMovieTransform =>
     AutoMovieArchetypeFrame.compose(placement, {
@@ -51,7 +48,10 @@ export function rideEscalator(
       scale: ONE,
     });
   const along = (station: number, seconds: number): IAutoMovieVector3 =>
-    createEscalator.station(profile, station + sign * profile.speed * seconds);
+    AutoMovieArchetypeEscalator.station(
+      profile,
+      station + sign * profile.speed * seconds,
+    );
   return {
     profile,
     direction,
@@ -79,20 +79,16 @@ export function rideEscalator(
     },
   };
 }
-
 /** The ride's direction, frames and the admitted climb on its moving flight. */
 export namespace rideEscalator {
   /** The running direction. */
   export type Direction = "up" | "down";
-
   /** One running escalator's readers. */
   export interface IRide {
     /** The step band of the escalator. */
-    profile: createEscalator.IProfile;
-
+    profile: AutoMovieArchetypeEscalator.IProfile;
     /** The running direction. */
     direction: Direction;
-
     /**
      * The tread that holds `station` metres along the band at second 0, at a
      * ride second.
@@ -102,7 +98,6 @@ export namespace rideEscalator {
      * @returns The level tread's top centre in the world.
      */
     tread(station: number, seconds: number): IAutoMovieTransform;
-
     /**
      * The straight inclined flight as one rigid frame, identity placement at
      * second 0.
@@ -111,7 +106,6 @@ export namespace rideEscalator {
      * @returns The flight's world frame.
      */
     flight(seconds: number): IAutoMovieTransform;
-
     /**
      * The handrail point above the tread at `station` at second 0.
      *
@@ -126,7 +120,6 @@ export namespace rideEscalator {
       seconds: number,
     ): IAutoMovieTransform;
   }
-
   /**
    * The moving flight a climb in `heading` reads, refused against the running
    * direction unless the author asks for it.

@@ -3,29 +3,24 @@ import type {
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-
 import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
-import { createMovingWalkway } from "./createMovingWalkway";
-
+import { AutoMovieArchetypeMovingWalkway } from "./AutoMovieArchetypeMovingWalkway";
 /** A unit scale: the rides move rigid frames. */
 const ONE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
-
 /** The identity rotation of the level band. */
 const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
-
 /**
  * The greatest pallet band speed EN 115-1 permits, m/s (KONE 5.4,
  * https://www.kone.co.uk/Images/Escalator%20planning%20guide%20GBIR_tcm45-86614.pdf).
  */
 const MAXIMUM: number = 0.75;
-
 /**
  * A moving walkway's band running at a constant speed, read on the ride's
- * clock: at second 0 the band model (`createMovingWalkway.belt`) lies on the
+ * clock: at second 0 the band model (`AutoMovieArchetypeMovingWalkway.belt`) lies on the
  * walkway. The band translates along the walkway's `+Z` running `forward`, or
  * `-Z` running `backward`, and each handrail moves with it.
  *
@@ -38,8 +33,8 @@ const MAXIMUM: number = 0.75;
  */
 export function rideMovingWalkway(
   walkway: AutoMovieArchetype<
-    createMovingWalkway.Affordance,
-    createMovingWalkway.Dimension
+    AutoMovieArchetypeMovingWalkway.Affordance,
+    AutoMovieArchetypeMovingWalkway.Dimension
   >,
   placement: IAutoMovieTransform,
   ride: rideMovingWalkway.IParams,
@@ -57,7 +52,7 @@ export function rideMovingWalkway(
   const velocity: number =
     (ride.direction === "backward" ? -1 : 1) * ride.speed;
   const rail: number =
-    walkway.dimensions.width! / 2 + createMovingWalkway.RAIL_OFFSET;
+    walkway.dimensions.width! / 2 + AutoMovieArchetypeMovingWalkway.RAIL_OFFSET;
   return {
     velocity,
     belt: (seconds: number): IAutoMovieTransform =>
@@ -82,26 +77,21 @@ export function rideMovingWalkway(
       }),
   };
 }
-
 /** The walkway ride's parameters and readers. */
 export namespace rideMovingWalkway {
   /** The band's running direction along the walkway's axis. */
   export type Direction = "forward" | "backward";
-
   /** How the band runs. */
   export interface IParams {
     /** Band speed, m/s, in (0, 0.75]. */
     speed: number;
-
     /** `forward` runs toward the exit comb at `+Z`; `forward` when absent. */
     direction?: Direction;
   }
-
   /** One running walkway's readers. */
   export interface IRide {
     /** The band's signed velocity along the walkway's `+Z`, m/s. */
     velocity: number;
-
     /**
      * The band model's world frame at a ride second.
      *
@@ -109,7 +99,6 @@ export namespace rideMovingWalkway {
      * @returns The frame.
      */
     belt(seconds: number): IAutoMovieTransform;
-
     /**
      * The handrail point that is `at` metres along the walkway at second 0.
      *

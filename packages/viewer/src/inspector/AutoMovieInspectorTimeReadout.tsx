@@ -10,7 +10,7 @@ import {
 
 import type { AutoMovieInspectorPlayhead } from "./AutoMovieInspectorPlayhead.js";
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
-import { stopAutoMovieInspectorTime } from "./stopAutoMovieInspectorTime.js";
+import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
 
 /**
  * The playhead's slider and clock, the one component that reads the playhead's second and so the only one a playing frame re-renders; the time panel reads only whether it plays.
@@ -37,7 +37,7 @@ export function AutoMovieInspectorTimeReadout(props: {
   const { dispatch } = props;
   useEffect((): void => {
     const stop: IAutoMovieInspectorAction.ITime | null =
-      stopAutoMovieInspectorTime(was.current, snapshot);
+      AutoMovieViewerInspector.stopTime(was.current, snapshot);
     if (stop !== null) dispatch(stop);
     was.current = snapshot.playing;
   }, [snapshot, dispatch]);

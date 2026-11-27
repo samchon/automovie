@@ -9,9 +9,8 @@ import type {
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
 import {
-  describeRecoveryOpenRun,
+  AutoMovieRecoveryOpenRun,
   normalizeRecoveryCourse,
-  prepareRecoveryLocalContinuation,
   AutoMovieRecoveryReconstruction,
   reconstructRecovery,
 } from "@automovie/recovery";
@@ -75,8 +74,8 @@ export function reconstructAutoMovieRecoveryLocal(
     pairs,
     unsupportedGroups,
     unsupportedGroupsWithOpenArcs,
-  }: ReturnType<typeof prepareRecoveryLocalContinuation> =
-    prepareRecoveryLocalContinuation(bundle, graph, analytic);
+  }: ReturnType<typeof AutoMovieRecoveryOpenRun.prepareLocalContinuation> =
+    AutoMovieRecoveryOpenRun.prepareLocalContinuation(bundle, graph, analytic);
   const started: number = performance.now();
   console.error(
     JSON.stringify({
@@ -260,8 +259,8 @@ export function reconstructAutoMovieRecoveryLocal(
       current = outgoing.get(key(current.after));
     }
     const id: string = `recovery.local.${key(nodes[0]!)}`;
-    const metadata: ReturnType<typeof describeRecoveryOpenRun> =
-      describeRecoveryOpenRun(bundle, nodes);
+    const metadata: ReturnType<typeof AutoMovieRecoveryOpenRun.describeOpenRun> =
+      AutoMovieRecoveryOpenRun.describeOpenRun(bundle, nodes);
     base.diagnostics.push(
       ...metadata.diagnostics.map(
         (message: string): string => `${id}: ${message}`,

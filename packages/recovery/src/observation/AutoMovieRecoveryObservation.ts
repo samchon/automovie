@@ -4,6 +4,9 @@ import type {
   IAutoMovieRecoveryAtlasObservation,
   IAutoMovieRecoveryAtlasObservationInput,
   IAutoMovieRecoveryCameraMapEstimate,
+  IAutoMovieRecoveryCameraSetObservationOperation,
+  IAutoMovieRecoveryImageFeaturesExtractionOperation,
+  IAutoMovieRecoveryCameraTracksLinkageOperation,
   IAutoMovieRecoveryCameraMapInput,
   IAutoMovieRecoveryCameraPairEstimate,
   IAutoMovieRecoveryCameraPairInput,
@@ -32,6 +35,9 @@ import type {
   IAutoMoviePolylineFitInput,
 } from "@automovie/interface";
 
+import { extractRecoveryImageFeatures as extractImageFeaturesOperation } from "./internal/extractRecoveryImageFeatures";
+import { linkRecoveryCameraTracks as linkCameraTracksOperation } from "./internal/linkRecoveryCameraTracks";
+import { observeRecoveryCameraSet as observeCameraSetOperation } from "./internal/observeRecoveryCameraSet";
 import { estimateAutoMovieRecoveryCameraMap as estimateCameraMapOperation } from "./internal/estimateAutoMovieRecoveryCameraMap";
 import { estimateAutoMovieRecoveryCameraPair as estimateCameraPairOperation } from "./internal/estimateAutoMovieRecoveryCameraPair";
 import { estimateAutoMovieRecoveryCameraScene as estimateCameraSceneOperation } from "./internal/estimateAutoMovieRecoveryCameraScene";
@@ -47,6 +53,34 @@ import { transportAutoMovieRecoveryObservationChart as transportChartOperation }
 
 /** Public camera, mesh, image and contour observation operations. */
 export namespace AutoMovieRecoveryObservation {
+  /** Extract bounded image features under the supplied policy and budget. */
+  export function extractImageFeatures(
+    view: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[0],
+    policy: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[1],
+    budget: Parameters<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation>[2],
+  ): ReturnType<IAutoMovieRecoveryImageFeaturesExtractionOperation.Operation> {
+    return extractImageFeaturesOperation(view, policy, budget);
+  }
+
+  /** Link reciprocal image-feature matches, withholding conflicting components. */
+  export function linkCameraTracks(
+    features: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[0],
+    pairs: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[1],
+    budget: Parameters<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation>[2],
+  ): ReturnType<IAutoMovieRecoveryCameraTracksLinkageOperation.Operation> {
+    return linkCameraTracksOperation(features, pairs, budget);
+  }
+
+  /** Observe the supplied camera set and match every admitted image pair. */
+  export function observeCameraSet(
+    views: Parameters<IAutoMovieRecoveryCameraSetObservationOperation.Operation>[0],
+    policy: Parameters<IAutoMovieRecoveryCameraSetObservationOperation.Operation>[1],
+    budget: Parameters<IAutoMovieRecoveryCameraSetObservationOperation.Operation>[2],
+    maximumComparisons: Parameters<IAutoMovieRecoveryCameraSetObservationOperation.Operation>[3],
+    checkpoint: Parameters<IAutoMovieRecoveryCameraSetObservationOperation.Operation>[4],
+  ): ReturnType<IAutoMovieRecoveryCameraSetObservationOperation.Operation> {
+    return observeCameraSetOperation(views, policy, budget, maximumComparisons, checkpoint);
+  }
   /** Estimate a sparse calibrated triad from three fixed image views. */
   export function estimateCameraMap(
     input: IAutoMovieRecoveryCameraMapInput,

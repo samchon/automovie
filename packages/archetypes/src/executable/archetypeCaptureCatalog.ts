@@ -27,7 +27,7 @@ import {
   createWoodenDummy,
 } from "../gym";
 import { createInstrument, createMicrophone } from "../music";
-import { createFireRing, createRock, createTent, createTree } from "../nature";
+import { AutoMovieArchetypeFireRing, createRock, createTent, createTree } from "../nature";
 import {
   createBag,
   createBox,
@@ -45,7 +45,7 @@ import {
   createUmbrella,
   createVessel,
 } from "../props";
-import { createCue, createCueTable, createGoal, createHighJump, createPoolEdge, createSkateboard, createSki, createStick, AutoMovieArchetypeSurfboard } from "../sport";
+import { AutoMovieArchetypeCue, AutoMovieArchetypeCueTable, createGoal, createHighJump, createPoolEdge, createSkateboard, createSki, createStick, AutoMovieArchetypeSurfboard } from "../sport";
 import {
   AutoMovieArchetypeBicycle,
   AutoMovieArchetypeCar,
@@ -307,9 +307,9 @@ export function archetypeCaptureCatalog(): Readonly<
       ),
       ...kinds(
         "fireRing",
-        createFireRing.KINDS,
-        (kind: createFireRing.Kind): AutoMovieArchetype =>
-          createFireRing({ kind }),
+        AutoMovieArchetypeFireRing.KINDS,
+        (kind: AutoMovieArchetypeFireRing.Kind): AutoMovieArchetype =>
+          AutoMovieArchetypeFireRing.create({ kind }),
       ),
       ...kinds(
         "tent",
@@ -384,8 +384,8 @@ export function archetypeCaptureCatalog(): Readonly<
         createStick.KINDS,
         (kind: createStick.Kind): AutoMovieArchetype => createStick({ kind }),
       ),
-      cue: createCue(),
-      cueTable: createCueTable(),
+      cue: AutoMovieArchetypeCue.create(),
+      cueTable: AutoMovieArchetypeCueTable.create(),
       skateboard: createSkateboard(),
       ski: createSki(),
       surfboard: AutoMovieArchetypeSurfboard.create(),

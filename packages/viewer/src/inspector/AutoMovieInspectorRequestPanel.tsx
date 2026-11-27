@@ -10,8 +10,8 @@ import {
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
-import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddress.js";
-import { formatAutoMovieInspectorCommand } from "./formatAutoMovieInspectorCommand.js";
+import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
+
 
 /**
  * Copy or edit the address and, when the host supplies a command, copy its
@@ -65,9 +65,9 @@ export function AutoMovieInspectorRequestPanel(props: {
     }
   };
   const address: string =
-    typed ?? formatAutoMovieInspectorAddress(props.request);
+    typed ?? AutoMovieViewerInspector.formatAddress(props.request);
   const command: string | null = props.captureCommand
-    ? formatAutoMovieInspectorCommand(props.request, {
+    ? AutoMovieViewerInspector.formatCommand(props.request, {
         command: props.captureCommand,
         shell,
       }).text

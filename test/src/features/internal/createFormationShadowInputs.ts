@@ -3,7 +3,7 @@ import type {
   IAutoMovieFormationMotion,
   IAutoMovieModel,
 } from "@automovie/interface";
-import type { buildInstancedFormation } from "@automovie/render";
+import type { AutoMovieRenderFormation } from "@automovie/render";
 
 import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
 
@@ -15,10 +15,10 @@ import { IDENTITY_TRANSFORM, createModel } from "./fixtures";
 export const createFormationShadowInputs: (
   count?: number,
   cyclic?: boolean,
-) => Parameters<typeof buildInstancedFormation>[0] = (
+) => Parameters<typeof AutoMovieRenderFormation.buildInstancedFormation>[0] = (
   count: number = 2,
   cyclic: boolean = true,
-): Parameters<typeof buildInstancedFormation>[0] => {
+): Parameters<typeof AutoMovieRenderFormation.buildInstancedFormation>[0] => {
   const formation: ReturnType<typeof materializeCompiledFormation> =
     materializeCompiledFormation({
       formation: {

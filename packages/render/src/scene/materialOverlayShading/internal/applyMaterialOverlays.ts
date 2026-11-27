@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import type { IMaterialShaderSource } from "../../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import type { IMaterialOverlayShading } from "../IMaterialOverlayShading.js";
 import type { IMaterialOverlayShape } from "../IMaterialOverlayShape.js";
 import { getOverlayFlatNormal } from "../getOverlayFlatNormal.js";
@@ -70,7 +70,7 @@ export const applyMaterialOverlays: (
       normal: overlay.normal !== null,
     }),
   );
-  addMaterialShaderPatch(material, {
+  AutoMovieRenderMaterial.addShaderPatch(material, {
     key: `automovie-overlays-${shapes
       .map(
         (shape: IMaterialOverlayShape): string =>

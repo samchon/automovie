@@ -7,9 +7,9 @@ import {
   type IAutoMovieArchetypeBand,
 } from "../core";
 import { AutoMovieArchetypeAshtray } from "./AutoMovieArchetypeAshtray";
-import { createBowl } from "./createBowl";
+import { AutoMovieArchetypeBowl } from "./AutoMovieArchetypeBowl";
 import { AutoMovieArchetypeCookingPot } from "./AutoMovieArchetypeCookingPot";
-import { createVase } from "./createVase";
+import { AutoMovieArchetypeVase } from "./AutoMovieArchetypeVase";
 
 /** IKEA's saucepan, read. */
 const SAUCEPAN: string =
@@ -61,11 +61,11 @@ export function createVessel(
       ) => AutoMovieArchetype<createVessel.Affordance, createVessel.Dimension>
     >
   > = {
-    bowl: (p, s) => createBowl({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["ikea365", "sunnyDay18", "sunnyDayCereal"] as const) }, s),
+    bowl: (p, s) => AutoMovieArchetypeBowl.create({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["ikea365", "sunnyDay18", "sunnyDayCereal"] as const) }, s),
     ashtray: (p, s) => AutoMovieArchetypeAshtray.create({ ...p, model: ArchetypeDraw.admit("vessel", "model", p.model, ["nachtmann", "harris"] as const) }, s),
     saucepan: ({ model: _model, ...rest }, s) => AutoMovieArchetypeCookingPot.create({ ...rest, kind: "saucepan" }, s),
     stockpot: ({ model: _model, ...rest }, s) => AutoMovieArchetypeCookingPot.create({ ...rest, kind: "stockpot" }, s),
-    vase: ({ model: _model, ...rest }, s) => createVase(rest, s),
+    vase: ({ model: _model, ...rest }, s) => AutoMovieArchetypeVase.create(rest, s),
   };
   return variants[kind](params, seed);
 }
@@ -75,7 +75,7 @@ export namespace createVessel {
   /** Each saved selector's named producer. */
   export interface IProducers {
     /** The named producer for the saved `bowl` selector. */
-    bowl: typeof createBowl;
+    bowl: typeof AutoMovieArchetypeBowl.create;
 
     /** The named producer for the saved `ashtray` selector. */
     ashtray: typeof AutoMovieArchetypeAshtray.create;
@@ -87,13 +87,13 @@ export namespace createVessel {
     stockpot: typeof AutoMovieArchetypeCookingPot.create;
 
     /** The named producer for the saved `vase` selector. */
-    vase: typeof createVase;
+    vase: typeof AutoMovieArchetypeVase.create;
   }
 
   /** Resolve the exact named producer for a saved selector on demand. */
   export const PRODUCERS: Readonly<IProducers> = {
-    get bowl(): typeof createBowl {
-      return createBowl;
+    get bowl(): typeof AutoMovieArchetypeBowl.create {
+      return AutoMovieArchetypeBowl.create;
     },
     get ashtray(): typeof AutoMovieArchetypeAshtray.create {
       return AutoMovieArchetypeAshtray.create;
@@ -104,8 +104,8 @@ export namespace createVessel {
     get stockpot(): typeof AutoMovieArchetypeCookingPot.create {
       return AutoMovieArchetypeCookingPot.create;
     },
-    get vase(): typeof createVase {
-      return createVase;
+    get vase(): typeof AutoMovieArchetypeVase.create {
+      return AutoMovieArchetypeVase.create;
     },
   };
 

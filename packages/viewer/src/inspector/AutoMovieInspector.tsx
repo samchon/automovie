@@ -29,9 +29,9 @@ import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import type { IAutoMovieInspectorScene } from "./IAutoMovieInspectorScene.js";
 import type { IAutoMovieInspectorState } from "./IAutoMovieInspectorState.js";
 import { createAutoMovieInspectorCanvasHost } from "./createAutoMovieInspectorCanvasHost.js";
-import { createAutoMovieInspectorState } from "./createAutoMovieInspectorState.js";
-import { formatAutoMovieInspectorAddress } from "./formatAutoMovieInspectorAddress.js";
-import { handleAutoMovieInspectorKey } from "./handleAutoMovieInspectorKey.js";
+
+
+
 import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
 import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.js";
 
@@ -57,7 +57,7 @@ import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.j
  * reports, which the console also receives, and moves the picture to a chosen
  * witness through an ordinary request edit; hiding its witnesses hides the
  * cubes and the status line, not the checks. While focus is inside the
- * inspector, the playback keys of `handleAutoMovieInspectorKey` drive the
+ * inspector, the playback keys of `AutoMovieViewerInspector.handleKey` drive the
  * playhead, except a key held with Ctrl, Meta or Alt and a key that goes to a
  * control answering it itself.
  *
@@ -74,7 +74,7 @@ import { reduceAutoMovieInspectorState } from "./reduceAutoMovieInspectorState.j
  *   <AutoMovieInspector
  *     subjects={subjects}
  *     initialText={location.search}
- *     onRequestChange={createAutoMovieInspectorAddressWriter({
+ *     onRequestChange={AutoMovieViewerInspector.createAddressWriter({
  *       location,
  *       history,
  *     })}
@@ -88,7 +88,7 @@ export function AutoMovieInspector(
   const [state, dispatch] = useReducer(
     reduceAutoMovieInspectorState,
     props.initialText,
-    createAutoMovieInspectorState,
+    AutoMovieViewerInspector.createState,
   );
   const [playhead] = useState<AutoMovieInspectorPlayhead>(
     (): AutoMovieInspectorPlayhead => new AutoMovieInspectorPlayhead(),
@@ -189,7 +189,7 @@ export function AutoMovieInspector(
   // Every request reaches the scene and the page's address.
   useEffect((): void => {
     scene.current?.apply(request);
-    onRequestChange?.(formatAutoMovieInspectorAddress(request));
+    onRequestChange?.(AutoMovieViewerInspector.formatAddress(request));
   }, [request, onRequestChange]);
 
   // The column of sections moves under the transport when the inspector is
@@ -214,8 +214,8 @@ export function AutoMovieInspector(
   const keys: (event: KeyboardEvent<HTMLDivElement>) => void = (
     event: KeyboardEvent<HTMLDivElement>,
   ): void => {
-    const result: { handled: boolean; seconds: number | null } =
-      handleAutoMovieInspectorKey(
+    const result: AutoMovieViewerInspector.IHandleKeyResult =
+      AutoMovieViewerInspector.handleKey(
         {
           key: event.key,
           ctrlKey: event.ctrlKey,

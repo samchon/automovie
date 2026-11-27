@@ -15,7 +15,7 @@ import {
 
 import type { IAutoMovieInspectorAction } from "./IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorPathNode } from "./IAutoMovieInspectorPathNode.js";
-import { buildAutoMovieInspectorPathTree } from "./buildAutoMovieInspectorPathTree.js";
+import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
 
 
 /** The width of each of the three checkbox columns and the colour column, pixels. */
@@ -43,7 +43,7 @@ export function AutoMovieInspectorSelectionPanel(props: {
 }): JSX.Element {
   const tree: IAutoMovieInspectorPathNode[] = useMemo(
     (): IAutoMovieInspectorPathNode[] =>
-      buildAutoMovieInspectorPathTree(props.paths),
+      AutoMovieViewerInspector.buildPathTree(props.paths),
     [props.paths],
   );
   const [filter, setFilter]: [string, Dispatch<SetStateAction<string>>] =

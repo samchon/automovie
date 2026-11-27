@@ -1,12 +1,11 @@
 import {
+  AutoMovieViewerInspector,
   type IAutoMovieInspectorState,
-  createAutoMovieInspectorState,
-  readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `createAutoMovieInspectorState` reads an address into the opening state; text
+ * `AutoMovieViewerInspector.createState` reads an address into the opening state; text
  * that does not read opens on the empty request with its refusal.
  *
  * Scenarios:
@@ -17,15 +16,15 @@ import { TestValidator } from "@nestia/e2e";
 export function test_viewer_inspector_create_state(): void {
   TestValidator.equals(
     "a readable address",
-    createAutoMovieInspectorState("at=1&parts=a"),
-    { request: readAutoMovieInspectorAddress("at=1&parts=a"), error: null },
+    AutoMovieViewerInspector.createState("at=1&parts=a"),
+    { request: AutoMovieViewerInspector.readAddress("at=1&parts=a"), error: null },
   );
   const refused: IAutoMovieInspectorState =
-    createAutoMovieInspectorState("colour=1");
+    AutoMovieViewerInspector.createState("colour=1");
   TestValidator.predicate(
     "an unreadable address",
     JSON.stringify(refused.request) ===
-      JSON.stringify(readAutoMovieInspectorAddress("")) &&
+      JSON.stringify(AutoMovieViewerInspector.readAddress("")) &&
       refused.error !== null &&
       refused.error.includes("colour"),
   );

@@ -1,17 +1,14 @@
 import {
   AutoMovieArchetypeUnits,
-  createBoard,
+  AutoMovieArchetypeBoard,
   createMirror,
 } from "@automovie/archetypes";
 import type { IAutoMovieAffordance } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { archetypeExtent } from "../../internal/archetypeExtent";
 import { archetypeModelSweep } from "../../internal/archetypeModelSweep";
-
 /** A millimetre, the tolerance of #3368 for a placed contact. */
 const MM: number = 1e-3;
-
 /**
  * Mirrors and wall boards hang at their sources' sizes and heights.
  *
@@ -33,7 +30,6 @@ export function test_archetype_mirror_board(): void {
       findings.push(`${what}: ${got}, ${wanted} expected`);
   };
   const inch: number = AutoMovieArchetypeUnits.INCH;
-
   // 1. The wall mirror.
   findings.push(
     ...archetypeModelSweep([
@@ -109,16 +105,14 @@ export function test_archetype_mirror_board(): void {
         ] as const
       ).map(
         ([kind, source, sizes]: readonly [
-          createBoard.Kind,
+          AutoMovieArchetypeBoard.Kind,
           string,
           readonly (readonly [number, number])[],
         ]): archetypeModelSweep.IRow => ({
           name: `${kind} size`,
           measure: (seed: number): readonly number[] => {
-            const board: ReturnType<typeof createBoard> = createBoard(
-              { kind },
-              seed,
-            );
+            const board: ReturnType<typeof AutoMovieArchetypeBoard.create> =
+              AutoMovieArchetypeBoard.create({ kind }, seed);
             return [
               archetypeExtent(board, "y", ["board"]).size,
               archetypeExtent(board, "x", ["board"]).size,
@@ -144,7 +138,6 @@ export function test_archetype_mirror_board(): void {
     40 * inch,
   );
   near("the face off the wall", face.frame.translation.z, 0.75 * inch);
-
   // 2. The standing mirror.
   const cheval: ReturnType<typeof createMirror> = createMirror(
     { kind: "cheval" },
@@ -153,12 +146,9 @@ export function test_archetype_mirror_board(): void {
   near("the standing mirror's width", archetypeExtent(cheval, "x").size, 0.52);
   near("the standing mirror's height", archetypeExtent(cheval, "y").size, 1.67);
   near("the standing mirror's depth", archetypeExtent(cheval, "z").size, 0.52);
-
   // 3. The boards.
-  const white: ReturnType<typeof createBoard> = createBoard(
-    { kind: "whiteboard" },
-    3,
-  );
+  const white: ReturnType<typeof AutoMovieArchetypeBoard.create> =
+    AutoMovieArchetypeBoard.create({ kind: "whiteboard" }, 3);
   near(
     "the whiteboard's base",
     archetypeExtent(white, "y", ["board"]).low,
@@ -169,15 +159,11 @@ export function test_archetype_mirror_board(): void {
     white.affordance("tray").frame.translation.z,
     (3 + 1 / 8) * inch,
   );
-  const black: ReturnType<typeof createBoard> = createBoard(
-    { kind: "blackboard" },
-    3,
-  );
+  const black: ReturnType<typeof AutoMovieArchetypeBoard.create> =
+    AutoMovieArchetypeBoard.create({ kind: "blackboard" }, 3);
   near("the blackboard's foot", archetypeExtent(black, "y", ["board"]).low, 0);
-  const notice: ReturnType<typeof createBoard> = createBoard(
-    { kind: "noticeBoard" },
-    3,
-  );
+  const notice: ReturnType<typeof AutoMovieArchetypeBoard.create> =
+    AutoMovieArchetypeBoard.create({ kind: "noticeBoard" }, 3);
   if (notice.affordances.some((a: { id: string }): boolean => a.id === "tray"))
     findings.push("the notice board declares a tray");
   TestValidator.equals(

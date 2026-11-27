@@ -1,4 +1,10 @@
 import type * as THREE from "three";
+import type { IAutoMovieModel } from "@automovie/interface";
+import type { IBakeFormationCycleProps } from "../IBakeFormationCycleProps.js";
+import type { IAutoMovieInstancedModelRepresentation } from "../IAutoMovieInstancedModelRepresentation.js";
+import type { IAutoMovieModelObject } from "../IAutoMovieModelObject.js";
+import { flattenInstancedModel as flattenInstancedModelImplementation } from "../internal/flattenInstancedModel.js";
+import { flattenInstancedObject as flattenInstancedObjectImplementation } from "../internal/flattenInstancedObject.js";
 import { instancedModelParts as instancedModelPartsImplementation } from "../internal/instancedModelParts.js";
 
 /** Public operations for Auto Movie Render Formation Geometry. */
@@ -12,5 +18,21 @@ export namespace AutoMovieRenderFormationGeometry {
    */
   export function instancedModelParts(root: THREE.Object3D): THREE.Mesh[] {
     return instancedModelPartsImplementation(root);
+  }
+  /** Flatten one runtime model for a chunked instancing consumer. */
+  export function flattenInstancedModel(
+    model: IAutoMovieModel,
+    owner?: string,
+    bake?: Pick<IBakeFormationCycleProps, "samples" | "takes">,
+  ): IAutoMovieInstancedModelRepresentation {
+    return flattenInstancedModelImplementation(model, owner, bake);
+  }
+
+  /** Flatten one already-loaded rigid generated or imported model prototype. */
+  export function flattenInstancedObject(
+    built: IAutoMovieModelObject,
+    owner?: string,
+  ): IAutoMovieInstancedModelRepresentation<null> {
+    return flattenInstancedObjectImplementation(built, owner);
   }
 }

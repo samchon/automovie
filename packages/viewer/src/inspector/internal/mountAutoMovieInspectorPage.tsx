@@ -3,7 +3,7 @@ import { type Root, createRoot } from "react-dom/client";
 
 import { AutoMovieInspector } from "../AutoMovieInspector.js";
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
-import { createAutoMovieInspectorAddressWriter } from "../createAutoMovieInspectorAddressWriter.js";
+import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspectorAddressWriter.js";
 
 /**
  * Mount the inspector as a whole page in one call: render `AutoMovieInspector` into `root` under StrictMode, opening on the request `location`'s query names and keeping that query equal to the request through `history`.

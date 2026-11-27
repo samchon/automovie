@@ -4,7 +4,7 @@ import type {
   IAutoMovieMaterial,
   IAutoMovieProceduralSurface,
 } from "@automovie/interface";
-import { type IMaterialShaderSource, buildMaterial } from "@automovie/render";
+import { AutoMovieRenderMaterial, type IMaterialShaderSource } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -22,7 +22,7 @@ import { nclose } from "../../internal/nclose";
  *    on three's own physical program splices the sample point into the vertex
  *    stage and the pattern, colour, roughness and bump into the fragment stage,
  *    after the chunks they extend.
- * 2. The sample point the uniforms give, `(uvTransform · (u, v, 1)).xy × tile +
+ * 2. The sample point the uniforms give, `(uvTransform 쨌 (u, v, 1)).xy 횞 tile +
  *    pieceOffset` with the normal offset as third coordinate, yields through
  *    `AutoMovieEngineMaterial.proceduralPattern` the same value as
  *    `AutoMovieEngineMaterial.sampleProceduralSurface` at 64 UV points, within
@@ -52,7 +52,7 @@ export function test_render_scene_build_material_procedural_shader(): void {
       },
     },
   };
-  const material: THREE.MeshPhysicalMaterial = buildMaterial(record(piece));
+  const material: THREE.MeshPhysicalMaterial = AutoMovieRenderMaterial.build(record(piece));
   const shader: IMaterialShaderSource = compile(material);
 
   // 1. Splices after the chunks they extend.
@@ -135,7 +135,7 @@ export function test_render_scene_build_material_procedural_shader(): void {
   // 4. Program keys.
   const key: (one: IAutoMovieProceduralSurface) => string = (
     one: IAutoMovieProceduralSurface,
-  ): string => buildMaterial(record(one)).customProgramCacheKey();
+  ): string => AutoMovieRenderMaterial.build(record(one)).customProgramCacheKey();
   TestValidator.predicate(
     "kinds and sheet sampling separate programs, seeds do not",
     key(surface("stone", 1)) === key(surface("stone", 2)) &&

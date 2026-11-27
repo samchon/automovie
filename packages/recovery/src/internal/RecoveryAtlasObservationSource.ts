@@ -8,7 +8,7 @@ import type {
 
 import { RecoveryEventRegion } from "./RecoveryEventRegion";
 import { RecoveryScalarIndex as I } from "./RecoveryScalarIndex";
-import { selectRecoveryScalarIntervals } from "./selectRecoveryScalarIntervals";
+import { AutoMovieRecoveryProfileFitting } from "../fitting/AutoMovieRecoveryProfileFitting";
 
 /** Admit the immutable source and prepare the selected scalar interval index. */
 export function RecoveryAtlasObservationSource(
@@ -48,7 +48,7 @@ export function RecoveryAtlasObservationSource(
       (_: unknown, i: number): number => i,
     );
   const selection: ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation> =
-    selectRecoveryScalarIntervals(input.levelsMm, order, input.scalarWindowMm);
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals(input.levelsMm, order, input.scalarWindowMm);
   const norm: number = Math.hypot(...input.axis);
   if (!(norm > 0)) throw new Error("A finite sweep direction is required");
   const heights: number[] = input.verticesMm.map(

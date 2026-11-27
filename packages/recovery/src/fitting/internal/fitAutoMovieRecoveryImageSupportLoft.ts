@@ -13,7 +13,7 @@ import type {
   IAutoMovieRecoverySupportFitPolicy,
 } from "@automovie/interface";
 
-import { fitRecoveryScalarProfiles } from "../../internal/fitRecoveryScalarProfiles";
+import { AutoMovieRecoveryProfileFitting } from "../AutoMovieRecoveryProfileFitting";
 import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
@@ -128,7 +128,7 @@ export function fitAutoMovieRecoveryImageSupportLoft(
           diagnostics: ["Cancelled between support candidates"],
         };
       const fit: ReturnType<IAutoMovieRecoveryScalarProfilesFittingOperation.Operation> =
-        fitRecoveryScalarProfiles(samples, count, policy.minimumSplineRatio);
+        AutoMovieRecoveryProfileFitting.fitScalarProfiles(samples, count, policy.minimumSplineRatio);
       const loft: IAutoMovieConvexSupportLoft = {
         planes: normals.map(
           (

@@ -1,6 +1,6 @@
 import type * as THREE from "three";
 
-import { addMaterialShaderPatch } from "../../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../../AutoMovieRenderMaterial.js";
 import { createReliefWeightShaderPatch } from "../createReliefWeightShaderPatch.js";
 
 /**
@@ -14,5 +14,5 @@ import { createReliefWeightShaderPatch } from "../createReliefWeightShaderPatch.
 export const applyReliefWeights: (material: THREE.Material) => void = (
   material: THREE.Material,
 ): void => {
-  addMaterialShaderPatch(material, createReliefWeightShaderPatch());
+  AutoMovieRenderMaterial.addShaderPatch(material, createReliefWeightShaderPatch());
 };

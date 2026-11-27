@@ -11,7 +11,7 @@ import type {
 
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 import { createRecoveryCameraEstimate } from "./createRecoveryCameraEstimate";
-import { extractRecoveryImageFeatures } from "../../internal/extractRecoveryImageFeatures";
+import { extractRecoveryImageFeatures } from "./extractRecoveryImageFeatures";
 import { matchRecoveryImageFeatures } from "./matchRecoveryImageFeatures";
 
 /**

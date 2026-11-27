@@ -3,7 +3,7 @@ import type * as THREE from "three";
 import { AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY } from "../AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
 import type { IAutoMovieFormationCycle } from "../IAutoMovieFormationCycle.js";
 import type { IMaterialShaderSource } from "../IMaterialShaderSource.js";
-import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 
 /**
  * Teach one material to place its vertices at each member's own cycle position.
@@ -34,7 +34,7 @@ export const applyFormationCycleMaterial: (
   material: THREE.Material,
   cycle: IAutoMovieFormationCycle,
 ): void => {
-  addMaterialShaderPatch(material, {
+  AutoMovieRenderMaterial.addShaderPatch(material, {
     key: AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY,
     apply: (shader: IMaterialShaderSource): void => {
       Object.assign(shader.uniforms, cycle.uniforms);

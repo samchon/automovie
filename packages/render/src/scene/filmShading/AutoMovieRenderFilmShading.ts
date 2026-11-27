@@ -6,7 +6,7 @@ export namespace AutoMovieRenderFilmShading {
   /**
    * Give one lit material the film's indirect shading: the probes' one-bounce
    * irradiance at the fragment's world position and normal, times its diffuse
-   * albedo over π (`BRDF_Lambert`), is added to its indirect diffuse light, and
+   * albedo over ? (`BRDF_Lambert`), is added to its indirect diffuse light, and
    * then its indirect diffuse and indirect specular light are multiplied by the
    * occlusion visibility the film stage measured for the fragment's own pixel,
    * after any occlusion texture of the material has applied, so the two multiply
@@ -25,7 +25,7 @@ export namespace AutoMovieRenderFilmShading {
    * Lit materials are three's standard, physical, Lambert, Phong and toon
    * materials, whose fragment programs carry the `aomap_fragment` chunk and
    * indirect light. A material is patched once; a material whose compile hook was
-   * set outside `addMaterialShaderPatch` is refused with an error naming it,
+   * set outside `AutoMovieRenderMaterial.addShaderPatch` is refused with an error naming it,
    * because the shared seam would replace that hook.
    *
    * @returns Whether the material is lit and now carries the patch.

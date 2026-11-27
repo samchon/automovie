@@ -1,8 +1,8 @@
-import { selectRecoveryScalarIntervals } from "@automovie/recovery";
+import { AutoMovieRecoveryProfileFitting } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `selectRecoveryScalarIntervals` keeps, in priority order, the slabs
+ * `AutoMovieRecoveryProfileFitting.selectScalarIntervals` keeps, in priority order, the slabs
  * [levels[i], levels[i + 1]] that overlap a window with positive length.
  *
  * Scenarios:
@@ -16,7 +16,7 @@ import { TestValidator } from "@nestia/e2e";
 export function test_recovery_internal_select_scalar_intervals(): void {
   TestValidator.equals(
     "an overlapped window",
-    selectRecoveryScalarIntervals([0, 10, 20, 30], [2, 0, 1], [5, 15]),
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1], [5, 15]),
     {
       intervals: [0, 1],
       windowMm: [5, 15],
@@ -26,19 +26,19 @@ export function test_recovery_internal_select_scalar_intervals(): void {
   );
   TestValidator.equals(
     "a touching window",
-    selectRecoveryScalarIntervals([0, 10, 20, 30], [2, 0, 1], [30, 40])
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1], [30, 40])
       .intervals,
     [],
   );
   TestValidator.equals(
     "no window",
-    selectRecoveryScalarIntervals([0, 10, 20, 30], [2, 0, 1]).intervals,
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20, 30], [2, 0, 1]).intervals,
     [2, 0, 1],
   );
   TestValidator.error("unordered levels", (): unknown =>
-    selectRecoveryScalarIntervals([0, 10, 5], [0, 1]),
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 5], [0, 1]),
   );
   TestValidator.error("an incomplete order", (): unknown =>
-    selectRecoveryScalarIntervals([0, 10, 20], [0, 0]),
+    AutoMovieRecoveryProfileFitting.selectScalarIntervals([0, 10, 20], [0, 0]),
   );
 }

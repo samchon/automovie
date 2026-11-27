@@ -7,7 +7,7 @@ import type {
 
 import type { IAutoMovieMaterialLibrary } from "../IAutoMovieMaterialLibrary.js";
 import type { IBuildAutoMovieMaterialLibraryProps } from "../IBuildAutoMovieMaterialLibraryProps.js";
-import { buildMaterial } from "../buildMaterial.js";
+import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { constructAutoMovieOwnedResources } from "../constructAutoMovieOwnedResources.js";
 import { materialTextureBindings } from "./materialTextureBindings.js";
 import { reportAutoMovieResourceRetirement } from "../reportAutoMovieResourceRetirement.js";
@@ -77,22 +77,22 @@ export const buildAutoMovieMaterialLibrary: (
 
   const materials: Map<
     string,
-    ReturnType<typeof buildMaterial>
+    ReturnType<typeof AutoMovieRenderMaterial.build>
   > = constructAutoMovieOwnedResources(
     (
       own: <Resource extends { dispose(): void }>(
         resource: Resource,
       ) => Resource,
-    ): Map<string, ReturnType<typeof buildMaterial>> =>
+    ): Map<string, ReturnType<typeof AutoMovieRenderMaterial.build>> =>
       new Map(
         [...definitions].map(
           ([id, material]: [string, IAutoMovieMaterial]): readonly [
             string,
-            ReturnType<typeof buildMaterial>,
+            ReturnType<typeof AutoMovieRenderMaterial.build>,
           ] =>
             [
               id,
-              own(buildMaterial(material, props.textures?.resolve)),
+              own(AutoMovieRenderMaterial.build(material, props.textures?.resolve)),
             ] as const,
         ),
       ),
@@ -102,13 +102,13 @@ export const buildAutoMovieMaterialLibrary: (
   return {
     resolve: (
       id: string | null,
-    ): ReturnType<typeof buildMaterial> | undefined => {
+    ): ReturnType<typeof AutoMovieRenderMaterial.build> | undefined => {
       if (disposed)
         throw new Error(
           "This shot material library has already been disposed.",
         );
       if (id === null) return undefined;
-      const material: ReturnType<typeof buildMaterial> | undefined =
+      const material: ReturnType<typeof AutoMovieRenderMaterial.build> | undefined =
         materials.get(id);
       if (material === undefined)
         throw new Error(`Material "${id}" was not requested by this library.`);
@@ -125,7 +125,7 @@ export const buildAutoMovieMaterialLibrary: (
           [...materials].map(
             ([id, material]: [
               string,
-              ReturnType<typeof buildMaterial>,
+              ReturnType<typeof AutoMovieRenderMaterial.build>,
             ]): (() => void) =>
               (): void => {
                 material.dispose();

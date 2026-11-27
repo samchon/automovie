@@ -24,5 +24,3 @@ export * from "../AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
 export * from "../createFormationCycleShadowMaterials.js";
 
 export { AutoMovieRenderFormationCycle } from "./AutoMovieRenderFormationCycle.js";
-
-export { AutoMovieRenderFormationGeometry } from "../formationGeometry/AutoMovieRenderFormationGeometry.js";

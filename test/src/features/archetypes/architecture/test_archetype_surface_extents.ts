@@ -1,4 +1,4 @@
-import { type AutoMovieArchetype, createBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, createScenicParadeBanner, createScenicStandard, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch } from "@automovie/archetypes";
+import { type AutoMovieArchetype, AutoMovieArchetypeBoard, AutoMovieArchetypeCamera, createClipboard, createLaptop, createMachine, createPaper, AutoMovieArchetypePhone, createScenicParadeBanner, createScenicStandard, AutoMovieArchetypeTablet, AutoMovieArchetypeAtm, AutoMovieArchetypeSignPost, AutoMovieArchetypeWatch } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
@@ -115,9 +115,9 @@ const LISTED: readonly IListed[] = [
     surface: "face",
     top: "upright",
     builds: () =>
-      createBoard.KINDS.flatMap((kind) =>
-        (Object.keys(createBoard.SIZES[kind]) as createBoard.Size[]).flatMap(
-          (size) => seeded((seed) => createBoard({ kind, size }, seed)),
+      AutoMovieArchetypeBoard.KINDS.flatMap((kind) =>
+        (Object.keys(AutoMovieArchetypeBoard.SIZES[kind]) as AutoMovieArchetypeBoard.Size[]).flatMap(
+          (size) => seeded((seed) => AutoMovieArchetypeBoard.create({ kind, size }, seed)),
         ),
       ),
   },
@@ -177,8 +177,8 @@ const LISTED: readonly IListed[] = [
  *    the measured face plane for an upright face or a laptop lid, and model
  *    `-Z` for a watch dial, a clipboard and a flat sheet as their producers
  *    document.
- * 4. The ATM's screen splits its 381 mm diagonal (width² + depth² = 381² mm²
- *    within 0.5 mm²) and lies on the cabinet's front face, z = 0.400 m.
+ * 4. The ATM's screen splits its 381 mm diagonal (width짼 + depth짼 = 381짼 mm짼
+ *    within 0.5 mm짼) and lies on the cabinet's front face, z = 0.400 m.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the producers, the three geometric checks and the ATM's measured diagonal and face.
  * @evidence contracts/development/testing.md#behavioral-verification Builds each producer through its public entry and casts rays at the drawn render model, reading the surface it meets.

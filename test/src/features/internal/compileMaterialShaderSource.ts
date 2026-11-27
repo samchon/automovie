@@ -1,6 +1,6 @@
 import {
   type IMaterialShaderSource,
-  applyMaterialShaderPatches,
+  AutoMovieRenderMaterial,
   readMaterialShaderPatches,
 } from "@automovie/render";
 import * as THREE from "three";
@@ -20,6 +20,6 @@ export function compileMaterialShaderSource(
     uniforms: {},
   };
   for (const one of [material].flat())
-    applyMaterialShaderPatches(readMaterialShaderPatches(one), shader);
+    AutoMovieRenderMaterial.applyShaderPatches(readMaterialShaderPatches(one), shader);
   return shader;
 }

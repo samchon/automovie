@@ -13,13 +13,13 @@ import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import { applyTransform } from "./internal/applyTransform.js";
 import { buildGeometry } from "./internal/buildGeometry.js";
-import { buildMaterial } from "./buildMaterial.js";
+import { AutoMovieRenderMaterial } from "./AutoMovieRenderMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { defaultMaterial } from "./internal/defaultMaterial.js";
 import { AutoMovieRenderDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { AutoMovieRenderReliefWeightShading } from "./reliefWeightShading/index.js";
-import { applyMaterialWear } from "./wearShading/index.js";
+import { AutoMovieRenderWearShading } from "./wearShading/index.js";
 
 /**
  * Build a renderable `three.js` object from an {@link IAutoMovieModel}.
@@ -57,7 +57,7 @@ import { applyMaterialWear } from "./wearShading/index.js";
  * synchronously. Omitting it builds every material with its scalar coefficients
  * and no maps, which is exactly what a model declaring no texture renders and
  * what every pre-texture production still renders. The resolver must answer
- * with a texture object PER BINDING, because {@link buildMaterial} writes that
+ * with a texture object PER BINDING, because {@link AutoMovieRenderMaterial.build} writes that
  * binding's color space, UV transform and sampler onto whatever it is given,
  * and two slots sharing one object would fight over one repeat. Every returned
  * geometry and material is registered as soon as it is acquired, before a later
@@ -73,7 +73,7 @@ import { applyMaterialWear } from "./wearShading/index.js";
  * and leaves degenerate UVs on their existing fallback. Fully transparent,
  * non-transmissive parts stay hidden when a guide swaps materials. A part whose
  * material declares `wear` gets its own material instance and is drawn
- * non-indexed with its bind-pose feature edges, by `applyMaterialWear`;
+ * non-indexed with its bind-pose feature edges, by `AutoMovieRenderWearShading.apply`;
  * disposing that material also disposes its edge texture.
  */
 export const buildModel: (
@@ -171,14 +171,14 @@ export const buildModel: (
         } else if (definition.wear !== undefined) {
           // A worn material reads this geometry's own feature edges, so each
           // part gets its own material and its non-indexed geometry.
-          mat = own(buildMaterial(definition, resolveTexture));
+          mat = own(AutoMovieRenderMaterial.build(definition, resolveTexture));
           mat.vertexColors = colored;
           if (weighted && mat.normalMap !== null) AutoMovieRenderReliefWeightShading.apply(mat);
           if (dualQuaternion) AutoMovieRenderDualQuaternionSkinning.apply(mat);
           const worn: {
             geometry: THREE.BufferGeometry;
             texture: THREE.DataTexture;
-          } = applyMaterialWear(geo, mat, definition.wear);
+          } = AutoMovieRenderWearShading.apply(geo, mat, definition.wear);
           geo = own(worn.geometry);
           own(worn.texture);
 
@@ -196,7 +196,7 @@ export const buildModel: (
           const cached: THREE.MeshStandardMaterial | undefined =
             variants.get(key);
           if (cached === undefined) {
-            mat = own(buildMaterial(definition, resolveTexture));
+            mat = own(AutoMovieRenderMaterial.build(definition, resolveTexture));
             mat.vertexColors = colored;
             if (weighted && mat.normalMap !== null) AutoMovieRenderReliefWeightShading.apply(mat);
             if (dualQuaternion) AutoMovieRenderDualQuaternionSkinning.apply(mat);

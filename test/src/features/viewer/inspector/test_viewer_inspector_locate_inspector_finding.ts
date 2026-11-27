@@ -1,7 +1,7 @@
 import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
 import {
   type IAutoMovieInspectorState,
-  createAutoMovieInspectorState,
+
   reduceAutoMovieInspectorState,
   AutoMovieViewerInspector,
 } from "@automovie/viewer";
@@ -84,7 +84,7 @@ export function test_viewer_inspector_locate_inspector_finding(): void {
   );
 
   // 3. Through the reducer.
-  const playing: IAutoMovieInspectorState = createAutoMovieInspectorState(
+  const playing: IAutoMovieInspectorState = AutoMovieViewerInspector.createState(
     "?from=0&to=4&rate=24&label=stage",
   );
   const located: IAutoMovieInspectorState = reduceAutoMovieInspectorState(

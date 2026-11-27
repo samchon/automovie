@@ -20,7 +20,7 @@ import { followAutoMovieInspectorSize } from "./followAutoMovieInspectorSize.js"
 import { inspectAutoMovieInspectorRequest } from "./inspectAutoMovieInspectorRequest.js";
 import { installAutoMovieInspectorRequest } from "./installAutoMovieInspectorRequest.js";
 import { messageOfAutoMovieInspectorError } from "../messageOfAutoMovieInspectorError.js";
-import { readAutoMovieInspectorAddress } from "../readAutoMovieInspectorAddress.js";
+import { readAutoMovieInspectorAddress } from "./readAutoMovieInspectorAddress.js";
 import { readAutoMovieInspectorFacts } from "./readAutoMovieInspectorFacts.js";
 import { readsAutoMovieInspectorPlacedScene } from "../readsAutoMovieInspectorPlacedScene.js";
 import { releaseAutoMovieInspectorSteps } from "./releaseAutoMovieInspectorSteps.js";

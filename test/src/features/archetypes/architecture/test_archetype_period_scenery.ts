@@ -1,7 +1,7 @@
 import {
   AutoMovieArchetypeFrame,
-  createBellFrame,
-  createLoadingTower,
+  AutoMovieArchetypeBellFrame,
+  AutoMovieArchetypeLoadingTower,
 } from "@automovie/archetypes";
 import type {
   IAutoMovieAffordance,
@@ -9,10 +9,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
 import { archetypeExtent } from "../../internal/archetypeExtent";
 import { nclose, vclose } from "../../internal/predicates";
-
 /**
  * Fixed period scenery exposes unobstructed contact geometry at its visible surfaces.
  *
@@ -30,10 +28,8 @@ import { nclose, vclose } from "../../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership An in-memory archetype test discovered by its exported name.
  */
 export function test_archetype_period_scenery(): void {
-  const tower: ReturnType<typeof createLoadingTower> = createLoadingTower(
-    {},
-    3,
-  );
+  const tower: ReturnType<typeof AutoMovieArchetypeLoadingTower.create> =
+    AutoMovieArchetypeLoadingTower.create({}, 3);
   const towerShapes: IAutoMoviePhysicalShape[] = tower.shapes();
   for (const id of ["boarding", "platform", "gangway"] as const) {
     const surface: IAutoMovieAffordance = tower.affordance(id);
@@ -141,8 +137,8 @@ export function test_archetype_period_scenery(): void {
     "wheel faces reach the ground",
     nclose(archetypeExtent(towerShapes, "y").low, 0),
   );
-
-  const bell: ReturnType<typeof createBellFrame> = createBellFrame({}, 71);
+  const bell: ReturnType<typeof AutoMovieArchetypeBellFrame.create> =
+    AutoMovieArchetypeBellFrame.create({}, 71);
   const bellShapes: IAutoMoviePhysicalShape[] = bell.shapes();
   const step: IAutoMovieAffordance = bell.affordance("step");
   const plinth: ReturnType<typeof archetypeExtent> = archetypeExtent(

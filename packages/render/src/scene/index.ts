@@ -20,7 +20,7 @@ export * from "./IAutoMovieTextureLoader.js";
 export * from "./IAutoMovieTextureResolver.js";
 
 export * from "./createAutoMovieClosedSphereGeometry.js";
-export * from "./buildMaterial.js";
+
 
 
 export * from "./textureBindingAsset.js";
@@ -34,11 +34,11 @@ export * from "./materialOverlayShading/index.js";
 export * from "./proceduralShading/index.js";
 export * from "./wearShading/index.js";
 export * from "./reliefWeightShading/index.js";
-export * from "./addMaterialShaderPatch.js";
+
 export * from "./IMaterialShaderPatch.js";
 export * from "./IMaterialShaderSource.js";
 export * from "./readMaterialShaderPatches.js";
-export * from "./applyMaterialShaderPatches.js";
+
 export * from "./IAutoMovieMaterialLibrary.js";
 export * from "./IBuildAutoMovieMaterialLibraryProps.js";
 
@@ -111,7 +111,9 @@ export * from "./IAutoMovieViewerSnapshotRenderer.js";
 export * from "./IAutoMovieViewerSnapshotOptions.js";
 export * from "./IAutoMovieViewerSnapshot.js";
 export * from "./captureViewerSnapshot.js";
-export * from "./formation/index.js";
+export { AutoMovieRenderFormation, AutoMovieRenderFormationGeometry } from "./formation/index.js";
+export { sampleFormationMotion, sampleFormationSlotMotion, selectFormationLod } from "@automovie/engine";
+export type { IAutoMovieFormationViewerStats, IAutoMovieFormationViewerObject } from "./formation/index.js";
 export * from "./formationCycle/index.js";
 export * from "./instanceSet/index.js";
 export * from "./effect.js";

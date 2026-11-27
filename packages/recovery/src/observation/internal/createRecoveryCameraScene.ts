@@ -21,7 +21,7 @@ import { createRecoverySceneSeedReportObserver } from "../../internal/createReco
 import { describeRecoverySceneRegistration } from "../../internal/describeRecoverySceneRegistration";
 import { fitRecoveryResectionConsensus } from "../../geometry/internal/fitRecoveryResectionConsensus";
 import { initializeRecoverySceneSeed } from "./initializeRecoverySceneSeed";
-import { linkRecoveryCameraTracks } from "../../internal/linkRecoveryCameraTracks";
+import { linkRecoveryCameraTracks } from "./linkRecoveryCameraTracks";
 import { prepareRecoverySceneFeasibleRouting } from "../../internal/prepareRecoverySceneFeasibleRouting";
 import { prepareRecoverySceneReportCapacity } from "../../internal/prepareRecoverySceneReportCapacity";
 import { spendRecoverySceneWork } from "../../internal/spendRecoverySceneWork";

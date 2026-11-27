@@ -13,7 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { createRecoveryImageDirectionSolver } from "../../observation/internal/createRecoveryImageDirectionSolver";
-import { fitRecoveryImageProfiles } from "../../internal/fitRecoveryImageProfiles";
+import { AutoMovieRecoveryProfileFitting } from "../AutoMovieRecoveryProfileFitting";
 import { isRecoveryPositiveFinite } from "../../internal/isRecoveryPositiveFinite";
 import { isRecoveryPositiveSafeInteger } from "../../internal/isRecoveryPositiveSafeInteger";
 import { isRecoveryUnitInterval } from "../../internal/isRecoveryUnitInterval";
@@ -233,7 +233,7 @@ export function fitAutoMovieRecoveryImageLoft(
         };
       let candidate: ReturnType<IAutoMovieRecoveryImageProfilesFittingOperation.Operation>;
       try {
-        candidate = fitRecoveryImageProfiles(
+        candidate = AutoMovieRecoveryProfileFitting.fitImageProfiles(
           samples,
           spans,
           policy.minimumSplineRatio,
