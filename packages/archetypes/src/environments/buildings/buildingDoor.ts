@@ -1,4 +1,18 @@
 import { AutoMovieEngineFilm, Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieAffordance,
+  IAutoMovieClip,
+  IAutoMovieComputeModelRestExtent,
+  IAutoMovieModel,
+  IAutoMovieModelPart,
+  IAutoMovieQuaternion,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import { AutoMovieArchetypeDoor } from "../../architecture/AutoMovieArchetypeDoor";
+import type { AutoMovieArchetype } from "../../core/AutoMovieArchetype";
+import { AutoMovieArchetypeFrame } from "../../core/AutoMovieArchetypeFrame";
 
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 

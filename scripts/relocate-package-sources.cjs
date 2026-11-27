@@ -60,7 +60,7 @@ function createSourceReferenceMatcher(moves) {
     new RegExp([...references].map((reference) => escapeRegExp(reference) + "(?![A-Za-z0-9_.])").join("|"), "u"),
   ]));
   return (value) => {
-    const normalized = value.replaceAll("\\", "/");
+    const normalized = value.replace(/\\+/gu, "/");
     if (!normalized.includes("src/")) return false;
     let candidates = normalized.includes("packages/")
       ? [...packageRoots].filter((packageRoot) => normalized.includes(packageRoot))
