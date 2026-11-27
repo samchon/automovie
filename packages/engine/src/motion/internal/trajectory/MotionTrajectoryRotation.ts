@@ -3,7 +3,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
+import { Quaternion } from "../../../math/Quaternion";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 
 /** Rotation-vector operations shared by trajectory construction and playback. */

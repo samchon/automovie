@@ -7,7 +7,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
+import { AutoMovieEngineModel } from "../../model/AutoMovieEngineModel";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
 import { measureAutoMovieMeshGap } from "./measureAutoMovieMeshGap";
 import { AutoMovieEngineMeshCrossingQuery } from "../mesh-crossing/AutoMovieEngineMeshCrossingQuery";

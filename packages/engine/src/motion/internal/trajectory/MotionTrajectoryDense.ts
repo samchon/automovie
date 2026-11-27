@@ -4,9 +4,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { polynomialUnitRoots } from "../math/internal/polynomialUnitRoots";
-import { rotationVectorJacobian } from "../math/internal/rotationVectorJacobian";
-import type { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
+import { polynomialUnitRoots } from "../../../math/internal/polynomialUnitRoots";
+import { rotationVectorJacobian } from "../../../math/internal/rotationVectorJacobian";
+import type { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
 import { MotionTrajectoryPolynomial } from "./MotionTrajectoryPolynomial";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";

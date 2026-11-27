@@ -3,12 +3,12 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { rotationVectorJacobian } from "../math/internal/rotationVectorJacobian";
+import { Quaternion } from "../../../math/Quaternion";
+import { rotationVectorJacobian } from "../../../math/internal/rotationVectorJacobian";
 import { MotionTrajectoryInterval } from "./MotionTrajectoryInterval";
 import type { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
-import { AutoMovieEngineMotionSampling } from "./AutoMovieEngineMotionSampling";
+import { AutoMovieEngineMotionSampling } from "../../AutoMovieEngineMotionSampling";
 
 /**
  * Numeric quaternion projections shared by full and orientation-only reads.

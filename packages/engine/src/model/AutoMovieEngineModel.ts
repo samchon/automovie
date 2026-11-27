@@ -5,9 +5,9 @@ import type {
   IAutoMovieModelPartPoints,
 } from "@automovie/interface";
 
-import { autoMovieModelGaits } from "./internal/autoMovieModelGaits";
-import { autoMovieModelPartMatrices } from "./internal/autoMovieModelPartMatrices";
-import { autoMovieModelPartPoints } from "./internal/autoMovieModelPartPoints";
+import { autoMovieModelGaits } from "../internal/autoMovieModelGaits";
+import { autoMovieModelPartMatrices } from "../internal/autoMovieModelPartMatrices";
+import { autoMovieModelPartPoints } from "../internal/autoMovieModelPartPoints";
 
 /** Reads the motion repertoire and rest-frame geometry of an admitted model. */
 export namespace AutoMovieEngineModel {

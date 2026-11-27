@@ -10,8 +10,8 @@ import type {
   IAutoMovieMotionHumanMutual,
 } from "@automovie/interface";
 
-import { HumanMutual } from "./actions/HumanMutual";
-import { HumanChainSport } from "./chain/HumanChainSport";
+import { HumanMutual } from "../actions/HumanMutual";
+import { HumanChainSport } from "./HumanChainSport";
 
 /** The record of `IPairResult`'s site. */
 type IPairResult = {

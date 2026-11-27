@@ -9,7 +9,7 @@ import { Quaternion } from "../math/Quaternion";
 import { AirborneShapeHistory } from "./AirborneShapeHistory";
 import { AirborneTakeoffAngles } from "./AirborneTakeoffAngles";
 import { AirborneTakeoffJacobian } from "./AirborneTakeoffJacobian";
-import { MotionTrajectoryPartition } from "./MotionTrajectoryPartition";
+import { MotionTrajectoryPartition } from "./internal/trajectory/MotionTrajectoryPartition";
 import { IntegrateAirborneRotationImplementation } from "./internal/IntegrateAirborneRotationImplementation";
 
 /**

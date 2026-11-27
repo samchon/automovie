@@ -6,9 +6,9 @@ import type {
 } from "@automovie/interface";
 
 import { Quaternion } from "../../math/Quaternion";
-import { MotionTrajectoryRead } from "../MotionTrajectoryRead";
-import { MotionTrajectoryRotation } from "../MotionTrajectoryRotation";
-import { MotionTrajectoryStepper } from "../MotionTrajectoryStepper";
+import { MotionTrajectoryRead } from "./trajectory/MotionTrajectoryRead";
+import { MotionTrajectoryRotation } from "./trajectory/MotionTrajectoryRotation";
+import { MotionTrajectoryStepper } from "./trajectory/MotionTrajectoryStepper";
 
 const { turn, scaled, dexpinv }: typeof MotionTrajectoryRotation =
   MotionTrajectoryRotation;

@@ -7,7 +7,7 @@ import type {
   IAutoMovieModelPart,
 } from "@automovie/interface";
 
-import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
+import { AutoMovieEngineModel } from "../../model/AutoMovieEngineModel";
 import { AutoMovieEngineMeshCrossingQuery } from "../mesh-crossing/AutoMovieEngineMeshCrossingQuery";
 import { placeAutoMovieModelPartMesh } from "./placeAutoMovieModelPartMesh";
 import { realizeAutoMovieGeometry } from "./realizeAutoMovieGeometry";

@@ -4,7 +4,7 @@ export * from "./anthropometry";
 export * from "./architecture";
 
 
-export * from "./AutoMovieEngineModel";
+export * from "./model";
 export * from "./composition";
 export * from "./constants";
 
@@ -16,7 +16,6 @@ export * from "./geometry";
 export * from "./kinematics";
 export * from "./material";
 export * from "./math";
-export * from "./AutoMovieEngineGeometryObservation";
 export * from "./motion";
 export * from "./perform";
 export * from "./physics";

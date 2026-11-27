@@ -4,14 +4,14 @@ import {
   IAutoMovieGeometryResult,
 } from "@automovie/interface";
 
-import { measureAutoMovieGeometryCamera } from "./internal/measureAutoMovieGeometryCamera";
-import { measureAutoMovieGeometryDistance } from "./internal/measureAutoMovieGeometryDistance";
-import { measureAutoMovieGeometryEffect } from "./internal/measureAutoMovieGeometryEffect";
-import { measureAutoMovieGeometryFilmTime } from "./internal/measureAutoMovieGeometryFilmTime";
-import { measureAutoMovieGeometryFormation } from "./internal/measureAutoMovieGeometryFormation";
-import { measureAutoMovieGeometryGround } from "./internal/measureAutoMovieGeometryGround";
-import { measureAutoMovieGeometryPose } from "./internal/measureAutoMovieGeometryPose";
-import { measureAutoMovieGeometryReach } from "./internal/measureAutoMovieGeometryReach";
+import { measureAutoMovieGeometryCamera } from "../internal/measureAutoMovieGeometryCamera";
+import { measureAutoMovieGeometryDistance } from "../internal/measureAutoMovieGeometryDistance";
+import { measureAutoMovieGeometryEffect } from "../internal/measureAutoMovieGeometryEffect";
+import { measureAutoMovieGeometryFilmTime } from "../internal/measureAutoMovieGeometryFilmTime";
+import { measureAutoMovieGeometryFormation } from "../internal/measureAutoMovieGeometryFormation";
+import { measureAutoMovieGeometryGround } from "../internal/measureAutoMovieGeometryGround";
+import { measureAutoMovieGeometryPose } from "../internal/measureAutoMovieGeometryPose";
+import { measureAutoMovieGeometryReach } from "../internal/measureAutoMovieGeometryReach";
 
 /** Measure current film geometry from caller-established records. */
 export namespace AutoMovieEngineGeometryObservation {

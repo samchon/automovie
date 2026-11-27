@@ -11,7 +11,7 @@ import {
   IAutoMovieShotParticipant,
 } from "@automovie/interface";
 
-import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
+import { AutoMovieEngineModel } from "../../model/AutoMovieEngineModel";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { engineDiagnostic } from "./engineDiagnostic";
 

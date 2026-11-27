@@ -8,7 +8,7 @@ import { Quaternion } from "../../math/Quaternion";
 import type { physicalInertiaFactor } from "../../physics/internal/physicalInertiaFactor";
 import { AirborneMomentumDefect } from "../AirborneMomentumDefect";
 import { AirborneShapeHistory } from "../AirborneShapeHistory";
-import { MotionTrajectoryRotation } from "../MotionTrajectoryRotation";
+import { MotionTrajectoryRotation } from "./trajectory/MotionTrajectoryRotation";
 import { AutoMovieEngineMotionTrajectory } from "../AutoMovieEngineMotionTrajectory";
 
 /**

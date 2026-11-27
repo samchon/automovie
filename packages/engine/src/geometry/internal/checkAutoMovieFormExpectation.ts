@@ -10,7 +10,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieEngineModel } from "../../AutoMovieEngineModel";
+import { AutoMovieEngineModel } from "../../model/AutoMovieEngineModel";
 import { buildAutoMovieConvexHull } from "./buildAutoMovieConvexHull";
 import { createAutoMovieMeshWindingQuery } from "./createAutoMovieMeshWindingQuery";
 import { measureAutoMovieMeshPieces } from "./measureAutoMovieMeshPieces";

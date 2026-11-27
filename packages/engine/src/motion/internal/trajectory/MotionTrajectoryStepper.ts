@@ -4,10 +4,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
+import { Quaternion } from "../../../math/Quaternion";
+import { Vector3 } from "../../../math/Vector3";
 import { MotionTrajectoryDense } from "./MotionTrajectoryDense";
-import { MotionTrajectoryFailure } from "./MotionTrajectoryFailure";
+import { MotionTrajectoryFailure } from "../../MotionTrajectoryFailure";
 import { MotionTrajectoryRead } from "./MotionTrajectoryRead";
 import { MotionTrajectoryRotation } from "./MotionTrajectoryRotation";
 

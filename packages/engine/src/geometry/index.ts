@@ -1,3 +1,4 @@
+export * from "./AutoMovieEngineGeometryObservation";
 export { AutoMovieEnginePlanarArea } from "./AutoMovieEnginePlanarArea";
 export * from "./AutoMovieMotionBound";
 
