@@ -1,4 +1,4 @@
-import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, coupleObjects, AutoMovieEngineSequence } from "@automovie/engine";
+import { HUMANOID_JOINT_AXES, HUMANOID_REST_FRAME, AutoMovieEngineSequence, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachJob,
   IAutoMovieClip,
@@ -102,7 +102,7 @@ export function test_engine_film_motion_coupling_graph(): void {
     motions: { carrier: FILM_MOUNT_WALK },
     skeleton: (): IAutoMovieSkeleton => rig,
   };
-  const chain: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const chain: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     mounts: [mount("top", "middle"), mount("middle", "carrier")],
     attachments: [attach("marker", "top")],
@@ -124,7 +124,7 @@ export function test_engine_film_motion_coupling_graph(): void {
       ["release", 2, 1],
     ],
   );
-  const delayed: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const delayed: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     attachments: [attach("marker", "middle"), attach("middle", "carrier", 1)],
   });
@@ -132,13 +132,13 @@ export function test_engine_film_motion_coupling_graph(): void {
   point(marker(delayed.clips, "marker", 0), [10.75, 1.4, 0]);
   point(marker(delayed.clips, "marker", 2), [3.5, 2.8, 0]);
   const fixed: IAutoMovieStagedSet.IMount = mount("marker", "carrier");
-  const mounted: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const mounted: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     mounts: [fixed],
   });
   assert.deepEqual(mounted.events, []);
   point(marker(mounted.clips, "marker", 2), [2.75, 1.4, 0]);
-  const override: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const override: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     mounts: [fixed],
     attachments: [attach("marker", "middle")],
@@ -146,7 +146,7 @@ export function test_engine_film_motion_coupling_graph(): void {
   assert.deepEqual(override.violations, []);
   assert.equal(override.clips.length, 1);
   point(marker(override.clips, "marker", 2), [10.75, 1.4, 0]);
-  assert.deepEqual(coupleObjects(base).clips, []);
+  assert.deepEqual(AutoMovieEngineFilm.coupleObjects(base).clips, []);
   for (const cyclic of [
     { ...base, mounts: [mount("middle", "top"), mount("top", "middle")] },
     {
@@ -155,12 +155,12 @@ export function test_engine_film_motion_coupling_graph(): void {
     },
   ])
     assert.ok(
-      coupleObjects(cyclic).violations.some(
+      AutoMovieEngineFilm.coupleObjects(cyclic).violations.some(
         (v: IAutoMovieConstraintViolation): boolean =>
           v.expected.includes("cycle"),
       ),
     );
-  const broken: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const broken: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     mounts: [fixed],
     skeleton: (): null => null,
@@ -171,7 +171,7 @@ export function test_engine_film_motion_coupling_graph(): void {
     ),
   );
   assert.ok(
-    coupleObjects({
+    AutoMovieEngineFilm.coupleObjects({
       ...base,
       mounts: [
         { node: "marker", binding: { parent: "carrier", bone: "rightHand" } },
@@ -191,7 +191,7 @@ export function test_engine_film_motion_coupling_graph(): void {
     { mounts: [fixed], attachments: [] },
     { mounts: [], attachments: [attach("marker", "carrier")] },
   ]) {
-    const clinical: IAutoMovieCoupleObjects.IResult = coupleObjects({
+    const clinical: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
       ...base,
       ...binding,
       motions: { carrier: raised },

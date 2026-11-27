@@ -3,17 +3,17 @@ import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
-import { hashAutoMovieFile } from "./file/internal/hashAutoMovieFile";
-import { createAutoMovieProductionCheckInputScope } from "./production/internal/createAutoMovieProductionCheckInputScope";
-import { createAutoMovieProductionCheckMediaHash } from "./production/internal/createAutoMovieProductionCheckMediaHash";
-import { inspectAutoMovieProductionCheckCapture } from "./production/internal/inspectAutoMovieProductionCheckCapture";
-import { inspectAutoMovieProductionCheckDelivery } from "./production/internal/inspectAutoMovieProductionCheckDelivery";
-import { inspectAutoMovieProductionCheckReview } from "./production/internal/inspectAutoMovieProductionCheckReview";
-import { writeAutoMovieProductionCheckReceipt } from "./production/internal/writeAutoMovieProductionCheckReceipt";
-import type { readAutoMovieCheckOptions } from "./readAutoMovieCheckOptions";
-import { readAutoMovieErrorCode } from "./readAutoMovieErrorCode";
-import { readAutoMovieRevision } from "./production/internal/readAutoMovieRevision";
+import { AutoMovieCliCapture } from "../../capture/AutoMovieCliCapture";
+import { hashAutoMovieFile } from "../../file/internal/hashAutoMovieFile";
+import { createAutoMovieProductionCheckInputScope } from "./createAutoMovieProductionCheckInputScope";
+import { createAutoMovieProductionCheckMediaHash } from "./createAutoMovieProductionCheckMediaHash";
+import { inspectAutoMovieProductionCheckCapture } from "./inspectAutoMovieProductionCheckCapture";
+import { inspectAutoMovieProductionCheckDelivery } from "./inspectAutoMovieProductionCheckDelivery";
+import { inspectAutoMovieProductionCheckReview } from "./inspectAutoMovieProductionCheckReview";
+import { writeAutoMovieProductionCheckReceipt } from "./writeAutoMovieProductionCheckReceipt";
+import type { readAutoMovieCheckOptions } from "../../readAutoMovieCheckOptions";
+import { readAutoMovieErrorCode } from "../../readAutoMovieErrorCode";
+import { readAutoMovieRevision } from "./readAutoMovieRevision";
 
 /**
  * Evaluate selected targets in declaration order. A status read uses available

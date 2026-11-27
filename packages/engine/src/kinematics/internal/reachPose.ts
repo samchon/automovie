@@ -20,7 +20,7 @@ import { armChainFault } from "./armChainFault";
 import { clinicalDeviation } from "./clinicalDeviation";
 import { HUMANOID_JOINT_AXES } from "../constants/HUMANOID_JOINT_AXES";
 import { decomposeJointRotation } from "./decomposeJointRotation";
-import { hingedArmArticulation } from "../hingedArmArticulation";
+import { hingedArmArticulation } from "./hingedArmArticulation";
 import { jointRomOvershoot } from "../jointRomOvershoot";
 import { resolvePose } from "../resolvePose";
 import { skeletonJointAxes } from "./skeletonJointAxes";

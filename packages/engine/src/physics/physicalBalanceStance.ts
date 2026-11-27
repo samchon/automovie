@@ -9,7 +9,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { AutoMoviePhysicalBalance as Balance } from "./AutoMoviePhysicalBalance";
-import type { physicalBalanceSense } from "./physicalBalanceSense";
+import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoveryLifted } from "./internal/physicalRecoveryLifted";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 import { physicalStanceBalance } from "./physicalStanceBalance";

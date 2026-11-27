@@ -17,7 +17,7 @@ import type {
 
 import { RecoveryScalarIndex as S } from "../../internal/RecoveryScalarIndex";
 import { RecoverySlabGraph as G } from "../../internal/RecoverySlabGraph";
-import { createRecoveryObservationPolicy } from "../../internal/createRecoveryObservationPolicy";
+import { createRecoveryObservationPolicy } from "../../observation/internal/createRecoveryObservationPolicy";
 import { critical } from "./critical";
 import { cutExact } from "../../internal/mesh-observations/cutExact";
 import { planeFrame } from "./planeFrame";

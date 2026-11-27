@@ -9,14 +9,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import { physicalStanceBalance } from "./physicalStanceBalance";
-import type { physicalStanceSeat } from "./physicalStanceSeat";
-import { physicalSupportFootprint } from "./internal/physicalSupportFootprint";
-import { physicalSupportPoint } from "./internal/physicalSupportPoint";
-import { physicalSwingReference } from "./physicalSwingReference";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import { physicalStanceBalance } from "../physicalStanceBalance";
+import type { physicalStanceSeat } from "../physicalStanceSeat";
+import { physicalSupportFootprint } from "./physicalSupportFootprint";
+import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSwingReference } from "../physicalSwingReference";
 
 /**
  * What the balance controller reads of one body this substep, shared by its

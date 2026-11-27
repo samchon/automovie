@@ -1,13 +1,10 @@
+import { GhoshConicApproximationBalance as GhoshConicApproximationBalanceImplementation } from "./internal/GhoshConicApproximationBalance";
+import { GhoshConicApproximationDisplacement as GhoshConicApproximationDisplacementImplementation } from "./internal/GhoshConicApproximationDisplacement";
+
 import { approximateAutoMovieRecoveryConicsAhn as approximateAutoMovieRecoveryConicsAhnImplementation } from "./internal/approximateAutoMovieRecoveryConicsAhn";
 import { approximateAutoMovieRecoveryConicsGhosh as approximateAutoMovieRecoveryConicsGhoshImplementation } from "./internal/approximateAutoMovieRecoveryConicsGhosh";
 
-import type {
-  AutoMovieVector2Tuple,
-  IAutoMovieConicApproximation,
-  IAutoMovieCubicCriticalParameters,
-  IAutoMoviePlanarCurveSource,
-  IAutoMovieRegisteredConicArc,
-} from "@automovie/interface";
+import { type AutoMovieVector2Tuple, type IAutoMovieConicApproximation, type IAutoMovieCubicCriticalParameters, type IAutoMoviePlanarCurveSource, type IAutoMovieRegisteredConicArc, type IAutoMovieGhoshConicApproximationBalance, type IAutoMovieGhoshConicApproximationDisplacement } from "@automovie/interface";
 
 import { findAutoMovieRecoveryCubicCriticalParameters } from "./findAutoMovieRecoveryCubicCriticalParameters";
 
@@ -160,5 +157,37 @@ export namespace AutoMovieRecoveryConicApproximation {
    */
   export function approximateGhosh(curve: IAutoMoviePlanarCurveSource, options: IAutoMovieConicApproximation.IOptions): IAutoMovieConicApproximation.IResult {
     return approximateAutoMovieRecoveryConicsGhoshImplementation(curve, options);
+  }
+
+  /**
+   * Balance a bitangent conic's signed normal extrema with numerical exchange.
+   * Initial source nodes bracket witnessed displacement peaks. Golden-section
+   * refinement locates each such peak between nodes, then its source coordinate
+   * joins the coefficient bisection and the two signed lobes are rebalanced. This
+   * implements the extrema/equioscillation criterion of Ghosh et al. (2007),
+   * sections 3.2–3.3 and 6, without treating a fixed grid maximum as a supremum.
+   *
+   * The returned tuple is [rho, refined maximum displacement in millimetres].
+   * Finite peak brackets still do not certify that an arbitrary callback has no
+   * unwitnessed extrema; exhausted exchange or an invalid normal returns absent.
+   * Source endpoints have displacement zero by exact endpoint interpolation.
+   */
+  export function balanceGhoshApproximation(sample: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[0], domain: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[1], bounds: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[2], maximumExchanges: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[3], roundoffMm: Parameters<IAutoMovieGhoshConicApproximationBalance.Operation>[4]): ReturnType<IAutoMovieGhoshConicApproximationBalance.Operation> {
+    return GhoshConicApproximationBalanceImplementation(sample, domain, bounds, maximumExchanges, roundoffMm);
+  }
+
+  /**
+   * Intersect a Euclidean unit normal with a compactified bitangent conic family.
+   * The barycentric point and normal use the endpoint tangent triangle; normal
+   * coordinates have inverse-millimetre units. For rho=w/(1+w), the implicit
+   * conic is (1-rho)^2_l1^2-4_rho^2_l0_l2=0. At rho=1 this is the union of the
+   * triangle's two tangent edges, used only as a boundary search limit.
+   *
+   * A finite normal displacement is returned only for a unique intersection in
+   * the positive tangent triangle. Two distinct valid roots remain unsupported; a
+   * double algebraic root is one geometric intersection. No shape is emitted.
+   */
+  export function displaceGhoshApproximation(coordinate: Parameters<IAutoMovieGhoshConicApproximationDisplacement.Operation>[0], rho: Parameters<IAutoMovieGhoshConicApproximationDisplacement.Operation>[1]): ReturnType<IAutoMovieGhoshConicApproximationDisplacement.Operation> {
+    return GhoshConicApproximationDisplacementImplementation(coordinate, rho);
   }
 }

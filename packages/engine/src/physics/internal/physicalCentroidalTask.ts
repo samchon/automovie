@@ -4,11 +4,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
-import { AutoMoviePhysicalTracking as Tracking } from "./AutoMoviePhysicalTracking";
-import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
-import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
-import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { Vector3 } from "../../math/Vector3";
+import { AutoMoviePhysicalTracking as Tracking } from "../AutoMoviePhysicalTracking";
+import type { AutoMovieXpbdBody } from "../AutoMovieXpbdBody";
+import type { AutoMovieXpbdWorld } from "../AutoMovieXpbdWorld";
+import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * The whole-body momentum task of a root under internal actuation: the ground

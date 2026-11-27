@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
-import type { physicalBalanceSense } from "./physicalBalanceSense";
+import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoverySwing } from "./internal/physicalRecoverySwing";
 import { physicalStanceSwing } from "./physicalStanceSwing";
 import { samplePhysicalRecoveryGoal } from "./internal/samplePhysicalRecoveryGoal";

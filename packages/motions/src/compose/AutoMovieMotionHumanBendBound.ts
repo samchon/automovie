@@ -1,8 +1,4 @@
-import {
-  decomposeJointRotationOnBasis,
-  type hingedArmArticulation,
-  swivelJointReadings,
-} from "@automovie/engine";
+import { decomposeJointRotationOnBasis, swivelJointReadings, type AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieAxisFrame,
   IAutoMovieJointAxes,
@@ -111,7 +107,7 @@ export namespace AutoMovieMotionHumanBendBound {
    */
   export function prepare(
     props: IProps,
-  ): NonNullable<hingedArmArticulation.IProps["bound"]> {
+  ): NonNullable<AutoMovieEngineKinematics.hingedArmArticulation.IProps["bound"]> {
     const halves: AutoMovieMotionHumanBendStrain.IHalves =
       AutoMovieMotionHumanBendStrain.halvesOf(props.range);
     const unmade: ReturnType<
@@ -122,7 +118,7 @@ export namespace AutoMovieMotionHumanBendBound {
         : AutoMovieMotionHumanBendUnmadeBound.prepare(props.hand);
     return (
       upper: (swivel: number) => IAutoMovieQuaternion,
-      posed: Parameters<NonNullable<hingedArmArticulation.IProps["bound"]>>[1],
+      posed: Parameters<NonNullable<AutoMovieEngineKinematics.hingedArmArticulation.IProps["bound"]>>[1],
     ): ((low: number, high: number) => number) => {
       const shoulder: (low: number, high: number) => number = shoulderOf(
         props,

@@ -7,7 +7,7 @@ import type {
   IAutoMovieProductionCheck,
 } from "@automovie/interface";
 import { AutoMovieCaptureFolder, AutoMovieRenderPicture, AutoMovieRenderCapture } from "@automovie/render";
-import { runAutoMovieProductionCheck } from "automovie";
+import { AutoMovieCliProduction } from "automovie";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
@@ -76,7 +76,7 @@ export async function test_cli_production_check_records(): Promise<void> {
       check: IAutoMovieProductionCheck.Check,
       run: boolean = false,
     ): Promise<IAutoMovieProductionCheck.IReport> =>
-      runAutoMovieProductionCheck({
+      AutoMovieCliProduction.runCheck({
         root: project,
         env: {},
         targets: [

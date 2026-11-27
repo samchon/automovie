@@ -8,7 +8,7 @@ import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import type { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /** A planted foot. */
 type Foot = preparePhysicalDisturbanceSpan.IFoot;

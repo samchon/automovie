@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { fitRecoveryHomography } from "./fitRecoveryHomography";
-import { isRecoveryCameraNumericalRefusal } from "../../internal/isRecoveryCameraNumericalRefusal";
+import { isRecoveryCameraNumericalRefusal } from "../../observation/internal/isRecoveryCameraNumericalRefusal";
 import { measureRecoveryHomographyErrors } from "./measureRecoveryHomographyErrors";
 import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";
 import { sampleRecoveryCameraIndices } from "./sampleRecoveryCameraIndices";

@@ -1,3 +1,6 @@
+import { compileAttach as compileAttachImplementation } from "./internal/compileAttach";
+import { coupleObjects as coupleObjectsImplementation } from "./internal/coupleObjects";
+
 import { compileCameraClearanceReports as compileCameraClearanceReportsImplementation } from "./internal/compileCameraClearanceReports";
 import { evaluateCameraClearance as evaluateCameraClearanceImplementation } from "./internal/evaluateCameraClearance";
 import { stageScene as stageSceneImplementation } from "./internal/stageScene";
@@ -5,7 +8,7 @@ import { stageScene as stageSceneImplementation } from "./internal/stageScene";
 import { autoMovieSectionPlaneDistance as autoMovieSectionPlaneDistanceImplementation } from "./internal/autoMovieSectionPlaneDistance";
 import { autoMovieSectionPlanesKeepPoint as autoMovieSectionPlanesKeepPointImplementation } from "./internal/autoMovieSectionPlanesKeepPoint";
 
-import { type IAutoMovieMotionTake, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieMotion, type IAutoMovieClip, type IAutoMovieTransform, type IAutoMovieSampledChannel, type IAutoMovieScriptNode, type IAutoMovieBlockedBeat, type IAutoMovieScript, type IAutoMovieStagedSet, type IAutoMovieBlocking, type IAutoMovieBeatEndState, type IAutoMovieModel, type IAutoMovieCameraClearanceDeformationRadius, type IAutoMovieShot, type IAutoMovieCameraClearanceSampleTimes, type IAutoMovieProductionFrameRate, type IAutoMovieClassifyPlaybackBoundary, type AutoMovieSectionPlaneState, type IAutoMovieClassifySectionPlaneBox, type IAutoMovieCameraIntent, type IAutoMovieShotCoverage, type IAutoMovieCompileCameraCoverage, type IAutoMovieCompileCameraMove, type IAutoMovieLaunchResult, type IAutoMovieCompileLaunch, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieCompilePerformShotCameras, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieActionSynthesizer, type IAutoMovieCompilePracticalLightMotion, type IAutoMovieComputeModelRestExtent, type IAutoMovieComputeModelRestExtentY, type IAutoMovieSkeleton, type IAutoMoviePropBox, type IAutoMoviePassageBlockage, type IAutoMovieBuiltEnvironment, type IAutoMovieShotContractSubjectReader, type IAutoMovieRealizeShotContractProps, type IAutoMovieCut, type IAutoMovieEditPlan, type IAutoMovieDefinedShot, type IAutoMovieShotDefinition, type IAutoMovieDeliveryCropNdc, type IAutoMovieDeliveryCrop, type IAutoMovieCameraDepthPrecisionReport, type IAutoMovieEvaluateCameraDepthPrecision, type IAutoMovieStorySyncOutcome, type IAutoMovieEvaluateStorySync, type IAutoMovieCompiledPredicateResult, type IAutoMovieShotPredicate, type IAutoMovieForgedCast, type IAutoMovieForgePlan, type IAutoMovieForgedProp, type IAutoMoviePropSpec, type IAutoMovieFormationMemberExtent, type IAutoMovieCompiledFormation, type IAutoMovieSubjectBox, type IAutoMovieFormationSubjectBox, type IAutoMovieFramedBox, type IAutoMovieConstraintViolation, type IAutoMovieObjectMotionGate, type IAutoMovieActionCall, type IAutoMoviePerformShotFrameJob, type IAutoMovieGatePerformShotCamera, type IAutoMovieReviewNote, type IAutoMovieGrammarDiagnosticsToReviewNotes, type IAutoMovieInteractionEvent, type IAutoMovieLight, type IAutoMovieInheritProductionLighting, type IAutoMovieGrammarDiagnostic, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, type IAutoMovieInspectGrammarCut, type IAutoMovieIntersectsPerspectiveFrustumBox, type IAutoMovieIntersectsPerspectiveFrustumSegment, type IAutoMovieIntersectsPerspectiveFrustumSphere, type IAutoMovieLocalSegmentMeetsPerspectiveFrustum, type IAutoMovieGrammarShotObservation, type IAutoMoviePerformedShot, type IAutoMoviePerformShotProps, type IAutoMoviePlantPerformShotStanceFeet, type IAutoMovieViolationAppendSink, type IAutoMovieBeatEndFootPlant, type IAutoMoviePlaybackSample, type IAutoMovieSequence, type IAutoMoviePlaybackTimeline, type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackLayer, type IAutoMoviePointSubjectBox, type IAutoMoviePreparePlaybackTimeline, type IAutoMovieProductionFrameBoundaryToGridTick, type IAutoMovieProductionFrameBoundaryToSeconds, type IAutoMovieProductionFrameIntervalToGridTicks, type IAutoMovieProductionRenderLayersForPass, type AutoMovieGuidePass, type IAutoMovieProjectToNdc, type IAutoMovieResolvedCamera, type IAutoMoviePropAnchorFrame, type IAutoMoviePropBlockedPassages, type IAutoMoviePropClearanceBounds, type IAutoMoviePropOccupancyBounds, type IAutoMoviePropSpaceContainsBounds, type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, type IAutoMovieGrammarReading, type IAutoMovieGrammarInput, type IAutoMovieRealizeShotContract, type IAutoMovieFilmOptics, type IAutoMovieResolveLensAt, type IAutoMovieResolveBeatProps, type IAutoMovieResolveCameraAt, type IAutoMovieMotionTakeAnchor, type IAutoMoviePoseKeypoint, type IAutoMovieResolvePoseKeypoints, type IAutoMovieResolveProductionFrameRate, type IAutoMovieResolveProductionLighting, type IAutoMovieReviewVisualRead, type IAutoMovieSceneNode, type IAutoMoviePracticalSurfaceTrack, type IAutoMovieProductionRenderFrame, type IAutoMovieFilmTimeline, type IAutoMovieSurfaceGraphicTrack, type IAutoMoviePlaybackEvent, type AutoMovieHumanoidBone, type IAutoMovieValidatePerformShotFraming, type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, type IAutoMovieValidatePropPlacementGeometry, type IAutoMovieValidation, type IAutoMovieValidatePropPlacements, type IAutoMovieAuthoringDiagnostic, type IAutoMovieShotPhysicsAdvice, type IAutoMovieShotProgram, type IAutoMovieShotStoryTime, type IAutoMovieStoryInterval, type IAutoMovieSectionPlane, type IAutoMovieCameraClearanceReport, type IAutoMovieCompileCameraClearanceReports, type IAutoMovieCameraClearanceEvaluation, type IAutoMovieStage } from "@automovie/interface";
+import { type IAutoMovieMotionTake, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieMotion, type IAutoMovieClip, type IAutoMovieTransform, type IAutoMovieSampledChannel, type IAutoMovieScriptNode, type IAutoMovieBlockedBeat, type IAutoMovieScript, type IAutoMovieStagedSet, type IAutoMovieBlocking, type IAutoMovieBeatEndState, type IAutoMovieModel, type IAutoMovieCameraClearanceDeformationRadius, type IAutoMovieShot, type IAutoMovieCameraClearanceSampleTimes, type IAutoMovieProductionFrameRate, type IAutoMovieClassifyPlaybackBoundary, type AutoMovieSectionPlaneState, type IAutoMovieClassifySectionPlaneBox, type IAutoMovieCameraIntent, type IAutoMovieShotCoverage, type IAutoMovieCompileCameraCoverage, type IAutoMovieCompileCameraMove, type IAutoMovieLaunchResult, type IAutoMovieCompileLaunch, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieCompilePerformShotCameras, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieActionSynthesizer, type IAutoMovieCompilePracticalLightMotion, type IAutoMovieComputeModelRestExtent, type IAutoMovieComputeModelRestExtentY, type IAutoMovieSkeleton, type IAutoMoviePropBox, type IAutoMoviePassageBlockage, type IAutoMovieBuiltEnvironment, type IAutoMovieShotContractSubjectReader, type IAutoMovieRealizeShotContractProps, type IAutoMovieCut, type IAutoMovieEditPlan, type IAutoMovieDefinedShot, type IAutoMovieShotDefinition, type IAutoMovieDeliveryCropNdc, type IAutoMovieDeliveryCrop, type IAutoMovieCameraDepthPrecisionReport, type IAutoMovieEvaluateCameraDepthPrecision, type IAutoMovieStorySyncOutcome, type IAutoMovieEvaluateStorySync, type IAutoMovieCompiledPredicateResult, type IAutoMovieShotPredicate, type IAutoMovieForgedCast, type IAutoMovieForgePlan, type IAutoMovieForgedProp, type IAutoMoviePropSpec, type IAutoMovieFormationMemberExtent, type IAutoMovieCompiledFormation, type IAutoMovieSubjectBox, type IAutoMovieFormationSubjectBox, type IAutoMovieFramedBox, type IAutoMovieConstraintViolation, type IAutoMovieObjectMotionGate, type IAutoMovieActionCall, type IAutoMoviePerformShotFrameJob, type IAutoMovieGatePerformShotCamera, type IAutoMovieReviewNote, type IAutoMovieGrammarDiagnosticsToReviewNotes, type IAutoMovieInteractionEvent, type IAutoMovieLight, type IAutoMovieInheritProductionLighting, type IAutoMovieGrammarDiagnostic, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, type IAutoMovieInspectGrammarCut, type IAutoMovieIntersectsPerspectiveFrustumBox, type IAutoMovieIntersectsPerspectiveFrustumSegment, type IAutoMovieIntersectsPerspectiveFrustumSphere, type IAutoMovieLocalSegmentMeetsPerspectiveFrustum, type IAutoMovieGrammarShotObservation, type IAutoMoviePerformedShot, type IAutoMoviePerformShotProps, type IAutoMoviePlantPerformShotStanceFeet, type IAutoMovieViolationAppendSink, type IAutoMovieBeatEndFootPlant, type IAutoMoviePlaybackSample, type IAutoMovieSequence, type IAutoMoviePlaybackTimeline, type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackLayer, type IAutoMoviePointSubjectBox, type IAutoMoviePreparePlaybackTimeline, type IAutoMovieProductionFrameBoundaryToGridTick, type IAutoMovieProductionFrameBoundaryToSeconds, type IAutoMovieProductionFrameIntervalToGridTicks, type IAutoMovieProductionRenderLayersForPass, type AutoMovieGuidePass, type IAutoMovieProjectToNdc, type IAutoMovieResolvedCamera, type IAutoMoviePropAnchorFrame, type IAutoMoviePropBlockedPassages, type IAutoMoviePropClearanceBounds, type IAutoMoviePropOccupancyBounds, type IAutoMoviePropSpaceContainsBounds, type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, type IAutoMovieGrammarReading, type IAutoMovieGrammarInput, type IAutoMovieRealizeShotContract, type IAutoMovieFilmOptics, type IAutoMovieResolveLensAt, type IAutoMovieResolveBeatProps, type IAutoMovieResolveCameraAt, type IAutoMovieMotionTakeAnchor, type IAutoMoviePoseKeypoint, type IAutoMovieResolvePoseKeypoints, type IAutoMovieResolveProductionFrameRate, type IAutoMovieResolveProductionLighting, type IAutoMovieReviewVisualRead, type IAutoMovieSceneNode, type IAutoMoviePracticalSurfaceTrack, type IAutoMovieProductionRenderFrame, type IAutoMovieFilmTimeline, type IAutoMovieSurfaceGraphicTrack, type IAutoMoviePlaybackEvent, type AutoMovieHumanoidBone, type IAutoMovieValidatePerformShotFraming, type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, type IAutoMovieValidatePropPlacementGeometry, type IAutoMovieValidation, type IAutoMovieValidatePropPlacements, type IAutoMovieAuthoringDiagnostic, type IAutoMovieShotPhysicsAdvice, type IAutoMovieShotProgram, type IAutoMovieShotStoryTime, type IAutoMovieStoryInterval, type IAutoMovieSectionPlane, type IAutoMovieCameraClearanceReport, type IAutoMovieCompileCameraClearanceReports, type IAutoMovieCameraClearanceEvaluation, type IAutoMovieStage, type IAutoMovieCoupleObjects } from "@automovie/interface";
 import { admitMotionTake as admitMotionTakeImplementation } from "./internal/admitMotionTake";
 import { animatedBaseAt as animatedBaseAtImplementation } from "./internal/animatedBaseAt";
 import { assertGrammarPositive as assertGrammarPositiveImplementation } from "./internal/assertGrammarPositive";
@@ -3296,5 +3299,88 @@ export namespace AutoMovieEngineFilm {
    */
   export function stageScene(script: IAutoMovieScript, staging: IAutoMovieStage): IAutoMovieStagedSet {
     return stageSceneImplementation(script, staging);
+  }
+
+  /**
+   * Bake the `attachTo` verb into the child object's follow clip, the per-frame
+   * realisation of a rigid coupling to a parent's bone (a sword in a hand, a prop
+   * on a saddle). The child is not a rig, so, like a projectile, it moves by a
+   * node clip of translation and rotation tracks, not a pose motion.
+   *
+   * Each sample resolves the parent's posed skeleton at that instant through
+   * {@link resolveAttachment}, which runs the parent's FK, to compose the child's
+   * bone-local offset into the parent's model space, then composes that onto the
+   * parent's world frame: its staged placement, or, when the parent itself rides
+   * a coupling this shot, its ridden frame from `parentTransformAt` (#1140):
+   *
+   * - `translation = parentPos + parentRot · childLocal.translation`
+   * - `rotation = parentRot ∘ childLocal.rotation`
+   *
+   * The parent's scale is not applied, which matches the renderer for the
+   * unit-scale actors staging places. Pass the same `jointAxes` the renderer
+   * poses the parent with (`HUMANOID_JOINT_AXES`), plus the same `restFrames`
+   * when parent clips are authored in clinical space, or the child follows a bone
+   * where the renderer does not draw it. A parent with no motion holds its rest
+   * pose.
+   *
+   * The clip is shot-local: N = max(1, round(duration × fps)) equal intervals
+   * give N + 1 keys including both ends of [start, start + duration], with
+   * duration set to `shotDuration`, the same convention as `cameraMotion`. Read
+   * alone through `sampleClip` it clamps to the child's first frame before
+   * `start`; playback reads it through `sampleClipSequence`, where it writes
+   * nothing before `start` and holds its last frame after the coupling ends. The
+   * clip id is `attach:<child>`; a caller baking several couplings of one child
+   * suffixes repeats. Throws a `RangeError` for nonfinite/nonpositive duration or
+   * fps, or an unsafe rounded interval count that cannot support an advancing
+   * indexed loop. This representability gate is not a workload cap; callers still
+   * own feasible memory use and representable distinct key times.
+   */
+  export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
+    return compileAttachImplementation(props);
+  }
+
+  /** Companion types of {@link compileAttach}. */
+  export namespace compileAttach {
+    /** The attachment props with an optional prepared parent rig. */
+    export type IProps = compileAttachImplementation.IProps;
+  }
+
+  /**
+   * Bake the object couplings a shot carries, the per-beat `attachTo` handoffs
+   * and the persistent staged `mounts` (#674), into follow clips once the
+   * parents' poses have compiled.
+   *
+   * `attachTo`, already validated by `performShot`'s action scan, rides the child
+   * on the parent's bone in scene space and emits the grab, attach, detach and
+   * release {@link handoffEvents}. Each staged mount descends through the same
+   * baker, {@link compileAttach}, spanning the whole shot, so a rider rides every
+   * beat without re-issuing `attachTo`; an explicit `attachTo` for the same child
+   * this shot replaces its mount, and a mount emits no handoff events because it
+   * is standing scene state. A mount's parent rig and bone are validated here,
+   * since staging placed the parent without skeletons, and returned as
+   * violations.
+   *
+   * Couplings chain (#1140): a parent that is itself a coupled child this shot,
+   * such as a rider mounted on an animal and carrying a pole, is baked first, and
+   * its riders compose onto its baked frame per sample through any depth. That
+   * frame is read from all of the parent's baked clips through
+   * {@link bakedTransformFromClipsAt}, the channel authority playback uses, so
+   * before the parent's first coupling starts its riders follow its staged
+   * placement and across a handoff they follow whichever coupling is in effect. A
+   * coupling cycle has no world composition, so its members are reported in one
+   * violation and never baked.
+   *
+   * Returns the baked clips in bake order, parents before riders, with a child's
+   * attach clips in start order and repeats suffixed `attach:<child>:2`, ...; the
+   * handoff events; and the violations.
+   */
+  export function coupleObjects(props: coupleObjects.IProps): IAutoMovieCoupleObjects.IResult {
+    return coupleObjectsImplementation(props);
+  }
+
+  /** Companion types of {@link coupleObjects}. */
+  export namespace coupleObjects {
+    /** The coupling props with an optional parent-rig preparer. */
+    export type IProps = coupleObjectsImplementation.IProps;
   }
 }

@@ -25,7 +25,7 @@ import { distalEndSwivelMiss } from "../kinematics/internal/distalEndSwivelMiss"
 import { distalEndSwivelNearest } from "../kinematics/internal/distalEndSwivelNearest";
 import { distalEndSwivelReadings } from "../kinematics/distalEndSwivelReadings";
 import type { distalTwistSwivelRange } from "../kinematics/distalTwistSwivelRange";
-import { hingedArmArticulation } from "../kinematics/hingedArmArticulation";
+import { hingedArmArticulation } from "../kinematics/internal/hingedArmArticulation";
 import { hingedArmSwivel } from "../kinematics/hingedArmSwivel";
 import { hingedSwivelAhead } from "../kinematics/hingedSwivelAhead";
 import { hingedSwivelFeasible } from "../kinematics/internal/hingedSwivelFeasible";

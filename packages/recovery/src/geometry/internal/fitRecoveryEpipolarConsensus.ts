@@ -8,7 +8,7 @@ import type {
 
 import { calibrateRecoveryEpipolarMatrix } from "./calibrateRecoveryEpipolarMatrix";
 import { fitRecoveryEpipolarMatrix } from "./fitRecoveryEpipolarMatrix";
-import { isRecoveryCameraNumericalRefusal } from "../../internal/isRecoveryCameraNumericalRefusal";
+import { isRecoveryCameraNumericalRefusal } from "../../observation/internal/isRecoveryCameraNumericalRefusal";
 import { measureRecoveryEpipolarErrors } from "./measureRecoveryEpipolarErrors";
 import { refineRecoveryEpipolarModel } from "./refineRecoveryEpipolarModel";
 import { requiredRecoveryCameraTrials } from "./requiredRecoveryCameraTrials";

@@ -1,3 +1,9 @@
+import { physicalBalanceSense as physicalBalanceSenseImplementation } from "./internal/physicalBalanceSense";
+import { type AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { physicalCentroidalTask as physicalCentroidalTaskImplementation } from "./internal/physicalCentroidalTask";
+import { physicalIcpControllerQp as physicalIcpControllerQpImplementation } from "./internal/physicalIcpControllerQp";
+import { preparePhysicalDisturbanceSpan as preparePhysicalDisturbanceSpanImplementation } from "./internal/preparePhysicalDisturbanceSpan";
+
 import { physicalBalanceExhaustion as physicalBalanceExhaustionImplementation } from "./internal/physicalBalanceExhaustion";
 import { physicalBalanceBracing as physicalBalanceBracingImplementation } from "./internal/physicalBalanceBracing";
 import { physicalBalanceReference as physicalBalanceReferenceImplementation } from "./internal/physicalBalanceReference";
@@ -506,5 +512,193 @@ export namespace AutoMoviePhysicalBalance {
    */
   export function planTargets(input: IAutoMoviePlanPhysicalBalanceTargets.IInput): IAutoMoviePlanPhysicalSupportTargets.IResult {
     return planPhysicalBalanceTargetsImplementation(input);
+  }
+
+  /**
+   * What the balance controller reads of one body this substep, shared by its
+   * phases (`advancePhysicalBalance`): the segments' actual state, the supports'
+   * measured loads, the authored placements and the policy's limbs. Every reading
+   * is a function of the input alone; nothing here writes a body or the
+   * recovery's state, and a reading that depends on the state takes the part of
+   * it that it reads as an argument.
+   *
+   * @param input The body's profile, segments, policy, authored placements and
+   *   endpoint velocities, the endpoints authored motion owns, the present local
+   *   seconds, the substep, gravity's magnitude, the floor's height and the
+   *   supports.
+   * @returns The readings: the mass centre's position and velocity and the root
+   *   segment found now, the rest computed when asked for.
+   */
+  export function sense(input: sense.IInput): sense.ISense {
+    return physicalBalanceSenseImplementation(input);
+  }
+
+  /** The readings {@link physicalBalanceSense} gives the balance phases. */
+  export namespace sense {
+    /** One supporting limb of the policy's pattern. */
+    export type ILimb = physicalBalanceSenseImplementation.ILimb;
+
+    /** What the readings are taken from. */
+    export type IInput = physicalBalanceSenseImplementation.IInput;
+
+    /** The readings, world metres, seconds and newtons. */
+    export type ISense = physicalBalanceSenseImplementation.ISense;
+  }
+
+  /**
+   * The whole-body momentum task of a root under internal actuation: the ground
+   * reaction the supports should give, about the mass center.
+   *
+   * The ground reaction changes the whole body's momentum, so the task that asks
+   * it is a momentum task (Herzog, Rotella, Mason, Grimminger, Schaal and
+   * Righetti 2016; Orin, Goswami and Lee 2013, "Centroidal dynamics of a humanoid
+   * robot"): its force tracks the mass center, `F = K (c_ref - c) - D (c' -
+   * c'_ref) - m g`, and its moment about the mass center, where gravity has none,
+   * is the trunk's orientation demand. The reference is the mass center the
+   * target pose puts there once its root stands at the root's goal, so the root's
+   * own shifts (recovery, lowering) move it with the root. A root error read on
+   * the root body alone would leave the mass center free whenever the limbs carry
+   * it while the root holds still.
+   *
+   * @param input The body's segments, goals, gains and demands.
+   * @returns The task: the mass center, the force and the moment.
+   */
+  export function centroidalTask(input: centroidalTask.IInput): AutoMovieXpbdWorld.IRootTask {
+    return physicalCentroidalTaskImplementation(input);
+  }
+
+  /** The input of physicalCentroidalTask. */
+  export namespace centroidalTask {
+    /** The body, its goals and the root's gains and demands. */
+    export type IInput = physicalCentroidalTaskImplementation.IInput;
+  }
+
+  /**
+   * One solve of IHMC's capture-point feedback program over x = (dCoP, dCMP): the
+   * centre of pressure's offset from its feed-forward and the pivot's offset from
+   * the centre of pressure, with the angular momentum on, as Zulu's
+   * `useAngularMomentum` sets it.
+   *
+   * Every term is in the reference's 1/2 x^T H x - h^T x form
+   * (`ICPControllerQPSolver` l.45-53, l.861): a task (x - o)^T W (x - o) adds W
+   * to H and W o to h. The program is strictly convex, the CoP and CMP feedback
+   * weights being positive definite, so its minimizer is unique and the
+   * reference's warm-started active set (l.865-866) changes only the iterations;
+   * `solveDenseActiveSet` solves it cold.
+   *
+   * A program the solver cannot solve gives null, as `solve()` returns false then
+   * (l.871-882).
+   *
+   * @param input The program's terms. Points and matrices are in the caller's
+   *   horizontal frame, metres; weights are the reference's, the rate weights
+   *   already divided by the control period squared.
+   * @returns The feedback pair, or null.
+   */
+  export function icpControllerQp(input: icpControllerQp.IInput): icpControllerQp.ISolution | null {
+    return physicalIcpControllerQpImplementation(input);
+  }
+
+  /** The program's terms and solution. */
+  export namespace icpControllerQp {
+    /** A 2 x 2 matrix, row by row. */
+    export type IMatrix = physicalIcpControllerQpImplementation.IMatrix;
+
+    /** The terms `ICPController` hands the solver each update. */
+    export type IInput = physicalIcpControllerQpImplementation.IInput;
+
+    /** The program's solution. */
+    export type ISolution = physicalIcpControllerQpImplementation.ISolution;
+  }
+
+  /**
+   * A biped's response to a stated disturbance, prepared once for the span: IHMC
+   * 201903's push recovery and capture-point plans laid from the state just after
+   * the first push, every moving span a closed-form curve between the few branch
+   * points where the response changes, and `sample(t)` a pure evaluation at any
+   * time in any order.
+   *
+   * Branch points, and what each does as the reference's states do:
+   *
+   * - A push: the centre of mass's velocity jumps by the push's impulse over the
+   *   mass, the capture point by that over omega. In double support the push
+   *   recovery's fall test runs (`physicalPushRecovery.doubleSupport`), and a
+   *   fall triggers a step the policy's reaction time after the capture point
+   *   left the support; in single support the footstep is checked again against
+   *   the capture region with the swing time left and, when it moves, the plan is
+   *   made again from then (`WalkingSingleSupportState` l.136-163) and the swing
+   *   foot's cubic re-aimed from where it is.
+   * - The trigger: the footstep in the support foot's one-step capture region
+   *   (`physicalPushRecovery.checkAndUpdate`) and the single-support plan to it
+   *   (`physicalIcpPlanner.singleSupport`).
+   * - The touchdown, the swing time after the trigger (`ZULU.swingTime`): the
+   *   transfer to standing (`physicalIcpPlanner.toStanding`), done once its
+   *   duration has run and the capture point is within `maxErrorToStanding` of
+   *   its hold (`TransferToStandingState.isDone`), found in closed form from the
+   *   error's decay.
+   * - A fall: no capturable footstep, the one-step capture region empty at the
+   *   trigger or after a push in single support, ends the response there; the
+   *   body is handed back to the physics, which takes the fall's contacts.
+   * - Standing: the cubic to the authored capture point
+   *   (`physicalIcpPlanner.standing`), and at its end the authored capture point
+   *   at rest.
+   *
+   * Between them each plan's capture point xi_d is a chain of closed forms read
+   * off the built plan on fixed soles: an exponential from a constant pivot, q +
+   * r e^(omega t), or a cubic, a0 + a1 t + a2 t^2 + a3 t^3. The ICP controller
+   * acts on the error e = xi - xi_d (`physicalIcpController`, Zulu's gains):
+   *
+   * - Its proportional law, the pivot xi_d - xi_d' / omega + (1 + K_p) e, gives
+   *   e(t) = e0 e^(-omega K_p t) along and across the plan's motion, split at
+   *   each piece's start, a plan at rest taking the across gain both ways.
+   * - Its centre-of-pressure constraint: while that pivot lies outside the support,
+   *   the program holds it on the support, the projection of the unconstrained
+   *   one taken as the piece starts, and xi(t) = cmp + (xi0 - cmp) e^(omega t)
+   *   (`CapturePointTools.computeDesiredCapturePointPosition`) until the
+   *   unconstrained pivot comes back inside, found in closed form where xi_d has
+   *   a constant pivot, its path then a line; over a cubic it is held to the
+   *   cubic's end.
+   *
+   * The centre of mass follows c' = omega (xi - c) in closed form on each piece:
+   * a constant pivot's response (`CoMIntegrationTools
+   * .integrateCoMPositionWithConstantCMP`), a cubic's
+   * (`integrateCoMPositionOverPolynomial`), and an error term b e^(-lambda t)'s,
+   * b omega / (omega - lambda) e^(-lambda t), with the homogeneous e^(-omega t)
+   * term carrying the piece's initial value. The ground's reaction is the
+   * pendulum's: m omega^2 (c - cmp) across the floor and the weight up, at the
+   * pivot, shared between two planted feet by the pivot's place along the line
+   * between them.
+   *
+   * A swing foot follows the planner's velocity-constrained cubic to its footstep
+   * at rest (`physicalIcpPlannerTools.cubic`), on the floor as the recovery
+   * step's clearance is zero.
+   *
+   * Points are world floor points (x, z), metres; times local seconds.
+   *
+   * @param input The state just after the first push and the pushes after it.
+   * @returns The prepared span.
+   */
+  export function prepareDisturbanceSpan(input: prepareDisturbanceSpan.IInput): prepareDisturbanceSpan.ISpan {
+    return preparePhysicalDisturbanceSpanImplementation(input);
+  }
+
+  /** The span's input, branch points, sample and result. */
+  export namespace prepareDisturbanceSpan {
+    /** The state just after the first push and the pushes after it. */
+    export type IInput = preparePhysicalDisturbanceSpanImplementation.IInput;
+
+    /** A later push of the stated disturbance. */
+    export type IPush = preparePhysicalDisturbanceSpanImplementation.IPush;
+
+    /** A planted foot. */
+    export type IFoot = preparePhysicalDisturbanceSpanImplementation.IFoot;
+
+    /** A branch point of the span. */
+    export type IBranch = preparePhysicalDisturbanceSpanImplementation.IBranch;
+
+    /** The response at a time. */
+    export type ISample = preparePhysicalDisturbanceSpanImplementation.ISample;
+
+    /** The prepared span. */
+    export type ISpan = preparePhysicalDisturbanceSpanImplementation.ISpan;
   }
 }

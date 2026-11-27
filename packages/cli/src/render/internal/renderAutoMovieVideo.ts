@@ -10,16 +10,16 @@ import { createReadStream } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
-import { AutoMovieRenderOutputReservation } from "./AutoMovieRenderOutputReservation";
-import type { IAutoMovieDeliveryProfileFinding } from "./IAutoMovieDeliveryProfileFinding";
-import { auditAutoMovieAlphaSamples } from "./auditAutoMovieAlphaSamples";
-import { auditAutoMovieDeliveryProfile } from "./delivery/internal/auditAutoMovieDeliveryProfile";
-import type { AutoMovieCliCaptureHost } from "./capture/AutoMovieCliCaptureHost";
-import { AutoMovieCliDelivery } from "./delivery/AutoMovieCliDelivery";
-import { listAutoMovieReleaseFindings } from "./listAutoMovieReleaseFindings";
-import { publishAutoMovieRenderAttempt } from "./publishAutoMovieRenderAttempt";
-import { readAutoMovieRevision } from "./production/internal/readAutoMovieRevision";
-import { runAutoMovieFfmpeg } from "./ffmpeg/internal/runAutoMovieFfmpeg";
+import { AutoMovieRenderOutputReservation } from "../../AutoMovieRenderOutputReservation";
+import type { IAutoMovieDeliveryProfileFinding } from "../../IAutoMovieDeliveryProfileFinding";
+import { auditAutoMovieAlphaSamples } from "../../auditAutoMovieAlphaSamples";
+import { auditAutoMovieDeliveryProfile } from "../../delivery/internal/auditAutoMovieDeliveryProfile";
+import type { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
+import { AutoMovieCliDelivery } from "../../delivery/AutoMovieCliDelivery";
+import { listAutoMovieReleaseFindings } from "../../listAutoMovieReleaseFindings";
+import { publishAutoMovieRenderAttempt } from "../../publishAutoMovieRenderAttempt";
+import { readAutoMovieRevision } from "../../production/internal/readAutoMovieRevision";
+import { runAutoMovieFfmpeg } from "../../ffmpeg/internal/runAutoMovieFfmpeg";
 
 /**
  * Renders one subject and publishes an approved film beside its shared report.

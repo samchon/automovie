@@ -3,7 +3,7 @@ import type {
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
 
-import { validateRecoveryMapMetricRow } from "../../internal/validateRecoveryMapMetricRow";
+import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
 
 /** Bind one point-first upper factor and original column scales to its actions. */

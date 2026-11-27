@@ -12,7 +12,7 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
 import { physicalSupportPoint } from "./internal/physicalSupportPoint";
 import { physicalSwingReference } from "./physicalSwingReference";
-import { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * A body's pose from its disturbance response at a time

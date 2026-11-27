@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { RecoveryChartFitRows as O } from "../../internal/RecoveryChartFitRows";
-import { RecoveryChartReachableBox as W } from "../../internal/RecoveryChartReachableBox";
+import { RecoveryChartReachableBox as W } from "./RecoveryChartReachableBox";
 
 /**
  * Measure residuals, the first strict worst witness and optimality from the

@@ -9,8 +9,8 @@ import type {
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
-import { differentiateRecoveryMapTangent } from "../../internal/differentiateRecoveryMapTangent";
+import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
+import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 import { refineRecoveryCameraMapFeasible } from "./refineRecoveryCameraMapFeasible";
 import { solveRecoveryMapJointStep } from "./solveRecoveryMapJointStep";

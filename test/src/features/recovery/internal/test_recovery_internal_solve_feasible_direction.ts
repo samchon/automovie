@@ -1,5 +1,5 @@
 import type { IAutoMovieSimplexAtom } from "@automovie/interface";
-import { solveRecoveryFeasibleDirection } from "@automovie/recovery";
+import { AutoMovieRecoveryCameraMap } from "@automovie/recovery";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -23,8 +23,8 @@ export function test_recovery_internal_solve_feasible_direction(): void {
     { indices: [0], values: [1], offset: 1 },
   ];
   const budget = { maxIterations: 10000, maxEntries: 100000, maxWork: 1e8 };
-  const direction: ReturnType<typeof solveRecoveryFeasibleDirection> =
-    solveRecoveryFeasibleDirection(1, rows, 1e-16, budget);
+  const direction: ReturnType<typeof AutoMovieRecoveryCameraMap.solveFeasibleDirection> =
+    AutoMovieRecoveryCameraMap.solveFeasibleDirection(1, rows, 1e-16, budget);
   TestValidator.predicate(
     "the step",
     direction.step.length === 1 && nclose(direction.step[0]!, 0.5, 1e-6),
@@ -36,7 +36,7 @@ export function test_recovery_internal_solve_feasible_direction(): void {
       nclose(direction.multipliers[1]!, 0.25, 1e-6),
   );
   TestValidator.error("an objective with an offset", (): unknown =>
-    solveRecoveryFeasibleDirection(
+    AutoMovieRecoveryCameraMap.solveFeasibleDirection(
       1,
       [{ indices: [0], values: [-1], offset: 1 }, rows[1]!],
       1e-16,

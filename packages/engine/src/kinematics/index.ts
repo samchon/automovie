@@ -14,7 +14,7 @@ export * from "./decomposeJointRotationOnBasis";
 
 
 export * from "./gazeChainJoints";
-export * from "./hingedArmArticulation";
+
 
 export * from "./hingedArmSwivel";
 export * from "./indexSkeletonTopology";
@@ -32,7 +32,7 @@ export * from "./prepareAutoMovieMassModel";
 
 export * from "./resolveAttachment";
 
-export * from "./resolveAutoMovieBoneRates";
+
 export * from "./resolveAutoMovieCenterOfMass";
 export * from "./resolveAutoMovieMomentum";
 
@@ -45,7 +45,7 @@ export * from "./resolveAutoMovieHumanoidSurfaces";
 
 
 
-export * from "./solveResolvedRate";
+
 
 export * from "./swingTwistBasis";
 export * from "./swingTwistRange";

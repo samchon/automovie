@@ -1,6 +1,6 @@
 import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-import { renderAutoMovieVideo } from "automovie";
+import { AutoMovieCliRender } from "automovie";
 import * as fs from "node:fs/promises";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -48,7 +48,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
 
   try {
     await fs.mkdir(reservation, { recursive: true });
-    await renderAutoMovieVideo(delivery.input, delivery.run);
+    await AutoMovieCliRender.renderVideo(delivery.input, delivery.run);
     const first = await delivery.readReport();
     const originalDigest = sha256(silent());
     TestValidator.equals(
@@ -149,7 +149,7 @@ export async function test_cli_render_video_delivery(): Promise<void> {
     );
 
     delivery.encodedBytes = soundtrack(1000);
-    await renderAutoMovieVideo(delivery.input, delivery.run);
+    await AutoMovieCliRender.renderVideo(delivery.input, delivery.run);
     const approved = await delivery.readReport();
     TestValidator.equals(
       "source path is resolved by CLI and authored silence is allowed",

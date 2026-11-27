@@ -1,4 +1,4 @@
-import { coupleObjects, AutoMovieEngineFilm } from "@automovie/engine";
+import { AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAttachJob,
   IAutoMovieBeatEndActorState,
@@ -63,7 +63,7 @@ export function test_engine_film_motion_follow_handoff(): void {
       },
     }),
   );
-  const handoff: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const handoff: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     attachments: jobs,
   });
@@ -123,7 +123,7 @@ export function test_engine_film_motion_follow_handoff(): void {
   const binding: IAutoMovieCoupleObjects.IProps["mounts"] = [
     { node: "marker", binding: { parent: "carrier", bone: "leftHand" } },
   ];
-  const mounted: IAutoMovieCoupleObjects.IResult = coupleObjects({
+  const mounted: IAutoMovieCoupleObjects.IResult = AutoMovieEngineFilm.coupleObjects({
     ...base,
     mounts: binding,
   });

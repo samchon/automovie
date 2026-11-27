@@ -6,7 +6,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import type { physicalBalanceSense } from "./physicalBalanceSense";
+import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**

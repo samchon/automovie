@@ -1,4 +1,4 @@
-import { AutoMovieEngineKinematics, indexSkeletonTopology, resolveAutoMovieBoneRates } from "@automovie/engine";
+import { AutoMovieEngineKinematics, indexSkeletonTopology } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBone,
@@ -23,7 +23,7 @@ type Bones = Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 type LocalRates = Map<AutoMovieHumanoidBone, IAutoMovieVector3>;
 
 /** Common-frame origin linear and angular rates returned by the product. */
-type Rates = Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>;
+type Rates = Map<AutoMovieHumanoidBone, AutoMovieEngineKinematics.resolveAutoMovieBoneRates.IRate>;
 
 /**
  * Differentiate one three-link mathematical rig through the actual native FK.
@@ -55,13 +55,13 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   const rest: Bones = native(skeleton, pose);
   const local: LocalRates = declared(rest);
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const still: resolveAutoMovieBoneRates.IRoot = {
+  const still: AutoMovieEngineKinematics.resolveAutoMovieBoneRates.IRoot = {
     position: zero,
     linear: zero,
     angular: zero,
   };
   const precision: number = 64 * Number.EPSILON * 32;
-  const root: resolveAutoMovieBoneRates.IRoot = {
+  const root: AutoMovieEngineKinematics.resolveAutoMovieBoneRates.IRoot = {
     position: { x: 11, y: -7, z: 2 },
     linear: { x: 3, y: -4, z: 1 },
     angular: { x: 0, y: 0, z: 2 },
@@ -78,16 +78,16 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
     },
   });
   const rigid: Rates = available(
-    resolveAutoMovieBoneRates(topology, turned, local, root),
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, turned, local, root),
   );
   const translated: Rates = available(
-    resolveAutoMovieBoneRates(topology, turned, local, {
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, turned, local, {
       ...root,
       angular: zero,
     }),
   );
   const constant: Rates = available(
-    resolveAutoMovieBoneRates(topology, rest, local, still),
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, rest, local, still),
   );
   const distances: readonly [AutoMovieHumanoidBone, number][] = [
     ["hips", 2],
@@ -132,7 +132,7 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   const hingeLocal: LocalRates = declared(hinge);
   hingeLocal.set("spine", { x: 0, y: 0, z: 3 });
   const moving: Rates = available(
-    resolveAutoMovieBoneRates(topology, hinge, hingeLocal, still),
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, hinge, hingeLocal, still),
   );
   const theta: number = Math.PI / 3;
   TestValidator.predicate(
@@ -164,7 +164,7 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   const bodyLocal: LocalRates = declared(quarterBones);
   bodyLocal.set("spine", { x: 4, y: 0, z: 0 });
   const body: Rates = available(
-    resolveAutoMovieBoneRates(
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(
       indexSkeletonTopology(quarter),
       quarterBones,
       bodyLocal,
@@ -188,16 +188,16 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   };
   TestValidator.predicate(
     "an absent declared rate is unknown, not zero",
-    resolveAutoMovieBoneRates(topology, rest, missingRate, still) === undefined,
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, rest, missingRate, still) === undefined,
   );
   TestValidator.predicate(
     "a missing ancestor cannot provide a parent rate",
-    resolveAutoMovieBoneRates(topology, missingAncestor, local, still) ===
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, missingAncestor, local, still) ===
       undefined,
   );
   TestValidator.predicate(
     "a bone absent from this topology has no propagated rate",
-    resolveAutoMovieBoneRates(
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(
       indexSkeletonTopology(shorter),
       rest,
       local,
@@ -206,11 +206,11 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   );
 
   const empty: Rates = available(
-    resolveAutoMovieBoneRates(topology, new Map(), new Map(), still),
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, new Map(), new Map(), still),
   );
   const rootOnly: Bones = new Map([["hips", rest.get("hips")!]]);
   const one: Rates = available(
-    resolveAutoMovieBoneRates(topology, rootOnly, declared(rootOnly), still),
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, rootOnly, declared(rootOnly), still),
   );
   TestValidator.predicate(
     "empty demand and an ancestor-complete single root are valid",
@@ -222,7 +222,7 @@ export function test_engine_kinematics_resolve_bone_rates(): void {
   rigid.get("chest")!.linear.x = 999;
   rigid.get("spine")!.angular.z = 999;
   const again: Rates = available(
-    resolveAutoMovieBoneRates(topology, turned, local, root),
+    AutoMovieEngineKinematics.resolveAutoMovieBoneRates(topology, turned, local, root),
   );
   TestValidator.predicate(
     "mutated outputs cannot change inputs or later reads",

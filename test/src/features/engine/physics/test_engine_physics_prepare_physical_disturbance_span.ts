@@ -1,4 +1,4 @@
-import { preparePhysicalDisturbanceSpan as Span } from "@automovie/engine";
+import { AutoMoviePhysicalBalance } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalTolerance } from "../../internal/PhysicalTolerance";
@@ -79,7 +79,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
     { x: 0.12, y: 0.05 },
     { x: -0.12, y: 0.05 },
   ];
-  const input = (velocity: number, reaction: number): Span.IInput => ({
+  const input = (velocity: number, reaction: number): AutoMoviePhysicalBalance.prepareDisturbanceSpan.IInput => ({
     seconds: t0,
     center: { x: 0, y: 0.9, z: 0 },
     velocity: { x: 0, y: 0, z: velocity },
@@ -107,21 +107,21 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
   });
   const close = (a: number, b: number, tolerance: number): boolean =>
     Math.abs(a - b) <= tolerance;
-  const kinds = (span: Span.ISpan): string[] =>
+  const kinds = (span: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan): string[] =>
     span.branches.map((branch) => branch.kind);
   const failures: string[] = [];
   const check = (name: string, ok: boolean, detail: string = ""): void => {
     if (!ok) failures.push(detail ? `${name}: ${detail}` : name);
   };
-  const listed = (span: Span.ISpan): string => {
+  const listed = (span: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan): string => {
     const all: string[] = kinds(span);
     return all.length <= 10
       ? all.join(",")
       : `${all.slice(0, 4).join(",")},...,${all.slice(-3).join(",")} (${all.length} branches)`;
   };
-  const one: Span.ISpan = Span(input(speed, 0));
-  const late: Span.ISpan = Span(input(speed, 0.1));
-  const two: Span.ISpan = Span(input(speed, 0.15));
+  const one: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0));
+  const late: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.1));
+  const two: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.15));
   // The farthest a capture point can land inside one step's foot: the reach
   // across the 0.2 m stance width, plus the foot's half-length (Koolen et al.,
   // Eq. 25, the step region dilated by the foot).
@@ -194,9 +194,9 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
     ["one", one],
     ["two", two],
   ] as const) {
-    const branches: Span.IBranch[] = span.branches;
-    branches.forEach((branch: Span.IBranch, i: number): void => {
-      const previous: Span.IBranch | undefined = branches[i - 1];
+    const branches: AutoMoviePhysicalBalance.prepareDisturbanceSpan.IBranch[] = span.branches;
+    branches.forEach((branch: AutoMoviePhysicalBalance.prepareDisturbanceSpan.IBranch, i: number): void => {
+      const previous: AutoMoviePhysicalBalance.prepareDisturbanceSpan.IBranch | undefined = branches[i - 1];
       if (branch.kind === "touchdown" && previous?.kind === "trigger") {
         const swing: number = branch.seconds - previous.seconds;
         if (
@@ -242,7 +242,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
       Math.abs(held.z) <= edge + PhysicalTolerance.ACCUMULATED,
   );
   for (const t of [0.02, 0.05, 0.09]) {
-    const sample: Span.ISample = two.sample(t0 + t);
+    const sample: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = two.sample(t0 + t);
     const grow: number = Math.exp(omega * t);
     check(
       `divergence at ${t} s`,
@@ -269,8 +269,8 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
     ["two", two],
   ] as const)
     for (const branch of span.branches.slice(1)) {
-      const before: Span.ISample = span.sample(branch.seconds - h);
-      const after: Span.ISample = span.sample(branch.seconds + h);
+      const before: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = span.sample(branch.seconds - h);
+      const after: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = span.sample(branch.seconds + h);
       for (const [quantity, a, b] of [
         ["capture", before.capture, after.capture],
         ["center", before.center, after.center],
@@ -317,7 +317,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
   }
 
   // 8. A small push: no step.
-  const small: Span.ISpan = Span(input(0.05, 0.1));
+  const small: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(0.05, 0.1));
   check(
     "small push holds",
     small.footstep === undefined &&
@@ -327,7 +327,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
 
   // 9. A fall: a 3 m/s push puts the capture point past any footstep the
   // reach and the quickest swing allow, so the recovery step is not viable.
-  const fall: Span.ISpan = Span(input(3, 0.1));
+  const fall: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(3, 0.1));
   check(
     "fall premise",
     edge + (3 / omega - edge) * Math.exp(omega * (0.1 + quickest)) > reach,
@@ -343,7 +343,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
   // the pivot, shared among the planted feet, none on a swinging one.
   const reactions: string[] = [];
   for (const t of times) {
-    const sample: Span.ISample = two.sample(t);
+    const sample: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = two.sample(t);
     const r = sample.reaction;
     const shares: number = Object.values(sample.loads).reduce(
       (sum: number, share: number): number => sum + share,
@@ -378,7 +378,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
 
   // 11. Resume: the span prepared again from its stored input gives the same
   // samples bit for bit.
-  const again: Span.ISpan = Span(input(speed, 0.15));
+  const again: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan = AutoMoviePhysicalBalance.prepareDisturbanceSpan(input(speed, 0.15));
   check(
     "re-prepared span",
     JSON.stringify(times.map((t) => again.sample(t))) ===
@@ -388,9 +388,9 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
   // 12. Every support count through one path: 2, 3, 4, 6 and 8 contacts, each
   // a sustained push, a recoverable one and a fall.
   for (const count of [2, 3, 4, 6, 8]) {
-    const feet: Span.IFoot[] = Array.from(
+    const feet: AutoMoviePhysicalBalance.prepareDisturbanceSpan.IFoot[] = Array.from(
       { length: count },
-      (_, i: number): Span.IFoot => {
+      (_, i: number): AutoMoviePhysicalBalance.prepareDisturbanceSpan.IFoot => {
         const angle: number = (2 * Math.PI * (i + 0.5)) / count;
         const x: number =
           count === 2 ? (i === 0 ? 0.1 : -0.1) : 0.3 * Math.cos(angle);
@@ -418,7 +418,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
     ] as const) {
       const label: string = `${count} contacts, ${outcome}`;
       try {
-        verifyCase(label, Span({ ...input(velocity, 0), feet }), outcome);
+        verifyCase(label, AutoMoviePhysicalBalance.prepareDisturbanceSpan({ ...input(velocity, 0), feet }), outcome);
       } catch (error: unknown) {
         failures.push(
           `${label}: ${error instanceof Error ? error.message : String(error)}`,
@@ -431,7 +431,7 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
   /** Check one support count's outcome: its branches' order and joins. */
   function verifyCase(
     label: string,
-    prepared: Span.ISpan,
+    prepared: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISpan,
     outcome: "sustained" | "recover" | "fall",
   ): void {
     {
@@ -461,8 +461,8 @@ export function test_engine_physics_prepare_physical_disturbance_span(): void {
         );
       else check(`${label}: falls`, fell, listed(prepared));
       for (const branch of prepared.branches.slice(1)) {
-        const a: Span.ISample = prepared.sample(branch.seconds - STEP);
-        const b: Span.ISample = prepared.sample(branch.seconds + STEP);
+        const a: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = prepared.sample(branch.seconds - STEP);
+        const b: AutoMoviePhysicalBalance.prepareDisturbanceSpan.ISample = prepared.sample(branch.seconds + STEP);
         const gap: number = Math.max(
           Math.hypot(a.capture.x - b.capture.x, a.capture.z - b.capture.z),
           Math.hypot(a.center.x - b.center.x, a.center.z - b.center.z),

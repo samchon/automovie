@@ -1,3 +1,8 @@
+import { createRecoveryObservationPolicy as createRecoveryObservationPolicyImplementation } from "./internal/createRecoveryObservationPolicy";
+import { encodeRecoveryDiagnosticNumber as encodeRecoveryDiagnosticNumberImplementation } from "./internal/encodeRecoveryDiagnosticNumber";
+import { filterRecoveryImageGaussian as filterRecoveryImageGaussianImplementation } from "./internal/filterRecoveryImageGaussian";
+import { RecoveryChartReachableBox as RecoveryChartReachableBoxImplementation } from "./internal/RecoveryChartReachableBox";
+
 import { RecoveryAtlasObservationNormals as RecoveryAtlasObservationNormalsImplementation } from "./internal/RecoveryAtlasObservationNormals";
 import { RecoveryFeatureChartCutsSeams as RecoveryFeatureChartCutsSeamsImplementation } from "./internal/RecoveryFeatureChartCutsSeams";
 import { RecoveryFeatureChartCutsSubdivide as RecoveryFeatureChartCutsSubdivideImplementation } from "./internal/RecoveryFeatureChartCutsSubdivide";
@@ -39,7 +44,7 @@ import { RecoveryDiskChart as RecoveryDiskChartImplementation } from "./internal
 import { RecoveryMultiBoundaryChart as RecoveryMultiBoundaryChartImplementation } from "./internal/RecoveryMultiBoundaryChart";
 import { RecoveryChartCollar as RecoveryChartCollarImplementation } from "./internal/RecoveryChartCollar";
 
-import { type AutoMovieRecoveryCurveData, type AutoMovieRecoveryCurveFormat, type IAutoMovieRecoveryAtlasObservation, type IAutoMovieRecoveryAtlasObservationInput, type IAutoMovieRecoveryCameraMapEstimate, type IAutoMovieRecoveryCameraSetObservationOperation, type IAutoMovieRecoveryImageFeaturesExtractionOperation, type IAutoMovieRecoveryCameraTracksLinkageOperation, type IAutoMovieRecoveryCameraMapInput, type IAutoMovieRecoveryCameraPairEstimate, type IAutoMovieRecoveryCameraPairInput, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoveryCameraSceneInput, type IAutoMovieRecoveryContourResume, type IAutoMovieRecoveryContourResumeInput, type IAutoMovieRecoveryDefaultObservationOptions, type IAutoMovieRecoveryImageInput, type IAutoMovieRecoveryImageObservation, type IAutoMovieRecoveryInput, type IAutoMovieRecoveryMeshSections, type IAutoMovieRecoveryObservationChart, type IAutoMovieRecoveryObservationChartSeed, type IAutoMovieRecoveryObservationOptions, type IAutoMovieRecoveryObservationTransport, type IAutoMovieRecoveryOptions, type IAutoMovieRecoveryPreparedInput, type IAutoMovieRecoveryRegisteredInput, type IAutoMovieRecoveryResult, type IAutoMovieRecoverySections, type IAutoMovieRecoverySectionsInput, type IAutoMovieRecoverySlabs, type IAutoMovieRecoverySlabsInput, type IAutoMoviePolylineFit, type IAutoMoviePolylineFitInput, type IAutoMovieRecoveryAtlasObservationSource, type IAutoMovieRecoveryAtlasObservationCreases, type IAutoMovieRecoveryAtlasObservationFeatures, type IAutoMovieRecoveryAtlasObservationChart, type IAutoMovieRecoveryAtlasObservationPublish, type IAutoMovieRecoveryChartBoundaryNetwork, type IAutoMovieRecoveryAnnularChartPreparation, type IAutoMovieRecoveryDiskChart, type IAutoMovieRecoveryMultiBoundaryChart, type IAutoMovieRecoveryChartCollar, type IAutoMovieRecoveryChartAreaObservations, type IAutoMovieRecoveryChartAssembly, type IAutoMovieRecoveryChartBoundary, type IAutoMovieRecoveryChartBoundaryNetworkAugment, type IAutoMovieRecoveryChartBoundaryNetworkBindings, type IAutoMovieRecoveryChartBoundaryNetworkRegistry, type IAutoMovieRecoveryChartBoxSolve, type IAutoMovieRecoveryChartControlRelations, type IAutoMovieRecoveryChartFitPrepare, type IAutoMovieRecoveryChartFitReport, type IAutoMovieRecoveryFeatureChartCuts, type IAutoMovieRecoveryChartFitSolve, type IAutoMovieRecoveryChartFitSystem, type IAutoMovieRecoveryChartLeafAssembly, type IAutoMovieRecoveryChartLeafControls, type IAutoMovieRecoveryChartLeafFit, type IAutoMovieRecoveryChartPhysicalJet, type IAutoMovieRecoveryChartRefinementClosure, type IAutoMovieRecoveryEventRegion, type IAutoMovieRecoveryEventRegionCells, type IAutoMovieRecoveryEventRegionPorts, type IAutoMovieRecoveryEventRegionSource, type IAutoMovieRecoveryEventRegionTopology, type IAutoMovieRecoveryFeatureChartCutsSeams, type IAutoMovieRecoveryFeatureChartCutsSubdivide, type AutoMovieVector3Tuple, type IAutoMovieRecoveryObservedMeshTopology, type IAutoMovieRecoveryFeatureChartPreparation } from "@automovie/interface";
+import { type AutoMovieRecoveryCurveData, type AutoMovieRecoveryCurveFormat, type IAutoMovieRecoveryAtlasObservation, type IAutoMovieRecoveryAtlasObservationInput, type IAutoMovieRecoveryCameraMapEstimate, type IAutoMovieRecoveryCameraSetObservationOperation, type IAutoMovieRecoveryImageFeaturesExtractionOperation, type IAutoMovieRecoveryCameraTracksLinkageOperation, type IAutoMovieRecoveryCameraMapInput, type IAutoMovieRecoveryCameraPairEstimate, type IAutoMovieRecoveryCameraPairInput, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoveryCameraSceneInput, type IAutoMovieRecoveryContourResume, type IAutoMovieRecoveryContourResumeInput, type IAutoMovieRecoveryDefaultObservationOptions, type IAutoMovieRecoveryImageInput, type IAutoMovieRecoveryImageObservation, type IAutoMovieRecoveryInput, type IAutoMovieRecoveryMeshSections, type IAutoMovieRecoveryObservationChart, type IAutoMovieRecoveryObservationChartSeed, type IAutoMovieRecoveryObservationOptions, type IAutoMovieRecoveryObservationTransport, type IAutoMovieRecoveryOptions, type IAutoMovieRecoveryPreparedInput, type IAutoMovieRecoveryRegisteredInput, type IAutoMovieRecoveryResult, type IAutoMovieRecoverySections, type IAutoMovieRecoverySectionsInput, type IAutoMovieRecoverySlabs, type IAutoMovieRecoverySlabsInput, type IAutoMoviePolylineFit, type IAutoMoviePolylineFitInput, type IAutoMovieRecoveryAtlasObservationSource, type IAutoMovieRecoveryAtlasObservationCreases, type IAutoMovieRecoveryAtlasObservationFeatures, type IAutoMovieRecoveryAtlasObservationChart, type IAutoMovieRecoveryAtlasObservationPublish, type IAutoMovieRecoveryChartBoundaryNetwork, type IAutoMovieRecoveryAnnularChartPreparation, type IAutoMovieRecoveryDiskChart, type IAutoMovieRecoveryMultiBoundaryChart, type IAutoMovieRecoveryChartCollar, type IAutoMovieRecoveryChartAreaObservations, type IAutoMovieRecoveryChartAssembly, type IAutoMovieRecoveryChartBoundary, type IAutoMovieRecoveryChartBoundaryNetworkAugment, type IAutoMovieRecoveryChartBoundaryNetworkBindings, type IAutoMovieRecoveryChartBoundaryNetworkRegistry, type IAutoMovieRecoveryChartBoxSolve, type IAutoMovieRecoveryChartControlRelations, type IAutoMovieRecoveryChartFitPrepare, type IAutoMovieRecoveryChartFitReport, type IAutoMovieRecoveryFeatureChartCuts, type IAutoMovieRecoveryChartFitSolve, type IAutoMovieRecoveryChartFitSystem, type IAutoMovieRecoveryChartLeafAssembly, type IAutoMovieRecoveryChartLeafControls, type IAutoMovieRecoveryChartLeafFit, type IAutoMovieRecoveryChartPhysicalJet, type IAutoMovieRecoveryChartRefinementClosure, type IAutoMovieRecoveryEventRegion, type IAutoMovieRecoveryEventRegionCells, type IAutoMovieRecoveryEventRegionPorts, type IAutoMovieRecoveryEventRegionSource, type IAutoMovieRecoveryEventRegionTopology, type IAutoMovieRecoveryFeatureChartCutsSeams, type IAutoMovieRecoveryFeatureChartCutsSubdivide, type AutoMovieVector3Tuple, type IAutoMovieRecoveryObservedMeshTopology, type IAutoMovieRecoveryFeatureChartPreparation, type AutoMovieDiagnosticNumber, type IAutoMovieAffineBoxBound } from "@automovie/interface";
 
 import { extractRecoveryImageFeatures as extractImageFeaturesOperation } from "./internal/extractRecoveryImageFeatures";
 import { linkRecoveryCameraTracks as linkCameraTracksOperation } from "./internal/linkRecoveryCameraTracks";
@@ -677,5 +682,52 @@ export namespace AutoMovieRecoveryObservation {
    */
   export function prepareFeatureChart(input: Parameters<IAutoMovieRecoveryFeatureChartPreparation.Operation>[0]): ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation> {
     return RecoveryFeatureChartPreparationImplementation(input);
+  }
+
+  /**
+   * Publish only the declared observation policy, never undeclared caller
+   * payloads. Numerical values and vector references are retained without
+   * defaults or conversion. Input objects can contain extra runtime properties
+   * even when their static type is narrower; object-rest publication would
+   * accidentally retain source populations.
+   */
+  export function createObservationPolicy(input: IAutoMovieRecoveryInput): Omit<IAutoMovieRecoveryInput, "verticesMm" | "triangles"> {
+    return createRecoveryObservationPolicyImplementation(input);
+  }
+
+  /** Encode an already computed number without changing its numerical owner. */
+  export function encodeDiagnosticNumber(value: number): AutoMovieDiagnosticNumber {
+    return encodeRecoveryDiagnosticNumberImplementation(value);
+  }
+
+  /**
+   * Filter one finite grayscale chart with separable sampled Gaussian kernels.
+   * First derivatives use the derivative of the Gaussian, not a finite difference
+   * of an unrelated blur. Four-sigma truncation and half-sample reflection follow
+   * scipy.ndimage's documented Gaussian-filter chart used by the experiment.
+   * https://docs.scipy.org/doc/scipy/reference/generated/scipy.ndimage.gaussian_filter.html
+   */
+  export function filterImageGaussian(source: Float64Array, width: number, height: number, sigma: number, derivative?: "none" | "x" | "y"): Float64Array {
+    return filterRecoveryImageGaussianImplementation(source, width, height, sigma, derivative);
+  }
+
+  /**
+   * Bound one declared affine row over a common independent-coefficient box.
+   * Duplicate original IDs first combine in input order using binary64 addition.
+   * The resulting floating-point coefficients, constants, bounds and target are
+   * then interpreted as exact dyadic numbers. Endpoint arithmetic and the strict
+   * squared-distance comparison against tolerance are exact for that row.
+   *
+   * Returned endpoints round outward. minimumDistanceMm is an approximate number
+   * view; only infeasibleAtTolerance uses the exact comparison. A false decision
+   * does not establish that several observations can be fitted simultaneously.
+   * Row identities do not identify source vertices, and this box is not generated
+   * geometry, continuous source support or a closest-surface distance
+   * certificate. Nonfinite input, conflicting bounds, invalid IDs, exhausted raw
+   * term budgets, nonfinite duplicate sums or nonrepresentable number views throw
+   * atomically.
+   */
+  export function computeReachableChartBox(input: Parameters<IAutoMovieAffineBoxBound.Operation>[0]): ReturnType<IAutoMovieAffineBoxBound.Operation> {
+    return RecoveryChartReachableBoxImplementation(input);
   }
 }

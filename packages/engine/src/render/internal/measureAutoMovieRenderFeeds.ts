@@ -7,8 +7,8 @@ import type {
   IAutoMovieSurfaceGraphicTrack,
 } from "@automovie/interface";
 
-import { autoMovieSurfaceFeedWidth } from "./internal/autoMovieSurfaceFeedWidth";
-import { measureAutoMovieFilmResponseTargets } from "./internal/measureAutoMovieFilmResponseTargets";
+import { autoMovieSurfaceFeedWidth } from "./autoMovieSurfaceFeedWidth";
+import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
 /** Bytes of one RGBA half-float texel, a medium march target's. */
 const HALF: number = 8;

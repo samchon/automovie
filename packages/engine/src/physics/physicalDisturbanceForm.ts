@@ -3,7 +3,7 @@ import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * The closed forms a disturbance response is laid from

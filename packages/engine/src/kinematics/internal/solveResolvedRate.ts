@@ -1,5 +1,5 @@
-import { addAutoMovieQuadraticProduct } from "../math/internal/addAutoMovieQuadraticProduct";
-import { prepareLinearSystem } from "../math/prepareLinearSystem";
+import { addAutoMovieQuadraticProduct } from "../../math/internal/addAutoMovieQuadraticProduct";
+import { prepareLinearSystem } from "../../math/prepareLinearSystem";
 
 /**
  * Solve the current square differential kinematics J(q) qdot = goalRate. Rows

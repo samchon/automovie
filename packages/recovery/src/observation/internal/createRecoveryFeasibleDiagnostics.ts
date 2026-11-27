@@ -3,7 +3,7 @@ import type {
   IAutoMovieRecoveryFeasibleFit,
 } from "@automovie/interface";
 
-import { encodeRecoveryDiagnosticNumber } from "../../internal/encodeRecoveryDiagnosticNumber";
+import { encodeRecoveryDiagnosticNumber } from "./encodeRecoveryDiagnosticNumber";
 
 /**
  * Project the completed generic fit's fixed diagnostics into JSON-safe values.

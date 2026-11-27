@@ -1,5 +1,5 @@
 import type { IAutoMovieProductionCheck } from "@automovie/interface";
-import { runAutoMovieProductionCheck } from "automovie";
+import { AutoMovieCliProduction } from "automovie";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
@@ -73,7 +73,7 @@ export async function test_cli_production_check_scopes(): Promise<void> {
       only: readonly string[] = [],
       require: string | null = null,
     ): Promise<IAutoMovieProductionCheck.IReport> =>
-      runAutoMovieProductionCheck({
+      AutoMovieCliProduction.runCheck({
         root,
         env: {},
         targets: [
@@ -221,7 +221,7 @@ export async function test_cli_production_check_scopes(): Promise<void> {
     );
     assert.equal(seen.length, count);
     await assert.rejects(
-      runAutoMovieProductionCheck({
+      AutoMovieCliProduction.runCheck({
         root,
         env: {},
         targets: [{ id: "chair", checks: [chair], required: { handoff: [] } }],

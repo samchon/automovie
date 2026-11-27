@@ -16,7 +16,7 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 import { samplePhysicalAuthoredTargets } from "./internal/samplePhysicalAuthoredTargets";
 
 /**

@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { prepareAutoMovieMassModel } from "../kinematics/prepareAutoMovieMassModel";
-import type { resolveAutoMovieBoneRates } from "../kinematics/resolveAutoMovieBoneRates";
+import type { resolveAutoMovieBoneRates } from "../kinematics/internal/resolveAutoMovieBoneRates";
 import { resolveAutoMovieMomentum } from "../kinematics/resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "../kinematics/internal/resolveAutoMovieMomentumRates";
 import { Quaternion } from "../math/Quaternion";

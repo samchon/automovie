@@ -1,3 +1,11 @@
+import { chooseRecoverySqpTightening as chooseRecoverySqpTighteningImplementation } from "./internal/chooseRecoverySqpTightening";
+import { copyRecoveryUntiltedEstimate as copyRecoveryUntiltedEstimateImplementation } from "./internal/copyRecoveryUntiltedEstimate";
+import { createRecoveryMapTangent as createRecoveryMapTangentImplementation } from "./internal/createRecoveryMapTangent";
+import { differentiateRecoveryMapTangent as differentiateRecoveryMapTangentImplementation } from "./internal/differentiateRecoveryMapTangent";
+import { isRecoveryCameraNumericalRefusal as isRecoveryCameraNumericalRefusalImplementation } from "./internal/isRecoveryCameraNumericalRefusal";
+import { solveRecoveryFeasibleDirection as solveRecoveryFeasibleDirectionImplementation } from "./internal/solveRecoveryFeasibleDirection";
+import { validateRecoveryMapMetricRow as validateRecoveryMapMetricRowImplementation } from "./internal/validateRecoveryMapMetricRow";
+
 import { admitRecoveryMapCurvature as admitRecoveryMapCurvatureImplementation } from "./internal/admitRecoveryMapCurvature";
 import { assembleRecoveryMapCurvature as assembleRecoveryMapCurvatureImplementation } from "./internal/assembleRecoveryMapCurvature";
 import { assertRecoverySceneLinearRetention as assertRecoverySceneLinearRetentionImplementation } from "./internal/assertRecoverySceneLinearRetention";
@@ -32,7 +40,7 @@ import { evaluateRecoveryScenePoint as evaluateRecoveryScenePointImplementation 
 import { growRecoverySceneLandmarks as growRecoverySceneLandmarksImplementation } from "./internal/growRecoverySceneLandmarks";
 import { factorRecoveryMapMetric as factorRecoveryMapMetricImplementation } from "./internal/factorRecoveryMapMetric";
 
-import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock, type IAutoMovieRecoveryFeasibleSqpStepMixingOperation, type IAutoMovieRecoveryCurvatureAdmission, type IAutoMovieRecoveryMapCurvatureBlocks, type IAutoMovieRecoveryUntiltedEstimate, type IAutoMovieRecoveryMapMetricScales, type IAutoMovieRecoveryCameraSceneBudget, type IAutoMovieRecoveryFeasibleDiagnostics, type IAutoMovieRecoveryFeasibleFit, type IAutoMovieRecoverySqpArc, type IAutoMovieRecoveryFeasibleModel, type IAutoMovieRecoverySqpOptions, type IAutoMovieRecoveryMapMetric, type IAutoMovieRecoveryMapTriangularMetric, type IAutoMovieRecoverySceneRegistration, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoverySceneCandidate, type IAutoMovieRecoveryMapLocalCurvature, type IAutoMovieRecoveryMapCurvatureFit, type IAutoMovieSimplexAtom, type IAutoMovieRecoveryMapDesignFactor, type IAutoMovieRecoveryFeasibleArithmetic, type IAutoMovieSimplexMinimum, type IAutoMovieRecoveryCheckpointReporting, type IAutoMovieRecoverySceneWork, type IAutoMovieRecoveryFeasibleMapReporting, type IAutoMovieRecoveryFeasibleMapWork, type IAutoMovieRecoveryMapJointPreparation, type IAutoMovieRecoverySceneFeasibleRouting, type IAutoMovieRecoveryRegularizationUpdate } from "@automovie/interface";
+import { type IAutoMovieRecoveryCameraMapAdmissionOperation, type IAutoMovieRecoveryCameraPairAdmissionOperation, type IAutoMovieRecoveryCameraSceneAdmissionOperation, type IAutoMovieRecoveryCameraChartCreationOperation, type IAutoMovieRecoveryCameraEstimateCreationOperation, type IAutoMovieRecoveryCameraMapCreationOperation, type IAutoMovieRecoveryCameraSceneCreationOperation, type IAutoMovieRecoveryImageDirectionSolverCreationOperation, type IAutoMovieRecoveryPoseModelCreationOperation, type IAutoMovieRecoveryFeasibleMapLinearization, type IAutoMovieRecoveryMapState, type IAutoMovieRecoveryCameraMapPolicy, type IAutoMovieRecoveryPoseResidualsLinearizeOperation, type IAutoMovieRecoveryMapPointProjectionOperation, type IAutoMovieRecoveryCameraMapRefinementOperation, type IAutoMovieRecoveryMapJointResult, type IAutoMovieRecoveryMapPose, type IAutoMovieRecoveryMapLandmark, type IAutoMovieRecoveryCameraMapBudget, type IAutoMovieRecoveryFeasibleJointOptions, type IAutoMovieRecoveryFeasibleReportCapacity, type IAutoMovieRecoveryMapDesignSolutionOperation, type IAutoMovieRecoveryMapJointStepSolutionOperation, type IAutoMovieRecoveryRelativePoseStepOperation, type IAutoMovieRecoverySceneSupportCollectionOperation, type IAutoMovieRecoverySceneCheckpointCompletionOperation, type IAutoMovieRecoverySceneSeedReportObserverCreationOperation, type IAutoMovieRecoveryScenePointEvaluationOperation, type IAutoMovieRecoverySceneLandmarksGrowthOperation, type IAutoMovieRecoveryMapMetricFit, type IAutoMovieRecoveryMapJointBlock, type IAutoMovieRecoveryFeasibleSqpStepMixingOperation, type IAutoMovieRecoveryCurvatureAdmission, type IAutoMovieRecoveryMapCurvatureBlocks, type IAutoMovieRecoveryUntiltedEstimate, type IAutoMovieRecoveryMapMetricScales, type IAutoMovieRecoveryCameraSceneBudget, type IAutoMovieRecoveryFeasibleDiagnostics, type IAutoMovieRecoveryFeasibleFit, type IAutoMovieRecoverySqpArc, type IAutoMovieRecoveryFeasibleModel, type IAutoMovieRecoverySqpOptions, type IAutoMovieRecoveryMapMetric, type IAutoMovieRecoveryMapTriangularMetric, type IAutoMovieRecoverySceneRegistration, type IAutoMovieRecoveryCameraSceneEstimate, type IAutoMovieRecoverySceneCandidate, type IAutoMovieRecoveryMapLocalCurvature, type IAutoMovieRecoveryMapCurvatureFit, type IAutoMovieSimplexAtom, type IAutoMovieRecoveryMapDesignFactor, type IAutoMovieRecoveryFeasibleArithmetic, type IAutoMovieSimplexMinimum, type IAutoMovieRecoveryCheckpointReporting, type IAutoMovieRecoverySceneWork, type IAutoMovieRecoveryFeasibleMapReporting, type IAutoMovieRecoveryFeasibleMapWork, type IAutoMovieRecoveryMapJointPreparation, type IAutoMovieRecoverySceneFeasibleRouting, type IAutoMovieRecoveryRegularizationUpdate, type IAutoMovieRecoverySqpTightening, type IAutoMovieRecoveryFeasibleDirection, type IAutoMovieSimplexBudget } from "@automovie/interface";
 import { admitRecoveryCameraMap as admitRecoveryCameraMapImplementation } from "./internal/admitRecoveryCameraMap";
 import { admitRecoveryCameraPair as admitRecoveryCameraPairImplementation } from "./internal/admitRecoveryCameraPair";
 import { admitRecoveryCameraScene as admitRecoveryCameraSceneImplementation } from "./internal/admitRecoveryCameraScene";
@@ -469,5 +477,54 @@ export namespace AutoMovieRecoveryCameraMap {
    */
   export function updateRegularization(damping: number, actualDecrease: number, predictedDecrease: number | null): IAutoMovieRecoveryRegularizationUpdate {
     return updateRecoveryRegularizationImplementation(damping, actualDecrease, predictedDecrease);
+  }
+
+  /** Price strict inward margin against the current mixed direction's descent. */
+  export function chooseSqpTightening(rows: readonly IAutoMovieSimplexAtom[], selected: readonly number[], multipliers: readonly number[], mixed: readonly number[], sqpNorm: number, mixedNorm: number): IAutoMovieRecoverySqpTightening {
+    return chooseRecoverySqpTighteningImplementation(rows, selected, multipliers, mixed, sqpNorm, mixedNorm);
+  }
+
+  /** Copy one selected model's borrowed original dual into fit-owned seed storage. */
+  export function copyUntiltedEstimate(estimate: IAutoMovieRecoveryUntiltedEstimate | null, width: number, rowCount: number, charge: (work: number) => void): IAutoMovieRecoveryUntiltedEstimate | null {
+    return copyRecoveryUntiltedEstimateImplementation(estimate, width, rowCount, charge);
+  }
+
+  /** Construct two raw coefficient directions for an admitted seed translation. */
+  export function createMapTangent(t: readonly [number, number, number]): [number, number, number][] {
+    return createRecoveryMapTangentImplementation(t);
+  }
+
+  /**
+   * Differentiate r*normalize(t+Bz) at the unchanged current translation. The
+   * radius r=norm(t) is constant within one local chart. Columns of B are raw
+   * coefficient directions, which need not be exactly tangent or unit.
+   */
+  export function differentiateMapTangent(translation: readonly [number, number, number], tangent: readonly (readonly [number, number, number])[]): [number, number, number][] | null {
+    return differentiateRecoveryMapTangentImplementation(translation, tangent);
+  }
+
+  /**
+   * Identify declared numerical refusals inside a speculative camera proposal.
+   * Progress callbacks run outside these catches. Foreign errors and unexpected
+   * runtime exceptions propagate so a program failure cannot become an outlier.
+   */
+  export function isCameraNumericalRefusal(error: unknown): boolean {
+    return isRecoveryCameraNumericalRefusalImplementation(error);
+  }
+
+  /**
+   * Solve a pure tilted feasible-direction model in common metric coordinates.
+   * The first atom is the actual objective gradient with zero offset. Each later
+   * atom is an unweighted inequality gradient with offset minus its feasible g.
+   * Min half ||d||^2+gamma subject to a_i_d-gamma<=offset_i has simplex dual min
+   * half ||sum(lambda_i_a_i)||^2+sum(lambda_i*offset_i).
+   */
+  export function solveFeasibleDirection(width: number, rows: readonly IAutoMovieSimplexAtom[], tolerance: number, budget: IAutoMovieSimplexBudget, charge?: (work: number) => void): IAutoMovieRecoveryFeasibleDirection {
+    return solveRecoveryFeasibleDirectionImplementation(width, rows, tolerance, budget, charge);
+  }
+
+  /** Validate owned sparse physical-row metadata before optional arithmetic. */
+  export function validateMapMetricRow(row: IAutoMovieSimplexAtom, width: number): void {
+    validateRecoveryMapMetricRowImplementation(row, width);
   }
 }

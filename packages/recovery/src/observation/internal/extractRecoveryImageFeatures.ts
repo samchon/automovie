@@ -1,6 +1,6 @@
 import type { IAutoMovieRecoveryImageFeaturesExtractionOperation } from "@automovie/interface";
 
-import { filterRecoveryImageGaussian } from "../../internal/filterRecoveryImageGaussian";
+import { filterRecoveryImageGaussian } from "./filterRecoveryImageGaussian";
 
 /**
  * Observe bounded multiscale Harris points and oriented gradient histograms.

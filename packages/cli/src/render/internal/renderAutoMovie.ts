@@ -8,7 +8,7 @@ import type { AutoMovieFfmpegStaticPath } from "../../AutoMovieFfmpegStaticPath"
 import { AutoMovieCliCaptureHost } from "../../capture/AutoMovieCliCaptureHost";
 import { loadAutoMovieProductionModule } from "../../production/internal/loadAutoMovieProductionModule";
 import { readAutoMovieRenderOptions } from "./readAutoMovieRenderOptions";
-import { renderAutoMovieVideo } from "../../renderAutoMovieVideo";
+import { renderAutoMovieVideo } from "./renderAutoMovieVideo";
 import { resolveAutoMovieFfmpeg } from "../../ffmpeg/internal/resolveAutoMovieFfmpeg";
 
 /**

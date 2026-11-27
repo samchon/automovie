@@ -7,11 +7,11 @@
 // See vendor/ihmc/NOTICE.
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import { physicalDisturbanceBranches as Branches } from "./physicalDisturbanceBranches";
-import { physicalDisturbanceFollow } from "./physicalDisturbanceFollow";
-import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
-import { physicalDisturbanceResponse as Response } from "./physicalDisturbanceResponse";
-import type { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
+import { physicalDisturbanceBranches as Branches } from "../physicalDisturbanceBranches";
+import { physicalDisturbanceFollow } from "../physicalDisturbanceFollow";
+import { physicalDisturbanceForm } from "../physicalDisturbanceForm";
+import { physicalDisturbanceResponse as Response } from "../physicalDisturbanceResponse";
+import type { physicalIcpPlannerTools as Tools } from "../physicalIcpPlannerTools";
 
 /** A planted foot. */
 type Foot = preparePhysicalDisturbanceSpan.IFoot;

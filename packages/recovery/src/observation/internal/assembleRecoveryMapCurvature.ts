@@ -7,7 +7,7 @@ import type {
   IAutoMovieRecoveryUntiltedEstimate,
 } from "@automovie/interface";
 
-import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
+import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { differentiateRecoveryMapProjection } from "./differentiateRecoveryMapProjection";
 import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
 

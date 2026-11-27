@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import type { physicalBalanceSense } from "../physicalBalanceSense";
+import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**

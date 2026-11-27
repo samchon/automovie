@@ -10,7 +10,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { physicalInertiaTensor } from "../physics/physicalInertiaTensor";
-import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
+import type { resolveAutoMovieBoneRates } from "./internal/resolveAutoMovieBoneRates";
 import { resolveAutoMovieCenterOfMass } from "./resolveAutoMovieCenterOfMass";
 import { resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
 import { resolveAutoMovieMomentumRates } from "./internal/resolveAutoMovieMomentumRates";

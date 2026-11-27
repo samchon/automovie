@@ -1,4 +1,4 @@
-import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, decomposeJointRotationOnBasis, hingedArmArticulation, jointRomOvershoot, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
+import { DEFAULT_JOINT_AXES, HUMANOID_REST_FRAME, Quaternion, Vector3, decomposeJointRotationOnBasis, jointRomOvershoot, swingTwistRange, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -206,7 +206,7 @@ export function AutoMovieMotionHumanBendSweep(
         })
       : undefined;
   const solve = () =>
-    hingedArmArticulation({
+    AutoMovieEngineKinematics.hingedArmArticulation({
       upper: prepared.upper,
       midOffset: prepared.lowerOffset,
       midRest: prepared.lowerRotation,
@@ -240,7 +240,7 @@ export function AutoMovieMotionHumanBendSweep(
       ...(bound === undefined ? {} : { bound }),
     });
   const complete = () => {
-    const solved: ReturnType<typeof hingedArmArticulation> = solve();
+    const solved: ReturnType<typeof AutoMovieEngineKinematics.hingedArmArticulation> = solve();
     return solved === null
       ? null
       : {

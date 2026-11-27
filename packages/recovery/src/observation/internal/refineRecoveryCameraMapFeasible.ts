@@ -25,9 +25,9 @@ import type {
 
 import { admitRecoveryMapCurvature } from "./admitRecoveryMapCurvature";
 import { assembleRecoveryMapCurvature } from "./assembleRecoveryMapCurvature";
-import { copyRecoveryUntiltedEstimate } from "../../internal/copyRecoveryUntiltedEstimate";
+import { copyRecoveryUntiltedEstimate } from "./copyRecoveryUntiltedEstimate";
 import { createRecoveryFeasibleDiagnostics } from "./createRecoveryFeasibleDiagnostics";
-import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
+import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
 import { evaluateRecoveryScenePoint } from "./evaluateRecoveryScenePoint";
 import { factorRecoveryMapCurvature } from "./factorRecoveryMapCurvature";
 import { factorRecoveryMapMetric } from "./factorRecoveryMapMetric";

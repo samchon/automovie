@@ -18,12 +18,12 @@ import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
 import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
 import { physicalBalancePlan } from "./physicalBalancePlan";
 import { physicalBalanceRamp } from "./physicalBalanceRamp";
-import { physicalBalanceSense } from "./physicalBalanceSense";
+import { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalBalanceSettle } from "./physicalBalanceSettle";
 import { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBalanceSwing } from "./physicalBalanceSwing";
 import { physicalSupportSole } from "./physicalSupportSole";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.

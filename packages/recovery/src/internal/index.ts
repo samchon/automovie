@@ -28,7 +28,7 @@ export * from "./RecoveryChartFitRows";
 
 export * from "./RecoveryChartMap";
 
-export * from "./RecoveryChartReachableBox";
+
 
 export * from "./RecoveryChartSurface";
 
@@ -59,11 +59,6 @@ export * from "./RecoverySlabGraph";
 export * from "./bindRecoveryOrderedFits";
 
 
-export * from "./chooseRecoverySqpTightening";
-
-
-
-export * from "./copyRecoveryUntiltedEstimate";
 
 
 
@@ -72,30 +67,35 @@ export * from "./copyRecoveryUntiltedEstimate";
 
 
 
-export * from "./createRecoveryMapTangent";
-
-export * from "./createRecoveryObservationPolicy";
 
 
 
 
 
 
-export * from "./differentiateRecoveryMapTangent";
-export * from "./encodeRecoveryDiagnosticNumber";
-
-
-
-
-
-export * from "./filterRecoveryImageGaussian";
 
 
 
 
 
 
-export * from "./isRecoveryCameraNumericalRefusal";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -140,7 +140,7 @@ export * from "./restoreRecoveryCurveBasis";
 
 
 export * from "./selectRecoveryFeasibleTrial";
-export * from "./solveRecoveryFeasibleDirection";
+
 
 
 export * from "./spendRecoverySceneWork";
@@ -150,7 +150,5 @@ export * from "./spendRecoverySceneWork";
 
 
 
-export * from "./validateRecoveryMapMetricRow";
+
 export * from "./validateRecoveryMapMetricScales";
-export * from "./GhoshConicApproximationBalance";
-export * from "./GhoshConicApproximationDisplacement";

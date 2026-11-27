@@ -8,7 +8,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { physicalSpanPose } from "./physicalSpanPose";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 import { recordPhysicalContact } from "./internal/recordPhysicalContact";
 
 /**

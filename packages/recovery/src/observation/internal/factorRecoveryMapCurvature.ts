@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { createRecoveryMapTriangularMetric } from "./createRecoveryMapTriangularMetric";
-import { validateRecoveryMapMetricRow } from "../../internal/validateRecoveryMapMetricRow";
+import { validateRecoveryMapMetricRow } from "./validateRecoveryMapMetricRow";
 import { validateRecoveryMapMetricScales } from "../../internal/validateRecoveryMapMetricScales";
 
 /** Factor one owned scaled arrowhead and preflight all fixed physical rows. */

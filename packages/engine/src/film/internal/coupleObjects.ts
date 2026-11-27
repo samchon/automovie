@@ -16,12 +16,12 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { AutoMovieEngineViolationCollector } from "../validation/AutoMovieEngineViolationCollector";
-import { bakedTransformFromClipsAt } from "./internal/bakedTransformFromClipsAt";
+import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
+import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import { AutoMovieEngineViolationCollector } from "../../validation/AutoMovieEngineViolationCollector";
+import { bakedTransformFromClipsAt } from "./bakedTransformFromClipsAt";
 import { compileAttach } from "./compileAttach";
-import { handoffEvents } from "./internal/handoffEvents";
+import { handoffEvents } from "./handoffEvents";
 
 /** A coupled parent's world frame over shot time, null where none moves it. */
 type ParentPath = (t: number) => IAutoMovieTransform | null;

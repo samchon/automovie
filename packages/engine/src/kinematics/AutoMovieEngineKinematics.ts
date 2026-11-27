@@ -1,3 +1,7 @@
+import { hingedArmArticulation as hingedArmArticulationImplementation } from "./internal/hingedArmArticulation";
+import { resolveAutoMovieBoneRates as resolveAutoMovieBoneRatesImplementation } from "./internal/resolveAutoMovieBoneRates";
+import { solveResolvedRate as solveResolvedRateImplementation } from "./internal/solveResolvedRate";
+
 import { armChainFault as armChainFaultImplementation } from "./internal/armChainFault";
 import { decomposeJointRotation as decomposeJointRotationImplementation } from "./internal/decomposeJointRotation";
 import { jointToQuaternion as jointToQuaternionImplementation } from "./internal/jointToQuaternion";
@@ -16,7 +20,6 @@ import { normalizeJointAxes as normalizeJointAxesImplementation } from "./intern
 import { reachPose as reachPoseImplementation } from "./internal/reachPose";
 import { resolveAutoMovieBalanceOutcome as resolveAutoMovieBalanceOutcomeImplementation } from "./internal/resolveAutoMovieBalanceOutcome";
 import { type resolveAutoMovieMomentum } from "./resolveAutoMovieMomentum";
-import { type resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 import { resolveAutoMovieMomentumRates as resolveAutoMovieMomentumRatesImplementation } from "./internal/resolveAutoMovieMomentumRates";
 import { resolveAutoMovieHumanoidRingModules as resolveAutoMovieHumanoidRingModulesImplementation } from "./internal/resolveAutoMovieHumanoidRingModules";
 import { AutoMovieHumanoidDigitSurfaces as AutoMovieHumanoidDigitSurfacesImplementation } from "./internal/AutoMovieHumanoidDigitSurfaces";
@@ -33,7 +36,7 @@ import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { distalEndSwivelNearest as distalEndSwivelNearestImplementation } from "./internal/distalEndSwivelNearest";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 
-import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis } from "@automovie/interface";
+import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation } from "@automovie/interface";
 
 import { resolveLookAt as resolveLookAtImplementation } from "./resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./resolvePose";
@@ -1010,5 +1013,215 @@ export namespace AutoMovieEngineKinematics {
    */
   export function reachableBoneNames(skeleton: IAutoMovieSkeleton, topology?: IAutoMovieSkeletonTopology): Set<AutoMovieHumanoidBone> {
     return reachableBoneNamesImplementation(skeleton, topology);
+  }
+
+  /**
+   * Two-bone arm IK whose mid joint bends only about its own flexion hinge, with
+   * the chain root's free swivel spent on the rig's range of motion.
+   *
+   * The elbow rotates by `θ` about `hinge` alone, so its abduction and twist
+   * decompose to zero, which is what an elbow's immobile axes require, and the
+   * bend plane is the hinge's own plane. Splitting the far segment into the part
+   * along the hinge and the part it swings gives the root-to-effector span
+   *
+   *     |m(θ)|² = k + α·cos θ + β·sin θ
+   *
+   * So the span equals the target distance where `R·cos(θ − φ) = distance² − k`,
+   * with `R = hypot(α, β)` and `φ = atan2(β, α)`: an arccos whose two roots are
+   * the chain's two bend branches. A target outside the reachable span takes the
+   * fully extended or fully folded root, so the effector stops on the reachable
+   * shell along the line to the target. A root outside the mid joint's own
+   * `range` stops at the nearer limit in the same way, the effector resting on
+   * the legal shell along that line and the result reporting the `shortfall`; of
+   * two branches the one stopping nearer the target is swept, because a candidate
+   * past the hinge's limit would be clamped by the caller afterwards and land
+   * somewhere no candidate was scored at.
+   *
+   * The root joint first aims `m(θ)` at the target, then any extra rotation about
+   * `m(θ)` leaves the effector where it is. The function sweeps that swivel in
+   * `SWIVEL_STEP` increments on each branch, ordering candidates by the least
+   * `overshoot` (legal, zero, ahead of any other exactly; two positive ones tied
+   * within the decomposition's rounding, 1e-9 degree), then the least
+   * `deviation`, both from `score`. Every local minimum of a sweep is then
+   * refined between its neighbouring steps by golden-section search under the
+   * same ordering, and the best of the sweeps and the refinements is returned. A
+   * pass whose two probes tie closes the bracket onto both, so a request mirrored
+   * left to right, whose probes are the same two exchanged, refines to the
+   * mirrored swivel. So the chosen pose follows a moving target continuously
+   * rather than in swivel steps, a legal interval narrower than one step is still
+   * found from the dip it leaves in the sweep, and between two basins the truly
+   * better one wins rather than the one a sample happened to fall nearer the
+   * bottom of. The caller owns the decomposition and the rig's ROM, so the
+   * geometry here holds no rig policy.
+   *
+   * A caller that can certify swivels its score refuses (`excluded`) spares their
+   * scoring, and the pose is still the full sweep's. A step is skipped when every
+   * swivel within two steps of it is refused, and a step whose bracket, a step
+   * either way, is refused is not refined; every other step is scored and
+   * compared with its true neighbours, since a step that is not skipped and could
+   * be refined has both neighbours scored. When the pruned sweep finds a legal
+   * candidate, the full sweep's answer is that candidate: a refused swivel, a
+   * step or a refinement inside a refused bracket, is never legal, so it can
+   * never be ahead of a legal candidate (legality is compared exactly); every
+   * legal candidate of the full sweep is a scored step or the refinement of a
+   * step that is scored with the same neighbours, so it is the same candidate in
+   * both; and the ordering among legal candidates, met in the same order, is the
+   * same. When the pruned sweep finds none, the full sweep decides, so a chain
+   * that cannot reach legally still returns its least overshoot.
+   *
+   * A cold fit with `closed` candidates and no `tie` or `minimum` scores them
+   * alone and returns the best when it is legal and `met` accepts it: where a
+   * requested term is met only at isolated swivels, those are the whole
+   * admissible set and no search can add to it.
+   *
+   * A cold fit with a `pole` and no `tie` or `minimum` searches locally from it
+   * (`hingedSwivelPole`) and returns a legal result without the sweep, so it
+   * follows the bend hint rather than jumping to a far, marginally better
+   * swivel.
+   *
+   * A cold fit whose caller certifies that no candidate can pass `met` (`unmet`)
+   * skips the pole start, whose result `met` would refuse.
+   *
+   * Each limit of the root joint is a sinusoid of the swivel, so its feasible
+   * swivels are intervals in closed form, and the caller's refusal (`excluded`)
+   * is their complement (Tolani, Goswami and Badler 2000, section 3.2.3). A cold
+   * fit whose refusal covers every swivel of every swept branch has no legal
+   * candidate, and its answer is the least overshoot: on each branch the best of
+   * the swivels at which a limit is least violated (`least`, in closed form)
+   * starts the local search of the full score (`hingedSwivelPole`), and the
+   * better branch result answers, with no sweep. Without `least` the sweep
+   * decides as before.
+   *
+   * A caller continuing a fit of a nearby target (`near`) skips the sweep: a
+   * `closed` candidate less than a step from the seed answers when legal and met
+   * (`hingedSwivelNear`), and otherwise the seed's branch, its swivel refined
+   * within one step either way by the same golden-section search under the same
+   * ordering, to the seed's `tolerance` (`IAutoMovieSwivelNear`). Every result
+   * names its branch and swivel, the seed a nearby fit continues from. If
+   * dividing a positive subnormal tolerance by the initial bracket width
+   * underflows, the difference of logarithms keeps the mathematically finite
+   * refinement count finite; ordinary ratios retain their original expression. A
+   * placed pole (`IProps.placed`, a place the law's own elbow search chose)
+   * answers at the pole where it is legal. Otherwise a continued fit walks from
+   * its seed toward the pole and stops at the edge of the legal interval the seed
+   * lies in, and a cold fit takes the legal swivel nearest the pole on any
+   * branch, walking out from it both ways; each edge is found by swivel steps and
+   * bisection on the candidate's legality. Only where no swivel is legal does the
+   * sweep decide. A continued fit never leaves its seed's branch: where the
+   * branch holds no legal closed-form candidate, the seed is refined as any
+   * other, and its caller's course decides whether that continuation stands. With
+   * certified global score minima and no second key, the first scored coarse
+   * candidate ends a cold search only if its actual two keys equal both minima
+   * exactly. No later candidate can be strictly ahead, so the original candidate
+   * and complete-tie seed are preserved; later coarse candidates cannot use this
+   * shortcut because earlier refinements precede them.
+   *
+   * Returns `null` for a degenerate chain: a mid or end offset shorter than
+   * `1e-6`, a target within `1e-6` of the chain root, a hinge shorter than
+   * `1e-6`, or `R` below `1e-9`, a hinge parallel to the far segment that cannot
+   * change the span ({@link armChainFault} reports that rig).
+   */
+  export function hingedArmArticulation(props: hingedArmArticulation.IProps): IAutoMovieHingedArticulation | null {
+    return hingedArmArticulationImplementation(props);
+  }
+
+  /** Companion types of {@link hingedArmArticulation}. */
+  export namespace hingedArmArticulation {
+    /**
+       * The solver's props: the interface chain and target with the engine's
+       * certificates and prepared geometry.
+       */
+    export type IProps = hingedArmArticulationImplementation.IProps;
+  }
+
+  /**
+   * Propagate declared instantaneous local rotation rates through native FK.
+   *
+   * Every input bone must come from the same current resolvePose snapshot and
+   * unchanged unit-rotation rig as topology, including the ancestors of every
+   * demanded bone. Root placement must likewise have a unit rotation. Local
+   * angular rates are radians per second in the moving bone's frame:
+   * localRotation^-1 times its derivative has vector part omega/2. Root rates are
+   * in the resolved bones' common frame, with linear velocity at position. A
+   * missing local rate is unknown, including on an unlisted pose joint; a
+   * producer that proves rest articulation constant supplies an explicit zero.
+   *
+   * Native FK applies no root/rest scale and holds each rest translation and rest
+   * rotation fixed. This entry differentiates precisely that convention. Changing
+   * rest transforms, changing axes/rest frames, or an independently
+   * scaled/transformed bone snapshot needs a different derivative producer.
+   * Missing ancestors/rates and non-finite inputs return undefined so the owner
+   * can retain its generic sampled path. Inputs are read without modification;
+   * the successful map and every velocity record are fresh and caller-owned.
+   */
+  export function resolveAutoMovieBoneRates(topology: IAutoMovieSkeletonTopology, bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>, localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>, root: resolveAutoMovieBoneRates.IRoot): Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined {
+    return resolveAutoMovieBoneRatesImplementation(topology, bones, localBodyAngularRates, root);
+  }
+
+  /** Rate records exchanged by native derivative producers and mass reduction. */
+  export namespace resolveAutoMovieBoneRates {
+    /**
+       * One rigid frame's velocity in the resolved bones' common coordinate frame.
+       * Angular and linear rates are simultaneous, with explicit zero vectors for a
+       * producer-proven fixed frame. Finite admission belongs to propagation.
+       */
+    export type IRate = resolveAutoMovieBoneRatesImplementation.IRate;
+
+    /**
+       * The FK root placement's instantaneous common-frame motion. Position is the
+       * actual pose.root translation, or the common origin for null placement; the
+       * derivative producer must independently prove its supplied rates.
+       */
+    export type IRoot = resolveAutoMovieBoneRatesImplementation.IRoot;
+  }
+
+  /**
+   * Solve the current square differential kinematics J(q) qdot = goalRate. Rows
+   * and the matching goal rate use the same task frame and physical unit; each
+   * column uses its actual coordinate unit, so output is that unit/second.
+   * Positive rowScale divides both sides of each row, for example the current
+   * chain length for metre rows and one for radian rows. It changes neither the
+   * equality nor the coordinate rates and never weights a residual fit. Keep all
+   * supplied numeric rows and vectors unchanged until return.
+   *
+   * The caller owns an actual analytic Jacobian and goal derivative on one smooth
+   * branch. Uncontrolled ancestor/root motion must be included in that Jacobian
+   * or subtracted from the goal rate in the same task frame. This numerical leaf
+   * neither samples a pose nor proves that a supplied matrix is its derivative.
+   * Active constraints, changing active sets, rectangular systems and unsupported
+   * charts need the caller's explicit derivative fallback; no clamped or damped
+   * answer is manufactured here.
+   *
+   * The existing LU owner's pivot refusal is retained, not interpreted as a
+   * nonsingularity certificate. A solved result reports actual original-unit
+   * residuals, scaled backward errors, an inverse-based infinity condition
+   * estimate and the computed inverse defect. These are numerical diagnostics,
+   * not certified forward-error bounds or a physical acceptance tolerance.
+   *
+   * @param jacobian Current finite nonempty square task-row/coordinate-column
+   *   matrix.
+   * @param goalRate Current finite task derivative, in the same row units/second.
+   * @param rowScale Positive finite physical scale for each task row, unchanged
+   *   during the call.
+   * @returns Fresh rates/diagnostics, or an explicit unsupported, pivot-refused
+   *   or unrepresentable result.
+   */
+  export function solveResolvedRate(jacobian: readonly (readonly number[])[], goalRate: readonly number[], rowScale: readonly number[]): solveResolvedRate.IResult {
+    return solveResolvedRateImplementation(jacobian, goalRate, rowScale);
+  }
+
+  /** Numerical differential-equality outcomes without curve-admission flags. */
+  export namespace solveResolvedRate {
+    /**
+       * Actual solved relation and diagnostics, or the precise numerical refusal
+       * category.
+       */
+    export type IResult = solveResolvedRateImplementation.IResult;
+
+    /**
+       * All arrays are fresh; no returned diagnostic is a certified physical error
+       * bound.
+       */
+    export type ISolved = solveResolvedRateImplementation.ISolved;
   }
 }

@@ -1,5 +1,5 @@
 import type { IAutoMovieProductionCheck } from "@automovie/interface";
-import { runAutoMovieProductionCheck } from "automovie";
+import { AutoMovieCliProduction } from "automovie";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import * as fs from "node:fs/promises";
@@ -72,7 +72,7 @@ export async function test_cli_production_check_review(): Promise<void> {
       selected: IAutoMovieProductionCheck.IReview,
     ): Promise<IAutoMovieProductionCheck.IResult> => {
       const report: IAutoMovieProductionCheck.IReport =
-        await runAutoMovieProductionCheck({
+        await AutoMovieCliProduction.runCheck({
           root,
           env: {},
           targets: [{ id: "walk", checks: [selected] }],

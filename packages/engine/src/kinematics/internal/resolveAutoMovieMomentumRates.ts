@@ -8,7 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { physicalInertiaTensor } from "../../physics/physicalInertiaTensor";
-import type { resolveAutoMovieBoneRates } from "../resolveAutoMovieBoneRates";
+import type { resolveAutoMovieBoneRates } from "./resolveAutoMovieBoneRates";
 import type { resolveAutoMovieMomentum } from "../resolveAutoMovieMomentum";
 
 /**

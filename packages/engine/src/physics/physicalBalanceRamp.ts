@@ -1,6 +1,6 @@
 import type { IAutoMoviePhysicalRecoveryState } from "@automovie/interface";
 
-import type { physicalBalanceSense } from "./physicalBalanceSense";
+import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 import { physicalStanceSeat } from "./physicalStanceSeat";
 

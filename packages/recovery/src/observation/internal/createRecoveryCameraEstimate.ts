@@ -13,7 +13,7 @@ import type {
 import { fitRecoveryEpipolarConsensus } from "../../geometry/internal/fitRecoveryEpipolarConsensus";
 import { fitRecoveryEpipolarMatrix } from "../../geometry/internal/fitRecoveryEpipolarMatrix";
 import { fitRecoveryHomographyConsensus } from "../../geometry/internal/fitRecoveryHomographyConsensus";
-import { isRecoveryCameraNumericalRefusal } from "../../internal/isRecoveryCameraNumericalRefusal";
+import { isRecoveryCameraNumericalRefusal } from "./isRecoveryCameraNumericalRefusal";
 import { measureRecoveryEpipolarErrors } from "../../geometry/internal/measureRecoveryEpipolarErrors";
 import { scoreRecoveryCameraResiduals } from "../../geometry/internal/scoreRecoveryCameraResiduals";
 import { selectRecoveryCameraPose } from "../../geometry/internal/selectRecoveryCameraPose";

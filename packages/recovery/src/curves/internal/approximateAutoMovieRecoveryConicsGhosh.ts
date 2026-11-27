@@ -5,8 +5,8 @@ import type {
   IAutoMovieRegisteredConicArc,
 } from "@automovie/interface";
 
-import { GhoshConicApproximationBalance as balance } from "../../internal/GhoshConicApproximationBalance";
-import { GhoshConicApproximationDisplacement as displacement } from "../../internal/GhoshConicApproximationDisplacement";
+import { GhoshConicApproximationBalance as balance } from "./GhoshConicApproximationBalance";
+import { GhoshConicApproximationDisplacement as displacement } from "./GhoshConicApproximationDisplacement";
 import { AutoMovieRecoveryConicApproximation as C } from "../AutoMovieRecoveryConicApproximation";
 
 /**

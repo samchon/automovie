@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryMapPose,
 } from "@automovie/interface";
 
-import { differentiateRecoveryMapTangent } from "../../internal/differentiateRecoveryMapTangent";
+import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 
 /**
  * Differentiate the map's current-radius pinhole chart at current pixels. A

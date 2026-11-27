@@ -15,7 +15,7 @@ export { AutoMovieEngineFrameClock } from "./AutoMovieEngineFrameClock";
 
 
 
-export * from "./compileAttach";
+
 
 
 
@@ -28,7 +28,7 @@ export * from "./compileDefinedShot";
 
 
 export * from "./constants";
-export * from "./coupleObjects";
+
 export * from "./createPerformShotSubjectFramer";
 
 

@@ -6,9 +6,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { SKELETON_ROOT_PARENT } from "./constants/SKELETON_ROOT_PARENT";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { SKELETON_ROOT_PARENT } from "../constants/SKELETON_ROOT_PARENT";
 
 /**
  * Propagate declared instantaneous local rotation rates through native FK.

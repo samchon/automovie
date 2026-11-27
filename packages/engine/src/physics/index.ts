@@ -80,13 +80,13 @@ export * from "./physicalBalanceHandoff";
 export * from "./physicalBalancePlan";
 export * from "./physicalBalanceRamp";
 
-export * from "./physicalBalanceSense";
+
 export * from "./physicalBalanceSettle";
 export * from "./physicalBalanceStance";
 export * from "./physicalBalanceSwing";
 export * from "./physicalAuthoredCenter";
 export * from "./physicalBipedPressure";
-export * from "./physicalCentroidalTask";
+
 
 
 
@@ -108,7 +108,7 @@ export { physicalHullNearest } from "./physicalHullNearest";
 
 export * from "./physicalLegCapacity";
 export * from "./physicalIcpController";
-export * from "./physicalIcpControllerQp";
+
 export * from "./physicalIcpPlanner";
 export * from "./physicalIcpPlannerCmps";
 export * from "./physicalIcpPlannerSegments";
@@ -169,7 +169,7 @@ export * from "./physicalSwingReference";
 export * from "./planPhysicalSimulationSteps";
 
 
-export * from "./preparePhysicalDisturbanceSpan";
+
 export * from "./physicalDisturbanceBranches";
 export * from "./physicalDisturbanceFollow";
 export * from "./physicalDisturbanceForm";

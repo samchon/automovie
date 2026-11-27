@@ -7,7 +7,7 @@ import type {
   IAutoMovieRenderTargetSettings,
 } from "@automovie/interface";
 
-import { measureAutoMovieFilmResponseTargets } from "./internal/measureAutoMovieFilmResponseTargets";
+import { measureAutoMovieFilmResponseTargets } from "./measureAutoMovieFilmResponseTargets";
 
 /** Bytes of one RGBA half-float texel. */
 const HALF: number = 8;

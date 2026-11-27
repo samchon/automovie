@@ -14,7 +14,7 @@
 // WalkingControllerParameters.java l.616-619.
 // See vendor/ihmc/NOTICE.
 import { physicalAngularMomentumIntegrator as Integrator } from "./physicalAngularMomentumIntegrator";
-import { physicalIcpControllerQp as Qp } from "./physicalIcpControllerQp";
+import { physicalIcpControllerQp as Qp } from "./internal/physicalIcpControllerQp";
 import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 
 /**

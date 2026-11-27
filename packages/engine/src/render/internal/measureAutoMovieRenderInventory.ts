@@ -36,7 +36,7 @@ import type {
 
 import { autoMovieSemanticMaskNodeIndex } from "./autoMovieSemanticMaskNodeIndex";
 import { compareAutoMovieRenderIds } from "./compareAutoMovieRenderIds";
-import { measureAutoMovieRenderFilmStage } from "../measureAutoMovieRenderFilmStage";
+import { measureAutoMovieRenderFilmStage } from "./measureAutoMovieRenderFilmStage";
 import { measureRenderGeometryBytes } from "./measureRenderGeometryBytes";
 import { measureRenderPasses } from "./measureRenderPasses";
 import { measureRenderPopulation } from "./measureRenderPopulation";

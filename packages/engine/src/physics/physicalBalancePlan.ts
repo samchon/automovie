@@ -7,7 +7,7 @@ import type {
 
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { physicalAuthoredCapture } from "./internal/physicalAuthoredCapture";
-import type { physicalBalanceSense } from "./physicalBalanceSense";
+import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";

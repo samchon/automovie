@@ -8,7 +8,7 @@ import type {
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
 
-import { chooseRecoverySqpTightening } from "../../internal/chooseRecoverySqpTightening";
+import { chooseRecoverySqpTightening } from "./chooseRecoverySqpTightening";
 import { mixRecoveryFeasibleSqpStep } from "./mixRecoveryFeasibleSqpStep";
 
 /**

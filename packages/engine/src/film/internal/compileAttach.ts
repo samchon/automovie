@@ -9,13 +9,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { preparePoseResolution } from "../kinematics/preparePoseResolution";
-import type { prepareSkeletonPoseResolution } from "../kinematics/prepareSkeletonPoseResolution";
-import { resolveAttachment } from "../kinematics/resolveAttachment";
-import { Quaternion } from "../math/Quaternion";
-import { Transform } from "../math/Transform";
-import { Vector3 } from "../math/Vector3";
-import { sampleMotion } from "../motion/sampleMotion";
+import { preparePoseResolution } from "../../kinematics/preparePoseResolution";
+import type { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
+import { resolveAttachment } from "../../kinematics/resolveAttachment";
+import { Quaternion } from "../../math/Quaternion";
+import { Transform } from "../../math/Transform";
+import { Vector3 } from "../../math/Vector3";
+import { sampleMotion } from "../../motion/sampleMotion";
 
 /** Default child frame when the author gives no offset. */
 const IDENTITY_OFFSET: IAutoMovieTransform = Transform.identity();

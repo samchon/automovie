@@ -7,8 +7,8 @@
 // qpInput/ConstraintToConvexRegion.java formulateConstraint() l.167-172 and
 // getInequalityConstraintSize() l.179-198.
 // See vendor/ihmc/NOTICE.
-import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
-import { solveDenseActiveSet } from "./solveDenseActiveSet";
+import { physicalPlanarPolygon as Polygon } from "../physicalPlanarPolygon";
+import { solveDenseActiveSet } from "../solveDenseActiveSet";
 
 /**
  * One solve of IHMC's capture-point feedback program over x = (dCoP, dCMP): the

@@ -7,8 +7,8 @@ import type {
   IAutoMovieSimplexAtom,
 } from "@automovie/interface";
 
-import { createRecoveryMapTangent } from "../../internal/createRecoveryMapTangent";
-import { differentiateRecoveryMapTangent } from "../../internal/differentiateRecoveryMapTangent";
+import { createRecoveryMapTangent } from "./createRecoveryMapTangent";
+import { differentiateRecoveryMapTangent } from "./differentiateRecoveryMapTangent";
 import { projectRecoveryMapPoint } from "./projectRecoveryMapPoint";
 
 /**

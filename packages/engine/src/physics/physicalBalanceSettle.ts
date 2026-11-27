@@ -9,7 +9,7 @@ import type {
 import { Vector3 } from "../math/Vector3";
 import { physicalBalanceBracing } from "./internal/physicalBalanceBracing";
 import { physicalBalanceExhaustion } from "./internal/physicalBalanceExhaustion";
-import type { physicalBalanceSense } from "./physicalBalanceSense";
+import type { physicalBalanceSense } from "./internal/physicalBalanceSense";
 import { physicalRecoveryLimbSwing } from "./internal/physicalRecoveryLimbSwing";
 
 /**

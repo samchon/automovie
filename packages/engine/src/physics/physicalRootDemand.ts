@@ -15,7 +15,7 @@ import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
-import { physicalCentroidalTask } from "./physicalCentroidalTask";
+import { physicalCentroidalTask } from "./internal/physicalCentroidalTask";
 import type { physicalIcpController } from "./physicalIcpController";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalStanceDemand } from "./physicalStanceDemand";

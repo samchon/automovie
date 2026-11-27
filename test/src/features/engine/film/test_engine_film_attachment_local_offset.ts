@@ -1,4 +1,4 @@
-import { compileAttach, AutoMovieEngineSequence } from "@automovie/engine";
+import { AutoMovieEngineSequence, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieClip,
   IAutoMovieCompileAttach,
@@ -47,7 +47,7 @@ export function test_engine_film_attachment_local_offset(): void {
     fps: 1,
     shotDuration: 2,
   };
-  const clip: IAutoMovieClip = compileAttach(input);
+  const clip: IAutoMovieClip = AutoMovieEngineFilm.compileAttach(input);
   const matches = (
     values: readonly number[],
     expected: readonly number[],
@@ -70,7 +70,7 @@ export function test_engine_film_attachment_local_offset(): void {
     }),
   );
 
-  const ridden: IAutoMovieClip = compileAttach({
+  const ridden: IAutoMovieClip = AutoMovieEngineFilm.compileAttach({
     ...input,
     parentTransformAt: (seconds: number): IAutoMovieTransform | null =>
       seconds < 1 ? null : { ...parent, translation: { x: 0, y: 2, z: 0 } },
@@ -90,7 +90,7 @@ export function test_engine_film_attachment_local_offset(): void {
     "an unrepresentable key count refuses before reading the parent frame",
     throwsError(
       (): IAutoMovieClip =>
-        compileAttach({
+        AutoMovieEngineFilm.compileAttach({
           ...input,
           duration: Number.MAX_SAFE_INTEGER,
           fps: 2,

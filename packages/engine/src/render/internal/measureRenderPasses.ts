@@ -3,7 +3,7 @@ import type {
   IAutoMovieRenderSubject,
 } from "@automovie/interface";
 
-import { measureAutoMovieRenderFeeds } from "../measureAutoMovieRenderFeeds";
+import { measureAutoMovieRenderFeeds } from "./measureAutoMovieRenderFeeds";
 import type { measureRenderTextures } from "./measureRenderTextures";
 
 /**

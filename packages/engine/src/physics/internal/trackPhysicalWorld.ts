@@ -28,7 +28,7 @@ import { physicalRecoveryRequested } from "./physicalRecoveryRequested";
 import { physicalSpanPose } from "../physicalSpanPose";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
-import type { preparePhysicalDisturbanceSpan } from "../preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
 import { samplePhysicalAuthoredTargets } from "./samplePhysicalAuthoredTargets";

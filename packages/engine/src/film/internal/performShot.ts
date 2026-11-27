@@ -47,7 +47,7 @@ import { compilePerformShotCameras } from "./compilePerformShotCameras";
 import { compilePerformShotLaunches } from "./compilePerformShotLaunches";
 import { compilePerformShotPracticalLights } from "../compilePerformShotPracticalLights";
 import { copyPolygonBodyCue } from "../copyPolygonBodyCue";
-import { coupleObjects } from "../coupleObjects";
+import { coupleObjects } from "./coupleObjects";
 import { createPerformShotSubjectFramer } from "../createPerformShotSubjectFramer";
 import { admitPerformShotFlames } from "../flame/internal/admitPerformShotFlames";
 import { gateAuthoredObjectMotions } from "./gateAuthoredObjectMotions";

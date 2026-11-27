@@ -16,7 +16,7 @@ import type {
 
 import { createRecoveryFeasibleSqpArc } from "../observation/internal/createRecoveryFeasibleSqpArc";
 import { selectRecoveryFeasibleTrial } from "./selectRecoveryFeasibleTrial";
-import { solveRecoveryFeasibleDirection } from "./solveRecoveryFeasibleDirection";
+import { solveRecoveryFeasibleDirection } from "../observation/internal/solveRecoveryFeasibleDirection";
 
 /**
  * Refine a feasible fixed-population recovery state with strictly inward

@@ -16,7 +16,7 @@ import type {
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { IPhysicalCoupledTargetRun } from "./internal/IPhysicalCoupledTargetRun";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /**
  * Solver handles are transient and rebuilt in creation order after snapshot

@@ -4,7 +4,7 @@ import { physicalDisturbanceForm } from "./physicalDisturbanceForm";
 import { physicalIcpPlannerTools as Tools } from "./physicalIcpPlannerTools";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanContacts";
-import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
+import type { preparePhysicalDisturbanceSpan } from "./internal/preparePhysicalDisturbanceSpan";
 
 /** One closed form of a plan's capture point (`physicalDisturbanceForm`). */
 type IForm = physicalDisturbanceForm.IForm;

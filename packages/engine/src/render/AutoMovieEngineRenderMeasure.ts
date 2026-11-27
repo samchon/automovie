@@ -1,4 +1,7 @@
-import { type IAutoMovieRenderModelCost, type IAutoMovieModel, type IAutoMovieRenderInventory, type IAutoMovieMeasureRenderInventory, type IAutoMovieMeasureRenderPopulation, type IAutoMovieMeasureRenderSimulation } from "@automovie/interface";
+import { measureAutoMovieRenderFeeds as measureAutoMovieRenderFeedsImplementation } from "./internal/measureAutoMovieRenderFeeds";
+import { measureAutoMovieRenderFilmStage as measureAutoMovieRenderFilmStageImplementation } from "./internal/measureAutoMovieRenderFilmStage";
+
+import { type IAutoMovieRenderModelCost, type IAutoMovieModel, type IAutoMovieRenderInventory, type IAutoMovieMeasureRenderInventory, type IAutoMovieMeasureRenderPopulation, type IAutoMovieMeasureRenderSimulation, type IAutoMovieRenderSubject } from "@automovie/interface";
 import { measure as measureImplementation } from "./internal/measure";
 import { measureAutoMovieRenderInventory as measureAutoMovieRenderInventoryImplementation } from "./internal/measureAutoMovieRenderInventory";
 import { measureRenderPopulation as measureRenderPopulationImplementation } from "./internal/measureRenderPopulation";
@@ -82,5 +85,103 @@ export namespace AutoMovieEngineRenderMeasure {
    */
   export function measureRenderSimulation(props: IAutoMovieMeasureRenderSimulation.IProps): IAutoMovieMeasureRenderSimulation.IResult {
     return measureRenderSimulationImplementation(props);
+  }
+
+  /**
+   * Measure the render targets and passes a subject's surface-graphic feed layers
+   * commit the renderer to, as `prepareAutoMovieSurfaceGraphics` builds them.
+   *
+   * Every feed layer of every key owns one render target for the whole shot,
+   * `pixels` high and {@link autoMovieSurfaceFeedWidth} wide, the rule `render`
+   * allocates by, so each is one texture allocation of
+   * {@link FEED_BYTES_PER_PIXEL} bytes per pixel. A shown feed redraws the scene
+   * once into its target, so a frame can add as many scene passes as the feed
+   * layers shown at once: one key per track is in force, so the bound is the
+   * largest feed count of any key, summed over the tracks.
+   *
+   * A directly rendered film, `subject.film`, draws each feed through its optics
+   * on a film response stage of the feed's own, so every feed layer also holds
+   * that stage's targets at its raster,
+   * {@link measureAutoMovieFilmResponseTargets}, and, when the scene carries a
+   * medium, the stage's half-float march target.
+   *
+   * The face size is the `surface` affordance the track names on the model its
+   * node stages; it throws, naming the track, when that cannot be resolved.
+   *
+   * @param subject The subject whose surface graphics are measured.
+   * @returns One row per track with feeds, in track order, and the totals.
+   */
+  export function measureAutoMovieRenderFeeds(subject: IAutoMovieRenderSubject): measureAutoMovieRenderFeeds.IResult {
+    return measureAutoMovieRenderFeedsImplementation(subject);
+  }
+
+  /** What the feed layers commit. */
+  export namespace measureAutoMovieRenderFeeds {
+    /** One track's feed render targets and its most feeds shown at once. */
+    export type ITrack = measureAutoMovieRenderFeedsImplementation.ITrack;
+
+    /** The tracks with feeds and their sums. */
+    export type IResult = measureAutoMovieRenderFeedsImplementation.IResult;
+  }
+
+  /**
+   * Measure what a directly rendered film's stage adds to one frame: the GPU
+   * targets render's film response, sample sum, indirect and medium stages
+   * allocate at the beauty pass's drawing buffer, `width × pixelRatio` by `height
+   * × pixelRatio` pixels (the draw host's is twice the delivered raster on each
+   * side), and the further passes they draw.
+   *
+   * With `subject.film`, and nothing without it, one row pair per stage under a
+   * `render-pass:film-*` owner:
+   *
+   * - Optics (`response`): the targets `measureAutoMovieFilmResponseTargets` counts
+   *   at the raster, the linear frame with its depth texture and the glare
+   *   pyramid and kernel pairs, made whether or not glare is asked for. Its
+   *   passes are the final full-frame quad and, with a glare strength above zero,
+   *   one quad into each glare target.
+   * - `samples` S: two 32-bit float sum targets. The beauty pass is drawn S times
+   *   instead of once, each with its shadow maps, so S − 1 more scene passes, and
+   *   one accumulation quad per sample plus the average.
+   * - `shading.occlusion`: the normal prepass's half-float target and its depth
+   *   texture, and the raw and blurred visibility targets; per beauty sample one
+   *   scene pass of the prepass, with its shadow maps, and two quads.
+   * - `shading.probes`: the bake's 192 × 32 float target with its depth
+   *   renderbuffer and the grid's float texture of nine texels per probe; a frame
+   *   that bakes draws twelve scene passes per probe. The layer's share of the
+   *   scene is not known here, so each is bounded by the whole scene.
+   * - A scene `medium`: the march's half-float target; two quads per sample.
+   *
+   * A scene pass is the opaque frame plus its shadow maps' depth passes, as the
+   * feed passes count it, and a quad is one call of two triangles. Targets and
+   * depth textures are runtime texture allocations, a depth renderbuffer adds
+   * only bytes, and the passes are `pass` rows. Without `settings` the raster is
+   * unknown: both texture totals are null with a `not-run` gap each, and so are
+   * the draw and triangle totals when glare is asked for, since its pass count
+   * follows from the raster's height.
+   *
+   * @param props The subject, the settings, the frame's opaque counts and shadow
+   *   casters, and the row and gap sinks.
+   * @returns What the stage adds to each total, null where it is unknown.
+   */
+  export function measureAutoMovieRenderFilmStage(props: measureAutoMovieRenderFilmStage.IProps): measureAutoMovieRenderFilmStage.IResult {
+    return measureAutoMovieRenderFilmStageImplementation(props);
+  }
+
+  /** What the film stage phase reads and returns. */
+  export namespace measureAutoMovieRenderFilmStage {
+    /** The subject, the raster, the frame so far and the sinks. */
+    export type IProps = measureAutoMovieRenderFilmStageImplementation.IProps;
+
+    /** One shadow caster's per-pass cost, as the texture phase lists it. */
+    export type ICaster = measureAutoMovieRenderFilmStageImplementation.ICaster;
+
+    /** Draw calls and triangles of some passes. */
+    export type IPass = measureAutoMovieRenderFilmStageImplementation.IPass;
+
+    /** One stage's allocations and passes. */
+    export type IRow = measureAutoMovieRenderFilmStageImplementation.IRow;
+
+    /** What the film stage adds to the frame's totals. */
+    export type IResult = measureAutoMovieRenderFilmStageImplementation.IResult;
   }
 }
