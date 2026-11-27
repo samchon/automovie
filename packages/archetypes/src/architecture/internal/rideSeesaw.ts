@@ -38,7 +38,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @throws {AutoMovieArchetypeRefusal} For push-offs out of order, or closer
  *   than one rock.
  */
-export function rideSeesawImplementation(
+export function rideSeesaw(
   seesaw: AutoMovieArchetype<
     AutoMovieArchetypeSeesaw.Affordance,
     AutoMovieArchetypeSeesaw.Dimension

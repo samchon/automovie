@@ -1,5 +1,5 @@
 import type { IAutoMovieTransform } from "@automovie/interface";
-import { rideRoundaboutImplementation } from "./internal/rideRoundabout";
+import { rideRoundabout } from "./internal/rideRoundabout";
 
 /** A ride operation owned by the roundabout family. */
 export namespace AutoMovieArchetypeRoundaboutRide {
@@ -18,7 +18,7 @@ export namespace AutoMovieArchetypeRoundaboutRide {
     placement: IAutoMovieTransform,
     ride: AutoMovieArchetypeRoundaboutRide.IRideParams,
   ): AutoMovieArchetypeRoundaboutRide.IRideResult {
-    return rideRoundaboutImplementation(placement, ride);
+    return rideRoundabout(placement, ride);
   }
 
   /** Driven-angle input and release second for one roundabout ride. */

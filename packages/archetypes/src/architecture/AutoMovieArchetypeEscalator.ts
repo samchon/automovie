@@ -13,7 +13,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { rideEscalatorImplementation } from "./internal/rideEscalator";
+import { rideEscalator } from "./internal/rideEscalator";
 import { createEscalatorConstants } from "./internal/createEscalatorConstants";
 
 const { KONE, ESTIMATE, PITCH, RAIL_OFFSET, PLATE, LANDING } =
@@ -531,7 +531,7 @@ export namespace AutoMovieArchetypeEscalator {
     placement: IAutoMovieTransform,
     direction: AutoMovieArchetypeEscalator.RideDirection,
   ): AutoMovieArchetypeEscalator.IRideResult {
-    return rideEscalatorImplementation(
+    return rideEscalator(
       escalator,
       placement,
       direction,

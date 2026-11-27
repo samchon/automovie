@@ -39,7 +39,7 @@ const AXIS: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
  * @throws {AutoMovieArchetypeRefusal} For a hanging length, start angle or
  *   increment out of range.
  */
-export function rideSwingImplementation(
+export function rideSwing(
   swing: AutoMovieArchetype<"ground", AutoMovieArchetypeSwing.Dimension>,
   placement: IAutoMovieTransform,
   ride: AutoMovieArchetypeSwing.IRideParams,

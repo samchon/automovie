@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core";
-import { rideMovingWalkwayImplementation } from "./internal/rideMovingWalkway";
+import { rideMovingWalkway } from "./internal/rideMovingWalkway";
 
 /** The planning guide read for every autowalk figure below. */
 const KONE: string =
@@ -284,7 +284,7 @@ export namespace AutoMovieArchetypeMovingWalkway {
     placement: IAutoMovieTransform,
     ride: AutoMovieArchetypeMovingWalkway.IRideParams,
   ): AutoMovieArchetypeMovingWalkway.IRideResult {
-    return rideMovingWalkwayImplementation(
+    return rideMovingWalkway(
       walkway,
       placement,
       ride,

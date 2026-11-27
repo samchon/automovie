@@ -9,7 +9,7 @@ import { AnnularFitting } from "./fittings/AnnularFitting";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineFootwork } from "./equine/EquineFootwork";
 import type { QuadrupedTimedCues } from "./quadruped/QuadrupedTimedCues";
-import { rideQuadrupedImplementation } from "./quadruped/rideQuadruped";
+import { rideQuadruped } from "./quadruped/rideQuadruped";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
@@ -530,7 +530,7 @@ export function create(
     Affordance,
     D | AutoMovieArchetypeQuadrupedBody.Dimension
   > {
-    return rideQuadrupedImplementation(animal, route, gait, table);
+    return rideQuadruped(animal, route, gait, table);
   }
 
   /** A per-sample trunk pitch: degrees, positive nose-down, at a film second. */

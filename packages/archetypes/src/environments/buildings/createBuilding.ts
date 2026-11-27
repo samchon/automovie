@@ -1,4 +1,9 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
+import type {
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
 import { assembleBuilding } from "./assembleBuilding";

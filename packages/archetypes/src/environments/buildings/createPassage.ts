@@ -4,8 +4,18 @@ import {
   Transform,
   Vector3,
 } from "@automovie/engine";
-
+import type {
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieModel,
+  IAutoMovieQuaternion,
+  IAutoMovieStageSetPiece,
+  IAutoMovieSurface,
+  IAutoMovieTransform,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 import type { AutoMovieEnvironment } from "../AutoMovieEnvironment";
+import { AutoMovieArchetypeStairs } from "../../architecture/AutoMovieArchetypeStairs";
 import { buildingModel } from "./buildingModel";
 
 /**

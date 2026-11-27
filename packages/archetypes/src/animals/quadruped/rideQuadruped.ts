@@ -119,7 +119,7 @@ import { trialEquineFlight } from "../equine/trialEquineFlight";
  * @throws {RangeError} For unsupported geometry/carriage or foot goals whose
  *   four fixed chains and body-floor constraint have no common root height.
  */
-export function rideQuadrupedImplementation<Affordance extends string, D extends string>(
+export function rideQuadruped<Affordance extends string, D extends string>(
   animal: AutoMovieArchetype<
     Affordance,
     D | AutoMovieArchetypeQuadrupedBody.Dimension

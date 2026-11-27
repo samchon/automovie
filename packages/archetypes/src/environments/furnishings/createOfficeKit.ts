@@ -1,4 +1,17 @@
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type {
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieModel,
+  IAutoMoviePropBox,
+} from "@automovie/interface";
+import {
+  AutoMovieArchetypeBookcase,
+  AutoMovieArchetypeDrawerUnit,
+  AutoMovieArchetypeSeat,
+  AutoMovieArchetypeTable,
+} from "../../furniture";
+import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 

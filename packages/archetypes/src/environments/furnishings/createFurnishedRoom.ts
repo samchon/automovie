@@ -1,4 +1,9 @@
 import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
+import type {
+  IAutoMovieEnvironmentContribution,
+  IAutoMovieEnvironmentModule,
+  IAutoMovieFurnishingPiece,
+} from "@automovie/interface";
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 

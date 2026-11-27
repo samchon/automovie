@@ -8,10 +8,9 @@ import {
   useState,
 } from "react";
 
+import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
 import type { IAutoMovieInspectorAction } from "../../IAutoMovieInspectorAction.js";
 import type { IAutoMovieInspectorProps } from "../../IAutoMovieInspectorProps.js";
-import { AutoMovieViewerInspector } from "../../AutoMovieViewerInspector.js";
-
 
 /**
  * Copy or edit the address and, when the host supplies a command, copy its

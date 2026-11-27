@@ -1,8 +1,10 @@
 import { Vector3 } from "@automovie/engine";
 import type {
+  IAutoMovieAffordance,
   IAutoMovieBoxShape,
   IAutoMovieBuiltElement,
   IAutoMovieBuiltEnvironment,
+  IAutoMovieBuiltSpace,
   IAutoMovieBuiltSurface,
   IAutoMovieEnvironmentModule,
   IAutoMovieModel,

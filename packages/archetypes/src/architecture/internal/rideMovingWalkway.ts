@@ -31,7 +31,7 @@ const MAXIMUM: number = 0.75;
  * @throws {AutoMovieArchetypeRefusal} For a speed that is not positive or
  *   exceeds EN 115-1's 0.75 m/s.
  */
-export function rideMovingWalkwayImplementation(
+export function rideMovingWalkway(
   walkway: AutoMovieArchetype<
     AutoMovieArchetypeMovingWalkway.Affordance,
     AutoMovieArchetypeMovingWalkway.Dimension

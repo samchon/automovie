@@ -27,7 +27,7 @@ const RATE: number = 1e-3;
  * @returns The disc's angle and frame on the ride's clock.
  * @throws {AutoMovieArchetypeRefusal} For a release before the ride starts.
  */
-export function rideRoundaboutImplementation(
+export function rideRoundabout(
   placement: IAutoMovieTransform,
   ride: AutoMovieArchetypeRoundaboutRide.IRideParams,
 ): AutoMovieArchetypeRoundaboutRide.IRideResult {

@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeRefusal,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { rideSwingImplementation } from "./internal/rideSwing";
+import { rideSwing } from "./internal/rideSwing";
 
 /** The seat clearance read for a single-user swing at rest. */
 const EN1176: string =
@@ -261,7 +261,7 @@ export function create(
     placement: IAutoMovieTransform,
     ride: AutoMovieArchetypeSwing.IRideParams,
   ): AutoMovieArchetypeSwing.IRideResult {
-    return rideSwingImplementation(swing, placement, ride);
+    return rideSwing(swing, placement, ride);
   }
 
   /** How the swing is set going and pumped. */

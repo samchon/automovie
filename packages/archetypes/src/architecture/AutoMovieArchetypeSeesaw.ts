@@ -9,7 +9,7 @@ import {
   AutoMovieArchetypeFrame,
   type IAutoMovieArchetypeBand,
 } from "../core/index";
-import { rideSeesawImplementation } from "./internal/rideSeesaw";
+import { rideSeesaw } from "./internal/rideSeesaw";
 
 /** Construction sizes no source read gives, provisional. */
 const ESTIMATE: string =
@@ -245,7 +245,7 @@ export function create(
     placement: IAutoMovieTransform,
     ride: AutoMovieArchetypeSeesaw.IRideParams,
   ): AutoMovieArchetypeSeesaw.IRideResult {
-    return rideSeesawImplementation(seesaw, placement, ride);
+    return rideSeesaw(seesaw, placement, ride);
   }
 
   /** When the riders push off and how long a rock takes. */

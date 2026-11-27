@@ -29,7 +29,7 @@ const LEVEL: IAutoMovieTransform["rotation"] = { x: 0, y: 0, z: 0, w: 1 };
  *   to the upper comb.
  * @returns The tread, flight and handrail frames on the ride's clock.
  */
-export function rideEscalatorImplementation(
+export function rideEscalator(
   escalator: AutoMovieArchetype<
     AutoMovieArchetypeEscalator.Affordance,
     AutoMovieArchetypeEscalator.Dimension

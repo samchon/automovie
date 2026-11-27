@@ -14,9 +14,60 @@ function git(...args) {
   return execFileSync("git", args, { cwd: root, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
 
+function readTrackedBytes(relative) {
+  const file = path.join(root, relative);
+  try {
+    const stat = fs.lstatSync(file);
+    if (stat.isSymbolicLink() || !stat.isFile()) throw new Error("Tracked path is not a regular file: " + relative);
+    return { bytes: fs.readFileSync(file), fromHead: false };
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    const bytes = execFileSync("git", ["show", "HEAD:" + relative], { cwd: root, encoding: null, maxBuffer: 16 * 1024 * 1024 });
+    return { bytes, fromHead: true };
+  }
+}
+
 function key(relative) {
   const normalized = relative.replaceAll(path.sep, "/");
   return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function createSourceReferenceMatcher(moves) {
+  const sourceReferences = new Map();
+  const packageRoots = new Set();
+  for (const move of moves) {
+    const packageRoot = move.from.slice(0, move.from.indexOf("/src/"));
+    const packageSource = move.from.slice(packageRoot.length + 1);
+    packageRoots.add(packageRoot);
+    if (!sourceReferences.has(packageRoot)) sourceReferences.set(packageRoot, new Set());
+    for (const reference of [move.from, packageSource]) {
+      const extension = path.posix.extname(reference);
+      const stem = extension ? reference.slice(0, -extension.length) : reference;
+      sourceReferences.get(packageRoot).add(reference);
+      sourceReferences.get(packageRoot).add(stem);
+      if (extension === ".ts") sourceReferences.get(packageRoot).add(stem + ".js");
+      else if (extension === ".tsx") sourceReferences.get(packageRoot).add(stem + ".jsx");
+      else if (extension === ".mts") sourceReferences.get(packageRoot).add(stem + ".mjs");
+      else if (extension === ".cts") sourceReferences.get(packageRoot).add(stem + ".cjs");
+    }
+  }
+  const patterns = new Map([...sourceReferences].map(([packageRoot, references]) => [
+    packageRoot,
+    new RegExp([...references].map((reference) => escapeRegExp(reference) + "(?![A-Za-z0-9_.])").join("|"), "u"),
+  ]));
+  return (value) => {
+    const normalized = value.replaceAll("\\", "/");
+    if (!normalized.includes("src/")) return false;
+    let candidates = normalized.includes("packages/")
+      ? [...packageRoots].filter((packageRoot) => normalized.includes(packageRoot))
+      : [];
+    if (!candidates.length) candidates = [...patterns.keys()];
+    return candidates.some((packageRoot) => patterns.get(packageRoot).test(normalized));
+  };
 }
 
 function repoPath(value) {
@@ -154,15 +205,19 @@ function specifierFor(importer, target, oldSpecifier, preserveIndex = false) {
 
 function plan(moves) {
   const allTrackedPaths = git("ls-files", "-z", "--cached").split("\0").filter(Boolean);
-  const trackedPaths = allTrackedPaths.filter((relative) => codePattern.test(relative) && !/(?:^|\/)(?:node_modules|dist|generated)\//u.test(relative));
-  const tracked = new Set(allTrackedPaths.map(key));
+  const ignoredCodePath = (relative) => !codePattern.test(relative) || /(?:^|\/)(?:node_modules|dist|generated|\.agents)\//u.test(relative);
+  const untrackedCodePaths = git("ls-files", "--others", "--exclude-standard", "-z").split("\0").filter((relative) => !ignoredCodePath(relative) && /^(?:packages|test|config|website|experimental)\//u.test(relative));
+  const trackedPaths = [...new Set([...allTrackedPaths.filter((relative) => !ignoredCodePath(relative)), ...untrackedCodePaths])];
+  const trackedKeys = new Set(allTrackedPaths.map(key));
+  const tracked = new Set([...trackedKeys, ...untrackedCodePaths.map(key)]);
   const moveBySource = new Map(moves.map((move) => [key(move.from), move]));
+  const containsMovedPath = createSourceReferenceMatcher(moves);
   for (const move of moves) {
     const source = path.join(root, move.from);
     const target = path.join(root, move.to);
     const stat = fs.lstatSync(source);
     if (!stat.isFile() || stat.isSymbolicLink() || !tracked.has(key(move.from))) throw new Error("Move source must be a tracked regular file: " + move.from);
-    if (fs.existsSync(target)) throw new Error("Move destination already exists: " + move.to);
+    if (fs.existsSync(target) || tracked.has(key(move.to))) throw new Error("Move destination already exists or remains tracked: " + move.to);
     for (let parent = path.dirname(target); parent !== root && parent.startsWith(root + path.sep); parent = path.dirname(parent)) {
       if (!fs.existsSync(parent)) continue;
       const parentStat = fs.lstatSync(parent);
@@ -181,41 +236,38 @@ function plan(moves) {
   const changedImports = [];
   const blockers = [];
   const jsonFiles = allTrackedPaths.filter((relative) => /\.jsonc?$/u.test(relative));
-  const packageJsonFiles = jsonFiles.filter((relative) => relative.startsWith("packages/"));
-  const packageFiles = packageJsonFiles.filter((relative) => /(?:^|\/)package\.json$/u.test(relative));
   const inputSnapshots = [];
   for (const move of moves) {
     const packageRoot = move.from.slice(0, move.from.indexOf("/src/"));
     if (packageRoot !== move.from && packageRoot.startsWith("packages/")) {
-      const packageSource = move.from.slice(packageRoot.length + 1);
-      const packageDestination = move.to.slice(packageRoot.length + 1);
       const sourceRelative = move.from.slice(packageRoot.length + "/src/".length);
       const destinationRelative = move.to.slice(packageRoot.length + "/src/".length);
       const predicateFrom = path.join(root, packageRoot, "predicate", sourceRelative.replace(/\.[cm]?tsx?$/u, ".md"));
       const predicateTo = path.join(root, packageRoot, "predicate", destinationRelative.replace(/\.[cm]?tsx?$/u, ".md"));
-      if (fs.existsSync(predicateFrom)) blockers.push({ path: path.relative(root, predicateFrom).replaceAll(path.sep, "/"), reason: "Associated predicate file and declaration address need a coordinated move." });
-      if (fs.existsSync(predicateTo)) blockers.push({ path: path.relative(root, predicateTo).replaceAll(path.sep, "/"), reason: "Predicate destination already exists." });
-      const exportValue = "./" + packageSource;
-      for (const manifest of packageFiles) {
-        if (!manifest.startsWith(packageRoot + "/")) continue;
-        const json = JSON.parse(fs.readFileSync(path.join(root, manifest), "utf8"));
-        if (JSON.stringify(json.exports ?? {}).includes(exportValue)) blockers.push({ path: manifest, reason: "Package export value references the moved source and needs a coordinated package.json update." });
-      }
-      for (const jsonPath of jsonFiles) {
-        const contents = fs.readFileSync(path.join(root, jsonPath), "utf8");
-        if (contents.includes(move.from) || contents.includes(packageSource)) blockers.push({ path: jsonPath, reason: "Package JSON path string references the moved source and needs a coordinated update." });
-      }
+      const predicateFromRelative = path.relative(root, predicateFrom).replaceAll(path.sep, "/");
+      const predicateToRelative = path.relative(root, predicateTo).replaceAll(path.sep, "/");
+      if (fs.existsSync(predicateFrom) || tracked.has(key(predicateFromRelative))) blockers.push({ path: predicateFromRelative, reason: "Associated predicate file and declaration address need a coordinated move." });
+      if (fs.existsSync(predicateTo) || tracked.has(key(predicateToRelative))) blockers.push({ path: predicateToRelative, reason: "Predicate destination already exists." });
     }
   }
+  for (const jsonPath of jsonFiles) {
+    const contents = readTrackedBytes(jsonPath).bytes.toString("utf8");
+    if (!containsMovedPath(contents)) continue;
+    const isPackageManifest = /(?:^|\/)package\.json$/u.test(jsonPath);
+    const reason = isPackageManifest && JSON.stringify(JSON.parse(contents).exports ?? {}).length > 2
+      ? "Package export or source path in package.json needs a coordinated update."
+      : "JSON path string references a moved source and needs a coordinated update.";
+    blockers.push({ path: jsonPath, reason });
+  }
   for (const relative of trackedPaths) {
-    if (!sourcePattern.test(relative) || /(?:^|\/)(?:node_modules|dist|generated)\//u.test(relative)) continue;
+    if (!codePattern.test(relative) || /(?:^|\/)(?:node_modules|dist|generated)\//u.test(relative)) continue;
     const diskPath = path.join(root, relative);
-    const stat = fs.lstatSync(diskPath);
-    if (stat.isSymbolicLink() || !stat.isFile()) throw new Error("Tracked source path is not a regular file: " + relative);
-    const bytes = fs.readFileSync(diskPath);
+    if (!fs.existsSync(diskPath) && !trackedKeys.has(key(relative))) throw new Error("Untracked source disappeared during scan: " + relative);
+    if (!fs.existsSync(diskPath) && moveBySource.has(key(relative))) throw new Error("Move source preimage is missing from the worktree: " + relative);
+    const { bytes, fromHead } = readTrackedBytes(relative);
     const text = bytes.toString("utf8");
     if (!bytes.equals(Buffer.from(text, "utf8"))) throw new Error("Invalid UTF-8 source: " + relative);
-    inputSnapshots.push({ path: relative, bytes });
+    inputSnapshots.push({ path: relative, bytes, fromHead });
     const tree = ts.createSourceFile(diskPath, text, ts.ScriptTarget.Latest, true);
     if (tree.parseDiagnostics.length) throw new Error("Cannot safely inspect source syntax: " + relative);
     const importerMove = moveBySource.get(key(relative));
@@ -268,12 +320,7 @@ function plan(moves) {
     for (const literal of allStrings) {
       if (moduleStarts.has(literal.getStart(tree))) continue;
       const value = literal.text;
-      const normalizedValue = value.replaceAll("\\", "/");
-      if (moves.some((move) => {
-        const packageRoot = move.from.slice(0, move.from.indexOf("/src/"));
-        const packageSource = move.from.slice(packageRoot.length + 1);
-        return normalizedValue.includes(move.from) || normalizedValue.includes(packageSource);
-      })) {
+      if (containsMovedPath(value)) {
         blockers.push({ path: relative, reason: "Non-module string literal contains a moved source path: " + value });
       } else if (value.startsWith(".")) {
         const resolved = resolveBefore(relative, value);
@@ -285,7 +332,7 @@ function plan(moves) {
   const changes = [];
   for (const [relative, edits] of editsByFile) {
     const file = path.join(root, relative);
-    const before = fs.readFileSync(file);
+    const before = inputSnapshots.find((input) => key(input.path) === key(relative))?.bytes ?? fs.readFileSync(file);
     const source = before.toString("utf8");
     let after = source;
     for (const edit of [...edits].sort((a, b) => b.start - a.start)) after = after.slice(0, edit.start) + edit.text + after.slice(edit.end);
@@ -355,7 +402,7 @@ function apply(planResult, checkpoint) {
     ...planResult.changes.map(({ path }) => path),
   ])];
   verifyCheckpoint(checkpoint, guardedPaths);
-  for (const input of planResult.inputs) verifyFile(input.path, input.bytes);
+  for (const input of planResult.inputs) if (!input.fromHead) verifyFile(input.path, input.bytes);
   for (const move of planResult.moves) {
     verifyFile(move.from, move.before);
     if (fs.existsSync(path.join(root, move.to))) throw new Error("Destination appeared after planning: " + move.to);
@@ -444,4 +491,4 @@ if (require.main === module) {
   try { main(); } catch (error) { console.error(error.message); process.exitCode = 1; }
 }
 
-module.exports = { moduleLiterals, plan, readManifestText, repoPath, resolver, specifierFor };
+module.exports = { createSourceReferenceMatcher, moduleLiterals, plan, readManifestText, repoPath, resolver, specifierFor };

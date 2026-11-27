@@ -9,6 +9,9 @@ interface ICreateLintConfigOptions {
  * Builds the shared correctness and declaration lint rules for workspace source
  * files.
  *
+ * Documentation mode checks only the source tree next to the calling project's
+ * lint config. Each imported workspace package checks its own source tree.
+ *
  * Prettier owns formatting; its settings here do not emit diagnostics.
  */
 export function createLintConfig(
@@ -20,6 +23,16 @@ export function createLintConfig(
     { type: "website", pattern: "website/**" },
   ];
   return {
+    ...(options?.documented
+      ? {
+          files: [
+            "src/**/*.ts",
+            "src/**/*.tsx",
+            "src/**/*.mts",
+            "src/**/*.cts",
+          ],
+        }
+      : {}),
     plugins: { evidence },
     format: {
       // Formatting is prettier's job; keep this aligned but non-blocking.
