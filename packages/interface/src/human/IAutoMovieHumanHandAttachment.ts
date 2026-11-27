@@ -33,24 +33,9 @@ export namespace IAutoMovieHumanHandAttachment {
      * Actual parent intersections along the child's dorsal line, with explicit
      * geometric brackets.
      */
-    dorsalChord: {
-      /** Parent-surface boundary intersected by the negative dorsal ray. */
-      lower: IEdge;
-      /** Parent-surface boundary intersected by the positive dorsal ray. */
-      upper: IEdge;
-    };
+    dorsalChord: IConnectionDorsalChord;
     /** The child's own dorsal and breadth directions at its first straight bone. */
-    childFrame: {
-      /** Unit dorsal axis of the child's section chart in the registered frame. */
-      u: AutoMovieVector3Tuple;
-      /** Unit cross axis obtained from the dorsal axis and centre-line tangent. */
-      v: AutoMovieVector3Tuple;
-      /**
-       * Unit direction of the child's first bone, from its proximal joint
-       * toward its distal joint.
-       */
-      tangent: AutoMovieVector3Tuple;
-    };
+    childFrame: IConnectionChildFrame;
     /**
      * Actual parent-boundary rays in the four child-quarter bisector
      * directions.
@@ -67,24 +52,7 @@ export namespace IAutoMovieHumanHandAttachment {
      * The root law holds its source readings; their pullback station
      * derivatives are zero.
      */
-    parameterMap: {
-      /** Parent's physical station at the attachment centre, millimetres. */
-      parentStation: number;
-      /**
-       * Parent physical stations of the lower and upper dorsal chord endpoints,
-       * millimetres.
-       */
-      depthStations: [number, number];
-      /**
-       * Parent physical station at each of the child's four quarter rays,
-       * millimetres.
-       */
-      quarterStations: Quarters;
-      /** Zero first derivative at the stationary native shoulder boundary. */
-      first: 0;
-      /** Zero second derivative at the stationary native shoulder boundary. */
-      second: 0;
-    };
+    parameterMap: IConnectionParameterMap;
     /**
      * Parent-derived positive base law, followed by the unchanged measured
      * shaft and joints.
@@ -103,6 +71,47 @@ export namespace IAutoMovieHumanHandAttachment {
     /** Original measured first-shaft law before the parent contact is attached. */
     measuredShaft: IAutoMovieHumanDigitWalk.ISiteLaw;
   }
+
+  /** The parameterMap object of {@link IConnection}. */
+  export type IConnectionParameterMap = {
+    /** Parent's physical station at the attachment centre, millimetres. */
+    parentStation: number;
+    /**
+     * Parent physical stations of the lower and upper dorsal chord endpoints,
+     * millimetres.
+     */
+    depthStations: [number, number];
+    /**
+     * Parent physical station at each of the child's four quarter rays,
+     * millimetres.
+     */
+    quarterStations: Quarters;
+    /** Zero first derivative at the stationary native shoulder boundary. */
+    first: 0;
+    /** Zero second derivative at the stationary native shoulder boundary. */
+    second: 0;
+  };
+
+  /** The childFrame object of {@link IConnection}. */
+  export type IConnectionChildFrame = {
+    /** Unit dorsal axis of the child's section chart in the registered frame. */
+    u: AutoMovieVector3Tuple;
+    /** Unit cross axis obtained from the dorsal axis and centre-line tangent. */
+    v: AutoMovieVector3Tuple;
+    /**
+     * Unit direction of the child's first bone, from its proximal joint
+     * toward its distal joint.
+     */
+    tangent: AutoMovieVector3Tuple;
+  };
+
+  /** The dorsalChord object of {@link IConnection}. */
+  export type IConnectionDorsalChord = {
+    /** Parent-surface boundary intersected by the negative dorsal ray. */
+    lower: IEdge;
+    /** Parent-surface boundary intersected by the positive dorsal ray. */
+    upper: IEdge;
+  };
 
   /** A qualified local original section and the point in its chart. */
   export interface ISection {

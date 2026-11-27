@@ -70,17 +70,7 @@ export namespace IAutoMovieMotionHumanWorkout {
      * when the action starts replaces the height the kind computes from the
      * body, and the body goes to it. None when absent.
      */
-    on?: {
-      /** Scene subject id of the exercise support prop. */
-      prop: string;
-      /** Affordance id on that prop used for the first contact. */
-      affordance: string;
-      /**
-       * Optional second support affordance id on the same prop; omitted uses
-       * the single-contact case.
-       */
-      other?: string;
-    };
+    on?: IParamsOn;
 
     /**
      * Static friction coefficient of the planted floor for a named wall sit,
@@ -103,4 +93,17 @@ export namespace IAutoMovieMotionHumanWorkout {
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
   }
+
+  /** The on object of {@link IParams}. */
+  export type IParamsOn = {
+    /** Scene subject id of the exercise support prop. */
+    prop: string;
+    /** Affordance id on that prop used for the first contact. */
+    affordance: string;
+    /**
+     * Optional second support affordance id on the same prop; omitted uses
+     * the single-contact case.
+     */
+    other?: string;
+  };
 }

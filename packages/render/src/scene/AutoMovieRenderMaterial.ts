@@ -21,9 +21,7 @@ export namespace AutoMovieRenderMaterial {
     /** Stable scope that groups the renderer observations. */
     scope: string;
     /** Renderer whose extensions determine the area-light texture sources. */
-    renderer: {
-      extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
-    };
+    renderer: IReadMaterialTextureSourcesPropsRenderer;
     /** Scene whose live material textures are observed. */
     scene: THREE.Scene;
     /** Earlier rows retained by the caller for the same renderer. */
@@ -31,6 +29,11 @@ export namespace AutoMovieRenderMaterial {
       IAutoMovieRenderTextureResidency["runtimeTextures"]
     >[number][];
   }
+
+  /** The renderer object of {@link IReadMaterialTextureSourcesProps}. */
+  export type IReadMaterialTextureSourcesPropsRenderer = {
+    extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
+  };
 
   /** One patch operation applied to the same caller-owned shader value. */
   export interface IShaderPatchApplication<Shader> {

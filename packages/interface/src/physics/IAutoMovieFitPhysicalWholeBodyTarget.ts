@@ -43,31 +43,37 @@ export namespace IAutoMovieFitPhysicalWholeBodyTarget {
     /** Current world pose of every segment. */ targets: Readonly<
       Record<string, IAutoMovieRigidTransform>
     >;
-    /** The held support and its bounded turn about the contact normal. */ support: {
-      /** Held segment. */ bone: string;
-      /** World contact point, metres. */ point: IAutoMovieVector3;
-      /** Unit world contact normal the support may turn about. */ normal: IAutoMovieVector3;
-      /** Lower turn, radians. */ minimum: number;
-      /** Upper turn, radians. */ maximum: number;
-    };
+    /** The held support and its bounded turn about the contact normal. */ support: IInputSupport;
     /**
      * Segments whose joint toward the old root may move: the support chain, the
      * trunk and the reaching chain.
      */ bones: readonly string[];
-    /** The endpoint goal. */ goal: {
-      /** Segment carrying the endpoint. */ bone: string;
-      /** Endpoint in that segment's frame, metres. */ localPoint: IAutoMovieVector3;
-      /** World goal point, metres. */ point: IAutoMovieVector3;
-      /**
-       * Optional arrival direction: the segment's local direction should point
-       * along it.
-       */ approach?: {
-        /** Unit direction in the segment's frame. */ localDirection: IAutoMovieVector3;
-        /** Unit world direction. */ direction: IAutoMovieVector3;
-        /** Metres of residual per unit of direction difference; positive. */ weight: number;
-      };
-    };
+    /** The endpoint goal. */ goal: IInputGoal;
     /** Positive update budget, at most 64. */ iterations: number;
     /** Positive residual early-out, metres. */ tolerance: number;
+  };
+
+  /** The goal object of {@link IInput}. */
+  export type IInputGoal = {
+    /** Segment carrying the endpoint. */ bone: string;
+    /** Endpoint in that segment's frame, metres. */ localPoint: IAutoMovieVector3;
+    /** World goal point, metres. */ point: IAutoMovieVector3;
+    /**
+     * Optional arrival direction: the segment's local direction should point
+     * along it.
+     */ approach?: {
+      /** Unit direction in the segment's frame. */ localDirection: IAutoMovieVector3;
+      /** Unit world direction. */ direction: IAutoMovieVector3;
+      /** Metres of residual per unit of direction difference; positive. */ weight: number;
+    };
+  };
+
+  /** The support object of {@link IInput}. */
+  export type IInputSupport = {
+    /** Held segment. */ bone: string;
+    /** World contact point, metres. */ point: IAutoMovieVector3;
+    /** Unit world contact normal the support may turn about. */ normal: IAutoMovieVector3;
+    /** Lower turn, radians. */ minimum: number;
+    /** Upper turn, radians. */ maximum: number;
   };
 }

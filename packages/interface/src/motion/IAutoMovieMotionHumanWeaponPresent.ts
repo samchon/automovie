@@ -87,22 +87,25 @@ export namespace IAutoMovieMotionHumanWeaponPresent {
      * time from the break to the launch in seconds (the gun's lock time; 0 when
      * absent). Nothing is launched when absent.
      */
-    shot?: {
-      /** Scene subject id of the projectile launched from the weapon's muzzle. */
-      prop: string;
-      /**
-       * Muzzle speed relative to the weapon, metres per second; support
-       * velocity is added by the launch planner. Authored, never derived: take
-       * the gun's own muzzle velocity.
-       */
-      speed: number;
-      /**
-       * Lock delay after trigger break, seconds; 0 when absent: the shot
-       * launches at the trigger break. Give a flintlock's lock time here.
-       */
-      lock?: number;
-    };
+    shot?: IWieldShot;
   }
+
+  /** The shot object of {@link IWield}. */
+  export type IWieldShot = {
+    /** Scene subject id of the projectile launched from the weapon's muzzle. */
+    prop: string;
+    /**
+     * Muzzle speed relative to the weapon, metres per second; support
+     * velocity is added by the launch planner. Authored, never derived: take
+     * the gun's own muzzle velocity.
+     */
+    speed: number;
+    /**
+     * Lock delay after trigger break, seconds; 0 when absent: the shot
+     * launches at the trigger break. Give a flintlock's lock time here.
+     */
+    lock?: number;
+  };
 
   /**
    * Where a line of aim starts: the eye, the cheek on a stock, the face a bow's

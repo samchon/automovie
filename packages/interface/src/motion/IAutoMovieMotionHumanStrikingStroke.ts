@@ -30,16 +30,7 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      * An optional via point (a chamber) with the second it is reached and how
      * early the delivery overlaps it.
      */
-    via?: {
-      /** Chamber or via point in world metres. */
-      point: IAutoMovieVector3;
-      /** Start of the motion toward the via point, film seconds. */
-      begin: number;
-      /** Arrival at the via point, film seconds. */
-      end: number;
-      /** Seconds by which delivery begins before the chamber's end. */
-      overlap: number;
-    };
+    via?: IDeliveryVia;
 
     /** Where the end joint is at the contact. */
     impact: IAutoMovieVector3;
@@ -65,6 +56,18 @@ export namespace IAutoMovieMotionHumanStrikingStroke {
      */
     peak?: number;
   }
+
+  /** The via object of {@link IDelivery}. */
+  export type IDeliveryVia = {
+    /** Chamber or via point in world metres. */
+    point: IAutoMovieVector3;
+    /** Start of the motion toward the via point, film seconds. */
+    begin: number;
+    /** Arrival at the via point, film seconds. */
+    end: number;
+    /** Seconds by which delivery begins before the chamber's end. */
+    overlap: number;
+  };
 
   /** What a stroke evaluates. */
   export interface IInput {

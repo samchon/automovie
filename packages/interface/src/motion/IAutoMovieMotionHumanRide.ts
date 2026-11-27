@@ -115,47 +115,50 @@ export namespace IAutoMovieMotionHumanRide {
      * to tracks in the performance and their instants are film seconds. At
      * least one of stride, jump and lookBack must be set.
      */
-    equestrian?: {
-      /**
-       * One touchdown track, or ordered nonoverlapping tracks that change gait
-       * or lead where one track ends and the next begins.
-       */
-      stride?: EquestrianStrides;
-
-      /**
-       * Follow an authored jumping support from approach through recovery. Each
-       * track must publish exactly one instant within the ride, in the order
-       * below. Both feet must enter on their named stirrups. Compose a jump in
-       * a ride without rising trot.
-       */
-      jump?: {
-        /** The beginning of the rider's approach posture. */
-        approach: string;
-        /** The horse's last hind-hoof liftoff. */
-        takeoff: string;
-        /** The horse's first forehoof landing. */
-        landing: string;
-        /** The end of the rider's recovery. */
-        recovery: string;
-      };
-
-      /**
-       * An over-shoulder film pose centred on a single cue. The pelvis remains
-       * with the saddle.
-       */
-      lookBack?: {
-        /** The track with one instant inside the ride, at the fullest turn. */
-        cue: string;
-        /** Which shoulder the rider looks over. */
-        side: "left" | "right";
-        /**
-         * Total seconds of the turn and return, within the ride. Greater than
-         * zero.
-         */
-        duration: number;
-      };
-    };
+    equestrian?: IParamsEquestrian;
   }
+
+  /** The equestrian object of {@link IParams}. */
+  export type IParamsEquestrian = {
+    /**
+     * One touchdown track, or ordered nonoverlapping tracks that change gait
+     * or lead where one track ends and the next begins.
+     */
+    stride?: EquestrianStrides;
+
+    /**
+     * Follow an authored jumping support from approach through recovery. Each
+     * track must publish exactly one instant within the ride, in the order
+     * below. Both feet must enter on their named stirrups. Compose a jump in
+     * a ride without rising trot.
+     */
+    jump?: {
+      /** The beginning of the rider's approach posture. */
+      approach: string;
+      /** The horse's last hind-hoof liftoff. */
+      takeoff: string;
+      /** The horse's first forehoof landing. */
+      landing: string;
+      /** The end of the rider's recovery. */
+      recovery: string;
+    };
+
+    /**
+     * An over-shoulder film pose centred on a single cue. The pelvis remains
+     * with the saddle.
+     */
+    lookBack?: {
+      /** The track with one instant inside the ride, at the fullest turn. */
+      cue: string;
+      /** Which shoulder the rider looks over. */
+      side: "left" | "right";
+      /**
+       * Total seconds of the turn and return, within the ride. Greater than
+       * zero.
+       */
+      duration: number;
+    };
+  };
 
   /** One saddle-relative response over consecutive real carrier touchdowns. */
   export interface IEquestrianStride {

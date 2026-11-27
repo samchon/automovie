@@ -174,33 +174,36 @@ export namespace IAutoMovieTessellateParametricAtlas64 {
      * Actual emitted and omitted work counts; none is a proof of approximation
      * accuracy or surface embedding.
      */
-    counts: {
-      /**
-       * Number of charts retained after boundary planning and emission
-       * admission.
-       */
-      patches: number;
-      /** Number of charts omitted after local planning or emission failure. */
-      omittedPatches: number;
-      /**
-       * Actual generated render vertex count, including separate normal-fan
-       * vertices at shared physical points.
-       */
-      vertices: number;
-      /** Number of retained finite positive-area triangles. */
-      triangles: number;
-      /**
-       * Samples whose chart partial cross product could not supply a finite
-       * nonzero normal.
-       */
-      singularNormals: number;
-      /**
-       * Singular samples where an authored finite nonzero normalLimit supplied
-       * the published unit direction.
-       */
-      limitingNormals: number;
-      /** Proposed faces omitted for a zero or nonfinite cross-product magnitude. */
-      zeroAreaTriangles: number;
-    };
+    counts: IResultCounts;
+  };
+
+  /** The counts object of {@link IResult}. */
+  export type IResultCounts = {
+    /**
+     * Number of charts retained after boundary planning and emission
+     * admission.
+     */
+    patches: number;
+    /** Number of charts omitted after local planning or emission failure. */
+    omittedPatches: number;
+    /**
+     * Actual generated render vertex count, including separate normal-fan
+     * vertices at shared physical points.
+     */
+    vertices: number;
+    /** Number of retained finite positive-area triangles. */
+    triangles: number;
+    /**
+     * Samples whose chart partial cross product could not supply a finite
+     * nonzero normal.
+     */
+    singularNormals: number;
+    /**
+     * Singular samples where an authored finite nonzero normalLimit supplied
+     * the published unit direction.
+     */
+    limitingNormals: number;
+    /** Proposed faces omitted for a zero or nonfinite cross-product magnitude. */
+    zeroAreaTriangles: number;
   };
 }

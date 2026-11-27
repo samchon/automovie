@@ -34,19 +34,22 @@ export namespace IAutoMovieMotionHumanRelease {
      * A prop launched along its own line at a launcher's speed instead of the
      * held prop's drop: an arrow on the drawn string.
      */
-    launch?: {
-      /** The launched prop's subject. */
-      prop: string;
-      /** The prop's point its line starts from, such as an arrow's inocki. */
-      from: string;
-      /** The point its line runs to, such as the arrow's itipi. */
-      to: string;
-      /**
-       * The launcher's speed along the line, metres per second: the arrow's
-       * speed off the string, set by the bow's ilaunchSpeedi at the string's
-       * travel; a hand's own velocity is added.
-       */
-      speed: number;
-    };
+    launch?: IParamsLaunch;
   }
+
+  /** The launch object of {@link IParams}. */
+  export type IParamsLaunch = {
+    /** The launched prop's subject. */
+    prop: string;
+    /** The prop's point its line starts from, such as an arrow's inocki. */
+    from: string;
+    /** The point its line runs to, such as the arrow's itipi. */
+    to: string;
+    /**
+     * The launcher's speed along the line, metres per second: the arrow's
+     * speed off the string, set by the bow's ilaunchSpeedi at the string's
+     * travel; a hand's own velocity is added.
+     */
+    speed: number;
+  };
 }

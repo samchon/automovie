@@ -97,7 +97,7 @@ export namespace AutoMovieArchetypeCourse {
      * Where the support's root starts, metres on the floor, and its heading,
      * degrees.
      */
-    start: { x: number; z: number; heading: number };
+    start: ICourseStart;
 
     /** The legs in order, at least one. */
     legs: readonly Leg[];
@@ -149,6 +149,9 @@ export namespace AutoMovieArchetypeCourse {
      */
     at?: number;
   }
+
+  /** The start object of {@link ICourse}. */
+  export type ICourseStart = { x: number; z: number; heading: number };
 
   /** One sample of a timed course: where the support's root is at a film second. */
   export interface ISample {

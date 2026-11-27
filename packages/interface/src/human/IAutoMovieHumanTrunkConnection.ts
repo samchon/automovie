@@ -51,17 +51,20 @@ export namespace IAutoMovieHumanTrunkConnection {
    */
   export interface IConnection extends IDefinition {
     /** Actual preloft source ownership retained by both original consumers. */
-    original: {
-      /**
-       * Geometric part with its original axis and section laws; its declared
-       * source frame and units apply.
-       */
-      part: IAutoMovieViewPart;
-      /**
-       * Admitted original scalar/section owner for this geometric part;
-       * consumers read its declared source parameter.
-       */
-      source: IAutoMovieLoftViewSource.ISource;
-    };
+    original: IConnectionOriginal;
   }
+
+  /** The original object of {@link IConnection}. */
+  export type IConnectionOriginal = {
+    /**
+     * Geometric part with its original axis and section laws; its declared
+     * source frame and units apply.
+     */
+    part: IAutoMovieViewPart;
+    /**
+     * Admitted original scalar/section owner for this geometric part;
+     * consumers read its declared source parameter.
+     */
+    source: IAutoMovieLoftViewSource.ISource;
+  };
 }

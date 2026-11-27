@@ -73,24 +73,27 @@ export namespace IAutoMovieHumanHeadFeatures {
      * of the station range walked; absent, phase 0 from the base (share 0) to
      * the apex (share 1), which a dome crosses its parent on.
      */
-    search?: {
-      /**
-       * Section phase in radians, increasing according to the source curve's
-       * orientation.
-       */
-      phase: number;
-      /**
-       * Start of the seed-search interval as a dimensionless share of the
-       * part's station span.
-       */
-      from: number;
-      /**
-       * End of the seed-search interval as a dimensionless share of the part's
-       * station span.
-       */
-      to: number;
-    };
+    search?: IFeatureSearch;
   }
+
+  /** The search object of {@link IFeature}. */
+  export type IFeatureSearch = {
+    /**
+     * Section phase in radians, increasing according to the source curve's
+     * orientation.
+     */
+    phase: number;
+    /**
+     * Start of the seed-search interval as a dimensionless share of the
+     * part's station span.
+     */
+    from: number;
+    /**
+     * End of the seed-search interval as a dimensionless share of the part's
+     * station span.
+     */
+    to: number;
+  };
 
   /**
    * Explicit top-level regional requests share their actual numeric contact

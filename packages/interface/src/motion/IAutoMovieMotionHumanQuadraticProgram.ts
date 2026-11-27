@@ -95,17 +95,20 @@ export namespace IAutoMovieMotionHumanQuadraticProgram {
      * The unscaled primal and dual residuals the solve ended at, their infinity
      * norms.
      */
-    residual?: {
-      /**
-       * Infinity norm of the primal residual of the original unscaled
-       * constrained problem.
-       */
-      primal: number;
-      /**
-       * Infinity norm of the dual residual of the original unscaled constrained
-       * problem.
-       */
-      dual: number;
-    };
+    residual?: IStateResidual;
   }
+
+  /** The residual object of {@link IState}. */
+  export type IStateResidual = {
+    /**
+     * Infinity norm of the primal residual of the original unscaled
+     * constrained problem.
+     */
+    primal: number;
+    /**
+     * Infinity norm of the dual residual of the original unscaled constrained
+     * problem.
+     */
+    dual: number;
+  };
 }

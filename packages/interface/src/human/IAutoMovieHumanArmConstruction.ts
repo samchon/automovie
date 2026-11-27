@@ -62,20 +62,23 @@ export namespace IAutoMovieHumanArmConstruction {
     length: number;
 
     /** The thumb's carpometacarpal and metacarpophalangeal joints. */
-    thumb: {
-      /**
-       * Thumb carpometacarpal joint centre in the body's registered frame,
-       * millimetres.
-       */
-      cmc: AutoMovieVector3Tuple;
-      /**
-       * Thumb metacarpophalangeal joint centre in the body's registered frame,
-       * millimetres.
-       */
-      mcp: AutoMovieVector3Tuple;
-    };
+    thumb: IBonesThumb;
 
     /** Each digit's centre line from its web to its tip, thumb first. */
     digits: IAutoMovieHumanDigitCentreLine[];
   }
+
+  /** The thumb object of {@link IBones}. */
+  export type IBonesThumb = {
+    /**
+     * Thumb carpometacarpal joint centre in the body's registered frame,
+     * millimetres.
+     */
+    cmc: AutoMovieVector3Tuple;
+    /**
+     * Thumb metacarpophalangeal joint centre in the body's registered frame,
+     * millimetres.
+     */
+    mcp: AutoMovieVector3Tuple;
+  };
 }

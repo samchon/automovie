@@ -33,11 +33,17 @@ export namespace AutoMovieEnginePhysicalPlanarPolygon {
   /** A frame on the floor: its origin and forward unit direction, world x and z. */
   export interface IFrame {
     /** The origin's world x and z. */
-    origin: { x: number; z: number };
+    origin: IFrameOrigin;
 
     /** The forward direction's world x and z, unit length. */
-    forward: { x: number; z: number };
+    forward: IFrameForward;
   }
+
+  /** The forward object of {@link IFrame}. */
+  export type IFrameForward = { x: number; z: number };
+
+  /** The origin object of {@link IFrame}. */
+  export type IFrameOrigin = { x: number; z: number };
 
   /**
    * A world floor point in the frame: x along forward, y along left = up x

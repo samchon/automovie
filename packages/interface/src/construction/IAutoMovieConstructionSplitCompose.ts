@@ -66,7 +66,7 @@ export namespace IAutoMovieConstructionSplitCompose {
      * How far the host's end ring stands from the composed outline in the end
      * plane, mm: the greatest and the mean over the ring's samples.
      */
-    host: { max: number; mean: number };
+    host: IDerivedHost;
 
     /** Each child's rail. */
     cuts: IAutoMovieConstructionSkinCut.ICut[];
@@ -74,4 +74,7 @@ export namespace IAutoMovieConstructionSplitCompose {
     /** The composition the rest was derived from. */
     composition: IAutoMovieConstructionComposedEnd.IComposition;
   }
+
+  /** The host object of {@link IDerived}. */
+  export type IDerivedHost = { max: number; mean: number };
 }

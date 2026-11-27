@@ -71,19 +71,7 @@ export namespace AutoMovieHumanPolygon {
     bindings: ReadonlyMap<string, readonly THREE.Object3D[]>;
 
   /** Actual head group and its emitted, unposed local polygon extent. */
-    head: {
-      /** Attach a separately owned face or equipment in head-local metres. */
-      object: THREE.Group;
-
-      /** Minimum actual local polygon coordinate, metres. */
-      min: [number, number, number];
-
-      /** Maximum actual local polygon coordinate, metres. */
-      max: [number, number, number];
-
-      /** Frontmost local triangle X at Y/Z, undefined outside the silhouette. */
-      frontAt: (y: number, z: number) => number | undefined;
-    };
+    head: IDrawingHead;
 
   /**
      * Apply an admitted complete pose to existing polygon groups and refresh
@@ -109,6 +97,21 @@ export namespace AutoMovieHumanPolygon {
      */
     dispose: () => void;
   }
+
+  /** The head object of {@link IDrawing}. */
+  export type IDrawingHead = {
+    /** Attach a separately owned face or equipment in head-local metres. */
+    object: THREE.Group;
+
+    /** Minimum actual local polygon coordinate, metres. */
+    min: [number, number, number];
+
+    /** Maximum actual local polygon coordinate, metres. */
+    max: [number, number, number];
+
+    /** Frontmost local triangle X at Y/Z, undefined outside the silhouette. */
+    frontAt: (y: number, z: number) => number | undefined;
+  };
 
   /** Display colours and optional source-clock pose presentation. */
   export interface IBuildOptions {

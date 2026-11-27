@@ -19,15 +19,7 @@ export namespace IAutoMoviePlanPhysicalBalanceTargets {
     /** Coherent motor intent before balance fitting. */ targets: Readonly<
       Record<string, IAutoMovieRigidTransform>
     >;
-    /** Actual simultaneous root pose. */ root: {
-      /** Root segment bone used as the rebasing anchor. */
-      bone: string;
-      /**
-       * Measured root world position in metres and rotation, borrowed for this
-       * fit.
-       */
-      pose: IAutoMovieRigidTransform;
-    };
+    /** Actual simultaneous root pose. */ root: IInputRoot;
     /**
      * Previous correction carried through current authored coordinates;
      * original goals and root intent remain authoritative.
@@ -44,5 +36,16 @@ export namespace IAutoMoviePlanPhysicalBalanceTargets {
     /** Root-position intent budget, metres. */ maximumRootDrop: number;
     /** Existing balance update budget. */ iterations: number;
     /** Existing endpoint/floor tolerance, metres. */ tolerance: number;
+  };
+
+  /** The root object of {@link IInput}. */
+  export type IInputRoot = {
+    /** Root segment bone used as the rebasing anchor. */
+    bone: string;
+    /**
+     * Measured root world position in metres and rotation, borrowed for this
+     * fit.
+     */
+    pose: IAutoMovieRigidTransform;
   };
 }

@@ -119,20 +119,32 @@ export namespace AutoMovieEnginePhysicalStanceBalance {
   /** The centre-of-pressure integral's persisted state. */
   export interface IIntegral {
     /** The bias added to the command, world metres. */
-    bias: { x: number; z: number };
+    bias: IIntegralBias;
     /**
      * The centre of mass's horizontal acceleration, low-passed, metres per
      * second squared.
      */
-    acceleration: { x: number; z: number };
+    acceleration: IIntegralAcceleration;
     /** Its horizontal velocity at the previous call, metres per second. */
-    velocity?: { x: number; z: number };
+    velocity?: IIntegralVelocity;
     /** The limb swinging at the previous call; a change resets the bias. */
     swing?: string;
 
     /** The last commanded centre of pressure, world metres. */
-    command?: { x: number; z: number };
+    command?: IIntegralCommand;
   }
+
+  /** The command object of {@link IIntegral}. */
+  export type IIntegralCommand = { x: number; z: number };
+
+  /** The velocity object of {@link IIntegral}. */
+  export type IIntegralVelocity = { x: number; z: number };
+
+  /** The acceleration object of {@link IIntegral}. */
+  export type IIntegralAcceleration = { x: number; z: number };
+
+  /** The bias object of {@link IIntegral}. */
+  export type IIntegralBias = { x: number; z: number };
 
   /**
    * Advance the centre-of-pressure integral: u_bias += K_i (u_cmd - u_real)

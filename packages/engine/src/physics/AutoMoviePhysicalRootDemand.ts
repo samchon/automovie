@@ -343,13 +343,7 @@ export namespace AutoMoviePhysicalRootDemand {
     /** Previous centre-of-pressure integral. */
     integral?: Readonly<AutoMovieEnginePhysicalStanceBalance.IIntegral>;
     /** Capture-point feedback state and optional desired motion. */
-    icp?: {
-      state: AutoMovieEnginePhysicalIcpController.IState;
-      desired?: {
-        position: { x: number; z: number };
-        velocity: { x: number; z: number };
-      };
-    };
+    icp?: IInputIcp;
     /** Pendulum frequency when supplied. */
     omega?: number;
     /** Whether the body is responding to a push. */
@@ -373,6 +367,15 @@ export namespace AutoMoviePhysicalRootDemand {
     /** Optional sink for balance trace rows. */
     trace?: IAutoMoviePhysicalBalanceTrace[];
   }
+
+  /** The icp object of {@link IInput}. */
+  export type IInputIcp = {
+    state: AutoMovieEnginePhysicalIcpController.IState;
+    desired?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+  };
 
   /** The internal demand's result. */
   export interface IResult {

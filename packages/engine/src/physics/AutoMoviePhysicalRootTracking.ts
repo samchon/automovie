@@ -373,10 +373,7 @@ export namespace AutoMoviePhysicalRootTracking {
      * The planned capture point and its rate this substep, world x and z
      * (`physicalBalancePlan`); absent for the authored centre of mass's at
      * rest.
-     */ desired?: {
-      position: { x: number; z: number };
-      velocity: { x: number; z: number };
-    };
+     */ desired?: IInputDesired;
     /** Whether an external push lands on the body this control frame. */ pushed?: boolean;
     /** Declared gravity-compensation moment about the root. */ gravity: IAutoMovieVector3;
     /** Internal Cartesian moments accumulate into bounded joint motors. */ actuation?: Map<
@@ -408,4 +405,10 @@ export namespace AutoMoviePhysicalRootTracking {
      */ goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;
     /** Where the stance's demand is recorded, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
   }
+
+  /** The desired object of {@link IInput}. */
+  export type IInputDesired = {
+    position: { x: number; z: number };
+    velocity: { x: number; z: number };
+  };
 }

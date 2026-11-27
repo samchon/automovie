@@ -59,16 +59,7 @@ export namespace IAutoMovieHumanFootPrior {
      * Dimensions when none are given: ANSUR II women's and men's ratios and
      * lines, mixed by the masculine-feminine control.
      */
-    expected: {
-      /** Foot length over stature, women and men (0.151, 0.154). */
-      length: readonly [number, number];
-
-      /** Foot breadth over foot length, women and men (0.377, 0.376). */
-      breadth: readonly [number, number];
-
-      /** Lateral malleolus height, mm: `[offset, per stature]`, women and men. */
-      ankle: readonly [readonly [number, number], readonly [number, number]];
-    };
+    expected: IPriorExpected;
 
     /**
      * Height of the ankle ring, the leg's start, per lateral malleolus height.
@@ -114,43 +105,58 @@ export namespace IAutoMovieHumanFootPrior {
      * mm. Convention, awaiting a relief fit on the references: the cuts read no
      * isolated prominence on the borders' extremes beyond 1 to 4 mm.
      */
-    malleoli: {
-      /**
-       * Lateral-malleolus relief window; its height defines the reference
-       * malleolus datum.
-       */
-      lateral: {
-        /**
-         * Malleolus centre height divided by the lateral-malleolus height; the
-         * lateral centre is 1 by definition.
-         */
-        height: number;
-        /**
-         * Malleolus outward relief prominence, millimetres; the retained prior
-         * treats this as a construction convention.
-         */
-        prominence: number;
-        /** Malleolus relief-window radius, millimetres. */
-        radius: number;
-      };
-      /** Medial-malleolus relief window, positioned above the lateral datum. */
-      medial: {
-        /**
-         * Malleolus centre height divided by the lateral-malleolus height; the
-         * lateral centre is 1 by definition.
-         */
-        height: number;
-        /**
-         * Malleolus outward relief prominence, millimetres; the retained prior
-         * treats this as a construction convention.
-         */
-        prominence: number;
-        /** Malleolus relief-window radius, millimetres. */
-        radius: number;
-      };
-    };
+    malleoli: IPriorMalleoli;
 
     /** Dorsal share of a toe's depth. Convention. */
     toeDorsal: number;
   }
+
+  /** The malleoli object of {@link IPrior}. */
+  export type IPriorMalleoli = {
+    /**
+     * Lateral-malleolus relief window; its height defines the reference
+     * malleolus datum.
+     */
+    lateral: {
+      /**
+       * Malleolus centre height divided by the lateral-malleolus height; the
+       * lateral centre is 1 by definition.
+       */
+      height: number;
+      /**
+       * Malleolus outward relief prominence, millimetres; the retained prior
+       * treats this as a construction convention.
+       */
+      prominence: number;
+      /** Malleolus relief-window radius, millimetres. */
+      radius: number;
+    };
+    /** Medial-malleolus relief window, positioned above the lateral datum. */
+    medial: {
+      /**
+       * Malleolus centre height divided by the lateral-malleolus height; the
+       * lateral centre is 1 by definition.
+       */
+      height: number;
+      /**
+       * Malleolus outward relief prominence, millimetres; the retained prior
+       * treats this as a construction convention.
+       */
+      prominence: number;
+      /** Malleolus relief-window radius, millimetres. */
+      radius: number;
+    };
+  };
+
+  /** The expected object of {@link IPrior}. */
+  export type IPriorExpected = {
+    /** Foot length over stature, women and men (0.151, 0.154). */
+    length: readonly [number, number];
+
+    /** Foot breadth over foot length, women and men (0.377, 0.376). */
+    breadth: readonly [number, number];
+
+    /** Lateral malleolus height, mm: `[offset, per stature]`, women and men. */
+    ankle: readonly [readonly [number, number], readonly [number, number]];
+  };
 }

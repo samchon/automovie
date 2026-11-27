@@ -235,11 +235,14 @@ export namespace AutoMovieArchetypeMass {
     properties: IProperties;
 
     /** Where its space sits in the common one. */
-    placement: {
-      translation: IAutoMovieVector3;
-      rotation: IAutoMovieQuaternion;
-    };
+    placement: IPlacedPlacement;
   }
+
+  /** The placement object of {@link IPlaced}. */
+  export type IPlacedPlacement = {
+    translation: IAutoMovieVector3;
+    rotation: IAutoMovieQuaternion;
+  };
 
   /**
    * The mass properties of rigid bodies placed together, such as the members of

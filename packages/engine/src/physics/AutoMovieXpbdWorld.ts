@@ -400,19 +400,25 @@ export namespace AutoMovieXpbdWorld {
      * the vertical through the centre of mass at zero, and its weight; absent
      * when not selected.
      */
-    yaw?: { center: IAutoMovieVector3; weight: number };
+    yaw?: IObjectiveYaw;
 
     /**
      * The centre of pressure command: the desired centre of pressure on the
      * floor, world metres, its weight on both horizontal rows, and the bodies
      * whose contacts count, all the supports' when absent.
      */
-    pressure?: {
-      point: IAutoMovieVector3;
-      weight: number;
-      bodies?: readonly AutoMovieXpbdBody[];
-    };
+    pressure?: IObjectivePressure;
   }
+
+  /** The pressure object of {@link IObjective}. */
+  export type IObjectivePressure = {
+    point: IAutoMovieVector3;
+    weight: number;
+    bodies?: readonly AutoMovieXpbdBody[];
+  };
+
+  /** The yaw object of {@link IObjective}. */
+  export type IObjectiveYaw = { center: IAutoMovieVector3; weight: number };
 
   /** One group of a root task's bounded supports. */
   export interface IBound {

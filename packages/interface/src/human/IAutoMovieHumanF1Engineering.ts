@@ -39,22 +39,12 @@ export namespace IAutoMovieHumanF1Engineering {
     /** Complete same-invocation full fields for assembleNative. */
     fields: IAutoMovieHumanF1NativeLaw.IFields;
     /** Original hypothesis inputs, with explicit support breadth in mm. */
-    rawDrivers: {
-      mode: "f1" | "bust-only" | "all-site" | "support" | "full-field";
-      ratios: IRatios;
-      hipJointCentreBreadth: number;
-    };
+    rawDrivers: IResolvedCaseRawDrivers;
     /**
      * Numerical resolution; null means the quantity was not
      * requested/available.
      */
-    resolution: {
-      status: "resolved" | "infeasible" | "unavailable";
-      target: number | null;
-      actual: number | null;
-      residual: number | null;
-      reason: string | null;
-    };
+    resolution: IResolvedCaseResolution;
     /**
      * Actual signed residual of every requested tape, mm; null for direct full
      * fields.
@@ -63,4 +53,20 @@ export namespace IAutoMovieHumanF1Engineering {
     /** Protocol/response/scope limits that stay with every artifact and capture. */
     qualification: string[];
   }
+
+  /** The resolution object of {@link IResolvedCase}. */
+  export type IResolvedCaseResolution = {
+    status: "resolved" | "infeasible" | "unavailable";
+    target: number | null;
+    actual: number | null;
+    residual: number | null;
+    reason: string | null;
+  };
+
+  /** The rawDrivers object of {@link IResolvedCase}. */
+  export type IResolvedCaseRawDrivers = {
+    mode: "f1" | "bust-only" | "all-site" | "support" | "full-field";
+    ratios: IRatios;
+    hipJointCentreBreadth: number;
+  };
 }

@@ -114,12 +114,7 @@ export namespace IAutoMovieMotionCoupling {
     region: AutoMovieHumanoidRegion;
 
     /** The bearer's role and region it lies on. */
-    on: {
-      /** Name of the bearer role supplying this contact surface. */
-      role: string;
-      /** Body region of that bearer on which the carried body bears. */
-      region: AutoMovieHumanoidRegion;
-    };
+    on: IContactOn;
 
     /**
      * How it bears: on the bearer (`bear`), or a hold of the borne hand
@@ -137,4 +132,12 @@ export namespace IAutoMovieMotionCoupling {
      */
     at?: IAutoMovieVector3;
   }
+
+  /** The on object of {@link IContact}. */
+  export type IContactOn = {
+    /** Name of the bearer role supplying this contact surface. */
+    role: string;
+    /** Body region of that bearer on which the carried body bears. */
+    region: AutoMovieHumanoidRegion;
+  };
 }

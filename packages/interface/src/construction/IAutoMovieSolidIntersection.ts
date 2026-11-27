@@ -166,28 +166,7 @@ export namespace IAutoMovieSolidIntersection {
     host: IAutoMovieSolidSurface | IAutoMovieSolidAtlas;
 
     /** The seed: the part's phase and `[s, y, theta]` near the curve there. */
-    seed: {
-      /**
-       * Initial part v in its original periodic chart units; phase mode uses it
-       * as the starting radian parameter.
-       */
-      phi: number;
-
-      /** Initial part u, usually station millimetres. */
-      s: number;
-
-      /** Initial host u on the selected face, in that face's chart units. */
-      y: number;
-
-      /** Initial host v on the selected face, in that face's chart units. */
-      theta: number;
-
-      /**
-       * Zero-based host atlas face index, default 0; callers must supply a
-       * valid index.
-       */
-      face?: number;
-    };
+    seed: IInputSeed;
 
     /** The parameter; absent, the part's phase. */
     parameter?: IAutoMovieSolidIntersection.Parameter;
@@ -207,6 +186,30 @@ export namespace IAutoMovieSolidIntersection {
      */
     grazing: number;
   }
+
+  /** The seed object of {@link IInput}. */
+  export type IInputSeed = {
+    /**
+     * Initial part v in its original periodic chart units; phase mode uses it
+     * as the starting radian parameter.
+     */
+    phi: number;
+
+    /** Initial part u, usually station millimetres. */
+    s: number;
+
+    /** Initial host u on the selected face, in that face's chart units. */
+    y: number;
+
+    /** Initial host v on the selected face, in that face's chart units. */
+    theta: number;
+
+    /**
+     * Zero-based host atlas face index, default 0; callers must supply a
+     * valid index.
+     */
+    face?: number;
+  };
 
   /** A trace's result: the curve, or null with the diagnostics that say why. */
   export interface IResult {

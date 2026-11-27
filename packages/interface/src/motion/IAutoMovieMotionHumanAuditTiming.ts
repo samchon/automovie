@@ -33,21 +33,24 @@ export namespace IAutoMovieMotionHumanAuditTiming {
     end: number;
 
     /** The part of the plan the audit reads. */
-    plan: {
-      /** The action's own length, seconds. */
-      duration: number;
-
-      /** The named instants, shares of the duration. */
-      events: readonly IAutoMovieMotionEvent[];
-
-      /** The declared contact windows, shares of the duration. */
-      contacts: readonly IAutoMovieMotionHumanContactWindow[];
-
-      /** Seconds from the start to the decisive instant. */
-      contact?: number;
-
-      /** Seconds from the start to the contact a feint pretends. */
-      feigned?: number;
-    };
+    plan: ISpanPlan;
   }
+
+  /** The plan object of {@link ISpan}. */
+  export type ISpanPlan = {
+    /** The action's own length, seconds. */
+    duration: number;
+
+    /** The named instants, shares of the duration. */
+    events: readonly IAutoMovieMotionEvent[];
+
+    /** The declared contact windows, shares of the duration. */
+    contacts: readonly IAutoMovieMotionHumanContactWindow[];
+
+    /** Seconds from the start to the decisive instant. */
+    contact?: number;
+
+    /** Seconds from the start to the contact a feint pretends. */
+    feigned?: number;
+  };
 }

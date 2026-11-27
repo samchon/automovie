@@ -45,20 +45,7 @@ export namespace IAutoMovieRigSweep {
      * lengths are checked against the sweep; index validity and one/two station
      * cardinality are caller preconditions.
      */
-    binding?: {
-      /**
-       * One nonnegative index in the later pose bone buffer per spine point, in
-       * spine order. The array is retained for pose updates.
-       */
-      points: number[];
-
-      /**
-       * One array of one or two bone-buffer indices per station. Two indices
-       * mark a joint and blend its rotations at their spherical midpoint. The
-       * arrays are retained and must remain stable.
-       */
-      stations: number[][];
-    };
+    binding?: IPropsBinding;
 
     /**
      * Whether bound two-bone stations settle their radial scale to the authored
@@ -66,5 +53,21 @@ export namespace IAutoMovieRigSweep {
      * unbound sweeps or bindings without joints perform no settlement.
      */
     preserveVolume: boolean;
+  };
+
+  /** The binding object of {@link IProps}. */
+  export type IPropsBinding = {
+    /**
+     * One nonnegative index in the later pose bone buffer per spine point, in
+     * spine order. The array is retained for pose updates.
+     */
+    points: number[];
+
+    /**
+     * One array of one or two bone-buffer indices per station. Two indices
+     * mark a joint and blend its rotations at their spherical midpoint. The
+     * arrays are retained and must remain stable.
+     */
+    stations: number[][];
   };
 }

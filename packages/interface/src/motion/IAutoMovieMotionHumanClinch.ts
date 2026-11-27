@@ -69,17 +69,20 @@ export namespace IAutoMovieMotionHumanClinch {
      * the height of the partner's `on` region, the contact the throw turns the
      * partner over; none when absent.
      */
-    under?: {
-      /** This body's region the partner turns over. */
-      fulcrum: AutoMovieHumanoidRegion;
-
-      /** The partner's region that lies on it. */
-      on: AutoMovieHumanoidRegion;
-    };
+    under?: IParamsUnder;
 
     /** How it is performed. */
     manner?: IAutoMovieMotionManner;
   }
+
+  /** The under object of {@link IParams}. */
+  export type IParamsUnder = {
+    /** This body's region the partner turns over. */
+    fulcrum: AutoMovieHumanoidRegion;
+
+    /** The partner's region that lies on it. */
+    on: AutoMovieHumanoidRegion;
+  };
 
   /**
    * The partner's region each hand grips and the sideways offset across it, a

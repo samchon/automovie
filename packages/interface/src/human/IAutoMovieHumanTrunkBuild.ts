@@ -41,18 +41,7 @@ export namespace IAutoMovieHumanTrunkBuild {
      * The tapes that wrap the merged skin, mm: the chest over the breasts, the
      * hip over the gluteal masses.
      */
-    tapes: {
-      /**
-       * Closed merged-skin chest tape over the breasts, calibration
-       * millimetres.
-       */
-      chest: number;
-      /**
-       * Closed merged-skin hip tape over the gluteal masses, calibration
-       * millimetres.
-       */
-      hip: number;
-    };
+    tapes: IInputTapes;
 
     /** The breasts' law, or null where the amplitude leaves none. */
     breast: IMassLaw | null;
@@ -60,6 +49,20 @@ export namespace IAutoMovieHumanTrunkBuild {
     /** The gluteal masses' law, or null. */
     gluteal: IMassLaw | null;
   }
+
+  /** The tapes object of {@link IInput}. */
+  export type IInputTapes = {
+    /**
+     * Closed merged-skin chest tape over the breasts, calibration
+     * millimetres.
+     */
+    chest: number;
+    /**
+     * Closed merged-skin hip tape over the gluteal masses, calibration
+     * millimetres.
+     */
+    hip: number;
+  };
 
   /** A mass's law on the left side, in calibration mm. */
   export interface IMassLaw {

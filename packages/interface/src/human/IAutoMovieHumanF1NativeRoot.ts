@@ -56,20 +56,23 @@ export namespace IAutoMovieHumanF1NativeRoot {
      * Explicit original bare caliper inputs and their native station; these are
      * qualified source inputs, not clinical observations.
      */
-    metric: {
-      /** Named original material station, mm; never inferred from the frame. */
-      station: number;
-      /** Bare source depth at that site, mm, positive. */
-      depth: number;
-      /** Bare source breadth at that site, mm, positive. */
-      breadth: number;
-    };
+    metric: IOriginalMetric;
     /**
      * Original child-caliper frame, used as a construction clock and
      * directional basis, not a skin datum.
      */
     basis: IAutoMovieLoftSectionFrame;
   }
+
+  /** The metric object of {@link IOriginal}. */
+  export type IOriginalMetric = {
+    /** Named original material station, mm; never inferred from the frame. */
+    station: number;
+    /** Bare source depth at that site, mm, positive. */
+    depth: number;
+    /** Bare source breadth at that site, mm, positive. */
+    breadth: number;
+  };
 
   /** Original source calibration shared by one native-root preparation. */
   export interface ICalibration {
@@ -246,18 +249,14 @@ export namespace IAutoMovieHumanF1NativeRoot {
     /** The full source2 capabilities used by this row are available. */
     kind: "available";
     /** New target-curve clock2, distinct from physical source derivatives. */
-    targetClock2: { parent: IClockJet; child: IClockJet };
+    targetClock2: IInspectedTargetClock2;
     /** Emitted rail station minus the raw desired native station, mm. */
     railReclockStationResidualMm: number;
     /**
      * Residual normal/tangent parts at their own actual parent/candidate/final
      * source.
      */
-    normalAndTangent: {
-      parent: IProjection;
-      candidate: IProjection;
-      final: IProjection;
-    };
+    normalAndTangent: IInspectedNormalAndTangent;
     /** Actual complete parent physical2 in station-mm/phase-radian coordinates. */
     physicalParent2: IAutoMovieSolidSurface.IJet;
     /**
@@ -273,23 +272,39 @@ export namespace IAutoMovieHumanF1NativeRoot {
     /** Final minus candidate, by physical derivative order and its own units. */
     protectedSourceSigned: IAutoMovieSolidSurface.IJet;
     /** Target residuals of the provisional candidate, world mm. */
-    candidateResidual: {
-      eC: AutoMovieVector3Tuple;
-      eQ: AutoMovieVector3Tuple;
-      pairedGap: AutoMovieVector3Tuple;
-    };
+    candidateResidual: IInspectedCandidateResidual;
     /** Target residuals of the actual final source, world mm. */
-    finalResidual: {
-      eC: AutoMovieVector3Tuple;
-      eQ: AutoMovieVector3Tuple;
-      pairedGap: AutoMovieVector3Tuple;
-    };
+    finalResidual: IInspectedFinalResidual;
     /**
      * Actual physical versus new-target/normalized-operator derivative
      * conventions.
      */
     units: string;
   }
+
+  /** The finalResidual object of {@link IInspected}. */
+  export type IInspectedFinalResidual = {
+    eC: AutoMovieVector3Tuple;
+    eQ: AutoMovieVector3Tuple;
+    pairedGap: AutoMovieVector3Tuple;
+  };
+
+  /** The candidateResidual object of {@link IInspected}. */
+  export type IInspectedCandidateResidual = {
+    eC: AutoMovieVector3Tuple;
+    eQ: AutoMovieVector3Tuple;
+    pairedGap: AutoMovieVector3Tuple;
+  };
+
+  /** The normalAndTangent object of {@link IInspected}. */
+  export type IInspectedNormalAndTangent = {
+    parent: IProjection;
+    candidate: IProjection;
+    final: IProjection;
+  };
+
+  /** The targetClock2 object of {@link IInspected}. */
+  export type IInspectedTargetClock2 = { parent: IClockJet; child: IClockJet };
 
   /** A root inspection column whose physical source derivatives are unavailable. */
   export interface IUnavailable extends IRootRow {

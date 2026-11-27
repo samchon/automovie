@@ -43,23 +43,7 @@ export namespace IAutoMovieHumanHeadLane {
      * The seed's search on that face: its phase and the shares of its station
      * range.
      */
-    search: {
-      /**
-       * Section phase in radians, increasing according to the source curve's
-       * orientation.
-       */
-      phase: number;
-      /**
-       * Start of the seed-search interval as a dimensionless share of the
-       * part's station span.
-       */
-      from: number;
-      /**
-       * End of the seed-search interval as a dimensionless share of the part's
-       * station span.
-       */
-      to: number;
-    };
+    search: IOutputSearch;
 
     /** The fold's rolling radius, mm: the neck tape's radius. */
     radius: number;
@@ -88,6 +72,25 @@ export namespace IAutoMovieHumanHeadLane {
     /** Crown height in calibration mm. */
     stature: number;
   }
+
+  /** The search object of {@link IOutput}. */
+  export type IOutputSearch = {
+    /**
+     * Section phase in radians, increasing according to the source curve's
+     * orientation.
+     */
+    phase: number;
+    /**
+     * Start of the seed-search interval as a dimensionless share of the
+     * part's station span.
+     */
+    from: number;
+    /**
+     * End of the seed-search interval as a dimensionless share of the part's
+     * station span.
+     */
+    to: number;
+  };
 
   /**
    * Joint references from the lane's generating neck and head axis. The head

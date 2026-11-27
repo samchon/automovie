@@ -61,33 +61,7 @@ export namespace IAutoMovieHumanFootPart {
      * Public host-plus-toe metatarsal breadth and its foot-along interval; the
      * fifth endpoint remains a cascade-transfer convention.
      */
-    metatarsal?: {
-      /** Fifth-to-first skin region along the foot axis, calibration mm. */
-      span: [number, number];
-
-      /** Public across support-plane distance, calibration mm. */
-      breadth: number;
-
-      /**
-       * Bare host's independent regional across support maxima after the common
-       * group scale, calibration mm; not one cut or the whole group's extrema.
-       */
-      supports: {
-        /**
-         * Lateral support magnitude of the bare host after the common group
-         * scale, calibration millimetres.
-         */
-        lateral: number;
-        /**
-         * Medial support magnitude of the bare host after the common group
-         * scale, calibration millimetres.
-         */
-        medial: number;
-      };
-
-      /** Calibration mm per retained dimensionless across observation. */
-      transverseScale: number;
-    };
+    metatarsal?: IInputMetatarsal;
 
     /** Whether the foot is the left (its lateral edge toward +Z) or the right. */
     side: "left" | "right";
@@ -110,6 +84,35 @@ export namespace IAutoMovieHumanFootPart {
      */
     ankle?: IAutoMovieHumanFootConnection.IAnkle;
   }
+
+  /** The metatarsal object of {@link IInput}. */
+  export type IInputMetatarsal = {
+    /** Fifth-to-first skin region along the foot axis, calibration mm. */
+    span: [number, number];
+
+    /** Public across support-plane distance, calibration mm. */
+    breadth: number;
+
+    /**
+     * Bare host's independent regional across support maxima after the common
+     * group scale, calibration mm; not one cut or the whole group's extrema.
+     */
+    supports: {
+      /**
+       * Lateral support magnitude of the bare host after the common group
+       * scale, calibration millimetres.
+       */
+      lateral: number;
+      /**
+       * Medial support magnitude of the bare host after the common group
+       * scale, calibration millimetres.
+       */
+      medial: number;
+    };
+
+    /** Calibration mm per retained dimensionless across observation. */
+    transverseScale: number;
+  };
 
   /** One site's law, calibration mm. */
   export interface ISiteLaw {

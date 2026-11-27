@@ -57,19 +57,7 @@ export namespace IAutoMovieSolidBlendChain {
      * (`AutoMovieSolidJoin.IJoin.widths`); the part's null where its rail is
      * one fixed station.
      */
-    widths: {
-      /**
-       * Declared host-side chord width in millimetres at each corresponding
-       * column, in the blend's phase order.
-       */
-      host: number[];
-
-      /**
-       * Declared part-side chord width in millimetres at each column, or null
-       * for a rail constrained to one fixed station.
-       */
-      part: (number | null)[];
-    };
+    widths: IBlendWidths;
 
     /**
      * The kind of the curve's parameter
@@ -83,6 +71,21 @@ export namespace IAutoMovieSolidBlendChain {
      */
     sigma: 1 | -1;
   }
+
+  /** The widths object of {@link IBlend}. */
+  export type IBlendWidths = {
+    /**
+     * Declared host-side chord width in millimetres at each corresponding
+     * column, in the blend's phase order.
+     */
+    host: number[];
+
+    /**
+     * Declared part-side chord width in millimetres at each column, or null
+     * for a rail constrained to one fixed station.
+     */
+    part: (number | null)[];
+  };
 
   /**
    * Uniform phase columns at 2pi*k/count, each pairing two world-space ribbons.

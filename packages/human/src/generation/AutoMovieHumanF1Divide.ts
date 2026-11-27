@@ -174,11 +174,17 @@ export namespace AutoMovieHumanF1Divide {
     foot: number;
 
     /** The section planes of the arm at its end, of the hand at the heads, and of the leg at the ball of the foot. */
-    ends: { wrist: IEnd; hand: IEnd; foot: IEnd };
+    ends: IInputEnds;
 
     /** The part names of the limbs' families: the trunk, the arm, the hand, the leg and the leg's twin. */
-    parts: { trunk: string; arm: string; hand: string; leg: string; twin: string };
+    parts: IInputParts;
   }
+
+  /** The parts object of {@link IInput}. */
+  export type IInputParts = { trunk: string; arm: string; hand: string; leg: string; twin: string };
+
+  /** The ends object of {@link IInput}. */
+  export type IInputEnds = { wrist: IEnd; hand: IEnd; foot: IEnd };
 
   /** How near the shoulder joint the armscye's surface divides, mm: the reach of the skin its landmarks were read on. */
   export const ARMSCYE_MM: number = 190;

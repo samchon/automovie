@@ -64,15 +64,18 @@ export namespace AutoMovieSceneTexture {
     /** Identity of the render pass within the owner. */
     transmissionScope: string;
     /** Current renderer viewport, transmission scale, sample count and extensions. */
-    renderer: {
-      getCurrentViewport: THREE.WebGLRenderer["getCurrentViewport"];
-      transmissionResolutionScale: number;
-      capabilities: Pick<THREE.WebGLRenderer["capabilities"], "samples">;
-      extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
-    };
+    renderer: ITransmissionTargetPropsRenderer;
     /** Camera whose structural viewport takes precedence when present. */
     camera: THREE.Camera;
   }
+
+  /** The renderer object of {@link ITransmissionTargetProps}. */
+  export type ITransmissionTargetPropsRenderer = {
+    getCurrentViewport: THREE.WebGLRenderer["getCurrentViewport"];
+    transmissionResolutionScale: number;
+    capabilities: Pick<THREE.WebGLRenderer["capabilities"], "samples">;
+    extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
+  };
 
   /**
    * Bound the r186 scene/camera transmission target from the current host state.

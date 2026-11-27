@@ -62,13 +62,16 @@ export namespace IAutoMovieMotionHumanFormation {
      * bound, metres, and the stream seed its lateral and depth deviations are
      * drawn from; none when absent.
      */
-    dress?: {
-      /** Maximum station drift in metres. */
-      bound: number;
-      /** Stable seed for deterministic station drift. */
-      seed: string;
-    };
+    dress?: IStationDress;
   }
+
+  /** The dress object of {@link IStation}. */
+  export type IStationDress = {
+    /** Maximum station drift in metres. */
+    bound: number;
+    /** Stable seed for deterministic station drift. */
+    seed: string;
+  };
 
   /** One block of members. */
   export interface IBlock {
@@ -85,12 +88,7 @@ export namespace IAutoMovieMotionHumanFormation {
      * Where its own origin stands in the formation's frame, metres; the frame's
      * origin when absent.
      */
-    offset?: {
-      /** Formation-local lateral offset, metres. */
-      lateral: number;
-      /** Formation-local front-to-rear offset, metres. */
-      depth: number;
-    };
+    offset?: IBlockOffset;
 
     /** Which way it faces relative to the frame, degrees; 0 when absent. */
     facing?: number;
@@ -101,6 +99,14 @@ export namespace IAutoMovieMotionHumanFormation {
      */
     seed?: number;
   }
+
+  /** The offset object of {@link IBlock}. */
+  export type IBlockOffset = {
+    /** Formation-local lateral offset, metres. */
+    lateral: number;
+    /** Formation-local front-to-rear offset, metres. */
+    depth: number;
+  };
 
   /** Where the formation stands and faces. */
   export type Frame =

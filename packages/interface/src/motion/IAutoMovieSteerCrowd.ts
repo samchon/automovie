@@ -36,20 +36,23 @@ export namespace IAutoMovieSteerCrowd {
      * The law's relaxation time and horizon, seconds; iRELAXATIONi and
      * iHORIZONi when absent.
      */
-    law?: {
-      /**
-       * Positive finite response time in seconds for desired-velocity
-       * relaxation; defaults to 0.5 seconds when law is absent. Not
-       * range-checked here.
-       */
-      relaxation: number;
-      /**
-       * Positive finite anticipation horizon in seconds for avoidance; defaults
-       * to 3 seconds when law is absent. Not range-checked here.
-       */
-      horizon: number;
-    };
+    law?: IPropsLaw;
   }
+
+  /** The law object of {@link IProps}. */
+  export type IPropsLaw = {
+    /**
+     * Positive finite response time in seconds for desired-velocity
+     * relaxation; defaults to 0.5 seconds when law is absent. Not
+     * range-checked here.
+     */
+    relaxation: number;
+    /**
+     * Positive finite anticipation horizon in seconds for avoidance; defaults
+     * to 3 seconds when law is absent. Not range-checked here.
+     */
+    horizon: number;
+  };
 
   /** A planned pass. */
   export interface IResult {

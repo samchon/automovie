@@ -51,15 +51,18 @@ export namespace IAutoMoviePatternTextureTransforms {
     result: IAutoMovieSurfacePatternResult;
 
     /** Metres one turn of the texture covers along its own two axes. */
-    tile: {
-      /** Metres one turn covers along the sheet's own U axis. */
-      u: number;
-
-      /** Metres one turn covers along the sheet's own V axis. */
-      v: number;
-    };
+    tile: IPropsTile;
 
     /** Where the sheet is pinned. */
     sheet: IAutoMoviePatternTextureSheet;
+  };
+
+  /** The tile object of {@link IProps}. */
+  export type IPropsTile = {
+    /** Metres one turn covers along the sheet's own U axis. */
+    u: number;
+
+    /** Metres one turn covers along the sheet's own V axis. */
+    v: number;
   };
 }

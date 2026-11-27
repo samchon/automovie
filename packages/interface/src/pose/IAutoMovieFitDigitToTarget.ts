@@ -38,23 +38,7 @@ export namespace IAutoMovieFitDigitToTarget {
      * bone's joint, metres, with the outward unit normal there: a region frame
      * of the digit's tip or pad.
      */
-    effector: {
-      /**
-       * Resolvable bone carrying the tip or pad; normally the last listed digit
-       * bone.
-       */
-      bone: AutoMovieHumanoidBone;
-      /**
-       * Bone-rest-frame offset from its joint, metres. Its length also scales
-       * secondary orientation/coupling residuals.
-       */
-      point: IAutoMovieVector3;
-      /**
-       * Outward unit direction in the same bone-rest frame; rotated into world
-       * space without normalization.
-       */
-      normal: IAutoMovieVector3;
-    };
+    effector: IInputEffector;
 
     /** The target, world metres. */
     target: IAutoMovieVector3;
@@ -111,6 +95,25 @@ export namespace IAutoMovieFitDigitToTarget {
      */
     rate?: number;
   }
+
+  /** The effector object of {@link IInput}. */
+  export type IInputEffector = {
+    /**
+     * Resolvable bone carrying the tip or pad; normally the last listed digit
+     * bone.
+     */
+    bone: AutoMovieHumanoidBone;
+    /**
+     * Bone-rest-frame offset from its joint, metres. Its length also scales
+     * secondary orientation/coupling residuals.
+     */
+    point: IAutoMovieVector3;
+    /**
+     * Outward unit direction in the same bone-rest frame; rotated into world
+     * space without normalization.
+     */
+    normal: IAutoMovieVector3;
+  };
 
   /**
    * Fresh fitted joint records and world measurements; input pose is not

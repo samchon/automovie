@@ -25,11 +25,17 @@ export namespace AutoMovieEnginePhysicalStancePressure {
     force: IAutoMovieVector3;
 
     /** The yaw rate command's centre of mass and weight, when selected. */
-    yaw?: { center: IAutoMovieVector3; weight: number };
+    yaw?: IObjectiveYaw;
 
     /** The centre of pressure command, when there is one. */
-    pressure?: { point: IAutoMovieVector3; weight: number; bone?: string };
+    pressure?: IObjectivePressure;
   }
+
+  /** The pressure object of {@link IObjective}. */
+  export type IObjectivePressure = { point: IAutoMovieVector3; weight: number; bone?: string };
+
+  /** The yaw object of {@link IObjective}. */
+  export type IObjectiveYaw = { center: IAutoMovieVector3; weight: number };
 
   /**
    * Zulu's linear momentum rate weight, (0.5, 0.5, 0.02) in IHMC's x, y and z

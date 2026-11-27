@@ -77,33 +77,7 @@ export namespace IAutoMovieHumanWalkPart {
      * Optional material-frame transition between actual bone/share positions;
      * signed up is projected into the endpoint's normal plane by the engine.
      */
-    roll?: {
-      /**
-       * Proximal endpoint of this declared roll interval, addressed by bone and
-       * share.
-       */
-      from: {
-        /** Zero-based segment index in the proximal-to-distal centre chain. */
-        bone: number;
-        /** Fraction along the selected bone measured from its proximal centre. */
-        share: number;
-      };
-      /**
-       * Distal endpoint of this declared roll interval, addressed by bone and
-       * share.
-       */
-      to: {
-        /** Zero-based segment index in the proximal-to-distal centre chain. */
-        bone: number;
-        /** Fraction along the selected bone measured from its proximal centre. */
-        share: number;
-      };
-      /**
-       * Target material-frame direction at the distal endpoint, projected into
-       * its normal plane.
-       */
-      up: AutoMovieVector3Tuple;
-    };
+    roll?: IInputRoll;
 
     /**
      * Whether the walk closes at its first centre in a G2 dome: the base of a
@@ -130,4 +104,33 @@ export namespace IAutoMovieHumanWalkPart {
     /** Widest spacing between layers, mm. */
     gap: number;
   }
+
+  /** The roll object of {@link IInput}. */
+  export type IInputRoll = {
+    /**
+     * Proximal endpoint of this declared roll interval, addressed by bone and
+     * share.
+     */
+    from: {
+      /** Zero-based segment index in the proximal-to-distal centre chain. */
+      bone: number;
+      /** Fraction along the selected bone measured from its proximal centre. */
+      share: number;
+    };
+    /**
+     * Distal endpoint of this declared roll interval, addressed by bone and
+     * share.
+     */
+    to: {
+      /** Zero-based segment index in the proximal-to-distal centre chain. */
+      bone: number;
+      /** Fraction along the selected bone measured from its proximal centre. */
+      share: number;
+    };
+    /**
+     * Target material-frame direction at the distal endpoint, projected into
+     * its normal plane.
+     */
+    up: AutoMovieVector3Tuple;
+  };
 }

@@ -13,18 +13,7 @@ export namespace IAutoMovieHumanGlutealConnection {
     /** Current tape pass's original trunk, calibration mm. */
     trunk: IAutoMovieViewPart;
     /** Same-side original leg and its authoritative metre declaration. */
-    leg: {
-      /**
-       * Geometric part with its original axis and section laws; its declared
-       * source frame and units apply.
-       */
-      part: IAutoMovieViewPart;
-      /**
-       * The same part expressed as the canonical construction view, with
-       * physical lengths in metres.
-       */
-      view: IAutoMovieConstructionView;
-    };
+    leg: IInputLeg;
     /** Public posterior AP apex; its height and across position remain fixed. */
     target: AutoMovieVector3Tuple;
     /** Own root footprint: up, lateral, down and medial, mm. */
@@ -34,6 +23,20 @@ export namespace IAutoMovieHumanGlutealConnection {
     /** Anatomical lateral is +Z on the left and -Z on the right. */
     lateral: 1 | -1;
   }
+
+  /** The leg object of {@link IInput}. */
+  export type IInputLeg = {
+    /**
+     * Geometric part with its original axis and section laws; its declared
+     * source frame and units apply.
+     */
+    part: IAutoMovieViewPart;
+    /**
+     * The same part expressed as the canonical construction view, with
+     * physical lengths in metres.
+     */
+    view: IAutoMovieConstructionView;
+  };
 
   /** One whole-phase root position and its actual local parent chord. */
   export interface IContact {

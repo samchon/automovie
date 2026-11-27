@@ -44,36 +44,42 @@ export namespace IAutoMovieSolveSubdivisionLimit {
      * for 3*stencil.count scalars and be distinct from scratch and borrowed
      * target storage.
      */
-    positions: {
-      /**
-       * Mutable scalar slots in packed XYZ order; writes are synchronous and
-       * the solver retains no buffer after return.
-       */
-      [index: number]: number;
-      /**
-       * Available scalar capacity, at least three times the stencil vertex
-       * count; this is a caller precondition rather than a runtime length
-       * guard.
-       */
-      length: number;
-    };
+    positions: IPropsPositions;
     /**
      * Separate writable ping-pong buffer with the same capacity as positions.
      * Initialized and overwritten by the solve; its final contents are
      * unspecified.
      */
-    scratch: {
-      /**
-       * Writable packed XYZ scratch slots, distinct from target and position
-       * storage. Buffer overlap is not detected by the solver.
-       */
-      [index: number]: number;
-      /**
-       * Available scalar capacity, at least three times the stencil vertex
-       * count. The solver assumes valid indexed writes and does not allocate
-       * replacement storage.
-       */
-      length: number;
-    };
+    scratch: IPropsScratch;
+  };
+
+  /** The scratch object of {@link IProps}. */
+  export type IPropsScratch = {
+    /**
+     * Writable packed XYZ scratch slots, distinct from target and position
+     * storage. Buffer overlap is not detected by the solver.
+     */
+    [index: number]: number;
+    /**
+     * Available scalar capacity, at least three times the stencil vertex
+     * count. The solver assumes valid indexed writes and does not allocate
+     * replacement storage.
+     */
+    length: number;
+  };
+
+  /** The positions object of {@link IProps}. */
+  export type IPropsPositions = {
+    /**
+     * Mutable scalar slots in packed XYZ order; writes are synchronous and
+     * the solver retains no buffer after return.
+     */
+    [index: number]: number;
+    /**
+     * Available scalar capacity, at least three times the stencil vertex
+     * count; this is a caller precondition rather than a runtime length
+     * guard.
+     */
+    length: number;
   };
 }

@@ -41,10 +41,13 @@ export namespace IAutoMovieAdvancePhysicalBalance {
      * Absent while no limb swings. A second lifted swing, as a quadruped's gait
      * swings two legs at once, has its own, as `pair`.
      */
-    swing?: {
-      height: number;
-      hang: number;
-      pair?: { height: number; hang: number };
-    };
+    swing?: IResultSwing;
+  };
+
+  /** The swing object of {@link IResult}. */
+  export type IResultSwing = {
+    height: number;
+    hang: number;
+    pair?: { height: number; hang: number };
   };
 }

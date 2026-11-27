@@ -113,16 +113,7 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
      * centre of pressure and pivot, and the law, the allocation, the bias and
      * the trunk's horizontal moment are not used.
      */
-    icp?: {
-      state: AutoMovieEnginePhysicalIcpController.IState;
-      desired?: {
-        position: { x: number; z: number };
-        velocity: { x: number; z: number };
-      };
-      dt: number;
-      /** Whether a foot swings, which selects the yaw rate command. */
-      swinging?: boolean;
-    };
+    icp?: IInputIcp;
 
     /**
      * The pendulum's rate the controller runs at, per second
@@ -131,6 +122,18 @@ export namespace AutoMovieEnginePhysicalStanceDemand {
      */
     omega?: number;
   }
+
+  /** The icp object of {@link IInput}. */
+  export type IInputIcp = {
+    state: AutoMovieEnginePhysicalIcpController.IState;
+    desired?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+    dt: number;
+    /** Whether a foot swings, which selects the yaw rate command. */
+    swinging?: boolean;
+  };
 
   /** One balance step's demand and bearing. */
   export interface IResult {

@@ -88,25 +88,7 @@ export namespace IAutoMovieHumanHeadNeckCurves {
      * lateral landmarks depend on the selected radius. This is no integral or
      * anatomy certificate.
      */
-    baseLandmarkPolygon: {
-      /**
-       * Four-landmark chord lower bound in millimetres when independent of the
-       * selected radius; otherwise null.
-       */
-      fixed: number | null;
-      /**
-       * Four-landmark chord lower bound evaluated at the selected radius,
-       * millimetres.
-       */
-      selected: number;
-      /** Front-to-back landmark chord contribution, millimetres. */
-      frontBack: number;
-      /**
-       * Four registered landmark points used by the chord lower bound,
-       * calibration millimetres.
-       */
-      points: readonly [number, number, number][];
-    };
+    baseLandmarkPolygon: IOutputBaseLandmarkPolygon;
 
     /**
      * Registered anterior/C7 datums, calibration mm; the original prior C7
@@ -117,6 +99,27 @@ export namespace IAutoMovieHumanHeadNeckCurves {
       "cervicaleOrigin" | "priorCervicaleOrigin"
     >;
   }
+
+  /** The baseLandmarkPolygon object of {@link IOutput}. */
+  export type IOutputBaseLandmarkPolygon = {
+    /**
+     * Four-landmark chord lower bound in millimetres when independent of the
+     * selected radius; otherwise null.
+     */
+    fixed: number | null;
+    /**
+     * Four-landmark chord lower bound evaluated at the selected radius,
+     * millimetres.
+     */
+    selected: number;
+    /** Front-to-back landmark chord contribution, millimetres. */
+    frontBack: number;
+    /**
+     * Four registered landmark points used by the chord lower bound,
+     * calibration millimetres.
+     */
+    points: readonly [number, number, number][];
+  };
 
   /**
    * Inputs in one calibration-mm frame; slope is dimensionless dx/dy.

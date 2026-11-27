@@ -278,12 +278,7 @@ export namespace IAutoMovieMotionHumanGesture {
      * thumbs up's thumb stands about 35 degrees off the knuckle line). Requires
      * `shape`; no aim when absent.
      */
-    aim?: {
-      /** Digit extended for the directed hand gesture. */
-      digit: "thumb" | "forefinger";
-      /** Whether that digit points upward or downward. */
-      toward: "up" | "down";
-    };
+    aim?: IParamsAim;
 
     /**
      * How much repeats of the gesture differ: `variation` in [0, 1] scales the
@@ -294,4 +289,12 @@ export namespace IAutoMovieMotionHumanGesture {
      */
     manner?: Pick<IAutoMovieMotionManner, "variation" | "consistency">;
   }
+
+  /** The aim object of {@link IParams}. */
+  export type IParamsAim = {
+    /** Digit extended for the directed hand gesture. */
+    digit: "thumb" | "forefinger";
+    /** Whether that digit points upward or downward. */
+    toward: "up" | "down";
+  };
 }

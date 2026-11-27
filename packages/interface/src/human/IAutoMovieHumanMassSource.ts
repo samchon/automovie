@@ -31,18 +31,7 @@ export namespace IAutoMovieHumanMassSource {
      * Exact source before any internal extension, retained for source ownership
      * and comparison.
      */
-    original?: {
-      /**
-       * Geometric part with its original axis and section laws; its declared
-       * source frame and units apply.
-       */
-      part: IAutoMovieViewPart;
-      /**
-       * The same part expressed as the canonical construction view, with
-       * physical lengths in metres.
-       */
-      view: IAutoMovieConstructionView;
-    };
+    original?: IConnectionOriginal;
     /**
      * Whether the original supported root was kept or only a new inward prefix
      * was authored.
@@ -54,6 +43,20 @@ export namespace IAutoMovieHumanMassSource {
      */
     contact(phi: number): IContact | string;
   }
+
+  /** The original object of {@link IConnection}. */
+  export type IConnectionOriginal = {
+    /**
+     * Geometric part with its original axis and section laws; its declared
+     * source frame and units apply.
+     */
+    part: IAutoMovieViewPart;
+    /**
+     * The same part expressed as the canonical construction view, with
+     * physical lengths in metres.
+     */
+    view: IAutoMovieConstructionView;
+  };
 
   /** Actual root-curve point and the same parent chord that supports it. */
   export interface IContact {

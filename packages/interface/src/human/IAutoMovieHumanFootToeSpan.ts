@@ -44,18 +44,21 @@ export namespace IAutoMovieHumanFootToeSpan {
     lateral: AutoMovieVector3Tuple;
 
     /** Its nail plate along the line: root and free edge lengths, and width, mm. */
-    nail: {
-      /** Proximal nail-plate station along the digit's centre line, millimetres. */
-      root: number;
-      /**
-       * Free nail edge at the distal cap's start, millimetres along the digit's
-       * centre line.
-       */
-      edge: number;
-      /** Nail plate's full transverse width, millimetres. */
-      width: number;
-    };
+    nail: IToeNail;
   }
+
+  /** The nail object of {@link IToe}. */
+  export type IToeNail = {
+    /** Proximal nail-plate station along the digit's centre line, millimetres. */
+    root: number;
+    /**
+     * Free nail edge at the distal cap's start, millimetres along the digit's
+     * centre line.
+     */
+    edge: number;
+    /** Nail plate's full transverse width, millimetres. */
+    width: number;
+  };
 
   /** What a toe's span reads. */
   export interface IInput {

@@ -24,13 +24,7 @@ export namespace IAutoMovieHumanHeadNeckLayout {
      * Successful lower closure owned by this exact definition; absent before
      * that explicit request.
      */
-    readonly lowerClosure?: {
-      /** Same actual normal declaration and lower constraint inputs. */
-      readonly definition: IAutoMovieHumanHeadNeckCurves.IDefinition;
-
-      /** Identical lower source published in layout.neck.curves. */
-      readonly curves: IAutoMovieHumanHeadNeckCurves.IOutput;
-    };
+    readonly lowerClosure?: IOutputLowerClosure;
 
     /**
      * Synchronous elapsed observations, excluding later head work and lazy
@@ -53,4 +47,13 @@ export namespace IAutoMovieHumanHeadNeckLayout {
       neckWork: Readonly<IAutoMovieHumanHeadNeckCurves.IWork> | null;
     }>;
   }
+
+  /** The lowerClosure object of {@link IOutput}. */
+  export type IOutputLowerClosure = {
+    /** Same actual normal declaration and lower constraint inputs. */
+    readonly definition: IAutoMovieHumanHeadNeckCurves.IDefinition;
+
+    /** Identical lower source published in layout.neck.curves. */
+    readonly curves: IAutoMovieHumanHeadNeckCurves.IOutput;
+  };
 }

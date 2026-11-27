@@ -21,16 +21,19 @@ export namespace IAutoMovieHumanHeadBackProfile {
     vertex: number;
 
     /** The neck ring's back on the midline: height, forward place and `dx/dy`. */
-    ring: {
-      /** Profile height in the registered head frame, millimetres. */
-      y: number;
-      /** Forward coordinate of the posterior head profile, millimetres. */
-      x: number;
-      /**
-       * Forward-coordinate derivative with respect to height, millimetres per
-       * millimetre.
-       */
-      slope: number;
-    };
+    ring: IProfileRing;
   }
+
+  /** The ring object of {@link IProfile}. */
+  export type IProfileRing = {
+    /** Profile height in the registered head frame, millimetres. */
+    y: number;
+    /** Forward coordinate of the posterior head profile, millimetres. */
+    x: number;
+    /**
+     * Forward-coordinate derivative with respect to height, millimetres per
+     * millimetre.
+     */
+    slope: number;
+  };
 }

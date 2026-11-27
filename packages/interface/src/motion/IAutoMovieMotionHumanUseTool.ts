@@ -80,18 +80,21 @@ export namespace IAutoMovieMotionHumanUseTool {
    */
   export interface IPlan extends IAutoMovieMotionHumanActionPlan {
     /** The tool. */
-    tool: {
-      /** The working point from the grip socket, in the hand's frame, metres. */
-      offset: IAutoMovieVector3;
-
-      /** The work point, world metres. */
-      on: IAutoMovieVector3;
-
-      /** The work. */
-      kind: IAutoMovieMotionHumanToolWork.Kind;
-    };
+    tool: IPlanTool;
 
     /** The same tool, offered by the tool's family. */
     offers: IAutoMovieMotionHumanActionPlan.ITooled;
   }
+
+  /** The tool object of {@link IPlan}. */
+  export type IPlanTool = {
+    /** The working point from the grip socket, in the hand's frame, metres. */
+    offset: IAutoMovieVector3;
+
+    /** The work point, world metres. */
+    on: IAutoMovieVector3;
+
+    /** The work. */
+    kind: IAutoMovieMotionHumanToolWork.Kind;
+  };
 }

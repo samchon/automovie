@@ -35,18 +35,21 @@ export namespace IAutoMovieMotionHumanWalkFoot {
    */
   export interface IScheduled extends IAutoMovieMotionHumanWalkFoot.IFoot {
     /** A swinging foot's share of its swing and the swing's two ends, seconds. */
-    swing?: {
-      /**
-       * Progress through this foot's swing, from 0 at toe-off to 1 at heel
-       * strike.
-       */
-      u: number;
-      /** Toe-off instant in action-local seconds. */
-      off: number;
-      /** Heel-strike instant in action-local seconds. */
-      on: number;
-    };
+    swing?: IScheduledSwing;
   }
+
+  /** The swing object of {@link IScheduled}. */
+  export type IScheduledSwing = {
+    /**
+     * Progress through this foot's swing, from 0 at toe-off to 1 at heel
+     * strike.
+     */
+    u: number;
+    /** Toe-off instant in action-local seconds. */
+    off: number;
+    /** Heel-strike instant in action-local seconds. */
+    on: number;
+  };
 
   /** A foot's placement and toes at an instant. */
   export interface IFoot {

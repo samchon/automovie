@@ -98,32 +98,10 @@ export namespace IAutoMovieMotionHumanVariation {
     deviation: number;
 
     /** The least value and its seed. */
-    minimum: {
-      /**
-       * Value drawn for the named variation variable, in that variable's
-       * documented unit.
-       */
-      value: number;
-      /**
-       * Deterministic draw seed retained so this reported value can be
-       * reproduced.
-       */
-      seed: string;
-    };
+    minimum: IReportMinimum;
 
     /** The greatest value and its seed. */
-    maximum: {
-      /**
-       * Value drawn for the named variation variable, in that variable's
-       * documented unit.
-       */
-      value: number;
-      /**
-       * Deterministic draw seed retained so this reported value can be
-       * reproduced.
-       */
-      seed: string;
-    };
+    maximum: IReportMaximum;
 
     /** The deviation over the mean's magnitude; 0 when the mean is 0. */
     coefficient: number;
@@ -131,4 +109,32 @@ export namespace IAutoMovieMotionHumanVariation {
     /** How many distinct values were read, to a part in a million of the range. */
     distinct: number;
   }
+
+  /** The maximum object of {@link IReport}. */
+  export type IReportMaximum = {
+    /**
+     * Value drawn for the named variation variable, in that variable's
+     * documented unit.
+     */
+    value: number;
+    /**
+     * Deterministic draw seed retained so this reported value can be
+     * reproduced.
+     */
+    seed: string;
+  };
+
+  /** The minimum object of {@link IReport}. */
+  export type IReportMinimum = {
+    /**
+     * Value drawn for the named variation variable, in that variable's
+     * documented unit.
+     */
+    value: number;
+    /**
+     * Deterministic draw seed retained so this reported value can be
+     * reproduced.
+     */
+    seed: string;
+  };
 }

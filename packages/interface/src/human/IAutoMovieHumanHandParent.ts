@@ -32,19 +32,7 @@ export namespace IAutoMovieHumanHandParent {
     source: IAutoMovieLoftViewSource.ISource;
 
     /** Units and phase orientation shared by both original consumers. */
-    coordinates: {
-      /** Physical chart length unit. */
-      length: "calibration-mm";
-
-      /** Original material phase unit. */
-      phase: "radians";
-
-      /** Frame and normal vectors use unitless coordinates. */
-      direction: "unitless";
-
-      /** Positive material orientation in the local chart. */
-      phaseDirection: "+u toward +v";
-    };
+    coordinates: IOutputCoordinates;
 
     /** This original ViewPart producer has no relief or layer-lift input. */
     relief: "absent from original view definition";
@@ -70,6 +58,21 @@ export namespace IAutoMovieHumanHandParent {
       normal: AutoMovieVector3Tuple;
     }[];
   }
+
+  /** The coordinates object of {@link IOutput}. */
+  export type IOutputCoordinates = {
+    /** Physical chart length unit. */
+    length: "calibration-mm";
+
+    /** Original material phase unit. */
+    phase: "radians";
+
+    /** Frame and normal vectors use unitless coordinates. */
+    direction: "unitless";
+
+    /** Positive material orientation in the local chart. */
+    phaseDirection: "+u toward +v";
+  };
 
   /** Original normal-plane frame, before any skin or mesh. */
   export type Frame = ReturnType<IAutoMovieViewPart["axis"]["at"]>;

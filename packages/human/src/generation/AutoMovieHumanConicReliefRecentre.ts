@@ -98,11 +98,17 @@ export namespace AutoMovieHumanConicReliefRecentre {
     mode: "carried" | "cast" | "skew";
 
     /** Sampled rows that gave targets, and those that gave none. */
-    rows: { observed: number; unobserved: number; first: number; last: number };
+    rows: INetRows;
 
     /** The targets less the fitted net at the fit's own samples, mm. */
-    residual: { mean: number; max: number };
+    residual: INetResidual;
   }
+
+  /** The residual object of {@link INet}. */
+  export type INetResidual = { mean: number; max: number };
+
+  /** The rows object of {@link INet}. */
+  export type INetRows = { observed: number; unobserved: number; first: number; last: number };
 
   /** Decimals a window's edge is stored at, radians. */
   const WINDOW_DECIMALS: number = 4;

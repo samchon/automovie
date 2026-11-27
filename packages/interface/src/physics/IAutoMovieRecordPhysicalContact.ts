@@ -60,19 +60,7 @@ export namespace IAutoMovieRecordPhysicalContact {
      * Actual transferred soft-solver normal impulses; omission retains direct
      * native manifold authority.
      */
-    appliedImpulse?: {
-      /**
-       * Actual normal impulse transferred to input a, N s, after response gain
-       * and native rounding; may be zero for a nondynamic side.
-       */
-      a: number;
-
-      /**
-       * Actual normal impulse transferred to input b, N s, after response gain
-       * and native rounding; may differ from a.
-       */
-      b: number;
-    };
+    appliedImpulse?: IInputAppliedImpulse;
 
     /**
      * Measured signed surface gap in metres; contact penetration is negative
@@ -98,5 +86,20 @@ export namespace IAutoMovieRecordPhysicalContact {
      * retiring absent episodes.
      */
     found: Set<string>;
+  };
+
+  /** The appliedImpulse object of {@link IInput}. */
+  export type IInputAppliedImpulse = {
+    /**
+     * Actual normal impulse transferred to input a, N s, after response gain
+     * and native rounding; may be zero for a nondynamic side.
+     */
+    a: number;
+
+    /**
+     * Actual normal impulse transferred to input b, N s, after response gain
+     * and native rounding; may differ from a.
+     */
+    b: number;
   };
 }

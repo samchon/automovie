@@ -35,19 +35,7 @@ export namespace IAutoMovieSolidBody {
      * Original source atlas and stable body-index translation; immutable while
      * this face is retained.
      */
-    sourceAtlas?: {
-      /**
-       * Original profile atlas supplying analytic retained-domain and adjacency
-       * checks; absent leaves only this face's trim cycles.
-       */
-      atlas: IAutoMovieSolidAtlas;
-
-      /** Index of this surface in the original atlas. */
-      face: number;
-
-      /** Add to an original atlas neighbor index to obtain its body face index. */
-      offset: number;
-    };
+    sourceAtlas?: IFaceSourceAtlas;
 
     /**
      * Shared source-chart tessellation boundaries; these do not trim the
@@ -58,6 +46,21 @@ export namespace IAutoMovieSolidBody {
     /** Whether it is a diff's cutter, drawn facing into the cutter. */
     inverted?: boolean;
   }
+
+  /** The sourceAtlas object of {@link IFace}. */
+  export type IFaceSourceAtlas = {
+    /**
+     * Original profile atlas supplying analytic retained-domain and adjacency
+     * checks; absent leaves only this face's trim cycles.
+     */
+    atlas: IAutoMovieSolidAtlas;
+
+    /** Index of this surface in the original atlas. */
+    face: number;
+
+    /** Add to an original atlas neighbor index to obtain its body face index. */
+    offset: number;
+  };
 
   /** The body. */
   export interface IBody {

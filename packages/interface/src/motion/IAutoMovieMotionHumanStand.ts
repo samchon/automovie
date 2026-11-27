@@ -51,9 +51,12 @@ export namespace IAutoMovieMotionHumanStand {
      * both planted entry feet is continued; otherwise the feet retain their
      * declared entry support frames.
      */
-    on?: {
-      /** Scene subject id of the prop used as the standing support. */
-      prop: string;
-    };
+    on?: IParamsOn;
   }
+
+  /** The on object of {@link IParams}. */
+  export type IParamsOn = {
+    /** Scene subject id of the prop used as the standing support. */
+    prop: string;
+  };
 }

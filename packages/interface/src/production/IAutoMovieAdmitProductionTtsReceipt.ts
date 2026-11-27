@@ -19,13 +19,7 @@ export namespace IAutoMovieAdmitProductionTtsReceipt {
    */
   export interface IProps {
     /** The line the receipt must belong to. */
-    line: {
-      /** Line id, which the receipt's `line` must equal. */
-      id: string;
-
-      /** Line text, which the receipt's `text` must equal. */
-      text: string;
-    };
+    line: IPropsLine;
 
     /** Path of the WAVE file, used only in refusal messages. */
     pcmPath: string;
@@ -45,6 +39,15 @@ export namespace IAutoMovieAdmitProductionTtsReceipt {
      */
     sampleRate: number;
   }
+
+  /** The line object of {@link IProps}. */
+  export type IPropsLine = {
+    /** Line id, which the receipt's `line` must equal. */
+    id: string;
+
+    /** Line text, which the receipt's `text` must equal. */
+    text: string;
+  };
 
   /** An admitted receipt with its line decoded at the requested rate. */
   export interface IResult {

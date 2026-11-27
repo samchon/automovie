@@ -286,18 +286,7 @@ export namespace IAutoMovieHumanHeadComposer {
      * Each auricle's top, from its height over the tragion
      * (`AutoMovieHumanEarPlace.aboveTragion`).
      */
-    ears?: {
-      /**
-       * Placement of the person's left ear in the containing record's vertical
-       * datum, millimetres.
-       */
-      left: number;
-      /**
-       * Placement of the person's right ear in the containing record's vertical
-       * datum, millimetres.
-       */
-      right: number;
-    };
+    ears?: IPlacesEars;
 
     /**
      * The face plan's super-ellipse exponent
@@ -305,4 +294,18 @@ export namespace IAutoMovieHumanHeadComposer {
      */
     faceExponent?: number;
   }
+
+  /** The ears object of {@link IPlaces}. */
+  export type IPlacesEars = {
+    /**
+     * Placement of the person's left ear in the containing record's vertical
+     * datum, millimetres.
+     */
+    left: number;
+    /**
+     * Placement of the person's right ear in the containing record's vertical
+     * datum, millimetres.
+     */
+    right: number;
+  };
 }

@@ -102,18 +102,21 @@ export namespace IAutoMovieSolveDistalTwist {
      * mutating the argument. Exceptions propagate. Omission constructs both
      * projectors from skeleton.
      */
-    clamps?: {
-      /**
-       * Projects the trial mid joint onto its effective ROM; extreme trial
-       * twists also establish the allowed search interval.
-       */
-      lower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-      /**
-       * Projects the trial effector onto its effective ROM before measuring
-       * orientation error.
-       */
-      effector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
-    };
+    clamps?: IPropsClamps;
+  };
+
+  /** The clamps object of {@link IProps}. */
+  export type IPropsClamps = {
+    /**
+     * Projects the trial mid joint onto its effective ROM; extreme trial
+     * twists also establish the allowed search interval.
+     */
+    lower: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+    /**
+     * Projects the trial effector onto its effective ROM before measuring
+     * orientation error.
+     */
+    effector: (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
   };
 
   /** Lazy fixed-frame data; these readers never retain a target or lower joint. */

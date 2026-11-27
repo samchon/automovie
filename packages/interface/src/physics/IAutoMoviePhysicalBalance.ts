@@ -29,55 +29,58 @@ export namespace IAutoMoviePhysicalBalance {
     beyond?: number;
 
     /** Recovery request goes back to the step planner; absent otherwise. */
-    step?: {
-      /**
-       * Supported endpoint selected by whether its step captures, then whether
-       * its remaining supports hold the commanded centre of pressure, then not
-       * the last landed limb, then shortest travel, lead along the capture
-       * direction and footfall phase.
-       */
+    step?: IResultStep;
+  }
+
+  /** The step object of {@link IResult}. */
+  export type IResultStep = {
+    /**
+     * Supported endpoint selected by whether its step captures, then whether
+     * its remaining supports hold the commanded centre of pressure, then not
+     * the last landed limb, then shortest travel, lead along the capture
+     * direction and footfall phase.
+     */
+    bone: string;
+
+    /** Proposed support-point position in world metres on the floor plane. */
+    target: IAutoMovieVector3;
+
+    /**
+     * The swing's own time to the target, seconds, after its unloading ramp;
+     * absent without a `swing` timing.
+     */
+    seconds?: number;
+
+    /**
+     * Whether this one step captures the body (Koolen et al., Eq. 25); a step
+     * is asked for either way, and the body steps again if it does not.
+     * Absent without a `swing` timing.
+     */
+    viable?: boolean;
+
+    /**
+     * How far past its new support the capture point lies at landing, metres:
+     * zero for a capturing step. A step that does not capture is the one that
+     * leaves it least past (Khadiv et al. 2017, Section III-B: viability is
+     * soft, its violation minimized). Absent without a `swing` timing.
+     */
+    violation?: number;
+
+    /**
+     * The diagonal partner a four-support body steps with this limb when no
+     * single limb's step both captures and can be unloaded at once: both feet
+     * move by the same displacement while the other diagonal holds the centre
+     * of pressure (Chen et al. 2022, Section 2.1, Example 1). Absent for a
+     * single step.
+     */
+    pair?: {
+      /** The partner's supported endpoint. */
       bone: string;
 
-      /** Proposed support-point position in world metres on the floor plane. */
+      /** Its proposed support-point position, world metres on the floor plane. */
       target: IAutoMovieVector3;
-
-      /**
-       * The swing's own time to the target, seconds, after its unloading ramp;
-       * absent without a `swing` timing.
-       */
-      seconds?: number;
-
-      /**
-       * Whether this one step captures the body (Koolen et al., Eq. 25); a step
-       * is asked for either way, and the body steps again if it does not.
-       * Absent without a `swing` timing.
-       */
-      viable?: boolean;
-
-      /**
-       * How far past its new support the capture point lies at landing, metres:
-       * zero for a capturing step. A step that does not capture is the one that
-       * leaves it least past (Khadiv et al. 2017, Section III-B: viability is
-       * soft, its violation minimized). Absent without a `swing` timing.
-       */
-      violation?: number;
-
-      /**
-       * The diagonal partner a four-support body steps with this limb when no
-       * single limb's step both captures and can be unloaded at once: both feet
-       * move by the same displacement while the other diagonal holds the centre
-       * of pressure (Chen et al. 2022, Section 2.1, Example 1). Absent for a
-       * single step.
-       */
-      pair?: {
-        /** The partner's supported endpoint. */
-        bone: string;
-
-        /** Its proposed support-point position, world metres on the floor plane. */
-        target: IAutoMovieVector3;
-      };
     };
-  }
+  };
 
   /**
    * Choose the reachable recovery support leading along the capture direction,
@@ -159,13 +162,7 @@ export namespace IAutoMoviePhysicalBalance {
      *   meanwhile (Herzog et al. 2016, Section 5.3), so the target is where the
      *   capture point will be once the foot bears; absent counts none.
      */
-    swing?: {
-      ramp: number;
-      acceleration: number;
-      height: number;
-      elapsed?: number;
-      landing?: number;
-    };
+    swing?: IAssessInputSwing;
 
     /**
      * The centre of pressure the stance commands now, world metres: a limb
@@ -213,5 +210,14 @@ export namespace IAutoMoviePhysicalBalance {
      * planned again, by the rules it was chosen with.
      */
     pair?: readonly [string, string];
+  };
+
+  /** The swing object of {@link IAssessInput}. */
+  export type IAssessInputSwing = {
+    ramp: number;
+    acceleration: number;
+    height: number;
+    elapsed?: number;
+    landing?: number;
   };
 }

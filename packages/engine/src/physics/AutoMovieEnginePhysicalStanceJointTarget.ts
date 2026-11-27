@@ -178,7 +178,7 @@ export namespace AutoMovieEnginePhysicalStanceJointTarget {
     role: "hip";
 
     /** The parent's intended world rotation and angular velocity. */
-    intended: { rotation: IAutoMovieQuaternion; spin: IAutoMovieVector3 };
+    intended: IHipIntended;
 
     /**
      * The world axis, unit length, the trunk is released about while the
@@ -186,6 +186,9 @@ export namespace AutoMovieEnginePhysicalStanceJointTarget {
      */
     release?: IAutoMovieVector3;
   }
+
+  /** The intended object of {@link IHip}. */
+  export type IHipIntended = { rotation: IAutoMovieQuaternion; spin: IAutoMovieVector3 };
 
   /** Any other joint. */
   export interface IPosture extends IBase {

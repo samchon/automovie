@@ -103,18 +103,7 @@ export namespace IAutoMovieHumanHandPalm {
      * Terminal plane coordinate and its raw-mesh extremal points in native
      * world millimetres.
      */
-    maximum: {
-      /**
-       * Physical coordinate of this section or event along the original source
-       * axis, millimetres.
-       */
-      coordinateMm: number;
-      /**
-       * Ordered terminal-boundary points in the original source frame,
-       * millimetres.
-       */
-      pointsMm: AutoMovieVector3Tuple[];
-    };
+    maximum: IFixedTerminalMaximum;
 
     /**
      * Observed plane coordinates in millimetres, including a cut beyond the
@@ -122,6 +111,20 @@ export namespace IAutoMovieHumanHandPalm {
      */
     coordinatesMm: number[];
   }
+
+  /** The maximum object of {@link IFixedTerminal}. */
+  export type IFixedTerminalMaximum = {
+    /**
+     * Physical coordinate of this section or event along the original source
+     * axis, millimetres.
+     */
+    coordinateMm: number;
+    /**
+     * Ordered terminal-boundary points in the original source frame,
+     * millimetres.
+     */
+    pointsMm: AutoMovieVector3Tuple[];
+  };
 
   /**
    * The value argument of AutoMovieHumanHandPalm.fixedSection. Restore the

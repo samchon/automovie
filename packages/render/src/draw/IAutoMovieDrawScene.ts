@@ -276,12 +276,15 @@ export namespace IAutoMovieDrawScene {
      * Scratch render access for the offscreen capture and delivery audits,
      * absent in the Viewer. Restore renderer and scene state before returning.
      */
-    readonly auditRaster?: {
-      /** The renderer used for the actual offscreen delivery. */
-      readonly renderer: THREE.WebGLRenderer;
-
-      /** Native samples along each side of an output pixel. */
-      readonly factor: 1 | 2;
-    };
+    readonly auditRaster?: IPlacedSampleAuditRaster;
   }
+
+  /** The auditRaster object of {@link IPlacedSample}. */
+  export type IPlacedSampleAuditRaster = {
+    /** The renderer used for the actual offscreen delivery. */
+    readonly renderer: THREE.WebGLRenderer;
+
+    /** Native samples along each side of an output pixel. */
+    readonly factor: 1 | 2;
+  };
 }

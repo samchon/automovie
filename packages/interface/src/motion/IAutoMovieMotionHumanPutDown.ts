@@ -55,13 +55,7 @@ export namespace IAutoMovieMotionHumanPutDown {
      * `placed` with its frame `offset` in the bone's posed frame (a hat on the
      * head, a pistol in a hip holster); set down at `at` when absent.
      */
-    on?: {
-      /** The bone. */
-      bone: AutoMovieHumanoidBone;
-
-      /** The prop's frame in the bone's posed frame, metres. */
-      offset: IAutoMovieRigidTransform;
-    };
+    on?: IParamsOn;
 
     /**
      * The other prop's socket the prop is set on, riding it from `placed` as
@@ -77,17 +71,7 @@ export namespace IAutoMovieMotionHumanPutDown {
      * defers receiver fit to the placement action, whose film clock is known
      * when the action is planned.
      */
-    onto?: {
-      /** Scene subject id of the receiving support prop. */
-      prop: string;
-      /** Affordance id on that prop where the held object is placed. */
-      point: string;
-      /**
-       * Affordance id of the HELD prop's own socket placed on the receiving
-       * prop's point; omission mounts the held prop by its origin.
-       */
-      via?: string;
-    };
+    onto?: IParamsOnto;
 
     /**
      * The prop's heading about +Y at rest, degrees; its current heading when
@@ -108,4 +92,26 @@ export namespace IAutoMovieMotionHumanPutDown {
     /** The holding hand; `right` when absent. */
     hand?: AutoMovieHumanSide;
   }
+
+  /** The onto object of {@link IParams}. */
+  export type IParamsOnto = {
+    /** Scene subject id of the receiving support prop. */
+    prop: string;
+    /** Affordance id on that prop where the held object is placed. */
+    point: string;
+    /**
+     * Affordance id of the HELD prop's own socket placed on the receiving
+     * prop's point; omission mounts the held prop by its origin.
+     */
+    via?: string;
+  };
+
+  /** The on object of {@link IParams}. */
+  export type IParamsOn = {
+    /** The bone. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The prop's frame in the bone's posed frame, metres. */
+    offset: IAutoMovieRigidTransform;
+  };
 }

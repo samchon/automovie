@@ -60,28 +60,37 @@ export namespace IAutoMovieDeliveryContentAudit {
      * Shortest reported black interval, the share of the picture that must be
      * dark and the darkness level.
      */
-    black: {
-      minimumDuration: ITimestamp;
-      minimumPictureRatio: number;
-      maximumPixelThreshold: number;
-    };
+    black: IThresholdsBlack;
     /**
      * Shortest reported freeze and the largest mean picture change still
      * counted as unchanged.
      */
-    frozen: {
-      minimumDuration: ITimestamp;
-      maximumMeanDifference: number;
-    };
+    frozen: IThresholdsFrozen;
     /**
      * Shortest reported silence and the loudest amplitude still counted as
      * quiet on every channel.
      */
-    silence: {
-      minimumDuration: ITimestamp;
-      maximumAmplitude: number;
-    };
+    silence: IThresholdsSilence;
   }
+
+  /** The silence object of {@link IThresholds}. */
+  export type IThresholdsSilence = {
+    minimumDuration: ITimestamp;
+    maximumAmplitude: number;
+  };
+
+  /** The frozen object of {@link IThresholds}. */
+  export type IThresholdsFrozen = {
+    minimumDuration: ITimestamp;
+    maximumMeanDifference: number;
+  };
+
+  /** The black object of {@link IThresholds}. */
+  export type IThresholdsBlack = {
+    minimumDuration: ITimestamp;
+    minimumPictureRatio: number;
+    maximumPixelThreshold: number;
+  };
 
   /**
    * Evidence from the host for the chosen stream. Continuity must be
@@ -139,7 +148,7 @@ export namespace IAutoMovieDeliveryContentAudit {
      * The selected production-root-relative soundtrack and its coverage
      * obligation.
      */
-    audio?: { path: string | null; required: boolean };
+    audio?: IIntentAudio;
     /** Explicitly approved black, frozen and silent ranges. */
     allowances?: readonly IAllowance[];
     /** Detector settings, when the production supplies its own policy. */
@@ -153,6 +162,9 @@ export namespace IAutoMovieDeliveryContentAudit {
     loudness?: IAutoMovieLoudnessIntent;
   }
 
+  /** The audio object of {@link IIntent}. */
+  export type IIntentAudio = { path: string | null; required: boolean };
+
   /** The complete evidence and commissioned presentation for a single audit. */
   export interface IProps {
     /** The exact file the streams were decoded from. */
@@ -162,27 +174,7 @@ export namespace IAutoMovieDeliveryContentAudit {
      * sound is required, whether drawn intervals need an allowance, and the
      * authored allowances.
      */
-    expected: {
-      frameCount: number;
-      frameRate: Ratio;
-      audioRequired: boolean;
-      /**
-       * Whether an interval the drawn source also shows still needs an authored
-       * allowance before delivery. Defaults to true; a production without
-       * declared delivery intent passes false.
-       */
-      contentRequired?: boolean;
-      allowances?: readonly IAllowance[];
-      /**
-       * Loudness targets the decoded audio must meet; absent, loudness and true
-       * peak are reported with the stream but not checked. A decoded audio
-       * stream without a `loudness` measurement then blocks.
-       */
-      loudness?: Pick<
-        IAutoMovieLoudnessIntent,
-        "integratedLufs" | "toleranceLu" | "maximumTruePeakDbtp"
-      >;
-    };
+    expected: IPropsExpected;
     /**
      * The detector settings both the delivery and the reference were measured
      * with.
@@ -198,6 +190,29 @@ export namespace IAutoMovieDeliveryContentAudit {
      */
     reference?: Readonly<Partial<Record<Media, Stream>>>;
   }
+
+  /** The expected object of {@link IProps}. */
+  export type IPropsExpected = {
+    frameCount: number;
+    frameRate: Ratio;
+    audioRequired: boolean;
+    /**
+     * Whether an interval the drawn source also shows still needs an authored
+     * allowance before delivery. Defaults to true; a production without
+     * declared delivery intent passes false.
+     */
+    contentRequired?: boolean;
+    allowances?: readonly IAllowance[];
+    /**
+     * Loudness targets the decoded audio must meet; absent, loudness and true
+     * peak are reported with the stream but not checked. A decoded audio
+     * stream without a `loudness` measurement then blocks.
+     */
+    loudness?: Pick<
+      IAutoMovieLoudnessIntent,
+      "integratedLufs" | "toleranceLu" | "maximumTruePeakDbtp"
+    >;
+  };
 
   /**
    * How a measured interval relates to authorship: inside an authored

@@ -51,15 +51,18 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
      * acceleration, the command a biped's recovery plan stands in for; absent,
      * a centre at rest on the authored segments' poses.
      */
-    command?: {
-      /** The authored mass center, world metres. */
-      center: IAutoMovieVector3;
-      /** Its authored velocity, metres per second. */
-      velocity: IAutoMovieVector3;
-      /** Its authored acceleration, metres per second squared. */
-      acceleration: IAutoMovieVector3;
-    };
+    command?: ISenseInputCommand;
   }
+
+  /** The command object of {@link ISenseInput}. */
+  export type ISenseInputCommand = {
+    /** The authored mass center, world metres. */
+    center: IAutoMovieVector3;
+    /** Its authored velocity, metres per second. */
+    velocity: IAutoMovieVector3;
+    /** Its authored acceleration, metres per second squared. */
+    acceleration: IAutoMovieVector3;
+  };
 
   /** The readings, world metres, seconds and newtons. */
   export interface ISense extends ISenseInput {
@@ -72,12 +75,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     /** The body's weight. */
     weight: number;
     /** The root segment, which no joint has as its child, and its body. */
-    root: {
-      /** The profile segment that has no joint as its child. */
-      segment: IAutoMoviePhysicalSegment;
-      /** The root segment's rigid-body wrapper. */
-      body: AutoMovieXpbdBody;
-    };
+    root: ISenseRoot;
     /** The limb of an endpoint bone. */
     limb(bone: string): ILimb;
     /**
@@ -148,6 +146,14 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
       offsets: IAutoMoviePhysicalRecoveryState["offsets"],
     ): IAutoMovieVector3;
   }
+
+  /** The root object of {@link ISense}. */
+  export type ISenseRoot = {
+    /** The profile segment that has no joint as its child. */
+    segment: IAutoMoviePhysicalSegment;
+    /** The root segment's rigid-body wrapper. */
+    body: AutoMovieXpbdBody;
+  };
 
   /** Input for the whole-body centroidal momentum task. */
   /** The body, its goals and the root's gains and demands. */
@@ -247,26 +253,32 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
      * The total feedback's bound, |T (dCoP + dCMP)| per axis, with T the
      * transform into the plan's motion frame; infinite bounds add no row.
      */
-    maximum: {
-      /** The transform into the plan's motion frame. */
-      transform: IIcpControllerQpMatrix;
-      /** The x-axis feedback bound, metres. */
-      x: number;
-      /** The y-axis feedback bound, metres. */
-      y: number;
-    };
+    maximum: IIcpControllerQpInputMaximum;
 
     /**
      * The total feedback's rate bound, metres per second, and the control
      * period, seconds; an infinite rate adds no row.
      */
-    rate: {
-      /** The total feedback rate bound, metres per second. */
-      limit: number;
-      /** The control period, seconds. */
-      dt: number;
-    };
+    rate: IIcpControllerQpInputRate;
   }
+
+  /** The rate object of {@link IIcpControllerQpInput}. */
+  export type IIcpControllerQpInputRate = {
+    /** The total feedback rate bound, metres per second. */
+    limit: number;
+    /** The control period, seconds. */
+    dt: number;
+  };
+
+  /** The maximum object of {@link IIcpControllerQpInput}. */
+  export type IIcpControllerQpInputMaximum = {
+    /** The transform into the plan's motion frame. */
+    transform: IIcpControllerQpMatrix;
+    /** The x-axis feedback bound, metres. */
+    x: number;
+    /** The y-axis feedback bound, metres. */
+    y: number;
+  };
 
   /** The program's solution. */
   export interface IIcpControllerQpSolution {
@@ -306,22 +318,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     feet: readonly IPrepareDisturbanceSpanFoot[];
 
     /** The authored capture point and its rate at the push, held for the span. */
-    authored: {
-      /** The authored capture point, world x and z, metres. */
-      position: {
-        /** The world x coordinate, metres. */
-        x: number;
-        /** The world z coordinate, metres. */
-        z: number;
-      };
-      /** Its horizontal velocity, metres per second. */
-      velocity: {
-        /** The world x velocity, metres per second. */
-        x: number;
-        /** The world z velocity, metres per second. */
-        z: number;
-      };
-    };
+    authored: IPrepareDisturbanceSpanInputAuthored;
 
     /** The pushes after the first, each its time and velocity jump. */
     pushes?: readonly IPrepareDisturbanceSpanPush[];
@@ -335,6 +332,24 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     /** The floor's height, metres. */
     floor: number;
   }
+
+  /** The authored object of {@link IPrepareDisturbanceSpanInput}. */
+  export type IPrepareDisturbanceSpanInputAuthored = {
+    /** The authored capture point, world x and z, metres. */
+    position: {
+      /** The world x coordinate, metres. */
+      x: number;
+      /** The world z coordinate, metres. */
+      z: number;
+    };
+    /** Its horizontal velocity, metres per second. */
+    velocity: {
+      /** The world x velocity, metres per second. */
+      x: number;
+      /** The world z velocity, metres per second. */
+      z: number;
+    };
+  };
 
   /** A later push of the stated disturbance. */
   export interface IPrepareDisturbanceSpanPush {
@@ -354,22 +369,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     side: "left" | "right";
 
     /** Its sole frame, world x and z. */
-    frame: {
-      /** The sole origin, world x and z. */
-      origin: {
-        /** The world x coordinate, metres. */
-        x: number;
-        /** The world z coordinate, metres. */
-        z: number;
-      };
-      /** The sole forward direction, x and z. */
-      forward: {
-        /** The x component. */
-        x: number;
-        /** The z component. */
-        z: number;
-      };
-    };
+    frame: IPrepareDisturbanceSpanFootFrame;
 
     /** Its contact outline in the sole frame. */
     polygon: {
@@ -385,20 +385,41 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
      * chain length, metres. A footstep stays within sqrt(L^2 - h^2) of the hip
      * where it stands at touchdown, carried by the centre of mass.
      */
-    leg?: {
-      /** The hip anchor, horizontal world x and z. */
-      hip: {
-        /** The hip anchor's world x coordinate, metres. */
-        x: number;
-        /** The hip anchor's world z coordinate, metres. */
-        z: number;
-      };
-      /** The hip height over the floor, metres. */
-      height: number;
-      /** The leg chain length, metres. */
-      length: number;
-    };
+    leg?: IPrepareDisturbanceSpanFootLeg;
   }
+
+  /** The leg object of {@link IPrepareDisturbanceSpanFoot}. */
+  export type IPrepareDisturbanceSpanFootLeg = {
+    /** The hip anchor, horizontal world x and z. */
+    hip: {
+      /** The hip anchor's world x coordinate, metres. */
+      x: number;
+      /** The hip anchor's world z coordinate, metres. */
+      z: number;
+    };
+    /** The hip height over the floor, metres. */
+    height: number;
+    /** The leg chain length, metres. */
+    length: number;
+  };
+
+  /** The frame object of {@link IPrepareDisturbanceSpanFoot}. */
+  export type IPrepareDisturbanceSpanFootFrame = {
+    /** The sole origin, world x and z. */
+    origin: {
+      /** The world x coordinate, metres. */
+      x: number;
+      /** The world z coordinate, metres. */
+      z: number;
+    };
+    /** The sole forward direction, x and z. */
+    forward: {
+      /** The x component. */
+      x: number;
+      /** The z component. */
+      z: number;
+    };
+  };
 
   /** A branch point of the span. */
   export interface IPrepareDisturbanceSpanBranch {
@@ -421,28 +442,13 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     saturated: boolean;
 
     /** The capture point, world x and z, metres. */
-    capture: {
-      /** The world x coordinate, metres. */
-      x: number;
-      /** The world z coordinate, metres. */
-      z: number;
-    };
+    capture: IPrepareDisturbanceSpanSampleCapture;
 
     /** Its rate, metres per second. */
-    captureVelocity: {
-      /** The world x velocity, metres per second. */
-      x: number;
-      /** The world z velocity, metres per second. */
-      z: number;
-    };
+    captureVelocity: IPrepareDisturbanceSpanSampleCaptureVelocity;
 
     /** The centroidal moment pivot, world x and z, metres. */
-    pivot: {
-      /** The world x coordinate, metres. */
-      x: number;
-      /** The world z coordinate, metres. */
-      z: number;
-    };
+    pivot: IPrepareDisturbanceSpanSamplePivot;
 
     /** The centre of mass, world metres, its height held from the push. */
     center: IAutoMovieVector3;
@@ -457,16 +463,43 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
      * The ground's reaction, newtons, at the pivot on the floor: m omega^2 (c -
      * cmp) across and the weight up.
      */
-    reaction: {
-      /** The point on the floor where the reaction acts, world metres. */
-      point: IAutoMovieVector3;
-      /** The ground's force, world newtons. */
-      force: IAutoMovieVector3;
-    };
+    reaction: IPrepareDisturbanceSpanSampleReaction;
 
     /** Each planted foot's share of the reaction, by bone, summing to one. */
     loads: Record<string, number>;
   }
+
+  /** The reaction object of {@link IPrepareDisturbanceSpanSample}. */
+  export type IPrepareDisturbanceSpanSampleReaction = {
+    /** The point on the floor where the reaction acts, world metres. */
+    point: IAutoMovieVector3;
+    /** The ground's force, world newtons. */
+    force: IAutoMovieVector3;
+  };
+
+  /** The pivot object of {@link IPrepareDisturbanceSpanSample}. */
+  export type IPrepareDisturbanceSpanSamplePivot = {
+    /** The world x coordinate, metres. */
+    x: number;
+    /** The world z coordinate, metres. */
+    z: number;
+  };
+
+  /** The captureVelocity object of {@link IPrepareDisturbanceSpanSample}. */
+  export type IPrepareDisturbanceSpanSampleCaptureVelocity = {
+    /** The world x velocity, metres per second. */
+    x: number;
+    /** The world z velocity, metres per second. */
+    z: number;
+  };
+
+  /** The capture object of {@link IPrepareDisturbanceSpanSample}. */
+  export type IPrepareDisturbanceSpanSampleCapture = {
+    /** The world x coordinate, metres. */
+    x: number;
+    /** The world z coordinate, metres. */
+    z: number;
+  };
 
   /** The prepared span. */
   export interface IPrepareDisturbanceSpanResult {
@@ -474,19 +507,7 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
     branches: IPrepareDisturbanceSpanBranch[];
 
     /** The last recovery step's foot and footstep, if it steps. */
-    footstep?: {
-      /** The endpoint bone of the stepping foot. */
-      bone: string;
-      /** The footstep, world x and z, metres. */
-      position: {
-        /** The world x coordinate, metres. */
-        x: number;
-        /** The world z coordinate, metres. */
-        z: number;
-      };
-      /** Whether the footstep is within the policy's reach. */
-      viable: boolean;
-    };
+    footstep?: IPrepareDisturbanceSpanResultFootstep;
 
     /**
      * When the response has settled within `maxErrorToStanding` of its plan
@@ -504,4 +525,19 @@ export namespace AutoMovieEnginePhysicalBalanceTypes {
      */
     sample(seconds: number): IPrepareDisturbanceSpanSample;
   }
+
+  /** The footstep object of {@link IPrepareDisturbanceSpanResult}. */
+  export type IPrepareDisturbanceSpanResultFootstep = {
+    /** The endpoint bone of the stepping foot. */
+    bone: string;
+    /** The footstep, world x and z, metres. */
+    position: {
+      /** The world x coordinate, metres. */
+      x: number;
+      /** The world z coordinate, metres. */
+      z: number;
+    };
+    /** Whether the footstep is within the policy's reach. */
+    viable: boolean;
+  };
 }

@@ -226,7 +226,7 @@ export function test_environment_furnishing_relations(): void {
   };
   const walls: AutoMovieFurnishingWall[] = ["-z", "+z", "+x", "-x"];
   const ring: IAutoMovieEnvironment = build(
-    [6, 6],
+    { width: 6, depth: 6 },
     Object.fromEntries(
       walls.flatMap(
         (
@@ -481,7 +481,7 @@ export function test_environment_furnishing_relations(): void {
         throwsError(
           (): IAutoMovieEnvironment =>
             build(
-              [4.0, 3.2],
+              { width: 4.0, depth: 3.2 },
               {
                 chest: {
                   model: chest,

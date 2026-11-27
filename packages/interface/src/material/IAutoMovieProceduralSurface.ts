@@ -117,13 +117,7 @@ export namespace IAutoMovieProceduralSurface {
      * Metres one sheet turn covers along its own U and V, each finite and above
      * zero.
      */
-    tile: {
-      /** Metres per turn along sheet U. */
-      u: number;
-
-      /** Metres per turn along sheet V. */
-      v: number;
-    };
+    tile: IPieceTile;
 
     /**
      * The transform `autoMoviePatternTextureTransforms` returned for this
@@ -131,4 +125,13 @@ export namespace IAutoMovieProceduralSurface {
      */
     transform: IAutoMoviePatternTextureTransform;
   }
+
+  /** The tile object of {@link IPiece}. */
+  export type IPieceTile = {
+    /** Metres per turn along sheet U. */
+    u: number;
+
+    /** Metres per turn along sheet V. */
+    v: number;
+  };
 }

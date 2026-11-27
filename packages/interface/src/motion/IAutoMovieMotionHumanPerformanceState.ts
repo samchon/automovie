@@ -288,17 +288,7 @@ export namespace IAutoMovieMotionHumanPerformanceState {
      * (`IAutoMovieMotionHumanActionPlan.mounts`); held in the hand or worn when
      * absent.
      */
-    mount?: {
-      /** Scene subject id of the OTHER prop whose socket this grip rides. */
-      prop: string;
-      /** Socket affordance id on the other prop used by the mount. */
-      point: string;
-      /**
-       * Whether the prop is set exactly on the socket
-       * (`IAutoMovieMotionPropMount.seated`).
-       */
-      seated?: boolean;
-    };
+    mount?: IGripMount;
 
     /** The span's first film second. */
     from: number;
@@ -332,6 +322,19 @@ export namespace IAutoMovieMotionHumanPerformanceState {
      */
     inHand?: IAutoMovieMotionHumanContactWindow["inHand"];
   }
+
+  /** The mount object of {@link IGrip}. */
+  export type IGripMount = {
+    /** Scene subject id of the OTHER prop whose socket this grip rides. */
+    prop: string;
+    /** Socket affordance id on the other prop used by the mount. */
+    point: string;
+    /**
+     * Whether the prop is set exactly on the socket
+     * (`IAutoMovieMotionPropMount.seated`).
+     */
+    seated?: boolean;
+  };
 
   /**
    * One timed writer of a prop articulation's travel

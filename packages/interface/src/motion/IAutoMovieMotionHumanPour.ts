@@ -27,18 +27,7 @@ export namespace IAutoMovieMotionHumanPour {
      */
     gap: number;
     /** Seconds per stage in [0.2, 3], up to 10 seconds in total. */
-    timing: {
-      /** Transport the source upright to the mouth. */
-      approach: number;
-      /** Rotate about the source's lip to the maximum tilt. */
-      tip: number;
-      /** Transfer liquid at the maximum tilt. */
-      flow: number;
-      /** Restore the source's upright attitude over the mouth. */
-      right: number;
-      /** Bring the upright source back to its entry pose. */
-      retreat: number;
-    };
+    timing: IParamsTiming;
     /** Finite nonnegative volume in the source at entry, millilitres. */
     sourceMl: number;
     /** Finite nonnegative volume in the recipient at entry, millilitres. */
@@ -51,6 +40,20 @@ export namespace IAutoMovieMotionHumanPour {
      */
     transferMl: number;
   }
+
+  /** The timing object of {@link IParams}. */
+  export type IParamsTiming = {
+    /** Transport the source upright to the mouth. */
+    approach: number;
+    /** Rotate about the source's lip to the maximum tilt. */
+    tip: number;
+    /** Transfer liquid at the maximum tilt. */
+    flow: number;
+    /** Restore the source's upright attitude over the mouth. */
+    right: number;
+    /** Bring the upright source back to its entry pose. */
+    retreat: number;
+  };
 
   /** Authored balance at a second of the pour, in millilitres. */
   export interface ILiquid {

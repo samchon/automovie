@@ -85,11 +85,14 @@ export namespace IAutoMovieMotionHumanObstacle {
      * The measure that falls short and what it would have to be, metres, for
      * `narrow` and `headroom`.
      */
-    short?: {
-      /** Available geometric clearance in metres. */
-      has: number;
-      /** Required geometric clearance in metres. */
-      needs: number;
-    };
+    short?: IBlockShort;
   }
+
+  /** The short object of {@link IBlock}. */
+  export type IBlockShort = {
+    /** Available geometric clearance in metres. */
+    has: number;
+    /** Required geometric clearance in metres. */
+    needs: number;
+  };
 }

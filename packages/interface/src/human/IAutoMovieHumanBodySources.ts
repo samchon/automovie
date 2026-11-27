@@ -111,22 +111,7 @@ export namespace IAutoMovieHumanBodySources {
      * Explicitly completed production metadata, retained in this same
      * invocation without copying its source memo fields.
      */
-    production?: {
-      /** Actual requested head source, never a nominal stand-in. */
-      head: IAutoMovieHumanHeadLane.IPrepared;
-
-      /** Full bind skeleton, including its actual head/eye bones. */
-      anatomy: IAutoMovieHumanSkeletonLaw.IOutput;
-
-      /**
-       * Actual placement metadata; its chain list stays empty until raw is
-       * requested.
-       */
-      standing: IAutoMovieHumanBodyCalibration;
-
-      /** Identical solved trunk and placement metadata. */
-      trunkPlacement: IAutoMovieHumanTrunkConstruction.IPlacement;
-    };
+    production?: IOriginalProduction;
 
     /**
      * Source factories and their selected completed results, owned by this same
@@ -143,6 +128,24 @@ export namespace IAutoMovieHumanBodySources {
     /** Only explicitly requested raw results. */
     rawSources?: Map<string, IAutoMovieHumanSourceRealization>;
   }
+
+  /** The production object of {@link IOriginal}. */
+  export type IOriginalProduction = {
+    /** Actual requested head source, never a nominal stand-in. */
+    head: IAutoMovieHumanHeadLane.IPrepared;
+
+    /** Full bind skeleton, including its actual head/eye bones. */
+    anatomy: IAutoMovieHumanSkeletonLaw.IOutput;
+
+    /**
+     * Actual placement metadata; its chain list stays empty until raw is
+     * requested.
+     */
+    standing: IAutoMovieHumanBodyCalibration;
+
+    /** Identical solved trunk and placement metadata. */
+    trunkPlacement: IAutoMovieHumanTrunkConstruction.IPlacement;
+  };
 
   /** Already resolved production inputs; their calibration units are unchanged. */
   export interface IInput {
@@ -175,18 +178,7 @@ export namespace IAutoMovieHumanBodySources {
      * without a head mass.
      */
     readonly upperSupport:
-      | {
-          /**
-           * Geometric part with its original axis and section laws; its
-           * declared source frame and units apply.
-           */
-          part: Pick<IAutoMovieViewPart, "axis" | "stations">;
-          /**
-           * Head crown in the shared registered frame, millimetres, used to
-           * place upper trunk support.
-           */
-          crown: AutoMovieVector3Tuple;
-        }
+      | ICommonUpperSupport
       | undefined;
 
     /**
@@ -195,4 +187,18 @@ export namespace IAutoMovieHumanBodySources {
      */
     readonly pose: IAutoMovieHumanHeadPlacement.IOutput;
   }
+
+  /** The upperSupport object of {@link ICommon}. */
+  export type ICommonUpperSupport = {
+    /**
+     * Geometric part with its original axis and section laws; its
+     * declared source frame and units apply.
+     */
+    part: Pick<IAutoMovieViewPart, "axis" | "stations">;
+    /**
+     * Head crown in the shared registered frame, millimetres, used to
+     * place upper trunk support.
+     */
+    crown: AutoMovieVector3Tuple;
+  };
 }

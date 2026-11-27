@@ -32,23 +32,7 @@ export namespace IAutoMovieHumanBodyTree {
      * The seed's search: the part face's phase and the shares of its station
      * range to search between.
      */
-    search: {
-      /**
-       * Section phase in radians, increasing according to the source curve's
-       * orientation.
-       */
-      phase: number;
-      /**
-       * Start of the seed-search interval as a dimensionless share of the
-       * part's station span.
-       */
-      from: number;
-      /**
-       * End of the seed-search interval as a dimensionless share of the part's
-       * station span.
-       */
-      to: number;
-    };
+    search: IFoldSearch;
 
     /** The fold's rolling radius, mm. */
     radius: number;
@@ -56,6 +40,25 @@ export namespace IAutoMovieHumanBodyTree {
     /** The widest chord either side, mm. */
     cap: number;
   }
+
+  /** The search object of {@link IFold}. */
+  export type IFoldSearch = {
+    /**
+     * Section phase in radians, increasing according to the source curve's
+     * orientation.
+     */
+    phase: number;
+    /**
+     * Start of the seed-search interval as a dimensionless share of the
+     * part's station span.
+     */
+    from: number;
+    /**
+     * End of the seed-search interval as a dimensionless share of the part's
+     * station span.
+     */
+    to: number;
+  };
 
   /** The joins' trace limits and sampling, millimetres and radians. */
   export interface ILimits {

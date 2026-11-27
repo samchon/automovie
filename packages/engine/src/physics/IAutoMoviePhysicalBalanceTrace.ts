@@ -64,8 +64,11 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     /** A landed foot's bearing share while it ramps in, if one does. */
     landing?: number;
     /** The step the assessment chose, if any. */
-    step?: { bone: string; viable: boolean };
+    step?: IAssessStep;
   }
+
+  /** The step object of {@link IAssess}. */
+  export type IAssessStep = { bone: string; viable: boolean };
 
   /** A lifted limb's swing at a substep (`physicalBalanceSwing`). */
   export interface ISwing {

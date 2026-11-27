@@ -12,36 +12,42 @@ export namespace IAutoMovieHumanChestWall {
      * Chest depth, mid-sternum to spine: intercept, mm, and slope per mm of
      * girth.
      */
-    depth: {
-      /**
-       * Intercept of the table's affine predictor, in the response quantity's
-       * documented unit.
-       */
-      a: number;
-      /**
-       * Slope of the table's affine predictor, response units per predictor
-       * unit.
-       */
-      b: number;
-    };
+    depth: IWallDepth;
 
     /**
      * Chest diameter across the rib cage: intercept, mm, and slope per mm of
      * girth.
      */
-    breadth: {
-      /**
-       * Intercept of the table's affine predictor, in the response quantity's
-       * documented unit.
-       */
-      a: number;
-      /**
-       * Slope of the table's affine predictor, response units per predictor
-       * unit.
-       */
-      b: number;
-    };
+    breadth: IWallBreadth;
   }
+
+  /** The breadth object of {@link IWall}. */
+  export type IWallBreadth = {
+    /**
+     * Intercept of the table's affine predictor, in the response quantity's
+     * documented unit.
+     */
+    a: number;
+    /**
+     * Slope of the table's affine predictor, response units per predictor
+     * unit.
+     */
+    b: number;
+  };
+
+  /** The depth object of {@link IWall}. */
+  export type IWallDepth = {
+    /**
+     * Intercept of the table's affine predictor, in the response quantity's
+     * documented unit.
+     */
+    a: number;
+    /**
+     * Slope of the table's affine predictor, response units per predictor
+     * unit.
+     */
+    b: number;
+  };
 
   /**
    * Result of AutoMovieHumanChestWall.box. The chest wall's box at a girth.

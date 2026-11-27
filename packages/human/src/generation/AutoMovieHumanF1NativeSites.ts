@@ -143,11 +143,14 @@ export namespace AutoMovieHumanF1NativeSites {
     body: Record<"trunk" | "arm" | "hand" | "leg" | "breast", IAutoMovieHumanConicLoft.IFamily>;
 
     /** The breast's port loops on the trunk's chart (`AutoMovieHumanF1RootControls.breast`); the first is the stored side's. */
-    roots: { breast: readonly IAutoMovieConstructionPortLoop[] };
+    roots: IInputRoots;
 
     /** The representative finger's and toe's families, the digits whose calipers stand for their hand's and foot's digits. */
     digits: Record<"finger" | "toe", IAutoMovieHumanConicLoft.IFamily>;
   }
+
+  /** The roots object of {@link IInput}. */
+  export type IInputRoots = { breast: readonly IAutoMovieConstructionPortLoop[] };
 
   /** Angular samples of a section's girth: the limb law's 360, under 0.1 % short of the curve for a 100 mm limb. */
   const GIRTH_PHASES: number = 360;

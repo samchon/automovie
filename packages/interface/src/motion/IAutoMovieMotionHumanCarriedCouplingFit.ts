@@ -18,15 +18,7 @@ export namespace IAutoMovieMotionHumanCarriedCouplingFit {
      * The bearer's stance (`HumanCarriedCouplingPose.stance`): trunk
      * inclination, degrees, and lowering, a share of a squat's drop.
      */
-    stance: {
-      /** Forward trunk inclination in degrees. */
-      incline: number;
-      /**
-       * Lowering as a share of the body's squat drop in [0, 1]; zero is the
-       * standing alignment.
-       */
-      depth: number;
-    };
+    stance: IFitStance;
 
     /**
      * Both legs' hip flexion, knee flexion and hip abduction the key pose
@@ -45,4 +37,15 @@ export namespace IAutoMovieMotionHumanCarriedCouplingFit {
      */
     place(point: IAutoMovieVector3): IAutoMovieVector3;
   }
+
+  /** The stance object of {@link IFit}. */
+  export type IFitStance = {
+    /** Forward trunk inclination in degrees. */
+    incline: number;
+    /**
+     * Lowering as a share of the body's squat drop in [0, 1]; zero is the
+     * standing alignment.
+     */
+    depth: number;
+  };
 }

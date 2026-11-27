@@ -208,7 +208,7 @@ export namespace IAutoMovieHumanNail {
      * radians, and its half extents there along the station and the phase: the
      * ellipse a declared loop is written about.
      */
-    outline: { centre: [number, number]; semi: [number, number] };
+    outline: INailOutline;
 
     /** The plate's outline in the nail's frame, which `owns` reads. */
     plan: IPlan;
@@ -231,6 +231,9 @@ export namespace IAutoMovieHumanNail {
       turn: number;
     }[];
   }
+
+  /** The outline object of {@link INail}. */
+  export type INailOutline = { centre: [number, number]; semi: [number, number] };
 
   /** The outline of the plate in its own distal and transverse axes. */
   export interface IPlan {

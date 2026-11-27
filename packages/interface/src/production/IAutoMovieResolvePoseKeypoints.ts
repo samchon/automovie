@@ -34,13 +34,7 @@ export namespace IAutoMovieResolvePoseKeypoints {
     skeleton: IAutoMovieSkeleton;
 
     /** The actor's staged scene-node placement, in world space. */
-    node: {
-      /**
-       * Borrowed actor model-to-world TRS; translation is metres, scale is
-       * dimensionless and rotation uses the scene quaternion convention.
-       */
-      transform: IAutoMovieTransform;
-    };
+    node: IPropsNode;
 
     /** The live camera. */
     camera: IAutoMovieCamera;
@@ -76,5 +70,14 @@ export namespace IAutoMovieResolvePoseKeypoints {
      * skipped.
      */
     joints?: readonly AutoMovieHumanoidBone[];
+  };
+
+  /** The node object of {@link IProps}. */
+  export type IPropsNode = {
+    /**
+     * Borrowed actor model-to-world TRS; translation is metres, scale is
+     * dimensionless and rotation uses the scene quaternion convention.
+     */
+    transform: IAutoMovieTransform;
   };
 }

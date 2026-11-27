@@ -200,7 +200,7 @@ export namespace AutoMovieEngineKinematicsTypes {
      * exactly. The score and all raw inputs must already be admitted; this is a
      * mathematical certificate, not a reach or convergence tolerance.
      */
-    minimum?: { overshoot: number; deviation: number };
+    minimum?: IAutoMovieEngineKinematicsHingedArmArticulationPropsMinimum;
 
     /**
      * Exact source/target geometry of this same unchanged chain, point and
@@ -208,6 +208,9 @@ export namespace AutoMovieEngineKinematicsTypes {
      */
     prepared?: hingedArmSwivel.IPreparedTarget;
   }
+
+  /** The minimum object of {@link IAutoMovieEngineKinematicsHingedArmArticulationProps}. */
+  export type IAutoMovieEngineKinematicsHingedArmArticulationPropsMinimum = { overshoot: number; deviation: number };
 
   /**
    * Velocity records exchanged by native FK derivatives and mass reduction.

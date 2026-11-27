@@ -35,12 +35,7 @@ export namespace IAutoMovieHumanNativeProjectionCourse {
      * Original-only read attempts, separate from calipers and changed-axis
      * queries.
      */
-    readonly calibration: {
-      /** Actual original axis.at endpoint attempts during this preparation. */
-      readonly point0ReadAttempts: number;
-      /** Actual original axis.jet station2 attempts during this preparation. */
-      readonly axis2ReadAttempts: number;
-    };
+    readonly calibration: IProjectionOwnerCalibration;
 
     /**
      * Project the same immutable bank source on its owned current skin axis.
@@ -64,4 +59,12 @@ export namespace IAutoMovieHumanNativeProjectionCourse {
       shift?: AutoMovieVector3Tuple,
     ): IPrepared;
   }
+
+  /** The calibration object of {@link IProjectionOwner}. */
+  export type IProjectionOwnerCalibration = {
+    /** Actual original axis.at endpoint attempts during this preparation. */
+    readonly point0ReadAttempts: number;
+    /** Actual original axis.jet station2 attempts during this preparation. */
+    readonly axis2ReadAttempts: number;
+  };
 }

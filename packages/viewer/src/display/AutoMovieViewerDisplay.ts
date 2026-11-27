@@ -272,24 +272,27 @@ export namespace AutoMovieViewerDisplay {
     changed?: boolean;
 
     /** Actual application controller; its state is serialized only by its owner. */
-    control?: {
-      /** Capture application-owned state corresponding to the live completed view. */
-      capture: () => IFrameTransfer;
-
-      /** Restore a state this controller captured. */
-      restore: (state: IFrameTransfer) => void;
-
-      /** Synchronously redraw through the original producer or report failure. */
-      redraw?: () => void;
-
-      /**
-       * Hold animation while retaining the completed view. Nested leases release
-       * independently; only the last normal release resumes the owning clock.
-       * Explicit redraw/restoration remains available during the hold.
-       */
-      freeze?: () => () => void;
-    };
+    control?: ICompletedFrameControl;
   }
+
+  /** The control object of {@link ICompletedFrame}. */
+  export type ICompletedFrameControl = {
+    /** Capture application-owned state corresponding to the live completed view. */
+    capture: () => IFrameTransfer;
+
+    /** Restore a state this controller captured. */
+    restore: (state: IFrameTransfer) => void;
+
+    /** Synchronously redraw through the original producer or report failure. */
+    redraw?: () => void;
+
+    /**
+     * Hold animation while retaining the completed view. Nested leases release
+     * independently; only the last normal release resumes the owning clock.
+     * Explicit redraw/restoration remains available during the hold.
+     */
+    freeze?: () => () => void;
+  };
 
   /**
    * Facts from the owner of an actually completed interactive display.
@@ -341,12 +344,15 @@ export namespace AutoMovieViewerDisplay {
   /** Canvas style and CSS dimensions for a capture host. */
   export interface IApplyCaptureCanvasSizeRequest {
     /** Canvas-like object whose CSS dimensions are set. */
-    canvas: { style: Pick<HTMLCanvasElement["style"], "width" | "height"> };
+    canvas: IApplyCaptureCanvasSizeRequestCanvas;
     /** CSS width in pixels. */
     width: number;
     /** CSS height in pixels. */
     height: number;
   }
+
+  /** The canvas object of {@link IApplyCaptureCanvasSizeRequest}. */
+  export type IApplyCaptureCanvasSizeRequestCanvas = { style: Pick<HTMLCanvasElement["style"], "width" | "height"> };
 
   /** Create a native camera capture/restore controller. */
   export function createCameraState(request: ICameraStateRequest): ICameraState {

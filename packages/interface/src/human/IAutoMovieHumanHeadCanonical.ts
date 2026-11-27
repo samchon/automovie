@@ -75,16 +75,7 @@ export namespace IAutoMovieHumanHeadCanonical {
      * ears, whose top lies above it, and the orbital domes, whose footprint
      * reaches it) must still request the closed member.
      */
-    readonly tapeInvariant: {
-      /**
-       * The pre-closure layout, equal to the closed plan except
-       * `cranialTapePower`.
-       */
-      plan: IAutoMovieHumanHeadLayout;
-
-      /** The pre-closure mass, exact on and below nasion only. */
-      part: IAutoMovieViewPart;
-    };
+    readonly tapeInvariant: IPreparedTapeInvariant;
 
     /**
      * Actual attempt snapshot; reading it requests no source and preserves an
@@ -129,6 +120,18 @@ export namespace IAutoMovieHumanHeadCanonical {
      */
     closed(): IOutput;
   }
+
+  /** The tapeInvariant object of {@link IPrepared}. */
+  export type IPreparedTapeInvariant = {
+    /**
+     * The pre-closure layout, equal to the closed plan except
+     * `cranialTapePower`.
+     */
+    plan: IAutoMovieHumanHeadLayout;
+
+    /** The pre-closure mass, exact on and below nasion only. */
+    part: IAutoMovieViewPart;
+  };
 
   /**
    * Observed outcome of this immutable family's one explicit full-closure
@@ -204,18 +207,7 @@ export namespace IAutoMovieHumanHeadCanonical {
      * Independent vertical ear placements in the head's registered frame,
      * millimetres.
      */
-    ears?: {
-      /**
-       * Placement of the person's left ear in the containing record's vertical
-       * datum, millimetres.
-       */
-      left: number;
-      /**
-       * Placement of the person's right ear in the containing record's vertical
-       * datum, millimetres.
-       */
-      right: number;
-    };
+    ears?: IOfPlacesEars;
     /**
      * Dimensionless front-face superellipse exponent; omission uses the head
      * producer's normal section exponent.
@@ -226,5 +218,19 @@ export namespace IAutoMovieHumanHeadCanonical {
      * the producer's own layout.
      */
     neckOriginal?: IAutoMovieHumanHeadNeckLayout.IOutput;
+  };
+
+  /** The ears object of {@link IOfPlaces}. */
+  export type IOfPlacesEars = {
+    /**
+     * Placement of the person's left ear in the containing record's vertical
+     * datum, millimetres.
+     */
+    left: number;
+    /**
+     * Placement of the person's right ear in the containing record's vertical
+     * datum, millimetres.
+     */
+    right: number;
   };
 }

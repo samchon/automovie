@@ -23,36 +23,15 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     /** The borrowed body, unchanged for this setup's operation. */
     body: IAutoMovieMotionHumanBody;
     /** The arm's upper-arm, forearm and hand identities. */
-    bones: {
-      /** The upper arm. */
-      upper: AutoMovieHumanoidBone;
-      /** The forearm. */
-      lower: AutoMovieHumanoidBone;
-      /** The hand. */
-      hand: AutoMovieHumanoidBone;
-    };
+    bones: ISetupBones;
     /** Effective joint ROM; the upper domain requires swing-twist data. */
-    constraint: {
-      /** The shoulder's range. */
-      upper: IAutoMovieJointConstraint;
-      /** The elbow's range, or unconstrained. */
-      lower: IAutoMovieJointConstraint | null;
-      /** The wrist's range, or unconstrained. */
-      hand: IAutoMovieJointConstraint | null;
-    };
+    constraint: ISetupConstraint;
     /** The shoulder's canonical swing-twist frame. */
     joint: IAutoMoviePreparedJointRotationFrame;
     /** Current skeleton-declared axes over the canonical family table. */
     axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>;
     /** Borrowed bone-local rest transforms, translation in metres. */
-    rest: {
-      /** The upper arm's rest transform. */
-      upper: IAutoMovieBone["rest"];
-      /** The forearm's rest transform. */
-      lower: IAutoMovieBone["rest"];
-      /** The hand's rest transform. */
-      hand: IAutoMovieBone["rest"];
-    };
+    rest: ISetupRest;
     /**
      * Whether each of nine coordinates is free: shoulder chart coordinates
      * 0..2, elbow clinical angles 3..5, then wrist clinical angles 6..8.
@@ -72,6 +51,36 @@ export namespace IAutoMovieMotionHumanArmGeometry {
     basis: (bone: AutoMovieHumanoidBone, path: string) => IAutoMovieJointAxes;
   }
 
+  /** The rest object of {@link ISetup}. */
+  export type ISetupRest = {
+    /** The upper arm's rest transform. */
+    upper: IAutoMovieBone["rest"];
+    /** The forearm's rest transform. */
+    lower: IAutoMovieBone["rest"];
+    /** The hand's rest transform. */
+    hand: IAutoMovieBone["rest"];
+  };
+
+  /** The constraint object of {@link ISetup}. */
+  export type ISetupConstraint = {
+    /** The shoulder's range. */
+    upper: IAutoMovieJointConstraint;
+    /** The elbow's range, or unconstrained. */
+    lower: IAutoMovieJointConstraint | null;
+    /** The wrist's range, or unconstrained. */
+    hand: IAutoMovieJointConstraint | null;
+  };
+
+  /** The bones object of {@link ISetup}. */
+  export type ISetupBones = {
+    /** The upper arm. */
+    upper: AutoMovieHumanoidBone;
+    /** The forearm. */
+    lower: AutoMovieHumanoidBone;
+    /** The hand. */
+    hand: AutoMovieHumanoidBone;
+  };
+
   /**
    * The arm's posed geometry and obstacles prepared for one instant
    * (`HumanArmFrame`). The trajectory retains this frame for its solve.
@@ -80,12 +89,7 @@ export namespace IAutoMovieMotionHumanArmGeometry {
    */
   export interface IFrame {
     /** The shoulder parent's unit world rotation and world position, metres. */
-    parent: {
-      /** Its unit world rotation. */
-      rotation: IAutoMovieQuaternion;
-      /** Its world position, metres. */
-      position: IAutoMovieVector3;
-    };
+    parent: IFrameParent;
 
     /**
      * Actual full-FK shoulder position for this same parent/rest frame, when
@@ -164,6 +168,14 @@ export namespace IAutoMovieMotionHumanArmGeometry {
       bone: Segment;
     }[];
   }
+
+  /** The parent object of {@link IFrame}. */
+  export type IFrameParent = {
+    /** Its unit world rotation. */
+    rotation: IAutoMovieQuaternion;
+    /** Its world position, metres. */
+    position: IAutoMovieVector3;
+  };
 
   /** A shape in an arm's way, placed, with its bounding sphere. */
   export interface IShape {

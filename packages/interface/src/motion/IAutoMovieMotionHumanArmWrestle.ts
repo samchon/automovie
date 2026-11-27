@@ -43,12 +43,7 @@ export namespace IAutoMovieMotionHumanArmWrestle {
     table: IAutoMovieVector3;
 
     /** The finite surface that receives this role's planted elbow. */
-    pad?: {
-      /** Scene subject carrying the pad. */
-      prop: string;
-      /** The pad's finite face. */
-      point: string;
-    };
+    pad?: IParamsPad;
 
     /** Whether this role wins. */
     wins: boolean;
@@ -64,4 +59,12 @@ export namespace IAutoMovieMotionHumanArmWrestle {
      */
     pin?: number;
   }
+
+  /** The pad object of {@link IParams}. */
+  export type IParamsPad = {
+    /** Scene subject carrying the pad. */
+    prop: string;
+    /** The pad's finite face. */
+    point: string;
+  };
 }

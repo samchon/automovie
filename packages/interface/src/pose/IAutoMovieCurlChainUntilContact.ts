@@ -77,16 +77,19 @@ export namespace IAutoMovieCurlChainUntilContact {
     shape: IAutoMoviePhysicalShape;
 
     /** The shape owner's world frame. */
-    frame: {
-      /**
-       * Owner's world translation in metres; the shape's own transform is
-       * composed after it.
-       */
-      position: IAutoMovieVector3;
-      /** Unit rotation from owner-local coordinates to the pose's world frame. */
-      rotation: IAutoMovieQuaternion;
-    };
+    frame: IColliderFrame;
   }
+
+  /** The frame object of {@link ICollider}. */
+  export type IColliderFrame = {
+    /**
+     * Owner's world translation in metres; the shape's own transform is
+     * composed after it.
+     */
+    position: IAutoMovieVector3;
+    /** Unit rotation from owner-local coordinates to the pose's world frame. */
+    rotation: IAutoMovieQuaternion;
+  };
 
   /** The curl. */
   export interface IResult {

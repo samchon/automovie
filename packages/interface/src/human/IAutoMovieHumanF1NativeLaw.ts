@@ -118,19 +118,7 @@ export namespace IAutoMovieHumanF1NativeLaw {
      * Actual original caliper and projection reads, with their shared
      * preparation time.
      */
-    readonly calibration: {
-      /** Complete-source caliper read attempts during this preparation. */
-      nativeSourceReadAttempts: number;
-
-      /**
-       * Endpoint Point0 and station2 attempts for the one original projection
-       * datum, separate from calipers.
-       */
-      originalProjection: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner["calibration"];
-
-      /** Elapsed preparation interval measured by the existing caller, ms. */
-      milliseconds: number;
-    };
+    readonly calibration: IPreparedCalibration;
 
     /** Complete changed figure through the same native generating owner. */
     apply: (
@@ -144,4 +132,19 @@ export namespace IAutoMovieHumanF1NativeLaw {
       breast: IAutoMovieHumanConicLoft.IFamily;
     };
   }
+
+  /** The calibration object of {@link IPrepared}. */
+  export type IPreparedCalibration = {
+    /** Complete-source caliper read attempts during this preparation. */
+    nativeSourceReadAttempts: number;
+
+    /**
+     * Endpoint Point0 and station2 attempts for the one original projection
+     * datum, separate from calipers.
+     */
+    originalProjection: IAutoMovieHumanNativeProjectionCourse.IProjectionOwner["calibration"];
+
+    /** Elapsed preparation interval measured by the existing caller, ms. */
+    milliseconds: number;
+  };
 }

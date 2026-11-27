@@ -31,16 +31,19 @@ export namespace IAutoMovieHumanFootSectionJets {
     points: IPoints;
 
     /** The lateral and medial contact edges' heights over the floor, mm. */
-    heights: {
-      /** Lateral plantar contact edge's height above the floor, millimetres. */
-      lateral: number;
-      /** Medial plantar contact edge's height above the floor, millimetres. */
-      medial: number;
-    };
+    heights: IInputHeights;
 
     /** The heel's posterior corner's height, mm. */
     corner: number;
   }
+
+  /** The heights object of {@link IInput}. */
+  export type IInputHeights = {
+    /** Lateral plantar contact edge's height above the floor, millimetres. */
+    lateral: number;
+    /** Medial plantar contact edge's height above the floor, millimetres. */
+    medial: number;
+  };
 
   /** The five jets. */
   export interface IJets {

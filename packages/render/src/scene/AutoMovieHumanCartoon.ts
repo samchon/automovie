@@ -20,75 +20,84 @@ export namespace AutoMovieHumanCartoon {
     }[];
 
     /** Optional named lip actions; tongue/visemes are explicitly unsupported. */
-    mouth?: {
-      /** Named scalar or bilateral [0,1] mouth action intensities. */
-      lips?: Partial<
-        Record<
-          | "upperLipRaiser"
-          | "lipCornerPuller"
-          | "lipCornerDepressor"
-          | "lipStretcher"
-          | "lowerLipDepressor"
-          | "chinRaiser"
-          | "lipPucker"
-          | "lipFunneler"
-          | "lipTightener"
-          | "lipPressor"
-          | "lipsPart"
-          | "lipSuck"
-          | "cheekPuff",
-          | number
-          | {
-              /** Left intensity. */ left: number;
-
-              /** Right intensity. */ right: number;
-            }
-        >
-      >;
-
-      /** Presence is reported as unsupported; contents are not interpreted. */
-      tongue?: unknown;
-
-      /** Presence is reported as unsupported; contents are not interpreted. */
-      visemes?: unknown;
-    };
+    mouth?: IExpressionMouth;
   }
+
+  /** The mouth object of {@link IExpression}. */
+  export type IExpressionMouth = {
+    /** Named scalar or bilateral [0,1] mouth action intensities. */
+    lips?: Partial<
+      Record<
+        | "upperLipRaiser"
+        | "lipCornerPuller"
+        | "lipCornerDepressor"
+        | "lipStretcher"
+        | "lowerLipDepressor"
+        | "chinRaiser"
+        | "lipPucker"
+        | "lipFunneler"
+        | "lipTightener"
+        | "lipPressor"
+        | "lipsPart"
+        | "lipSuck"
+        | "cheekPuff",
+        | number
+        | {
+            /** Left intensity. */ left: number;
+
+            /** Right intensity. */ right: number;
+          }
+      >
+    >;
+
+    /** Presence is reported as unsupported; contents are not interpreted. */
+    tongue?: unknown;
+
+    /** Presence is reported as unsupported; contents are not interpreted. */
+    visemes?: unknown;
+  };
 
   /** Already admitted finite eye and jaw articulation for face marks. */
   export interface IHeadPose {
     /** Gaze of each eye; omitted coordinates are zero degrees. */
-    eyes?: {
-      /** Anatomical left-eye gaze. */
-      left?: {
-        /** Degrees, positive upward. */
-        vertical?: number;
-
-        /** Degrees, positive toward anatomical left. */
-        horizontal?: number;
-      };
-
-      /** Anatomical right-eye gaze. */
-      right?: {
-        /** Degrees, positive upward. */
-        vertical?: number;
-
-        /** Degrees, positive toward anatomical left. */
-        horizontal?: number;
-      };
-    };
+    eyes?: IHeadPoseEyes;
 
     /** Jaw displacement at the incisors; omitted coordinates are zero mm. */
-    jaw?: {
-      /** Opening in millimetres. */
-      opening?: number;
-
-      /** Forward protrusion in millimetres. */
-      protrusion?: number;
-
-      /** Lateral millimetres, positive toward anatomical left. */
-      lateralExcursion?: number;
-    };
+    jaw?: IHeadPoseJaw;
   }
+
+  /** The jaw object of {@link IHeadPose}. */
+  export type IHeadPoseJaw = {
+    /** Opening in millimetres. */
+    opening?: number;
+
+    /** Forward protrusion in millimetres. */
+    protrusion?: number;
+
+    /** Lateral millimetres, positive toward anatomical left. */
+    lateralExcursion?: number;
+  };
+
+  /** The eyes object of {@link IHeadPose}. */
+  export type IHeadPoseEyes = {
+    /** Anatomical left-eye gaze. */
+    left?: {
+      /** Degrees, positive upward. */
+      vertical?: number;
+
+      /** Degrees, positive toward anatomical left. */
+      horizontal?: number;
+    };
+
+    /** Anatomical right-eye gaze. */
+    right?: {
+      /** Degrees, positive upward. */
+      vertical?: number;
+
+      /** Degrees, positive toward anatomical left. */
+      horizontal?: number;
+    };
+  };
 
   /** Actual local polygon head bounds and front-silhouette query. */
   export interface IHeadBounds {

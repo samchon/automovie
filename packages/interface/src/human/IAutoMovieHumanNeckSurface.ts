@@ -20,16 +20,7 @@ export namespace IAutoMovieHumanNeckSurface {
     centre: AutoMovieVector3Tuple;
 
     /** Actual source frame: origin in metres and unmodified dimensionless basis. */
-    frame: {
-      /** Registered world origin in metres. */
-      origin: AutoMovieVector3Tuple;
-
-      /** Source basis vector carrying the section's depth coordinate. */
-      u: AutoMovieVector3Tuple;
-
-      /** Source basis vector carrying the section's lateral coordinate. */
-      v: AutoMovieVector3Tuple;
-    };
+    frame: ISectionFrame;
 
     /**
      * Actual source world points in metres, in this course's material-phase
@@ -56,6 +47,18 @@ export namespace IAutoMovieHumanNeckSurface {
     /** Full world X extent of the 256-phase source section, metres. */
     depth: number;
   }
+
+  /** The frame object of {@link ISection}. */
+  export type ISectionFrame = {
+    /** Registered world origin in metres. */
+    origin: AutoMovieVector3Tuple;
+
+    /** Source basis vector carrying the section's depth coordinate. */
+    u: AutoMovieVector3Tuple;
+
+    /** Source basis vector carrying the section's lateral coordinate. */
+    v: AutoMovieVector3Tuple;
+  };
 
   /** Prepared neutral neck exterior; no full calibration is retained. */
   export interface IOutput {
@@ -88,19 +91,7 @@ export namespace IAutoMovieHumanNeckSurface {
      * section. Generated chain.pole overrides are outside this display
      * contract.
      */
-    crown: {
-      /** Actual source chain whose top this pole closes. */
-      chain: string;
-
-      /** Actual source end, retained without inventing a terminal ring. */
-      end: "top" | "bottom";
-
-      /** Registered source terminal point in physical metres. */
-      point: AutoMovieVector3Tuple;
-
-      /** Whether the source declares a recovered critical point. */
-      critical: boolean;
-    };
+    crown: IOutputCrown;
 
     /**
      * Actual upper-minus-lower centre height, metres; not a bone or axis
@@ -124,4 +115,19 @@ export namespace IAutoMovieHumanNeckSurface {
      */
     publicTargetCircumference?: number;
   }
+
+  /** The crown object of {@link IOutput}. */
+  export type IOutputCrown = {
+    /** Actual source chain whose top this pole closes. */
+    chain: string;
+
+    /** Actual source end, retained without inventing a terminal ring. */
+    end: "top" | "bottom";
+
+    /** Registered source terminal point in physical metres. */
+    point: AutoMovieVector3Tuple;
+
+    /** Whether the source declares a recovered critical point. */
+    critical: boolean;
+  };
 }

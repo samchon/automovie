@@ -25,12 +25,7 @@ export namespace IAutoMovieMotionHumanTravelCarExit {
     through: IAutoMovieMotionObstacleAperture;
 
     /** The finite bearing face of the selected doorway's sill, when staged. */
-    sill?: {
-      /** The car's staged subject. */
-      subject: string;
-      /** Its sill affordance ID. */
-      point: string;
-    };
+    sill?: IParamsSill;
 
     /** Exterior ground elevation, world metres. */
     floor: number;
@@ -66,4 +61,12 @@ export namespace IAutoMovieMotionHumanTravelCarExit {
      */
     liftShare: number;
   }
+
+  /** The sill object of {@link IParams}. */
+  export type IParamsSill = {
+    /** The car's staged subject. */
+    subject: string;
+    /** Its sill affordance ID. */
+    point: string;
+  };
 }

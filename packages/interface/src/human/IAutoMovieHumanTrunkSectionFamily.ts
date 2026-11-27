@@ -50,14 +50,17 @@ export namespace IAutoMovieHumanTrunkSectionFamily {
      * Null preserves a failed original section rather than selecting another
      * shoulder.
      */
-    fullness: {
-      /**
-       * Dimensionless native conic shoulder controlling section fullness; the
-       * owning section builder admits its range.
-       */
-      shoulder: number;
-    } | null;
+    fullness: IFullnessFullness | null;
     /** Original section-solve diagnostics, with the same source/site producer. */
     diagnostics: IAutoMovieLoftContract.IDiagnostic[];
   }
+
+  /** The fullness object of {@link IFullness}. */
+  export type IFullnessFullness = {
+    /**
+     * Dimensionless native conic shoulder controlling section fullness; the
+     * owning section builder admits its range.
+     */
+    shoulder: number;
+  };
 }

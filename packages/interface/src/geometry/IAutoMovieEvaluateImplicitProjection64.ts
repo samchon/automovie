@@ -47,23 +47,7 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
      * Desired field level and its derivatives in the same one- or two-parameter
      * domain as the seed jet.
      */
-    target: {
-      /**
-       * Finite target scalar field level, in the field's caller-defined scalar
-       * unit; not a physical distance unless the field itself has that unit.
-       */
-      value: number;
-      /**
-       * Finite target-level derivatives per caller parameter unit, with length
-       * exactly equal to partials.length.
-       */
-      partials: readonly number[];
-      /**
-       * Finite square target-level second-derivative matrix when seed seconds
-       * are supplied; otherwise second-order propagation is omitted.
-       */
-      seconds?: readonly (readonly number[])[];
-    };
+    target: IPropsTarget;
     /**
      * Read the immutable scalar field, gradient and Hessian at a millimetre
      * query point. Exceptions propagate; failed continuation may query sixteen
@@ -93,6 +77,25 @@ export namespace IAutoMovieEvaluateImplicitProjection64 {
      * queried for acceptance.
      */
     maxDistanceMm: number;
+  };
+
+  /** The target object of {@link IProps}. */
+  export type IPropsTarget = {
+    /**
+     * Finite target scalar field level, in the field's caller-defined scalar
+     * unit; not a physical distance unless the field itself has that unit.
+     */
+    value: number;
+    /**
+     * Finite target-level derivatives per caller parameter unit, with length
+     * exactly equal to partials.length.
+     */
+    partials: readonly number[];
+    /**
+     * Finite square target-level second-derivative matrix when seed seconds
+     * are supplied; otherwise second-order propagation is omitted.
+     */
+    seconds?: readonly (readonly number[])[];
   };
 
   /**

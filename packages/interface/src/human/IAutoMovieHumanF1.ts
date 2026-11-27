@@ -374,12 +374,7 @@ export namespace IAutoMovieHumanF1 {
      * The plane: the parent's course frame at its last knot, mm, with its
      * normal along the course.
      */
-    plane: {
-      origin: [number, number, number];
-      u: [number, number, number];
-      v: [number, number, number];
-      normal: [number, number, number];
-    };
+    plane: IRootSectionPlane;
 
     /**
      * Where the child's course pierces the plane, in the plane's `(u, v)`
@@ -393,4 +388,12 @@ export namespace IAutoMovieHumanF1 {
      */
     loop: [number, number][];
   }
+
+  /** The plane object of {@link IRootSection}. */
+  export type IRootSectionPlane = {
+    origin: [number, number, number];
+    u: [number, number, number];
+    v: [number, number, number];
+    normal: [number, number, number];
+  };
 }

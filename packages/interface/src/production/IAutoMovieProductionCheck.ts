@@ -103,7 +103,7 @@ export namespace IAutoMovieProductionCheck {
     readonly occurrence: string;
 
     /** Existing diagnostic name and its checker-owned subject identity. */
-    readonly diagnostic: { readonly check: string; readonly key: string };
+    readonly diagnostic: ICaptureDiagnostic;
 
     /**
      * One sample in subject seconds, or consecutive output frame indices with
@@ -111,6 +111,9 @@ export namespace IAutoMovieProductionCheck {
      */
     readonly at: ICaptureTime;
   }
+
+  /** The diagnostic object of {@link ICapture}. */
+  export type ICaptureDiagnostic = { readonly check: string; readonly key: string };
 
   /**
    * Exactly one instant or a consecutive output frame interval for a capture
@@ -184,8 +187,11 @@ export namespace IAutoMovieProductionCheck {
     readonly frames: readonly [from: number, end: number];
 
     /** A specific source occurrence, when the criterion is tied to one shot. */
-    readonly occurrence?: { readonly entry: number; readonly shot: string };
+    readonly occurrence?: IReviewOccurrence;
   }
+
+  /** The occurrence object of {@link IReview}. */
+  export type IReviewOccurrence = { readonly entry: number; readonly shot: string };
 
   /** Facts used to evaluate one authored criterion. */
   export type Check = IMeasurement | ICapture | IDelivery | IReview;

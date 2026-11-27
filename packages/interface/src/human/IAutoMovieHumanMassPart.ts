@@ -30,23 +30,7 @@ export namespace IAutoMovieHumanMassPart {
      * Identical original parent and its admitted scalar owner, with declared
      * outward orientation.
      */
-    originalSource?: {
-      /**
-       * Geometric part with its original axis and section laws; its declared
-       * source frame and units apply.
-       */
-      part: IAutoMovieViewPart;
-      /**
-       * Admitted original scalar/section owner for this geometric part;
-       * consumers read its declared source parameter.
-       */
-      source: IAutoMovieLoftViewSource.ISource;
-      /**
-       * Sign making the original parent surface normal point outward toward the
-       * mass.
-       */
-      orientation: 1 | -1;
-    };
+    originalSource?: IInputOriginalSource;
 
     /** The mass's centre on the host, its chart point `[u, v]`. */
     centre: [number, number];
@@ -71,15 +55,7 @@ export namespace IAutoMovieHumanMassPart {
      * axis. The host jet then supplies embedding curvature only; its sampled
      * position/normal does not move the visible source placement.
      */
-    sourceFrame?: {
-      /** Original-source wall point in calibration millimetres. */
-      origin: AutoMovieVector3Tuple;
-      /**
-       * Finite nonzero anatomical axis direction at the source wall point;
-       * MassPart.define normalizes it and refuses a degenerate direction.
-       */
-      normal: AutoMovieVector3Tuple;
-    };
+    sourceFrame?: IInputSourceFrame;
 
     /**
      * The caller's lateral direction, which picks the side `+v` takes; any
@@ -129,6 +105,36 @@ export namespace IAutoMovieHumanMassPart {
     /** Widest spacing between layers, mm. */
     gap: number;
   }
+
+  /** The sourceFrame object of {@link IInput}. */
+  export type IInputSourceFrame = {
+    /** Original-source wall point in calibration millimetres. */
+    origin: AutoMovieVector3Tuple;
+    /**
+     * Finite nonzero anatomical axis direction at the source wall point;
+     * MassPart.define normalizes it and refuses a degenerate direction.
+     */
+    normal: AutoMovieVector3Tuple;
+  };
+
+  /** The originalSource object of {@link IInput}. */
+  export type IInputOriginalSource = {
+    /**
+     * Geometric part with its original axis and section laws; its declared
+     * source frame and units apply.
+     */
+    part: IAutoMovieViewPart;
+    /**
+     * Admitted original scalar/section owner for this geometric part;
+     * consumers read its declared source parameter.
+     */
+    source: IAutoMovieLoftViewSource.ISource;
+    /**
+     * Sign making the original parent surface normal point outward toward the
+     * mass.
+     */
+    orientation: 1 | -1;
+  };
 
   /** Original mass and its consumed whole-parent connection, before raw lofting. */
   export interface IDefinition extends IAutoMovieHumanSourceDefinition {

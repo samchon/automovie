@@ -75,6 +75,39 @@ function hasEvidenceAddress(relative, qualifiedProperty) {
   return predicateText.get(packageName).some((document) => references.test(document));
 }
 
+function reindentObjectType(node, source, indent) {
+  const start = node.getStart(source);
+  const closingLine = source.text.lastIndexOf("\n", node.end - 2) + 1;
+  const oldIndent = source.text.slice(closingLine, node.end - 1);
+  const raw = node.getText(source);
+  if (closingLine <= start || !/^[ \t]+$/u.test(oldIndent) ||
+      !oldIndent.startsWith(indent) || oldIndent === indent) return raw;
+
+  const protectedRanges = [];
+  function visit(child) {
+    if (ts.isStringLiteralLike(child) || ts.isTemplateLiteralToken(child)) {
+      const tokenStart = child.getStart(source);
+      if (source.text.slice(tokenStart, child.end).includes("\n")) {
+        protectedRanges.push([tokenStart, child.end]);
+      }
+    }
+    ts.forEachChild(child, visit);
+  }
+  visit(node);
+
+  const shift = oldIndent.slice(indent.length);
+  let position = start;
+  return raw.split(/(?<=\n)/u).map((line, index) => {
+    const lineStart = position;
+    position += line.length;
+    if (index === 0 || !line.trim() || !line.startsWith(shift) ||
+        protectedRanges.some(([begin, end]) => begin < lineStart && lineStart < end)) {
+      return line;
+    }
+    return line.slice(shift.length);
+  }).join("");
+}
+
 function eligibility(node, file, relative) {
   if (excluded.test(relative) || excluded.test(node.parent.name?.getText(file) ?? "")) {
     return { reason: "focus-pull-owner" };
@@ -138,7 +171,8 @@ function eligibility(node, file, relative) {
   // interfaces' declaration merging and implicit-index rules do not alter it.
   const doc = "/** The " + field + " object of {@link " + host.name.text + "}. */";
   const insertion = eol + eol + hostIndent + doc +
-    eol + hostIndent + "export type " + name + " = " + original + ";";
+    eol + hostIndent + "export type " + name + " = " +
+    reindentObjectType(node, file, hostIndent) + ";";
   return { name, reference, start: node.getStart(file), end: node.end, insertAt: host.end, insertion, original };
 }
 

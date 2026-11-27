@@ -81,11 +81,14 @@ export namespace IAutoMovieMotionHumanGunCrew {
     clear: Readonly<Record<"n1" | "n2" | "n3", IAutoMovieVector3>>;
 
     /** The cue track and instant of the gunner's command to fire. */
-    command: {
-      /** Performance cue-track id containing the gunner's command. */
-      of: string;
-      /** Cue event name giving the gunner's firing command. */
-      event: string;
-    };
+    command: ISceneCommand;
   }
+
+  /** The command object of {@link IScene}. */
+  export type ISceneCommand = {
+    /** Performance cue-track id containing the gunner's command. */
+    of: string;
+    /** Cue event name giving the gunner's firing command. */
+    event: string;
+  };
 }

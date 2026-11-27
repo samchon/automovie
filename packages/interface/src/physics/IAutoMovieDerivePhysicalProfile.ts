@@ -18,16 +18,19 @@ export namespace IAutoMovieDerivePhysicalProfile {
      * Required when deriving joints from the model's canonical clinical axes
      * and ROM.
      */
-    actuator?: {
-      /** Radians per second. */ frequency: number;
-      /** Critical-damping ratio. */ dampingRatio: number;
-      /** N m per kg of downstream segments. */ torquePerKg: number;
-      /** Passive angular decay rate, 1/s; zero by default. */ passiveRate?: number;
-    };
+    actuator?: IOptionsActuator;
     /** Complete per-bone replacements, including imported collision proxies. */ overrides?: Record<
       string,
       IAutoMoviePhysicalSegment
     >;
     /** Source and uncertainty of density, collision proxies and joint data. */ provenance: string;
   }
+
+  /** The actuator object of {@link IOptions}. */
+  export type IOptionsActuator = {
+    /** Radians per second. */ frequency: number;
+    /** Critical-damping ratio. */ dampingRatio: number;
+    /** N m per kg of downstream segments. */ torquePerKg: number;
+    /** Passive angular decay rate, 1/s; zero by default. */ passiveRate?: number;
+  };
 }

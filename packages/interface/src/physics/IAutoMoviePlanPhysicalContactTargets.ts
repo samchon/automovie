@@ -33,21 +33,24 @@ export namespace IAutoMoviePlanPhysicalContactTargets {
      * Candidate-relative projection corridors, sharing the admitted
      * relationship budgets.
      */ pointBounds?: readonly IAutoMoviePhysicalPointBound[];
-    /** Profile-wide collision avoidance without anatomical selectors. */ selfAvoidance?: {
-      /**
-       * Update budget combined by maximum with relationship budgets; solver
-       * admits integer 1..64.
-       */
-      iterations: number;
-      /**
-       * Positive finite metre residual threshold combined by minimum with
-       * relationship thresholds.
-       */
-      tolerance: number;
-    };
+    /** Profile-wide collision avoidance without anatomical selectors. */ selfAvoidance?: IInputSelfAvoidance;
     /** Original XYZ endpoints and optional provider-owned support patches. */ supports?: readonly IAutoMoviePhysicalContactSupportRows.ISupport[];
     /** Initialized no-dynamics convex queries. */ geometry: IAutoMoviePreparePhysicalGeometry.IQueries;
     /** World floor lower bound in metres. */ floor: number;
+  };
+
+  /** The selfAvoidance object of {@link IInput}. */
+  export type IInputSelfAvoidance = {
+    /**
+     * Update budget combined by maximum with relationship budgets; solver
+     * admits integer 1..64.
+     */
+    iterations: number;
+    /**
+     * Positive finite metre residual threshold combined by minimum with
+     * relationship thresholds.
+     */
+    tolerance: number;
   };
 
   /**

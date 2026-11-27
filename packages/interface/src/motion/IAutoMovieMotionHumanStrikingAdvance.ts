@@ -48,9 +48,12 @@ export namespace IAutoMovieMotionHumanStrikingAdvance {
      */
     stay: boolean;
     /** Acting side of the striking tool. */
-    tool: {
-      /** Left or right acting side. */
-      side: "left" | "right";
-    };
+    tool: IBaseStrokeTool;
+  };
+
+  /** The tool object of {@link IBaseStroke}. */
+  export type IBaseStrokeTool = {
+    /** Left or right acting side. */
+    side: "left" | "right";
   };
 }

@@ -59,8 +59,11 @@ export namespace AutoMovieViewerInspector {
     /** Whether Alt is held, which leaves the shortcut to the page. */
     altKey: boolean;
     /** Target used to detect interactive controls, or null for a non-element. */
-    target: { closest(selectors: string): unknown } | null;
+    target: IHandleKeyEventTarget | null;
   }
+
+  /** The target object of {@link IHandleKeyEvent}. */
+  export type IHandleKeyEventTarget = { closest(selectors: string): unknown };
 
   /** Whether a key was consumed and the resulting seek second, if any. */
   export interface IHandleKeyResult {

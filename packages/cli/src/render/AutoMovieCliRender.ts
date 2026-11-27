@@ -12,29 +12,7 @@ export namespace AutoMovieCliRender {
   /** Input for rendering one subject through its opened draw host. */
   export interface IRenderVideoInput {
     /** The opened draw host. */
-    host: {
-      render: Pick<
-        typeof Render,
-        | "AutoMovieRenderVideo"
-        | "AUTOMOVIE_MP4_SRGB_COLOUR"
-        | "AutoMovieRenderDelivery"
-      > & {
-        /** Creates the delivery loudness meter. Defaults to `AutoMovieEngineSound.createLoudnessMeter`. */
-        createAutoMovieLoudnessMeter?: typeof AutoMovieEngineSound.createLoudnessMeter;
-      };
-      session(props: {
-        /** Name of the subject, or null for the page's only subject. */
-        subject: string | null;
-
-        /** Data the subject module reads, as JSON, or null. */
-        props: unknown;
-      }): Promise<
-        Pick<
-          Render.AutoMovieDrawSession,
-          "backend" | "close" | "frame" | "speak" | "subject"
-        >
-      >;
-    };
+    host: IRenderVideoInputHost;
     /** The production's root folder. */
     root: string;
     /** The subject's name, or null for the page's only subject. */
@@ -57,6 +35,31 @@ export namespace AutoMovieCliRender {
      */
     background?: "scene" | "transparent";
   }
+
+  /** The host object of {@link IRenderVideoInput}. */
+  export type IRenderVideoInputHost = {
+    render: Pick<
+      typeof Render,
+      | "AutoMovieRenderVideo"
+      | "AUTOMOVIE_MP4_SRGB_COLOUR"
+      | "AutoMovieRenderDelivery"
+    > & {
+      /** Creates the delivery loudness meter. Defaults to `AutoMovieEngineSound.createLoudnessMeter`. */
+      createAutoMovieLoudnessMeter?: typeof AutoMovieEngineSound.createLoudnessMeter;
+    };
+    session(props: {
+      /** Name of the subject, or null for the page's only subject. */
+      subject: string | null;
+
+      /** Data the subject module reads, as JSON, or null. */
+      props: unknown;
+    }): Promise<
+      Pick<
+        Render.AutoMovieDrawSession,
+        "backend" | "close" | "frame" | "speak" | "subject"
+      >
+    >;
+  };
 
   /** Result paths and frame count for one rendered subject. */
   export interface IRenderVideoResult {

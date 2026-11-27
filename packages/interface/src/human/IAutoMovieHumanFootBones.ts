@@ -14,12 +14,7 @@ export namespace IAutoMovieHumanFootBones {
     ankle: AutoMovieVector3Tuple;
 
     /** Lateral and medial malleoli. */
-    malleoli: {
-      /** Lateral malleolus landmark in the registered frame, millimetres. */
-      lateral: AutoMovieVector3Tuple;
-      /** Medial malleolus landmark in the registered frame, millimetres. */
-      medial: AutoMovieVector3Tuple;
-    };
+    malleoli: IBonesMalleoli;
 
     /** Metatarsal head centres, hallux first. */
     heads: AutoMovieVector3Tuple[];
@@ -33,6 +28,14 @@ export namespace IAutoMovieHumanFootBones {
      */
     toes: AutoMovieVector3Tuple[][];
   }
+
+  /** The malleoli object of {@link IBones}. */
+  export type IBonesMalleoli = {
+    /** Lateral malleolus landmark in the registered frame, millimetres. */
+    lateral: AutoMovieVector3Tuple;
+    /** Medial malleolus landmark in the registered frame, millimetres. */
+    medial: AutoMovieVector3Tuple;
+  };
 
   /** A foot's centres and the frame they stand in. */
   export interface ICentres {

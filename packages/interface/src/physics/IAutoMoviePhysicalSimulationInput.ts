@@ -133,16 +133,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
      * declared envelope; inherited anchor error decays without a pose
      * discontinuity.
      */
-    handoffLimits?: {
-      /**
-       * Maximum inherited linear constraint error, metres, including fixed
-       * pivots and contact penetration beyond admitted material compression.
-       */
-      maximumLinearError: number;
-
-      /** Maximum inherited angular-limit violation, radians. */
-      maximumJointViolation: number;
-    };
+    handoffLimits?: IBodyHandoffLimits;
 
     /**
      * Maximum collider and point relationships together per sampled target,
@@ -176,16 +167,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
      * Optional bounded world-orientation motor for the root; omission leaves
      * root orientation without this motor.
      */
-    rootTorque?: {
-      /** N m/rad. */
-      stiffness: number;
-
-      /** N m s/rad. */
-      damping: number;
-
-      /** N m per world axis. */
-      maximumTorque: number;
-    };
+    rootTorque?: IBodyRootTorque;
 
     /**
      * When true, counter weight and downstream gravity moments through existing
@@ -205,60 +187,93 @@ export namespace IAutoMoviePhysicalSimulationInput {
      * omission adds no self-avoidance fit. Admission caps free coordinates at
      * 64 and total shapes at 40.
      */
-    selfAvoidance?: {
-      /** Total bounded geometric updates, 1..64. */
-      iterations: number;
-
-      /** Positive metre residual tolerance. */
-      tolerance: number;
-    };
+    selfAvoidance?: IBodySelfAvoidance;
 
     /**
      * Optional irreversible withdrawal triggered only by an actual positive
      * solver impulse between the selected shape sets in the inclusive window;
      * omission disables this trigger.
      */
-    releaseOnContact?: {
-      /** Inclusive first local simulation second. */
-      earliest: number;
-
-      /** Inclusive last local simulation second. */
-      latest: number;
-
-      /** Receiving shape ids from this body's profile. */
-      shapes: string[];
-
-      /** Other scene body. */
-      otherBody: string;
-
-      /** Contacting shape ids from the other body's profile. */
-      otherShapes: string[];
-    };
+    releaseOnContact?: IBodyReleaseOnContact;
 
     /** Optional bounded world-point motors for declared support endpoints. */
-    supportTracking?: {
-      /** Actual support owners and their bone-local endpoints. */
-      pattern: IAutoMovieFootfallPattern;
-
-      /** Endpoint positional stiffness, N/m. */
-      stiffness: number;
-
-      /** Endpoint damping, N s/m. */
-      damping: number;
-
-      /** Force norm cap at each endpoint, N. */
-      maximumForce: number;
-
-      /**
-       * Per-cache-interval actual-root support IK iterations, 0..64; defaults
-       * to 24. Zero selects force-only endpoint control.
-       */
-      iterations?: number;
-
-      /** Metre IK early-out residual; defaults to 0.001. */
-      tolerance?: number;
-    };
+    supportTracking?: IBodySupportTracking;
   }
+
+  /** The supportTracking object of {@link IBody}. */
+  export type IBodySupportTracking = {
+    /** Actual support owners and their bone-local endpoints. */
+    pattern: IAutoMovieFootfallPattern;
+
+    /** Endpoint positional stiffness, N/m. */
+    stiffness: number;
+
+    /** Endpoint damping, N s/m. */
+    damping: number;
+
+    /** Force norm cap at each endpoint, N. */
+    maximumForce: number;
+
+    /**
+     * Per-cache-interval actual-root support IK iterations, 0..64; defaults
+     * to 24. Zero selects force-only endpoint control.
+     */
+    iterations?: number;
+
+    /** Metre IK early-out residual; defaults to 0.001. */
+    tolerance?: number;
+  };
+
+  /** The releaseOnContact object of {@link IBody}. */
+  export type IBodyReleaseOnContact = {
+    /** Inclusive first local simulation second. */
+    earliest: number;
+
+    /** Inclusive last local simulation second. */
+    latest: number;
+
+    /** Receiving shape ids from this body's profile. */
+    shapes: string[];
+
+    /** Other scene body. */
+    otherBody: string;
+
+    /** Contacting shape ids from the other body's profile. */
+    otherShapes: string[];
+  };
+
+  /** The selfAvoidance object of {@link IBody}. */
+  export type IBodySelfAvoidance = {
+    /** Total bounded geometric updates, 1..64. */
+    iterations: number;
+
+    /** Positive metre residual tolerance. */
+    tolerance: number;
+  };
+
+  /** The rootTorque object of {@link IBody}. */
+  export type IBodyRootTorque = {
+    /** N m/rad. */
+    stiffness: number;
+
+    /** N m s/rad. */
+    damping: number;
+
+    /** N m per world axis. */
+    maximumTorque: number;
+  };
+
+  /** The handoffLimits object of {@link IBody}. */
+  export type IBodyHandoffLimits = {
+    /**
+     * Maximum inherited linear constraint error, metres, including fixed
+     * pivots and contact penetration beyond admitted material compression.
+     */
+    maximumLinearError: number;
+
+    /** Maximum inherited angular-limit violation, radians. */
+    maximumJointViolation: number;
+  };
 
   /**
    * Complete sampled scene and explicit work budgets for deterministic
@@ -309,40 +324,7 @@ export namespace IAutoMoviePhysicalSimulationInput {
      * Explicit finite floor domain; escaping shapes refuse rather than silently
      * losing support.
      */
-    floorBounds: {
-      /** Lower horizontal coordinates, metres. */
-      min: {
-        /**
-         * Finite lower world X extent of the floor, metres; strictly below
-         * max.x.
-         */
-        x: number;
-
-        /**
-         * Finite lower world Z extent of the floor, metres; strictly below
-         * max.z.
-         */
-        z: number;
-      };
-
-      /** Upper horizontal coordinates, metres. */
-      max: {
-        /**
-         * Finite upper world X extent of the floor, metres; strictly above
-         * min.x.
-         */
-        x: number;
-
-        /**
-         * Finite upper world Z extent of the floor, metres; strictly above
-         * min.z.
-         */
-        z: number;
-      };
-
-      /** Positive solid floor depth below its top, metres. */
-      thickness: number;
-    };
+    floorBounds: IInputFloorBounds;
 
     /** Scene bodies, in deterministic construction order. */
     bodies: IAutoMoviePhysicalSimulationInput.IBody[];
@@ -398,6 +380,42 @@ export namespace IAutoMoviePhysicalSimulationInput {
      */
     maximumSegments: number;
   }
+
+  /** The floorBounds object of {@link IInput}. */
+  export type IInputFloorBounds = {
+    /** Lower horizontal coordinates, metres. */
+    min: {
+      /**
+       * Finite lower world X extent of the floor, metres; strictly below
+       * max.x.
+       */
+      x: number;
+
+      /**
+       * Finite lower world Z extent of the floor, metres; strictly below
+       * max.z.
+       */
+      z: number;
+    };
+
+    /** Upper horizontal coordinates, metres. */
+    max: {
+      /**
+       * Finite upper world X extent of the floor, metres; strictly above
+       * min.x.
+       */
+      x: number;
+
+      /**
+       * Finite upper world Z extent of the floor, metres; strictly above
+       * min.z.
+       */
+      z: number;
+    };
+
+    /** Positive solid floor depth below its top, metres. */
+    thickness: number;
+  };
 
   /**
    * A joint tracking error and requested-torque saturation diagnostic at one

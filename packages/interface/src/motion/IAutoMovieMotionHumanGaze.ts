@@ -76,24 +76,30 @@ export namespace IAutoMovieMotionHumanGaze {
    */
   export interface ISplit {
     /** Eye-in-head yaw and pitch at the end of the shift, degrees. */
-    eyes: {
-      /** Yaw in degrees, positive toward the performer's left. */
-      yaw: number;
-      /** Pitch in degrees, positive downward. */
-      pitch: number;
-    };
+    eyes: ISplitEyes;
 
     /** Combined head/neck yaw and pitch, degrees. */
-    head: {
-      /** Yaw in degrees, positive toward the performer's left. */
-      yaw: number;
-      /** Pitch in degrees, positive downward. */
-      pitch: number;
-    };
+    head: ISplitHead;
 
     /** Trunk yaw, degrees. */
     trunk: number;
   }
+
+  /** The head object of {@link ISplit}. */
+  export type ISplitHead = {
+    /** Yaw in degrees, positive toward the performer's left. */
+    yaw: number;
+    /** Pitch in degrees, positive downward. */
+    pitch: number;
+  };
+
+  /** The eyes object of {@link ISplit}. */
+  export type ISplitEyes = {
+    /** Yaw in degrees, positive toward the performer's left. */
+    yaw: number;
+    /** Pitch in degrees, positive downward. */
+    pitch: number;
+  };
 
   /**
    * The direction of a world point from the eyes' midpoint, as yaw and pitch

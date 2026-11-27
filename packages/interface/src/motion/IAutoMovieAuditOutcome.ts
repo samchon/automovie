@@ -43,12 +43,7 @@ export namespace IAutoMovieAuditOutcome {
     b: IAutoMovieAuditOutcome.ISide;
 
     /** Inclusive measurement interval; a reversed interval matches nothing. */
-    window: {
-      /** Earliest accepted measurement time, seconds on the contacts' clock. */
-      start: number;
-      /** Latest accepted measurement time, seconds on the contacts' clock. */
-      end: number;
-    };
+    window: IExpectationWindow;
 
     /**
      * Minimum peak individual impulse, N s, across matching required contacts;
@@ -57,6 +52,14 @@ export namespace IAutoMovieAuditOutcome {
      */
     minimumImpulse?: number;
   }
+
+  /** The window object of {@link IExpectation}. */
+  export type IExpectationWindow = {
+    /** Earliest accepted measurement time, seconds on the contacts' clock. */
+    start: number;
+    /** Latest accepted measurement time, seconds on the contacts' clock. */
+    end: number;
+  };
 
   /** An outcome's contact expectations. */
   export interface IOutcome {

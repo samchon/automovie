@@ -44,10 +44,13 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
     /** Lower-closed, upper-open world Z interval, metres. */
     z: Interval;
     /** Metres gained along each corresponding horizontal world axis. */
-    slope: { x: number; z: number };
+    slope: IPlaneSlope;
     /** A yielding surface's sinkage under a loaded hoof; firm when absent. */
     yield?: IYield;
   }
+
+  /** The slope object of {@link IPlane}. */
+  export type IPlaneSlope = { x: number; z: number };
 
   /**
    * A yielding surface: sand, mud, bog or snow, and how deep a loaded hoof

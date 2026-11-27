@@ -67,15 +67,18 @@ export namespace AutoMovieEnvironment {
      * Optional swing, in seconds on the compiled shot clock and positive
      * degrees about the door's own hinge.
      */
-    readonly swing?: {
-      /** Shot-local second when the swing starts. */
-      readonly from: number;
-      /** Shot-local second when the swing reaches its final angle. */
-      readonly to: number;
-      /** Positive hinge rotation in degrees, below 180 and within travel. */
-      readonly degrees: number;
-    };
+    readonly swing?: IBuildingDoorOpeningSwing;
   }
+
+  /** The swing object of {@link IBuildingDoorOpening}. */
+  export type IBuildingDoorOpeningSwing = {
+    /** Shot-local second when the swing starts. */
+    readonly from: number;
+    /** Shot-local second when the swing reaches its final angle. */
+    readonly to: number;
+    /** Positive hinge rotation in degrees, below 180 and within travel. */
+    readonly degrees: number;
+  };
 
   /** Clear aperture with ground at its sill. */
   export interface IBuildingPassageOpening extends IBuildingOpeningBase {

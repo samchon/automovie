@@ -19,18 +19,21 @@ export namespace IAutoMovieHumanApertureSpan {
     t: number;
 
     /** The same point in the neighbour's chart, for a point on the shared ring. */
-    also?: {
-      /** Skin chain whose surface carries this aperture point. */
-      chain: string;
-      /** Physical station along that chain, calibration millimetres. */
-      s: number;
-      /**
-       * Section phase in radians, increasing according to the source curve's
-       * orientation.
-       */
-      t: number;
-    };
+    also?: IPointAlso;
   }
+
+  /** The also object of {@link IPoint}. */
+  export type IPointAlso = {
+    /** Skin chain whose surface carries this aperture point. */
+    chain: string;
+    /** Physical station along that chain, calibration millimetres. */
+    s: number;
+    /**
+     * Section phase in radians, increasing according to the source curve's
+     * orientation.
+     */
+    t: number;
+  };
 
   /** An opening's trim on one or two chains. */
   export interface ISpan {

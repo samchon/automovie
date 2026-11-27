@@ -103,7 +103,7 @@ export namespace AutoMovieEnginePhysicalDisturbanceResponse {
      * merged into one support (`merge`), and the stepping limb, by their
      * lateral order.
      */
-    pair: { left: Foot; right: Foot } | undefined;
+    pair: IResponsePair | undefined;
 
     /** The capture point and centre of mass now. */
     state: AutoMovieEnginePhysicalDisturbanceForm.IState;
@@ -124,18 +124,14 @@ export namespace AutoMovieEnginePhysicalDisturbanceResponse {
     recovery: Recovery.IState;
 
     /** The step a fall triggers: when, and which limb swings. */
-    trigger: { at: number; swing: string } | undefined;
+    trigger: IResponseTrigger | undefined;
 
     /** The step being taken. */
     step: IStep | undefined;
 
     /** The transfer to standing's plan and its exit. */
     hold:
-      | {
-          reference: AutoMovieEnginePhysicalDisturbanceForm.IReference;
-          done: number;
-          checked: boolean;
-        }
+      | IResponseHold
       | undefined;
 
     /** The standing cubic's end, local seconds. */
@@ -147,6 +143,19 @@ export namespace AutoMovieEnginePhysicalDisturbanceResponse {
     /** When the response fell, if it did. */
     fallen: number | undefined;
   }
+
+  /** The hold object of {@link IResponse}. */
+  export type IResponseHold = {
+    reference: AutoMovieEnginePhysicalDisturbanceForm.IReference;
+    done: number;
+    checked: boolean;
+  };
+
+  /** The trigger object of {@link IResponse}. */
+  export type IResponseTrigger = { at: number; swing: string };
+
+  /** The pair object of {@link IResponse}. */
+  export type IResponsePair = { left: Foot; right: Foot };
 
   /**
    * The response at the first push: the state just after it, every foot planted

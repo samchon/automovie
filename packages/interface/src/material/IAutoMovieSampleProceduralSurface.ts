@@ -30,13 +30,7 @@ export namespace IAutoMovieSampleProceduralSurface {
     surface: IAutoMovieProceduralSurface;
 
     /** The piece mesh's UV0 at the point, finite. */
-    uv: {
-      /** U coordinate. */
-      u: number;
-
-      /** V coordinate. */
-      v: number;
-    };
+    uv: IPieceUv;
 
     /**
      * The point's offset along its surface normal in metres, `dot(position,
@@ -44,6 +38,15 @@ export namespace IAutoMovieSampleProceduralSurface {
      */
     offset: number;
   }
+
+  /** The uv object of {@link IPiece}. */
+  export type IPieceUv = {
+    /** U coordinate. */
+    u: number;
+
+    /** V coordinate. */
+    v: number;
+  };
 
   /** The surface at the sample point. */
   export interface IResult {

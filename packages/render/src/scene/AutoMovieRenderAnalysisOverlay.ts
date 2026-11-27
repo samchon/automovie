@@ -16,10 +16,13 @@ export namespace AutoMovieRenderAnalysisOverlay {
     /** Point size in world metres when this call creates the material; defaults to `0.1`. */
     size?: number;
     /** Ramp domain; defaults to the selected samples' minimum and maximum. */
-    domain?: { min: number; max: number };
+    domain?: IBuildPropsDomain;
     /** Optional caller-owned point material. */
     material?: THREE.PointsMaterial;
   }
+
+  /** The domain object of {@link IBuildProps}. */
+  export type IBuildPropsDomain = { min: number; max: number };
 
   /** Map a normalized `[0, 1]` position to the blue-green-red ramp. */
   export function rampColor(

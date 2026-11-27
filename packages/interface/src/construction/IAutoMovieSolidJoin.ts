@@ -134,34 +134,37 @@ export namespace IAutoMovieSolidJoin {
      * Width laws in the curve's parameter: chords from the curve to each rail,
      * mm, positive.
      */
-    width: {
-      /**
-       * On the part: a chord per parameter, or `{ station }` (phase parameter
-       * only), the part's rail at one station for every phase, where a lofted
-       * part's first own section stands, beyond the curve's farthest reach
-       * along the part.
-       */
-      part:
-        | ((t: number) => number)
-        | {
-            /**
-             * Absolute part u-coordinate, usually station millimetres; it must
-             * lie beyond each traced point toward the kept side and is only
-             * accepted in station mode.
-             */
-            station: number;
-          };
-
-      /**
-       * Positive finite chord in millimetres at trace parameter t in radians.
-       * The retained callback is read repeatedly and must remain stable;
-       * exceptions propagate. Rail results may be cached while widths reads
-       * this law again, so changing the law invalidates the join's
-       * consistency.
-       */
-      host(t: number): number;
-    };
+    width: IInputWidth;
   }
+
+  /** The width object of {@link IInput}. */
+  export type IInputWidth = {
+    /**
+     * On the part: a chord per parameter, or `{ station }` (phase parameter
+     * only), the part's rail at one station for every phase, where a lofted
+     * part's first own section stands, beyond the curve's farthest reach
+     * along the part.
+     */
+    part:
+      | ((t: number) => number)
+      | {
+          /**
+           * Absolute part u-coordinate, usually station millimetres; it must
+           * lie beyond each traced point toward the kept side and is only
+           * accepted in station mode.
+           */
+          station: number;
+        };
+
+    /**
+     * Positive finite chord in millimetres at trace parameter t in radians.
+     * The retained callback is read repeatedly and must remain stable;
+     * exceptions propagate. Rail results may be cached while widths reads
+     * this law again, so changing the law invalidates the join's
+     * consistency.
+     */
+    host(t: number): number;
+  };
 
   /** The nullable contact and its ordered observed diagnostics. */
   export interface IResult {

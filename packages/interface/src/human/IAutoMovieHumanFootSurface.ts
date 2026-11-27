@@ -71,15 +71,18 @@ export namespace IAutoMovieHumanFootSurface {
       ILandmark
     >;
 
-    /** Sampled heights, not a weight-bearing or full-foot clearance claim. */ support: {
-      /** Minimum of these source course points only, metres. */ minimumHeight: number;
-
-      /** Bind-body Y of each named source point, metres. */ landmarkHeights: Record<
-        Landmark,
-        number
-      >;
-    };
+    /** Sampled heights, not a weight-bearing or full-foot clearance claim. */ support: ISideSupport;
   }
+
+  /** The support object of {@link ISide}. */
+  export type ISideSupport = {
+    /** Minimum of these source course points only, metres. */ minimumHeight: number;
+
+    /** Bind-body Y of each named source point, metres. */ landmarkHeights: Record<
+      Landmark,
+      number
+    >;
+  };
 
   /**
    * Deeply frozen bilateral display data, shared by evaluations of one fixed

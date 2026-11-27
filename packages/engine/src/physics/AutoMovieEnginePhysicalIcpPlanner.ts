@@ -169,10 +169,10 @@ export namespace AutoMovieEnginePhysicalIcpPlanner {
     cubicDuration: number;
 
     /** The cubic's start, in the coordinates of the frame it rides on. */
-    initial: { frame: IAttachment; state: Tools.IAttached };
+    initial: ITransferPlanInitial;
 
     /** The cubic's end, likewise. */
-    final: { frame: IAttachment; state: Tools.IAttached };
+    final: ITransferPlanFinal;
 
     /**
      * The mid-feet frame as the plan was made, whose forward axis the mid-feet
@@ -180,6 +180,12 @@ export namespace AutoMovieEnginePhysicalIcpPlanner {
      */
     fallback: Polygon.IFrame;
   }
+
+  /** The final object of {@link ITransferPlan}. */
+  export type ITransferPlanFinal = { frame: IAttachment; state: Tools.IAttached };
+
+  /** The initial object of {@link ITransferPlan}. */
+  export type ITransferPlanInitial = { frame: IAttachment; state: Tools.IAttached };
 
   /** A plan. */
   export type IPlan = ISinglePlan | ITransferPlan;

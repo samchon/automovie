@@ -48,10 +48,10 @@ export namespace AutoMovieEnginePhysicalIcpPlannerCmps {
     exitOffset: Polygon.IPoint;
 
     /** The entry pivot's forward offset bounds, metres. */
-    entryBounds: { min: number; max: number };
+    entryBounds: IParametersEntryBounds;
 
     /** The exit pivot's forward offset bounds, metres. */
-    exitBounds: { min: number; max: number };
+    exitBounds: IParametersExitBounds;
 
     /** The share of the step length added to the forward offset. */
     stepLengthFactor: number;
@@ -65,6 +65,12 @@ export namespace AutoMovieEnginePhysicalIcpPlannerCmps {
      */
     chicken: number;
   }
+
+  /** The exitBounds object of {@link IParameters}. */
+  export type IParametersExitBounds = { min: number; max: number };
+
+  /** The entryBounds object of {@link IParameters}. */
+  export type IParametersEntryBounds = { min: number; max: number };
 
   /**
    * The support foot's entry pivot when no previous foot is known: its centroid

@@ -33,23 +33,7 @@ export namespace IAutoMovieHumanBodyLane {
      * Where the seed is searched: the part's phase and the shares of its
      * station range from inside the host to outside it.
      */
-    search: {
-      /**
-       * Section phase in radians, increasing according to the source curve's
-       * orientation.
-       */
-      phi: number;
-      /**
-       * Start of the seed-search interval as a dimensionless share of the
-       * part's station span.
-       */
-      from: number;
-      /**
-       * End of the seed-search interval as a dimensionless share of the part's
-       * station span.
-       */
-      to: number;
-    };
+    search: IFoldSearch;
 
     /** The fold's radius, mm. */
     radius: number;
@@ -61,85 +45,35 @@ export namespace IAutoMovieHumanBodyLane {
     cap?: number;
   }
 
+  /** The search object of {@link IFold}. */
+  export type IFoldSearch = {
+    /**
+     * Section phase in radians, increasing according to the source curve's
+     * orientation.
+     */
+    phi: number;
+    /**
+     * Start of the seed-search interval as a dimensionless share of the
+     * part's station span.
+     */
+    from: number;
+    /**
+     * End of the seed-search interval as a dimensionless share of the part's
+     * station span.
+     */
+    to: number;
+  };
+
   /** One side's limbs and extremities. */
   export interface ISide {
     /** The leg's bones and its sites' laws. */
-    leg: {
-      /**
-       * Resolved joint centres for this limb in the registered body frame,
-       * millimetres.
-       */
-      bones: Pick<IAutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">;
-      /**
-       * Prepared leg-axis and section law shared by publication and
-       * attachments.
-       */
-      law: IAutoMovieHumanLegWalk.ILaw;
-      /**
-       * Prepared leg original, including its admitted view and diagnostics
-       * before raw lofting.
-       */
-      definition: IAutoMovieHumanLegWalk.IDefinition;
-      /**
-       * Publish the actual leg consuming this final/trial parent's named hip
-       * source.
-       */
-      bind(
-        parent: IAutoMovieHumanSourceDefinition,
-        station: number,
-      ): IAutoMovieHumanLegWalk.IDefinition;
-      /**
-       * Physical station and phase interval of this limb's shared fold with the
-       * trunk.
-       */
-      trunk: IFold;
-      /** Physical station and phase interval of the shared leg-to-foot fold. */
-      foot: IFold;
-    };
+    leg: ISideLeg;
 
     /**
      * The arm's bones, the palm's last centre and reach, its sites' laws and
      * joints, its fold onto the trunk.
      */
-    arm: {
-      /** Identical normalized original shared by this loft and hand attachments. */
-      definition: IAutoMovieHumanSourceDefinition;
-      /**
-       * Resolved joint centres for this limb in the registered body frame,
-       * millimetres.
-       */
-      bones: Pick<
-        IAutoMovieHumanArmBones.IBones,
-        "shoulder" | "elbow" | "wrist"
-      >;
-      /** Third metacarpal head in the registered body frame, millimetres. */
-      knuckle: AutoMovieVector3Tuple;
-      /** Palmar base-crease locus from the person's independent palm length. */
-      crease?: AutoMovieVector3Tuple;
-      /**
-       * Actual radial hand-across direction for the WJC-to-MCP3 material
-       * transition.
-       */
-      radial: AutoMovieVector3Tuple;
-      /** Distal palm-cap reach beyond the final centre, millimetres. */
-      reach: number;
-      /** Downward upper-arm measuring convention and proximal source domain. */
-      measuring: IAutoMovieHumanArmWalk.IMeasuring;
-      /** Arm site laws in proximal-to-distal order. */
-      sites: IAutoMovieHumanArmWalk.ISiteLaw[];
-      /** Elbow and wrist physical turn-window lengths, millimetres. */
-      joints: {
-        /** Full elbow depth defining its C2 turn-window length, millimetres. */
-        elbow: number;
-        /** Full wrist depth defining its C2 turn-window length, millimetres. */
-        wrist: number;
-      };
-      /**
-       * Physical station and phase interval of this limb's shared fold with the
-       * trunk.
-       */
-      trunk: IFold;
-    };
+    arm: ISideArm;
 
     /** The foot. */
     foot: IAutoMovieHumanFootPart.IInput;
@@ -158,6 +92,81 @@ export namespace IAutoMovieHumanBodyLane {
     /** Names from the same foot-placement rows consumed by the toe producer. */
     toeNames: readonly string[];
   }
+
+  /** The arm object of {@link ISide}. */
+  export type ISideArm = {
+    /** Identical normalized original shared by this loft and hand attachments. */
+    definition: IAutoMovieHumanSourceDefinition;
+    /**
+     * Resolved joint centres for this limb in the registered body frame,
+     * millimetres.
+     */
+    bones: Pick<
+      IAutoMovieHumanArmBones.IBones,
+      "shoulder" | "elbow" | "wrist"
+    >;
+    /** Third metacarpal head in the registered body frame, millimetres. */
+    knuckle: AutoMovieVector3Tuple;
+    /** Palmar base-crease locus from the person's independent palm length. */
+    crease?: AutoMovieVector3Tuple;
+    /**
+     * Actual radial hand-across direction for the WJC-to-MCP3 material
+     * transition.
+     */
+    radial: AutoMovieVector3Tuple;
+    /** Distal palm-cap reach beyond the final centre, millimetres. */
+    reach: number;
+    /** Downward upper-arm measuring convention and proximal source domain. */
+    measuring: IAutoMovieHumanArmWalk.IMeasuring;
+    /** Arm site laws in proximal-to-distal order. */
+    sites: IAutoMovieHumanArmWalk.ISiteLaw[];
+    /** Elbow and wrist physical turn-window lengths, millimetres. */
+    joints: {
+      /** Full elbow depth defining its C2 turn-window length, millimetres. */
+      elbow: number;
+      /** Full wrist depth defining its C2 turn-window length, millimetres. */
+      wrist: number;
+    };
+    /**
+     * Physical station and phase interval of this limb's shared fold with the
+     * trunk.
+     */
+    trunk: IFold;
+  };
+
+  /** The leg object of {@link ISide}. */
+  export type ISideLeg = {
+    /**
+     * Resolved joint centres for this limb in the registered body frame,
+     * millimetres.
+     */
+    bones: Pick<IAutoMovieHumanLegBones.IBones, "hip" | "knee" | "ankle">;
+    /**
+     * Prepared leg-axis and section law shared by publication and
+     * attachments.
+     */
+    law: IAutoMovieHumanLegWalk.ILaw;
+    /**
+     * Prepared leg original, including its admitted view and diagnostics
+     * before raw lofting.
+     */
+    definition: IAutoMovieHumanLegWalk.IDefinition;
+    /**
+     * Publish the actual leg consuming this final/trial parent's named hip
+     * source.
+     */
+    bind(
+      parent: IAutoMovieHumanSourceDefinition,
+      station: number,
+    ): IAutoMovieHumanLegWalk.IDefinition;
+    /**
+     * Physical station and phase interval of this limb's shared fold with the
+     * trunk.
+     */
+    trunk: IFold;
+    /** Physical station and phase interval of the shared leg-to-foot fold. */
+    foot: IFold;
+  };
 
   /** A digit's input and its web's fold. */
   export interface IDigit {

@@ -26,12 +26,15 @@ export namespace IAutoMoviePreparedConstructionKnownPort {
      * Actual immutable field/map owners of both rails; labels alone certify no
      * weights.
      */
-    rails: {
-      /** Original field and map that own the transverse-zero boundary. */
-      parent: IAutoMovieConstructionKnownPortSide;
-
-      /** Original field and map that own the transverse-one boundary. */
-      child: IAutoMovieConstructionKnownPortSide;
-    };
+    rails: IPreparedRails;
   }
+
+  /** The rails object of {@link IPrepared}. */
+  export type IPreparedRails = {
+    /** Original field and map that own the transverse-zero boundary. */
+    parent: IAutoMovieConstructionKnownPortSide;
+
+    /** Original field and map that own the transverse-one boundary. */
+    child: IAutoMovieConstructionKnownPortSide;
+  };
 }
