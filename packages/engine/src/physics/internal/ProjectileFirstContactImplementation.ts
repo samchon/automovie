@@ -14,7 +14,7 @@ import { resolveAutoMovieContactEvents } from "../../composition/internal/resolv
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
 import { physicalShapeNearest } from "./physicalShapeNearest";
-import { physicalShapeQueryImplementation } from "./physicalShapeQuery";
+import { physicalShapeQueryImplementation } from "./physicalShapeQueryImplementation";
 import { projectileAt } from "./projectileAt";
 import { ProjectileDragFlightImplementation } from "./ProjectileDragFlightImplementation";
 import { projectilePlaneDeparture } from "./projectilePlaneDeparture";

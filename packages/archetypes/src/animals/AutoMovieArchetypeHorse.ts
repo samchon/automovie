@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
-import { createHorse as createHorseImplementation } from "./internal/createHorse";
+import { createHorse as createHorseImplementation } from "./horse/createHorse";
 import { type QuadrupedProportions } from "./QuadrupedProportions";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeEquineEarProfiles } from "./AutoMovieArchetypeEquineEarProfiles";

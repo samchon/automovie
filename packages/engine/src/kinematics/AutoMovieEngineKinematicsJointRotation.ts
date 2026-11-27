@@ -15,6 +15,7 @@ import { jointToQuaternionOnBasis as jointToQuaternionOnBasisImplementation } fr
 export namespace AutoMovieEngineKinematicsJointRotation {
   /** Destination for the selected joint-ROM overshoot. */
   export interface IScore {
+    /** Selected ROM overshoot in degrees, when present. */
     overshoot: number | undefined;
   }
 

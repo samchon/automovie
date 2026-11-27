@@ -11,7 +11,7 @@ import { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
 import type { QuadrupedStridePlan } from "./QuadrupedStridePlan";
 import type { AutoMovieArchetypeQuadruped } from "./AutoMovieArchetypeQuadruped";
-import { spotEquineTakeoff } from "./internal/spotEquineTakeoff";
+import { spotEquineTakeoff } from "./equine/spotEquineTakeoff";
 
 /**
  * One horse jump over the obstacles authored in the course's footing, and the

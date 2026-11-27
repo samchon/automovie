@@ -1,6 +1,16 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide, AutoMovieHumanoidBone, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanTouch, IAutoMovieMotionHumanTouchSite, IAutoMovieMotionTarget, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
+import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanTouch,
+  IAutoMovieMotionHumanTouchSite,
+  IAutoMovieMotionTarget,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanTarget } from "../../compose/AutoMovieMotionHumanTarget";
 import { touchRegionFrame } from "../../compose/internal/touchRegionFrame";

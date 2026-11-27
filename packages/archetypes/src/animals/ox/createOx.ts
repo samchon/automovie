@@ -10,9 +10,9 @@ import { AutoMovieArchetypeOx } from "../AutoMovieArchetypeOx";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedEquipment } from "../AutoMovieArchetypeQuadrupedEquipment";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
-import { buildOxBody } from "../ox/internal/buildOxBody";
-import { OX_BODY_MEASURES } from "../ox/internal/constants/OX_BODY_MEASURES";
-import { createCohortQuadruped } from "./createCohortQuadruped";
+import { buildOxBody } from "./internal/buildOxBody";
+import { OX_BODY_MEASURES } from "./internal/constants/OX_BODY_MEASURES";
+import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
 /**
  * A coarse Kathani working-ox reference with horns and authored equipment,

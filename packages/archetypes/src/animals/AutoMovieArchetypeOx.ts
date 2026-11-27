@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { createCohortQuadruped } from "./internal/createCohortQuadruped";
+import { createCohortQuadruped } from "./quadruped/createCohortQuadruped";
 import { type AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { createOx as createOxImplementation } from "./internal/createOx";
+import { createOx as createOxImplementation } from "./ox/createOx";
 import { AutoMovieArchetypeQuadrupedEquipment } from "./AutoMovieArchetypeQuadrupedEquipment";
 
 /** Public operations for Auto Movie Archetype Ox. */

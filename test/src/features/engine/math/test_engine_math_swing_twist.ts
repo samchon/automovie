@@ -36,7 +36,7 @@ export function test_engine_math_swing_twist(): void {
   const halfX: IAutoMovieQuaternion = { x: 1, y: 0, z: 0, w: 0 };
   TestValidator.equals(
     "undefined twist",
-    swingTwist.twist(halfX, { x: 0, y: 1, z: 0 }),
+    AutoMovieEngineMath.swingTwistComponent(halfX, { x: 0, y: 1, z: 0 }),
     null,
   );
   const whole: IAutoMovieSwingTwistResult = AutoMovieEngineMath.decomposeSwingTwist(halfX, {

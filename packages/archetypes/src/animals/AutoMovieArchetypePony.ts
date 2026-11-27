@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
-import { createPony as createPonyImplementation } from "./internal/createPony";
+import { createPony as createPonyImplementation } from "./pony/createPony";
 import { EquineSegments } from "./EquineSegments";
 import { AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand } from "../core";
 import { HORSE_BANDS } from "./HORSE_BANDS";

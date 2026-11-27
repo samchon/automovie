@@ -4,26 +4,6 @@ import type { IAutoMovieMotionManner } from "../compose/IAutoMovieMotionManner";
 /**
  * Authoring inputs and presets for dance and paired dance operations.
  */
-export namespace IAutoMovieMotionHumanDance {
-  /** The parameters of `slowDanceSway`: a sway's size, beat and repetitions. */
-  export interface ISlowDanceSway {
-    /** How far the pelvis goes over each foot, metres; positive. */
-    by: number;
-
-    /**
-     * The beat, seconds: each half of a sway, over one foot and back, takes
-     * one.
-     */
-    beat: number;
-
-    /**
-     * How many sways, each over the left foot and then the right; a whole
-     * number of at least 1.
-     */
-    count: number;
-  }
-}
-
 /**
  * A solo dance step locked to a declared beat: the bounce, the side-to-side
  * sway, the step-touch and the box step.
@@ -60,6 +40,24 @@ export namespace IAutoMovieMotionHumanDance {
  * dancer beginning backward. This action owns foot contacts.
  */
 export namespace IAutoMovieMotionHumanDance {
+  /** The parameters of `slowDanceSway`: a sway's size, beat and repetitions. */
+  export interface ISlowDanceSway {
+    /** How far the pelvis goes over each foot, metres; positive. */
+    by: number;
+
+    /**
+     * The beat, seconds: each half of a sway, over one foot and back, takes
+     * one.
+     */
+    beat: number;
+
+    /**
+     * How many sways, each over the left foot and then the right; a whole
+     * number of at least 1.
+     */
+    count: number;
+  }
+
   /** Parameters. */
   export interface IParams {
     /** The step. */

@@ -5,7 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieArchetypeUnits } from "../core";
-import { solveQuadrupedSupportPlane } from "./internal/solveQuadrupedSupportPlane";
+import { solveQuadrupedSupportPlane } from "./quadruped/solveQuadrupedSupportPlane";
 
 /**
  * A four-bar quadruped limb solved from its neutral controls. The upper bar and

@@ -1,6 +1,24 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3, AutoMovieEngineMath } from "@automovie/engine";
-import type { AutoMovieHumanSide, IAutoMovieMotionClock, IAutoMovieMotionHumanActionContext, IAutoMovieMotionHumanActionPlan, IAutoMovieMotionHumanKiss, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRise, IAutoMovieMotionHumanTarget, IAutoMovieMotionHumanTouchEffector, IAutoMovieMotionMeeting, IAutoMovieMotionMeetingKind, IAutoMovieMotionMeetingRole, IAutoMovieMotionMeetingTiming, IAutoMovieVector3 } from "@automovie/interface";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineMath,
+  Vector3,
+} from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanKiss,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRise,
+  IAutoMovieMotionHumanTarget,
+  IAutoMovieMotionHumanTouchEffector,
+  IAutoMovieMotionMeeting,
+  IAutoMovieMotionMeetingKind,
+  IAutoMovieMotionMeetingRole,
+  IAutoMovieMotionMeetingTiming,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { AutoMovieMotionHumanArm } from "../../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../../compose/AutoMovieMotionHumanBase";

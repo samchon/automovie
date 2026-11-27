@@ -1,4 +1,8 @@
-import { AutoMovieEngineGeometryObservation, AutoMovieEngineKinematics } from "@automovie/engine";
+import {
+  AutoMovieEngineGeometryObservation,
+  AutoMovieEngineKinematics,
+  AutoMovieEngineValidation,
+} from "@automovie/engine";
 import type {
   IAutoMovieBone,
   IAutoMovieCamera,
@@ -236,7 +240,7 @@ export function test_engine_geometry_query_reach(): void {
       "left",
       target,
     );
-    return pose !== null && validatePose({ pose, skeleton }).items.length === 0;
+    return pose !== null && AutoMovieEngineValidation.validatePoseResult(pose, skeleton).items.length === 0;
   };
 
   const reachable: ReturnType<typeof measure> = measure("hero", near);

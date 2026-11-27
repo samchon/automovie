@@ -1,7 +1,7 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { type createCohortQuadruped } from "./internal/createCohortQuadruped";
+import { type createCohortQuadruped } from "./quadruped/createCohortQuadruped";
 import { type AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { createCat as createCatImplementation } from "./internal/createCat";
+import { createCat as createCatImplementation } from "./cat/createCat";
 
 /** Public operations for Auto Movie Archetype Cat. */
 export namespace AutoMovieArchetypeCat {

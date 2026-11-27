@@ -89,14 +89,6 @@ export interface IAutoMovieMotionHumanCrossing<Chain> {
 }
 
 /** The parameter types of the Crossing methods. */
-export namespace IAutoMovieMotionHumanCrossing {
-  /**
-   * The apex of a crossing flight: the height of the flight above take-off,
-   * metres; positive. It is the jump's own `apex`.
-   */
-  export type ApexMetres = number;
-}
-
 /**
  * Crossing a named stage obstruction or the gap between two fixed decks, from a
  * standing or walking entry to a settled exit that the next gait continues.
@@ -109,6 +101,12 @@ export namespace IAutoMovieMotionHumanCrossing {
  * `crossObstacle` refuses a crossing whose displayed body would enter them.
  */
 export namespace IAutoMovieMotionHumanCrossing {
+  /**
+   * The apex of a crossing flight: the height of the flight above take-off,
+   * metres; positive. It is the jump's own `apex`.
+   */
+  export type ApexMetres = number;
+
   /** A level top surface of a placed prop. */
   export interface ISurface {
     /** Subject of the fixed support prop. */

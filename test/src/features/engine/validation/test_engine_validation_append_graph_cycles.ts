@@ -1,4 +1,5 @@
 import { AutoMovieEngineViolationCollector } from "@automovie/engine";
+import { appendGraphCycles } from "@automovie/engine/internal";
 import type {
   IAutoMovieAppendGraphCycles,
   IAutoMovieConstraintViolation,

@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePrepareChainConstants,
   IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
@@ -6,7 +7,6 @@ import type {
 
 import { Quaternion } from "../../math/Quaternion";
 import { Vector3 } from "../../math/Vector3";
-import type { IAutoMoviePrepareChainConstants } from "@automovie/interface";
 
 /**
  * A chain's articulation-free frames under a pose, from the rig's constants

@@ -5,11 +5,11 @@ import {
   type AutoMovieArchetypeRide,
   AutoMovieArchetypeRefusal,
 } from "../core/index";
-import { AnnularFitting } from "./internal/AnnularFitting";
+import { AnnularFitting } from "./fittings/AnnularFitting";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { EquineFootwork } from "./EquineFootwork";
 import type { QuadrupedTimedCues } from "./QuadrupedTimedCues";
-import { rideQuadrupedImplementation } from "./internal/rideQuadruped";
+import { rideQuadrupedImplementation } from "./quadruped/rideQuadruped";
 import { AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
 import { AutoMovieArchetypeEquineGait } from "./AutoMovieArchetypeEquineGait";
 import { AutoMovieArchetypeEquineGaitedProfile } from "./AutoMovieArchetypeEquineGaitedProfile";
@@ -28,7 +28,7 @@ import type { QuadrupedProportions } from "./QuadrupedProportions";
 import { buildCamelBody } from "./camel/internal/buildCamelBody";
 import { AutoMovieArchetypeCamel } from "./AutoMovieArchetypeCamel";
 import { AutoMovieArchetypeCat } from "./AutoMovieArchetypeCat";
-import type { createCohortQuadruped } from "./internal/createCohortQuadruped";
+import type { createCohortQuadruped } from "./quadruped/createCohortQuadruped";
 import { AutoMovieArchetypeDeer } from "./AutoMovieArchetypeDeer";
 import { AutoMovieArchetypeDog } from "./AutoMovieArchetypeDog";
 import { AutoMovieArchetypeDonkey } from "./AutoMovieArchetypeDonkey";
@@ -40,7 +40,13 @@ import { buildDeerBody } from "./deer/buildDeerBody";
 import { buildDogBody } from "./dog/buildDogBody";
 import { buildOxBody } from "./ox/internal/buildOxBody";
 
-/** Constructs the quadruped archetype from its recipe. */
+/**
+ * Constructs the quadruped archetype from its recipe.
+ *
+ * Companion types and species of {@link AutoMovieArchetypeQuadruped.create}.
+ *
+ * The generic quadruped ride and its contract.
+ */
 export namespace AutoMovieArchetypeQuadruped {
 /**
  * A four-legged animal of a kind, with its kind's tack: every kind shares one
@@ -76,10 +82,6 @@ export function create(
   if (params.kind === "horse") return AutoMovieArchetypeHorse.create(params, seed);
   return AutoMovieArchetypeQuadruped.PRODUCERS[params.kind](params, seed);
 }
-}
-
-/** Companion types and species of {@link AutoMovieArchetypeQuadruped.create}. */
-export namespace AutoMovieArchetypeQuadruped {
   /** The kinds. */
   export type Kind =
     | "horse"
@@ -424,9 +426,6 @@ export namespace AutoMovieArchetypeQuadruped {
       };
     return SPECIES[kind];
   }
-}
-/** The generic quadruped ride and its contract. */
-export namespace AutoMovieArchetypeQuadruped {
   /**
    * A quadruped going along a course: its root on the path, its trunk rising and
    * falling and its head nodding with the stride, its four limbs stepping in the

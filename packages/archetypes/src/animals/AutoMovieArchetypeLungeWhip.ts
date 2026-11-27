@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { createLungeWhip as createLungeWhipImplementation } from "./internal/createLungeWhip";
+import { createLungeWhip as createLungeWhipImplementation } from "./fittings/createLungeWhip";
 
 /** Public operations for Auto Movie Archetype Lunge Whip. */
 export namespace AutoMovieArchetypeLungeWhip {

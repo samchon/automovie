@@ -4,15 +4,52 @@ import { AutoMovieEngineMathPinnedElastica } from "./internal/AutoMovieEngineMat
 import { AutoMovieEngineMathDelaunay } from "./internal/AutoMovieEngineMathDelaunay";
 import { AutoMovieEngineMathSwingTwist } from "./internal/AutoMovieEngineMathSwingTwist";
 import { transformedBoxBounds as transformedBoxBoundsImplementation } from "./internal/transformedBoxBounds";
-import type { IAutoMovieSubjectBox } from "@automovie/interface";
 import type {
+  IAutoMovieSubjectBox,
   IAutoMovieSwingTwistResult,
   IAutoMovieTetrahedralizedMesh,
+  IAutoMovieSolveQuadraticProgram,
+  IAutoMovieVector3,
+  IAutoMovieClosestSegmentPoints,
+  IAutoMovieJacobianCofactor,
+  IAutoMovieQuadraticConicProgram,
+  IAutoMovieQuadraticConstraintBasis,
+  IAutoMovieQuadraticRow,
+  IAutoMovieCreateQuadraticFactor,
+  IAutoMovieCreateQuadraticMemory,
+  IAutoMovieMesh,
+  IAutoMovieSingularDecomposition,
+  IAutoMovieSingularMatrixBudget,
+  IAutoMovieFitRigidMeshTransform,
+  IAutoMovieColor,
+  IAutoMovieMeasureQuadraticState,
+  IAutoMovieQuadraticState,
+  IAutoMovieSimplexMinimum,
+  IAutoMovieSimplexAtom,
+  IAutoMovieSimplexBudget,
+  IAutoMovieAngleRange,
+  IAutoMovieHullEdge,
+  IAutoMovieQuadraticPolishingResult,
+  IAutoMovieQuadraticRefinementOptions,
+  IAutoMovieQuadraticRefinementInterval,
+  IAutoMovieQuaternion,
+  IAutoMovieQrDesignReduction,
+  IAutoMovieQrDesignBudget,
+  IAutoMovieQuadraticRefinementResult,
+  IAutoMovieResolvedPhysicalVertices,
+  IAutoMovieRigidTransformVelocity,
+  IAutoMovieTransform,
+  IAutoMovieSolveBoundedDisplacement,
+  IAutoMovieSolveHalfPlaneProgram,
+  IAutoMovieSolveQuadraticKernel,
+  IAutoMovieQuadraticWorkingSetStep,
+  IAutoMovieWeldMeshVertices,
 } from "@automovie/interface";
+
 import { addAutoMovieQuadraticProduct as addAutoMovieQuadraticProductImplementation } from "./internal/addAutoMovieQuadraticProduct";
 import { addPositiveModulo as addPositiveModuloImplementation } from "./internal/addPositiveModulo";
 import { adjacentAutoMovieFloat64 as adjacentAutoMovieFloat64Implementation } from "./internal/adjacentAutoMovieFloat64";
-import { type IAutoMovieSolveQuadraticProgram, type IAutoMovieVector3, type IAutoMovieClosestSegmentPoints, type IAutoMovieJacobianCofactor, type IAutoMovieQuadraticConicProgram, type IAutoMovieQuadraticConstraintBasis, type IAutoMovieQuadraticRow, type IAutoMovieCreateQuadraticFactor, type IAutoMovieCreateQuadraticMemory, type IAutoMovieMesh, type IAutoMovieSingularDecomposition, type IAutoMovieSingularMatrixBudget, type IAutoMovieFitRigidMeshTransform, type IAutoMovieColor, type IAutoMovieMeasureQuadraticState, type IAutoMovieQuadraticState, type IAutoMovieSimplexMinimum, type IAutoMovieSimplexAtom, type IAutoMovieSimplexBudget, type IAutoMovieAngleRange, type IAutoMovieHullEdge, type IAutoMovieQuadraticPolishingResult, type IAutoMovieQuadraticRefinementOptions, type IAutoMovieQuadraticRefinementInterval, type IAutoMovieQuaternion, type IAutoMovieQrDesignReduction, type IAutoMovieQrDesignBudget, type IAutoMovieQuadraticRefinementResult, type IAutoMovieResolvedPhysicalVertices, type IAutoMovieRigidTransformVelocity, type IAutoMovieTransform, type IAutoMovieSolveBoundedDisplacement, type IAutoMovieSolveHalfPlaneProgram, type IAutoMovieSolveQuadraticKernel, type IAutoMovieQuadraticWorkingSetStep, type IAutoMovieWeldMeshVertices } from "@automovie/interface";
+
 import { admitAutoMovieQuadraticProgram as admitAutoMovieQuadraticProgramImplementation } from "./internal/admitAutoMovieQuadraticProgram";
 import { assembleAutoMovieQuadraticProgram as assembleAutoMovieQuadraticProgramImplementation } from "./internal/assembleAutoMovieQuadraticProgram";
 import { assignAutoMovieMinimumCost as assignAutoMovieMinimumCostImplementation } from "./internal/assignAutoMovieMinimumCost";

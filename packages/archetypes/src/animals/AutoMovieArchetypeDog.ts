@@ -1,6 +1,6 @@
 import { type AutoMovieArchetype } from "../core/index";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
-import { createDog as createDogImplementation } from "./internal/createDog";
+import { createDog as createDogImplementation } from "./dog/createDog";
 import { AutoMovieArchetypeQuadrupedLead } from "./AutoMovieArchetypeQuadrupedLead";
 import { type DogCohort } from "./dog/typings/DogCohort";
 import { AutoMovieArchetypeDrawSession, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeRefusal, type AutoMovieArchetypeBuilder } from "../core";

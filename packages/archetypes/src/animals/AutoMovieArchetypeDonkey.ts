@@ -14,7 +14,11 @@ import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
 const VERACRUZ: string =
   "López-Yáñez et al. 2025, Rev Mex Cienc Pecu 16 (Supl 4):11, p. 15 and Table 1: 200 working donkeys, height 112.62 ± 5.63 cm, minimum 93, maximum 127, thoracic perimeter 121.2 cm, live weight on a portable large-animal scale 151.4 kg (https://www.scielo.org.mx/pdf/rmcp/v16s4/2448-6698-rmcp-16-s4-11-en.pdf)";
 
-/** Constructs the donkey archetype from its recipe. */
+/**
+ * Constructs the donkey archetype from its recipe.
+ *
+ * Companion constants and profile of {@link createDonkey}.
+ */
 export namespace AutoMovieArchetypeDonkey {
 /**
  * A donkey with its tack: the horse's build (`AutoMovieArchetypeEquine.equid`)
@@ -60,10 +64,6 @@ export function create(
     ),
   );
 }
-}
-
-/** Companion constants and profile of {@link createDonkey}. */
-export namespace AutoMovieArchetypeDonkey {
   /** The producer's name. */
   export const ARCHETYPE: string = "donkey";
 

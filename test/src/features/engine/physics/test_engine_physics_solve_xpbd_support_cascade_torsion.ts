@@ -4,7 +4,6 @@ import {
   AutoMovieXpbdSupportRows,
   Quaternion,
   AutoMovieEnginePhysicalStanceBalance,
-  AutoMovieXpbdArticulation,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalJointAxis,

@@ -156,6 +156,31 @@ export interface IAutoMovieMotionHumanGait<Chain>
 }
 
 /** The parameter types of the Gait methods. */
+/**
+ * The parameters of the styled gaits: named ways of going somewhere on foot,
+ * whose destination the composition gives. The speed model and the walk presets
+ * (`stroll`, `hurry`, `trudge`, `swagger`) are on the Gait family
+ * (`IAutoMovieMotionHumanGait<Chain>`, above).
+ *
+ * A styled gait has a speed no pace has. It runs the walk's stepping plan in a
+ * gait of its own, as the run does, and counts as a walk wherever actions are
+ * told apart by kind:
+ *
+ * - `march` keeps the drill regulation's cadence and step, 120 steps a minute and
+ *   30 inches (0.762 m) in quick time, the same step for every marcher (US Army
+ *   TC 3-21.5). The cadence governs: the way is covered in the whole number of
+ *   steps nearest it in drill steps, so over a way that is not a whole number
+ *   of them the step gives and the cadence stays.
+ * - `doubleTime` keeps 180 steps a minute on the same step, which is a jog's
+ *   speed, so it is run in the jog's gait with the count kept.
+ * - `prowl` is the sneak on deeply bent knees; `sad` and `proud` carry a mood in
+ *   speed, arm swing and trunk; `limp` spares one leg, standing on it briefly;
+ *   `drunk` is slow, unsteady in time and wanders off its line. All
+ *   provisional, each constant saying what was read and what was not.
+ * - `sneak` goes slower than the slow walk on shorter steps, with the pelvis
+ *   lowered and the arms held close (provisional values; no study of stealthy
+ *   gait has been read).
+ */
 export namespace IAutoMovieMotionHumanGait {
   /**
    * The closed paces of the walk, `slow`, `normal` and `fast`, each a Froude
@@ -266,34 +291,7 @@ export namespace IAutoMovieMotionHumanGait {
      */
     at: IAutoMovieMotionHumanProxemics.Band;
   }
-}
 
-/**
- * The parameters of the styled gaits: named ways of going somewhere on foot,
- * whose destination the composition gives. The speed model and the walk presets
- * (`stroll`, `hurry`, `trudge`, `swagger`) are on the Gait family
- * (`IAutoMovieMotionHumanGait<Chain>`, above).
- *
- * A styled gait has a speed no pace has. It runs the walk's stepping plan in a
- * gait of its own, as the run does, and counts as a walk wherever actions are
- * told apart by kind:
- *
- * - `march` keeps the drill regulation's cadence and step, 120 steps a minute and
- *   30 inches (0.762 m) in quick time, the same step for every marcher (US Army
- *   TC 3-21.5). The cadence governs: the way is covered in the whole number of
- *   steps nearest it in drill steps, so over a way that is not a whole number
- *   of them the step gives and the cadence stays.
- * - `doubleTime` keeps 180 steps a minute on the same step, which is a jog's
- *   speed, so it is run in the jog's gait with the count kept.
- * - `prowl` is the sneak on deeply bent knees; `sad` and `proud` carry a mood in
- *   speed, arm swing and trunk; `limp` spares one leg, standing on it briefly;
- *   `drunk` is slow, unsteady in time and wanders off its line. All
- *   provisional, each constant saying what was read and what was not.
- * - `sneak` goes slower than the slow walk on shorter steps, with the pelvis
- *   lowered and the arms held close (provisional values; no study of stealthy
- *   gait has been read).
- */
-export namespace IAutoMovieMotionHumanGait {
   /**
    * What a styled gait leaves to the composition: the walk's destination,
    * waypoints, arrival heading and elbows.

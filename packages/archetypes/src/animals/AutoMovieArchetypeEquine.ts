@@ -14,7 +14,7 @@ import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBo
 import { EquinePack } from "./EquinePack";
 import { EquineTack } from "./EquineTack";
 import { AutoMovieArchetypeHorse } from "./AutoMovieArchetypeHorse";
-import { selectEquineTack } from "./internal/selectEquineTack";
+import { selectEquineTack } from "./fittings/selectEquineTack";
 
 /**
  * The equid model `createHorse`, `createPony`, `createDonkey`, `createMule` and

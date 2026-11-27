@@ -39,7 +39,11 @@ interface IEnds {
   weaning: number;
 }
 
-/** Constructs the foal archetype from its recipe. */
+/**
+ * Constructs the foal archetype from its recipe.
+ *
+ * Companion types, growth and profile of {@link createFoal}.
+ */
 export namespace AutoMovieArchetypeFoal {
 /**
  * A foal from birth to weaning: the horse's body at a fraction of a mature
@@ -109,10 +113,6 @@ export function create(
     draw,
   );
 }
-}
-
-/** Companion types, growth and profile of {@link createFoal}. */
-export namespace AutoMovieArchetypeFoal {
   /** The producer's name. */
   export const ARCHETYPE: string = "foal";
 

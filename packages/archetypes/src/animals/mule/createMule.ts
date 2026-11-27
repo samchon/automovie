@@ -3,7 +3,7 @@ import { type AutoMovieArchetype, AutoMovieArchetypeDrawSession } from "../../co
 import { AutoMovieArchetypeEquine } from "../AutoMovieArchetypeEquine";
 import "../AutoMovieArchetypeEquineEarProfiles";
 import "../HORSE_BANDS";
-import "./createHorse";
+import "../horse/createHorse";
 
 /**
  * A mule with its tack: the horse's build (`AutoMovieArchetypeEquine.equid`) at

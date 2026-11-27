@@ -49,8 +49,7 @@ export namespace IAutoMovieMotionHumanPolo {
     /** The ball's speed off the mallet, metres per second; 20 when absent. */
     speed?: number;
   }
-}
-export namespace IAutoMovieMotionHumanPolo {
+
   /**
    * The horse's side a stroke is made on: `offside`, its right, or `nearside`,
    * its left.

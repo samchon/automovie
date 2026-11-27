@@ -112,38 +112,6 @@ export interface IAutoMovieMotionHumanDress<Chain> {
 }
 
 /** The parameter types of the Dress methods. */
-export namespace IAutoMovieMotionHumanDress {
-  /**
-   * The parameters of `drawFromCarrier`: the staged pair, the drawing hand and
-   * the other hand's pull.
-   *
-   * The pair is `HumanSheath.of`'s staged record, which names the blade, the
-   * carrier and the sockets the draw runs between.
-   */
-  export interface IDrawFromCarrier {
-    /** The staged blade and carrier, as `HumanSheath.of` returns them. */
-    sheath: IAutoMovieMotionHumanSheath.IStaged;
-
-    /** The drawing hand; `right` when absent. */
-    hand?: AutoMovieHumanSide;
-
-    /**
-     * The other hand's pull on a worn carrier, for a blade longer than the arm
-     * draws alone; the carrier holds still when absent.
-     */
-    pull?: IAutoMovieMotionHumanDrawFromCarrier.IPull;
-  }
-
-  /** The parameters of `putDownAperture`: the staged pair and the holding hand. */
-  export interface IPutDownAperture {
-    /** The staged blade and carrier, as `HumanSheath.of` returns them. */
-    sheath: IAutoMovieMotionHumanSheath.IStaged;
-
-    /** The holding hand; `right` when absent. */
-    hand?: AutoMovieHumanSide;
-  }
-}
-
 /**
  * Putting on a hat or a pair of glasses held in one hand, with both hands,
  * while standing.
@@ -175,6 +143,36 @@ export namespace IAutoMovieMotionHumanDress {
  * wrist.
  */
 export namespace IAutoMovieMotionHumanDress {
+  /**
+   * The parameters of `drawFromCarrier`: the staged pair, the drawing hand and
+   * the other hand's pull.
+   *
+   * The pair is `HumanSheath.of`'s staged record, which names the blade, the
+   * carrier and the sockets the draw runs between.
+   */
+  export interface IDrawFromCarrier {
+    /** The staged blade and carrier, as `HumanSheath.of` returns them. */
+    sheath: IAutoMovieMotionHumanSheath.IStaged;
+
+    /** The drawing hand; `right` when absent. */
+    hand?: AutoMovieHumanSide;
+
+    /**
+     * The other hand's pull on a worn carrier, for a blade longer than the arm
+     * draws alone; the carrier holds still when absent.
+     */
+    pull?: IAutoMovieMotionHumanDrawFromCarrier.IPull;
+  }
+
+  /** The parameters of `putDownAperture`: the staged pair and the holding hand. */
+  export interface IPutDownAperture {
+    /** The staged blade and carrier, as `HumanSheath.of` returns them. */
+    sheath: IAutoMovieMotionHumanSheath.IStaged;
+
+    /** The holding hand; `right` when absent. */
+    hand?: AutoMovieHumanSide;
+  }
+
   /** Parameters. */
   export interface IParams {
     /** The item: where it is worn and how the free hand steadies it. */

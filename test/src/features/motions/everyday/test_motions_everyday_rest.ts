@@ -1,7 +1,20 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Vector3 } from "@automovie/engine";
-import type { AutoMovieHumanSide, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanRest, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanBend, poseBones, resolveHumanPosture, restCrossedArms, restElbowSupport, restGoals, stand } from "@automovie/motions/internal";
+import { AutoMovieEngineKinematics, Vector3 } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanRest,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanBend,
+  poseBones,
+  resolveHumanPosture,
+  restCrossedArms,
+  restElbowSupport,
+  restGoals,
+  stand,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
@@ -59,10 +72,11 @@ export async function test_motions_everyday_rest(): Promise<void> {
     up: number,
   ): boolean => {
     const frame = body.surfaces.regions[region];
-    const surface = AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
-      frame,
-      bones.get(frame.bone)!,
-    );
+    const surface =
+      AutoMovieEngineKinematics.resolveAutoMovieHumanoidSurfacePointNormal(
+        frame,
+        bones.get(frame.bone)!,
+      );
     const off: IAutoMovieVector3 = Vector3.subtract(
       goal.point,
       Vector3.add(surface.point, { x: 0, y: up, z: 0 }),

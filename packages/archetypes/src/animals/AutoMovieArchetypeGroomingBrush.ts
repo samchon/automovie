@@ -23,7 +23,11 @@ const BACK: number = 0.02;
 /** The brush's mass, kilograms: authored, neither listing gives it. */
 const MASS: number = 0.2;
 
-/** Constructs the grooming brush archetype from its recipe. */
+/**
+ * Constructs the grooming brush archetype from its recipe.
+ *
+ * Companion types and bands of {@link createGroomingBrush}.
+ */
 export namespace AutoMovieArchetypeGroomingBrush {
 /**
  * A horse's body brush: a flat wooden back held in the palm and a block of
@@ -108,10 +112,6 @@ export function create(
   });
   return builder.build(MASS);
 }
-}
-
-/** Companion types and bands of {@link createGroomingBrush}. */
-export namespace AutoMovieArchetypeGroomingBrush {
   /**
    * The contacts: `grip`, the back's top the palm lies on, facing up; `face`,
    * the bristles' working face, facing down.

@@ -1,8 +1,26 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import { Quaternion } from "@automovie/engine";
-import type { AutoMovieHumanoidBone, IAutoMovieMotionClock, IAutoMovieMotionHumanBalance, IAutoMovieMotionHumanBody, IAutoMovieMotionHumanPosture, IAutoMovieMotionHumanPrimitive, IAutoMovieResolvedBone, IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieMotionHumanAcrobatics, AutoMovieMotionHumanStance } from "@automovie/motions";
-import { AutoMovieMotionClock, AutoMovieMotionHumanTrunk, HumanBalance, HumanFoot, poseBones, resolveHumanPosture } from "@automovie/motions/internal";
+import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
+import type {
+  AutoMovieHumanoidBone,
+  IAutoMovieMotionClock,
+  IAutoMovieMotionHumanBalance,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPrimitive,
+  IAutoMovieResolvedBone,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+import {
+  AutoMovieMotionHumanAcrobatics,
+  AutoMovieMotionHumanStance,
+} from "@automovie/motions";
+import {
+  AutoMovieMotionClock,
+  AutoMovieMotionHumanTrunk,
+  HumanBalance,
+  HumanFoot,
+  poseBones,
+  resolveHumanPosture,
+} from "@automovie/motions/internal";
 
 import type { motionComplaints } from "./motionComplaints";
 import { motionHumanBody } from "./motionHumanBody";
@@ -270,10 +288,14 @@ export namespace motionComposeTrunk {
         const pose: Bones = bones(written);
         const sunk: number = hips.y - pose.get("hips")!.worldPosition.y;
         const inclined: number = tipped(pose) - tipped(upright);
-        const margin: number = AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
-          AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(body.massModel, pose),
-          HumanFoot.base(body, pose),
-        );
+        const margin: number =
+          AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassMargin(
+            AutoMovieEngineKinematics.resolveAutoMovieCenterOfMassPlace(
+              body.massModel,
+              pose,
+            ),
+            HumanFoot.base(body, pose),
+          );
         const at: string = `${cell} at ${seconds} s`;
         if (seconds === 0 || seconds === 1.25)
           all.check(

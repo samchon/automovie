@@ -1,12 +1,10 @@
-import {
-  type IAutoMovieGeometry,
-  type IAutoMovieLight,
-} from "@automovie/interface";
-import type { IAutoMovieConstructionPolyline } from "@automovie/interface";
-import {
-  type IAutoMovieModel,
-  type IAutoMovieRenderSoftPropFrame,
-  type IAutoMovieScene,
+import type {
+  IAutoMovieConstructionPolyline,
+  IAutoMovieGeometry,
+  IAutoMovieLight,
+  IAutoMovieModel,
+  IAutoMovieRenderSoftPropFrame,
+  IAutoMovieScene,
 } from "@automovie/interface";
 import type * as THREE from "three";
 

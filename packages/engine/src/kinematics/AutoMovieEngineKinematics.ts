@@ -13,6 +13,7 @@ import {
   type IAutoMovieArticulatedRig,
   type IAutoMovieArticulatedRigReader,
   type IAutoMovieBodyMomentum,
+  type IAutoMovieBodyMeasure,
   type IAutoMovieBoxExcludedSwivels,
   type IAutoMovieFitDigitDescent,
   type IAutoMovieFitDigitToTarget,
@@ -52,7 +53,6 @@ import {
   type IAutoMovieVector3,
   type IAutoMovieYawPitch,
 } from "@automovie/interface";
-import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 
 import { actionRegion as actionRegionImplementation } from "../perform/internal/actionRegion";
 import { bodyRegionBones as bodyRegionBonesImplementation } from "../perform/internal/bodyRegionBones";

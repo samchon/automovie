@@ -8,6 +8,19 @@ import type { IAutoMovieProficiency } from "../skill/IAutoMovieProficiency";
 /**
  * Staging data for arranging performers as an ensemble.
  */
+/**
+ * A group of people as one subject: its members resolved from the group's
+ * input, handed to a performance as performers and chains, and the seeded
+ * choices an author makes over them.
+ *
+ * Nothing here writes motion: each member performs the vocabulary's actions the
+ * author's `build` appends. Attributes shape how and when, never what: an
+ * outcome such as five misfires is the author's count, and `pick` only chooses
+ * which members it falls on. Every draw is keyed by the chain seed, the
+ * ensemble, the member's index and the quantity, so adding a member leaves the
+ * others' bodies, attributes and roles bit-identical; discipline replaces the
+ * drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
+ */
 export namespace IAutoMovieMotionHumanEnsemble {
   /**
    * A group of people written once: its members are performers of the grammar,
@@ -88,22 +101,7 @@ export namespace IAutoMovieMotionHumanEnsemble {
       member: IAutoMovieMotionHumanEnsemble.IMemberRef,
     ) => IAutoMovieMotionHumanEnsemble.Detail;
   }
-}
 
-/**
- * A group of people as one subject: its members resolved from the group's
- * input, handed to a performance as performers and chains, and the seeded
- * choices an author makes over them.
- *
- * Nothing here writes motion: each member performs the vocabulary's actions the
- * author's `build` appends. Attributes shape how and when, never what: an
- * outcome such as five misfires is the author's count, and `pick` only chooses
- * which members it falls on. Every draw is keyed by the chain seed, the
- * ensemble, the member's index and the quantity, so adding a member leaves the
- * others' bodies, attributes and roles bit-identical; discipline replaces the
- * drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
- */
-export namespace IAutoMovieMotionHumanEnsemble {
   /**
    * A member's desired speed and delay as the pass draws them: its gait's speed
    * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,

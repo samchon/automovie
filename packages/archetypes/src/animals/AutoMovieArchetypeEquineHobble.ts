@@ -10,7 +10,7 @@ import {
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "../core";
-import { AnnularFitting } from "./internal/AnnularFitting";
+import { AnnularFitting } from "./fittings/AnnularFitting";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 
 /** The pose's frame: the hobble is posed in world coordinates. */

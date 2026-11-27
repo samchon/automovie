@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { createHalter as createHalterImplementation } from "./internal/createHalter";
+import { createHalter as createHalterImplementation } from "./fittings/createHalter";
 
 /** Public operations for Auto Movie Archetype Halter. */
 export namespace AutoMovieArchetypeHalter {

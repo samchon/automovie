@@ -1,14 +1,12 @@
 import type {
   IAutoMovieHumanSkeleton,
   IAutoMoviePolygonBodyCue,
-  IAutoMovieRigidTransform,
-} from "@automovie/interface";
-import type * as THREE from "three";
-import type {
   IAutoMovieProductionFrameRate,
   IAutoMovieProductionRenderLayer,
+  IAutoMovieRigidTransform,
   IAutoMovieShot,
 } from "@automovie/interface";
+import type * as THREE from "three";
 import type { AutoMovieHumanCartoon } from "./AutoMovieHumanCartoon.js";
 import { buildHumanPolygon as buildHumanPolygonImplementation } from "./internal/buildHumanPolygon.js";
 import { buildPolygonShotActor as buildPolygonShotActorImplementation } from "./internal/buildPolygonShotActor.js";

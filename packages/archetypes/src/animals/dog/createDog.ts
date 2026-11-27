@@ -12,12 +12,12 @@ import { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedB
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
 import "../AutoMovieArchetypeQuadrupedLead";
 import { QuadrupedAnimal } from "../QuadrupedAnimal";
-import { buildDogBody } from "../dog/buildDogBody";
-import { DOG_BODY_MEASURES } from "../dog/constants/DOG_BODY_MEASURES";
-import "../dog/dogModelDimensions";
-import "../dog/measureDogNeckLength";
-import type { IDogBodyMeasures } from "../dog/structures/IDogBodyMeasures";
-import type { DogCohort } from "../dog/typings/DogCohort";
+import { buildDogBody } from "./buildDogBody";
+import { DOG_BODY_MEASURES } from "./constants/DOG_BODY_MEASURES";
+import "./dogModelDimensions";
+import "./measureDogNeckLength";
+import type { IDogBodyMeasures } from "./structures/IDogBodyMeasures";
+import type { DogCohort } from "./typings/DogCohort";
 
 /**
  * A coarse Husky prototype from one published Pet, Show or Sled cohort mean.

@@ -8,9 +8,9 @@ import {
 import { AutoMovieArchetypeDeer } from "../AutoMovieArchetypeDeer";
 import type { AutoMovieArchetypeQuadrupedBody } from "../AutoMovieArchetypeQuadrupedBody";
 import { AutoMovieArchetypeQuadrupedHeadAttachment } from "../AutoMovieArchetypeQuadrupedHeadAttachment";
-import { DeerCohorts } from "../deer/DeerCohorts";
-import { buildDeerBody } from "../deer/buildDeerBody";
-import { createCohortQuadruped } from "./createCohortQuadruped";
+import { DeerCohorts } from "./DeerCohorts";
+import { buildDeerBody } from "./buildDeerBody";
+import { createCohortQuadruped } from "../quadruped/createCohortQuadruped";
 
 /**
  * A coarse adult Boso sika reference with sex-matched controls and male

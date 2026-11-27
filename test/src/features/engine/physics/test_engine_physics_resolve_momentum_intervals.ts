@@ -43,11 +43,11 @@ export function test_engine_physics_resolve_momentum_intervals(): void {
       },
     ],
   };
-  const before: P.IPosed = {
+  const before: AutoMovieEngineKinematics.IPosedBody = {
     centre: { x: 0, y: 0, z: 0 },
     parts: [part(3, { x: 0, y: 0, z: 0 }, { x: 2, y: 3, z: 5 }, identity)],
   };
-  const after: P.IPosed = {
+  const after: AutoMovieEngineKinematics.IPosedBody = {
     centre: { x: 2, y: -1, z: 0.5 },
     parts: [
       part(
@@ -58,8 +58,15 @@ export function test_engine_physics_resolve_momentum_intervals(): void {
       ),
     ],
   };
-  const read: ReturnType<typeof P.prepareIntervals> = P.prepareIntervals();
-  const first: P.IMomentum = read(model, before, after, 0.5);
+  const read: ReturnType<
+    typeof AutoMovieEngineKinematics.prepareAutoMovieMomentumIntervals
+  > = AutoMovieEngineKinematics.prepareAutoMovieMomentumIntervals();
+  const first: AutoMovieEngineKinematics.IMomentumMeasure = read(
+    model,
+    before,
+    after,
+    0.5,
+  );
   TestValidator.predicate(
     "translation plus cardinal spin over half a second",
     vclose(first.velocity, { x: 4, y: -2, z: 1 }, PhysicalTolerance.ROUNDING) &&
@@ -74,7 +81,12 @@ export function test_engine_physics_resolve_momentum_intervals(): void {
         PhysicalTolerance.ROUNDING,
       ),
   );
-  const slower: P.IMomentum = read(model, before, after, 1);
+  const slower: AutoMovieEngineKinematics.IMomentumMeasure = read(
+    model,
+    before,
+    after,
+    1,
+  );
   TestValidator.predicate(
     "same endpoint pair obeys the current duration",
     vclose(
@@ -155,14 +167,14 @@ export function test_engine_physics_resolve_momentum_intervals(): void {
     ),
   };
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-  const start: P.IPosed = {
+  const start: AutoMovieEngineKinematics.IPosedBody = {
     centre: { ...zero },
     parts: [
       part(1, { x: -1, y: 0, z: 0 }, zero, identity),
       part(1, { x: 1, y: 0, z: 0 }, zero, identity),
     ],
   };
-  const end: P.IPosed = {
+  const end: AutoMovieEngineKinematics.IPosedBody = {
     centre: { ...zero },
     parts: [
       part(1, { x: -1, y: 1, z: 0 }, zero, identity),
@@ -244,8 +256,11 @@ function reentrantReaders(): void {
       z: 4,
     },
   };
-  const before: P.IPosed = { centre: origin, parts: [first] };
-  const after: P.IPosed = {
+  const before: AutoMovieEngineKinematics.IPosedBody = {
+    centre: origin,
+    parts: [first],
+  };
+  const after: AutoMovieEngineKinematics.IPosedBody = {
     centre: origin,
     parts: [
       part(1, origin, moments, {
@@ -256,11 +271,11 @@ function reentrantReaders(): void {
       }),
     ],
   };
-  const nestedBefore: P.IPosed = {
+  const nestedBefore: AutoMovieEngineKinematics.IPosedBody = {
     centre: origin,
     parts: [part(1, origin, moments, identity)],
   };
-  const nestedAfter: P.IPosed = {
+  const nestedAfter: AutoMovieEngineKinematics.IPosedBody = {
     centre: origin,
     parts: [
       part(1, origin, moments, {
@@ -273,8 +288,11 @@ function reentrantReaders(): void {
   };
   const tensor: ReturnType<typeof AutoMoviePhysicalInertiaTensor.prepare> =
     AutoMoviePhysicalInertiaTensor.prepare();
-  const interval: ReturnType<typeof P.prepareIntervals> = P.prepareIntervals();
-  const prepared: M.IPrepared = M(model);
+  const interval: ReturnType<
+    typeof AutoMovieEngineKinematics.prepareAutoMovieMomentumIntervals
+  > = AutoMovieEngineKinematics.prepareAutoMovieMomentumIntervals();
+  const prepared: AutoMovieEngineKinematics.IPreparedMassModel =
+    AutoMovieEngineKinematics.prepareAutoMovieMassModel(model);
   const findings: string[] = [];
   const readers: readonly {
     name: string;
@@ -307,9 +325,19 @@ function reentrantReaders(): void {
     {
       name: "mass model",
       outer: (): IAutoMovieVector3 =>
-        M.between(prepared, before, after, 1).angular,
+        AutoMovieEngineKinematics.prepareAutoMovieMassModelBetween(
+          prepared,
+          before,
+          after,
+          1,
+        ).angular,
       nested: (): IAutoMovieVector3 =>
-        M.between(prepared, nestedBefore, nestedAfter, 0.25).angular,
+        AutoMovieEngineKinematics.prepareAutoMovieMassModelBetween(
+          prepared,
+          nestedBefore,
+          nestedAfter,
+          0.25,
+        ).angular,
     },
   ];
   try {
@@ -394,7 +422,7 @@ function reentrantReaders(): void {
     }
   } finally {
     enter = undefined;
-    M.release(prepared);
+    AutoMovieEngineKinematics.releaseAutoMovieMassModel(prepared);
   }
   TestValidator.equals(
     "all three prepared consumers retain reentrant and post-throw semantics",

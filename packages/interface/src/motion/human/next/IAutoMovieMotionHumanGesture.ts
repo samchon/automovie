@@ -10,6 +10,42 @@ import type { IAutoMovieMotionHumanHandShape } from "../posture/IAutoMovieMotion
 /**
  * Authoring inputs and presets for gesture and arm phrase operations.
  */
+/**
+ * A communicative gesture while standing: the hand, head or trunk moves through
+ * Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind): preparation from
+ * rest to the stroke's start, the stroke that carries the meaning, an optional
+ * post-stroke hold, and retraction to rest.
+ *
+ * The feet stay planted and the body stands as the stand law places it;
+ * performed over a carrier (a walk, a seat, a ride) the body is the carrier's,
+ * instant by instant, and the gesture takes only the parts it moves. Each
+ * moving hand is an effector goal ({@link gestureStroke}), solved by inverse
+ * kinematics with a natural elbow hint widened by the gesture and the Effort;
+ * the moving arms are planned over the whole gesture as one trajectory
+ * (`gestureHands.planned`): from what the entry left to the stroke's goals in
+ * the preparation, on them through the stroke, and back to the relaxed hanging
+ * arm's in the retraction, while the fingers take the gesture's shape and leave
+ * it on the same share. Head, shoulder and trunk gestures add their joint
+ * angles under an envelope that rises in the preparation and falls in the
+ * retraction; a bow pitches the whole trunk about the hips by its depth (15, 30
+ * or 45 degrees are the conventional light, ordinary and deep bows) while the
+ * hips move back to keep the body balanced over the feet
+ * ({@link HumanBalance}).
+ *
+ * Transport time is the free-space time of the distance moved
+ * (`AutoMovieMotionHumanTiming.transport`), 0.3 s for head and shoulder
+ * gestures and one second per 30 degrees of a bow (provisional). The Effort's
+ * tempo scales every phase, its extent the gesture's size and its elbow term
+ * the arm's width ({@link HumanEffort}).
+ *
+ * The plan names the hands it moves (`hands`), so a gesture with a hand that
+ * holds a prop is refused, naming the free hand.
+ *
+ * Events: `prepare`, `strokeStart`, `strokeEnd`, `retract`. A gesture may be
+ * cut into another during its retraction, making a gesture unit, and into
+ * standing or moving before its stroke or after it; its stroke is never cut,
+ * since a cut stroke loses the gesture's meaning.
+ */
 export namespace IAutoMovieMotionHumanGesture {
   /** The `gesture` parameters a preset fixes: `kind`. */
   export type IGestureKindPreset = Pick<
@@ -160,45 +196,7 @@ export namespace IAutoMovieMotionHumanGesture {
     IAutoMovieMotionHumanArmPhrase.IParams,
     "phrase" | "target" | "surface" | "shape" | "point" | "hold"
   >;
-}
 
-/**
- * A communicative gesture while standing: the hand, head or trunk moves through
- * Kendon's phases (Kendon 1980; McNeill 1992, Hand and Mind): preparation from
- * rest to the stroke's start, the stroke that carries the meaning, an optional
- * post-stroke hold, and retraction to rest.
- *
- * The feet stay planted and the body stands as the stand law places it;
- * performed over a carrier (a walk, a seat, a ride) the body is the carrier's,
- * instant by instant, and the gesture takes only the parts it moves. Each
- * moving hand is an effector goal ({@link gestureStroke}), solved by inverse
- * kinematics with a natural elbow hint widened by the gesture and the Effort;
- * the moving arms are planned over the whole gesture as one trajectory
- * (`gestureHands.planned`): from what the entry left to the stroke's goals in
- * the preparation, on them through the stroke, and back to the relaxed hanging
- * arm's in the retraction, while the fingers take the gesture's shape and leave
- * it on the same share. Head, shoulder and trunk gestures add their joint
- * angles under an envelope that rises in the preparation and falls in the
- * retraction; a bow pitches the whole trunk about the hips by its depth (15, 30
- * or 45 degrees are the conventional light, ordinary and deep bows) while the
- * hips move back to keep the body balanced over the feet
- * ({@link HumanBalance}).
- *
- * Transport time is the free-space time of the distance moved
- * (`AutoMovieMotionHumanTiming.transport`), 0.3 s for head and shoulder
- * gestures and one second per 30 degrees of a bow (provisional). The Effort's
- * tempo scales every phase, its extent the gesture's size and its elbow term
- * the arm's width ({@link HumanEffort}).
- *
- * The plan names the hands it moves (`hands`), so a gesture with a hand that
- * holds a prop is refused, naming the free hand.
- *
- * Events: `prepare`, `strokeStart`, `strokeEnd`, `retract`. A gesture may be
- * cut into another during its retraction, making a gesture unit, and into
- * standing or moving before its stroke or after it; its stroke is never cut,
- * since a cut stroke loses the gesture's meaning.
- */
-export namespace IAutoMovieMotionHumanGesture {
   /**
    * Parameters of a gesture: which gesture, which hand, what it points at or
    * touches, how many strokes, the hold, a bow's depth and the movement

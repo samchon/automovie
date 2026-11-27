@@ -1,5 +1,9 @@
-import { AutoMovieEngineKinematics } from "@automovie/engine";
-import type { IAutoMovieBodyMeasure, IAutoMovieHumanoidSurfaces, IAutoMoviePhysicalProfile, IAutoMovieSkeleton } from "@automovie/interface";
+import type {
+  IAutoMovieBodyMeasure,
+  IAutoMovieHumanoidSurfaces,
+  IAutoMoviePhysicalProfile,
+  IAutoMovieSkeleton,
+} from "@automovie/interface";
 
 /**
  * One stored person of the ANSUR 1988 boundary population: the canonical rig,
@@ -33,13 +37,15 @@ export interface IHumanFixture {
 
   /**
    * The anthropometric measure of the rig and profile, metres and kilograms:
-   * `AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces(skeleton, profile).measure`.
+   * `AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces(skeleton,
+   * profile).measure`.
    */
   measure: IAutoMovieBodyMeasure;
 
   /**
    * The anatomical regions and sockets as bone-local frames:
-   * `AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces(skeleton, profile).surfaces`.
+   * `AutoMovieEngineKinematics.measureAutoMovieHumanoidBodyWithSurfaces(skeleton,
+   * profile).surfaces`.
    */
   surfaces: IAutoMovieHumanoidSurfaces.ISurfaces;
 }

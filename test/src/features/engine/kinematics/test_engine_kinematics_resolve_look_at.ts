@@ -1,4 +1,8 @@
-import { AutoMovieEngineKinematics, Quaternion } from "@automovie/engine";
+import {
+  AutoMovieEngineKinematics,
+  AutoMovieEngineValidation,
+  Quaternion,
+} from "@automovie/engine";
 import {
   AutoMovieExpressionPreset,
   AutoMovieHumanoidBone,
@@ -161,11 +165,11 @@ export function test_engine_kinematics_resolve_look_at(): void {
   TestValidator.equals(
     "default ROM admits the gaze and refuses an eye roll",
     [
-      validatePose({ pose: left.pose, skeleton: RIG }).items.length,
-      validatePose({
-        pose: makePose([joint("leftEye", { abduction: 5 })]),
-        skeleton: RIG,
-      }).items.length > 0,
+      AutoMovieEngineValidation.validatePoseResult(left.pose, RIG).items.length,
+      AutoMovieEngineValidation.validatePoseResult(
+        makePose([joint("leftEye", { abduction: 5 })]),
+        RIG,
+      ).items.length > 0,
     ],
     [0, true],
   );

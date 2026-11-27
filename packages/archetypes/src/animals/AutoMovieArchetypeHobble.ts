@@ -1,5 +1,5 @@
 import { type AutoMovieArchetype } from "../core/index";
-import { createHobble as createHobbleImplementation } from "./internal/createHobble";
+import { createHobble as createHobbleImplementation } from "./fittings/createHobble";
 
 /** Public operations for Auto Movie Archetype Hobble. */
 export namespace AutoMovieArchetypeHobble {

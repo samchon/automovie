@@ -12,24 +12,6 @@ import type { IAutoMovieMotionHumanBalance } from "../law/IAutoMovieMotionHumanB
 
 
 /** The parameter types of the Support methods. */
-export namespace IAutoMovieMotionHumanSupport {
-  /**
-   * A support preset: the stances a row of `support` fixes, so a movement over
-   * one surface is data over the one planner.
-   * `AutoMovieMotionHumanSupport.SCRAMBLE` and `SLIDE_OFF` are its data.
-   */
-  export interface IPreset {
-    /** The stances in order, as `IAutoMovieMotionHumanSupport.IParams.stances`. */
-    stances: readonly IAutoMovieMotionHumanSupport.IStance[];
-  }
-
-  /**
-   * The parameters a support row leaves to the composition: those of `support`
-   * without the stances its preset fixes.
-   */
-  export type IRow = Omit<IAutoMovieMotionHumanSupport.IParams, "stances">;
-}
-
 /**
  * Moving the body's weight across a sequence of supports: each stance's
  * contacts (`IAutoMovieMotionHumanSupport.IStance`) solved into one static key
@@ -69,6 +51,22 @@ export namespace IAutoMovieMotionHumanSupport {
  * stance's own event) when stance `i` is held alone.
  */
 export namespace IAutoMovieMotionHumanSupport {
+  /**
+   * A support preset: the stances a row of `support` fixes, so a movement over
+   * one surface is data over the one planner.
+   * `AutoMovieMotionHumanSupport.SCRAMBLE` and `SLIDE_OFF` are its data.
+   */
+  export interface IPreset {
+    /** The stances in order, as `IAutoMovieMotionHumanSupport.IParams.stances`. */
+    stances: readonly IAutoMovieMotionHumanSupport.IStance[];
+  }
+
+  /**
+   * The parameters a support row leaves to the composition: those of `support`
+   * without the stances its preset fixes.
+   */
+  export type IRow = Omit<IAutoMovieMotionHumanSupport.IParams, "stances">;
+
   /** Parameters. */
   export interface IParams {
     /**
