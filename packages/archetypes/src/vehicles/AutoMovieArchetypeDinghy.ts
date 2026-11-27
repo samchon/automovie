@@ -275,8 +275,8 @@ function mainRig(builder: Build, length: number): void {
   });
   builder.span(
     "main-sheet-return",
-    { affordance: "clew" },
-    { affordance: "sheetBlock" },
+    { type: "affordance", affordance: "clew" },
+    { type: "affordance", affordance: "sheetBlock" },
     0.008,
     {
       color: "#d7be77",
@@ -284,8 +284,8 @@ function mainRig(builder: Build, length: number): void {
   );
   builder.span(
     "main-sheet-tail",
-    { affordance: "sheetBlock" },
-    { affordance: "mainSheet", overhang: 0.08 },
+    { type: "affordance", affordance: "sheetBlock" },
+    { type: "affordance", affordance: "mainSheet", overhang: 0.08 },
     0.008,
     {
       color: "#d7be77",

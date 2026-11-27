@@ -31,8 +31,8 @@ export function test_archetypes_core_held_span(): void {
   };
   const span: AutoMovieArchetypeSpan.ISpan = {
     id: "run",
-    from: { affordance: hand.id, overhang: 0.5 },
-    to: { affordance: pin.id, overhang: 0.25 },
+    from: { type: "affordance", affordance: hand.id, overhang: 0.5 },
+    to: { type: "affordance", affordance: pin.id, overhang: 0.25 },
     radius: 0.01,
     length: 4,
   };
@@ -82,7 +82,7 @@ export function test_archetypes_core_held_span(): void {
     (): unknown =>
       AutoMovieArchetypeSpan.pose(
         "line",
-        [{ ...span, from: { affordance: hand.id, overhang: 0.25 } }],
+        [{ ...span, from: { type: "affordance", affordance: hand.id, overhang: 0.25 } }],
         [line],
         contacts,
       ),
@@ -101,8 +101,8 @@ export function test_archetypes_core_held_span(): void {
   const maximum: number = Number.MAX_VALUE;
   const straight: AutoMovieArchetypeSpan.ISpan = {
     ...span,
-    from: { affordance: hand.id },
-    to: { affordance: pin.id },
+    from: { type: "affordance", affordance: hand.id },
+    to: { type: "affordance", affordance: pin.id },
   };
   TestValidator.equals(
     "a bare span may use the largest representable length",
@@ -117,7 +117,7 @@ export function test_archetypes_core_held_span(): void {
   for (const [declaration, at] of [
     [straight, anchors(-maximum, maximum)],
     [
-      { ...straight, from: { affordance: hand.id, overhang: 2 ** 1023 } },
+      { ...straight, from: { type: "affordance", affordance: hand.id, overhang: 2 ** 1023 } },
       anchors(0, 2 ** 1023),
     ],
   ] as const) {

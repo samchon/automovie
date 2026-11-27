@@ -112,7 +112,7 @@ export namespace QuadrupedRidePose {
     const held: ReadonlySet<string> = new Set(
       animal.spans.flatMap((span: AutoMovieArchetypeSpan.ISpan): string[] =>
         [span.from, span.to].flatMap(
-          (end: AutoMovieArchetypeSpan.End): string[] =>
+          (end: AutoMovieArchetypeSpan.IEnd): string[] =>
             end.affordance !== undefined && end.overhang !== undefined
               ? [end.affordance]
               : [],

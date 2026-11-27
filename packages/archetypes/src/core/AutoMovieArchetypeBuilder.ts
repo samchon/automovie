@@ -213,8 +213,8 @@ export class AutoMovieArchetypeBuilder<
    */
   public span(
     id: string,
-    from: AutoMovieArchetypeSpan.End,
-    to: AutoMovieArchetypeSpan.End,
+    from: AutoMovieArchetypeSpan.IEnd,
+    to: AutoMovieArchetypeSpan.IEnd,
     radius: number,
     options?: AutoMovieArchetypeBuilder.IOptions,
     length?: number,
@@ -245,7 +245,7 @@ export class AutoMovieArchetypeBuilder<
   public anchor(
     id: string,
     point: IAutoMovieVector3,
-  ): AutoMovieArchetypeSpan.End {
+  ): AutoMovieArchetypeSpan.IPartEnd {
     return archetypeSpanAnchor(
       this.#props.draw.archetype,
       this.#inventory.parts,

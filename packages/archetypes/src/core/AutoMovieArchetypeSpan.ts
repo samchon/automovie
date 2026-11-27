@@ -24,36 +24,46 @@ import { resolveArchetypeSpanParts } from "./internal/resolveArchetypeSpanParts"
  */
 export namespace AutoMovieArchetypeSpan {
   /** Where one end of a span is attached. */
-  export type End =
-    | {
-        /** The part the end is fixed to. */
-        part: string;
+  export type IEnd = IPartEnd | IAffordanceEnd;
 
-        /** The point in the part's own coordinates, metres. */
-        at: IAutoMovieVector3;
+  /** An endpoint fixed to a point in a part's local frame. */
+  export interface IPartEnd {
+    /** Identifies the part-anchor variant. */
+    type: "part";
 
-        /** A part end names no affordance. */
-        affordance?: never;
+    /** The part the end is fixed to. */
+    part: string;
 
-        /** Held overhang belongs only to an affordance anchor. */
-        overhang?: never;
-      }
-    | {
-        /** The affordance whose origin the end follows. */
-        affordance: string;
+    /** The point in the part's own coordinates, metres. */
+    at: IAutoMovieVector3;
 
-        /** An affordance end names no part. */
-        part?: never;
+    /** A part end names no affordance. */
+    affordance?: never;
 
-        /** An affordance end takes the affordance's origin. */
-        at?: never;
+    /** Held overhang belongs only to an affordance anchor. */
+    overhang?: never;
+  }
 
-        /**
-         * Metres beyond the grip away from the opposite anchor; when present,
-         * the grip's +X follows the span's unoriented line.
-         */
-        overhang?: number;
-      };
+  /** An endpoint fixed to an affordance's origin. */
+  export interface IAffordanceEnd {
+    /** Identifies the affordance-anchor variant. */
+    type: "affordance";
+
+    /** The affordance whose origin the end follows. */
+    affordance: string;
+
+    /** An affordance end names no part. */
+    part?: never;
+
+    /** An affordance end takes the affordance's origin. */
+    at?: never;
+
+    /**
+     * Metres beyond the grip away from the opposite anchor. When present,
+     * the grip's +X follows the span's unoriented line.
+     */
+    overhang?: number;
+  }
 
   /** A span as an archetype records it. */
   export interface ISpan {
@@ -61,10 +71,10 @@ export namespace AutoMovieArchetypeSpan {
     id: string;
 
     /** One end. */
-    from: End;
+    from: IEnd;
 
     /** The other end. */
-    to: End;
+    to: IEnd;
 
     /** The line's radius, metres. */
     radius: number;
@@ -115,7 +125,7 @@ export namespace AutoMovieArchetypeSpan {
    */
   export function locate(
     archetype: string,
-    end: End,
+    end: IEnd,
     parts: readonly IAutoMovieModelPart[],
     affordances: readonly IAutoMovieAffordance[],
   ): IAutoMovieVector3 {
@@ -313,7 +323,7 @@ export namespace AutoMovieArchetypeSpan {
   }
 
   /** A held extension is a physical length, never a missing or negative anchor. */
-  function overhang(archetype: string, id: string, end: End): number {
+  function overhang(archetype: string, id: string, end: IEnd): number {
     const value: number = end.overhang === undefined ? 0 : end.overhang;
     if (
       !(value >= 0) ||

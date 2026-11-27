@@ -63,10 +63,37 @@ export namespace AutoMovieArchetypeRide {
    * One point of a line: an end on the leader's posed model, one on the towed
    * support's, or a point a performer holds it at.
    */
-  export type ILinePoint =
-    | { leader: AutoMovieArchetypeSpan.End; trailer?: never; held?: never }
-    | { trailer: AutoMovieArchetypeSpan.End; leader?: never; held?: never }
-    | ILineHeld;
+  export type ILinePoint = ILineLeaderPoint | ILineTrailerPoint | ILineHeld;
+
+  /** A point attached to the leader's posed model. */
+  export interface ILineLeaderPoint {
+    /** Identifies a leader anchor. */
+    type: "leader";
+
+    /** The end on the leader's model. */
+    leader: AutoMovieArchetypeSpan.IEnd;
+
+    /** A leader anchor has no trailer connection. */
+    trailer?: never;
+
+    /** A leader anchor has no held point. */
+    held?: never;
+  }
+
+  /** A point attached to the towed support's posed model. */
+  export interface ILineTrailerPoint {
+    /** Identifies a trailer anchor. */
+    type: "trailer";
+
+    /** The end on the towed support's model. */
+    trailer: AutoMovieArchetypeSpan.IEnd;
+
+    /** A trailer anchor has no leader connection. */
+    leader?: never;
+
+    /** A trailer anchor has no held point. */
+    held?: never;
+  }
 
   /**
    * A line point held by a performer: its world position at each film second,
@@ -74,11 +101,16 @@ export namespace AutoMovieArchetypeRide {
    * shakes, takes up or gives it.
    */
   export interface ILineHeld {
+    /** Identifies a held point. */
+    type: "held";
+
     /** The held point in the world, metres, at a film second. */
     held: (seconds: number) => IAutoMovieVector3;
-    /** Absent: a held point is on neither model. */
+
+    /** A held point has no leader connection. */
     leader?: never;
-    /** Absent: a held point is on neither model. */
+
+    /** A held point has no trailer connection. */
     trailer?: never;
   }
 
@@ -414,7 +446,7 @@ export namespace AutoMovieArchetypeRide {
         affordances: readonly IAutoMovieAffordance[];
       }>,
       where: IAutoMovieTransform,
-      end: AutoMovieArchetypeSpan.End,
+      end: AutoMovieArchetypeSpan.IEnd,
     ): IAutoMovieVector3 =>
       AutoMovieArchetypeFrame.point(
         where,
@@ -481,12 +513,13 @@ export namespace AutoMovieArchetypeRide {
             "The posed source coupling does not close on its declared supported geometry",
           fix: "Keep the source coupling on its declared axle/drawbar and preserve those frames in pose.",
         });
-      const pointAt = (part: ILinePoint): IAutoMovieVector3 =>
-        part.leader !== undefined
-          ? world(sample.archetype, sample.placement, part.leader)
-          : part.trailer !== undefined
-            ? world(steered, placement, part.trailer)
-            : { ...part.held(seconds) };
+      const pointAt = (part: ILinePoint): IAutoMovieVector3 => {
+        if (part.type === "leader")
+          return world(sample.archetype, sample.placement, part.leader);
+        if (part.type === "trailer")
+          return world(steered, placement, part.trailer);
+        return { ...part.held(seconds) };
+      };
       return {
         placement,
         frame: (id: Id): IAutoMovieTransform =>

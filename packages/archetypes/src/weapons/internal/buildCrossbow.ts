@@ -124,8 +124,8 @@ export function buildCrossbow(
   ] as const)
     builder.span(
       id,
-      { part, at: v(0, limb / 2, 0) },
-      { affordance: "nock" },
+      { type: "part", part, at: v(0, limb / 2, 0) },
+      { type: "affordance", affordance: "nock" },
       AutoMovieArchetypeBow.STRING,
       { color: "#e8e1cf" },
     );

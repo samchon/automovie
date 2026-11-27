@@ -152,11 +152,11 @@ export class AutoMovieArchetypeAssembly<
       const prefix = <Own extends string>(own: Own): `${K}/${Own}` =>
         `${key}/${own}`;
       const end = (
-        e: AutoMovieArchetypeSpan.End,
-      ): AutoMovieArchetypeSpan.End =>
+        e: AutoMovieArchetypeSpan.IEnd,
+      ): AutoMovieArchetypeSpan.IEnd =>
         e.affordance !== undefined
-          ? { affordance: prefix(e.affordance) }
-          : { part: prefix(e.part), at: e.at };
+          ? { type: "affordance", affordance: prefix(e.affordance) }
+          : { type: "part", part: prefix(e.part), at: e.at };
       for (const part of rest.parts) {
         const cell: AutoMovieArchetypeConvexCell.ICell | undefined =
           memberCells.get(part.id);

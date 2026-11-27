@@ -180,7 +180,7 @@ export namespace EquineSaddle {
     // The occupied held run stays on the line even as the bit moves.
     builder.span(
       `rein-${side}`,
-      { affordance: `${side}Rein`, overhang: HELD.rein / 2 },
+      { type: "affordance", affordance: `${side}Rein`, overhang: HELD.rein / 2 },
       builder.anchor("head", bit),
       d.reinWidth / 2,
       { color: "#4a3324", share: 0 },
@@ -411,7 +411,7 @@ export namespace EquineSaddle {
     });
     builder.span(
       "lead",
-      { affordance: "lead", overhang: HELD.lead / 2 },
+      { type: "affordance", affordance: "lead", overhang: HELD.lead / 2 },
       builder.anchor("head", halter),
       LEAD / 2,
       { color: "#d8d2c4", share: 0 },

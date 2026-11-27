@@ -24,7 +24,7 @@ export function archetypeSpanAnchor(
   parts: readonly IAutoMovieModelPart[],
   id: string,
   point: IAutoMovieVector3,
-): AutoMovieArchetypeSpan.End {
+): AutoMovieArchetypeSpan.IPartEnd {
   const part: IAutoMovieModelPart | undefined = parts.find(
     (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
   );
@@ -71,5 +71,5 @@ export function archetypeSpanAnchor(
     Quaternion.inverse(frame.rotation),
     Vector3.subtract(point, frame.translation),
   );
-  return { part: id, at: local };
+  return { type: "part", part: id, at: local };
 }

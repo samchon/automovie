@@ -44,14 +44,14 @@ export function test_archetype_contract_span_dependencies(): void {
       .box("c", { x: 0.1, y: 0.1, z: 0.1 }, { x: 1, y: 1, z: 0 })
       .span(
         "first",
-        { part: "a", at: { x: 0, y: 0, z: 0 } },
-        { part: "b", at: { x: 0, y: 0, z: 0 } },
+        { type: "part", part: "a", at: { x: 0, y: 0, z: 0 } },
+        { type: "part", part: "b", at: { x: 0, y: 0, z: 0 } },
         0.01,
       )
       .span(
         "second",
-        { part: "first", at: { x: 0, y: 0.25, z: 0 } },
-        { part: "c", at: { x: 0, y: 0, z: 0 } },
+        { type: "part", part: "first", at: { x: 0, y: 0.25, z: 0 } },
+        { type: "part", part: "c", at: { x: 0, y: 0, z: 0 } },
         0.005,
       )
       .build(2);
@@ -106,13 +106,13 @@ export function test_archetype_contract_span_dependencies(): void {
   const cyclic: AutoMovieArchetypeSpan.ISpan[] = source.spans.map(
     (span: AutoMovieArchetypeSpan.ISpan): AutoMovieArchetypeSpan.ISpan =>
       span.id === "first"
-        ? { ...span, from: { part: "second", at: { x: 0, y: 0, z: 0 } } }
+        ? { ...span, from: { type: "part", part: "second", at: { x: 0, y: 0, z: 0 } } }
         : span,
   );
   const self: AutoMovieArchetypeSpan.ISpan[] = source.spans.map(
     (span: AutoMovieArchetypeSpan.ISpan): AutoMovieArchetypeSpan.ISpan =>
       span.id === "first"
-        ? { ...span, from: { part: "first", at: { x: 0, y: 0, z: 0 } } }
+        ? { ...span, from: { type: "part", part: "first", at: { x: 0, y: 0, z: 0 } } }
         : span,
   );
   const wrong: IAutoMovieModelPart[] = parts.map(

@@ -137,7 +137,8 @@ export namespace CartFit {
       });
     const spread: number = AutoMovieArchetypeEquine.rig(cart.dimensions).draft
       .x;
-    const ball = (part: string): AutoMovieArchetypeSpan.End => ({
+    const ball = (part: string): AutoMovieArchetypeSpan.IEnd => ({
+      type: "part",
       part,
       at: { x: 0, y: 0, z: 0 },
     });
@@ -149,9 +150,11 @@ export namespace CartFit {
         id: `trace-${side}`,
         radius: AutoMovieArchetypeCart.TRACE,
         points: [
-          { leader: ball(EquineHarness.ENDS.draft[side]) },
+          { type: "leader", leader: ball(EquineHarness.ENDS.draft[side]) },
           {
+            type: "trailer",
             trailer: {
+              type: "part",
               part: "single-tree",
               at: { x: 0, y: sign * spread, z: 0 },
             },
@@ -167,12 +170,19 @@ export namespace CartFit {
         id: `line-${side}`,
         radius: AutoMovieArchetypeCart.LINE / 2,
         points: [
-          { leader: ball(EquineHarness.ENDS.bit[side]) },
-          { leader: ball(EquineHarness.ENDS.ring[side]) },
-          { leader: ball(EquineHarness.ENDS.terret[side]) },
+          { type: "leader", leader: ball(EquineHarness.ENDS.bit[side]) },
+          { type: "leader", leader: ball(EquineHarness.ENDS.ring[side]) },
+          { type: "leader", leader: ball(EquineHarness.ENDS.terret[side]) },
           held === undefined
-            ? { trailer: { affordance: `${side}LineEnd` } }
+            ? {
+                type: "trailer",
+                trailer: {
+                  type: "affordance",
+                  affordance: `${side}LineEnd`,
+                },
+              }
             : {
+                type: "held",
                 held: (seconds: number): IAutoMovieVector3 =>
                   held(side, seconds),
               },
