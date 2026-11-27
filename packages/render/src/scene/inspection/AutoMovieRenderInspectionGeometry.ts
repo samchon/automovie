@@ -1,9 +1,12 @@
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
+import type * as THREE from "three";
+import { measureAutoMovieInspectionDefectsImplementation } from "./internal/measureAutoMovieInspectionDefectsImplementation.js";
+import { measureAutoMovieInspectionMeshesImplementation } from "./internal/measureAutoMovieInspectionMeshesImplementation.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import type { Mesh, Object3D } from "three";
 import type {
   IAutoMovieInspectionDrawable,
   IAutoMovieMark,
+  IAutoMovieMeshDefect,
 } from "@automovie/interface";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 
@@ -19,7 +22,7 @@ export namespace AutoMovieRenderInspectionGeometry {
     /** Drawn objects with their paths. */
     objects: readonly IAutoMovieInspectionPath[];
     /** Drawn marks with their anchor, or null for world space. */
-    marks: readonly { mark: IAutoMovieMark; anchor: Object3D | null }[];
+    marks: readonly { mark: IAutoMovieMark; anchor: THREE.Object3D | null }[];
     /** Whether a path is measured. */
     choose: (path: string) => boolean;
   }
@@ -44,7 +47,7 @@ export namespace AutoMovieRenderInspectionGeometry {
    * @returns The finite world-space bounds, or null when nothing measured draws.
    */
   export function measureBounds(
-    root: Object3D,
+    root: THREE.Object3D,
   ): IAutoMovieViewerSubjectBounds | null {
     return measureBoundsImplementation(root);
   }
@@ -52,7 +55,7 @@ export namespace AutoMovieRenderInspectionGeometry {
   /** Inputs for measuring one mesh's posed triangle edges. */
   export interface IMeasureEdgesProps {
     /** The mesh to read, drawn and with a position buffer. */
-    mesh: Mesh;
+    mesh: THREE.Mesh;
     /** The mesh's inspection path. */
     path: string;
   }
@@ -100,5 +103,53 @@ export namespace AutoMovieRenderInspectionGeometry {
     props: IMeasurePathsProps,
   ): IAutoMovieInspectionDrawable[] {
     return measurePathsImplementation(props);
+  }
+  /** Named input contract for measuring a mesh's defects. */
+  export namespace MeasureDefects {
+    export interface IProps {
+      /** Drawn mesh with a position buffer. */
+      mesh: THREE.Mesh;
+      /** Inspection path used when reporting a refusal. */
+      path: string;
+      /** Engine defect kinds to retain. */
+      kinds: ReadonlySet<IAutoMovieMeshDefect.Kind>;
+      /** Sliver aspect limit, or null when disabled. */
+      sliver: number | null;
+      /** Cached engine defects by geometry. */
+      measured: Map<THREE.BufferGeometry, IAutoMovieMeshDefect[]>;
+    }
+  }
+  /** Named input and result contracts for inspection mesh measurement. */
+  export namespace MeasureMeshes {
+    export interface IProps {
+      /** Drawn objects and their inspection paths. */
+      drawn: readonly IAutoMovieInspectionPath[];
+      /** Engine defect kinds enabled by the request. */
+      defects: readonly IAutoMovieMeshDefect.Kind[];
+      /** Sliver aspect limit, or null. */
+      sliver: number | null;
+      /** Whether an inspection kind is requested. */
+      asks: (kind: string) => boolean;
+      /** Whether a path is hidden. */
+      hidden: (path: string) => boolean;
+    }
+    export interface IResult {
+      /** Drawn, visible-position meshes before path hiding. */
+      meshes: { path: string; mesh: THREE.Mesh }[];
+      /** Measurements retained after request filtering. */
+      measured: IAutoMovieInspectionMeasured[];
+    }
+  }
+  /** Measure engine defects on one mesh and return posed inspection marks. */
+  export function measureDefects(
+    props: MeasureDefects.IProps,
+  ): IAutoMovieInspectionMeasured {
+    return measureAutoMovieInspectionDefectsImplementation(props);
+  }
+  /** Find and measure the meshes an inspection draws and requests. */
+  export function measureMeshes(
+    props: MeasureMeshes.IProps,
+  ): MeasureMeshes.IResult {
+    return measureAutoMovieInspectionMeshesImplementation(props);
   }
 }

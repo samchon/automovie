@@ -11,7 +11,7 @@ import type {
   IAutoMovieRecoveryTensorConstruction,
   IAutoMovieRecoveryTensorFamiliesInput,
 } from "@automovie/interface";
-import { AutoMovieRecoveryOpenRun, normalizeRecoveryCourse, AutoMovieRecoveryReconstruction, reconstructRecovery, restoreRecoveryCurveBasis } from "@automovie/recovery";
+import { AutoMovieRecoveryOpenRun, normalizeRecoveryCourse, AutoMovieRecoveryReconstruction, restoreRecoveryCurveBasis } from "@automovie/recovery";
 
 /** Browser consumer policy; mathematical limits remain the official Node limits. */
 interface Options {
@@ -95,9 +95,9 @@ export async function ReferenceRuledRealization(
       strips: ReturnType<typeof histogram>;
       primitives: number;
       interactions: ReturnType<typeof histogram>;
-      tensorReports: ReturnType<typeof reconstructRecovery>["tensorReports"];
+      tensorReports: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructRecovery>["tensorReports"];
       analyticReports: ReturnType<
-        typeof reconstructRecovery
+        typeof AutoMovieRecoveryReconstruction.reconstructRecovery
       >["analyticReports"];
       named: {
         members: ReturnType<typeof AutoMovieRecoveryReconstruction.describeNamedDomains>["members"];
@@ -154,7 +154,7 @@ export async function ReferenceRuledRealization(
     unsupportedGroupsWithOpenArcs,
   }: typeof prepared = prepared;
   await pause();
-  const base: ReturnType<typeof reconstructRecovery> = reconstructRecovery(
+  const base: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructRecovery> = AutoMovieRecoveryReconstruction.reconstructRecovery(
     bundle,
     { observeWork: true, analytic },
   );

@@ -8,8 +8,8 @@ import type {
   IAutoMovieRecoveryTensorRealization,
 } from "@automovie/interface";
 
-import { realizeAutoMovieRecoveryAnalyticDomains } from "../reconstruction/internal/realizeAutoMovieRecoveryAnalyticDomains";
-import { realizeAutoMovieRecoveryTensorFamilies } from "../reconstruction/internal/realizeAutoMovieRecoveryTensorFamilies";
+import { realizeAutoMovieRecoveryAnalyticDomains } from "./realizeAutoMovieRecoveryAnalyticDomains";
+import { realizeAutoMovieRecoveryTensorFamilies } from "./realizeAutoMovieRecoveryTensorFamilies";
 
 /**
  * Generate saved ordinary tensor families and retained curve-only event or

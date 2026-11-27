@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { physicalShapeSurfaceAnchor } from "./internal/physicalShapeSurfaceAnchor";
-import { physicalSupportPoint } from "./internal/physicalSupportPoint";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { physicalShapeSurfaceAnchor } from "./physicalShapeSurfaceAnchor";
+import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * Evaluate one scalar relationship with coherent same-body motion and an actual

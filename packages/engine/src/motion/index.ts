@@ -1,12 +1,12 @@
 export * from "./AutoMovieEnvelope";
 export * from "./MotionTrajectoryFailure";
-export * from "./arrangeMotion";
+
 export * from "./assemblePlantedFeet";
 export * from "./basisOf";
-export * from "./bindProfileGaits";
+
 export * from "./carriedAcceleration";
 export * from "./carriedRate";
-export * from "./classifyLocomoteGroundDisplacement";
+
 export * from "./constants";
 export * from "./contactMask";
 
@@ -20,9 +20,9 @@ export * from "./fitHingedChainCandidate";
 export * from "./fitHingedRotationError";
 
 export * from "./gaitLimbFlexion";
-export * from "./gaitMotion";
-export * from "./gestureMotion";
-export * from "./holdMotion";
+
+
+
 
 
 export * from "./AirborneTakeoffQuadrature";
@@ -43,7 +43,7 @@ export * from "./prepareChainRigConstants";
 export * from "./placeChainPlant";
 export * from "./prepareJointRotationProjection";
 
-export * from "./reactMotion";
+
 export * from "./rekeyPlantedFeet";
 export * from "./resolveBoneMap";
 export * from "./resolvePreparedChainEffector";

@@ -1,4 +1,4 @@
-import { inPhysicalFloorBounds } from "@automovie/engine";
+import { AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
@@ -40,22 +40,22 @@ export function test_engine_physics_floor_bounds(): void {
   });
   TestValidator.equals(
     "origin",
-    inPhysicalFloorBounds(at(0, 0), shape, floor),
+    AutoMovieEnginePhysics.inPhysicalFloorBounds(at(0, 0), shape, floor),
     true,
   );
   TestValidator.equals(
     "edge",
-    inPhysicalFloorBounds(at(1, 0), shape, floor),
+    AutoMovieEnginePhysics.inPhysicalFloorBounds(at(1, 0), shape, floor),
     true,
   );
   TestValidator.equals(
     "past x",
-    inPhysicalFloorBounds(at(1.5, 0), shape, floor),
+    AutoMovieEnginePhysics.inPhysicalFloorBounds(at(1.5, 0), shape, floor),
     false,
   );
   TestValidator.equals(
     "past z",
-    inPhysicalFloorBounds(at(0, -1.5), shape, floor),
+    AutoMovieEnginePhysics.inPhysicalFloorBounds(at(0, -1.5), shape, floor),
     false,
   );
 }

@@ -13,7 +13,7 @@ import type { AutoMovieFilmAlpha } from "../../scene/filmResponse/AutoMovieFilmA
 import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMovieInspectionHandle.js";
 import { parseAutoMovieInspectionView } from "../../scene/inspection/internal/parseAutoMovieInspectionView.js";
 import { renderWithAutoMovieInspectionDiagnostics } from "../../scene/inspection/internal/renderWithAutoMovieInspectionDiagnostics.js";
-import { resolveAutoMovieInspectionView } from "../../scene/inspection/resolveAutoMovieInspectionView.js";
+import { AutoMovieRenderInspectionCamera } from "../../scene/inspection/AutoMovieRenderInspectionCamera.js";
 import type { IAutoMovieViewerSubjectBounds } from "../../scene/subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "../AUTO_MOVIE_DRAW_GLOBALS.js";
 import { AutoMovieDrawBeauty } from "./AutoMovieDrawBeauty.js";
@@ -73,7 +73,7 @@ const SUPERSAMPLE = 2 as const;
  *    seek occurs between this application and drawing. The subject's
  *    `beforeDraw` runs right after this and every other placement, a layer's
  *    and each sample's, before any pass's render mode applies;
- * 5. Draws through the camera `resolveAutoMovieInspectionView` gives, mark lines
+ * 5. Draws through the camera `AutoMovieRenderInspectionCamera.resolveView` gives, mark lines
  *    at the supersampling factor's width: the `beauty` shade by
  *    `AutoMovieDrawBeauty`, whose stages give a subject's optics and shading
  *    their response; the `graphics` plate by its `plate`; every other pass
@@ -257,10 +257,10 @@ async function drawCall(
   }
   const resolveAt: (
     at: number,
-  ) => ReturnType<typeof resolveAutoMovieInspectionView> = (
+  ) => AutoMovieRenderInspectionCamera.ResolveView.IResult = (
     at: number,
-  ): ReturnType<typeof resolveAutoMovieInspectionView> =>
-    resolveAutoMovieInspectionView({
+  ): AutoMovieRenderInspectionCamera.ResolveView.IResult =>
+    AutoMovieRenderInspectionCamera.resolveView({
       view,
       text: call.view,
       bounds,

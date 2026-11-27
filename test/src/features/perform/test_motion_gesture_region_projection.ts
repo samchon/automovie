@@ -1,4 +1,4 @@
-import { compilePerformance, gestureMotion } from "@automovie/engine";
+import { AutoMovieEngineFilm, AutoMovieEngineMotionClip } from "@automovie/engine";
 import {
   AutoMovieGestureKind,
   IAutoMovieActionCall,
@@ -15,7 +15,7 @@ const synth: IAutoMovieActionSynthesizer = (
   action: IAutoMovieActionCall,
 ): IAutoMovieMotion | null => {
   if (action.verb === "gesture")
-    return gestureMotion(`hero:${action.kind}`, "skeleton-1", action.kind, 1);
+    return AutoMovieEngineMotionClip.gestureMotion(`hero:${action.kind}`, "skeleton-1", action.kind, 1);
   if (action.verb === "emote")
     return makeMotion(
       [
@@ -64,7 +64,7 @@ const gesture: (
  */
 export function test_motion_gesture_region_projection(): void {
   const at = (actions: IAutoMovieActionCall[], t: number) =>
-    compilePerformance(actions, synth).performances.hero!.keyframes.find(
+    AutoMovieEngineFilm.compilePerformance(actions, synth).performances.hero!.keyframes.find(
       (frame) => nclose(frame.time, t),
     )!.pose;
   for (const region of [undefined, "upperBody"] as const) {

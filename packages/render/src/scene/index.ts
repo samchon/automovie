@@ -37,7 +37,7 @@ export * from "./reliefWeightShading/index.js";
 
 export * from "./IMaterialShaderPatch.js";
 export * from "./IMaterialShaderSource.js";
-export * from "./readMaterialShaderPatches.js";
+
 
 export * from "./IAutoMovieMaterialLibrary.js";
 export * from "./IBuildAutoMovieMaterialLibraryProps.js";
@@ -89,7 +89,7 @@ export * from "./IAutoMovieShadowTextureHost.js";
 export * from "./readAutoMovieCubeShadowDepth.js";
 export * from "./retireAutoMovieCubeShadowDepth.js";
 
-export * from "./readAutoMovieMaterialTextureSources.js";
+
 export * from "./AutoMovieRenderPlayer.js";
 export * from "./IAutoMovieSpringConfig.js";
 export * from "./IAutoMovieSpringAxisSettlement.js";

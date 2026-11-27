@@ -1,6 +1,6 @@
 import type { AutoMovieCommand } from "../AutoMovieCommand";
 import { readAutoMovieCommandArguments } from "./internal/readAutoMovieCommandArguments";
-import { run as runAutoMovieCli } from "../run";
+import { run as runAutoMovieCli } from "./internal/run";
 
 /** The executable command request and its argument reader. */
 export namespace AutoMovieCliCommand {

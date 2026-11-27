@@ -9,7 +9,7 @@ import type { IAutoMovieFormationCycle } from "../../IAutoMovieFormationCycle.js
 import type { IAutoMovieFormationCycleTake } from "../../IAutoMovieFormationCycleTake.js";
 import { formationCyclePosition } from "../../internal/formationCyclePosition.js";
 import { isAutoMovieFormationCycleMaterial } from "../../internal/isAutoMovieFormationCycleMaterial.js";
-import { readMaterialShaderPatches } from "../../readMaterialShaderPatches.js";
+import { readMaterialShaderPatches } from "../../internal/readMaterialShaderPatches.js";
 import { sampleFormationCycleMatrix } from "../../internal/sampleFormationCycleMatrix.js";
 import { AutoMovieCollisionSource } from "../AutoMovieCollisionSource.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";

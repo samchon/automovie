@@ -1,6 +1,8 @@
+import { classifyLocomoteGroundDisplacement as classifyLocomoteGroundDisplacementImplementation } from "./internal/classifyLocomoteGroundDisplacement";
+
 import { locomoteMotion as locomoteMotionImplementation } from "./internal/locomoteMotion";
 
-import { type IAutoMoviePathLocomotion, type IAutoMovieFollowPathMotion, type IAutoMovieMotion, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieTransform, type IAutoMovieWarpRoot } from "@automovie/interface";
+import { type IAutoMoviePathLocomotion, type IAutoMovieFollowPathMotion, type IAutoMovieMotion, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieTransform, type IAutoMovieWarpRoot, type IAutoMovieClassifyLocomoteGroundDisplacement } from "@automovie/interface";
 import { followPathMotion as followPathMotionImplementation } from "./internal/followPathMotion";
 import { timeScaleMotion as timeScaleMotionImplementation } from "./internal/timeScaleMotion";
 import { travelMotion as travelMotionImplementation } from "./internal/travelMotion";
@@ -67,5 +69,14 @@ export namespace AutoMovieEngineMotionTrajectory {
    */
   export function locomoteMotion(id: string, gait: IAutoMovieMotion, distance: number, speed: number, direction: IAutoMovieVector3, faceTravel?: boolean): IAutoMovieMotion {
     return locomoteMotionImplementation(id, gait, distance, speed, direction, faceTravel);
+  }
+
+  /**
+   * Classify an admitted finite root displacement in metres into no travel,
+   * vertical-only travel or ground-plan travel using the shared locomotion
+   * epsilon.
+   */
+  export function classifyLocomoteGroundDisplacement(displacement: IAutoMovieVector3): IAutoMovieClassifyLocomoteGroundDisplacement.IResult {
+    return classifyLocomoteGroundDisplacementImplementation(displacement);
   }
 }

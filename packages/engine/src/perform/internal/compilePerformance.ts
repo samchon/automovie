@@ -17,12 +17,12 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { arrangeMotion } from "../motion/arrangeMotion";
-import { sampleMotion } from "../motion/sampleMotion";
-import { sequenceMotion } from "../motion/internal/sequenceMotion";
-import { AutoMovieEngineText } from "../text/AutoMovieEngineText";
-import { actionRegion } from "./actionRegion";
-import { blendPoses } from "./blendPoses";
+import { arrangeMotion } from "../../motion/internal/arrangeMotion";
+import { sampleMotion } from "../../motion/sampleMotion";
+import { sequenceMotion } from "../../motion/internal/sequenceMotion";
+import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
+import { actionRegion } from "../actionRegion";
+import { blendPoses } from "../blendPoses";
 import { bodyRegionBones } from "./bodyRegionBones";
 
 const ROOT_REGIONS: Set<AutoMovieBodyRegion> = new Set<AutoMovieBodyRegion>([

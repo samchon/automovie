@@ -1,4 +1,4 @@
-import { AutoMovieThreeKind, resolveAutoMovieInspectionView, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { AutoMovieThreeKind, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -6,7 +6,7 @@ import * as THREE from "three";
 const CAMERA_TOLERANCE: number = 1e-9;
 
 /**
- * `resolveAutoMovieInspectionView` turns a view into the camera that draws it
+ * `AutoMovieRenderInspectionCamera.resolveView` turns a view into the camera that draws it
  * and the record of that camera.
  *
  * Scenarios:
@@ -24,9 +24,9 @@ export function test_render_scene_resolve_inspection_view(): void {
   const film: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(40, 2, 0.1, 100);
   const resolve = (
     text: string,
-    patch: Partial<Parameters<typeof resolveAutoMovieInspectionView>[0]> = {},
-  ): ReturnType<typeof resolveAutoMovieInspectionView> =>
-    resolveAutoMovieInspectionView({
+    patch: Partial<AutoMovieRenderInspectionCamera.ResolveView.IProps> = {},
+  ): AutoMovieRenderInspectionCamera.ResolveView.IResult =>
+    AutoMovieRenderInspectionCamera.resolveView({
       view: AutoMovieRenderInspectionRequest.parseView(text),
       text,
       bounds: null,

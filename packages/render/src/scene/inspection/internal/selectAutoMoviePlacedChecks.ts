@@ -6,8 +6,8 @@ import type {
 } from "@automovie/interface";
 import type { Object3D } from "three";
 
-import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
-import type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedChecks.js";
+import type { IObserveAutoMoviePlacedScene } from "../IObserveAutoMoviePlacedScene.js";
+import type { ISelectAutoMoviePlacedChecks } from "../ISelectAutoMoviePlacedChecks.js";
 
 type ICheck = IObserveAutoMoviePlacedScene.ICheck;
 type IObservation = Exclude<

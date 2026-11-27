@@ -1,7 +1,9 @@
 import { describeRecoveryDomains as describeRecoveryDomainsImplementation } from "./internal/describeRecoveryDomains";
 import { describeRecoveryNamedDomains as describeRecoveryNamedDomainsImplementation } from "./internal/describeRecoveryNamedDomains";
 
-import { type AutoMovieRecoveryCurveData, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieRecoveryAnalyticPublication, type IAutoMovieRecoveryAnalyticDomainsRealizationOperation, type IAutoMovieRecoveryAnnularChart, type IAutoMovieRecoveryAtlasCompilation, type IAutoMovieRecoveryChartPatchBudgetFailure, type IAutoMovieRecoveryEventChartInput, type IAutoMovieRecoveryEventCompilationPolicy, type IAutoMovieRecoveryEventCurveArc, type IAutoMovieRecoveryEventDomainCompilation, type IAutoMovieRecoveryFieldComplex, type IAutoMovieRecoveryFieldComplexInput, type IAutoMovieRecoveryFieldComplexPolicy, type IAutoMovieRecoveryInputHashes, type IAutoMovieRecoveryNativeChartCompilation, type IAutoMovieRecoveryOptions, type IAutoMovieRecoveryReconstructedModel, type IAutoMovieRecoveryResult, type IAutoMovieRecoveryTensorFamiliesInput, type IAutoMovieRecoveryTensorRealization, type IAutoMovieRecoveryDomainsDescriptionOperation, type IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "@automovie/interface";
+import { type AutoMovieRecoveryCurveData, type IAutoMovieBicubicAtlasGeometry, type IAutoMovieRecoveryAnalyticPublication, type IAutoMovieRecoveryAnalyticDomainsRealizationOperation, type IAutoMovieRecoveryAnnularChart, type IAutoMovieRecoveryAtlasCompilation, type IAutoMovieRecoveryChartPatchBudgetFailure, type IAutoMovieRecoveryEventChartInput, type IAutoMovieRecoveryEventCompilationPolicy, type IAutoMovieRecoveryEventCurveArc, type IAutoMovieRecoveryEventDomainCompilation, type IAutoMovieRecoveryFieldComplex, type IAutoMovieRecoveryFieldComplexInput, type IAutoMovieRecoveryFieldComplexPolicy, type IAutoMovieRecoveryInputHashes, type IAutoMovieRecoveryNativeChartCompilation, type IAutoMovieRecoveryOptions, type IAutoMovieRecoveryReconstructedModel, type IAutoMovieRecoveryResult, type IAutoMovieRecoveryTensorFamiliesInput, type IAutoMovieRecoveryTensorRealization, type IAutoMovieReconstructRecovery, type IAutoMovieRecoveryDomainsDescriptionOperation, type IAutoMovieRecoveryNamedDomainsDescriptionOperation } from "@automovie/interface";
+
+import { reconstructRecovery as reconstructRecoveryImplementation } from "./internal/reconstructRecovery";
 
 import {
   applyAutoMovieRecoveryAnalyticPublication as applyPublication,
@@ -143,4 +145,23 @@ export namespace AutoMovieRecoveryReconstruction {
   export function describeNamedDomains(input: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[0], result: Parameters<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation>[1]): ReturnType<IAutoMovieRecoveryNamedDomainsDescriptionOperation.Operation> {
     return describeRecoveryNamedDomainsImplementation(input, result);
   }
+  /**
+   * Generate saved ordinary tensor families and retained curve-only event or
+   * legacy domains. Delegated groups have one tensor owner and are not also tiled
+   * by the contour operator. Shared analytic end-curve coefficients are admitted
+   * before engine dispatch; their polygonal conformity and transverse continuity
+   * remain independently unqualified. The contour engine shares each retained
+   * generating boundary across incident slabs. Unmet fitting tolerances and
+   * strip-quality failures remain visible and unqualified. An actual missing
+   * incidence or unrepresentable primitive remains a local gap rather than a
+   * quality warning. Optional work observation changes timing records only; saved
+   * generating inputs are immutable.
+   */
+  export function reconstructRecovery(
+    bundle: Parameters<IAutoMovieReconstructRecovery.Operation>[0],
+    options: Parameters<IAutoMovieReconstructRecovery.Operation>[1] = {},
+  ): ReturnType<IAutoMovieReconstructRecovery.Operation> {
+    return reconstructRecoveryImplementation(bundle, options);
+  }
+
 }

@@ -7,10 +7,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { sampleMotion } from "../motion/sampleMotion";
-import { actorContextWorldFrame } from "./actorContextWorldFrame";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { sampleMotion } from "../../motion/sampleMotion";
+import { actorContextWorldFrame } from "../actorContextWorldFrame";
 
 /**
  * Resolve an admitted motion root at shot-local seconds through the context's

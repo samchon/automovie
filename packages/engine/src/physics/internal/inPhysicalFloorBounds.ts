@@ -5,7 +5,7 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { physicalShapeBounds } from "./physicalShapeBounds";
+import { physicalShapeBounds } from "../physicalShapeBounds";
 
 /**
  * Refuse a nonfinite or out-of-domain shape before it can leave the declared

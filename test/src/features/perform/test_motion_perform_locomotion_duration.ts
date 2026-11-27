@@ -1,4 +1,4 @@
-import { compilePerformance, makeActorSynthesizer } from "@automovie/engine";
+import { makeActorSynthesizer, AutoMovieEngineFilm } from "@automovie/engine";
 import {
   IAutoMovieActionCall,
   type IAutoMovieActorContext,
@@ -127,7 +127,7 @@ export function test_motion_perform_locomotion_duration(): void {
   TestValidator.predicate(
     "compiled action ends at its placement plus span",
     nclose(
-      compilePerformance([walk(7.5, 2.5)], synth).performances.hero!.duration,
+      AutoMovieEngineFilm.compilePerformance([walk(7.5, 2.5)], synth).performances.hero!.duration,
       10,
     ),
   );

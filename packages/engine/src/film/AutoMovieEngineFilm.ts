@@ -1,3 +1,7 @@
+import { compilePerformance as compilePerformanceImplementation } from "../perform/internal/compilePerformance";
+import { resolveTargetPoint as resolveTargetPointImplementation } from "../perform/internal/resolveTargetPoint";
+import { scenePlacements as scenePlacementsImplementation } from "../perform/internal/scenePlacements";
+
 import type { AutoMovieEngineFilmTypes } from "./AutoMovieEngineFilmTypes";
 import { createPerformShotSubjectFramer as createPerformShotSubjectFramerImplementation } from "./internal/createPerformShotSubjectFramer";
 import { resolvedPerformShotPoint as resolvedPerformShotPointImplementation } from "./internal/resolvedPerformShotPoint";
@@ -5,159 +9,7 @@ import { samplePracticalSurfaceMaterial as samplePracticalSurfaceMaterialImpleme
 import { sequenceEditorialMarkerTimeline as sequenceEditorialMarkerTimelineImplementation } from "./internal/sequenceEditorialMarkerTimeline";
 import { compileDefinedShot as compileDefinedShotImplementation } from "./internal/compileDefinedShot";
 import { resolvePerformShotTarget as resolvePerformShotTargetImplementation } from "./internal/resolvePerformShotTarget";
-import type {
-  IAutoMovieCompileDefinedShot,
-  IAutoMovieCompiledDefinedShot,
-  IAutoMovieResolvePerformShotTarget,
-  IAutoMovieMotionTake,
-  IAutoMovieVector3,
-  IAutoMovieQuaternion,
-  IAutoMovieMotion,
-  IAutoMovieClip,
-  IAutoMovieTransform,
-  IAutoMovieSampledChannel,
-  IAutoMovieScriptNode,
-  IAutoMovieBlockedBeat,
-  IAutoMovieScript,
-  IAutoMovieStagedSet,
-  IAutoMovieBlocking,
-  IAutoMovieBeatEndState,
-  IAutoMovieModel,
-  IAutoMovieCameraClearanceDeformationRadius,
-  IAutoMovieShot,
-  IAutoMovieCameraClearanceSampleTimes,
-  IAutoMovieProductionFrameRate,
-  IAutoMovieClassifyPlaybackBoundary,
-  AutoMovieSectionPlaneState,
-  IAutoMovieClassifySectionPlaneBox,
-  IAutoMovieCameraIntent,
-  IAutoMovieShotCoverage,
-  IAutoMovieCompileCameraCoverage,
-  IAutoMovieCompileCameraMove,
-  IAutoMovieLaunchResult,
-  IAutoMovieCompileLaunch,
-  IAutoMovieEnginePerformShotGateContext,
-  IAutoMovieCompilePerformShotCameras,
-  IAutoMovieCompilePerformShotLaunches,
-  IAutoMovieEnginePerformShotActionPlan,
-  IAutoMovieActionSynthesizer,
-  IAutoMovieCompilePracticalLightMotion,
-  IAutoMovieComputeModelRestExtent,
-  IAutoMovieComputeModelRestExtentY,
-  IAutoMovieSkeleton,
-  IAutoMoviePropBox,
-  IAutoMoviePassageBlockage,
-  IAutoMovieBuiltEnvironment,
-  IAutoMovieShotContractSubjectReader,
-  IAutoMovieRealizeShotContractProps,
-  IAutoMovieCut,
-  IAutoMovieEditPlan,
-  IAutoMovieDefinedShot,
-  IAutoMovieShotDefinition,
-  IAutoMovieDeliveryCropNdc,
-  IAutoMovieDeliveryCrop,
-  IAutoMovieCameraDepthPrecisionReport,
-  IAutoMovieEvaluateCameraDepthPrecision,
-  IAutoMovieStorySyncOutcome,
-  IAutoMovieEvaluateStorySync,
-  IAutoMovieCompiledPredicateResult,
-  IAutoMovieShotPredicate,
-  IAutoMovieForgedCast,
-  IAutoMovieForgePlan,
-  IAutoMovieForgedProp,
-  IAutoMoviePropSpec,
-  IAutoMovieFormationMemberExtent,
-  IAutoMovieCompiledFormation,
-  IAutoMovieSubjectBox,
-  IAutoMovieFormationSubjectBox,
-  IAutoMovieFramedBox,
-  IAutoMovieConstraintViolation,
-  IAutoMovieObjectMotionGate,
-  IAutoMovieActionCall,
-  IAutoMoviePerformShotFrameJob,
-  IAutoMovieGatePerformShotCamera,
-  IAutoMovieReviewNote,
-  IAutoMovieGrammarDiagnosticsToReviewNotes,
-  IAutoMovieInteractionEvent,
-  IAutoMovieLight,
-  IAutoMovieInheritProductionLighting,
-  IAutoMovieGrammarDiagnostic,
-  IAutoMovieNormalizedGrammarShot,
-  AutoMovieInspectGrammarCutFraming,
-  IAutoMovieInspectGrammarCut,
-  IAutoMovieIntersectsPerspectiveFrustumBox,
-  IAutoMovieIntersectsPerspectiveFrustumSegment,
-  IAutoMovieIntersectsPerspectiveFrustumSphere,
-  IAutoMovieLocalSegmentMeetsPerspectiveFrustum,
-  IAutoMovieGrammarShotObservation,
-  IAutoMoviePerformedShot,
-  IAutoMoviePerformShotProps,
-  IAutoMoviePlantPerformShotStanceFeet,
-  IAutoMovieViolationAppendSink,
-  IAutoMovieBeatEndFootPlant,
-  IAutoMoviePlaybackSample,
-  IAutoMovieSequence,
-  IAutoMoviePlaybackTimeline,
-  IAutoMoviePlaybackEntry,
-  IAutoMoviePlaybackLayer,
-  IAutoMoviePointSubjectBox,
-  IAutoMoviePreparePlaybackTimeline,
-  IAutoMovieProductionFrameBoundaryToGridTick,
-  IAutoMovieProductionFrameBoundaryToSeconds,
-  IAutoMovieProductionFrameIntervalToGridTicks,
-  IAutoMovieProductionRenderLayersForPass,
-  AutoMovieGuidePass,
-  IAutoMovieProjectToNdc,
-  IAutoMovieResolvedCamera,
-  IAutoMoviePropAnchorFrame,
-  IAutoMoviePropBlockedPassages,
-  IAutoMoviePropClearanceBounds,
-  IAutoMoviePropOccupancyBounds,
-  IAutoMoviePropSpaceContainsBounds,
-  IAutoMoviePropSupportFace,
-  IAutoMoviePropSupportGap,
-  IAutoMovieGrammarReading,
-  IAutoMovieGrammarInput,
-  IAutoMovieRealizeShotContract,
-  IAutoMovieFilmOptics,
-  IAutoMovieResolveLensAt,
-  IAutoMovieResolveBeatProps,
-  IAutoMovieResolveCameraAt,
-  IAutoMovieMotionTakeAnchor,
-  IAutoMoviePoseKeypoint,
-  IAutoMovieResolvePoseKeypoints,
-  IAutoMovieResolveProductionFrameRate,
-  IAutoMovieResolveProductionLighting,
-  IAutoMovieReviewVisualRead,
-  IAutoMovieSceneNode,
-  IAutoMoviePracticalSurfaceTrack,
-  IAutoMovieProductionRenderFrame,
-  IAutoMovieFilmTimeline,
-  IAutoMovieSurfaceGraphicTrack,
-  IAutoMoviePlaybackEvent,
-  AutoMovieHumanoidBone,
-  IAutoMovieValidatePerformShotFraming,
-  IAutoMovieValidatePropAffordanceTarget,
-  IAutoMovieViolationCollector,
-  IAutoMovieValidatePropPlacementGeometry,
-  IAutoMovieValidation,
-  IAutoMovieValidatePropPlacements,
-  IAutoMovieAuthoringDiagnostic,
-  IAutoMovieShotPhysicsAdvice,
-  IAutoMovieShotProgram,
-  IAutoMovieShotStoryTime,
-  IAutoMovieStoryInterval,
-  IAutoMovieSectionPlane,
-  IAutoMovieCameraClearanceReport,
-  IAutoMovieCompileCameraClearanceReports,
-  IAutoMovieCameraClearanceEvaluation,
-  IAutoMovieStage,
-  IAutoMovieCoupleObjects,
-  IAutoMovieActionTarget,
-  IAutoMovieCreatePerformShotSubjectFramer,
-  IAutoMovieFramedSubject,
-  IAutoMoviePlaybackEditorialMarker,
-} from "@automovie/interface";
+import { type IAutoMovieCompileDefinedShot, type IAutoMovieCompiledDefinedShot, type IAutoMovieResolvePerformShotTarget, type IAutoMovieMotionTake, type IAutoMovieVector3, type IAutoMovieQuaternion, type IAutoMovieMotion, type IAutoMovieClip, type IAutoMovieTransform, type IAutoMovieSampledChannel, type IAutoMovieScriptNode, type IAutoMovieBlockedBeat, type IAutoMovieScript, type IAutoMovieStagedSet, type IAutoMovieBlocking, type IAutoMovieBeatEndState, type IAutoMovieModel, type IAutoMovieCameraClearanceDeformationRadius, type IAutoMovieShot, type IAutoMovieCameraClearanceSampleTimes, type IAutoMovieProductionFrameRate, type IAutoMovieClassifyPlaybackBoundary, type AutoMovieSectionPlaneState, type IAutoMovieClassifySectionPlaneBox, type IAutoMovieCameraIntent, type IAutoMovieShotCoverage, type IAutoMovieCompileCameraCoverage, type IAutoMovieCompileCameraMove, type IAutoMovieLaunchResult, type IAutoMovieCompileLaunch, type IAutoMovieEnginePerformShotGateContext, type IAutoMovieCompilePerformShotCameras, type IAutoMovieCompilePerformShotLaunches, type IAutoMovieEnginePerformShotActionPlan, type IAutoMovieActionSynthesizer, type IAutoMovieCompilePracticalLightMotion, type IAutoMovieComputeModelRestExtent, type IAutoMovieComputeModelRestExtentY, type IAutoMovieSkeleton, type IAutoMoviePropBox, type IAutoMoviePassageBlockage, type IAutoMovieBuiltEnvironment, type IAutoMovieShotContractSubjectReader, type IAutoMovieRealizeShotContractProps, type IAutoMovieCut, type IAutoMovieEditPlan, type IAutoMovieDefinedShot, type IAutoMovieShotDefinition, type IAutoMovieDeliveryCropNdc, type IAutoMovieDeliveryCrop, type IAutoMovieCameraDepthPrecisionReport, type IAutoMovieEvaluateCameraDepthPrecision, type IAutoMovieStorySyncOutcome, type IAutoMovieEvaluateStorySync, type IAutoMovieCompiledPredicateResult, type IAutoMovieShotPredicate, type IAutoMovieForgedCast, type IAutoMovieForgePlan, type IAutoMovieForgedProp, type IAutoMoviePropSpec, type IAutoMovieFormationMemberExtent, type IAutoMovieCompiledFormation, type IAutoMovieSubjectBox, type IAutoMovieFormationSubjectBox, type IAutoMovieFramedBox, type IAutoMovieConstraintViolation, type IAutoMovieObjectMotionGate, type IAutoMovieActionCall, type IAutoMoviePerformShotFrameJob, type IAutoMovieGatePerformShotCamera, type IAutoMovieReviewNote, type IAutoMovieGrammarDiagnosticsToReviewNotes, type IAutoMovieInteractionEvent, type IAutoMovieLight, type IAutoMovieInheritProductionLighting, type IAutoMovieGrammarDiagnostic, type IAutoMovieNormalizedGrammarShot, type AutoMovieInspectGrammarCutFraming, type IAutoMovieInspectGrammarCut, type IAutoMovieIntersectsPerspectiveFrustumBox, type IAutoMovieIntersectsPerspectiveFrustumSegment, type IAutoMovieIntersectsPerspectiveFrustumSphere, type IAutoMovieLocalSegmentMeetsPerspectiveFrustum, type IAutoMovieGrammarShotObservation, type IAutoMoviePerformedShot, type IAutoMoviePerformShotProps, type IAutoMoviePlantPerformShotStanceFeet, type IAutoMovieViolationAppendSink, type IAutoMovieBeatEndFootPlant, type IAutoMoviePlaybackSample, type IAutoMovieSequence, type IAutoMoviePlaybackTimeline, type IAutoMoviePlaybackEntry, type IAutoMoviePlaybackLayer, type IAutoMoviePointSubjectBox, type IAutoMoviePreparePlaybackTimeline, type IAutoMovieProductionFrameBoundaryToGridTick, type IAutoMovieProductionFrameBoundaryToSeconds, type IAutoMovieProductionFrameIntervalToGridTicks, type IAutoMovieProductionRenderLayersForPass, type AutoMovieGuidePass, type IAutoMovieProjectToNdc, type IAutoMovieResolvedCamera, type IAutoMoviePropAnchorFrame, type IAutoMoviePropBlockedPassages, type IAutoMoviePropClearanceBounds, type IAutoMoviePropOccupancyBounds, type IAutoMoviePropSpaceContainsBounds, type IAutoMoviePropSupportFace, type IAutoMoviePropSupportGap, type IAutoMovieGrammarReading, type IAutoMovieGrammarInput, type IAutoMovieRealizeShotContract, type IAutoMovieFilmOptics, type IAutoMovieResolveLensAt, type IAutoMovieResolveBeatProps, type IAutoMovieResolveCameraAt, type IAutoMovieMotionTakeAnchor, type IAutoMoviePoseKeypoint, type IAutoMovieResolvePoseKeypoints, type IAutoMovieResolveProductionFrameRate, type IAutoMovieResolveProductionLighting, type IAutoMovieReviewVisualRead, type IAutoMovieSceneNode, type IAutoMoviePracticalSurfaceTrack, type IAutoMovieProductionRenderFrame, type IAutoMovieFilmTimeline, type IAutoMovieSurfaceGraphicTrack, type IAutoMoviePlaybackEvent, type AutoMovieHumanoidBone, type IAutoMovieValidatePerformShotFraming, type IAutoMovieValidatePropAffordanceTarget, type IAutoMovieViolationCollector, type IAutoMovieValidatePropPlacementGeometry, type IAutoMovieValidation, type IAutoMovieValidatePropPlacements, type IAutoMovieAuthoringDiagnostic, type IAutoMovieShotPhysicsAdvice, type IAutoMovieShotProgram, type IAutoMovieShotStoryTime, type IAutoMovieStoryInterval, type IAutoMovieSectionPlane, type IAutoMovieCameraClearanceReport, type IAutoMovieCompileCameraClearanceReports, type IAutoMovieCameraClearanceEvaluation, type IAutoMovieStage, type IAutoMovieCoupleObjects, type IAutoMovieActionTarget, type IAutoMovieCreatePerformShotSubjectFramer, type IAutoMovieFramedSubject, type IAutoMoviePlaybackEditorialMarker, type IAutoMovieCompiledPerformance, type IAutoMovieScene } from "@automovie/interface";
 import { compileAttach as compileAttachImplementation } from "./internal/compileAttach";
 import { coupleObjects as coupleObjectsImplementation } from "./internal/coupleObjects";
 
@@ -3582,5 +3434,46 @@ export namespace AutoMovieEngineFilm {
     },
   ): IAutoMoviePlaybackEditorialMarker[] {
     return sequenceEditorialMarkerTimelineImplementation(sequence, { timeline, shotById });
+  }
+
+  /**
+   * Compile admitted actions through an injected synthesizer into exact
+   * actor-keyed timelines and deterministic region-loss reports. Null synthesis
+   * is skipped; repeat expands one returned cycle, same-region nonoverlapping
+   * actions arrange into lanes, and concurrent lanes layer sampled poses.
+   */
+  export function compilePerformance(actions: IAutoMovieActionCall[], synthesize: IAutoMovieActionSynthesizer): IAutoMovieCompiledPerformance {
+    return compilePerformanceImplementation(actions, synthesize);
+  }
+
+  /**
+   * Resolve a staged node, literal point or complete group to world metres. Node
+   * and point results alias their supplied vectors. A group returns a fresh
+   * centroid with each named node or formation weighted once; an empty group or
+   * any absent member returns null, so resolution never changes the authored
+   * group.
+   *
+   * Relative goals and live bones need facing, camera or rig inputs and return
+   * null here. Callers validate target shapes and finite coordinates first. A
+   * group naming formations requires their world-point table too.
+   *
+   * @param target The admitted positional target or unsupported relative/live
+   *   kind.
+   * @param nodes Staged node and camera positions, read without mutation.
+   * @param formations Compact formation positions, each one centroid member.
+   * @returns The aliased node/point vector, a fresh group centroid, or null.
+   */
+  export function resolveTargetPoint(target: IAutoMovieActionTarget, nodes: ReadonlyMap<string, IAutoMovieVector3>, formations?: ReadonlyMap<string, IAutoMovieVector3>): IAutoMovieVector3 | null {
+    return resolveTargetPointImplementation(target, nodes, formations);
+  }
+
+  /**
+   * Build the staged positional-target table from camera translations followed by
+   * node translations, in world metres. Node entries win an illegally repeated
+   * camera/node id; values are borrowed from the scene and the map belongs to the
+   * caller.
+   */
+  export function scenePlacements(scene: IAutoMovieScene): Map<string, IAutoMovieVector3> {
+    return scenePlacementsImplementation(scene);
   }
 }

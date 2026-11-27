@@ -4,7 +4,7 @@ import type {
   IAutoMovieRecoveryCurveBundle,
 } from "@automovie/interface";
 
-import { rebindRecoveryCurveAuthorities } from "../../internal/rebindRecoveryCurveAuthorities";
+import { rebindRecoveryCurveAuthorities } from "./rebindRecoveryCurveAuthorities";
 import { convertAutoMovieRecoveryCurve } from "./convertAutoMovieRecoveryCurve";
 
 /**

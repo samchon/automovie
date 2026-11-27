@@ -7,7 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
-import { inPhysicalFloorBounds } from "../inPhysicalFloorBounds";
+import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 
 /**
  * Admit every sampled ownership, effort and world pose before target fitting or

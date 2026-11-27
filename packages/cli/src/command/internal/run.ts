@@ -6,14 +6,14 @@ import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-import type { AutoMovieCliCommand } from "./command/AutoMovieCliCommand";
-import { readAutoMovieCommandArguments } from "./command/internal/readAutoMovieCommandArguments";
-import { AutoMovieCliCapture } from "./capture/AutoMovieCliCapture";
-import { checkAutoMovie } from "./checkAutoMovie";
-import { AutoMovieCliInspect } from "./inspect/AutoMovieCliInspect";
-import { AutoMovieCliRender } from "./render/AutoMovieCliRender";
-import { AutoMovieCliReview } from "./review/AutoMovieCliReview";
-import { AutoMovieCliScaffold } from "./scaffold/AutoMovieCliScaffold";
+import type { AutoMovieCliCommand } from "../AutoMovieCliCommand";
+import { readAutoMovieCommandArguments } from "./readAutoMovieCommandArguments";
+import { AutoMovieCliCapture } from "../../capture/AutoMovieCliCapture";
+import { checkAutoMovie } from "../../checkAutoMovie";
+import { AutoMovieCliInspect } from "../../inspect/AutoMovieCliInspect";
+import { AutoMovieCliRender } from "../../render/AutoMovieCliRender";
+import { AutoMovieCliReview } from "../../review/AutoMovieCliReview";
+import { AutoMovieCliScaffold } from "../../scaffold/AutoMovieCliScaffold";
 
 /**
  * The `automovie` CLI entry. `argv` is the full process vector; its first two
@@ -278,14 +278,14 @@ function completeCatalogs(file: string): void {
 }
 
 /**
- * This package's version, read at runtime from the sibling `package.json`
+ * This package's version, read at runtime from the package root's `package.json`
  * (`require`, not an `import`, so it stays outside `rootDir`). `__dirname`
- * resolves to `src` under ttsx and `lib` when published; the file sits one
+ * resolves to `src/command/internal` under ttsx and `lib/command/internal` when published; the file sits three
  * level up in both.
  */
 function packageVersion(): string {
   const manifest: IAutoMovieCliManifest = require(
-    path.join(__dirname, "..", "package.json"),
+    path.join(__dirname, "..", "..", "..", "package.json"),
   );
   return manifest.version;
 }

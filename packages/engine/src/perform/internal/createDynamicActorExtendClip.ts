@@ -4,8 +4,8 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { ease } from "../motion/internal/ease";
-import { actorWeightedArmPose } from "./actorWeightedArmPose";
+import { ease } from "../../motion/internal/ease";
+import { actorWeightedArmPose } from "../actorWeightedArmPose";
 import { createDynamicActorPoseClip } from "./createDynamicActorPoseClip";
 
 /**

@@ -11,7 +11,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { resolveTargetPoint } from "../../perform/resolveTargetPoint";
+import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { channelKey } from "../../resolve/internal/channelKey";

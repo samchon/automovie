@@ -5,12 +5,13 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
-import type { IAutoMovieViewerSubjectPose } from "../subjectViewpoint/IAutoMovieViewerSubjectPose.js";
-import type { IAutoMovieViewerViewpoint } from "../subjectViewpoint/IAutoMovieViewerViewpoint.js";
-import { autoMovieViewerNamedViewpoints } from "../subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
-import { frameAutoMovieViewerSubject } from "../subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
+import type { AutoMovieRenderInspectionCamera } from "../AutoMovieRenderInspectionCamera.js";
+
+import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import type { IAutoMovieViewerSubjectPose } from "../../subjectViewpoint/IAutoMovieViewerSubjectPose.js";
+import type { IAutoMovieViewerViewpoint } from "../../subjectViewpoint/IAutoMovieViewerViewpoint.js";
+import { autoMovieViewerNamedViewpoints } from "../../subjectViewpoint/internal/autoMovieViewerNamedViewpoints.js";
+import { frameAutoMovieViewerSubject } from "../../subjectViewpoint/internal/frameAutoMovieViewerSubject.js";
 
 /**
  * Smallest half extent a fitted view frames, metres, the framing owner's floor
@@ -51,7 +52,7 @@ const FLOOR: number = 0.5;
  * and a fitted view without bounds, which means nothing is drawn to frame.
  *
  * ```ts
- * const { camera, record } = resolveAutoMovieInspectionView({
+ * const { camera, record } = AutoMovieRenderInspectionCamera.resolveView({
  *   view: parseAutoMovieInspectionView("front@ortho"),
  *   text: "front@ortho",
  *   bounds: inspection.bounds(),
@@ -63,45 +64,9 @@ const FLOOR: number = 0.5;
  * });
  * ```
  */
-export function resolveAutoMovieInspectionView(props: {
-  /** The view, as `parseAutoMovieInspectionView` read it. */
-  view: IAutoMovieInspectionView;
-
-  /** The view's text, kept in the record. */
-  text: string;
-
-  /** World box a fitted view frames, or null when nothing is drawn. */
-  bounds: IAutoMovieViewerSubjectBounds | null;
-
-  /**
-   * The subject's delivery camera: the film view itself, and the field of view
-   * and clips the other views take.
-   */
-  camera: THREE.PerspectiveCamera;
-
-  /** The subject's own views by name, each placing a camera at a second. */
-  views?: Readonly<
-    Record<
-      string,
-      (seconds: number) => {
-        position: readonly [number, number, number];
-        target: readonly [number, number, number];
-      }
-    >
-  >;
-
-  /** The film second drawn. */
-  seconds: number;
-
-  /** Picture width, pixels. */
-  width: number;
-
-  /** Picture height, pixels. */
-  height: number;
-}): {
-  camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
-  record: IAutoMovieInspectionCamera;
-} {
+export function resolveAutoMovieInspectionView(
+  props: AutoMovieRenderInspectionCamera.ResolveView.IProps,
+): AutoMovieRenderInspectionCamera.ResolveView.IResult {
   if (!(props.width > 0) || !(props.height > 0))
     throw new Error(
       `Inspection picture ${props.width} x ${props.height} is not a positive size`,

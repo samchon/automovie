@@ -7,11 +7,11 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
-import { Transform } from "../math/Transform";
-import { addPositiveModulo } from "../math/internal/addPositiveModulo";
-import { positiveModulo } from "../math/internal/positiveModulo";
-import { gaitLimbFlexion } from "./gaitLimbFlexion";
+import { Quaternion } from "../../math/Quaternion";
+import { Transform } from "../../math/Transform";
+import { addPositiveModulo } from "../../math/internal/addPositiveModulo";
+import { positiveModulo } from "../../math/internal/positiveModulo";
+import { gaitLimbFlexion } from "../gaitLimbFlexion";
 
 /** Wrap a cycle position into `[0, 1)`. */
 function wrap01(x: number): number {

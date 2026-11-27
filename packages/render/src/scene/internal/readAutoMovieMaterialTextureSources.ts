@@ -4,8 +4,10 @@ import type {
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
-import { readAutoMovieTextureSource } from "./internal/readAutoMovieTextureSource.js";
+import type { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
+
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
+import { readAutoMovieTextureSource } from "./readAutoMovieTextureSource.js";
 
 type RuntimeSource = NonNullable<
   IAutoMovieRenderTextureResidency["runtimeTextures"]
@@ -32,14 +34,9 @@ type ObservedRuntimeSource = RuntimeSource & { residents: string[] };
  * These are reachable-storage bounds, never a claim of current GLuint count. No
  * shader, texture state or GPU lifetime is changed by the observation.
  */
-export function readAutoMovieMaterialTextureSources(props: {
-  scope: string;
-  renderer: { extensions: Pick<THREE.WebGLRenderer["extensions"], "has"> };
-  scene: THREE.Scene;
-  retained?: readonly NonNullable<
-    IAutoMovieRenderTextureResidency["runtimeTextures"]
-  >[number][];
-}): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] {
+export function readAutoMovieMaterialTextureSources(
+  props: AutoMovieRenderMaterial.ReadMaterialTextureSources.IProps,
+): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] {
   const rows: ObservedRuntimeSource[] = (props.retained ?? []).map(
     (row: RuntimeSource): ObservedRuntimeSource => ({
       ...row,

@@ -9,7 +9,7 @@ import { AutoMovieSkinnedMesh } from "../../AutoMovieSkinnedMesh.js";
 import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
 import type { IMaterialShaderPatch } from "../../IMaterialShaderPatch.js";
 import { createDualQuaternionSkinningShaderPatch } from "../../dualQuaternionSkinning/internal/createDualQuaternionSkinningShaderPatch.js";
-import { readMaterialShaderPatches } from "../../readMaterialShaderPatches.js";
+import { readMaterialShaderPatches } from "../../internal/readMaterialShaderPatches.js";
 import { hasMaterialDisplacement } from "./hasMaterialDisplacement.js";
 import { isAutoMovieFloat32Point } from "../isAutoMovieFloat32Point.js";
 

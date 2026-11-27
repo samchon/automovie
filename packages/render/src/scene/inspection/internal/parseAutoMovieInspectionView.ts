@@ -30,7 +30,7 @@ const FORMS: string =
  * Switches may be combined in any order, such as
  * `three-quarter@ortho@focus=hero/torso` or
  * `0,1,4:0,1,0@ortho=0.004@up=0,0,-1`. A name holds no `@`, `:`, `;`, `,` or
- * space. Whether a name exists is decided by `resolveAutoMovieInspectionView`,
+ * space. Whether a name exists is decided by `AutoMovieRenderInspectionCamera.resolveView`,
  * which knows the subject.
  *
  * It throws an `Error` that names the text and lists the accepted forms for

@@ -8,11 +8,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HUMANOID_JOINT_AXES } from "../kinematics/constants/HUMANOID_JOINT_AXES";
-import { resolvePose } from "../kinematics/internal/resolvePose";
-import { Quaternion } from "../math/Quaternion";
-import { Vector3 } from "../math/Vector3";
-import { sampleMotion } from "../motion/sampleMotion";
+import { HUMANOID_JOINT_AXES } from "../../kinematics/constants/HUMANOID_JOINT_AXES";
+import { resolvePose } from "../../kinematics/internal/resolvePose";
+import { Quaternion } from "../../math/Quaternion";
+import { Vector3 } from "../../math/Vector3";
+import { sampleMotion } from "../../motion/sampleMotion";
 
 /**
  * Resolve a bone action target to world metres using its actor rig and sampled

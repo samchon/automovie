@@ -8,7 +8,7 @@ import {
 } from "@automovie/interface";
 
 import { actionRegion } from "../../perform/actionRegion";
-import { bodyRegionBones } from "../../perform/bodyRegionBones";
+import { bodyRegionBones } from "../../perform/internal/bodyRegionBones";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";
 import { performShotActionSpan } from "./performShotActionSpan";
 import { performShotActors } from "./performShotActors";

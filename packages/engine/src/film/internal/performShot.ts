@@ -30,8 +30,8 @@ import type {
 } from "@automovie/interface";
 
 import { prepareSkeletonPoseResolution } from "../../kinematics/prepareSkeletonPoseResolution";
-import { compilePerformance } from "../../perform/compilePerformance";
-import { scenePlacements } from "../../perform/scenePlacements";
+import { compilePerformance } from "../../perform/internal/compilePerformance";
+import { scenePlacements } from "../../perform/internal/scenePlacements";
 import { sampleFormationMotion } from "../../populationRuntime/formation/sampleFormationMotion";
 import { transformFormationPoint } from "../../populationRuntime/formation/internal/transformFormationPoint";
 import { AutoMovieEngineText } from "../../text/AutoMovieEngineText";

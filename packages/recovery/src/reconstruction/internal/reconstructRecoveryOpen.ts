@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { describeRecoveryOpenRun } from "./describeRecoveryOpenRun";
-import { reconstructRecovery } from "../../internal/reconstructRecovery";
+import { reconstructRecovery } from "./reconstructRecovery";
 
 /**
  * Consume saved open cubics and their explicit adjacent endpoint transport

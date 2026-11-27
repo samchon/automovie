@@ -10,7 +10,7 @@ import {
 } from "@automovie/interface";
 
 import { armChainFault } from "../../kinematics/internal/armChainFault";
-import { classifyLocomoteGroundDisplacement } from "../../motion/classifyLocomoteGroundDisplacement";
+import { classifyLocomoteGroundDisplacement } from "../../motion/internal/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";

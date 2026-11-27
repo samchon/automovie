@@ -2,6 +2,9 @@ import { type IAutoMovieMark, type IAutoMovieInspectionTrail, type IAutoMovieIns
 
 import type * as THREE from "three";
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
+import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
+import type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedChecks.js";
+import { selectAutoMoviePlacedChecks as selectAutoMoviePlacedChecksImplementation } from "./internal/selectAutoMoviePlacedChecks.js";
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { focusAutoMovieInspection as focusAutoMovieInspectionImplementation } from "./internal/focusAutoMovieInspection.js";
 import { markAutoMovieInspectionTrails as markAutoMovieInspectionTrailsImplementation } from "./internal/markAutoMovieInspectionTrails.js";
@@ -50,6 +53,34 @@ export namespace AutoMovieRenderInspection {
    */
   export function focus(props: Focus.IProps): IAutoMovieViewerSubjectBounds {
     return focusAutoMovieInspectionImplementation(props);
+  }
+  /** Operations for production policy active on a placed scene. */
+  export namespace PlacedScene {
+    /**
+     * Select the production's declared checks active at one placed sample, for
+     * `observeAutoMoviePlacedScene`.
+     *
+     * A support or grip contributes its phase or window containing the sample
+     * second. Custody contributes the holder its schedule allows at that second and
+     * reads the actual holder from the displayed scene graph. A continuity track
+     * contributes its authored record at the live shot clock and, from the second
+     * output frame on, the step from the previous output frame. The cut decides
+     * that step's boundary and both shot clocks, so a retime, a seam, a transition,
+     * a cut and a declared break follow the playback mapping, and the rate limits
+     * apply over the elapsed shot-local seconds. A step whose endpoint record is
+     * itself invalid is not compared; the record check reports it.
+     *
+     * Nothing depends on a previous call, so a sample yields the same checks
+     * whether it is reached forward, backward or by a jump.
+     *
+     * @param props The placed sample, the output rate and the declarations.
+     * @returns The observer's checks for this sample, in declaration order.
+     */
+    export function selectChecks(
+      props: ISelectAutoMoviePlacedChecks.IProps,
+    ): IObserveAutoMoviePlacedScene.ICheck[] {
+      return selectAutoMoviePlacedChecksImplementation(props);
+    }
   }
   /**
    * Draw sampled trails as marks for one drawn second: each moving object's path

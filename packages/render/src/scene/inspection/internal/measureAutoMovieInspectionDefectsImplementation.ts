@@ -1,12 +1,13 @@
 import { AutoMovieEngineGeometry } from "@automovie/engine";
+import type { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
 import type {
   IAutoMovieMark,
   IAutoMovieMeshDefect,
 } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
-import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
+import { AUTO_MOVIE_INSPECTION_KINDS } from "../AUTO_MOVIE_INSPECTION_KINDS.js";
+import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
 
 /**
  * Measure a mesh's defects and return them as marks lying on the mesh as it is
@@ -30,25 +31,9 @@ import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasure
  *
  * An engine refusal of the buffers is rethrown naming the mesh's path.
  */
-export function measureAutoMovieInspectionDefects(props: {
-  /** The mesh to measure, drawn and with a position buffer. */
-  mesh: THREE.Mesh;
-
-  /** The mesh's inspection path. */
-  path: string;
-
-  /** The engine kinds to return. */
-  kinds: ReadonlySet<IAutoMovieMeshDefect.Kind>;
-
-  /** Sliver aspect limit, or null when slivers are not measured. */
-  sliver: number | null;
-
-  /**
-   * The engine's defects by geometry, shared across the meshes of one
-   * inspection.
-   */
-  measured: Map<THREE.BufferGeometry, IAutoMovieMeshDefect[]>;
-}): IAutoMovieInspectionMeasured {
+export function measureAutoMovieInspectionDefectsImplementation(
+  props: AutoMovieRenderInspectionGeometry.MeasureDefects.IProps,
+): IAutoMovieInspectionMeasured {
   const mesh: THREE.Mesh = props.mesh;
   let defects: IAutoMovieMeshDefect[] | undefined = props.measured.get(
     mesh.geometry,

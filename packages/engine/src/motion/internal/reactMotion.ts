@@ -8,7 +8,7 @@ import {
   IAutoMovieSkeleton,
 } from "@automovie/interface";
 
-import { impactRecoil } from "../physics/impactRecoil";
+import { impactRecoil } from "../../physics/internal/impactRecoil";
 
 /**
  * Bake a three-stop rest/flinch/rest reaction over positive seconds, using the

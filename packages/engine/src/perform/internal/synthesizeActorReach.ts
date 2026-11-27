@@ -10,10 +10,10 @@ import type {
 
 import { reachPose } from "../../kinematics/internal/reachPose";
 import { actorPointInModelSpace } from "../actorPointInModelSpace";
-import { createActorExtendClip } from "../createActorExtendClip";
-import { createActorJabClip } from "../createActorJabClip";
-import { createDynamicActorExtendClip } from "../createDynamicActorExtendClip";
-import { createDynamicActorJabClip } from "../createDynamicActorJabClip";
+import { createActorExtendClip } from "./createActorExtendClip";
+import { createActorJabClip } from "./createActorJabClip";
+import { createDynamicActorExtendClip } from "./createDynamicActorExtendClip";
+import { createDynamicActorJabClip } from "./createDynamicActorJabClip";
 
 /** Current staged/live target and frame readers borrowed from one actor action. */
 interface IContext {

@@ -1,4 +1,4 @@
-import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, physicalPointProjection, AutoMovieEnginePhysics } from "@automovie/engine";
+import { preparePhysicalGeometry as Geometry, Quaternion, Vector3, AutoMovieEnginePhysics } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalPointBound as Bound,
   IAutoMoviePhysicalSegment,
@@ -183,7 +183,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
         Vector3.dot(poses.source!.position, direction) - support;
       assert.ok(
         Math.abs(
-          physicalPointProjection(
+          AutoMovieEnginePhysics.physicalPointProjection(
             "assembly",
             { assembly: profile, "123": receiver },
             { "123": { root: pose } },
@@ -207,7 +207,7 @@ export async function test_engine_physics_physical_point_projection(): Promise<v
       };
       assert.ok(
         Math.abs(
-          physicalPointProjection(
+          AutoMovieEnginePhysics.physicalPointProjection(
             "assembly",
             { assembly: candidateProfile },
             { assembly: poses },

@@ -6,7 +6,7 @@ import type { IAutoMovieInspectionFocus } from "./IAutoMovieInspectionFocus.js";
  * subject's own delivery camera, a fixed camera, or a name with the switches a
  * fitted view takes.
  *
- * `parseAutoMovieInspectionView` writes it and `resolveAutoMovieInspectionView`
+ * `parseAutoMovieInspectionView` writes it and `AutoMovieRenderInspectionCamera.resolveView`
  * turns it into a camera. A name is resolved there, because whether it names
  * one of the subject's views or a named viewpoint depends on the subject.
  */

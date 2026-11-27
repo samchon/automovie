@@ -206,7 +206,7 @@ export namespace AutoMovieRenderDraw {
    *    seek occurs between this application and drawing. The subject's
    *    `beforeDraw` runs right after this and every other placement, a layer's
    *    and each sample's, before any pass's render mode applies;
-   * 5. Draws through the camera `resolveAutoMovieInspectionView` gives, mark lines
+   * 5. Draws through the camera `AutoMovieRenderInspectionCamera.resolveView` gives, mark lines
    *    at the supersampling factor's width: the `beauty` shade by
    *    `AutoMovieDrawBeauty`, whose stages give a subject's optics and shading
    *    their response; the `graphics` plate by its `plate`; every other pass

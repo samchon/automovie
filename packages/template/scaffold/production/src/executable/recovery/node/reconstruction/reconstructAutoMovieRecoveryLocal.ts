@@ -12,7 +12,6 @@ import {
   AutoMovieRecoveryOpenRun,
   normalizeRecoveryCourse,
   AutoMovieRecoveryReconstruction,
-  reconstructRecovery,
 } from "@automovie/recovery";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -84,7 +83,7 @@ export function reconstructAutoMovieRecoveryLocal(
       memory: process.memoryUsage(),
     }),
   );
-  const base: ReturnType<typeof reconstructRecovery> = reconstructRecovery(
+  const base: ReturnType<typeof AutoMovieRecoveryReconstruction.reconstructRecovery> = AutoMovieRecoveryReconstruction.reconstructRecovery(
     bundle,
     { observeWork: true, analytic },
   );

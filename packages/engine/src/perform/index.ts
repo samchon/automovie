@@ -4,19 +4,18 @@ export * from "./actorContextWorldFrame";
 export * from "./actorPointInModelSpace";
 export * from "./actorWeightedArmPose";
 export * from "./blendPoses";
-export * from "./bodyRegionBones";
-export * from "./compilePerformance";
+
+
 export * from "./constants";
-export * from "./createActorExtendClip";
-export * from "./createActorJabClip";
-export * from "./createDynamicActorExtendClip";
-export * from "./createDynamicActorJabClip";
-export * from "./createDynamicActorPoseClip";
+
+
+
+
+
 export * from "./makeActorSynthesizer";
 export * from "./mergePoses";
 export * from "./positionalTargetFault";
-export * from "./resolveActorWorldFrame";
-export * from "./resolveBoneTarget";
-export * from "./resolveTargetPoint";
+
+
+
 export * from "./resumeActorSynthesisRuntime";
-export * from "./scenePlacements";

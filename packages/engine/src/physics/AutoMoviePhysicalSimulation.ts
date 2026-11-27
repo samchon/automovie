@@ -30,7 +30,7 @@ import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulation
 import { checkpointPhysicalSimulation } from "./internal/checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./internal/collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
-import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
+import { inPhysicalFloorBounds } from "./internal/inPhysicalFloorBounds";
 import { physicalInputDigest } from "./internal/physicalInputDigest";
 import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
 import { preparePhysicalContactHooks } from "./internal/preparePhysicalContactHooks";

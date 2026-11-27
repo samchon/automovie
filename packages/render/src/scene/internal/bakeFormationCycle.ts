@@ -1,4 +1,4 @@
-import { autoMovieModelGaits, gaitMotion } from "@automovie/engine";
+import { autoMovieModelGaits, AutoMovieEngineMotionClip } from "@automovie/engine";
 import type {
   IAutoMovieFormationPoseTake,
   IAutoMovieGait,
@@ -58,7 +58,7 @@ export const bakeFormationCycle: (
       (gait: IAutoMovieGait): IAutoMovieFormationPoseTake => ({
         gait: gait.name,
         periodSeconds: gait.period,
-        poses: gaitMotion(
+        poses: AutoMovieEngineMotionClip.gaitMotion(
           `${input.model.id}:${gait.name}`,
           skeleton.id,
           gait,

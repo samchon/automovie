@@ -2,7 +2,7 @@ import type * as THREE from "three";
 
 import { AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY } from "../AUTOMOVIE_FORMATION_CYCLE_PATCH_KEY.js";
 import type { IMaterialShaderPatch } from "../IMaterialShaderPatch.js";
-import { readMaterialShaderPatches } from "../readMaterialShaderPatches.js";
+import { readMaterialShaderPatches } from "./readMaterialShaderPatches.js";
 
 /**
  * Whether a material carries the formation cycle's shader patch, whatever other

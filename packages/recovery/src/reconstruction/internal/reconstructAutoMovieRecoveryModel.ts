@@ -9,7 +9,7 @@ import type {
 } from "@automovie/interface";
 
 import { describeRecoveryDomains } from "./describeRecoveryDomains";
-import { reconstructRecovery } from "../../internal/reconstructRecovery";
+import { reconstructRecovery } from "./reconstructRecovery";
 import { restoreRecoveryCurveBasis } from "../../internal/restoreRecoveryCurveBasis";
 
 /**

@@ -5,7 +5,7 @@ import {
 
 import type { AutoMovieEngineFilmTypes } from "../AutoMovieEngineFilmTypes";
 
-import { resolveTargetPoint } from "../../perform/resolveTargetPoint";
+import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 
 /**
  * The world point of a target the input gate already resolved, at the shot's

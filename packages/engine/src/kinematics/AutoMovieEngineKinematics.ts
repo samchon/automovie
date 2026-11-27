@@ -1,3 +1,7 @@
+import { bodyRegionBones as bodyRegionBonesImplementation } from "../perform/internal/bodyRegionBones";
+import { resolveActorWorldFrame as resolveActorWorldFrameImplementation } from "../perform/internal/resolveActorWorldFrame";
+import { resolveBoneTarget as resolveBoneTargetImplementation } from "../perform/internal/resolveBoneTarget";
+
 import { abductionRange as abductionRangeImplementation } from "../rom/internal/abductionRange";
 import { type swingTwistRange } from "./swingTwistRange";
 import { clampJointRom as clampJointRomImplementation } from "../rom/internal/clampJointRom";
@@ -45,7 +49,7 @@ import { type distalTwistSwivelRange } from "./distalTwistSwivelRange";
 import { distalEndSwivelNearest as distalEndSwivelNearestImplementation } from "./internal/distalEndSwivelNearest";
 import { immobileAxisSwivels as immobileAxisSwivelsImplementation } from "./internal/immobileAxisSwivels";
 
-import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom } from "@automovie/interface";
+import { type AutoMovieHumanoidBone, type IAutoMovieJointAxes, type IAutoMovieLookAt, type IAutoMovieMotionSample, type IAutoMoviePose, type IAutoMoviePoseResolution, type IAutoMovieResolvedBone, type IAutoMovieRestFrame, type IAutoMovieSkeleton, type IAutoMovieSkeletonTopology, type IAutoMovieYawPitch, type IAutoMovieVector3, type IAutoMovieResolvedJointAngles, type AutoMovieJointTwistPlacement, type IAutoMovieBoxExcludedSwivels, type IAutoMovieFitDigitDescent, type IAutoMovieFitDigitToTarget, type IAutoMovieSwivelArcs, type IAutoMovieArticulatedRigReader, type IAutoMovieArticulatedRig, type IAutoMovieResolveBalanceOutcome, type IAutoMovieBodyMomentum, type IAutoMovieResolveCenterOfMass, type IAutoMovieResolveHumanoidRingModules, type AutoMovieHumanoidRegion, type IAutoMovieHumanoidSurfaces, type IAutoMovieHumanoidSurfaceReader, type IAutoMoviePhysicalProfile, type IAutoMovieHumanoidSurfaceExtents, type IAutoMovieTwoBoneIK, type IAutoMovieJointAxesIssue, type IAutoMovieMark, type IAutoMovieMarkBalance, type IAutoMovieMarkRomOvershoot, type IAutoMovieJointConstraint, type IAutoMovieQuaternion, type IAutoMovieArmChainFault, type IAutoMovieJointRotationDomain, type IAutoMovieJointPose, type AutoMovieClinicalAxis, type IAutoMovieHingedArticulation, type IAutoMovieAngleRange, type IAutoMovieValidateJointRom, type AutoMovieBodyRegion, type IAutoMovieActorWorldFrame, type IAutoMovieActorContext, type IAutoMovieMotion, type IAutoMovieActionTarget } from "@automovie/interface";
 
 import { resolveLookAt as resolveLookAtImplementation } from "./internal/resolveLookAt";
 import { resolvePose as resolvePoseImplementation } from "./internal/resolvePose";
@@ -1289,5 +1293,34 @@ export namespace AutoMovieEngineKinematics {
    */
   export function validateJointRom(props: IAutoMovieValidateJointRom.IProps): void {
     validateJointRomImplementation(props);
+  }
+
+  /**
+   * Read the fixed humanoid bone partition for lowerBody, upperBody and head.
+   * Face owns expression channels and returns no bones; fullBody returns their
+   * union. Fixed partition arrays are borrowed readonly values.
+   */
+  export function bodyRegionBones(region: AutoMovieBodyRegion): readonly AutoMovieHumanoidBone[] {
+    return bodyRegionBonesImplementation(region);
+  }
+
+  /**
+   * Resolve an admitted motion root at shot-local seconds through the context's
+   * staged rigid world frame. Missing motion or a null sampled root returns null.
+   * Output rotation and heading include the motion root; root scale is not
+   * represented.
+   */
+  export function resolveActorWorldFrame(context: IAutoMovieActorContext, motion: IAutoMovieMotion | undefined, seconds: number): IAutoMovieActorWorldFrame | null {
+    return resolveActorWorldFrameImplementation(context, motion, seconds);
+  }
+
+  /**
+   * Resolve a bone action target to world metres using its actor rig and sampled
+   * motion, or the rest pose when motion is absent. Non-bone targets, unknown
+   * actors/rigs or absent resolved bones return null. Staged heading/position are
+   * applied after pose-root FK exactly once.
+   */
+  export function resolveBoneTarget(target: IAutoMovieActionTarget, contexts: ReadonlyMap<string, IAutoMovieActorContext>, motions: Readonly<Record<string, IAutoMovieMotion>> | undefined, seconds: number): IAutoMovieVector3 | null {
+    return resolveBoneTargetImplementation(target, contexts, motions, seconds);
   }
 }

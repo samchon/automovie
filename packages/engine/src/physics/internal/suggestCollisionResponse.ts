@@ -6,7 +6,7 @@ import type {
   IAutoMovieSuggestCollisionResponse,
 } from "@automovie/interface";
 
-import { impactRecoil } from "../impactRecoil";
+import { impactRecoil } from "./impactRecoil";
 import { impulseToRecoilPush } from "./impulseToRecoilPush";
 import { resolveImpact } from "./resolveImpact";
 

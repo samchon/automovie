@@ -39,9 +39,7 @@ export type { ISelectAutoMoviePlacedChecks } from "./ISelectAutoMoviePlacedCheck
 
 
 
-export * from "./measureAutoMovieInspectionDefects.js";
 
-export * from "./measureAutoMovieInspectionMeshes.js";
 
 
 export * from "./observeAutoMovieCollisionMotion.js";
@@ -54,9 +52,8 @@ export * from "./observeAutoMovieSceneCollision.js";
 
 
 
-export * from "./resolveAutoMovieInspectionView.js";
 
-export * from "./selectAutoMoviePlacedChecks.js";
+
 
 export { AutoMovieRenderInspection } from "./AutoMovieRenderInspection.js";
 

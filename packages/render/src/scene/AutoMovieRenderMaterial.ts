@@ -2,7 +2,7 @@ import { defaultMaterial as defaultMaterialImplementation } from "./internal/def
 import { materialTextureBindings as materialTextureBindingsImplementation } from "./internal/materialTextureBindings.js";
 
 import type * as THREE from "three";
-import { type IAutoMovieShot, type AutoMovieTextureBinding, type IAutoMovieMaterial } from "@automovie/interface";
+import { type IAutoMovieShot, type AutoMovieTextureBinding, type IAutoMovieMaterial, type IAutoMovieRenderTextureResidency } from "@automovie/interface";
 import { type IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieTextureResolver } from "./IAutoMovieTextureResolver.js";
 import type { IMaterialShaderPatch } from "./IMaterialShaderPatch.js";
@@ -11,9 +11,26 @@ import { addMaterialShaderPatch as addMaterialShaderPatchImplementation } from "
 import { applyMaterialShaderPatches as applyMaterialShaderPatchesImplementation } from "./internal/applyMaterialShaderPatches.js";
 
 import { applyPracticalSurfaceMaterials as applyPracticalSurfaceMaterialsImplementation } from "./internal/applyPracticalSurfaceMaterials.js";
+import { readAutoMovieMaterialTextureSources as readMaterialTextureSourcesImplementation } from "./internal/readAutoMovieMaterialTextureSources.js";
+import { readMaterialShaderPatches as readShaderPatchesImplementation } from "./internal/readMaterialShaderPatches.js";
 
 /** Public operations for Auto Movie Render Material. */
 export namespace AutoMovieRenderMaterial {
+
+  /** Type-only input contract for runtime material texture residency. */
+  export namespace ReadMaterialTextureSources {
+    /** Scene state and previously retained observations for one scope. */
+    export interface IProps {
+      scope: string;
+      renderer: {
+        extensions: Pick<THREE.WebGLRenderer["extensions"], "has">;
+      };
+      scene: THREE.Scene;
+      retained?: readonly NonNullable<
+        IAutoMovieRenderTextureResidency["runtimeTextures"]
+      >[number][];
+    }
+  }
   /** One patch operation applied to the same caller-owned shader value. */
   export type IShaderPatchApplication<Shader> = {
     /** Update the shader in place after any earlier patches have run. */
@@ -92,5 +109,40 @@ export namespace AutoMovieRenderMaterial {
    */
   export function textureBindings(material: IAutoMovieMaterial): AutoMovieTextureBinding[] {
     return materialTextureBindingsImplementation(material);
+  }
+
+  /**
+   * Read actual implicit material and area-light lookup objects for one scope.
+   * Shader factories publish the same Texture reference they bind. The area pair
+   * follows WebGLLights' real extension choice without initializing tables.
+   * Caller-retained rows belong to this same renderer, survive material removal,
+   * and are dropped only after actual texture/context release. Current scope use
+   * labels are replaced on each observation; obsolete rows remain retained-only.
+   * Each row follows an actual Texture wrapper, not mutable UUIDs. Distinct
+   * wrappers retain their own current upload keys; the engine shares equivalent
+   * Source/key pairs. Reobserving one wrapper replaces its old state, matching
+   * native cache-key reference retirement after upload. This is a reachable
+   * current-state bound; a host requiring upload-transition peak storage supplies
+   * the previous phase separately until that phase's native release is observed.
+   * These are reachable-storage bounds, never a claim of current GLuint count. No
+   * shader, texture state or GPU lifetime is changed by the observation.
+   */
+  export function readMaterialTextureSources(
+    props: ReadMaterialTextureSources.IProps,
+  ): NonNullable<IAutoMovieRenderTextureResidency["runtimeTextures"]>[number][] {
+    return readMaterialTextureSourcesImplementation(props);
+  }
+
+  /**
+   * The shader patches `AutoMovieRenderMaterial.addShaderPatch` has put on a material, in the
+   * order they run, or none.
+   *
+   * A caller can run them on a bare shader source through
+   * `AutoMovieRenderMaterial.applyShaderPatches` to read the program a material will compile.
+   */
+  export function readShaderPatches(
+    material: THREE.Material,
+  ): readonly IMaterialShaderPatch[] {
+    return readShaderPatchesImplementation(material);
   }
 }

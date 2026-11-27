@@ -4,7 +4,7 @@ import {
   type IAutoMoviePlacement,
 } from "@automovie/interface";
 
-import { addPositiveModulo } from "../math/internal/addPositiveModulo";
+import { addPositiveModulo } from "../../math/internal/addPositiveModulo";
 
 /**
  * Arrange admitted clips on one actor's shot clock in stable start order.

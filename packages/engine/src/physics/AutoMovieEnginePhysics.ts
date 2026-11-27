@@ -1,3 +1,8 @@
+import { admitPhysicalPointBounds as admitPhysicalPointBoundsImplementation } from "./internal/admitPhysicalPointBounds";
+import { impactRecoil as impactRecoilImplementation } from "./internal/impactRecoil";
+import { inPhysicalFloorBounds as inPhysicalFloorBoundsImplementation } from "./internal/inPhysicalFloorBounds";
+import { physicalPointProjection as physicalPointProjectionImplementation } from "./internal/physicalPointProjection";
+
 import { admitMotionGeometry as admitMotionGeometryImplementation } from "./internal/admitMotionGeometry";
 import { attachPhysicalProfileHulls as attachPhysicalProfileHullsImplementation } from "./internal/attachPhysicalProfileHulls";
 import { derivePhysicalProfile as derivePhysicalProfileImplementation } from "./internal/derivePhysicalProfile";
@@ -80,7 +85,7 @@ import { solvePhysicalCompliantContacts as solvePhysicalCompliantContactsImpleme
 import { suggestCollisionResponse as suggestCollisionResponseImplementation } from "./internal/suggestCollisionResponse";
 import { warmPhysicalSupportTargets as warmPhysicalSupportTargetsImplementation } from "./internal/warmPhysicalSupportTargets";
 
-import { type IAutoMovieCombinePhysicalMassProperties, type IAutoMovieFootfallPattern, type IAutoMovieModel, type IAutoMoviePhysicalHullFaces, type IAutoMoviePhysicalHullMass, type IAutoMoviePhysicalProfile, type IAutoMoviePhysicalShape, type IAutoMoviePhysicalShapePairContact, type IAutoMoviePrimitiveShape, type IAutoMovieRigidTransform, type IAutoMovieVector3, type IAutoMovieMotionGeometry, type IAutoMovieDerivePhysicalProfile, type IAutoMovieQuaternion, type IAutoMoviePrincipalTensorFrame, type IAutoMoviePhysicalJoint, type IAutoMovieSamplePhysicalTarget, type IAutoMoviePhysicalShapeNearest, type IAutoMoviePhysicalShapeSurfaceAnchor, type IAutoMoviePhysicalFrame, type IAutoMoviePhysicalSimulationInput, type IAutoMoviePreparePhysicalGeometry, type IAutoMovieContactReceipt, type IAutoMoviePhysicalSegment, type IAutoMovieDerivePhysicalActuators, type IAutoMoviePoses, type IAutoMovieLinearizePhysicalTargetRows, type IAutoMovieMeasurePhysicalJointLimits, type IAutoMovieMeasurePhysicalMotionConstraint, type IAutoMoviePhysicalSegmentState, type IAutoMoviePhysicalGravityTorques, type IAutoMoviePhysicalJointEffort, type IAutoMoviePhysicalJointMotorCommand, type IAutoMoviePhysicalJointAxis, type IAutoMovieSolvePhysicalArticulationTargets, type IAutoMovieSolvePhysicalChainTarget, type IAutoMovieSolvePhysicalTargetStep, type IAutoMoviePhysicalContactBinding, type IAutoMoviePhysicalPointBound, type IAutoMovieCompiledEffect, type IAutoMovieCompileImpactEffects, type IAutoMovieDistributePhysicalSupportWrench, type IAutoMovieRecoilPush, type IAutoMoviePhysicalContactBindingRows, type IAutoMoviePhysicalContactSupportRows, type IAutoMoviePhysicalRecoveryState, type IAutoMovieStepPlanner, type IAutoMoviePhysicalSupportRootDrop, type IAutoMoviePlanPhysicalContactTargets, type IAutoMoviePlanPhysicalFloorSupportTargets, type IAutoMoviePlanPhysicalRootSupportTargets, type IAutoMoviePlanPhysicalSupportTargets, type IAutoMovieProjectPhysicalSupportReach, type IAutoMovieRecordPhysicalContact, type IAutoMovieImpact, type IAutoMovieImpactBodyState, type IAutoMovieResolvePhysicalSupportRedundancy, type IAutoMovieSampleContactSurfaceResponse, type IAutoMovieSamplePhysicalRecoveryGoal, type IAutoMovieSamplePhysicalRecoverySupport, type IAutoMovieSolvePhysicalCompliantContacts, type IAutoMovieCollisionResponse, type IAutoMovieSuggestCollisionResponse, type IAutoMovieWarmPhysicalSupportTargets } from "@automovie/interface";
+import { type IAutoMovieCombinePhysicalMassProperties, type IAutoMovieFootfallPattern, type IAutoMovieModel, type IAutoMoviePhysicalHullFaces, type IAutoMoviePhysicalHullMass, type IAutoMoviePhysicalProfile, type IAutoMoviePhysicalShape, type IAutoMoviePhysicalShapePairContact, type IAutoMoviePrimitiveShape, type IAutoMovieRigidTransform, type IAutoMovieVector3, type IAutoMovieMotionGeometry, type IAutoMovieDerivePhysicalProfile, type IAutoMovieQuaternion, type IAutoMoviePrincipalTensorFrame, type IAutoMoviePhysicalJoint, type IAutoMovieSamplePhysicalTarget, type IAutoMoviePhysicalShapeNearest, type IAutoMoviePhysicalShapeSurfaceAnchor, type IAutoMoviePhysicalFrame, type IAutoMoviePhysicalSimulationInput, type IAutoMoviePreparePhysicalGeometry, type IAutoMovieContactReceipt, type IAutoMoviePhysicalSegment, type IAutoMovieDerivePhysicalActuators, type IAutoMoviePoses, type IAutoMovieLinearizePhysicalTargetRows, type IAutoMovieMeasurePhysicalJointLimits, type IAutoMovieMeasurePhysicalMotionConstraint, type IAutoMoviePhysicalSegmentState, type IAutoMoviePhysicalGravityTorques, type IAutoMoviePhysicalJointEffort, type IAutoMoviePhysicalJointMotorCommand, type IAutoMoviePhysicalJointAxis, type IAutoMovieSolvePhysicalArticulationTargets, type IAutoMovieSolvePhysicalChainTarget, type IAutoMovieSolvePhysicalTargetStep, type IAutoMoviePhysicalContactBinding, type IAutoMoviePhysicalPointBound, type IAutoMovieCompiledEffect, type IAutoMovieCompileImpactEffects, type IAutoMovieDistributePhysicalSupportWrench, type IAutoMovieRecoilPush, type IAutoMoviePhysicalContactBindingRows, type IAutoMoviePhysicalContactSupportRows, type IAutoMoviePhysicalRecoveryState, type IAutoMovieStepPlanner, type IAutoMoviePhysicalSupportRootDrop, type IAutoMoviePlanPhysicalContactTargets, type IAutoMoviePlanPhysicalFloorSupportTargets, type IAutoMoviePlanPhysicalRootSupportTargets, type IAutoMoviePlanPhysicalSupportTargets, type IAutoMovieProjectPhysicalSupportReach, type IAutoMovieRecordPhysicalContact, type IAutoMovieImpact, type IAutoMovieImpactBodyState, type IAutoMovieResolvePhysicalSupportRedundancy, type IAutoMovieSampleContactSurfaceResponse, type IAutoMovieSamplePhysicalRecoveryGoal, type IAutoMovieSamplePhysicalRecoverySupport, type IAutoMovieSolvePhysicalCompliantContacts, type IAutoMovieCollisionResponse, type IAutoMovieSuggestCollisionResponse, type IAutoMovieWarmPhysicalSupportTargets, type IAutoMoviePose, type AutoMovieHumanoidBone, type IAutoMovieSkeleton } from "@automovie/interface";
 
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { bodyCenterOfMass } from "./internal/bodyCenterOfMass";
@@ -1185,5 +1190,50 @@ export namespace AutoMovieEnginePhysics {
    */
   export function warmPhysicalSupportTargets(input: IAutoMovieWarmPhysicalSupportTargets.IInput): Record<string, IAutoMovieRigidTransform> {
     return warmPhysicalSupportTargetsImplementation(input);
+  }
+
+  /**
+   * Admit candidate-relative point intervals without inventing anatomy, axes or a
+   * goal point.
+   */
+  export function admitPhysicalPointBounds(profiles: Readonly<Record<string, IAutoMoviePhysicalProfile>>, body: string, bounds: readonly IAutoMoviePhysicalPointBound[], ids: Set<string>): void {
+    admitPhysicalPointBoundsImplementation(profiles, body, bounds, ids);
+  }
+
+  /**
+   * Build the **flinch** a struck body yields under an impact: the reactive
+   * `push` (a deflection driven by the impulse) propagates down a `chain` of
+   * bones (from the contact bone toward the body) losing strength by `falloff`
+   * each link, and **each joint only yields as far as its ROM allows**
+   * ({@link IAutoMovieJointConstraint}). So what the hit _does_ to the body is
+   * bounded by the same joint ranges the engine already validates against: a neck
+   * can only snap so far, a spine only bend so much.
+   *
+   * This is the ROM-aware half of collision response: the reactive force decides
+   * how hard the push is, the joint ROM decides how far the body actually goes.
+   * The caller maps an {@link IAutoMovieImpact}'s impulse to the `push`
+   * magnitude.
+   */
+  export function impactRecoil(push: IAutoMovieRecoilPush, chain: AutoMovieHumanoidBone[], skeleton: IAutoMovieSkeleton, falloff?: number): IAutoMoviePose {
+    return impactRecoilImplementation(push, chain, skeleton, falloff);
+  }
+
+  /**
+   * Refuse a nonfinite or out-of-domain shape before it can leave the declared
+   * finite floor.
+   */
+  export function inPhysicalFloorBounds(pose: IAutoMovieRigidTransform, shape: IAutoMoviePhysicalShape, floor: IAutoMoviePhysicalSimulationInput.IInput["floorBounds"]): boolean {
+    return inPhysicalFloorBoundsImplementation(pose, shape, floor);
+  }
+
+  /**
+   * Evaluate one scalar relationship with coherent same-body motion and an actual
+   * external reference. The shape direction is converted from world to bone-local
+   * coordinates.
+   */
+  export function physicalPointProjection(body: string, profiles: Readonly<Record<string, IAutoMoviePhysicalProfile>>, actual: Readonly<
+    Record<string, Readonly<Record<string, IAutoMovieRigidTransform>>>
+  >, bound: IAutoMoviePhysicalPointBound, poses: Readonly<Record<string, IAutoMovieRigidTransform>>): number {
+    return physicalPointProjectionImplementation(body, profiles, actual, bound, poses);
   }
 }

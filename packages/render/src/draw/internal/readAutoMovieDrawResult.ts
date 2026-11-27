@@ -12,7 +12,7 @@ import { resolveAutoMovieCapturePatterns } from "../../capture/internal/resolveA
 import type { IAutoMovieInspectionHandle } from "../../scene/inspection/IAutoMovieInspectionHandle.js";
 import type { IAutoMovieInspectionPath } from "../../scene/inspection/IAutoMovieInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
-import type { resolveAutoMovieInspectionView } from "../../scene/inspection/resolveAutoMovieInspectionView.js";
+import type { AutoMovieRenderInspectionCamera } from "../../scene/inspection/AutoMovieRenderInspectionCamera.js";
 import { AutoMovieRenderSemanticMask } from "../../scene/semanticMask/index.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 
@@ -53,7 +53,7 @@ export function readAutoMovieDrawResult(props: {
   scene: THREE.Scene;
 
   /** The view resolved at the drawn second. */
-  resolved: ReturnType<typeof resolveAutoMovieInspectionView>;
+  resolved: AutoMovieRenderInspectionCamera.ResolveView.IResult;
 
   /** The call's shade. */
   shade: IAutoMovieDrawCall["request"]["shade"];

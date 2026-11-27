@@ -33,7 +33,7 @@ export * from "./accumulatePhysicalMotorTorques";
 
 
 
-export * from "./admitPhysicalPointBounds";
+
 
 
 
@@ -62,9 +62,9 @@ export * from "./configurePhysicalJointMotor";
 export * from "./encodePhysicalPlayback";
 
 
-export * from "./impactRecoil";
 
-export * from "./inPhysicalFloorBounds";
+
+
 
 
 
@@ -118,7 +118,7 @@ export * from "./physicalIcpPlannerTools";
 export * from "./physicalOneStepCaptureRegion";
 export * from "./physicalPlanarPolygon";
 export * from "./physicalPlanarPolygonEdges";
-export * from "./physicalPointProjection";
+
 export * from "./physicalInertiaTensor";
 
 export * from "./physicalPushRecovery";

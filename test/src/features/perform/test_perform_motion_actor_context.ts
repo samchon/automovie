@@ -1,10 +1,4 @@
-import {
-  Quaternion,
-  compilePerformance,
-  makeActorSynthesizer,
-  resolveActorWorldFrame,
-  sampleMotion,
-} from "@automovie/engine";
+import { Quaternion, makeActorSynthesizer, sampleMotion, AutoMovieEngineFilm, AutoMovieEngineKinematics } from "@automovie/engine";
 import type {
   IAutoMovieActionCall,
   IAutoMovieActorContext,
@@ -148,7 +142,7 @@ export function test_perform_motion_actor_context(): void {
     start: 0,
     duration: 5,
   };
-  const records = compilePerformance(
+  const records = AutoMovieEngineFilm.compilePerformance(
     [
       walk,
       look,
@@ -200,7 +194,7 @@ export function test_perform_motion_actor_context(): void {
     [keyframe(0, makePose([], root)), keyframe(1, makePose([], root))],
     1,
   );
-  const frame = resolveActorWorldFrame(
+  const frame = AutoMovieEngineKinematics.resolveActorWorldFrame(
     { ...rig, position: { x: 1, y: 0, z: 2 }, facingDeg: 90 },
     motion,
     1,
@@ -212,7 +206,7 @@ export function test_perform_motion_actor_context(): void {
   );
   TestValidator.equals(
     "no preliminary frame",
-    resolveActorWorldFrame(rig, undefined, 0),
+    AutoMovieEngineKinematics.resolveActorWorldFrame(rig, undefined, 0),
     null,
   );
   const moving = makeActorSynthesizer(

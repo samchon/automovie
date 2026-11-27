@@ -6,7 +6,7 @@ import type {
   IAutoMovieMotionHumanVerdicts,
 } from "@automovie/interface";
 import { AutoMovieMotionHumanVerdicts } from "@automovie/motions";
-import { type IAutoMovieDrawScene, selectAutoMoviePlacedChecks, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
+import { type IAutoMovieDrawScene, AutoMovieRenderInspection, AutoMovieRenderInspectionMarks, AutoMovieRenderDraw } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
@@ -114,7 +114,7 @@ export async function test_inspect_film_production(): Promise<void> {
     inspectionChecks: (
       sample: IAutoMovieDrawScene.IPlacedSample,
     ): ReturnType<NonNullable<IFilmProduction["inspectionChecks"]>> => [
-      ...selectAutoMoviePlacedChecks({
+      ...AutoMovieRenderInspection.PlacedScene.selectChecks({
         scene: sample.scene,
         time: sample.time,
         fps: FPS,

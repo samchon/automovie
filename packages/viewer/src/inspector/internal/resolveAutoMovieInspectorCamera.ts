@@ -1,5 +1,5 @@
 import type { IAutoMovieInspectionView } from "@automovie/interface";
-import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, resolveAutoMovieInspectionView, AutoMovieRenderInspectionRequest } from "@automovie/render";
+import { type IAutoMovieDrawScene, type IAutoMovieInspectionHandle, AutoMovieRenderInspectionCamera, AutoMovieRenderInspectionRequest } from "@automovie/render";
 import type * as THREE from "three";
 
 /**
@@ -32,7 +32,7 @@ export function resolveAutoMovieInspectorCamera(props: {
     instance.camera.updateProjectionMatrix();
   }
   const view: IAutoMovieInspectionView = AutoMovieRenderInspectionRequest.parseView(text);
-  return resolveAutoMovieInspectionView({
+  return AutoMovieRenderInspectionCamera.resolveView({
     view,
     text,
     bounds: view.type === "named" ? props.inspection.bounds(view.focus) : null,

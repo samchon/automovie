@@ -13,7 +13,7 @@ import {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { compilePerformance } from "../../perform/compilePerformance";
+import { compilePerformance } from "../../perform/internal/compilePerformance";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { compileLaunch } from "./compileLaunch";
 import { performShotActors } from "./performShotActors";

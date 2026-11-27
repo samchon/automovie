@@ -7,7 +7,7 @@ import {
   IAutoMoviePose,
 } from "@automovie/interface";
 
-import { Transform } from "../math/Transform";
+import { Transform } from "../../math/Transform";
 
 const GENERIC: Set<string> = new Set<string>([
   "bow",

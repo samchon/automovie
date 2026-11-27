@@ -1,7 +1,7 @@
 export { AutoMovieArchetypeBall } from "./AutoMovieArchetypeBall";
-export * from "./createBowlingLane";
+export { AutoMovieArchetypeBowlingLane } from "./AutoMovieArchetypeBowlingLane";
 export * from "./createBowlingPin";
-export * from "./createCricketWicket";
+export { AutoMovieArchetypeCricketWicket } from "./AutoMovieArchetypeCricketWicket";
 export { AutoMovieArchetypeCue } from "./AutoMovieArchetypeCue";
 export { AutoMovieArchetypeCueTable } from "./AutoMovieArchetypeCueTable";
 export { AutoMovieArchetypeDiscus } from "./AutoMovieArchetypeDiscus";

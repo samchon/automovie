@@ -14,14 +14,14 @@ import type {
 
 import type { IPhysicalContactPoseReference } from "./IPhysicalContactPoseReference";
 import type { ResolvePhysicalContactPose } from "./ResolvePhysicalContactPose";
-import { admitPhysicalPointBounds } from "../admitPhysicalPointBounds";
+import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { initialPhysicalContactTargets } from "./initialPhysicalContactTargets";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 import { linearizePhysicalInterval } from "./linearizePhysicalInterval";
 import { linearizePhysicalSeparation } from "../linearizePhysicalSeparation";
 import { physicalContactBindingRows } from "./physicalContactBindingRows";
 import { physicalContactSupportRows } from "./physicalContactSupportRows";
-import { physicalPointProjection } from "../physicalPointProjection";
+import { physicalPointProjection } from "./physicalPointProjection";
 import { preparePhysicalContactBindingRows } from "./preparePhysicalContactBindingRows";
 
 type Input = IAutoMoviePlanPhysicalContactTargets.IInput;

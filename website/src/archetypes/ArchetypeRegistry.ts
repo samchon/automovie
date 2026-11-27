@@ -388,6 +388,8 @@ const STABLE_PRODUCER_IDS: Readonly<Record<string, string>> = {
   AutoMovieArchetypePadelCourt: "createPadelCourt",
   AutoMovieArchetypeSquashCourt: "createSquashCourt",
   AutoMovieArchetypeTableTennisTable: "createTableTennisTable",
+  AutoMovieArchetypeBowlingLane: "createBowlingLane",
+  AutoMovieArchetypeCricketWicket: "createCricketWicket",
 };
 
 /** The website's local resolver for the installed archetype package. */

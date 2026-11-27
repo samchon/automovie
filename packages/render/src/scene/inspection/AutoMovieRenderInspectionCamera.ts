@@ -1,17 +1,58 @@
-import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene } from "three";
-import type { IAutoMovieCameraInspection, IAutoMovieInspectionDiagnostics, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
+import { type Box3, type Mesh, type Object3D, type Camera, type Plane, type Matrix4, type Scene, type PerspectiveCamera, type OrthographicCamera } from "three";
+import type { IAutoMovieCameraInspection, IAutoMovieInspectionCamera, IAutoMovieInspectionDiagnostics, IAutoMovieInspectionView, IAutoMovieSubjectBox, IAutoMovieVector3 } from "@automovie/interface";
 import type { IAutoMovieDrawScene } from "../../draw/IAutoMovieDrawScene.js";
+import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
 import { boundAutoMovieCameraSubject as boundAutoMovieCameraSubjectImplementation } from "./internal/boundAutoMovieCameraSubject.js";
 import { listAutoMovieCameraSubjectMeshes as listAutoMovieCameraSubjectMeshesImplementation } from "./internal/listAutoMovieCameraSubjectMeshes.js";
 import { measureAutoMovieCameraFrameEdgeSurface as measureFrameEdgeSurfaceImplementation } from "./internal/measureAutoMovieCameraFrameEdgeSurface.js";
 
 import { measureAutoMovieCameraNearClip } from "./internal/measureAutoMovieCameraNearClip.js";
+import { resolveAutoMovieInspectionView as resolveViewImplementation } from "./internal/resolveAutoMovieInspectionView.js";
 import { measureAutoMovieCameraFrameEdge } from "./internal/measureAutoMovieCameraFrameEdge.js";
 import { observeAutoMovieCameraInspection } from "./internal/observeAutoMovieCameraInspection.js";
 import { observeAutoMoviePlacedCamera } from "./internal/observeAutoMoviePlacedCamera.js";
 
 /** Public operations for Auto Movie Render Inspection Camera. */
 export namespace AutoMovieRenderInspectionCamera {
+  /** Named input and result contracts for resolving one inspection view. */
+  export namespace ResolveView {
+    /** Inputs used to resolve an inspection camera and its record. */
+    export interface IProps {
+      /** The view, as `parseAutoMovieInspectionView` read it. */
+      view: IAutoMovieInspectionView;
+      /** The view's text, kept in the record. */
+      text: string;
+      /** World box a fitted view frames, or null when nothing is drawn. */
+      bounds: IAutoMovieViewerSubjectBounds | null;
+      /**
+       * The subject's delivery camera: the film view itself, and the field of
+       * view and clips the other views take.
+       */
+      camera: PerspectiveCamera;
+      /** The subject's own views by name, each placing a camera at a second. */
+      views?: Readonly<
+        Record<
+          string,
+          (seconds: number) => {
+            position: readonly [number, number, number];
+            target: readonly [number, number, number];
+          }
+        >
+      >;
+      /** The film second drawn. */
+      seconds: number;
+      /** Picture width, pixels. */
+      width: number;
+      /** Picture height, pixels. */
+      height: number;
+    }
+
+    /** Resolved camera and its serializable inspection camera record. */
+    export interface IResult {
+      camera: PerspectiveCamera | OrthographicCamera;
+      record: IAutoMovieInspectionCamera;
+    }
+  }
   /** Named public input and result contracts for near-clip measurement. */
   export namespace NearClip {
     /** The delivery camera and a required subject's admitted meshes. */
@@ -336,4 +377,57 @@ export namespace AutoMovieRenderInspectionCamera {
   ): IFrameEdgeSurfaceResult {
     return measureFrameEdgeSurfaceImplementation(props);
   }
+
+
+  /**
+   * Turn an inspection view into the camera that draws it and the record that
+   * repeats it, for a picture of `width` by `height` pixels at film second
+   * `seconds`.
+   *
+   * | View                                  | Camera                                                                                                                                                                                                      |
+   * | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   * | `film`                                | The subject's own `camera`, returned unchanged                                                                                                                                                              |
+   * | Fixed                                 | A perspective camera at the position looking at the target, with the subject camera's field of view and clips, rolled to the view's up when it states one                                                   |
+   * | Fixed with a scale                    | An orthographic camera at the position looking at the target, the picture's height spanning the scale times its pixels, with clips at a quarter and three and a half times the eye's distance to the target |
+   * | A name the subject's `views` holds    | A perspective camera where that view places it at `seconds`, with the subject camera's field of view and clips                                                                                              |
+   * | A named viewpoint                     | A perspective camera from the viewpoint's direction fitted to `bounds` by `frameAutoMovieViewerSubject`, with the subject camera's field of view                                                            |
+   * | A named viewpoint with `orthographic` | An orthographic camera from the same direction whose frame holds every corner of `bounds`, by the same margin                                                                                               |
+   *
+   * `bounds` is what the view frames: the host measures it on what is drawn, or
+   * on the focus the view names through the inspection handle's `bounds`. A
+   * subject's view wins a name over a named viewpoint, because the subject knows
+   * its own staging. A vertical named view takes the up direction its viewpoint
+   * documents, `-Z` from the top and `+Z` from the bottom; every other view takes
+   * `+Y`. The record's `metresPerPixel` is the orthographic frame's height over
+   * `height`.
+   *
+   * `@follow` changes only which seconds a host measures `bounds` over, the drawn
+   * second alone, so it resolves as the fit it modifies. A fixed camera with a
+   * scale repeats a fitted orthographic view exactly, because that view stands
+   * twice its frame's radius from its target with clips at half and seven times
+   * the radius.
+   *
+   * It throws for a size that is not positive, an unknown name with the accepted
+   * names listed, a subject view asked to be orthographic, followed or focused,
+   * and a fitted view without bounds, which means nothing is drawn to frame.
+   *
+   * ```ts
+   * const { camera, record } = AutoMovieRenderInspectionCamera.resolveView({
+   *   view: parseAutoMovieInspectionView("front@ortho"),
+   *   text: "front@ortho",
+   *   bounds: inspection.bounds(),
+   *   camera: production.camera,
+   *   views: production.views,
+   *   seconds,
+   *   width: 960,
+   *   height: 540,
+   * });
+   * ```
+   */
+  export function resolveView(
+    props: ResolveView.IProps,
+  ): ResolveView.IResult {
+    return resolveViewImplementation(props);
+  }
+
 }

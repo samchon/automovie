@@ -1,11 +1,9 @@
 import type { IAutoMovieMeshDefect } from "@automovie/interface";
 import * as THREE from "three";
 
-import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
-import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
-import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
-import { measureAutoMovieInspectionDefects } from "./measureAutoMovieInspectionDefects.js";
-import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGeometry.js";
+import { AutoMovieThreeKind } from "../../AutoMovieThreeKind.js";
+import type { IAutoMovieInspectionMeasured } from "../IAutoMovieInspectionMeasured.js";
+import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
 
 /**
  * Find the meshes an inspection draws and measure on them the kinds it measures
@@ -19,25 +17,9 @@ import { AutoMovieRenderInspectionGeometry } from "./AutoMovieRenderInspectionGe
  * kinds that exist under the request: the sliver kind only while a sliver limit
  * is set.
  */
-export function measureAutoMovieInspectionMeshes(props: {
-  /** Every drawn object of the scene with its path. */
-  drawn: readonly IAutoMovieInspectionPath[];
-
-  /** The engine defect kinds that exist under the request. */
-  defects: readonly IAutoMovieMeshDefect.Kind[];
-
-  /** Sliver aspect limit, or null. */
-  sliver: number | null;
-
-  /** Whether the request asks for a kind. */
-  asks: (kind: string) => boolean;
-
-  /** Whether `hide` leaves a path out. */
-  hidden: (path: string) => boolean;
-}): {
-  meshes: { path: string; mesh: THREE.Mesh }[];
-  measured: IAutoMovieInspectionMeasured[];
-} {
+export function measureAutoMovieInspectionMeshesImplementation(
+  props: AutoMovieRenderInspectionGeometry.MeasureMeshes.IProps,
+): AutoMovieRenderInspectionGeometry.MeasureMeshes.IResult {
   const meshes: { path: string; mesh: THREE.Mesh }[] = [];
   for (const { path, object } of props.drawn)
     if (
@@ -68,7 +50,7 @@ export function measureAutoMovieInspectionMeshes(props: {
     >();
     for (const { path, mesh } of kept)
       measured.push(
-        measureAutoMovieInspectionDefects({
+        AutoMovieRenderInspectionGeometry.measureDefects({
           mesh,
           path,
           kinds,

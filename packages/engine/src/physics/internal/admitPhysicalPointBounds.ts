@@ -5,7 +5,7 @@ import type {
   IAutoMoviePhysicalShape,
 } from "@automovie/interface";
 
-import { isPhysicalActuatorChain } from "./internal/isPhysicalActuatorChain";
+import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 
 /**
  * Admit candidate-relative point intervals without inventing anatomy, axes or a

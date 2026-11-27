@@ -1,5 +1,5 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
-import { AutoMovieSkinnedMesh, createAutoMovieSurfaceAppearance, readAutoMovieBufferAttribute, readMaterialShaderPatches, AutoMovieRenderDualQuaternionSkinning } from "@automovie/render";
+import { AutoMovieSkinnedMesh, createAutoMovieSurfaceAppearance, readAutoMovieBufferAttribute, AutoMovieRenderMaterial, AutoMovieRenderDualQuaternionSkinning } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import assert from "node:assert/strict";
 import * as THREE from "three";
@@ -82,8 +82,8 @@ export function test_render_scene_create_surface_appearance(): void {
       ownedMaterial.onBeforeCompile !== material.onBeforeCompile ||
       ownedMaterial.customProgramCacheKey() !==
         material.customProgramCacheKey() ||
-      readMaterialShaderPatches(ownedMaterial).length !==
-        readMaterialShaderPatches(material).length
+      AutoMovieRenderMaterial.readShaderPatches(ownedMaterial).length !==
+        AutoMovieRenderMaterial.readShaderPatches(material).length
     )
       findings.push("dual-quaternion shader patch ownership");
     appearance.update(0);

@@ -11,7 +11,7 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-import { admitPhysicalPointBounds } from "../admitPhysicalPointBounds";
+import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
 

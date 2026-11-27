@@ -33,7 +33,7 @@ import { legendAutoMovieInspectionMarks } from "./legendAutoMovieInspectionMarks
 import { listAutoMovieInspectionPaths } from "./listAutoMovieInspectionPaths.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import { AutoMovieRenderInspectionGeometry } from "../AutoMovieRenderInspectionGeometry.js";
-import { measureAutoMovieInspectionMeshes } from "../measureAutoMovieInspectionMeshes.js";
+
 
 import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegends.js";
 import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
@@ -150,10 +150,7 @@ export function applyAutoMovieInspection(
   const {
     meshes,
     measured,
-  }: {
-    meshes: { path: string; mesh: THREE.Mesh }[];
-    measured: IAutoMovieInspectionMeasured[];
-  } = measureAutoMovieInspectionMeshes({
+  }: AutoMovieRenderInspectionGeometry.MeasureMeshes.IResult = AutoMovieRenderInspectionGeometry.measureMeshes({
     drawn,
     defects,
     sliver: request.sliver,

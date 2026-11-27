@@ -9,7 +9,7 @@ import {
 
 import { POSITIONAL_TARGET_SHAPE } from "../../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../../perform/positionalTargetFault";
-import { resolveTargetPoint } from "../../perform/resolveTargetPoint";
+import { resolveTargetPoint } from "../../perform/internal/resolveTargetPoint";
 
 /** The staged lookups and collector one positional target reads. */
 type ITargetContext = Pick<
