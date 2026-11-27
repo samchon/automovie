@@ -1,7 +1,6 @@
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
@@ -10,6 +9,7 @@ import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeBookcase } from "../../furniture/AutoMovieArchetypeBookcase";
 import { AutoMovieArchetypeSeat } from "../../furniture/AutoMovieArchetypeSeat";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { furnishRoom } from "./furnishRoom";
 
 /**
@@ -33,7 +33,8 @@ import { furnishRoom } from "./furnishRoom";
  *   `keepClear` area, naming the role.
  */
 export function createLivingRoomKit(
-  params: createLivingRoomKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.LivingRoomKit.IParams,
+  defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -43,12 +44,15 @@ export function createLivingRoomKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const gap: number = params.tableGap ?? createLivingRoomKit.TABLE_GAP;
+    const gap: number = params.tableGap ?? defaultGap;
     if (!(gap >= 0))
       throw new Error(
         `${context.id} tableGap needs a finite nonnegative distance: ${gap}`,
       );
-    const sofa: IAutoMovieModel = AutoMovieArchetypeSeat.create({ kind: "sofa" }, draw("sofa"));
+    const sofa: IAutoMovieModel = AutoMovieArchetypeSeat.create(
+      { kind: "sofa" },
+      draw("sofa"),
+    );
     const coffee: IAutoMovieModel = AutoMovieArchetypeTable.create(
       { kind: "coffee" },
       draw("coffee"),
@@ -57,7 +61,10 @@ export function createLivingRoomKit(
       { kind: "armchair" },
       draw("armchair"),
     );
-    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create({}, draw("bookcase"));
+    const bookcase: IAutoMovieModel = AutoMovieArchetypeBookcase.create(
+      {},
+      draw("bookcase"),
+    );
     const sofaBox: IAutoMoviePropBox = furnishRoom.measure(sofa);
     const coffeeBox: IAutoMoviePropBox = furnishRoom.measure(coffee);
     const armchairBox: IAutoMoviePropBox = furnishRoom.measure(armchair);
@@ -117,23 +124,4 @@ export function createLivingRoomKit(
       },
     });
   };
-}
-
-/** The living-room kit's parameters and its default sofa-to-table gap. */
-export namespace createLivingRoomKit {
-  /**
-   * The default clear floor in metres between the sofa's and the coffee table's
-   * front faces: an authored layout default, not a published clearance.
-   */
-  export const TABLE_GAP: number = 0.45;
-
-  /** The room layout and the sofa-to-table gap. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /**
-     * Clear floor in metres between the sofa's and the coffee table's front
-     * faces, and between the table and the armchairs. The default is
-     * {@link TABLE_GAP}.
-     */
-    readonly tableGap?: number;
-  }
 }

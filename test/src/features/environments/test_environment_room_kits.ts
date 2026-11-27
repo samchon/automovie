@@ -1,4 +1,4 @@
-import { createBedroomKit, createKitchenKit, createLivingRoomKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { Quaternion, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -165,7 +165,7 @@ export function test_environment_room_kits(): void {
   const LIVING: readonly [number, number] = [5, 4.5];
   const OFFICE: readonly [number, number] = [8, 7];
   const living: IAutoMovieEnvironment = build(
-    createLivingRoomKit({ room: LIVING }),
+    AutoMovieEnvironmentFurnishing.livingRoomKit({ room: LIVING }),
   );
   const office: IAutoMovieEnvironment = build(
     AutoMovieEnvironmentFurnishing.officeKit({ room: OFFICE, desks: 3 }),
@@ -173,17 +173,17 @@ export function test_environment_room_kits(): void {
 
   // The bedroom's bound comes from the drawn bed, read from a roomy build.
   const roomy: IAutoMovieEnvironment = build(
-    createBedroomKit({ room: [6, 4.2] }),
+    AutoMovieEnvironmentFurnishing.bedroomKit({ room: [6, 4.2] }),
   );
   const bedRest: IAutoMoviePropBox = restOf(roomy, "bed");
   const bound: number = bedRest.max.x - bedRest.min.x + 2 * 0.76;
   const BEDROOM: readonly [number, number] = [bound + 0.1, 4.2];
   const bedroom: IAutoMovieEnvironment = build(
-    createBedroomKit({ room: BEDROOM }),
+    AutoMovieEnvironmentFurnishing.bedroomKit({ room: BEDROOM }),
   );
 
   // The kitchen leaves 1.10 m in front of its deepest work piece.
-  const wide: IAutoMovieEnvironment = build(createKitchenKit({ room: [8, 3] }));
+  const wide: IAutoMovieEnvironment = build(AutoMovieEnvironmentFurnishing.kitchenKit({ room: [8, 3] }));
   const run: string[] = ROLES.kitchen!.slice();
   const runWidth: number = run.reduce((sum: number, role: string): number => {
     const rest: IAutoMoviePropBox = restOf(wide, role);
@@ -197,7 +197,7 @@ export function test_environment_room_kits(): void {
   );
   const KITCHEN: readonly [number, number] = [runWidth + 0.3, frontage + 1.1];
   const kitchen: IAutoMovieEnvironment = build(
-    createKitchenKit({ room: KITCHEN, cooks: 1 }),
+    AutoMovieEnvironmentFurnishing.kitchenKit({ room: KITCHEN, cooks: 1 }),
   );
 
   const facts: Record<string, boolean> = namedFacts([
@@ -222,7 +222,7 @@ export function test_environment_room_kits(): void {
       (): boolean =>
         throwsError(
           (): IAutoMovieEnvironment =>
-            build(createBedroomKit({ room: [bound - 0.1, 4.2] })),
+            build(AutoMovieEnvironmentFurnishing.bedroomKit({ room: [bound - 0.1, 4.2] })),
           ["flat/room bed", "side clearance"],
         ),
     ],
@@ -231,7 +231,7 @@ export function test_environment_room_kits(): void {
       (): boolean =>
         throwsError(
           (): IAutoMovieEnvironment =>
-            build(createKitchenKit({ room: KITCHEN, cooks: 2 })),
+            build(AutoMovieEnvironmentFurnishing.kitchenKit({ room: KITCHEN, cooks: 2 })),
           ["flat/room", "work aisle clearance"],
         ),
     ],
@@ -291,7 +291,7 @@ export function test_environment_room_kits(): void {
         ): boolean =>
           [3, 4].every((seed: number): boolean => {
             const room: IAutoMovieEnvironment = build(
-              createLivingRoomKit({
+              AutoMovieEnvironmentFurnishing.livingRoomKit({
                 room: LIVING,
                 ...(gap === undefined ? {} : { tableGap: gap }),
               }),
@@ -310,7 +310,7 @@ export function test_environment_room_kits(): void {
         return (
           Math.abs(
             sofaDepth(living) -
-              sofaDepth(build(createLivingRoomKit({ room: LIVING }), 4)),
+              sofaDepth(build(AutoMovieEnvironmentFurnishing.livingRoomKit({ room: LIVING }), 4)),
           ) > 1e-3 &&
           follows(undefined) &&
           follows(0.6)
@@ -322,11 +322,11 @@ export function test_environment_room_kits(): void {
       (): boolean =>
         [
           (): IAutoMovieEnvironment =>
-            build(createLivingRoomKit({ room: LIVING })),
+            build(AutoMovieEnvironmentFurnishing.livingRoomKit({ room: LIVING })),
           (): IAutoMovieEnvironment =>
-            build(createBedroomKit({ room: BEDROOM })),
+            build(AutoMovieEnvironmentFurnishing.bedroomKit({ room: BEDROOM })),
           (): IAutoMovieEnvironment =>
-            build(createKitchenKit({ room: KITCHEN, cooks: 1 })),
+            build(AutoMovieEnvironmentFurnishing.kitchenKit({ room: KITCHEN, cooks: 1 })),
           (): IAutoMovieEnvironment =>
             build(AutoMovieEnvironmentFurnishing.officeKit({ room: OFFICE, desks: 3 })),
         ].every((make: () => IAutoMovieEnvironment): boolean => {

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSeat, AutoMovieArchetypeDrawerUnit, AutoMovieArchetypePlatformBed, AutoMovieArchetypeMirror, AutoMovieArchetypeTable } from "@automovie/archetypes";
-import { createFurnishedRoom, AutoMovieEnvironment } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { Quaternion, Transform, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   AutoMovieFurnishingWall,
@@ -82,7 +82,7 @@ export function test_environment_furnishing_relations(): void {
       seed: 7,
       items: {
         room: {
-          use: createFurnishedRoom({
+          use: AutoMovieEnvironmentFurnishing.furnishedRoom({
             room,
             pieces,
             ...(keepClear !== undefined ? { keepClear } : {}),
@@ -230,7 +230,7 @@ export function test_environment_furnishing_relations(): void {
     mirror: { model: mirror, place: { kind: "wall", wall: "+x", offset: 1.0 } },
   };
   const hung: IAutoMovieEnvironment = build([4.0, 3.2], hungPieces);
-  const contribution: IAutoMovieEnvironmentContribution = createFurnishedRoom({
+  const contribution: IAutoMovieEnvironmentContribution = AutoMovieEnvironmentFurnishing.furnishedRoom({
     room: [4.0, 3.2],
     pieces: hungPieces,
   })({

@@ -1,4 +1,4 @@
-import { createGymKit, createLift, createPassage, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { createLift, createPassage, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieArchetypeSeat } from "@automovie/archetypes/furniture";
 import type {
   IAutoMovieEnvironment,
@@ -38,7 +38,7 @@ export function bridgeCampus(): compileEnvironmentExample.IInput {
       },
       lift: { use: lift, at: { x: 15, y: 0, z: -1.255 } },
       gym: {
-        use: createGymKit({ room: [8, 8], stations: 1 }),
+        use: AutoMovieEnvironmentFurnishing.gymKit({ room: [8, 8], stations: 1 }),
         at: { anchor: "east/ground/room" },
       },
       garden: {

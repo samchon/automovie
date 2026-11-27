@@ -1,7 +1,6 @@
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
@@ -9,6 +8,7 @@ import type {
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeBench } from "../../gym/AutoMovieArchetypeBench";
 import { AutoMovieArchetypeDumbbell } from "../../gym/AutoMovieArchetypeDumbbell";
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { furnishRoom } from "./furnishRoom";
 
 /**
@@ -25,7 +25,7 @@ import { furnishRoom } from "./furnishRoom";
  * @throws When the requested stations or their clearances do not fit.
  */
 export function createGymKit(
-  params: createGymKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.GymKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -69,13 +69,4 @@ export function createGymKit(
       },
     });
   };
-}
-
-/** Types of the gym kit producer. */
-export namespace createGymKit {
-  /** The room layout and the positive integer count of the kit's repeated group. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Positive integer count of free-weight stations. */
-    readonly stations: number;
-  }
 }

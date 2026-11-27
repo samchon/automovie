@@ -1,10 +1,10 @@
 import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
-  IAutoMovieFurnishingLayout,
   IAutoMovieFurnishingPiece,
 } from "@automovie/interface";
 
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
 
@@ -29,7 +29,7 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  *   names the role.
  */
 export function createFurnishedRoom(
-  params: createFurnishedRoom.IParams,
+  params: AutoMovieEnvironmentFurnishing.FurnishedRoom.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -51,13 +51,4 @@ export function createFurnishedRoom(
         ),
       ),
     });
-}
-
-/** The furnished room's parameters. */
-export namespace createFurnishedRoom {
-  /** The room layout and its ordered pieces. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** Pieces by role, resolved in record order. */
-    readonly pieces: Readonly<Record<string, IAutoMovieFurnishingPiece>>;
-  }
 }

@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeDrinkware } from "@automovie/archetypes";
-import { createGymKit, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import type {
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentItem,
@@ -62,7 +62,7 @@ export function test_environment_furnishing(): void {
     },
     gym: {
       at: { x: -10, y: 0, z: 0 },
-      use: createGymKit({ room: [6, 5], stations: 2 }),
+      use: AutoMovieEnvironmentFurnishing.gymKit({ room: [6, 5], stations: 2 }),
     },
   };
   const plan: IAutoMovieEnvironment = AutoMovieEnvironment.create({
@@ -153,7 +153,7 @@ export function test_environment_furnishing(): void {
       (): IAutoMovieEnvironment =>
         AutoMovieEnvironment.create({
           id: "small",
-          items: { gym: { use: createGymKit({ room: [2, 2], stations: 3 }) } },
+          items: { gym: { use: AutoMovieEnvironmentFurnishing.gymKit({ room: [2, 2], stations: 3 }) } },
         }),
       ["small/gym", "stations cannot fit 3"],
     ) &&

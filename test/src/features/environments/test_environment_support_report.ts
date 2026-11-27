@@ -1,5 +1,5 @@
 import { AutoMovieArchetypeSeat, AutoMovieArchetypeMoldedCrate, AutoMovieArchetypeMirror, AutoMovieArchetypeRock, AutoMovieArchetypeDrinkware, AutoMovieArchetypeTable } from "@automovie/archetypes";
-import { createFurnishedRoom, AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
+import { AutoMovieEnvironment, AutoMovieEnvironmentFurnishing } from "@automovie/archetypes/environments";
 import { AutoMovieEngineBuiltEnvironment, AutoMovieEngineBuiltEnvironmentWorkflow, AutoMovieEngineFilm } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
@@ -157,7 +157,7 @@ export function test_environment_support_report(): void {
     items: {
       land: level(),
       room: {
-        use: createFurnishedRoom({
+        use: AutoMovieEnvironmentFurnishing.furnishedRoom({
           room: [4, 3.2],
           pieces: {
             mirror: {
@@ -206,7 +206,7 @@ export function test_environment_support_report(): void {
     items: {
       floor: level(),
       room: {
-        use: createFurnishedRoom({
+        use: AutoMovieEnvironmentFurnishing.furnishedRoom({
           room: [4, 3.2],
           pieces: {
             sofa: {
@@ -407,7 +407,7 @@ export function test_environment_support_report(): void {
           items: {
             land: level(),
             room: {
-              use: createFurnishedRoom({
+              use: AutoMovieEnvironmentFurnishing.furnishedRoom({
                 room: [4, 3.2],
                 pieces: {
                   mirror: {

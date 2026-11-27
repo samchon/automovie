@@ -2,7 +2,6 @@ import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
   IAutoMovieFurnishingClearance,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
@@ -11,6 +10,7 @@ import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeDrawerUnit } from "../../furniture/AutoMovieArchetypeDrawerUnit";
 import { AutoMovieArchetypeHingedCabinet } from "../../furniture/AutoMovieArchetypeHingedCabinet";
 import { AutoMovieArchetypePlatformBed } from "../../furniture/AutoMovieArchetypePlatformBed";
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 
@@ -36,7 +36,8 @@ import { furnishRoom } from "./furnishRoom";
  *   clearance or `keepClear` area, naming the role and clearance.
  */
 export function createBedroomKit(
-  params: createBedroomKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.BedroomKit.IParams,
+  defaultGap: number,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -46,7 +47,7 @@ export function createBedroomKit(
       role: string,
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
-    const chestGap: number = params.chestGap ?? createBedroomKit.CHEST_GAP;
+    const chestGap: number = params.chestGap ?? defaultGap;
     if (!(chestGap >= 0))
       throw new Error(
         `${context.id} chestGap needs a finite nonnegative distance: ${chestGap}`,
@@ -105,25 +106,4 @@ export function createBedroomKit(
       },
     });
   };
-}
-
-/** The bedroom kit's parameters and its default wardrobe-to-chest gap. */
-export namespace createBedroomKit {
-  /**
-   * The default gap in metres between the wardrobe and the chest: an authored
-   * layout default.
-   */
-  export const CHEST_GAP: number = 0.1;
-
-  /** The room layout, the bed size and the wardrobe-to-chest gap. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** The household bed size. The default is `"double"`. */
-    readonly bed?: "single" | "double";
-
-    /**
-     * Gap in metres between the wardrobe's and the chest's boxes along the `+z`
-     * wall. The default is {@link CHEST_GAP}.
-     */
-    readonly chestGap?: number;
-  }
 }

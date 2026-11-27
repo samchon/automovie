@@ -2,7 +2,6 @@ import type {
   IAutoMovieEnvironmentContribution,
   IAutoMovieEnvironmentModule,
   IAutoMovieFurnishingClearance,
-  IAutoMovieFurnishingLayout,
   IAutoMovieModel,
   IAutoMoviePropBox,
 } from "@automovie/interface";
@@ -11,6 +10,7 @@ import { AutoMovieArchetypeRange } from "../../architecture/AutoMovieArchetypeRa
 import { AutoMovieArchetypeRefrigerator } from "../../architecture/AutoMovieArchetypeRefrigerator";
 import { deriveArchetypeSeed } from "../../core/internal/deriveArchetypeSeed";
 import { AutoMovieArchetypeTable } from "../../furniture/AutoMovieArchetypeTable";
+import type { AutoMovieEnvironmentFurnishing } from "../AutoMovieEnvironmentFurnishing";
 import { ROOM_CLEARANCES } from "./ROOM_CLEARANCES";
 import { furnishRoom } from "./furnishRoom";
 import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
@@ -35,7 +35,7 @@ import type { resolveFurnishingPieces } from "./resolveFurnishingPieces";
  *   the role and the work aisle, or when `cooks` is not 1 or 2.
  */
 export function createKitchenKit(
-  params: createKitchenKit.IParams,
+  params: AutoMovieEnvironmentFurnishing.KitchenKit.IParams,
 ): IAutoMovieEnvironmentModule {
   return (
     context: IAutoMovieEnvironmentModule.IContext,
@@ -56,7 +56,10 @@ export function createKitchenKit(
       { kind: "counter" },
       draw("counter"),
     );
-    const range: IAutoMovieModel = AutoMovieArchetypeRange.create({}, draw("range"));
+    const range: IAutoMovieModel = AutoMovieArchetypeRange.create(
+      {},
+      draw("range"),
+    );
     const aisle: number = (
       cooks === 1 ? ROOM_CLEARANCES.workAisle : ROOM_CLEARANCES.sharedWorkAisle
     ).depth;
@@ -97,13 +100,4 @@ export function createKitchenKit(
       },
     });
   };
-}
-
-/** The kitchen kit's parameters. */
-export namespace createKitchenKit {
-  /** The room layout and the number of cooks the work aisle serves. */
-  export interface IParams extends IAutoMovieFurnishingLayout {
-    /** One or two cooks, choosing the NKBA work aisle. The default is 1. */
-    readonly cooks?: 1 | 2;
-  }
 }
