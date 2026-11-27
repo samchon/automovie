@@ -4,6 +4,8 @@
 
 Publish runtime APIs as classes or non-callable namespaces.
 
+Use one namespace level. Put related methods and types directly on the owner or in a separate named owner.
+
 Use PascalCase for top-level public names and include the owning package in the prefix, as in `AutoMovieEngine`. Only `@automovie/interface` omits the package name.
 
 Use camelCase for methods and standalone functions.
@@ -22,7 +24,7 @@ Put exports above private declarations in files and namespaces.
 
 Annotate variable, parameter and return types explicitly. Declare named functions with `function` and write each signature once. Infer the function type only for rare curried arrows, with explicit parameter and final return types.
 
-Use named object types. Tag variants with a literal `type`.
+Use named object types and prefix public object contracts with `I`. Give each object variant in a union a named interface with a literal `type` tag.
 
 ## JSDoc
 
