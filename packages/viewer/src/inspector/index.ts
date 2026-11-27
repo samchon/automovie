@@ -1,4 +1,4 @@
-export * from "./AutoMovieInspector.js";
+export * from "./AutoMovieViewerInspectorPage.js";
 export * from "./AutoMovieViewerInspector.js";
 export * from "./AutoMovieViewerInspectorPlayhead.js";
 export * from "./IAutoMovieViewerInspectorAction.js";

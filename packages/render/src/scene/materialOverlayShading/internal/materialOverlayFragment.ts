@@ -1,4 +1,4 @@
-import { AutoMovieRenderDetailNormalShading, AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
+import { AutoMovieRenderDetailNormalShading } from "../../AutoMovieRenderDetailNormalShading.js";
 import type { IAutoMovieRenderMaterialOverlayShape } from "../../IAutoMovieRenderMaterialOverlayShape.js";
 
 /*

@@ -32,7 +32,7 @@ const walk = (directory: string): string[] => {
   });
 };
 const inventoryLeafCache: Map<string, boolean> = new Map();
-const isInventoryLeaf = (consumer: string, specifier: string, resolved: string | null): boolean => {
+const isInventoryLeaf = (consumer: string, resolved: string | null): boolean => {
   if (resolved === null || consumer !== "src/motions/package/MotionInventory.ts") return false;
   if (inventoryLeafCache.has(resolved)) return inventoryLeafCache.get(resolved)!;
   const sourcePath = path.join(packages, "motions", "src");
@@ -57,7 +57,7 @@ for (const file of walk(root)) {
     const resolved = specifier.startsWith(".") ? path.resolve(path.dirname(file), specifier) : null;
     const reachesPackage = resolved !== null && (resolved === packages || resolved.startsWith(packages + path.sep));
     const exactLeaf = reachesPackage && privateImports[consumer + "|" + specifier] === resolved;
-    const inventoryLeaf = reachesPackage && isInventoryLeaf(consumer, specifier, resolved);
+    const inventoryLeaf = reachesPackage && isInventoryLeaf(consumer, resolved);
     if (deepPackageImport || (reachesPackage && !exactLeaf && !inventoryLeaf)) {
       violations.push(consumer + ": " + specifier);
     }

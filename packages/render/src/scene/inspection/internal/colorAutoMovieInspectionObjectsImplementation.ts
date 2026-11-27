@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../../AutoMovieRenderDualQuaternionSkinning.js";
-import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../../AutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../../AutoMovieRenderDualQuaternionSkinning.js";
+import { AutoMovieRenderFormationCycle } from "../../AutoMovieRenderFormationCycle.js";
 import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js";
 import type { AutoMovieRenderInspectionMaterial } from "../../AutoMovieRenderInspectionMaterial.js";
 

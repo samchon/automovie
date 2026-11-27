@@ -7,11 +7,11 @@ import * as THREE from "three";
 
 import { IAutoMovieRenderTextureResolver } from "../IAutoMovieRenderTextureResolver.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
-import { AutoMovieRenderDetailNormalShading, AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading.js";
-import { AutoMovieRenderMaterialOverlayShading, AutoMovieRenderMaterialOverlayShading } from "../AutoMovieRenderMaterialOverlayShading.js";
-import { AutoMovieRenderProceduralShading, AutoMovieRenderProceduralShading } from "../AutoMovieRenderProceduralShading.js";
+import { AutoMovieRenderDetailNormalShading } from "../AutoMovieRenderDetailNormalShading.js";
+import { AutoMovieRenderMaterialOverlayShading } from "../AutoMovieRenderMaterialOverlayShading.js";
+import { AutoMovieRenderProceduralShading } from "../AutoMovieRenderProceduralShading.js";
 import { resolveAutoMovieMaterialTexture } from "./resolveAutoMovieMaterialTexture.js";
-import { AutoMovieRenderSubsurfaceShading, AutoMovieRenderSubsurfaceShading } from "../AutoMovieRenderSubsurfaceShading.js";
+import { AutoMovieRenderSubsurfaceShading } from "../AutoMovieRenderSubsurfaceShading.js";
 
 /*
  * Build a `three.js` physical PBR material from an automovie material, mapping

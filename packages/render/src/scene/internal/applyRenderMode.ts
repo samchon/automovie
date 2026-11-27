@@ -18,7 +18,7 @@ import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
-import { AutoMovieRenderSemanticMask, AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
+import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
 import { applyAutoMovieGraphicsMode } from "../surfaceGraphic/internal/applyAutoMovieGraphicsMode.js";
 import { hideAutoMovieSurfaceGraphics } from "../surfaceGraphic/internal/hideAutoMovieSurfaceGraphics.js";
 

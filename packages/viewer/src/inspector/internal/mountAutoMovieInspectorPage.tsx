@@ -1,12 +1,12 @@
 import { StrictMode } from "react";
 import { type Root, createRoot } from "react-dom/client";
 
-import { AutoMovieInspector } from "../AutoMovieInspector.js";
+import { AutoMovieViewerInspectorPage } from "../AutoMovieViewerInspectorPage.js";
 import type { AutoMovieViewerInspector } from "../AutoMovieViewerInspector.js";
 import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspectorAddressWriter.js";
 
 /*
- * Mount the inspector as a whole page in one call: render `AutoMovieInspector` into `root` under StrictMode, opening on the request `location`'s query names and keeping that query equal to the request through `history`.
+ * Mount the inspector as a whole page in one call: render `AutoMovieViewerInspectorPage` into `root` under StrictMode, opening on the request `location`'s query names and keeping that query equal to the request through `history`.
  *
  * `location` and `history` are the host's, passed in rather than read from `window`, so the page's address is the only global state the inspector writes and a host decides which. The returned `unmount` disposes the scene and its renderer through the component's effect cleanup.
  *
@@ -32,7 +32,7 @@ export function mountAutoMovieInspectorPage(
   const root: Root = createRoot(props.root);
   root.render(
     <StrictMode>
-      <AutoMovieInspector
+      <AutoMovieViewerInspectorPage
         subjects={props.subjects}
         initialText={props.location.search}
         onRequestChange={onRequestChange}

@@ -2,9 +2,9 @@ import type { IAutoMovieSemanticMaskEntry } from "@automovie/interface";
 import * as THREE from "three";
 
 import { AutoMovieRenderThreeKind } from "../../AutoMovieRenderThreeKind.js";
-import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../../AutoMovieRenderDualQuaternionSkinning.js";
-import type { IAutoMovieRenderFormationCycle, IAutoMovieRenderFormationCycle } from "../../IAutoMovieRenderFormationCycle.js";
-import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../../AutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../../AutoMovieRenderDualQuaternionSkinning.js";
+import type { IAutoMovieRenderFormationCycle } from "../../IAutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderFormationCycle } from "../../AutoMovieRenderFormationCycle.js";
 import { guardAutoMovieRenderModeRetirement } from "../../internal/guardAutoMovieRenderModeRetirement.js";
 import { restoreAutoMovieRenderModeOnce } from "../../internal/restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "../../internal/restoreAutoMovieRenderModeState.js";

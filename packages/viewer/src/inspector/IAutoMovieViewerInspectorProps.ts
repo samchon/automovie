@@ -1,7 +1,7 @@
 import type { IAutoMovieRenderDrawSubject } from "@automovie/render";
 
 /**
- * What a page gives `AutoMovieInspector`: subjects, the first request and optional address and capture command wiring.
+ * What a page gives `AutoMovieViewerInspectorPage`: subjects, the first request and optional address and capture command wiring.
  */
 export interface IAutoMovieViewerInspectorProps {
   /**

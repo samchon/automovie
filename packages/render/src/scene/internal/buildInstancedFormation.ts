@@ -28,7 +28,7 @@ import { createFormationRepresentations } from "./createFormationRepresentations
 import { AutoMovieRenderSceneDeliveryCrop } from "../deliveryCrop.js";
 import { describeFormationTextureSources } from "./describeFormationTextureSources.js";
 import { disposeFormationRepresentations } from "./disposeFormationRepresentations.js";
-import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
 import { formationSpacingOffset } from "./formationSpacingOffset.js";
 import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
 import { objectTransform } from "./objectTransform.js";

@@ -16,10 +16,10 @@ import { buildGeometry } from "./buildGeometry.js";
 import { AutoMovieRenderMaterial } from "../AutoMovieRenderMaterial.js";
 import { constructAutoMovieOwnedResources } from "./constructAutoMovieOwnedResources.js";
 import { defaultMaterial } from "./defaultMaterial.js";
-import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
 import { AutoMovieRenderCollisionSource } from "../AutoMovieRenderCollisionSource.js";
-import { AutoMovieRenderReliefWeightShading, AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading.js";
-import { AutoMovieRenderWearShading, AutoMovieRenderWearShading } from "../AutoMovieRenderWearShading.js";
+import { AutoMovieRenderReliefWeightShading } from "../AutoMovieRenderReliefWeightShading.js";
+import { AutoMovieRenderWearShading } from "../AutoMovieRenderWearShading.js";
 
 /*
  * Build a renderable `three.js` object from an IAutoMovieModel.

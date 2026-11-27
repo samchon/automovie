@@ -13,7 +13,7 @@ import type { IAutoMovieRenderInspectionHandle } from "../../scene/IAutoMovieRen
 import type { IAutoMovieRenderInspectionPath } from "../../scene/IAutoMovieRenderInspectionPath.js";
 import { listAutoMovieInspectionPaths } from "../../scene/inspection/internal/listAutoMovieInspectionPaths.js";
 import type { AutoMovieRenderInspectionCamera } from "../../scene/AutoMovieRenderInspectionCamera.js";
-import { AutoMovieRenderSemanticMask, AutoMovieRenderSemanticMask } from "../../scene/AutoMovieRenderSemanticMask.js";
+import { AutoMovieRenderSemanticMask } from "../../scene/AutoMovieRenderSemanticMask.js";
 import { encodeAutoMovieDrawPixels } from "./encodeAutoMovieDrawPixels.js";
 
 /*

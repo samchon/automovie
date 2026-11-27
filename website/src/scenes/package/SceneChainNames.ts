@@ -23,7 +23,12 @@ export namespace SceneChainNames {
    */
   export function read(composition: IPlaygroundComposition): ISceneChainNames {
     const rows: Record<string, string> = MotionInventory.rows();
-    const frames: string[] = [];    const frames: string[] = [];
+    const mutuals: Record<string, string> = Object.fromEntries(
+      Object.entries(PlaygroundChain.mutualExports()).map(
+        ([name, { expression }]): [string, string] => [name, expression],
+      ),
+    );
+    const frames: string[] = [];
     const formats: string[] = [];
     for (const name of ArchetypeRegistry.rootIds()) {
       const producer: ArchetypeRegistry.IFactory | undefined =

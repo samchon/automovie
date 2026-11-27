@@ -70,7 +70,7 @@ import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
  *
  * ```tsx
  * createRoot(element).render(
- *   <AutoMovieInspector
+ *   <AutoMovieViewerInspectorPage
  *     subjects={subjects}
  *     initialText={location.search}
  *     onRequestChange={AutoMovieViewerInspector.createAddressWriter({
@@ -81,7 +81,7 @@ import { AutoMovieViewerInspector } from "./AutoMovieViewerInspector.js";
  * );
  * ```
  */
-export function AutoMovieInspector(
+export function AutoMovieViewerInspectorPage(
   props: IAutoMovieViewerInspectorProps,
 ): JSX.Element {
   const [state, dispatch] = useReducer(

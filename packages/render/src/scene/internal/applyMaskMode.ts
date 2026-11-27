@@ -3,11 +3,11 @@ import * as THREE from "three";
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
 import type { IAutoMovieRenderModeHandle } from "../IAutoMovieRenderModeHandle.js";
 import { collectAutoMovieRenderModeMeshes } from "./collectAutoMovieRenderModeMeshes.js";
-import { AutoMovieRenderDualQuaternionSkinning, AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
-import type { IAutoMovieRenderFormationCycle, IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
-import { AutoMovieRenderFormationCycle, AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderDualQuaternionSkinning } from "../AutoMovieRenderDualQuaternionSkinning.js";
+import type { IAutoMovieRenderFormationCycle } from "../IAutoMovieRenderFormationCycle.js";
+import { AutoMovieRenderFormationCycle } from "../AutoMovieRenderFormationCycle.js";
 import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
-import { AutoMovieRenderSemanticMask, AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
+import { AutoMovieRenderSemanticMask } from "../AutoMovieRenderSemanticMask.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
