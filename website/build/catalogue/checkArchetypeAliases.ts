@@ -30,7 +30,7 @@ const SAVED_LINK: string =
 export function checkArchetypeAliases(): void {
   assert.equal(ArchetypeRegistry.get("createCar.toString"), undefined);
   assert.equal(ArchetypeRegistry.get("constructor"), undefined);
-  assert.equal(sceneCourseBuilder("createCar"), "driveCar");
+  assert.equal(sceneCourseBuilder("createCar"), "AutoMovieArchetypeCar.drive");
   assert.equal(
     ArchetypeRegistry.get("createBoat.rowboat")?.expression,
     'archetypes.AutoMovieArchetypeBoat.PRODUCERS["rowboat"]',

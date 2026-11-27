@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide, driveCar, rideBicycle, rideWheelchair, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
+import { AutoMovieArchetypeBicycle, AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeRefusal, AutoMovieArchetypeRide, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
@@ -37,11 +37,11 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
   const chair: ReturnType<typeof AutoMovieArchetypeWheelchair.create> = AutoMovieArchetypeWheelchair.create({
     kind: "selfPropelled",
   });
-  const drive: ReturnType<typeof driveCar> = driveCar(car, course);
+  const drive: ReturnType<typeof AutoMovieArchetypeCar.drive> = AutoMovieArchetypeCar.drive(car, course);
   compare(drive, ["wheel", "frontRightSpin"]);
-  const bicycle: ReturnType<typeof rideBicycle> = rideBicycle(bike, course);
+  const bicycle: ReturnType<typeof AutoMovieArchetypeBicycle.ride> = AutoMovieArchetypeBicycle.ride(bike, course);
   compare(bicycle, ["saddle", "leftGrip", "leftPedal"]);
-  compare(rideWheelchair(chair, course), ["seat", "leftRim", "rightRim"]);
+  compare(AutoMovieArchetypeWheelchair.ride(chair, course), ["seat", "leftRim", "rightRim"]);
   let full: number = 0;
   const supplied: ReturnType<
     typeof AutoMovieArchetypeRide.along<
@@ -136,7 +136,7 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
       return timed.at(seconds);
     },
   };
-  const timedRide: ReturnType<typeof driveCar> = driveCar(car, tracked);
+  const timedRide: ReturnType<typeof AutoMovieArchetypeCar.drive> = AutoMovieArchetypeCar.drive(car, tracked);
   const preparation: number = states;
   const offsets: readonly number[] = [2.87, 0.15, 1.64, 2.72];
   for (const seconds of offsets) timedRide.frame("driverSeat", seconds);

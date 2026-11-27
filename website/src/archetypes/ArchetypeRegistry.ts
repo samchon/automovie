@@ -574,26 +574,26 @@ export namespace ArchetypeRegistry {
   /** Each expression sits beside the live implementation it describes. */
   const COURSES: Readonly<Record<string, ICourse>> = {
     createCar: {
-      expression: "driveCar",
+      expression: "AutoMovieArchetypeCar.drive",
       build: (model, course) =>
-        archetypes.driveCar(
-          model as Parameters<typeof archetypes.driveCar>[0],
+        archetypes.AutoMovieArchetypeCar.drive(
+          model as Parameters<typeof archetypes.AutoMovieArchetypeCar.drive>[0],
           course,
         ),
     },
     createBicycle: {
-      expression: "rideBicycle",
+      expression: "AutoMovieArchetypeBicycle.ride",
       build: (model, course) =>
-        archetypes.rideBicycle(
-          model as Parameters<typeof archetypes.rideBicycle>[0],
+        archetypes.AutoMovieArchetypeBicycle.ride(
+          model as Parameters<typeof archetypes.AutoMovieArchetypeBicycle.ride>[0],
           course,
         ),
     },
     createMotorcycle: {
-      expression: "rideMotorcycle",
+      expression: "AutoMovieArchetypeMotorcycle.ride",
       build: (model, course) =>
-        archetypes.rideMotorcycle(
-          model as Parameters<typeof archetypes.rideMotorcycle>[0],
+        archetypes.AutoMovieArchetypeMotorcycle.ride(
+          model as Parameters<typeof archetypes.AutoMovieArchetypeMotorcycle.ride>[0],
           course,
         ),
     },

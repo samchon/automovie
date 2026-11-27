@@ -9,10 +9,10 @@ import {
   AutoMovieArchetypeRefusal,
   type AutoMovieArchetypeRide,
   AutoMovieArchetypeSea,
-} from "../core";
-import { ArchetypeCourseLegs } from "../core/ArchetypeCourseLegs";
-import { BoatOars } from "./BoatOars";
-import { AutoMovieArchetypeBoat } from "./AutoMovieArchetypeBoat";
+} from "../../core";
+import { ArchetypeCourseLegs } from "../../core/ArchetypeCourseLegs";
+import { BoatOars } from "../BoatOars";
+import type { AutoMovieArchetypeBoat } from "../AutoMovieArchetypeBoat";
 
 /** Complete rowboat state at a film second. */
 type Sample = AutoMovieArchetypeRide.ISample<
@@ -44,7 +44,7 @@ type Ride = AutoMovieArchetypeRide.IRide<
  * down again. The ride's instants add `catch<k>` at each stroke's catch, so a
  * rower's hands follow the handles as a cyclist's feet follow the pedals.
  *
- * Use `rowBoat.bind` to give a native ride one film start and pass its paired
+ * Use `AutoMovieArchetypeBoat.bind` to give a native ride one film start and pass its paired
  * root and socket readers to the prop adapter. Both hold the initial pose
  * before the start. On still water they also hold the final pose strictly after
  * the course ends.
@@ -60,8 +60,8 @@ type Ride = AutoMovieArchetypeRide.IRide<
 export function rowBoat(
   boat: AutoMovieArchetype<AutoMovieArchetypeBoat.Affordance, AutoMovieArchetypeBoat.Dimension>,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
-  options: { sea?: AutoMovieArchetypeSea.IOptions } = {},
-): rowBoat.IRowRide {
+  options: AutoMovieArchetypeBoat.IOptions = {},
+): AutoMovieArchetypeBoat.IRowRide {
   if (
     boat.affordances.every(
       (a: { id: string }): boolean => a.id !== "leftOarlock",
@@ -87,7 +87,7 @@ export function rowBoat(
 
   // The catches: where the distance covered reaches each whole stroke.
   const strokes: number = Math.floor(
-    distanceAt(plan.duration) / rowBoat.STROKE + 1e-9,
+    distanceAt(plan.duration) / AutoMovieArchetypeBoat.STROKE + 1e-9,
   );
   const instants: { seconds: number; label: string }[] = [];
   for (let k: number = 1; k <= strokes; k++) {
@@ -95,7 +95,7 @@ export function rowBoat(
     let high: number = plan.duration;
     for (let step: number = 0; step < 40; step++) {
       const middle: number = (low + high) / 2;
-      if (distanceAt(middle) < k * rowBoat.STROKE) low = middle;
+      if (distanceAt(middle) < k * AutoMovieArchetypeBoat.STROKE) low = middle;
       else high = middle;
     }
     instants.push({ seconds: high, label: `catch${k}` });
@@ -126,9 +126,9 @@ export function rowBoat(
     ...socket: [] | [AutoMovieArchetypeBoat.Affordance]
   ): Sample | IAutoMovieTransform {
     const state: AutoMovieArchetypeCourse.IState = plan.at(seconds);
-    const turns: number = state.distance / rowBoat.STROKE;
+    const turns: number = state.distance / AutoMovieArchetypeBoat.STROKE;
     const p: number = turns - Math.floor(turns);
-    const drive: number = rowBoat.drive(rowBoat.rate(state.speed));
+    const drive: number = AutoMovieArchetypeBoat.drive(AutoMovieArchetypeBoat.rate(state.speed));
     let sweep: number;
     let lift: number;
     if (p < drive) {
@@ -198,137 +198,4 @@ export function rowBoat(
           }
         : undefined,
   };
-}
-
-/** Companion constants and rules of {@link rowBoat}. */
-export namespace rowBoat {
-  /** A rowboat's ride with what `bind` reads of a native rowing course. */
-  export interface IRowRide extends Ride {
-    /**
-     * The full samplers of a native course in course seconds, or undefined for
-     * a ride along an external plan, which `bind` refuses.
-     */
-    readonly rowing: IRowing | undefined;
-  }
-
-  /** The full samplers of a native rowing course and its end hold. */
-  export interface IRowing {
-    /** The boat at rest. */
-    readonly boat: AutoMovieArchetype<
-      AutoMovieArchetypeBoat.Affordance,
-      AutoMovieArchetypeBoat.Dimension
-    >;
-
-    /** The floated root placement at a course second. */
-    readonly placement: (seconds: number) => IAutoMovieTransform;
-
-    /** A socket's world frame at a course second. */
-    readonly frame: Ride["frame"];
-
-    /** The course's duration, seconds. */
-    readonly duration: number;
-
-    /** Whether the boat holds its final pose after the course: still water. */
-    readonly stillEnd: boolean;
-  }
-
-  /**
-   * Bind a native rowing course to the film second it starts. The boat holds
-   * its initial pose until then. On still water it also holds its final
-   * placement and every socket strictly beyond the course. Pass the two
-   * returned callbacks directly to the prop adapter.
-   *
-   * @param ride The result of rowing a native course with this producer.
-   * @param start Film second corresponding to course second zero.
-   * @returns The independently callable root and socket readers in film
-   *   seconds.
-   * @throws {RangeError} For an unbound, external course or a nonfinite start.
-   */
-  export function bind(
-    ride: IRowRide,
-    start: number,
-  ): RigidCarrierSample.IBinding {
-    const source: IRowing | undefined = ride.rowing;
-    if (source === undefined)
-      throw new RangeError(
-        "A bound rowboat needs a native course and a finite film second.",
-      );
-    const clock = (seconds: number): number => Math.max(0, seconds - start);
-    const holds: RigidCarrierSample.IHold[] = [
-      {
-        from: -Infinity,
-        to: start,
-        contains: (seconds: number): boolean => clock(seconds) === 0,
-      },
-    ];
-    if (source.stillEnd)
-      holds.push({
-        from: start + source.duration,
-        to: Infinity,
-        contains: (seconds: number): boolean =>
-          clock(seconds) > source.duration,
-      });
-    return RigidCarrierSample.bind(
-      source.boat,
-      (seconds: number): ReturnType<RigidCarrierSample.IBinding["motion"]> => {
-        const placement: IAutoMovieTransform = source.placement(clock(seconds));
-        return {
-          position: placement.translation,
-          rotation: placement.rotation,
-        };
-      },
-      (id: string, seconds: number): IAutoMovieTransform => {
-        const affordance: AutoMovieArchetypeBoat.Affordance | undefined =
-          AutoMovieArchetypeBoat.AFFORDANCES.find(
-            (known: AutoMovieArchetypeBoat.Affordance): boolean => known === id,
-          );
-        if (affordance === undefined)
-          throw new RangeError(`A boat has no affordance "${id}".`);
-        return source.frame(affordance, clock(seconds));
-      },
-      holds,
-    );
-  }
-
-  /**
-   * The distance the boat covers each stroke, metres, a provisional value: no
-   * source read gives a fixed-seat rowboat's; the source to read is a measured
-   * distance per stroke of one, or one boat's speed and stroke rate measured
-   * together. Searched for #3497 without a figure: fixed-seat distance per
-   * stroke for skiffs, gigs and whalers; Cornish pilot gig stroke rate and
-   * speed; Whitehall strokes a minute and knots (only guesses and marketing);
-   * Navy whaleboat and cutter pulling drill; Agius et al. 2023, The Kinematics
-   * of Fixed-Seat Rowing (Bioengineering 10(7):774), which measures the body
-   * only; USNI Proceedings June 1890, Navy Boats, which gives no speed under
-   * oars.
-   */
-  export const STROKE: number = 3;
-
-  /**
-   * The stroke rate's range inside which Kleshnev measured the drive's share,
-   * strokes a minute (ISBS 1996, p. 321).
-   */
-  export const RATES: readonly [number, number] = [26, 36.5];
-
-  /**
-   * The stroke rate at a speed.
-   *
-   * @param speed The boat's speed, metres per second.
-   * @returns Strokes a minute.
-   */
-  export function rate(speed: number): number {
-    return (60 * speed) / STROKE;
-  }
-
-  /**
-   * The drive's share of the stroke cycle at a stroke rate: Kleshnev's rhythm,
-   * 0.84 r + 25.1 percent, the rate held inside the measured range.
-   *
-   * @param strokes The stroke rate, strokes a minute.
-   * @returns The share, 0 to 1.
-   */
-  export function drive(strokes: number): number {
-    const r: number = Math.min(Math.max(strokes, RATES[0]), RATES[1]);
-    return (0.84 * r + 25.1) / 100;
-  }
 }

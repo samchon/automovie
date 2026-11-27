@@ -5,9 +5,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeFrame } from "../core";
-import type { AutoMovieArchetypeWheelchair } from "./AutoMovieArchetypeWheelchair";
-import type { rideWheelchair } from "./rideWheelchair";
+import { AutoMovieArchetypeFrame } from "../../core";
+import type { AutoMovieArchetypeWheelchair } from "../AutoMovieArchetypeWheelchair";
 
 /**
  * Adapt the wheelchair ride's contact reader for one scripted handrim stroke.
@@ -28,7 +27,7 @@ import type { rideWheelchair } from "./rideWheelchair";
  *   domain.
  */
 export function wheelchairHandrimFrame(
-  ride: ReturnType<typeof rideWheelchair>,
+  ride: ReturnType<typeof AutoMovieArchetypeWheelchair.ride>,
   catchAt: number,
   degrees: number,
 ): (id: AutoMovieArchetypeWheelchair.Affordance, seconds: number) => IAutoMovieTransform {

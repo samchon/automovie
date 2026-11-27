@@ -1,4 +1,4 @@
-import { AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, driveCar, rideWheelchair, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
+import { AutoMovieArchetypeCar, AutoMovieArchetypeCourse, AutoMovieArchetypeFrame, AutoMovieArchetypeWheelchair } from "@automovie/archetypes";
 import type { IAutoMovieModelPart } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -35,7 +35,7 @@ export function test_archetypes_vehicles_car_wheel_material(): void {
   ];
   for (const reverse of [false, true])
     for (const sign of [-1, 1]) {
-      const ride: ReturnType<typeof driveCar> = driveCar(car, {
+      const ride: ReturnType<typeof AutoMovieArchetypeCar.drive> = AutoMovieArchetypeCar.drive(car, {
         start: { x: 0, z: 0, heading: 0 },
         cruise: 2,
         startSpeed: 2,
@@ -114,7 +114,7 @@ export function test_archetypes_vehicles_car_wheel_material(): void {
       { seconds: 3, x: 1.35, z: 3 },
     ],
   );
-  const moving: ReturnType<typeof rideWheelchair> = rideWheelchair(chair, plan);
+  const moving: ReturnType<typeof AutoMovieArchetypeWheelchair.ride> = AutoMovieArchetypeWheelchair.ride(chair, plan);
   const track: number =
     chair.affordance("leftSpin").frame.translation.x -
     chair.affordance("rightSpin").frame.translation.x;

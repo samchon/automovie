@@ -18,10 +18,10 @@ import "../WHEELCHAIR_SHEET";
  * armrests and the push handles rising behind. Each rear wheel spins on a
  * `knob` about its axle, and a self-propelled chair's handrim, the `wheel` a
  * hand turns, rides it, so a hand on the rim goes round with the wheel;
- * `rideWheelchair` turns the wheels by the distance.
+ * `AutoMovieArchetypeWheelchair.ride` turns the wheels by the distance.
  *
- * Stage a seated push and release with `wheelchairHandrimFrame` and
- * `HumanHandrimStroke` on a course authored through `rideWheelchair`. A pushing
+ * Stage a seated push and release with `AutoMovieArchetypeWheelchair.handrimFrame` and
+ * `HumanHandrimStroke` on a course authored through `AutoMovieArchetypeWheelchair.ride`. A pushing
  * attendant holds the handles with `HumanRide`'s hands or a carry.
  *
  * @param params The kind, its read model and any dimension the author fixes

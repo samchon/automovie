@@ -2,6 +2,8 @@ import {
   ArchetypeDraw,
   type AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRide,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
@@ -13,6 +15,7 @@ import { CarBody } from "./CarBody";
 import { CarCabin } from "./CarCabin";
 import type { CarDimension } from "./CarDimension";
 import { CarRear } from "./CarRear";
+import { driveCar } from "./internal/driveCar";
 
 /** The canonical producer and authoring contract for cars. */
 export namespace AutoMovieArchetypeCar {
@@ -25,7 +28,7 @@ export namespace AutoMovieArchetypeCar {
    * origin, its front toward `+Z`. The driver sits on the side `drive` names;
    * `left` is `+X`. Its affordances include the doors and openings, windows and
    * openings, reclining seats, controls, bonnet and class-specific cargo area.
-   * `driveCar` turns the steering and road wheels. `HumanTravelCar.getIn`
+   * `AutoMovieArchetypeCar.drive` turns the steering and road wheels. `HumanTravelCar.getIn`
    * stages entry by a front door; `HumanTravelCarExit.getOut` stages exit from
    * the rear bench through an already-open adjacent rear door. Rear-door entry,
    * sliding doors and tailgates serve static staging (#3498).
@@ -319,7 +322,7 @@ export namespace AutoMovieArchetypeCar {
    *
    * @param centre The equivalent single wheel's angle at the middle of the
    *   front axle, degrees, positive to the left: the steering wheel's turn over
-   *   the steering ratio, the angle `driveCar` turns the car's path by.
+   *   the steering ratio, the angle `AutoMovieArchetypeCar.drive` turns the car's path by.
    * @param wheelbase The wheelbase, metres.
    * @param side The wheel's offset from the car's centre line, metres, positive
    *   to the left (`+X`): half the track.
@@ -439,4 +442,37 @@ export namespace AutoMovieArchetypeCar {
   export const BANDS: Readonly<
     Record<Kind, Readonly<Partial<Record<Dimension, IAutoMovieArchetypeBand>>>>
   > = CAR_BANDS;
+  /**
+   * A car driven along a course: its root on the path, its steering wheel turned
+   * as the path's curvature asks with its front road wheels steering with it, and
+   * its road wheels rolling with the distance.
+   *
+   * The steering wheel's angle is the road wheels' angle times the car's steering
+   * ratio, and the road wheels' angle is the one that turns the car on the path's
+   * radius: the angle whose tangent is the wheelbase over the radius of the rear
+   * axle's path (the Ackermann relation of a car's low-speed turn). The car's
+   * root is the middle of its wheelbase, so the rear axle's radius is the root's
+   * shortened by half a wheelbase. A left turn turns the wheel to the left, a
+   * positive travel; reversing, the same bend of the path needs the wheel turned
+   * the other way, because the car then turns about its rear axle backward. The
+   * front road wheels follow the steering wheel
+   * (`AutoMovieArchetypeCar.ackermann`). Every road wheel's phase follows the
+   * length of its own Ackermann path. Signed distances accumulate through leg
+   * boundaries before wrapping the spin travel into the articulated wheel's
+   * range.
+   *
+   * @param car The car.
+   * @param course The course its root follows, or its plan, such as a timed
+   *   course's.
+   * @returns The ride, with the course's instants.
+   * @throws {AutoMovieArchetypeRefusal} When the path bends tighter than the
+   *   car's steering lock allows, giving the least radius at the leg or, on a
+   *   timed course, the sample, or the course is malformed.
+   */
+  export function drive(
+    car: AutoMovieArchetype<Affordance, Dimension>,
+    course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+  ): AutoMovieArchetypeRide.IRide<Affordance, Dimension> {
+    return driveCar(car, course);
+  }
 }

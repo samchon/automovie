@@ -1,4 +1,4 @@
-import { rowBoat } from "@automovie/archetypes";
+import { AutoMovieArchetypeBoat } from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -10,7 +10,7 @@ const RHYTHM_ROUNDING: number = 8 * Number.EPSILON;
 export function test_archetypes_vehicles_rowing_rhythm(): void {
   TestValidator.equals(
     "three metres per stroke at 1.5 metres per second",
-    rowBoat.rate(1.5),
+    AutoMovieArchetypeBoat.rate(1.5),
     30,
   );
   for (const [strokes, fraction] of [
@@ -20,6 +20,6 @@ export function test_archetypes_vehicles_rowing_rhythm(): void {
   ] as const)
     TestValidator.predicate(
       `the fitted drive fraction at ${strokes} strokes per minute`,
-      nclose(rowBoat.drive(strokes), fraction, RHYTHM_ROUNDING),
+      nclose(AutoMovieArchetypeBoat.drive(strokes), fraction, RHYTHM_ROUNDING),
     );
 }

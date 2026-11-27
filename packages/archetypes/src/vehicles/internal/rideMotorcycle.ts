@@ -2,8 +2,8 @@ import {
   type AutoMovieArchetype,
   AutoMovieArchetypeCourse,
   AutoMovieArchetypeRide,
-} from "../core";
-import type { AutoMovieArchetypeMotorcycle } from "./AutoMovieArchetypeMotorcycle";
+} from "../../core";
+import type { AutoMovieArchetypeMotorcycle } from "../AutoMovieArchetypeMotorcycle";
 
 /**
  * A motorcycle or a scooter ridden along a course: its root on the path, leaned
@@ -12,9 +12,10 @@ import type { AutoMovieArchetypeMotorcycle } from "./AutoMovieArchetypeMotorcycl
  * @param machine The machine.
  * @param course The course its root follows, or its plan, such as a timed
  *   course's.
+ * @param maximumLean Greatest lean in degrees admitted for this ride.
  * @returns The ride, with the course's instants.
  * @throws {AutoMovieArchetypeRefusal} When a bend at the fastest the course
- *   lets it be taken needs more than `rideMotorcycle.LEAN` degrees of lean, as
+ *   lets it be taken needs more than `maximumLean` degrees of lean, as
  *   `AutoMovieArchetypeCourse.admitLean` refuses, or the course is malformed.
  */
 export function rideMotorcycle(
@@ -23,6 +24,7 @@ export function rideMotorcycle(
     AutoMovieArchetypeMotorcycle.Dimension
   >,
   course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+  maximumLean: number,
 ): AutoMovieArchetypeRide.IRide<
   AutoMovieArchetypeMotorcycle.Affordance,
   AutoMovieArchetypeMotorcycle.Dimension
@@ -31,7 +33,7 @@ export function rideMotorcycle(
     course.kind === "plan"
       ? course
       : AutoMovieArchetypeCourse.plan("motorcycle", course);
-  AutoMovieArchetypeCourse.admitLean("motorcycle", plan, rideMotorcycle.LEAN);
+  AutoMovieArchetypeCourse.admitLean("motorcycle", plan, maximumLean);
   return AutoMovieArchetypeRide.along(
     machine,
     plan,
@@ -48,13 +50,4 @@ export function rideMotorcycle(
       ),
     }),
   );
-}
-
-/** Companion constant of {@link rideMotorcycle}. */
-export namespace rideMotorcycle {
-  /**
-   * The greatest lean, degrees: about 50 for a rider on the road (Pirelli,
-   * https://www.pirelli.com/global/en-ww/road/motorcycles/tyres/passion-for-the-two-wheels-big-challenge-high-performance-tires-49601/).
-   */
-  export const LEAN: number = 50;
 }

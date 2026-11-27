@@ -1,7 +1,13 @@
 import { type AutoMovieArchetype } from "../core/index";
+import type { AutoMovieHumanSide, IAutoMovieTransform } from "@automovie/interface";
 import { createWheelchair as createWheelchairImplementation } from "./internal/createWheelchair";
-import { AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand } from "../core";
+import { AutoMovieArchetypeDrawSession, AutoMovieArchetypeUnits, type IAutoMovieArchetypeBand, AutoMovieArchetypeBand, AutoMovieArchetypeCourse, AutoMovieArchetypeRide, AutoMovieArchetypeRefusal } from "../core";
 import { WHEELCHAIR_SHEET } from "./WHEELCHAIR_SHEET";
+import {
+  handrimContacts as handrimContactsImplementation,
+  rideWheelchair,
+} from "./internal/rideWheelchair";
+import { wheelchairHandrimFrame as wheelchairHandrimFrameImplementation } from "./internal/wheelchairHandrimFrame";
 
 /** Public operations for Auto Movie Archetype Wheelchair. */
 export namespace AutoMovieArchetypeWheelchair {
@@ -18,10 +24,10 @@ export namespace AutoMovieArchetypeWheelchair {
    * armrests and the push handles rising behind. Each rear wheel spins on a
    * `knob` about its axle, and a self-propelled chair's handrim, the `wheel` a
    * hand turns, rides it, so a hand on the rim goes round with the wheel;
-   * `rideWheelchair` turns the wheels by the distance.
+   * `AutoMovieArchetypeWheelchair.ride` turns the wheels by the distance.
    *
-   * Stage a seated push and release with `wheelchairHandrimFrame` and
-   * `HumanHandrimStroke` on a course authored through `rideWheelchair`. A pushing
+   * Stage a seated push and release with `AutoMovieArchetypeWheelchair.handrimFrame` and
+   * `HumanHandrimStroke` on a course authored through `AutoMovieArchetypeWheelchair.ride`. A pushing
    * attendant holds the handles with `HumanRide`'s hands or a carry.
    *
    * @param params The kind, its read model and any dimension the author fixes
@@ -239,4 +245,75 @@ export namespace AutoMovieArchetypeWheelchair {
             ),
           }),
     };
-  }}
+  }
+
+  /**
+   * A wheelchair moved along a course with its rear wheels rolling with the
+   * distance.
+   *
+   * @param chair The wheelchair.
+   * @param course The course its root follows, or its plan.
+   * @returns The ride with the course's instants.
+   * @throws {AutoMovieArchetypeRefusal} As `AutoMovieArchetypeRide.along` does
+   *   for a malformed course.
+   */
+  export function ride(
+    chair: AutoMovieArchetype<Affordance, Dimension>,
+    course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+  ): AutoMovieArchetypeRide.IRide<Affordance, Dimension> {
+    return rideWheelchair(chair, course);
+  }
+
+  /**
+   * Adapt the wheelchair ride's contact reader for one scripted handrim stroke.
+   * At the catch, select the material point at the authored angle from chair up,
+   * positive toward the front. At each sample, carry the same point on the
+   * rotating wheel. Other affordances pass through.
+   *
+   * Pass the returned reader as the contact callback of `HumanObject.prop`,
+   * translating film seconds into ride seconds if the course starts later.
+   *
+   * @param ride The wheelchair ride whose placement and rotation are sampled.
+   * @param catchAt Seconds on the ride clock when the hand meets the rim.
+   * @param degrees Angle at the catch, measured in chair coordinates.
+   * @returns A reader yielding a rim point with radial +Y and tangential +X.
+   * @throws {RangeError} When catch time or angle is outside the finite ride
+   *   domain.
+   */
+  export function handrimFrame(
+    ride: ReturnType<typeof AutoMovieArchetypeWheelchair.ride>,
+    catchAt: number,
+    degrees: number,
+  ): ReturnType<typeof wheelchairHandrimFrameImplementation> {
+    return wheelchairHandrimFrameImplementation(ride, catchAt, degrees);
+  }
+
+  /**
+   * One material point selected for a closed interval on the ride clock. Two
+   * intervals on the same rim cannot share an endpoint.
+   */
+  export interface IHandrimHold {
+    /** The second on the ride clock when the hand first meets the rim. */
+    catchAt: number;
+    /** The last contact second on the same clock; the hand may hold after rest. */
+    releaseAt: number;
+    /** The catch angle in degrees from chair up, positive toward its front. */
+    degrees: number;
+    /** The acting hand; omission selects both rims. */
+    side?: AutoMovieHumanSide;
+  }
+
+  /**
+   * Build a prop contact callback for successive strokes on one ride.
+   * @param ride The chair ride, using its placement clock.
+   * @param holds Authored contact intervals, including their catch angles.
+   * @returns A point reader that follows the selected rim point or usual frame.
+   * @throws {AutoMovieArchetypeRefusal} For invalid holds or unavailable/overlapping rims.
+   */
+  export function handrimContacts(
+    ride: ReturnType<typeof AutoMovieArchetypeWheelchair.ride>,
+    holds: readonly IHandrimHold[],
+  ): (id: AutoMovieArchetypeWheelchair.Affordance, seconds: number) => IAutoMovieTransform {
+    return handrimContactsImplementation(ride, holds);
+  }
+}

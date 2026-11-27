@@ -1,4 +1,5 @@
 import { Vector3 } from "@automovie/engine";
+import { rideMotorcycle } from "./internal/rideMotorcycle";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 import {
@@ -8,6 +9,8 @@ import {
   AutoMovieArchetypeBuilder,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRide,
   AutoMovieArchetypeUnits,
   type IAutoMovieArchetypeBand,
 } from "../core";
@@ -26,7 +29,8 @@ export namespace AutoMovieArchetypeMotorcycle {
    * grips; the feet rest on a motorcycle's two footrests or on a scooter's
    * floorboard.
    *
-   * `rideMotorcycle` moves it along a course, leaning into the turns.
+   * `AutoMovieArchetypeMotorcycle.ride` moves it along a course, leaning into
+   * the turns.
    *
    * @param params The kind, its read model and any dimension the author fixes.
    * @param seed The seed that draws every dimension left free inside its band;
@@ -430,4 +434,29 @@ export namespace AutoMovieArchetypeMotorcycle {
       footrestHeight: AutoMovieArchetypeBand.metres(0.25, 0.3, TRIANGLE, true),
     },
   };
+
+  /**
+   * The greatest lean, degrees: about 50 for a rider on the road (Pirelli,
+   * https://www.pirelli.com/global/en-ww/road/motorcycles/tyres/passion-for-the-two-wheels-big-challenge-high-performance-tires-49601/).
+   */
+  export const LEAN: number = 50;
+
+  /**
+   * A motorcycle or scooter ridden along a course, leaning into its turns.
+   *
+   * @param machine The motorcycle or scooter.
+   * @param course The course its root follows, or its plan, such as a timed
+   *   course.
+   * @returns The ride with the course's instants.
+   * @throws {AutoMovieArchetypeRefusal} When a bend at the fastest the course lets
+   *   it be taken needs more than `AutoMovieArchetypeMotorcycle.LEAN` degrees of
+   *   lean, as `AutoMovieArchetypeCourse.admitLean` refuses, or the course is
+   *   malformed.
+   */
+  export function ride(
+    machine: AutoMovieArchetype<Affordance, Dimension>,
+    course: AutoMovieArchetypeCourse.ICourse | AutoMovieArchetypeCourse.IPlan,
+  ): AutoMovieArchetypeRide.IRide<Affordance, Dimension> {
+    return rideMotorcycle(machine, course, AutoMovieArchetypeMotorcycle.LEAN);
+  }
 }
